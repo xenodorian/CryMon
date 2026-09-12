@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "GEMWAR",
+      "hasCanvas": true,
+      "bodyTextLen": 2361,
+      "bodyTextHash": "b02f3bca5c8bce11e17d64e18dd8c35d73fdbda0c89c70475e5ad6aea630cd8d",
+      "bodyTextPrefix": "480P HOMEBREW GEMWAR Sound Copy into Ports 480p disc Loading car",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "GEMWAR",
+      "hasCanvas": true,
+      "bodyTextLen": 2379,
+      "bodyTextHash": "4705f9d5b3da0666344e4d42b366bd0b3a15192d0c5db05093689081ee6e7415",
+      "bodyTextPrefix": "480P HOMEBREW GEMWAR Sound Copy into Ports 480p disc Loading car",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}
