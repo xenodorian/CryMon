@@ -12,7 +12,7 @@ var install_page_default = "<!DOCTYPE html>\n<html lang=\"en\" class=\"device-de
 //#endregion
 //#region \0virtual:grok-og-identity
 var grokOgIdentity = { "site": {
-	"title": "GEMWAR",
+	"title": "CryMon",
 	"type": "x:game",
 	"card": "custom",
 	"color": "12110e",

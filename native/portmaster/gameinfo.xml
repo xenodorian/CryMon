@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<gameList>
+  <game>
+    <path>./CryMon.sh</path>
+    <name>CryMon</name>
+    <desc>Max walks out of the cottage with Quillpup and no Capture Crystals. Anne presses five into her hand after the first fight. Tall grass hides wild CryMon. Tamers will not. Native 640x480 port of Max's Run.</desc>
+    <releasedate>20260912T000000</releasedate>
+    <developer>CryMon</developer>
+    <publisher>Homebrew</publisher>
+    <genre>RPG</genre>
+    <image>./crymon/screenshot.png</image>
+  </game>
+</gameList>
