@@ -329,6 +329,7 @@ export const GROVE_MAP = [
   "##........=======.......##",
   "##........===8===.......##",
   "##........=======.......##",
+  "#############D############",
   "##.........=====........##",
   "##..........===.........##",
   "##.........=====........##",
@@ -411,6 +412,12 @@ export const INTRO = [
   "Max is eight. Enemy soldiers are already in the grass.",
   "Father is too sick to stand. His Capture Crystal sits on the shelf.",
   "Quillpup is inside it. She will take the CryMon. The door can wait.",
+];
+
+export const DEMO_END = [
+  "Shinigami kneels. The mares fade back into fog.",
+  "The grove goes quiet. The graves keep their names.",
+  "Thank you for playing the demo of CryMon.",
 ];
 
 export const ENDING_WIN = [
@@ -585,6 +592,7 @@ export const TALK = {
     { speaker: "none", text: "No tall grass. Something waits on the path." },
   ],
   groveLeave: [{ speaker: "max", text: "Back under the trees." }],
+  groveDoorLocked: [{ speaker: "max", text: "Barred shut. Not while she's still standing between us." }],
   cathleenSpot: [
     { speaker: "cathleen", text: "You walked the path. I am the path's answer." },
     { speaker: "max", text: "You're a CryMon." },

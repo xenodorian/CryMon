@@ -26,6 +26,7 @@ import {
   solidTile,
   spawnOf,
   ENDING_WIN,
+  DEMO_END,
 } from "./data";
 import { Input } from "./input";
 import type {
@@ -47,7 +48,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | "shop" | "mason" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave";
+type TalkAfter = null | "shop" | "mason" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "rivalLeave";
 
 const STEP = 1 / 60;
 function loadImg(src) {
@@ -698,6 +699,8 @@ export class Gemwar {
 				}
 			} else if (next === "anneLeave") {
 				this.startAnneLeave();
+			} else if (next === "rivalLeave") {
+				this.startRivalLeave();
 			}
 			this.maybeStartAnne();
 		}
@@ -765,6 +768,11 @@ export class Gemwar {
 		this.anne.phase = "leave";
 		this.anne.dir = "down";
 		this.anne.frame = 0;
+	}
+	startRivalLeave() {
+		this.rival.phase = "leave";
+		this.rival.dir = "down";
+		this.rival.frame = 0;
 	}
 	maybeStartAnne() {
 		if (this.anneGifted || this.anne.phase !== "off") return;
@@ -834,6 +842,17 @@ export class Gemwar {
 				if (this.endI >= ENDING_WIN.length) {
 					this.mode = "world";
 					this.note("The camp takes strays. South still drums.");
+				}
+			}
+			return;
+		}
+		if (this.mode === "demoEnd") {
+			if (this.input.confirm()) {
+				this.audio.ui();
+				this.endI += 1;
+				if (this.endI >= DEMO_END.length) {
+					this.reset();
+					this.mode = "title";
 				}
 			}
 			return;
@@ -1118,6 +1137,16 @@ export class Gemwar {
 				if (this.anne.y > this.world.y + VIEW_H / 2 + 48) this.anne.phase = "off";
 			}
 		}
+		if (this.rival.phase === "leave") {
+			if (this.world.mapId !== "veld") this.rival.phase = "off";
+			else {
+				this.rival.y += 80 * dt;
+				this.rival.dir = "down";
+				this.rival.anim += dt * 8;
+				this.rival.frame = Math.floor(this.rival.anim) % 4;
+				if (this.rival.y > this.world.y + VIEW_H / 2 + 48) this.rival.phase = "off";
+			}
+		}
 		if (this.updateSoldiers(dt)) {
 			this.world.moving = false;
 			this.world.frame = 0;
@@ -1175,6 +1204,14 @@ export class Gemwar {
 		if (this.world.mapId === "grove") {
 			const s = spawnOf(GROVE, "9");
 			if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 18) return true;
+		}
+		if (this.world.mapId === "grove" && !this.cathleenCaught) {
+			if ([
+				[x - r, y],
+				[x + r, y],
+				[x, y - 2],
+				[x, y + r]
+			].some(([px, py]) => doorTile(tileAt(this.map(), px, py)))) return true;
 		}
 		return false;
 	}
@@ -1250,6 +1287,13 @@ export class Gemwar {
 		];
 	}
 	useDoor() {
+		if (this.world.mapId === "grove") {
+			if (!this.cathleenCaught) {
+				this.doorLock = .5;
+				this.say(TALK.groveDoorLocked);
+			}
+			return;
+		}
 		if (this.world.mapId === "house" && !this.tookStarter) {
 			const d = spawnOf(HOUSE, "D");
 			this.world.y = Math.min(this.world.y, d.y - TILE);
@@ -1393,7 +1437,7 @@ export class Gemwar {
 			const dx = this.rival.x - this.world.x;
 			const dy = this.rival.y - this.world.y;
 			if (dx * dx + dy * dy <= 676) {
-				if (this.foughtMason) this.say(TALK.masonAfter);
+				if (this.foughtMason) this.say(TALK.masonAfter, "rivalLeave");
 				else this.startBattle(mintMonster("glimmoth", 3), false, "Mason sends Glimmoth", "mason");
 				return;
 			}
@@ -2240,11 +2284,9 @@ export class Gemwar {
 			if (b.trainer === "shinigami") {
 				this.beatShinigami = true;
 				this.marks += 14;
-				this.mode = "world";
+				this.mode = "demoEnd";
+				this.endI = 0;
 				this.battle = null;
-				this.world.encounterLock = 3;
-				this.onBattleOver();
-				this.say(TALK.shinigamiAfter);
 				this.audio.ok();
 				return;
 			}
@@ -2255,7 +2297,7 @@ export class Gemwar {
 			this.battle = null;
 			this.world.encounterLock = 3;
 			this.onBattleOver();
-			this.say(TALK.masonWin);
+			this.say(TALK.masonWin, "rivalLeave");
 			this.audio.ok();
 			return;
 		}
@@ -2279,6 +2321,7 @@ export class Gemwar {
 		if (this.mode === "title") this.drawTitle();
 		else if (this.mode === "intro") this.drawStory(INTRO[this.introI] ?? "", "The leaving");
 		else if (this.mode === "ending") this.drawStory(ENDING_WIN[this.endI] ?? "", "The war");
+		else if (this.mode === "demoEnd") this.drawDemoEnd();
 		else if (this.mode === "battle") this.drawBattle();
 		else if (this.mode === "bag") this.drawBag();
 		else if (this.mode === "party") this.drawParty();
@@ -2375,6 +2418,16 @@ export class Gemwar {
 		this.text(tag.toUpperCase(), X(12), Y(6), "#c5cec6", FONT);
 		this.box(X(8), Y(112), X(224), Y(42));
 		this.wrap(body, 42).slice(0, 3).forEach((ln, i) => this.text(ln, X(14), Y(118 + i * 10), "#e8e4d8", FONT));
+	}
+	drawDemoEnd() {
+		const s = spawnOf(GROVE, "9");
+		this.drawMap(GROVE, s.x - VIEW_W / 2, s.y - VIEW_H / 2);
+		this.drawSprite("shinigami-down-1", X(120), Y(28), SPR_W, SPR_H);
+		this.ctx.fillStyle = "rgba(10,9,8,0.62)";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.text("DEMO COMPLETE", X(12), Y(6), "#c5cec6", FONT);
+		this.box(X(8), Y(96), X(224), Y(56));
+		this.wrap(DEMO_END[this.endI] ?? "", 42).slice(0, 4).forEach((ln, i) => this.text(ln, X(14), Y(102 + i * 10), "#e8e4d8", FONT));
 	}
 	cam() {
 		const map = this.map();
@@ -2625,7 +2678,8 @@ export class Gemwar {
 				this.hintZ(e.x, e.y);
 			}
 			if (this.rival.phase !== "off") {
-				const rf = this.rival.phase === "approach" ? this.rival.frame % 4 + 1 : 1;
+				const rWalking = this.rival.phase === "approach" || this.rival.phase === "leave";
+				const rf = rWalking ? this.rival.frame % 4 + 1 : 1;
 				this.drawActor(`mason-${this.rival.dir}-${rf}`, this.rival.x, this.rival.y);
 				if (this.rival.phase === "done") this.hintZ(this.rival.x, this.rival.y);
 			}

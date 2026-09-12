@@ -1,6 +1,6 @@
 export type Dir = "down" | "left" | "right" | "up";
 
-export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop";
+export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "demoEnd" | "bag" | "party" | "shop";
 
 export type PartyView = "list" | "act" | "stats" | "moves" | "target";
 
@@ -146,7 +146,7 @@ export interface Soldier {
   level: number;
 }
 
-export type RivalPhase = "off" | "approach" | "talk" | "done";
+export type RivalPhase = "off" | "approach" | "talk" | "done" | "leave";
 
 export interface RivalState {
   phase: RivalPhase;
