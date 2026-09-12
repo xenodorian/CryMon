@@ -18,6 +18,7 @@ import {
   VELD,
   VIEW_H,
   VIEW_W,
+  captureChance,
   doorTile,
   grantXp,
   healAmount,
@@ -46,7 +47,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | "shop" | "mason" | "calder" | "soldier" | "cathleen" | "shinigami";
+type TalkAfter = null | "shop" | "mason" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave";
 
 const STEP = 1 / 60;
 function loadImg(src) {
@@ -109,7 +110,9 @@ export class Gemwar {
 	bag: Record<ItemId, number> = { ...START_BAG };
 	battle = null;
 	talkedFather = false;
+	tookStarter = false;
 	talkedWren = false;
+	talkedMae = false;
 	beatCalder = false;
 	lootedCrate = false;
 	talkedIvo = false;
@@ -198,10 +201,10 @@ export class Gemwar {
 			["max-up-2", "/sprites/max/up-2.png?v=max6"],
 			["max-up-3", "/sprites/max/up-3.png?v=max6"],
 			["max-up-4", "/sprites/max/up-4.png?v=max6"],
-			["mason-down-1", "/sprites/mason/down-1.png?v=ow2"],
-			["mason-down-2", "/sprites/mason/down-2.png?v=ow2"],
-			["mason-down-3", "/sprites/mason/down-3.png?v=ow2"],
-			["mason-down-4", "/sprites/mason/down-4.png?v=ow2"],
+			["mason-down-1", "/sprites/mason/down-1.png?v=ow5"],
+			["mason-down-2", "/sprites/mason/down-2.png?v=ow5"],
+			["mason-down-3", "/sprites/mason/down-3.png?v=ow5"],
+			["mason-down-4", "/sprites/mason/down-4.png?v=ow5"],
 			["mason-left-1", "/sprites/mason/left-1.png?v=ow2"],
 			["mason-left-2", "/sprites/mason/left-2.png?v=ow2"],
 			["mason-left-3", "/sprites/mason/left-3.png?v=ow2"],
@@ -210,26 +213,26 @@ export class Gemwar {
 			["mason-right-2", "/sprites/mason/right-2.png?v=ow2"],
 			["mason-right-3", "/sprites/mason/right-3.png?v=ow2"],
 			["mason-right-4", "/sprites/mason/right-4.png?v=ow2"],
-			["mason-up-1", "/sprites/mason/up-1.png?v=ow2"],
-			["mason-up-2", "/sprites/mason/up-2.png?v=ow2"],
-			["mason-up-3", "/sprites/mason/up-3.png?v=ow2"],
-			["mason-up-4", "/sprites/mason/up-4.png?v=ow2"],
-			["anne-down-1", "/sprites/anne/down-1.png?v=anne1"],
-			["anne-down-2", "/sprites/anne/down-2.png?v=anne1"],
-			["anne-down-3", "/sprites/anne/down-3.png?v=anne1"],
-			["anne-down-4", "/sprites/anne/down-4.png?v=anne1"],
-			["anne-left-1", "/sprites/anne/left-1.png?v=anne1"],
-			["anne-left-2", "/sprites/anne/left-2.png?v=anne1"],
-			["anne-left-3", "/sprites/anne/left-3.png?v=anne1"],
-			["anne-left-4", "/sprites/anne/left-4.png?v=anne1"],
-			["anne-right-1", "/sprites/anne/right-1.png?v=anne1"],
-			["anne-right-2", "/sprites/anne/right-2.png?v=anne1"],
-			["anne-right-3", "/sprites/anne/right-3.png?v=anne1"],
-			["anne-right-4", "/sprites/anne/right-4.png?v=anne1"],
-			["anne-up-1", "/sprites/anne/up-1.png?v=anne1"],
-			["anne-up-2", "/sprites/anne/up-2.png?v=anne1"],
-			["anne-up-3", "/sprites/anne/up-3.png?v=anne1"],
-			["anne-up-4", "/sprites/anne/up-4.png?v=anne1"],
+			["mason-up-1", "/sprites/mason/up-1.png?v=ow3"],
+			["mason-up-2", "/sprites/mason/up-2.png?v=ow3"],
+			["mason-up-3", "/sprites/mason/up-3.png?v=ow3"],
+			["mason-up-4", "/sprites/mason/up-4.png?v=ow3"],
+			["anne-down-1", "/sprites/anne/down-1.png?v=anne2"],
+			["anne-down-2", "/sprites/anne/down-2.png?v=anne2"],
+			["anne-down-3", "/sprites/anne/down-3.png?v=anne2"],
+			["anne-down-4", "/sprites/anne/down-4.png?v=anne2"],
+			["anne-left-1", "/sprites/anne/left-1.png?v=anne2"],
+			["anne-left-2", "/sprites/anne/left-2.png?v=anne2"],
+			["anne-left-3", "/sprites/anne/left-3.png?v=anne2"],
+			["anne-left-4", "/sprites/anne/left-4.png?v=anne2"],
+			["anne-right-1", "/sprites/anne/right-1.png?v=anne2"],
+			["anne-right-2", "/sprites/anne/right-2.png?v=anne2"],
+			["anne-right-3", "/sprites/anne/right-3.png?v=anne2"],
+			["anne-right-4", "/sprites/anne/right-4.png?v=anne2"],
+			["anne-up-1", "/sprites/anne/up-1.png?v=anne2"],
+			["anne-up-2", "/sprites/anne/up-2.png?v=anne2"],
+			["anne-up-3", "/sprites/anne/up-3.png?v=anne2"],
+			["anne-up-4", "/sprites/anne/up-4.png?v=anne2"],
 			["quillpup-1", "/sprites/monsters/quillpup/1.png"],
 			["quillpup-2", "/sprites/monsters/quillpup/2.png"],
 			["quillpup-3", "/sprites/monsters/quillpup/3.png"],
@@ -295,10 +298,14 @@ export class Gemwar {
 			["calder-2", "/sprites/npc/calder-2.png"],
 			["calder-3", "/sprites/npc/calder-3.png"],
 			["calder-4", "/sprites/npc/calder-4.png"],
-			["wren-1", "/sprites/npc/wren-1.png"],
-			["wren-2", "/sprites/npc/wren-2.png"],
-			["wren-3", "/sprites/npc/wren-3.png"],
-			["wren-4", "/sprites/npc/wren-4.png"],
+			["wren-1", "/sprites/npc/wren-1.png?v=wren3"],
+			["wren-2", "/sprites/npc/wren-2.png?v=wren3"],
+			["wren-3", "/sprites/npc/wren-3.png?v=wren3"],
+			["wren-4", "/sprites/npc/wren-4.png?v=wren3"],
+			["mae-1", "/sprites/npc/mae-1.png?v=mae1"],
+			["mae-2", "/sprites/npc/mae-2.png?v=mae1"],
+			["mae-3", "/sprites/npc/mae-3.png?v=mae1"],
+			["mae-4", "/sprites/npc/mae-4.png?v=mae1"],
 			["ivo-1", "/sprites/npc/ivo-1.png"],
 			["ivo-2", "/sprites/npc/ivo-2.png"],
 			["ivo-3", "/sprites/npc/ivo-3.png"],
@@ -332,12 +339,13 @@ export class Gemwar {
 			["soldier-up-3", "/sprites/npc/soldier/up-3.png?v=for1"],
 			["soldier-up-4", "/sprites/npc/soldier/up-4.png?v=for1"],
 			["port-max", "/sprites/portraits/max.png?v=max6"],
-			["port-anne", "/sprites/portraits/anne.png?v=anne7"],
+			["port-anne", "/sprites/portraits/anne.png?v=anne8"],
 			["port-mason", "/sprites/portraits/mason.png?v=port1"],
-			["port-wren", "/sprites/portraits/wren.png?v=port1"],
+			["port-wren", "/sprites/portraits/wren.png?v=wren4"],
+			["port-mae", "/sprites/portraits/mae.png?v=mae1"],
 			["port-ivo", "/sprites/portraits/ivo.png?v=port1"],
 			["port-nell", "/sprites/portraits/nell.png?v=port1"],
-			["port-pike", "/sprites/portraits/pike.png?v=port1"],
+			["port-pike", "/sprites/portraits/pike.png?v=port2"],
 			["port-calder", "/sprites/portraits/calder.png?v=port1"],
 			["port-bram", "/sprites/portraits/bram.png?v=port1"],
 			["port-quillpup", "/sprites/portraits/quillpup.png?v=port1"],
@@ -379,7 +387,7 @@ export class Gemwar {
 		this.mode = "title";
 		this.introI = 0;
 		this.endI = 0;
-		this.party = [mintMonster("quillpup", 3)];
+		this.party = [];
 		this.partyIndex = 0;
 		this.bag = { ...START_BAG };
 		this.marks = 16;
@@ -406,7 +414,9 @@ export class Gemwar {
 		};
 		this.battle = null;
 		this.talkedFather = false;
+		this.tookStarter = false;
 		this.talkedWren = false;
+		this.talkedMae = false;
 		this.beatCalder = false;
 		this.lootedCrate = false;
 		this.talkedIvo = false;
@@ -486,6 +496,11 @@ export class Gemwar {
 	skipToWorld(mapId = "veld") {
 		this.mode = "world";
 		this.world.mapId = mapId;
+		this.tookStarter = true;
+		if (this.party.length === 0) {
+			this.party = [mintMonster("quillpup", 3)];
+			this.partyIndex = 0;
+		}
 		if (mapId === "veld") {
 			const s = spawnOf(VELD, "D");
 			this.world.x = s.x;
@@ -584,7 +599,10 @@ export class Gemwar {
 				};
 			},
 			flags: () => ({
+				talkedFather: this.talkedFather,
+				tookStarter: this.tookStarter,
 				talkedWren: this.talkedWren,
+				talkedMae: this.talkedMae,
 				talkedIvo: this.talkedIvo,
 				talkedNell: this.talkedNell,
 				talkedPike: this.talkedPike,
@@ -678,6 +696,8 @@ export class Gemwar {
 						[mintMonster("crymare", 6), mintMonster("crymare", 7)]
 					);
 				}
+			} else if (next === "anneLeave") {
+				this.startAnneLeave();
 			}
 			this.maybeStartAnne();
 		}
@@ -736,6 +756,16 @@ export class Gemwar {
 			m.specialPp = m.specialPpMax;
 		});
 	}
+	giveAnneGems() {
+		if (this.anneGifted) return;
+		this.anneGifted = true;
+		this.bag.gem += 5;
+	}
+	startAnneLeave() {
+		this.anne.phase = "leave";
+		this.anne.dir = "down";
+		this.anne.frame = 0;
+	}
 	maybeStartAnne() {
 		if (this.anneGifted || this.anne.phase !== "off") return;
 		if (this.battlesDone < 1) return;
@@ -792,7 +822,7 @@ export class Gemwar {
 				this.introI += 1;
 				if (this.introI >= INTRO.length) {
 					this.mode = "world";
-					this.note("Face the beds, the shelf, or the crate and press Z. Walk south through the door.");
+					this.note("Stand next to Father, the shelf, or the crate. Press Z.");
 				}
 			}
 			return;
@@ -1049,9 +1079,8 @@ export class Gemwar {
 			if (dist < 36) {
 				this.anne.phase = "done";
 				this.anne.frame = 0;
-				this.anneGifted = true;
-				this.bag.gem += 5;
-				this.say(TALK.anneGift);
+				this.giveAnneGems();
+				this.say(TALK.anneGift, "anneLeave");
 				this.audio.ok();
 				return;
 			}
@@ -1078,6 +1107,16 @@ export class Gemwar {
 				this.talkLock = .2;
 			}
 			return;
+		}
+		if (this.anne.phase === "leave") {
+			if (this.world.mapId !== "veld") this.anne.phase = "off";
+			else {
+				this.anne.y += 80 * dt;
+				this.anne.dir = "down";
+				this.anne.anim += dt * 8;
+				this.anne.frame = Math.floor(this.anne.anim) % 4;
+				if (this.anne.y > this.world.y + VIEW_H / 2 + 48) this.anne.phase = "off";
+			}
 		}
 		if (this.updateSoldiers(dt)) {
 			this.world.moving = false;
@@ -1211,6 +1250,13 @@ export class Gemwar {
 		];
 	}
 	useDoor() {
+		if (this.world.mapId === "house" && !this.tookStarter) {
+			const d = spawnOf(HOUSE, "D");
+			this.world.y = Math.min(this.world.y, d.y - TILE);
+			this.doorLock = .5;
+			this.say(TALK.doorLocked);
+			return;
+		}
 		this.audio.ui();
 		this.doorLock = .5;
 		if (this.world.mapId === "house") {
@@ -1246,17 +1292,13 @@ export class Gemwar {
 		this.maybeStartAnne();
 	}
 	interact() {
-		if (this.nearbyTiles().some((ch) => doorTile(ch))) {
-			this.useDoor();
-			return;
-		}
 		if (this.world.mapId === "house") {
 			const hit = this.closestMark(HOUSE, [
 				"U",
 				"B",
 				"S",
 				"C"
-			]);
+			], 36);
 			if (hit === "U") {
 				this.sleepHeal();
 				this.say(TALK.bed);
@@ -1265,11 +1307,19 @@ export class Gemwar {
 			}
 			if (hit === "B") {
 				this.talkedFather = true;
-				this.say(TALK.father);
+				this.say(this.tookStarter ? TALK.fatherAfter : TALK.father);
 				return;
 			}
 			if (hit === "S") {
-				this.say(TALK.shelf);
+				if (!this.tookStarter) {
+					this.tookStarter = true;
+					if (this.party.length === 0) {
+						this.party = [mintMonster("quillpup", 3)];
+						this.partyIndex = 0;
+					}
+					this.say(TALK.shelf);
+					this.audio.ok();
+				} else this.say(TALK.shelfEmpty);
 				return;
 			}
 			if (hit === "C") {
@@ -1281,6 +1331,11 @@ export class Gemwar {
 				} else this.say(TALK.crateEmpty);
 				return;
 			}
+			return;
+		}
+		if (this.nearbyTiles().some((ch) => doorTile(ch))) {
+			this.useDoor();
+			return;
 		}
 		if (this.world.mapId === "forest") {
 			this.ensureSoldiers();
@@ -1326,7 +1381,11 @@ export class Gemwar {
 			const dx = this.anne.x - this.world.x;
 			const dy = this.anne.y - this.world.y;
 			if (dx * dx + dy * dy <= 676) {
-				this.say(TALK.anneAgain);
+				if (!this.anneGifted) {
+					this.giveAnneGems();
+					this.say(TALK.anneGift, "anneLeave");
+					this.audio.ok();
+				} else this.startAnneLeave();
 				return;
 			}
 		}
@@ -1341,6 +1400,7 @@ export class Gemwar {
 		}
 		const mark = this.closestVeldMark([
 			"K",
+			"I",
 			"V",
 			"A",
 			"Q",
@@ -1370,6 +1430,15 @@ export class Gemwar {
 				this.say(TALK.wrenHeal);
 				this.audio.ok();
 			}
+			return;
+		}
+		if (mark === "I") {
+			if (!this.talkedMae) {
+				this.talkedMae = true;
+				this.bag.bandage += 1;
+				this.say(TALK.maeFirst);
+				this.audio.ok();
+			} else this.say(TALK.maeAgain);
 			return;
 		}
 		if (mark === "V") {
@@ -1653,7 +1722,9 @@ export class Gemwar {
 		}
 	}
 	startBattle(foe, wild, title, trainer = wild ? "wild" : "calder", soldierId = null, bench = []) {
-		const player = { ...this.lead() };
+		const lead = this.lead();
+		if (!lead) return;
+		const player = { ...lead };
 		const soldierName = soldierId ? (this.soldiers.find((s) => s.id === soldierId)?.name ?? "Soldier") : "Soldier";
 		const foeName = wild
 			? foe.name
@@ -1722,6 +1793,14 @@ export class Gemwar {
 		if (id === "dust") return `Ash dust -3/-2/-2 x${n}`;
 		if (id === "salve") return `Moss salve +22 HP x${n}`;
 		if (id === "bandage") return `Linen wrap +12 HP x${n}`;
+		if (id === "gem") {
+			const b = this.battle;
+			if (b?.wild) {
+				const chance = captureChance(b.foe.agl, b.foe.hp, b.foe.maxHp, this.foeDebuffed());
+				return `Capture Crystal ${chance}% x${n}`;
+			}
+			return `Capture Crystal x${n}`;
+		}
 		return `${ITEMS[id].name} x${n}`;
 	}
 	attackMenu(p) {
@@ -2000,7 +2079,7 @@ export class Gemwar {
 				this.bag.gem += 1;
 				b.msg = ["Crystals will not take a tamer's CryMon."];
 			} else {
-				const chance = clamp(48 + (1 - b.foe.hp / b.foe.maxHp) * 42, 18, 92);
+				const chance = captureChance(b.foe.agl, b.foe.hp, b.foe.maxHp, this.foeDebuffed());
 				if (randI(1, 100) <= chance && this.party.length < PARTY_MAX) {
 					this.party.push({
 						...b.foe,
@@ -2463,17 +2542,17 @@ export class Gemwar {
 		this.text("MAX", 16, 12, "#e8e4d8", FONT);
 		this.text(`Xtals ${this.bag.gem}`, 88, 12, "#c5cec6", FONT);
 		this.text(`M ${this.marks}`, 250, 12, "#8f4a40", FONT);
-		this.text(`${lead.name} Lv${lead.level}  ${lead.hp}/${lead.maxHp}`, 16, 28, "#8a8678", FONT);
+		this.text(lead ? `${lead.name} Lv${lead.level}  ${lead.hp}/${lead.maxHp}` : "No CryMon yet", 16, 28, "#8a8678", FONT);
 	}
 	drawProp(key, wx, wy, w, h) {
 		const { cx, cy } = this.cam();
 		this.drawSprite(key, wx - cx - w / 2, wy - cy - h + 6, w, h);
 	}
-	hintZ(wx, wy) {
+	hintZ(wx, wy, radius = 52) {
 		const { cx, cy } = this.cam();
 		const dx = wx - this.world.x;
 		const dy = wy - this.world.y;
-		if (dx * dx + dy * dy > 2704) return;
+		if (dx * dx + dy * dy > radius * radius) return;
 		this.text("Z", wx - cx - 2, wy - cy - 22, "#e8e4d8", FONT);
 	}
 	drawWorld() {
@@ -2491,10 +2570,10 @@ export class Gemwar {
 			this.drawProp("prop-shelf", shelf.x, shelf.y + 4, 40, 44);
 			this.drawProp("prop-crate", crate.x, crate.y + 4, 32, 32);
 			this.text("...", bed.x - cx - 6, bed.y - cy - 20, "#8a8678", FONT);
-			this.hintZ(bed.x, bed.y);
-			this.hintZ(mine.x, mine.y);
-			this.hintZ(shelf.x, shelf.y);
-			this.hintZ(crate.x, crate.y);
+			this.hintZ(bed.x, bed.y, 36);
+			this.hintZ(mine.x, mine.y, 36);
+			this.hintZ(shelf.x, shelf.y, 36);
+			this.hintZ(crate.x, crate.y, 36);
 		}
 		if (this.world.mapId === "veld") {
 			const door = spawnOf(VELD, "D");
@@ -2525,6 +2604,9 @@ export class Gemwar {
 			const k = spawnOf(VELD, "K");
 			this.drawActor(`wren-${wf}`, k.x, k.y);
 			this.hintZ(k.x, k.y);
+			const mae = spawnOf(VELD, "I");
+			this.drawActor(`mae-${wf}`, mae.x, mae.y);
+			this.hintZ(mae.x, mae.y);
 			const ivo = spawnOf(VELD, "V");
 			this.drawActor(`ivo-${wf}`, ivo.x, ivo.y);
 			this.hintZ(ivo.x, ivo.y);
@@ -2548,9 +2630,9 @@ export class Gemwar {
 				if (this.rival.phase === "done") this.hintZ(this.rival.x, this.rival.y);
 			}
 			if (this.anne.phase !== "off") {
-				const af = this.anne.phase === "approach" ? this.anne.frame % 4 + 1 : 1;
+				const walking = this.anne.phase === "approach" || this.anne.phase === "leave";
+				const af = walking ? this.anne.frame % 4 + 1 : 1;
 				this.drawActor(`anne-${this.anne.dir}-${af}`, this.anne.x, this.anne.y);
-				if (this.anne.phase === "done") this.hintZ(this.anne.x, this.anne.y);
 			}
 		}
 		if (this.world.mapId === "forest") {

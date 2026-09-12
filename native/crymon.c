@@ -74,10 +74,14 @@ void SDL_DestroyTexture(SDL_Texture *);
 void SDL_DestroyRenderer(SDL_Renderer *);
 void SDL_DestroyWindow(SDL_Window *);
 const char *SDL_GetError(void);
+#ifdef CRYMON_SOFT
+void SDLSOFT_Dump(const char *path);
+#endif
 
 #define VW 640
 #define VH 480
 #define TILE 32
+#define TS 4
 #define PARTY_MAX 6
 #define SPR_MAX 256
 
@@ -116,6 +120,8 @@ static int nspr;
 static const uint8_t *keys;
 static uint8_t prev[512];
 static int nkeys;
+static int ate_confirm, ate_cancel, ate_start, ate_sel;
+static uint32_t cool_face;
 
 static int mode = M_TITLE;
 static int mapId; /* 0 house 1 veld 2 forest 3 grove */
@@ -125,14 +131,22 @@ static float panim, clockt;
 static Mon party[PARTY_MAX];
 static int nparty, lead;
 static int bag_salve, bag_band, bag_root, bag_dust, bag_gem, marks;
-static int talkedWren, beatCalder, caughtOnce, battles, anneGift, beatShin, cathCaught;
+static int talkedWren, talkedMae, talkedIvo, talkedNell, talkedPike, pikeHelped, nellBonus;
+static int beatCalder, caughtOnce, battles, anneGift, beatShin, cathCaught, beatMason;
+static int gotHerb, gotGem, gotStump, readCart, lootedCrate, gotShelf;
 static int annePh; /* 0 off 1 approach 2 talk 3 leave */
 static float ax, ay, aanim;
 static int adir, aframe;
+static int masonPh; /* 0 off 1 approach 2 talk 3 done */
+static float mxm, mym, manim;
+static int mdir, mframe;
 static Sol sols[3];
 static int nsol;
 static int doorLock;
 static int lastTx = -1, lastTy = -1, encLock;
+#ifdef CRYMON_SOFT
+static int inspect_col;
+#endif
 
 static char talk[8][96];
 static char talkWho[8][16];
@@ -184,7 +198,7 @@ static const char *VELD[] = {
 	"####..........RRRR..........##",
 	"##.Q.^^.......HHHH......WWW.##",
 	"##............HDH......WWA..##",
-	"##..K.........===.......W....#",
+	"##..K.........===...I...W....#",
 	"##...TTT.....=====.....TTT..G#",
 	"##...TTT....===,===....TTT...#",
 	"##....M......=====....**.....#",
@@ -254,13 +268,53 @@ static int mw[4], mh[4];
 static int irand(int a, int b) { return a + rand() % (b - a + 1); }
 static int clampi(int v, int a, int b) { return v < a ? a : v > b ? b : v; }
 static float clampf(float v, float a, float b) { return v < a ? a : v > b ? b : v; }
+static int capture_chance(void) {
+	int missing = bFoe.maxHp > 0 ? (bFoe.maxHp - bFoe.hp) * 100 / bFoe.maxHp : 0;
+	int chance = 5 * bFoe.agl + missing;
+	if (mods_foeStr < 0 || mods_foeAgl < 0 || mods_foeSpc < 0) chance += 25;
+	return clampi(chance, 0, 100);
+}
 
-static int down(int sc) { return nkeys > sc && keys[sc]; }
-static int pressed(int sc) { return down(sc) && !prev[sc]; }
-static int confirm(void) { return pressed(SDL_SCANCODE_Z) || pressed(SDL_SCANCODE_SPACE) || pressed(SDL_SCANCODE_RETURN); }
-static int cancel(void) { return pressed(SDL_SCANCODE_X) || pressed(SDL_SCANCODE_C) || pressed(SDL_SCANCODE_ESCAPE); }
-static int startp(void) { return pressed(SDL_SCANCODE_RETURN); }
-static int selectp(void) { return pressed(SDL_SCANCODE_TAB) || pressed(SDL_SCANCODE_Q); }
+static int down(int sc) {
+	return keys && sc >= 0 && sc < nkeys && sc < 512 && keys[sc];
+}
+static int rising(int sc) { return down(sc) && !prev[sc]; }
+static int pressed(int sc) { return rising(sc); }
+static int face_ok(void) {
+	uint32_t now = SDL_GetTicks();
+	if (now - cool_face < 140) return 0;
+	cool_face = now;
+	return 1;
+}
+static int confirm(void) {
+	if (ate_confirm) return 0;
+	/* A = Z. Enter is Start, not confirm — gptokeyb maps them separately. */
+	if (!(rising(SDL_SCANCODE_Z) || rising(SDL_SCANCODE_SPACE))) return 0;
+	if (!face_ok()) return 0;
+	ate_confirm = 1;
+	return 1;
+}
+static int cancel(void) {
+	if (ate_cancel) return 0;
+	if (!(rising(SDL_SCANCODE_X) || rising(SDL_SCANCODE_C) || rising(SDL_SCANCODE_ESCAPE))) return 0;
+	if (!face_ok()) return 0;
+	ate_cancel = 1;
+	return 1;
+}
+static int startp(void) {
+	if (ate_start) return 0;
+	if (!rising(SDL_SCANCODE_RETURN)) return 0;
+	if (!face_ok()) return 0;
+	ate_start = 1;
+	return 1;
+}
+static int selectp(void) {
+	if (ate_sel) return 0;
+	if (!(rising(SDL_SCANCODE_TAB) || rising(SDL_SCANCODE_Q))) return 0;
+	if (!face_ok()) return 0;
+	ate_sel = 1;
+	return 1;
+}
 
 static Spec *spec_of(const char *id) {
 	for (int i = 0; i < NSPEC; i++) if (!strcmp(SPEC[i].id, id)) return &SPEC[i];
@@ -309,7 +363,14 @@ static char tile(int tx, int ty) {
 	return m[ty][tx];
 }
 static char tileAt(float x, float y) { return tile((int)(x / TILE), (int)(y / TILE)); }
-static int solid(char c) { return strchr("#HWRBC^NKEVAQXUJ", c) != NULL; }
+static int solid(char c) { return strchr("#HWRBC^NKEVAQXUJSLI", c) != NULL; }
+
+static int spawn(const char **m, char mark, float *ox, float *oy);
+static void ensure_soldiers(void);
+
+static int hit_actor(float x, float y, float ax, float ay, float hw, float hh) {
+	return fabsf(ax - x) < hw && fabsf(ay - y) < hh;
+}
 
 static int spawn(const char **m, char mark, float *ox, float *oy) {
 	for (int y = 0; m[y]; y++) {
@@ -323,6 +384,12 @@ static int spawn(const char **m, char mark, float *ox, float *oy) {
 	*ox = TILE * 2;
 	*oy = TILE * 2;
 	return 0;
+}
+
+static void give_anne(void) {
+	if (anneGift) return;
+	anneGift = 1;
+	bag_gem += 5;
 }
 
 static Spr *findspr(const char *n) {
@@ -339,13 +406,23 @@ static void blit(const char *n, int x, int y, int dw, int dh) {
 static void blit_px(const char *n, int x, int y, int boxw, int boxh, int top) {
 	Spr *s = findspr(n);
 	if (!s || !s->tex) return;
-	float fit = fminf((float)boxw / s->w, (float)boxh / s->h);
-	int sc = (int)(fit + 0.45f);
-	if (sc < 1) sc = 1;
-	if (sc < 2 && s->h * 2 <= boxh + 24) sc = 2;
-	int dw = s->w * sc, dh = s->h * sc;
+	int dw, dh;
+	if (s->w > boxw || s->h > boxh) {
+		int ds = s->w / boxw;
+		int dsy = s->h / boxh;
+		if (dsy > ds) ds = dsy;
+		if (ds < 1) ds = 1;
+		dw = s->w / ds;
+		dh = s->h / ds;
+	} else {
+		int sc = 1;
+		while ((sc + 1) * s->w <= boxw && (sc + 1) * s->h <= boxh) sc++;
+		dw = s->w * sc;
+		dh = s->h * sc;
+	}
 	int dx = x + (boxw - dw) / 2;
-	int dy = top ? y : y + boxh - dh;
+	int dy = top ? y + (boxh - dh) / 4 : y + boxh - dh;
+	if (top && dy < y) dy = y;
 	SDL_Rect d = {dx, dy, dw, dh};
 	SDL_RenderCopy(ren, s->tex, NULL, &d);
 }
@@ -373,6 +450,31 @@ static void glyph(int x, int y, char c, int r, int g, int b, int sc) {
 }
 static void text(const char *s, int x, int y, int r, int g, int b, int sc) {
 	for (int i = 0; s[i]; i++) glyph(x + i * 8 * sc, y, s[i], r, g, b, sc);
+}
+static void text_c(const char *s, int cx, int y, int r, int g, int b, int sc) {
+	int w = (int)strlen(s) * 8 * sc;
+	text(s, cx - w / 2, y, r, g, b, sc);
+}
+static void text_wrap(const char *s, int x, int y, int maxw, int r, int g, int b, int sc) {
+	int cpl = maxw / (8 * sc);
+	if (cpl < 8) cpl = 8;
+	int line = 0, i = 0;
+	char buf[96];
+	while (s[i] && line < 7) {
+		int n = 0, lastsp = -1;
+		while (s[i + n] && n < cpl) {
+			if (s[i + n] == ' ') lastsp = n;
+			n++;
+		}
+		if (s[i + n] && lastsp > 0) n = lastsp;
+		if (n > 95) n = 95;
+		memcpy(buf, s + i, (size_t)n);
+		buf[n] = 0;
+		text(buf, x, y + line * (8 * sc + 8), r, g, b, sc);
+		i += n;
+		while (s[i] == ' ') i++;
+		line++;
+	}
 }
 
 static int load_gfx(const char *path) {
@@ -433,13 +535,16 @@ static void sayn(int n, const char **who, const char **t, int after) {
 static void note(const char *s) { snprintf(hud, sizeof hud, "%s", s); hudT = 8; }
 
 static Mon *leader(void) {
+	if (nparty <= 0) return NULL;
 	if (lead >= 0 && lead < nparty && party[lead].hp > 0) return &party[lead];
 	for (int i = 0; i < nparty; i++) if (party[i].hp > 0) { lead = i; return &party[i]; }
-	return &party[0];
+	return NULL;
 }
 
 static void start_battle(Mon foe, int wild, const char *title, const char *trainer) {
-	bPl = *leader();
+	Mon *L = leader();
+	if (!L) return;
+	bPl = *L;
 	bFoe = foe;
 	bWild = wild;
 	snprintf(bTrainer, sizeof bTrainer, "%s", trainer);
@@ -490,6 +595,24 @@ static int blocked(float x, float y) {
 	int r = 10;
 	float pts[4][2] = {{x - r, y}, {x + r, y}, {x, y - 2}, {x, y + r}};
 	for (int i = 0; i < 4; i++) if (solid(tileAt(pts[i][0], pts[i][1]))) return 1;
+	if (mapId == 2) {
+		ensure_soldiers();
+		for (int i = 0; i < nsol; i++) {
+			if (sols[i].beaten || sols[i].chase) continue;
+			if (hit_actor(x, y, sols[i].fx, sols[i].fy, 16, 16)) return 1;
+		}
+	}
+	if (mapId == 3) {
+		float sx, sy;
+		if (!cathCaught) {
+			spawn(GROVE, '8', &sx, &sy);
+			if (hit_actor(x, y, sx, sy, 18, 20)) return 1;
+		}
+		spawn(GROVE, '9', &sx, &sy);
+		if (hit_actor(x, y, sx, sy, 16, 18)) return 1;
+	}
+	if (mapId == 1 && masonPh && hit_actor(x, y, mxm, mym, 16, 16)) return 1;
+	if (mapId == 1 && annePh && annePh != 3 && hit_actor(x, y, ax, ay, 16, 16)) return 1;
 	return 0;
 }
 
@@ -532,7 +655,7 @@ static int soldier_los(Sol *s) {
 }
 
 static void draw_actor(const char *key, float wx, float wy, int cx, int cy) {
-	blit(key, (int)wx - cx - 24, (int)wy - cy - 48, 48, 52);
+	blit_px(key, (int)wx - cx - 24, (int)wy - cy - 64, 48, 64, 0);
 }
 
 static void draw_map(int cx, int cy) {
@@ -547,8 +670,14 @@ static void draw_map(int cx, int cy) {
 	if (x1 > mapw()) x1 = mapw();
 	if (y1 > maph()) y1 = maph();
 	for (int y = y0; y < y1; y++)
-		for (int x = x0; x < x1; x++)
-			paint_tile(tile(x, y), x * TILE - cx, y * TILE - cy);
+		for (int x = x0; x < x1; x++) {
+			char ch = tile(x, y);
+			int dx = x * TILE - cx, dy = y * TILE - cy;
+			paint_tile(ch, dx, dy);
+#ifdef CRYMON_SOFT
+			if (inspect_col && solid(ch)) fill(200, 48, 40, 110, dx, dy, TILE, TILE);
+#endif
+		}
 }
 
 static void reset_run(void) {
@@ -558,8 +687,7 @@ static void reset_run(void) {
 	px = sx;
 	py = sy;
 	pdir = DIR_DOWN;
-	nparty = 1;
-	party[0] = mint("quillpup", 3);
+	nparty = 0;
 	lead = 0;
 	bag_salve = 2;
 	bag_band = 2;
@@ -567,8 +695,11 @@ static void reset_run(void) {
 	bag_dust = 1;
 	bag_gem = 0;
 	marks = 16;
-	talkedWren = beatCalder = caughtOnce = battles = anneGift = beatShin = cathCaught = 0;
+	talkedWren = talkedMae = talkedIvo = talkedNell = talkedPike = pikeHelped = nellBonus = 0;
+	beatCalder = caughtOnce = battles = anneGift = beatShin = cathCaught = beatMason = 0;
+	gotHerb = gotGem = gotStump = readCart = lootedCrate = gotShelf = 0;
 	annePh = 0;
+	masonPh = 0;
 	nsol = 0;
 	mode = M_WORLD;
 	encLock = 8;
@@ -600,23 +731,68 @@ static void begin_talk_end(void) {
 		nbench = 2;
 	} else if (afterTalk == 4) {
 		start_battle(mint("razorbat", 4), 0, "Calder sends Razorbat", "Calder");
+	} else if (afterTalk == 5 && !beatMason) {
+		start_battle(mint("glimmoth", 3), 0, "Mason sends Glimmoth", "Mason");
 	}
 	afterTalk = 0;
 }
 
 static void interact(void) {
 	if (mapId == 0) {
-		float hx, hy;
-		spawn(HOUSE, 'B', &hx, &hy);
-		if ((hx - px) * (hx - px) + (hy - py) * (hy - py) < 2704) { say1("Max", "I'll bring the medicine. Sleep."); return; }
-		spawn(HOUSE, 'U', &hx, &hy);
-		if ((hx - px) * (hx - px) + (hy - py) * (hy - py) < 2704) {
+		float best = 36.f * 36.f;
+		char hit = 0;
+		const char marks[] = { 'U', 'B', 'S', 'C' };
+		for (int i = 0; i < 4; i++) {
+			float hx, hy;
+			spawn(HOUSE, marks[i], &hx, &hy);
+			float d = (hx - px) * (hx - px) + (hy - py) * (hy - py);
+			if (d <= best) { best = d; hit = marks[i]; }
+		}
+		if (hit == 'U') {
 			for (int i = 0; i < nparty; i++) { party[i].hp = party[i].maxHp; party[i].spp = party[i].sppm; }
 			say1("Max", "Cuts close. Specials return.");
 			return;
 		}
-		spawn(HOUSE, 'S', &hx, &hy);
-		if ((hx - px) * (hx - px) + (hy - py) * (hy - py) < 2704) { say1("Max", "Gone. Father sold the last crystals."); return; }
+		if (hit == 'B') {
+			if (gotShelf) {
+				const char *w[] = {"Max", ""};
+				const char *t[] = {"I already took Quillpup. Sleep. I'll do the fighting.", "His breath is thin. He does not answer."};
+				sayn(2, w, t, 0);
+			} else {
+				const char *w[] = {"Max", "Max", "Max", ""};
+				const char *t[] = {
+					"There's a war. CryTown is already bleeding.",
+					"You're too sick to defend it from the soldiers. I know that.",
+					"So I'm stealing your CryMon.",
+					"Father does not wake. The Capture Crystal is still on the shelf."
+				};
+				sayn(4, w, t, 0);
+			}
+			return;
+		}
+		if (hit == 'S') {
+			if (!gotShelf) {
+				gotShelf = 1;
+				nparty = 1;
+				party[0] = mint("quillpup", 3);
+				lead = 0;
+				{
+					const char *w[] = {"Max", "", "Max"};
+					const char *t[] = {
+						"This is it. Father's crystal. Quillpup is inside.",
+						"The crystal breaks warm in her hands. Quillpup shakes out onto the floorboards.",
+						"You're coming. CryTown doesn't get to fall."
+					};
+					sayn(3, w, t, 0);
+				}
+			} else say1("Max", "Dust. The crystal is already open.");
+			return;
+		}
+		if (hit == 'C') {
+			if (!lootedCrate) { lootedCrate = 1; bag_band++; say1("Max", "A wrap in the crate. Better than nothing."); }
+			else say1("Max", "Splinters and a moth. Empty.");
+			return;
+		}
 		return;
 	}
 	if (mapId == 2) {
@@ -655,11 +831,70 @@ static void interact(void) {
 		return;
 	}
 	if (mapId == 1) {
+		if (annePh == 2) {
+			float dx = ax - px, dy = ay - py;
+			if (dx * dx + dy * dy < 2704) {
+				if (!anneGift) {
+					give_anne();
+					const char *w[] = {"Anne", "Anne", "Max", ""};
+					const char *t[] = {
+						"Max. You actually fought.",
+						"Take these. Five crystals. Don't waste them on the first moth.",
+						"I won't.",
+						"Anne presses five Capture Crystals into Max's palm. Xtals +5."
+					};
+					sayn(4, w, t, 1);
+				} else {
+					const char *w[] = {"Anne", "Max"};
+					const char *t[] = {"Don't lose those. Calder is still south.", "I know the way."};
+					sayn(2, w, t, 0);
+				}
+				return;
+			}
+		}
+		if (masonPh >= 2) {
+			float dx = mxm - px, dy = mym - py;
+			if (dx * dx + dy * dy < 2704) {
+				if (beatMason) {
+					const char *w[] = {"Mason", "Max"};
+					const char *t[] = {"Fine. Calder is still south.", "I won't die first."};
+					sayn(2, w, t, 0);
+				} else start_battle(mint("glimmoth", 3), 0, "Mason sends Glimmoth", "Mason");
+				return;
+			}
+		}
 		float nx, ny;
 		spawn(VELD, 'K', &nx, &ny);
 		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) {
 			if (!talkedWren) { talkedWren = 1; bag_salve++; say1("Wren", "Too young. Take the salve. Calder camps south."); }
 			else { for (int i = 0; i < nparty; i++) { party[i].hp = party[i].maxHp; party[i].spp = party[i].sppm; } say1("Wren", "Cuts bound. Specials return."); }
+			return;
+		}
+		spawn(VELD, 'I', &nx, &ny);
+		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) {
+			if (!talkedMae) { talkedMae = 1; bag_band++; say1("Mae", "Take the wrap. I didn't want the path empty."); }
+			else say1("Mae", "I'll be here. South still drums.");
+			return;
+		}
+		spawn(VELD, 'V', &nx, &ny);
+		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) {
+			if (!talkedIvo) { talkedIvo = 1; bag_root++; say1("Ivo", "Camp took my CryMon. Chew this. Calder sits south."); }
+			else say1("Ivo", "Hit first. Run if the bat folds you.");
+			return;
+		}
+		spawn(VELD, 'A', &nx, &ny);
+		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) {
+			if (!talkedNell) { talkedNell = 1; bag_salve++; say1("Nell", "Too young. Drink this anyway. Reeds hide a stone."); }
+			else if (nparty > 1 && !nellBonus) { nellBonus = 1; bag_salve++; say1("Nell", "That moth wasn't yours yesterday. Another salve."); }
+			else say1("Nell", "The pond keeps its dead. Don't join them.");
+			return;
+		}
+		spawn(VELD, 'Q', &nx, &ny);
+		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) {
+			if (gotGem && !pikeHelped) { pikeHelped = 1; bag_band++; say1("Pike", "You found it. A wrap. Don't tell Calder."); }
+			else if (!talkedPike) { talkedPike = 1; say1("Pike", "I dropped a stone in the east reeds. I'm not going back."); }
+			else if (pikeHelped) say1("Pike", "We're even.");
+			else say1("Pike", "East reeds. Look down.");
 			return;
 		}
 		spawn(VELD, 'J', &nx, &ny);
@@ -671,8 +906,26 @@ static void interact(void) {
 			sayn(2, w, t, 4);
 			return;
 		}
+		spawn(VELD, 'M', &nx, &ny);
+		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) {
+			if (!gotHerb) { gotHerb = 1; bag_root++; say1("Max", "Bitterroot. It bites back."); }
+			else say1("Max", "Picked clean.");
+			return;
+		}
 		spawn(VELD, 'G', &nx, &ny);
-		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) { bag_gem++; say1("Max", "A Capture Crystal."); return; }
+		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) {
+			if (!gotGem) { gotGem = 1; bag_gem++; say1("Max", talkedPike ? "Pike's stone. Cold." : "A Capture Crystal."); }
+			else say1("Max", "The mud is empty.");
+			return;
+		}
+		spawn(VELD, 'L', &nx, &ny);
+		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) {
+			if (!gotStump) { gotStump = 1; bag_band++; say1("Max", "A wrap stuffed in the stump."); }
+			else say1("Max", "Just a stump.");
+			return;
+		}
+		spawn(VELD, 'X', &nx, &ny);
+		if ((nx - px) * (nx - px) + (ny - py) * (ny - py) < 2704) { readCart = 1; say1("Max", "A letter. They already knew her name."); return; }
 	}
 }
 
@@ -718,11 +971,43 @@ static void draw_world(void) {
 		blit("props/bed-father", (int)hx - cx - 32, (int)hy - cy - 44, 64, 56);
 		spawn(HOUSE, 'U', &hx, &hy);
 		blit("props/bed-empty", (int)hx - cx - 32, (int)hy - cy - 44, 64, 56);
+		spawn(HOUSE, 'S', &hx, &hy);
+		blit("props/shelf", (int)hx - cx - 20, (int)hy - cy - 40, 40, 44);
+		spawn(HOUSE, 'C', &hx, &hy);
+		blit("props/crate", (int)hx - cx - 16, (int)hy - cy - 28, 32, 32);
 	}
 	if (mapId == 1) {
 		float nx, ny;
+		spawn(VELD, 'D', &nx, &ny);
+		blit("props/door", (int)nx - cx - 16, (int)ny - cy - 40, 32, 48);
+		spawn(VELD, 'X', &nx, &ny);
+		blit("props/cart", (int)nx - cx - 28, (int)ny - cy - 40, 56, 48);
+		spawn(VELD, 'J', &nx, &ny);
+		blit("props/crate", (int)nx - cx - 36, (int)ny - cy - 20, 32, 32);
+		if (!gotHerb) {
+			spawn(VELD, 'M', &nx, &ny);
+			blit("props/herb", (int)nx - cx - 16, (int)ny - cy - 28, 32, 32);
+		}
+		if (!gotGem) {
+			spawn(VELD, 'G', &nx, &ny);
+			blit("props/moonstone", (int)nx - cx - 14, (int)ny - cy - 24, 28, 28);
+		}
+		spawn(VELD, 'L', &nx, &ny);
+		blit("props/stump", (int)nx - cx - 16, (int)ny - cy - 28, 32, 32);
 		spawn(VELD, 'K', &nx, &ny);
 		snprintf(key, sizeof key, "npc/wren-%d", wf);
+		draw_actor(key, nx, ny, cx, cy);
+		spawn(VELD, 'I', &nx, &ny);
+		snprintf(key, sizeof key, "npc/mae-%d", wf);
+		draw_actor(key, nx, ny, cx, cy);
+		spawn(VELD, 'V', &nx, &ny);
+		snprintf(key, sizeof key, "npc/ivo-%d", wf);
+		draw_actor(key, nx, ny, cx, cy);
+		spawn(VELD, 'A', &nx, &ny);
+		snprintf(key, sizeof key, "npc/nell-%d", wf);
+		draw_actor(key, nx, ny, cx, cy);
+		spawn(VELD, 'Q', &nx, &ny);
+		snprintf(key, sizeof key, "npc/pike-%d", wf);
 		draw_actor(key, nx, ny, cx, cy);
 		spawn(VELD, 'J', &nx, &ny);
 		snprintf(key, sizeof key, "npc/bram-%d", wf);
@@ -731,6 +1016,10 @@ static void draw_world(void) {
 			spawn(VELD, 'E', &nx, &ny);
 			snprintf(key, sizeof key, "npc/calder-%d", wf);
 			draw_actor(key, nx, ny, cx, cy);
+		}
+		if (masonPh) {
+			snprintf(key, sizeof key, "mason/%s-%d", DIRN[mdir], (masonPh == 1) ? mframe + 1 : 1);
+			draw_actor(key, mxm, mym, cx, cy);
 		}
 		if (annePh) {
 			snprintf(key, sizeof key, "anne/%s-%d", DIRN[adir], (annePh == 1 || annePh == 3) ? aframe + 1 : 1);
@@ -748,7 +1037,7 @@ static void draw_world(void) {
 		float nx, ny;
 		if (!cathCaught) {
 			spawn(GROVE, '8', &nx, &ny);
-			blit("npc/cathleen", (int)nx - cx - 36, (int)ny - cy - 68, 72, 72);
+			blit_px("npc/cathleen", (int)nx - cx - 50, (int)ny - cy - 100, 100, 100, 0);
 		}
 		spawn(GROVE, '9', &nx, &ny);
 		snprintf(key, sizeof key, "shinigami/down-%d", wf);
@@ -757,16 +1046,45 @@ static void draw_world(void) {
 	int fr = moving ? pframe + 1 : 1;
 	snprintf(key, sizeof key, "max/%s-%d", DIRN[pdir], fr);
 	draw_actor(key, px, py, cx, cy);
+#ifdef CRYMON_SOFT
+	if (inspect_col) {
+		if (mapId == 2) {
+			ensure_soldiers();
+			for (int i = 0; i < nsol; i++) {
+				if (sols[i].beaten || sols[i].chase) continue;
+				fill(232, 160, 48, 120, (int)sols[i].fx - cx - 16, (int)sols[i].fy - cy - 16, 32, 32);
+			}
+		}
+		if (mapId == 3) {
+			float sx, sy;
+			if (!cathCaught) {
+				spawn(GROVE, '8', &sx, &sy);
+				fill(232, 160, 48, 120, (int)sx - cx - 18, (int)sy - cy - 20, 36, 40);
+			}
+			spawn(GROVE, '9', &sx, &sy);
+			fill(232, 160, 48, 120, (int)sx - cx - 16, (int)sy - cy - 18, 32, 36);
+		}
+		if (mapId == 1 && masonPh) fill(232, 160, 48, 120, (int)mxm - cx - 16, (int)mym - cy - 16, 32, 32);
+		if (mapId == 1 && annePh) fill(232, 160, 48, 120, (int)ax - cx - 16, (int)ay - cy - 16, 32, 32);
+	}
+#endif
 	/* hud */
-	box(8, 8, 300, 36);
-	text("MAX", 16, 14, 232, 228, 216, 1);
-	Mon *L = leader();
-	char line[64];
-	snprintf(line, sizeof line, "%s  %d/%d", L->name, L->hp, L->maxHp);
-	text(line, 70, 14, 197, 206, 198, 1);
+	{
+		char line[64];
+		box(8, 8, 624, 96);
+		text("MAX", 20, 16, 232, 228, 216, TS);
+		snprintf(line, sizeof line, "Xtals %d", bag_gem);
+		text(line, 140, 16, 197, 206, 198, TS);
+		snprintf(line, sizeof line, "M %d", marks);
+		text(line, 430, 16, 143, 74, 64, TS);
+		Mon *L = leader();
+		if (L) snprintf(line, sizeof line, "%s Lv%d  %d/%d", L->name, L->lv, L->hp, L->maxHp);
+		else snprintf(line, sizeof line, "No CryMon yet");
+		text(line, 20, 56, 138, 134, 120, TS);
+	}
 	if (hudT > 0) {
-		box(16, 360, 608, 100);
-		text(hud, 28, 376, 232, 228, 216, 1);
+		box(8, 268, 624, 204);
+		text_wrap(hud, 24, 284, 592, 232, 228, 216, TS);
 	}
 }
 
@@ -779,14 +1097,14 @@ static void draw_talk(void) {
 		for (int i = 0; low[i]; i++) if (low[i] >= 'A' && low[i] <= 'Z') low[i] += 32;
 		char pk[48];
 		snprintf(pk, sizeof pk, "portraits/%s", low);
-		blit_px(pk, -8, 16, 320, 450, 1);
-		fill(18, 17, 14, 140, 288, 0, VW - 288, VH);
-		box(300, 16, 324, 180);
-		text(who, 316, 28, 197, 206, 198, 1);
-		text(talk[talki], 316, 56, 232, 228, 216, 1);
+		fill(18, 17, 14, 180, 0, 0, VW, VH);
+		blit_px(pk, 8, 8, 220, 260, 1);
+		box(236, 8, 396, 260);
+		text(who, 252, 20, 197, 206, 198, TS);
+		text_wrap(talk[talki], 252, 64, 364, 232, 228, 216, TS);
 	} else {
-		box(16, 360, 608, 100);
-		text(talk[talki], 28, 376, 232, 228, 216, 1);
+		box(8, 268, 624, 204);
+		text_wrap(talk[talki], 24, 284, 592, 232, 228, 216, TS);
 	}
 }
 
@@ -796,38 +1114,38 @@ static void draw_battle(void) {
 	int pf = ((int)(bT * 4) % 4) + 1;
 	char k[48];
 	snprintf(k, sizeof k, "monsters/%s/%d", bFoe.species, pf);
-	blit(k, 430, 20, 160, 160);
+	blit_px(k, 400, 8, 216, 200, 1);
 	snprintf(k, sizeof k, "monsters/%s/%d", bPl.species, pf);
-	blit(k, 30, 140, 140, 140);
-	box(16, 16, 300, 70);
-	text(bFoe.name, 28, 24, 232, 228, 216, 1);
-	fill(42, 38, 32, 255, 28, 48, 220, 14);
-	fill(90, 122, 82, 255, 28, 48, bFoe.maxHp ? 220 * bFoe.hp / bFoe.maxHp : 0, 14);
-	box(280, 230, 340, 70);
+	blit_px(k, 16, 112, 168, 168, 0);
+	box(16, 16, 400, 104);
+	text(bFoe.name, 28, 24, 232, 228, 216, TS);
+	fill(42, 38, 32, 255, 28, 72, 360, 24);
+	fill(90, 122, 82, 255, 28, 72, bFoe.maxHp ? 360 * bFoe.hp / bFoe.maxHp : 0, 24);
+	box(220, 196, 404, 100);
 	char ln[64];
 	snprintf(ln, sizeof ln, "%s Lv%d", bPl.name, bPl.lv);
-	text(ln, 292, 238, 232, 228, 216, 1);
-	fill(42, 38, 32, 255, 292, 262, 220, 14);
-	fill(90, 122, 82, 255, 292, 262, bPl.maxHp ? 220 * bPl.hp / bPl.maxHp : 0, 14);
-	box(16, 330, 608, 140);
+	text(ln, 236, 208, 232, 228, 216, TS);
+	fill(42, 38, 32, 255, 236, 252, 360, 24);
+	fill(90, 122, 82, 255, 236, 252, bPl.maxHp ? 360 * bPl.hp / bPl.maxHp : 0, 24);
+	box(8, 292, 624, 180);
 	if (bPhase == 0) {
-		text(bMsg[bMsgI], 32, 350, 232, 228, 216, 1);
+		text_wrap(bMsg[bMsgI], 24, 304, 592, 232, 228, 216, TS);
 		return;
 	}
 	if (bPhase == 4) {
-		text("SPECIAL  hit the mark", 32, 350, 197, 206, 198, 1);
-		fill(42, 38, 32, 255, 40, 390, 560, 24);
-		fill(90, 122, 82, 255, 250, 390, 140, 24);
-		fill(232, 228, 216, 255, 40 + (int)(mg / 100.f * 560), 380, 8, 44);
+		text("SPECIAL", 24, 304, 197, 206, 198, TS);
+		fill(42, 38, 32, 255, 24, 360, 592, 28);
+		fill(90, 122, 82, 255, 250, 360, 140, 28);
+		fill(232, 228, 216, 255, 24 + (int)(mg / 100.f * 592), 348, 10, 48);
 		return;
 	}
 	const char *ttl = bPhase == 1 ? "ITEMS" : bPhase == 2 ? "ATTACK" : "GUARD";
-	text(ttl, 32, 344, 138, 134, 120, 1);
+	text(ttl, 24, 300, 138, 134, 120, TS);
 	for (int i = 0; i < bMenuN && i < 4; i++) {
 		int on = i == bCur;
 		char row[48];
-		snprintf(row, sizeof row, "%s %s", on ? ">" : " ", bMenu[i]);
-		text(row, 180, 344 + i * 28, on ? 232 : 138, on ? 228 : 134, on ? 216 : 120, 1);
+		snprintf(row, sizeof row, "%s%s", on ? ">" : " ", bMenu[i]);
+		text(row, 24, 336 + i * 32, on ? 232 : 138, on ? 228 : 134, on ? 216 : 120, TS);
 	}
 }
 
@@ -836,13 +1154,13 @@ static void draw_title(void) {
 	int cx = 8 * TILE, cy = 0;
 	draw_map(cx, cy);
 	fill(18, 17, 14, 70, 0, 0, VW, VH);
-	blit("max/down-1", 90, 260, 48, 52);
-	blit("monsters/quillpup/1", 430, 180, 160, 160);
-	box(160, 100, 320, 110);
-	text("CRYMON", 250, 118, 232, 228, 216, 2);
-	text("MAX'S RUN", 250, 165, 197, 206, 198, 1);
-	box(180, 390, 280, 50);
-	text("Z / A  begin", 230, 404, 90, 122, 82, 1);
+	blit_px("max/down-1", 66, 248, 48, 64, 0);
+	blit_px("monsters/quillpup/1", 400, 150, 180, 180, 1);
+	box(80, 72, 480, 176);
+	text_c("CRYMON", 320, 88, 232, 228, 216, 8);
+	text_c("MAX'S RUN", 320, 176, 197, 206, 198, 4);
+	box(96, 372, 448, 72);
+	text_c("Z / A  begin", 320, 392, 90, 122, 82, TS);
 }
 
 static void fill_item_menu(void) {
@@ -852,7 +1170,10 @@ static void fill_item_menu(void) {
 	if (bag_band) snprintf(bMenu[bMenuN++], 40, "Linen wrap x%d", bag_band);
 	if (bag_root) snprintf(bMenu[bMenuN++], 40, "Bitterroot x%d", bag_root);
 	if (bag_dust) snprintf(bMenu[bMenuN++], 40, "Ash dust x%d", bag_dust);
-	if (bag_gem) snprintf(bMenu[bMenuN++], 40, "Capture Crystal x%d", bag_gem);
+	if (bag_gem) {
+		if (bWild) snprintf(bMenu[bMenuN++], 40, "Capture Crystal %d%% x%d", capture_chance(), bag_gem);
+		else snprintf(bMenu[bMenuN++], 40, "Capture Crystal x%d", bag_gem);
+	}
 	bCur = 0;
 }
 static void fill_atk_menu(void) {
@@ -887,6 +1208,14 @@ static void finish_win(void) {
 		marks += 8;
 		mode = M_WORLD;
 		note("The soldier sits.");
+		return;
+	}
+	if (!strcmp(bTrainer, "Mason")) {
+		beatMason = 1;
+		masonPh = 3;
+		marks += 10;
+		mode = M_WORLD;
+		say1("", "Mason spits in the dirt. The path is yours. Calder still waits south.");
 		return;
 	}
 	if (!strcmp(bTrainer, "Shinigami")) {
@@ -975,7 +1304,7 @@ static void pick_item(void) {
 			bag_gem++;
 			snprintf(bMsg[0], 80, "Six is all Max can hold.");
 		} else {
-			int chance = 48 + (int)((1.f - (float)bFoe.hp / bFoe.maxHp) * 42);
+			int chance = capture_chance();
 			if (irand(1, 100) <= chance) {
 				Mon c = bFoe;
 				c.hp = c.maxHp * 2 / 5;
@@ -1082,8 +1411,13 @@ static void update_battle(float dt) {
 				if (bAfter == 6) { mode = M_WORLD; encLock = 3; return; }
 				if (bAfter == 7) {
 					mode = M_WORLD;
-					leader()->hp = leader()->maxHp * 2 / 5;
-					if (leader()->hp < 1) leader()->hp = 1;
+					{
+						Mon *L = leader();
+						if (L) {
+							L->hp = L->maxHp * 2 / 5;
+							if (L->hp < 1) L->hp = 1;
+						}
+					}
 					encLock = 3;
 					say1("Max", "We still breathe. Crawl back.");
 					return;
@@ -1129,11 +1463,15 @@ static void update_world(float dt) {
 		float dx = px - ax, dy = py - ay, dist = hypotf(dx, dy);
 		if (dist < 36) {
 			annePh = 2;
-			anneGift = 1;
-			bag_gem += 5;
-			const char *w[] = {"Anne", "Anne", "Max"};
-			const char *t[] = {"Max. You actually fought.", "Take these. Five crystals.", "I won't."};
-			sayn(3, w, t, 1);
+			give_anne();
+			const char *w[] = {"Anne", "Anne", "Max", ""};
+			const char *t[] = {
+				"Max. You actually fought.",
+				"Take these. Five crystals. Don't waste them on the first moth.",
+				"I won't.",
+				"Anne presses five Capture Crystals into Max's palm. Xtals +5."
+			};
+			sayn(4, w, t, 1);
 			return;
 		}
 		float sp = 52 * dt;
@@ -1145,11 +1483,33 @@ static void update_world(float dt) {
 		return;
 	}
 	if (annePh == 3) {
-		ay += 80 * dt;
-		adir = DIR_DOWN;
-		aanim += dt * 8;
-		aframe = ((int)aanim) % 4;
-		if (ay > py + 300) annePh = 0;
+		if (mapId != 1) annePh = 0;
+		else {
+			ay += 80 * dt;
+			adir = DIR_DOWN;
+			aanim += dt * 8;
+			aframe = ((int)aanim) % 4;
+			if (ay > py + 300) annePh = 0;
+		}
+	}
+	if (masonPh == 1 && mapId == 1) {
+		moving = 0;
+		pframe = 0;
+		float dxm = px - mxm, dym = py - mym, dist = hypotf(dxm, dym);
+		if (dist < 36) {
+			masonPh = 2;
+			const char *w[] = {"Mason", "Max", "Mason"};
+			const char *t[] = {"You walked out with that hound.", "He's mine.", "I already caught a CryMon. Fight me."};
+			sayn(3, w, t, 5);
+			return;
+		}
+		float sp = 52 * dt;
+		mxm += dxm / dist * sp;
+		mym += dym / dist * sp;
+		mdir = fabsf(dxm) > fabsf(dym) ? (dxm < 0 ? DIR_LEFT : DIR_RIGHT) : (dym < 0 ? DIR_UP : DIR_DOWN);
+		manim += dt * 8;
+		mframe = ((int)manim) % 4;
+		return;
 	}
 	if (mapId == 2) {
 		ensure_soldiers();
@@ -1208,7 +1568,27 @@ static void update_world(float dt) {
 	/* warps */
 	char ch = tileAt(px, py);
 	if (doorLock <= 0) {
-		if (mapId == 0 && ch == 'D') { warp(1, 'D', 1); say1("Max", "Night air. I can do this."); }
+		if (mapId == 0 && ch == 'D') {
+			if (!gotShelf) {
+				float dx, dy;
+				spawn(HOUSE, 'D', &dx, &dy);
+				py = dy - TILE;
+				pdir = DIR_UP;
+				doorLock = 20;
+				say1("Max", "Not yet. Father's CryMon is still on the shelf.");
+			} else {
+				warp(1, 'D', 1);
+				if (masonPh == 0) {
+					masonPh = 1;
+					mxm = px;
+					mym = py + 160;
+					mdir = DIR_UP;
+					mframe = 0;
+					manim = 0;
+					say1("", "Footsteps on the path. Someone followed you out.");
+				} else say1("Max", "Night air. I can do this.");
+			}
+		}
 		else if (mapId == 1 && ch == 'D') warp(0, 'D', 0);
 		else if (mapId == 1 && ch == 'Z') { warp(2, 'Y', 1); ensure_soldiers(); say1("Max", "The trees close over the path."); }
 		else if (mapId == 2 && ch == 'Y') warp(1, 'Z', 0);
@@ -1257,50 +1637,338 @@ static void draw(void) {
 	if (mode == M_TITLE) draw_title();
 	else if (mode == M_END) {
 		fill(18, 17, 14, 255, 0, 0, VW, VH);
-		text("CRYMON", 240, 160, 232, 228, 216, 2);
-		text("The road continues. Walk. Catch. Survive.", 80, 240, 197, 206, 198, 1);
+		text_c("CRYMON", 320, 80, 232, 228, 216, 8);
+		text_c("The road continues.", 320, 200, 197, 206, 198, TS);
+		text_c("Walk. Catch. Survive.", 320, 248, 197, 206, 198, TS);
 	} else if (mode == M_BATTLE) draw_battle();
 	else if (mode == M_TALK) draw_talk();
 	else if (mode == M_BAG) {
 		draw_world();
 		fill(18, 17, 14, 140, 0, 0, VW, VH);
-		box(40, 40, 560, 400);
-		text("BAG", 60, 56, 197, 206, 198, 1);
+		box(16, 16, 608, 448);
+		text("BAG", 32, 28, 197, 206, 198, TS);
 		char ln[64];
-		snprintf(ln, sizeof ln, "Marks %d", marks);
-		text(ln, 400, 56, 143, 74, 64, 1);
+		snprintf(ln, sizeof ln, "M %d", marks);
+		text(ln, 360, 28, 143, 74, 64, TS);
 		snprintf(ln, sizeof ln, "Moss salve x%d", bag_salve);
-		text(ln, 60, 100, 232, 228, 216, 1);
+		text(ln, 32, 84, 232, 228, 216, TS);
 		snprintf(ln, sizeof ln, "Linen wrap x%d", bag_band);
-		text(ln, 60, 130, 232, 228, 216, 1);
+		text(ln, 32, 128, 232, 228, 216, TS);
 		snprintf(ln, sizeof ln, "Bitterroot x%d", bag_root);
-		text(ln, 60, 160, 232, 228, 216, 1);
+		text(ln, 32, 172, 232, 228, 216, TS);
 		snprintf(ln, sizeof ln, "Ash dust x%d", bag_dust);
-		text(ln, 60, 190, 232, 228, 216, 1);
+		text(ln, 32, 216, 232, 228, 216, TS);
 		snprintf(ln, sizeof ln, "Capture Crystal x%d", bag_gem);
-		text(ln, 60, 220, 232, 228, 216, 1);
-		text("X close", 60, 400, 90, 122, 82, 1);
+		text(ln, 32, 260, 232, 228, 216, TS);
+		text("X close", 32, 400, 90, 122, 82, TS);
 	} else if (mode == M_PARTY) {
 		draw_world();
 		fill(18, 17, 14, 140, 0, 0, VW, VH);
-		box(24, 20, 592, 440);
-		text("CRYMON", 40, 32, 197, 206, 198, 1);
+		box(8, 8, 624, 464);
+		text("CRYMON", 24, 20, 197, 206, 198, TS);
 		for (int i = 0; i < nparty; i++) {
-			int y = 70 + i * 56;
+			int y = 72 + i * 52;
 			char ln[80];
-			snprintf(ln, sizeof ln, "%s%s  Lv%d  %d/%d", i == lead ? "> " : "  ", party[i].name, party[i].lv, party[i].hp, party[i].maxHp);
-			text(ln, 48, y, i == lead ? 232 : 138, i == lead ? 228 : 134, i == lead ? 216 : 120, 1);
+			snprintf(ln, sizeof ln, "%s%s Lv%d %d/%d", i == lead ? ">" : " ", party[i].name, party[i].lv, party[i].hp, party[i].maxHp);
+			text(ln, 24, y, i == lead ? 232 : 138, i == lead ? 228 : 134, i == lead ? 216 : 120, TS);
 		}
-		text("1-6 lead   X close", 40, 420, 90, 122, 82, 1);
+		text("1-6 lead  X close", 24, 420, 90, 122, 82, TS);
 	} else if (mode == M_SHOP) {
 		draw_world();
 		fill(18, 17, 14, 140, 0, 0, VW, VH);
-		box(40, 40, 560, 400);
-		text("BRAM'S STALL", 60, 56, 197, 206, 198, 1);
-		text("Salve 10m   Wrap 6m   Root 8m   Dust 8m   Crystal 20m", 60, 120, 232, 228, 216, 1);
-		text("Z buy salve   X leave", 60, 400, 90, 122, 82, 1);
+		box(16, 16, 608, 448);
+		text("BRAM'S STALL", 32, 28, 197, 206, 198, TS);
+		text("Moss salve     10m", 32, 84, 232, 228, 216, TS);
+		text("Linen wrap      6m", 32, 128, 232, 228, 216, TS);
+		text("Bitterroot      8m", 32, 172, 232, 228, 216, TS);
+		text("Ash dust        8m", 32, 216, 232, 228, 216, TS);
+		text("Capture Crystal 20m", 32, 260, 232, 228, 216, TS);
+		text("Z buy  X leave", 32, 400, 90, 122, 82, TS);
 	} else draw_world();
 }
+
+#ifdef CRYMON_SOFT
+static void inspect_shot(const char *dir, const char *name) {
+	char path[512];
+	SDL_SetRenderDrawColor(ren, 18, 17, 14, 255);
+	SDL_RenderClear(ren);
+	draw();
+	SDL_RenderPresent(ren);
+	snprintf(path, sizeof path, "%s/%s.bmp", dir, name);
+	SDLSOFT_Dump(path);
+	fprintf(stderr, "shot %s\n", path);
+}
+
+static void look_mark(int mid, const char **m, char mark, float ox, float oy) {
+	float x, y;
+	mapId = mid;
+	spawn(m, mark, &x, &y);
+	px = x + ox;
+	py = y + oy;
+	mode = M_WORLD;
+}
+
+static void col_report(int mid, const char **m, char mark, const char *name) {
+	int saved = mapId;
+	mapId = mid;
+	float x, y;
+	spawn(m, mark, &x, &y);
+	char ch = tileAt(x, y);
+	fprintf(stderr, "col %-12s %c tile=%c solid=%d blocked=%d at %.0f,%.0f\n",
+		name, mark, ch, solid(ch), blocked(x, y), x, y);
+	mapId = saved;
+}
+
+static void need_spr(const char *n, int *miss) {
+	if (!findspr(n)) {
+		fprintf(stderr, "MISSING sprite %s\n", n);
+		(*miss)++;
+	}
+}
+
+static void run_inspect(const char *dir) {
+	int miss = 0;
+	const char *need[] = {
+		"props/bed-father", "props/bed-empty", "props/shelf", "props/crate",
+		"props/door", "props/cart", "props/herb", "props/moonstone", "props/stump",
+		"npc/wren-1", "npc/mae-1", "npc/ivo-1", "npc/nell-1", "npc/pike-1", "npc/bram-1", "npc/calder-1",
+		"npc/cathleen", "npc/soldier/down-1", "npc/soldier/right-1",
+		"mason/up-1", "mason/down-1", "mason/left-1", "mason/right-1",
+		"anne/up-1", "max/down-1", "shinigami/down-1",
+		"portraits/mason", "portraits/max", "portraits/wren", "portraits/mae", "portraits/anne",
+		"portraits/cathleen", "portraits/shinigami", "portraits/ivo", "portraits/nell",
+		"portraits/pike", "portraits/glimmoth",
+		"monsters/glimmoth/1", "monsters/fenwisp/1", "monsters/duskhorn/1",
+		"monsters/needleroot/1", "monsters/crymare/1", "monsters/quillpup/1",
+		"battle-bg", NULL
+	};
+	fprintf(stderr, "sprites loaded %d\n", nspr);
+	for (int i = 0; need[i]; i++) need_spr(need[i], &miss);
+	fprintf(stderr, "missing sprites %d\n", miss);
+
+	mode = M_TITLE;
+	inspect_shot(dir, "01-title");
+
+	reset_run();
+	inspect_shot(dir, "02-house");
+
+	{
+		const char *w[] = {"Max", "Max", "Max", ""};
+		const char *t[] = {
+			"There's a war. CryTown is already bleeding.",
+			"You're too sick to defend it from the soldiers. I know that.",
+			"So I'm stealing your CryMon.",
+			"Father does not wake. The Capture Crystal is still on the shelf."
+		};
+		sayn(4, w, t, 0);
+	}
+	inspect_shot(dir, "03-talk-father");
+
+	say1("Max", "Not yet. Father's CryMon is still on the shelf.");
+	inspect_shot(dir, "03b-door-locked");
+
+	gotShelf = 1;
+	nparty = 1;
+	party[0] = mint("quillpup", 3);
+	lead = 0;
+	{
+		const char *w[] = {"Max", "", "Max"};
+		const char *t[] = {
+			"This is it. Father's crystal. Quillpup is inside.",
+			"The crystal breaks warm in her hands. Quillpup shakes out onto the floorboards.",
+			"You're coming. CryTown doesn't get to fall."
+		};
+		sayn(3, w, t, 0);
+	}
+	inspect_shot(dir, "03c-talk-shelf");
+
+	/* first rival: walk out of the cottage */
+	reset_run();
+	gotShelf = 1;
+	nparty = 1;
+	party[0] = mint("quillpup", 3);
+	lead = 0;
+	warp(1, 'D', 1);
+	masonPh = 1;
+	mxm = px;
+	mym = py + 160;
+	mdir = DIR_UP;
+	mframe = 0;
+	manim = 0;
+	say1("", "Footsteps on the path. Someone followed you out.");
+	inspect_shot(dir, "04-footsteps");
+
+	mode = M_WORLD;
+	inspect_shot(dir, "05-mason-far");
+
+	mym = py + 72;
+	mframe = 2;
+	inspect_shot(dir, "06-mason-approach");
+
+	masonPh = 2;
+	{
+		const char *w[] = {"Mason", "Max", "Mason"};
+		const char *t[] = {"You walked out with that hound.", "He's mine.", "I already caught a CryMon. Fight me."};
+		sayn(3, w, t, 5);
+	}
+	inspect_shot(dir, "07-mason-talk");
+
+	begin_talk_end();
+	inspect_shot(dir, "08-mason-battle");
+	bPhase = 2;
+	fill_atk_menu();
+	inspect_shot(dir, "09-mason-menu");
+
+	finish_win();
+	inspect_shot(dir, "10-mason-win");
+
+	give_anne();
+	{
+		const char *w[] = {"Anne", "Anne", "Max", ""};
+		const char *t[] = {
+			"Max. You actually fought.",
+			"Take these. Five crystals. Don't waste them on the first moth.",
+			"I won't.",
+			"Anne presses five Capture Crystals into Max's palm. Xtals +5."
+		};
+		sayn(4, w, t, 1);
+	}
+	inspect_shot(dir, "10b-anne-gift");
+	fprintf(stderr, "anne xtals %d (want 5)\n", bag_gem);
+
+	mode = M_WORLD;
+	look_mark(1, VELD, 'K', 40, 20);
+	inspect_shot(dir, "11-veld-wren");
+	look_mark(1, VELD, 'V', 40, 20);
+	inspect_shot(dir, "12-veld-ivo");
+	look_mark(1, VELD, 'Q', 40, 20);
+	inspect_shot(dir, "13-veld-pike");
+	look_mark(1, VELD, 'A', -40, 20);
+	inspect_shot(dir, "14-veld-nell");
+	look_mark(1, VELD, 'G', -40, 20);
+	inspect_shot(dir, "15-veld-gem");
+	look_mark(1, VELD, 'X', 40, 24);
+	inspect_shot(dir, "16-veld-cart");
+	look_mark(1, VELD, 'J', 48, 24);
+	inspect_shot(dir, "17-veld-bram");
+	look_mark(1, VELD, 'M', 40, 20);
+	inspect_shot(dir, "18-veld-herb");
+	look_mark(1, VELD, 'L', -40, 20);
+	inspect_shot(dir, "19-veld-stump");
+	look_mark(1, VELD, 'E', -48, 20);
+	inspect_shot(dir, "20-veld-calder");
+
+	reset_run();
+	inspect_col = 1;
+	inspect_shot(dir, "21-col-house");
+	look_mark(1, VELD, 'D', 0, 48);
+	inspect_shot(dir, "22-col-veld-door");
+	look_mark(1, VELD, 'J', 8, 40);
+	inspect_shot(dir, "23-col-veld-stall");
+	warp(2, 'Y', 1);
+	ensure_soldiers();
+	mode = M_WORLD;
+	inspect_shot(dir, "24-col-forest");
+	look_mark(2, FOREST, '1', 48, 24);
+	ensure_soldiers();
+	inspect_shot(dir, "25-col-patrol");
+	warp(3, 'O', 1);
+	mode = M_WORLD;
+	inspect_shot(dir, "26-col-grove");
+	inspect_col = 0;
+
+	look_mark(2, FOREST, 'Y', 0, 40);
+	ensure_soldiers();
+	mode = M_WORLD;
+	inspect_shot(dir, "27-forest");
+	look_mark(3, GROVE, '8', 0, 48);
+	inspect_shot(dir, "28-grove");
+
+	const char *cw[] = {"Cathleen", "Max", "Cathleen"};
+	const char *ct[] = {"You walked the path. I am the path's answer.", "You're a CryMon.", "I am Cathleen. I fight as myself."};
+	sayn(3, cw, ct, 0);
+	inspect_shot(dir, "29-talk-cathleen");
+	const char *sw[] = {"Shinigami", "Max", "Shinigami"};
+	const char *st[] = {"Three names. Three graves. I keep them.", "You're in the way.", "CryMare. Come."};
+	sayn(3, sw, st, 0);
+	inspect_shot(dir, "30-talk-shinigami");
+
+	const char *aw[] = {"Anne", "Anne", "Max"};
+	const char *at[] = {"Max. You actually fought.", "Take these. Five crystals.", "I won't."};
+	sayn(3, aw, at, 0);
+	inspect_shot(dir, "31-talk-anne");
+
+	say1("Wren", "Too young. Take the salve. Calder camps south.");
+	inspect_shot(dir, "32-talk-wren");
+
+	start_battle(mint("fenwisp", 4), 1, "A wild Fenwisp", "wild");
+	inspect_shot(dir, "33-battle-fenwisp");
+	bPhase = 2;
+	fill_atk_menu();
+	inspect_shot(dir, "34-battle-menu");
+	start_battle(mint("duskhorn", 5), 1, "A wild Duskhorn", "wild");
+	inspect_shot(dir, "35-battle-duskhorn");
+	start_battle(mint("needleroot", 5), 1, "A wild Needleroot", "wild");
+	inspect_shot(dir, "36-battle-needleroot");
+	start_battle(mint("crymare", 7), 0, "Shinigami sends CryMare", "Shinigami");
+	inspect_shot(dir, "37-battle-crymare");
+
+	nparty = 6;
+	party[0] = mint("quillpup", 5);
+	party[1] = mint("fenwisp", 4);
+	party[2] = mint("duskhorn", 5);
+	party[3] = mint("needleroot", 4);
+	party[4] = mint("cathleen", 6);
+	party[5] = mint("crymare", 7);
+	lead = 0;
+	bag_salve = 3;
+	bag_band = 2;
+	bag_root = 1;
+	bag_dust = 1;
+	bag_gem = 5;
+	marks = 24;
+	mode = M_PARTY;
+	inspect_shot(dir, "38-party");
+	mode = M_BAG;
+	inspect_shot(dir, "39-bag");
+	mode = M_SHOP;
+	inspect_shot(dir, "40-shop");
+
+	reset_run();
+	mapId = 1;
+	col_report(0, HOUSE, 'B', "father-bed");
+	col_report(0, HOUSE, 'U', "max-bed");
+	col_report(0, HOUSE, 'S', "shelf");
+	col_report(0, HOUSE, 'C', "crate");
+	col_report(0, HOUSE, 'D', "house-door");
+	col_report(1, VELD, 'K', "wren");
+	col_report(1, VELD, 'I', "mae");
+	col_report(1, VELD, 'V', "ivo");
+	col_report(1, VELD, 'A', "nell");
+	col_report(1, VELD, 'Q', "pike");
+	col_report(1, VELD, 'J', "bram");
+	col_report(1, VELD, 'E', "calder");
+	col_report(1, VELD, 'X', "cart");
+	col_report(1, VELD, 'M', "herb");
+	col_report(1, VELD, 'G', "gem");
+	col_report(1, VELD, 'L', "stump");
+	col_report(1, VELD, 'D', "veld-door");
+	mapId = 2;
+	ensure_soldiers();
+	col_report(2, FOREST, '1', "patrol-tile");
+	col_report(2, FOREST, '2', "scout-tile");
+	col_report(2, FOREST, '3', "sentry-tile");
+	col_report(3, GROVE, '8', "cathleen");
+	col_report(3, GROVE, '9', "shinigami");
+	{
+		mapId = 2;
+		ensure_soldiers();
+		for (int i = 0; i < nsol; i++)
+			fprintf(stderr, "col soldier-%s blocked=%d at %.0f,%.0f\n",
+				sols[i].id, blocked(sols[i].fx, sols[i].fy), sols[i].fx, sols[i].fy);
+	}
+}
+#endif
 
 static char *exe_dir(void) {
 	static char buf[512], dir[512];
@@ -1349,11 +2017,26 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 	}
+#ifdef CRYMON_SOFT
+	{
+		const char *ins = getenv("CRYMON_INSPECT");
+		if (ins && ins[0]) {
+			run_inspect(ins);
+			SDL_DestroyRenderer(ren);
+			SDL_DestroyWindow(win);
+			SDL_Quit();
+			return 0;
+		}
+	}
+#endif
 	uint32_t last = SDL_GetTicks();
 	int run = 1;
+	memset(prev, 0, sizeof prev);
 	while (run) {
+		uint32_t frame0 = SDL_GetTicks();
 		SDL_Event e;
 		while (SDL_PollEvent(&e)) if (e.type == SDL_QUIT) run = 0;
+		ate_confirm = ate_cancel = ate_start = ate_sel = 0;
 		keys = SDL_GetKeyboardState(&nkeys);
 		uint32_t now = SDL_GetTicks();
 		float dt = (now - last) / 1000.f;
@@ -1364,8 +2047,17 @@ int main(int argc, char **argv) {
 		SDL_RenderClear(ren);
 		draw();
 		SDL_RenderPresent(ren);
-		if (nkeys > 0 && nkeys < 512) memcpy(prev, keys, (size_t)nkeys);
-		SDL_Delay(8);
+		/* SDL reports 512 scancodes. Copying only when nkeys < 512 skipped
+		   the snapshot, so every held frame counted as a new press. */
+		{
+			int n = nkeys;
+			if (n > 512) n = 512;
+			if (n < 0) n = 0;
+			if (keys && n) memcpy(prev, keys, (size_t)n);
+			if (n < 512) memset(prev + n, 0, (size_t)(512 - n));
+		}
+		uint32_t spent = SDL_GetTicks() - frame0;
+		if (spent < 16) SDL_Delay(16 - spent);
 	}
 	SDL_DestroyRenderer(ren);
 	SDL_DestroyWindow(win);

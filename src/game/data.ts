@@ -163,7 +163,7 @@ export const ITEMS: Record<ItemId, ItemDef> = {
   gem: {
     id: "gem",
     name: "Capture Crystal",
-    desc: "Moonstone cage. Seals a worn-down wild CryMon.",
+    desc: "Moonstone cage. 5% per agility. Each % of HP missing adds 1%. Status or a lowered stat holds +25%.",
     battle: true,
     field: false,
     buy: 20,
@@ -206,6 +206,15 @@ export const ITEMS: Record<ItemId, ItemDef> = {
     sell: 3,
   },
 };
+
+export function captureChance(agl: number, hp: number, maxHp: number, vulnerable: boolean): number {
+  const missing = maxHp <= 0 ? 0 : Math.floor(((maxHp - hp) * 100) / maxHp);
+  let chance = 5 * agl + missing;
+  if (vulnerable) chance += 25;
+  if (chance < 0) return 0;
+  if (chance > 100) return 100;
+  return chance;
+}
 
 export function mintMonster(species: SpeciesId, level = 3): Monster {
   const s = SPECIES[species];
@@ -263,7 +272,7 @@ export const VELD_MAP = [
   "####..........RRRR..........##",
   "##.Q.^^.......HHHH......WWW.##",
   "##............HDH......WWA..##",
-  "##..K.........===.......W....#",
+  "##..K.........===...I...W....#",
   "##...TTT.....=====.....TTT..G#",
   "##...TTT....===,===....TTT...#",
   "##....M......=====....**.....#",
@@ -361,6 +370,7 @@ export const TILE_ART: Record<string, string> = {
   E: "tile-tent",
   P: "tile-floor",
   K: "tile-grass",
+  I: "tile-grass",
   V: "tile-grass",
   A: "tile-grass",
   Q: "tile-grass",
@@ -385,6 +395,7 @@ export const SPEAKER_NAME: Record<SpeakerId, string> = {
   anne: "Anne",
   mason: "Mason",
   wren: "Wren",
+  mae: "Mae",
   ivo: "Ivo",
   nell: "Nell",
   pike: "Pike",
@@ -396,10 +407,10 @@ export const SPEAKER_NAME: Record<SpeakerId, string> = {
 };
 
 export const INTRO = [
-  "The cottage is quiet. Father sleeps poorly. Quillpup ticks on the floorboards.",
-  "Max is eight. She has already decided. If the war pays in medicine, she will take it.",
-  "The shelf is empty. No Capture Crystals. Only the family hound and a dress she should have grown out of.",
-  "No note. No permission. The door takes the rest of the night.",
+  "The cottage is quiet. Father sleeps. CryTown drums like a fever.",
+  "Max is eight. Enemy soldiers are already in the grass.",
+  "Father is too sick to stand. His Capture Crystal sits on the shelf.",
+  "Quillpup is inside it. She will take the CryMon. The door can wait.",
 ];
 
 export const ENDING_WIN = [
@@ -410,7 +421,7 @@ export const ENDING_WIN = [
 ];
 
 export function solidTile(ch: string) {
-  return "#HWRBC^NKEVAQXUJ".includes(ch);
+  return "#HWRBC^NKEVAQXUJI".includes(ch);
 }
 
 export function doorTile(ch: string) {
@@ -443,16 +454,27 @@ export function healAmount(id: ItemId) {
 
 export const TALK = {
   father: [
-    { speaker: "max", text: "I'll bring the medicine. Sleep." },
-    { speaker: "none", text: "Father's breath is thin. He does not wake. The war is the medicine, you told yourself." },
+    { speaker: "max", text: "There's a war. CryTown is already bleeding." },
+    { speaker: "max", text: "You're too sick to defend it from the soldiers. I know that." },
+    { speaker: "max", text: "So I'm stealing your CryMon." },
+    { speaker: "none", text: "Father does not wake. The Capture Crystal is still on the shelf." },
+  ],
+  fatherAfter: [
+    { speaker: "max", text: "I already took Quillpup. Sleep. I'll do the fighting." },
+    { speaker: "none", text: "His breath is thin. He does not answer." },
   ],
   bed: [
     { speaker: "max", text: "Just until they breathe again." },
     { speaker: "none", text: "Max's empty bed. The CryMon sleep. Cuts close. Specials return." },
   ],
   shelf: [
-    { speaker: "max", text: "Gone. Father sold the last ones for fever-tea." },
-    { speaker: "none", text: "Dust on the shelf. No Capture Crystals. You go out empty-handed." },
+    { speaker: "max", text: "This is it. Father's crystal. Quillpup is inside." },
+    { speaker: "none", text: "The crystal breaks warm in her hands. Quillpup shakes out onto the floorboards." },
+    { speaker: "max", text: "You're coming. CryTown doesn't get to fall." },
+  ],
+  shelfEmpty: [{ speaker: "max", text: "Dust. The crystal is already open." }],
+  doorLocked: [
+    { speaker: "max", text: "Not yet. Father's CryMon is still on the shelf." },
   ],
   crate: [
     { speaker: "max", text: "A wrap. He won't miss it." },
@@ -490,6 +512,15 @@ export const TALK = {
   wrenHeal: [
     { speaker: "wren", text: "Cuts bound. Specials return. Keep them fed." },
     { speaker: "max", text: "Thank you." },
+  ],
+  maeFirst: [
+    { speaker: "mae", text: "You're Max. I watched you leave the house." },
+    { speaker: "max", text: "Don't follow me." },
+    { speaker: "mae", text: "I won't. Take the wrap. Wren heals. I just didn't want the path empty." },
+  ],
+  maeAgain: [
+    { speaker: "mae", text: "I'll be here. South still drums." },
+    { speaker: "max", text: "I hear them." },
   ],
   ivoFirst: [
     { speaker: "ivo", text: "Camp took my CryMon. Chew this. Calder sits south." },
@@ -588,7 +619,7 @@ export const TALK = {
     { speaker: "anne", text: "Max. You actually fought." },
     { speaker: "anne", text: "Take these. Five crystals. Don't waste them on the first moth." },
     { speaker: "max", text: "I won't." },
-    { speaker: "none", text: "Anne presses five Capture Crystals into Max's palm." },
+    { speaker: "none", text: "Anne presses five Capture Crystals into Max's palm. Xtals +5." },
   ],
   anneAgain: [
     { speaker: "anne", text: "Don't lose those. Calder is still south." },

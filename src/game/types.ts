@@ -6,7 +6,7 @@ export type PartyView = "list" | "act" | "stats" | "moves" | "target";
 
 export type ShopTab = "buy" | "sell";
 
-export type SpeakerId = "max" | "anne" | "mason" | "wren" | "ivo" | "nell" | "pike" | "calder" | "bram" | "cathleen" | "shinigami" | "none";
+export type SpeakerId = "max" | "anne" | "mason" | "wren" | "mae" | "ivo" | "nell" | "pike" | "calder" | "bram" | "cathleen" | "shinigami" | "none";
 
 export interface TalkBeat {
   speaker: SpeakerId;

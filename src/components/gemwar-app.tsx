@@ -87,11 +87,11 @@ export function GemwarApp() {
               {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
               {muted ? "Muted" : "Sound"}
             </Button>
-            <RomFile href="/rom/CryMon-ports.zip?v=cm3" filename="CryMon-ports.zip" variant="default">
+            <RomFile href="/rom/CryMon-ports.zip?v=cm14" filename="CryMon-ports.zip" variant="default">
               Copy into Ports
             </RomFile>
-            <RomFile href="/rom/CryMon-portmaster.zip?v=cm3" filename="CryMon-portmaster.zip">
-              PortMaster autoinstall
+            <RomFile href="/rom/CryMon.sfc?v=cm18" filename="CryMon.sfc">
+              SNES
             </RomFile>
           </div>
         </div>
@@ -139,27 +139,13 @@ export function GemwarApp() {
               your other port launchers, and a crymon folder beside them.
             </li>
             <li>
-              Do not replace the ports folder. Do not delete the{" "}
-              <span className="text-muted">PortMaster</span> folder.
+              Do not replace the ports folder.
             </li>
           </ol>
           <p>
-            Or drop{" "}
             <a
               className="text-fg underline underline-offset-4 hover:text-accent"
-              href="/rom/CryMon-portmaster.zip?v=cm3"
-              download="CryMon-portmaster.zip"
-              rel="noopener"
-            >
-              CryMon-portmaster.zip
-            </a>{" "}
-            into PortMaster's autoinstall folder. That zip has the same unpack-safe root, so unzipping it
-            into ports is also fine.
-          </p>
-          <p>
-            <a
-              className="text-fg underline underline-offset-4 hover:text-accent"
-              href="/rom/CryMon-ports.zip?v=cm3"
+              href="/rom/CryMon-ports.zip?v=cm14"
               download="CryMon-ports.zip"
               rel="noopener"
             >
@@ -167,6 +153,20 @@ export function GemwarApp() {
             </a>
             {" — "}
             aarch64 for the R36S, plus x86_64 for a PC.
+          </p>
+          <h2 className="font-display text-lg text-fg">SNES cart</h2>
+          <p>
+            <a
+              className="text-fg underline underline-offset-4 hover:text-accent"
+              href="/rom/CryMon.sfc?v=cm18"
+              download="CryMon.sfc"
+              rel="noopener"
+            >
+              CryMon.sfc
+            </a>
+            {" — "}
+            Super Nintendo port. Load it in any SNES emulator (Snes9x, bsnes, the
+            device's SNES core). Native 256×224 Mode 1.
           </p>
           <h2 className="font-display text-lg text-fg">If Ports is already missing</h2>
           <p>

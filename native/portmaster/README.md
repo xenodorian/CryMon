@@ -2,12 +2,14 @@
 
 CryMon is a 640×480 tamer walk. Same game as the in-browser cart.
 
-This zip is safe to unzip into the existing ports folder. Root files are only
-`CryMon.sh` and the `crymon` folder — no `gameinfo.xml`, no `gamelist.xml`.
+Drop this zip in PortMaster autoinstall. It includes `screenshot.png` and
+`cover.png` at the zip root so PortMaster can show the game instead of a
+broken image.
 
-Either:
-- Unzip into EASYROMS/ports or roms/ports (do not replace the folder), or
-- Drop the zip in PortMaster autoinstall and let PortMaster copy the two items.
+There is no `gameinfo.xml` / `gamelist.xml`. Unzipping this into ports will
+not replace the Ports list. Extra files at the ports root (`port.json`,
+`screenshot.png`, `cover.png`) are harmless; delete them if you want a clean
+folder, or use CryMon-ports.zip which only has `CryMon.sh` and `crymon/`.
 
 Never delete the PortMaster folder.
 

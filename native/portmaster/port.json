@@ -19,7 +19,12 @@
       "rpg",
       "adventure"
     ],
-    "image": null,
+    "image": {
+      "covers": ["cover.png"],
+      "screenshot": "screenshot.png",
+      "thumbnail": null,
+      "video": null
+    },
     "rtr": true,
     "exp": false,
     "runtime": [],

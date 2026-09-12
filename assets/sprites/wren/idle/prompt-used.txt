@@ -1,0 +1,11 @@
+Wren idle 2x2 — identity locked to public/sprites/npc/wren-3.png (teal robe) plus assets/sprites/wren/wren-3-ref.jpg (HD color).
+
+Keywords from Wren-3:
+mature village healer, platinum silver-white hair tight bun, warm peach skin, gold-amber eyes,
+deep sage-teal tunic, darker forest-teal over-robe, cream ivory apron,
+brown leather satchel on right hip (viewer's left), sage-green pants, brown leather boots,
+brown wooden staff with teal-green glowing crystal in left hand (viewer's right),
+3/4 RPG overworld idle, crisp dark outline, saturated colors,
+solid magenta #FF00FF background.
+
+Do not recolor tunic cream/white. Hair stays silver-white, not blonde or pink.
