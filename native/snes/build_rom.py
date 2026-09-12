@@ -151,6 +151,7 @@ GROVE = [
     "##........=======.......##",
     "##........===8===.......##",
     "##........=======.......##",
+    "#############I############",
     "##.........=====........##",
     "##..........===.........##",
     "##.........=====........##",
@@ -392,7 +393,7 @@ def make_bg_tiles():
 
 # metatile: TL TR BL BR (tile ids), solid bit
 # 16x16 = 4 tiles
-MT_WALK, MT_SOLID, MT_TALL, MT_DOOR = 0, 1, 2, 3
+MT_WALK, MT_SOLID, MT_TALL, MT_DOOR, MT_LOCK = 0, 1, 2, 3, 4
 
 
 def metatile(tl, tr, bl, br, flags=MT_WALK):
@@ -421,6 +422,7 @@ MT = {
     "Z": metatile(4, 5, 5, 4, MT_DOOR),
     "Y": metatile(4, 5, 5, 4, MT_DOOR),
     "O": metatile(4, 5, 5, 4, MT_DOOR),
+    "I": metatile(16, 16, 4, 4, MT_LOCK),
 }
 
 
@@ -1545,6 +1547,13 @@ def build_game(a: Asm, g: Gfx):
     a.lda_zp(COL)
     a.cmp_imm(MT_SOLID)
     a.beq("bl_yes")
+    a.cmp_imm(MT_LOCK)
+    a.bne("bl_no")
+    a.lda_zp(FLAGS1)
+    a.and_imm(1 << (F_CATH - 8))
+    a.bne("bl_no")
+    a.bra("bl_yes")
+    a.label("bl_no")
     a.lda_imm(0)
     a.rts()
     a.label("bl_yes")
@@ -1755,7 +1764,10 @@ def build_game(a: Asm, g: Gfx):
     a.lsr_a()
     a.and_imm(1)
     a.sta_zp(P_FRAME)
-    # try x
+    # try x — the candidate X must be held in TMP2, not TMPW: collat()'s
+    # tile-index multiply clobbers TMPW internally, so a candidate stashed
+    # there is corrupted by the time blocked() returns and gets copied back
+    # into P_X, permanently freezing horizontal movement after one step.
     a.sep(0x20)
     a.lda_zp(MOVE_DX)
     a.beq("tm_xskip")
@@ -1768,16 +1780,16 @@ def build_game(a: Asm, g: Gfx):
     a.label("tm_xpos")
     a.clc()
     a.adc_zp(P_X)
-    a.sta_zp(TMPW)
+    a.sta_zp(TMP2)
     a.lda_zp(P_Y)
     a.clc()
     a.adc_imm(12)
-    a.sta_zp(TMP2)
+    a.sta_zp(TMPW)
     a.sep(0x20)
     a.jsr("blocked")
     a.bne("tm_xskip")
     a.rep(0x20)
-    a.lda_zp(TMPW)
+    a.lda_zp(TMP2)
     a.sta_zp(P_X)
     a.sep(0x20)
     a.label("tm_xskip")
@@ -2041,6 +2053,28 @@ def build_game(a: Asm, g: Gfx):
     a.lda_zp(MASON_PH)
     a.cmp_imm(1)
     a.beq("um_ap")
+    a.cmp_imm(3)
+    a.beq("um_lv")
+    a.rts()
+    a.label("um_lv")
+    a.lda_imm(DIR_D)
+    a.sta_zp(M_DIR)
+    a.rep(0x20)
+    a.inc_zp(M_Y)
+    a.inc_zp(M_Y)
+    a.lda_zp(M_Y)
+    a.cmp_zp(P_Y)
+    a.sep(0x20)
+    a.bcc("um_r2")
+    a.rep(0x20)
+    a.lda_zp(M_Y)
+    a.sec()
+    a.sbc_zp(P_Y)
+    a.cmp_imm(160)
+    a.sep(0x20)
+    a.bcc("um_r2")
+    a.stz_zp(MASON_PH)
+    a.label("um_r2")
     a.rts()
     a.label("um_ap")
     a.lda_zp(MAP_ID)
@@ -2527,7 +2561,12 @@ def build_game(a: Asm, g: Gfx):
     a.a8xy16()
     a.jsr("near_cath")
     a.bcc("tg1")
+    a.lda_zp(FLAGS1)
+    a.and_imm(1 << (F_CATH - 8))
+    a.bne("tg_cgone")
     a.jmp("script_cath")
+    a.label("tg_cgone")
+    a.jmp("script_cath_gone")
     a.label("tg1")
     a.jsr("near_shin")
     a.bcc("tg2")
@@ -2683,6 +2722,11 @@ def build_game(a: Asm, g: Gfx):
     a.sbc_imm(8)
     a.sta_zp(TMP0)
     a.lda_imm(1)
+    # X is 16-bit here (vm_step's calling convention); ldx_zp(TMP0) would
+    # otherwise pull in TMP1 as a garbage high byte — and TMP1 still holds
+    # a preceding OP_IFN's skip-count — turning a small shift count into a
+    # huge one that shifts the flag bit out to zero before it's OR'd in.
+    a.sep(0x10)
     a.ldx_zp(TMP0)
     a.beq("vf1s")
     a.label("vf1l")
@@ -2690,12 +2734,14 @@ def build_game(a: Asm, g: Gfx):
     a.dex()
     a.bne("vf1l")
     a.label("vf1s")
+    a.rep(0x10)
     a.ora_zp(FLAGS1)
     a.sta_zp(FLAGS1)
     a.jsr("scr_inc")
     a.jmp("vm_l")
     a.label("vf0")
     a.lda_imm(1)
+    a.sep(0x10)
     a.ldx_zp(TMP0)
     a.beq("vf0s")
     a.label("vf0l")
@@ -2703,6 +2749,7 @@ def build_game(a: Asm, g: Gfx):
     a.dex()
     a.bne("vf0l")
     a.label("vf0s")
+    a.rep(0x10)
     a.ora_zp(FLAGS0)
     a.sta_zp(FLAGS0)
     a.jsr("scr_inc")
@@ -2963,6 +3010,10 @@ def build_game(a: Asm, g: Gfx):
     a.sta_zp(FLAGS0)
     a.lda_imm(3)
     a.sta_zp(MASON_PH)
+    # A is now 3 (just written to MASON_PH), not B_TRAINER — falling
+    # through into the checks below would spuriously match "shin" (3)
+    # and fire the demo ending. Skip straight to the shared world-return.
+    a.jmp("ub_w4")
     a.label("ub_w2")
     a.cmp_imm(2)  # calder
     a.bne("ub_w3")
@@ -2974,13 +3025,19 @@ def build_game(a: Asm, g: Gfx):
     a.rts()
     a.label("ub_w3")
     a.cmp_imm(3)  # shin
-    a.bne("ub_w4")
+    a.bne("ub_w3c")
     a.lda_zp(FLAGS1)
     a.ora_imm(1 << (F_SHIN - 8))
     a.sta_zp(FLAGS1)
     a.lda_imm(M_END)
     a.sta_zp(MODE)
     a.rts()
+    a.label("ub_w3c")
+    a.cmp_imm(4)  # cathleen
+    a.bne("ub_w4")
+    a.lda_zp(FLAGS1)
+    a.ora_imm(1 << (F_CATH - 8))
+    a.sta_zp(FLAGS1)
     a.label("ub_w4")
     a.lda_imm(M_WORLD)
     a.sta_zp(MODE)
@@ -3432,6 +3489,9 @@ def build_game(a: Asm, g: Gfx):
     a.jsr("spr_tall")
     a.rts()
     a.label("dn_g")
+    a.lda_zp(FLAGS1)
+    a.and_imm(1 << (F_CATH - 8))
+    a.bne("dn_gc")
     a.lda_imm(140)
     a.sta_zp(SP_TL)
     a.lda_imm(0x20 | (3 << 1))
@@ -3444,6 +3504,7 @@ def build_game(a: Asm, g: Gfx):
     a.sta_zp(SP_Y)
     a.sep(0x20)
     a.jsr("spr_tall")
+    a.label("dn_gc")
     a.lda_imm(142)
     a.sta_zp(SP_TL)
     a.rep(0x20)
@@ -3768,6 +3829,29 @@ def build_game(a: Asm, g: Gfx):
     a.label("draw_end")
     a.lda_imm(4)
     a.sta_zp(TMP0)
+    a.lda_zp(FLAGS1)
+    a.and_imm(1 << (F_SHIN - 8))
+    a.beq("de_calder")
+    a.lda_imm(3)
+    a.sta_zp(DRAWX)
+    a.lda_imm(9)
+    a.sta_zp(DRAWY)
+    a.ldx_imm("str_shin_end1")
+    a.stx_zp(STRPTR)
+    a.lda_imm(1)
+    a.sta_zp(STRPTR + 2)
+    a.jsr("bg3_str")
+    a.lda_imm(3)
+    a.sta_zp(DRAWX)
+    a.lda_imm(11)
+    a.sta_zp(DRAWY)
+    a.ldx_imm("str_shin_end2")
+    a.stx_zp(STRPTR)
+    a.lda_imm(1)
+    a.sta_zp(STRPTR + 2)
+    a.jsr("bg3_str")
+    a.rts()
+    a.label("de_calder")
     a.lda_imm(6)
     a.sta_zp(DRAWX)
     a.lda_imm(10)
@@ -3812,6 +3896,7 @@ def build_game(a: Asm, g: Gfx):
     launch("script_grove", "sc_groveent")
     launch("script_sol", "sc_sol")
     launch("script_cath", "sc_cath")
+    launch("script_cath_gone", "sc_cath_gone")
     launch("script_shin", "sc_shin")
 
     # tables in bank 0
@@ -3912,6 +3997,10 @@ def build_game(a: Asm, g: Gfx):
     a.asciiz("SALVE 8 MARKS  A BUY")
     a.label("str_end")
     a.asciiz("CRYTOWN HOLDS.")
+    a.label("str_shin_end1")
+    a.asciiz("Thank you for playing the")
+    a.label("str_shin_end2")
+    a.asciiz("demo of CryMon.")
     a.label("nm_max")
     a.asciiz("Max")
     a.label("nm_anne")
@@ -4098,6 +4187,10 @@ def build_game(a: Asm, g: Gfx):
     say(0, "You're a CryMon.")
     say(9, "I am Cathleen. I fight as myself.")
     a.db(OP_BATTLE, 7, 4, 1)
+    a.db(OP_END)
+
+    a.label("sc_cath_gone")
+    say(0, "She's gone. The gate stands open now.")
     a.db(OP_END)
 
     a.label("sc_shin")
