@@ -11,6 +11,7 @@
 local state = require("src.state")
 local render = require("src.render")
 local input = require("src.input")
+local sprites = require("src.sprites")
 
 local G
 
@@ -18,6 +19,7 @@ function love.load()
   love.graphics.setDefaultFilter("nearest", "nearest")
   love.graphics.setBackgroundColor(18 / 255, 17 / 255, 14 / 255)
   love.math.setRandomSeed(os.time())
+  sprites.load()
   G = state.new()
 end
 

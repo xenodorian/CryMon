@@ -1,10 +1,13 @@
 -- src/draw.lua
--- Small rendering helpers: solid-color tiles/boxes/text, mirroring the
--- fill()/box()/text()/text_wrap() helpers in native/crymon.c. Everything is
--- drawn with love.graphics.rectangle/print — no image assets required,
--- matching the C port's behaviour whenever a gfx sprite was missing (blit
--- silently drew nothing), and keeping this port 100% procedural so it needs
--- no bundled art on desktop or Android LÖVE.
+-- Small rendering helpers: solid-color tile/box/text primitives, mirroring
+-- the fill()/box()/text()/text_wrap() helpers in native/crymon.c. Terrain
+-- tiles (paintTile below) are genuinely flat-colored rectangles in the web
+-- build too, so they stay that way here. Real pixel-art sprites (player,
+-- NPCs, monsters, props, portraits, items) are loaded by src/sprites.lua
+-- and drawn by src/render.lua's drawSprite/drawActorImg/drawPropImg
+-- helpers; draw.actor() below is unused colored-block leftover kept only
+-- for reference (render.lua draws its own inset-rectangle placeholder
+-- directly when a sprite PNG fails to load).
 
 local data = require("src.data")
 

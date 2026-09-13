@@ -70,27 +70,28 @@ assembly (launcher script, `port.json`, bundling a `love.aarch64`/
 
 Both the web (`src/game/engine.ts`) and native (`native/crymon.c`)
 versions load real pixel-art PNG sprites (see `public/sprites/` and
-`native/gfx_blob.bin`) — the game is not actually 100% procedural at the
-source level. This port draws everything procedurally instead
-(`love.graphics.rectangle`/`polygon`/`print`, no image files), because:
+`native/gfx_blob.bin`) for the player, every NPC, every monster, and
+props. This port bundles the same PNGs under `assets/sprites/` (mirroring
+`public/sprites/`'s subpaths 1:1) and draws them with real
+`love.graphics.draw()` calls — `src/sprites.lua` loads every file
+`src/game/engine.ts`'s `loadArt()` references into a lookup table keyed
+exactly like its `this.images` map (`"max-down-1"`, `"quillpup-2"`,
+`"port-wren"`, `"item-gem"`, `"prop-shelf"`, `"bg"`, …), and
+`src/render.lua`'s `drawSprite`/`drawActorImg`/`drawPropImg` helpers scale
+and anchor them the same way `engine.ts`'s `drawSprite`/`drawActor`/
+`drawProp` do (nearest-neighbor scale-to-fit, horizontally centered,
+feet/top/center anchored). **Terrain tiles stay flat-colored rectangles**
+in `src/draw.lua`'s `paintTile` — that part of the web build is genuinely
+procedural too, so this port matches it exactly.
 
-- it keeps the port self-contained and trivially portable to Android
-  (no asset pipeline, no `gfx_blob`-style packer, nothing to keep in sync
-  with `public/sprites/`);
-- `native/crymon.c` itself silently draws nothing whenever a sprite name
-  is missing from its `gfx_blob.bin` (`blit()` is a no-op on a lookup
-  miss), so a build with no art was already an anticipated, working state
-  of that engine, and playability was explicitly prioritized over pixel
-  fidelity in the porting brief.
-
-If you want the real sprites later: drop PNGs into `assets/`, then adapt
-`src/render.lua`'s `drawActorNamed`/`battleBlob`/prop helpers to try
-`love.graphics.newImage` first and fall back to the current colored-block
-rendering when an asset is absent — the state machine in `src/state.lua`
-doesn't need to change at all.
+If a PNG is ever missing (e.g. a future re-export drops a file), the
+affected key alone falls back to `drawSprite`'s old inset gray-rectangle
+placeholder — the game keeps running, just with a plain box for that one
+sprite; nothing crashes or throws.
 
 `love.graphics.setDefaultFilter("nearest", "nearest")` is set in
-`main.lua` so any pixel art added later stays crisp when scaled.
+`main.lua` (and each image is also set to nearest filtering individually
+in `src/sprites.lua`) so the pixel art stays crisp when scaled.
 
 ## Fidelity notes / known differences from `native/crymon.c`
 

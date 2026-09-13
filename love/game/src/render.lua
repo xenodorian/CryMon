@@ -1,16 +1,26 @@
 -- src/render.lua
 -- All screen drawing. Companion to src/state.lua: reads state, never
--- mutates it. Procedural only (rectangles/polygons/text) -- see
--- src/draw.lua and the love/README.md for why no image assets are bundled.
+-- mutates it. Terrain tiles stay flat-colored rectangles (matches the web
+-- build); every character, monster, NPC, prop, portrait and item is drawn
+-- from the real pixel-art sprites in assets/sprites/ (see src/sprites.lua),
+-- with the same nearest-neighbor scale-to-fit / anchor rules as
+-- src/game/engine.ts's drawSprite/drawActor/drawProp. A sprite that failed
+-- to load falls back to the old rectangle placeholder for that one key.
 
 local data = require("src.data")
 local draw = require("src.draw")
 local state = require("src.state")
+local sprites = require("src.sprites")
 
 local MODE = state.MODE
 local I = state._internal
 
 local render = {}
+
+-- World-space actor box, identical to SPR_W/SPR_H in engine.ts (world
+-- coordinates and TILE are both 32px in Lua and in the web build, so these
+-- sizes translate 1:1).
+local SPR_W, SPR_H = 48, 52
 
 local SPECIES_COLOR = {
   quillpup = { 156, 108, 72 }, glimmoth = { 214, 186, 74 }, tortcask = { 96, 140, 84 },
@@ -25,6 +35,56 @@ local NPC_COLOR = {
   Bram = { 202, 170, 112 }, Calder = { 130, 60, 60 }, Mason = { 96, 96, 116 },
   Anne = { 202, 150, 172 }, Cathleen = { 190, 52, 70 }, Shinigami = { 64, 42, 84 },
 }
+
+--- Draws image `key` scaled to fit inside the x,y,w,h box, nearest-neighbor,
+--- horizontally centered. `feet` may be true (anchor bottom, like an actor
+--- standing on a tile), "top" (anchor top, like a portrait panel), or false
+--- (center vertically). `pixel` mode rounds the scale to an integer (like
+--- engine.ts's drawSprite(..., pixel=true)) for crisp small icons/portraits;
+--- non-pixel mode fits the box exactly, preserving aspect ratio.
+--- Mirrors src/game/engine.ts's Gemwar.drawSprite() exactly.
+local function drawSprite(key, x, y, w, h, feet, pixel)
+  if feet == nil then feet = true end
+  local img = sprites.get(key)
+  if not img then
+    -- Fallback: same inset gray placeholder engine.ts draws for a missing
+    -- image, so a missing sprite degrades gracefully instead of vanishing.
+    draw.fill(197, 206, 198, 255, x + 4, y + 4, w - 8, h - 6)
+    return
+  end
+  local iw, ih = img:getWidth(), img:getHeight()
+  local dw, dh
+  if pixel then
+    local fit = math.min(w / iw, h / ih)
+    local s = math.max(1, math.floor(fit + 0.5))
+    if s < 2 and ih * 2 <= h + 24 then s = 2 end
+    dw, dh = iw * s, ih * s
+  else
+    local ar = iw / ih
+    if w / h > ar then dw, dh = h * ar, h
+    else dw, dh = w, w / ar end
+  end
+  local dx = x + (w - dw) / 2
+  local dy
+  if feet == "top" then dy = y
+  elseif feet then dy = y + (h - dh)
+  else dy = y + (h - dh) / 2 end
+  love.graphics.setColor(1, 1, 1, 1)
+  love.graphics.draw(img, dx, dy, 0, dw / iw, dh / ih)
+end
+render.drawSprite = drawSprite
+
+--- Draws a world actor (player/NPC/monster overworld sprite) anchored at
+--- its feet, camera-relative. Mirrors engine.ts's drawActor().
+local function drawActorImg(key, wx, wy, camx, camy)
+  drawSprite(key, wx - camx - SPR_W / 2, wy - camy - SPR_H + 4, SPR_W, SPR_H)
+end
+
+--- Draws a world prop, camera-relative, anchored near its feet. Mirrors
+--- engine.ts's drawProp().
+local function drawPropImg(key, wx, wy, camx, camy, w, h)
+  drawSprite(key, wx - camx - w / 2, wy - camy - h + 6, w, h)
+end
 
 local function camera(G)
   local mw, mh = I.mapDims(G)
@@ -59,77 +119,81 @@ local function drawMap(G, cx, cy)
   end
 end
 
-local function prop(cx, cy, wx, wy, camx, camy, w, h, r, g, b, label)
-  local x, y = wx - camx - w / 2, wy - camy - h
-  draw.fill(r, g, b, 255, x, y, w, h)
-  draw.fill(18, 17, 14, 255, x, y, w, 3)
-  if label then draw.text(label, x, y - 14, 197, 206, 198, 2) end
-end
-
-local function drawActorNamed(name, wx, wy, camx, camy, dir, frame)
-  local c = NPC_COLOR[name] or { 150, 150, 150 }
-  draw.actor(wx - camx, wy - camy, 32, 48, c[1], c[2], c[3], dir, frame)
-end
-
 local function drawWorld(G)
   local cx, cy = camera(G)
   drawMap(G, cx, cy)
 
   if G.mapId == I.MAP_HOUSE then
     local hx, hy
-    hx, hy = data.spawnOf(data.HOUSE, "B"); prop(0, 0, hx, hy, cx, cy, 40, 28, 110, 70, 60, "Father")
-    hx, hy = data.spawnOf(data.HOUSE, "U"); prop(0, 0, hx, hy, cx, cy, 40, 28, 90, 90, 100)
-    hx, hy = data.spawnOf(data.HOUSE, "S"); prop(0, 0, hx, hy, cx, cy, 26, 30, 120, 96, 60, "Shelf")
-    hx, hy = data.spawnOf(data.HOUSE, "C"); prop(0, 0, hx, hy, cx, cy, 26, 22, 130, 100, 60, "Crate")
+    hx, hy = data.spawnOf(data.HOUSE, "B")
+    drawPropImg("prop-bed-father", hx, hy + 8, cx, cy, 64, 56)
+    draw.text("...", hx - cx - 6, hy - cy - 60, 138, 134, 120, 2)
+    hx, hy = data.spawnOf(data.HOUSE, "U"); drawPropImg("prop-bed-empty", hx, hy + 8, cx, cy, 64, 56)
+    hx, hy = data.spawnOf(data.HOUSE, "S"); drawPropImg("prop-shelf", hx, hy + 4, cx, cy, 40, 44)
+    hx, hy = data.spawnOf(data.HOUSE, "C"); drawPropImg("prop-crate", hx, hy + 4, cx, cy, 32, 32)
   end
 
   if G.mapId == I.MAP_VELD then
     local nx, ny
-    nx, ny = data.spawnOf(data.VELD, "X"); prop(0, 0, nx, ny, cx, cy, 40, 30, 90, 70, 50, "Cart")
-    nx, ny = data.spawnOf(data.VELD, "J"); prop(0, 0, nx, ny, cx, cy, 26, 24, 130, 100, 60)
+    nx, ny = data.spawnOf(data.VELD, "D"); drawPropImg("prop-door", nx, ny + 8, cx, cy, 32, 48)
+    nx, ny = data.spawnOf(data.VELD, "X"); drawPropImg("prop-cart", nx, ny + 8, cx, cy, 56, 48)
+    nx, ny = data.spawnOf(data.VELD, "J"); drawPropImg("prop-crate", nx - 20, ny + 12, cx, cy, 32, 32)
     if not G.gotHerb then
-      nx, ny = data.spawnOf(data.VELD, "M"); prop(0, 0, nx, ny, cx, cy, 18, 20, 90, 130, 70, "Herb")
+      nx, ny = data.spawnOf(data.VELD, "M"); drawPropImg("prop-herb", nx, ny + 4, cx, cy, 32, 32)
     end
     if not G.gotGem then
-      nx, ny = data.spawnOf(data.VELD, "G"); prop(0, 0, nx, ny, cx, cy, 16, 16, 180, 210, 230, "Gem")
+      nx, ny = data.spawnOf(data.VELD, "G"); drawPropImg("prop-moonstone", nx, ny + 4, cx, cy, 28, 28)
     end
-    nx, ny = data.spawnOf(data.VELD, "L"); prop(0, 0, nx, ny, cx, cy, 22, 20, 90, 70, 50, "Stump")
+    if not G.gotStump then
+      nx, ny = data.spawnOf(data.VELD, "L"); drawPropImg("prop-stump", nx, ny + 4, cx, cy, 32, 32)
+    end
+  end
 
-    nx, ny = data.spawnOf(data.VELD, "K"); drawActorNamed("Wren", nx, ny, cx, cy, "down", 0)
-    nx, ny = data.spawnOf(data.VELD, "I"); drawActorNamed("Mae", nx, ny, cx, cy, "down", 0)
-    nx, ny = data.spawnOf(data.VELD, "V"); drawActorNamed("Ivo", nx, ny, cx, cy, "down", 0)
-    nx, ny = data.spawnOf(data.VELD, "A"); drawActorNamed("Nell", nx, ny, cx, cy, "down", 0)
-    nx, ny = data.spawnOf(data.VELD, "Q"); drawActorNamed("Pike", nx, ny, cx, cy, "down", 0)
-    nx, ny = data.spawnOf(data.VELD, "J"); drawActorNamed("Bram", nx, ny, cx, cy, "down", 0)
+  -- 4-frame idle/walk animation shared by all clock-driven NPCs, matching
+  -- engine.ts's `wf = Math.floor(this.clock * 4) % 4 + 1`.
+  local wf = math.floor(G.clockt * 4) % 4 + 1
+
+  if G.mapId == I.MAP_VELD then
+    local nx, ny
+    nx, ny = data.spawnOf(data.VELD, "K"); drawActorImg("wren-" .. wf, nx, ny, cx, cy)
+    nx, ny = data.spawnOf(data.VELD, "I"); drawActorImg("mae-" .. wf, nx, ny, cx, cy)
+    nx, ny = data.spawnOf(data.VELD, "V"); drawActorImg("ivo-" .. wf, nx, ny, cx, cy)
+    nx, ny = data.spawnOf(data.VELD, "A"); drawActorImg("nell-" .. wf, nx, ny, cx, cy)
+    nx, ny = data.spawnOf(data.VELD, "Q"); drawActorImg("pike-" .. wf, nx, ny, cx, cy)
+    nx, ny = data.spawnOf(data.VELD, "J"); drawActorImg("bram-" .. wf, nx, ny, cx, cy)
     if not G.beatCalder then
-      nx, ny = data.spawnOf(data.VELD, "E"); drawActorNamed("Calder", nx, ny, cx, cy, "down", 0)
+      nx, ny = data.spawnOf(data.VELD, "E"); drawActorImg("calder-" .. wf, nx, ny, cx, cy)
     end
-    if G.masonPh ~= 0 then drawActorNamed("Mason", G.mxm, G.mym, cx, cy, G.mdir, G.mframe) end
-    if G.annePh ~= 0 then drawActorNamed("Anne", G.ax, G.ay, cx, cy, G.adir, G.aframe) end
+    if G.masonPh ~= 0 then
+      local mf = (G.mframe % 4) + 1
+      drawActorImg("mason-" .. G.mdir .. "-" .. mf, G.mxm, G.mym, cx, cy)
+    end
+    if G.annePh ~= 0 then
+      local af = (G.aframe % 4) + 1
+      drawActorImg("anne-" .. G.adir .. "-" .. af, G.ax, G.ay, cx, cy)
+    end
   end
 
   if G.mapId == I.MAP_FOREST then
     I.ensureSoldiers(G)
     for _, s in ipairs(G.sols) do
-      if s.beaten then
-        draw.actor(s.fx - cx, s.fy - cy, 32, 48, 80, 80, 80, s.dir, 0)
-      else
-        draw.actor(s.fx - cx, s.fy - cy, 32, 48, 140, 70, 70, s.dir, s.frame)
-      end
+      local sf = s.beaten and 1 or ((s.frame % 4) + 1)
+      drawActorImg("soldier-" .. s.dir .. "-" .. sf, s.fx, s.fy, cx, cy)
     end
   end
 
   if G.mapId == I.MAP_GROVE then
     if not G.cathCaught then
       local nx, ny = data.spawnOf(data.GROVE, "8")
-      drawActorNamed("Cathleen", nx, ny, cx, cy, "down", 0)
+      drawSprite("cathleen-ow", nx - cx - 36, ny - cy - 68, 72, 72, true)
     end
     local nx, ny = data.spawnOf(data.GROVE, "9")
-    drawActorNamed("Shinigami", nx, ny, cx, cy, "down", math.floor(G.clockt * 4) % 4)
+    local sf = math.floor(G.clockt * 3) % 4 + 1
+    drawActorImg("shinigami-down-" .. sf, nx, ny, cx, cy)
   end
 
-  local fr = G.moving and G.pframe or 0
-  draw.actor(G.px - cx, G.py - cy, 32, 48, 92, 138, 198, G.pdir, fr)
+  local pf = (G.moving and G.pframe or 0) % 4 + 1
+  drawActorImg("max-" .. G.pdir .. "-" .. pf, G.px, G.py, cx, cy)
 
   -- HUD
   draw.box(8, 8, 624, 96)
@@ -156,9 +220,9 @@ local function drawTalk(G)
   if not beat then return end
   if beat.who ~= "" then
     draw.fill(18, 17, 14, 180, 0, 0, data.VIEW_W, data.VIEW_H)
-    local c = NPC_COLOR[beat.who] or { 150, 150, 150 }
-    draw.fill(c[1], c[2], c[3], 255, 30, 30, 180, 200)
     draw.box(236, 8, 396, 260)
+    local speaker = beat.who:lower()
+    drawSprite("port-" .. speaker, 30, 30, 180, 200, "top", true)
     draw.text(beat.who, 252, 20, 197, 206, 198, 4)
     draw.textWrap(beat.text, 252, 64, 364, 232, 228, 216, 4)
   else
@@ -167,21 +231,29 @@ local function drawTalk(G)
   end
 end
 
-local function battleBlob(species, x, y, w, h, flip)
+local function battleBlob(species, x, y, w, h, frame)
+  local key = species and (species .. "-" .. frame)
+  if key and sprites.get(key) then
+    drawSprite(key, x, y, w, h, false)
+    return
+  end
   local c = SPECIES_COLOR[species] or { 150, 150, 150 }
   draw.fill(20, 18, 16, 120, x + 6, y + h - 10, w - 12, 10)
   draw.fill(c[1], c[2], c[3], 255, x, y, w, h)
   draw.fill(math.min(255, c[1] + 40), math.min(255, c[2] + 40), math.min(255, c[3] + 40), 255, x + 6, y + 6, w - 12, h * 0.3)
-  draw.setColor(20, 18, 16, 255)
-  local ex = flip and (x + w * 0.25) or (x + w * 0.65)
-  love.graphics.circle("fill", ex, y + h * 0.35, 4)
 end
 
 local function drawBattle(G)
-  draw.fill(42, 36, 24, 255, 0, 0, data.VIEW_W, data.VIEW_H)
-  local pf = math.floor(G.bT * 4) % 4
-  battleBlob(G.bFoe.species, 424, 40, 168, 150, true)
-  battleBlob(G.bPl.species, 40, 220, 150, 150, false)
+  local bg = sprites.get("bg")
+  if bg then
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(bg, 0, 0, 0, data.VIEW_W / bg:getWidth(), data.VIEW_H / bg:getHeight())
+  else
+    draw.fill(42, 36, 24, 255, 0, 0, data.VIEW_W, data.VIEW_H)
+  end
+  local pf = math.floor(G.bT * 4) % 4 + 1
+  battleBlob(G.bFoe.species, 424, 40, 168, 150, pf)
+  battleBlob(G.bPl.species, 40, 220, 150, 150, pf)
 
   draw.box(16, 16, 400, 104)
   draw.text(G.bFoe.name, 28, 24, 232, 228, 216, 4)
@@ -232,8 +304,8 @@ local function drawTitle(G)
     end
   end
   draw.fill(18, 17, 14, 70, 0, 0, data.VIEW_W, data.VIEW_H)
-  draw.actor(90, 312, 32, 48, 92, 138, 198, "down", 0)
-  battleBlob("quillpup", 400, 150, 180, 180, true)
+  drawSprite("max-down-1", 96 - SPR_W / 2, 480 - SPR_H, SPR_W, SPR_H)
+  battleBlob("quillpup", 452, 268, 132, 96, 1)
   draw.box(80, 72, 480, 176)
   draw.textCenter("CRYMON", 320, 88, 232, 228, 216, 8)
   draw.textCenter("MAX'S RUN", 320, 176, 197, 206, 198, 4)
@@ -247,11 +319,16 @@ local function drawBag(G)
   draw.box(16, 16, 608, 448)
   draw.text("BAG", 32, 28, 197, 206, 198, 4)
   draw.text(("M %d"):format(G.marks), 360, 28, 143, 74, 64, 4)
-  draw.text(("Moss salve x%d"):format(G.bag.salve), 32, 84, 232, 228, 216, 4)
-  draw.text(("Linen wrap x%d"):format(G.bag.bandage), 32, 128, 232, 228, 216, 4)
-  draw.text(("Bitterroot x%d"):format(G.bag.bitterroot), 32, 172, 232, 228, 216, 4)
-  draw.text(("Ash dust x%d"):format(G.bag.dust), 32, 216, 232, 228, 216, 4)
-  draw.text(("Capture Crystal x%d"):format(G.bag.gem), 32, 260, 232, 228, 216, 4)
+  local rows = {
+    { id = "salve", label = "Moss salve" }, { id = "bandage", label = "Linen wrap" },
+    { id = "bitterroot", label = "Bitterroot" }, { id = "dust", label = "Ash dust" },
+    { id = "gem", label = "Capture Crystal" },
+  }
+  for i, row in ipairs(rows) do
+    local y = 84 + (i - 1) * 44
+    drawSprite("item-" .. row.id, 32, y - 4, 32, 32, false)
+    draw.text(("%s x%d"):format(row.label, G.bag[row.id]), 76, y, 232, 228, 216, 4)
+  end
   draw.text("X close", 32, 400, 90, 122, 82, 4)
 end
 
@@ -264,16 +341,11 @@ local function drawParty(G)
     local y = 72 + (i - 1) * 52
     local prefix = i == G.lead and ">" or " "
     local col = i == G.lead and { 232, 228, 216 } or { 138, 134, 120 }
-    draw.text(("%s%s Lv%d %d/%d"):format(prefix, m.name, m.lv, m.hp, m.maxHp), 24, y, col[1], col[2], col[3], 4)
+    drawSprite("port-" .. m.species, 24, y - 4, 40, 40, false)
+    draw.text(("%s%s Lv%d %d/%d"):format(prefix, m.name, m.lv, m.hp, m.maxHp), 72, y, col[1], col[2], col[3], 4)
   end
   draw.text("1-6 lead  X close", 24, 420, 90, 122, 82, 4)
 end
-
-local SHOP_LINES = {
-  { id = "salve", label = "Moss salve" }, { id = "bandage", label = "Linen wrap" },
-  { id = "bitterroot", label = "Bitterroot" }, { id = "dust", label = "Ash dust" },
-  { id = "gem", label = "Capture Crystal" },
-}
 
 local function drawShop(G)
   drawWorld(G)
@@ -293,7 +365,8 @@ local function drawShop(G)
     local on = i == G.shopCursor
     local col = on and { 232, 228, 216 } or { 197, 206, 198 }
     local prefix = on and ">" or " "
-    draw.text(("%s%-16s %2dm  (have %d)"):format(prefix, data.ITEMS[id].name, price, owned), 32, 84 + (i - 1) * 44, col[1], col[2], col[3], 4)
+    drawSprite("item-" .. id, 32, 84 + (i - 1) * 44 - 4, 28, 28, false)
+    draw.text(("%s%-16s %2dm  (have %d)"):format(prefix, data.ITEMS[id].name, price, owned), 68, 84 + (i - 1) * 44, col[1], col[2], col[3], 4)
   end
   draw.text("Left/Right tab  Z buy/sell  X leave", 32, 410, 90, 122, 82, 4)
 end
