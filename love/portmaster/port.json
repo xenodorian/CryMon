@@ -1,0 +1,42 @@
+{
+  "version": 4,
+  "name": "crymon-love.zip",
+  "items": [
+    "CryMon.sh",
+    "crymon"
+  ],
+  "items_opt": [],
+  "attr": {
+    "title": "CryMon (LOVE2D)",
+    "porter": [
+      "Grok Build"
+    ],
+    "desc": "Max walks out of the cottage with Quillpup and no Capture Crystals. Anne presses five into her hand after the first fight. Tall grass hides wild CryMon. Tamers will not. LOVE2D port of Max's Run, 640x480.",
+    "desc_md": null,
+    "inst": "Ready to run. Unzip into the existing ports folder (CryMon.sh and the crymon folder only), or drop this zip in PortMaster autoinstall. Needs a LOVE 11.x runtime -- either a bundled love.aarch64/love.x86_64 binary inside crymon/, or a system LOVE install (see README.md). A/B/Start on the pad, or a keyboard.",
+    "inst_md": null,
+    "genres": [
+      "rpg",
+      "adventure"
+    ],
+    "image": {
+      "covers": ["cover.png"],
+      "screenshot": "screenshot.png",
+      "thumbnail": null,
+      "video": null
+    },
+    "rtr": true,
+    "exp": false,
+    "runtime": [],
+    "store": [],
+    "availability": "full",
+    "reqs": [
+      "love"
+    ],
+    "arch": [
+      "aarch64",
+      "x86_64"
+    ],
+    "min_glibc": "2.17"
+  }
+}
