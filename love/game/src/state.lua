@@ -1,9 +1,11 @@
 -- src/state.lua
 -- The whole game state machine: world movement, NPC/soldier AI, dialogue,
--- battle math, catching, menus. A faithful Lua port of native/crymon.c
--- (primary reference), cross-checked against src/game/engine.ts + data.ts.
--- Disagreements between the two are called out inline where they matter;
--- see also the notes in src/data.lua about the grove door and the shop.
+-- battle math, catching, menus. src/game/engine.ts (with src/game/data.ts)
+-- is the single source of truth for every mechanic here; native/crymon.c is
+-- read only for implementation-style ideas and is never used to override
+-- the TS when the two disagree. Divergences found during audit are called
+-- out inline where they matter; see also the notes in src/data.lua about
+-- the grove door and the shop.
 
 local data = require("src.data")
 local input = require("src.input")
@@ -23,6 +25,10 @@ local MAP_HOUSE, MAP_VELD, MAP_FOREST, MAP_GROVE = 1, 2, 3, 4
 local function irand(a, b) return love.math.random(a, b) end
 local function clampf(v, a, b) if v < a then return a elseif v > b then return b else return v end end
 local function clampi(v, a, b) if v < a then return a elseif v > b then return b else return v end end
+-- Reproduces JS Math.round (round-half-up) for the ranges used in battle
+-- math (all inputs here are >= -1 or so, well within where floor(x+0.5)
+-- agrees with Math.round).
+local function jground(v) return math.floor(v + 0.5) end
 
 local function shallowcopy(t)
   local r = {}
@@ -50,7 +56,7 @@ function M.new()
     lootedCrate = false, gotShelf = false,
     annePh = 0, ax = 0, ay = 0, aanim = 0, adir = "down", aframe = 0,
     masonPh = 0, mxm = 0, mym = 0, manim = 0, mdir = "down", mframe = 0,
-    sols = {}, nsol = 0,
+    sols = {}, nsol = 0, pendingSoldier = nil,
     doorLock = 0, lastTx = -1, lastTy = -1, encLock = 8,
     hud = "", hudT = 0,
     -- talk
@@ -58,9 +64,10 @@ function M.new()
     -- battle
     bWild = true, bPhase = 0, bPl = nil, bFoe = nil, bBench = {}, nbench = 0,
     bFoeName = "", bTrainer = "", bMsg = {}, bMsgI = 1, bAfter = 0,
-    bCur = 1, bMenu = {}, bDmg = 0,
-    modsSelfStr = 0, modsFoeStr = 0, modsFoeAgl = 0, modsFoeSpc = 0,
-    bT = 0, mg = 0,
+    bCur = 1, bMenu = {}, bDmg = 0, bLabel = "",
+    modsSelfStr = 0, modsSelfAgl = 0, modsSelfSpc = 0,
+    modsFoeStr = 0, modsFoeAgl = 0, modsFoeSpc = 0,
+    bT = 0, mg = 8, mgDir = 1,
     -- shop
     shopTab = "buy", shopCursor = 1,
     -- party/bag menu cursors
@@ -142,24 +149,49 @@ local function startBattle(G, foe, wild, title, trainer)
   G.bMsgI = 1
   G.bAfter = 1
   G.bT = 0
-  G.modsSelfStr, G.modsFoeStr, G.modsFoeAgl, G.modsFoeSpc = 0, 0, 0, 0
+  G.modsSelfStr, G.modsSelfAgl, G.modsSelfSpc = 0, 0, 0
+  G.modsFoeStr, G.modsFoeAgl, G.modsFoeSpc = 0, 0, 0
   G.mode = MODE.BATTLE
   G.nbench = 0
   G.bBench = {}
 end
 
+-- engine.ts's foeDebuffed()/selfDebuffed(): true if any of that side's
+-- stats have been lowered this fight (drives capture-bonus and the foe's
+-- Mana Surge override chance).
+local function foeDebuffed(G)
+  return G.modsFoeStr < 0 or G.modsFoeAgl < 0 or G.modsFoeSpc < 0
+end
+local function selfDebuffed(G)
+  return G.modsSelfStr < 0 or G.modsSelfAgl < 0 or G.modsSelfSpc < 0
+end
+
 local function captureChanceNow(G)
-  local vulnerable = G.modsFoeStr < 0 or G.modsFoeAgl < 0 or G.modsFoeSpc < 0
-  return data.captureChance(G.bFoe.agl, G.bFoe.hp, G.bFoe.maxHp, vulnerable)
+  return data.captureChance(G.bFoe.agl, G.bFoe.hp, G.bFoe.maxHp, foeDebuffed(G))
+end
+
+-- Finds the party slot (other than the lead) with hp > 0, engine.ts's
+-- `this.party.find((m, i) => i !== this.partyIndex && m.hp > 0)`.
+local function nextLivingSlot(G)
+  for i, m in ipairs(G.party) do
+    if i ~= G.lead and m.hp > 0 then return i end
+  end
+  return nil
 end
 
 local function fillItemMenu(G)
   local rows = {}
   rows[#rows + 1] = { label = "Pass", kind = "pass" }
-  if G.bag.salve > 0 then rows[#rows + 1] = { label = ("Moss salve x%d"):format(G.bag.salve), kind = "salve" } end
-  if G.bag.bandage > 0 then rows[#rows + 1] = { label = ("Linen wrap x%d"):format(G.bag.bandage), kind = "bandage" } end
-  if G.bag.bitterroot > 0 then rows[#rows + 1] = { label = ("Bitterroot x%d"):format(G.bag.bitterroot), kind = "bitterroot" } end
-  if G.bag.dust > 0 then rows[#rows + 1] = { label = ("Ash dust x%d"):format(G.bag.dust), kind = "dust" } end
+  local alive = 0
+  for _, m in ipairs(G.party) do if m.hp > 0 then alive = alive + 1 end end
+  if alive > 1 then
+    local nxt = nextLivingSlot(G)
+    if nxt then rows[#rows + 1] = { label = ("Switch %s"):format(G.party[nxt].name), kind = "switch", target = nxt } end
+  end
+  if G.bag.salve > 0 then rows[#rows + 1] = { label = ("Moss salve +22 HP x%d"):format(G.bag.salve), kind = "salve" } end
+  if G.bag.bandage > 0 then rows[#rows + 1] = { label = ("Linen wrap +12 HP x%d"):format(G.bag.bandage), kind = "bandage" } end
+  if G.bag.bitterroot > 0 then rows[#rows + 1] = { label = ("Bitterroot +4 STR x%d"):format(G.bag.bitterroot), kind = "bitterroot" } end
+  if G.bag.dust > 0 then rows[#rows + 1] = { label = ("Ash dust -3/-2/-2 x%d"):format(G.bag.dust), kind = "dust" } end
   if G.bag.gem > 0 then
     if G.bWild then
       rows[#rows + 1] = { label = ("Capture Crystal %d%% x%d"):format(captureChanceNow(G), G.bag.gem), kind = "gem" }
@@ -208,11 +240,13 @@ local function maybeAnne(G)
   G.adir = "up"
 end
 
+-- engine.ts's onBattleOver() (battlesDone += 1) is called from the soldier,
+-- Mason and wild-win branches of finishWin(), and from the loss path -- but
+-- NOT from the Calder or Shinigami branches. Reproduced with the same
+-- selective calls below rather than one unconditional increment.
 local function finishWin(G)
   G.party[G.lead] = G.bPl
-  data.grantXp(G.party[G.lead], G.bFoe.lv)
-  G.battles = G.battles + 1
-  maybeAnne(G)
+  local grew = data.grantXp(G.party[G.lead], G.bFoe.lv)
   if not G.bWild and G.bTrainer == "Calder" then
     G.beatCalder = true
     G.marks = G.marks + 18
@@ -225,22 +259,24 @@ local function finishWin(G)
     for _, s in ipairs(G.sols) do if s.id == soldierId then s.beaten = true end end
     G.marks = G.marks + 8
     G.mode = MODE.WORLD
-    note(G, "The soldier sits.")
+    G.battles = G.battles + 1
+    say1(G, "", "The soldier sits. \"Go. Before I change my mind.\"")
     return
   end
   if G.bTrainer == "Mason" then
     G.beatMason = true
-    G.masonPh = 3
+    -- engine.ts: this.rival.phase = "done" immediately, then "rivalLeave"
+    -- fires (walking Mason south off the map) once the win message is
+    -- dismissed. masonPh 2 = "done" (still standing, re-talkable), 3 =
+    -- "leave" (walking away); see updateWorld's masonPh==3 handling.
+    G.masonPh = 2
     G.marks = G.marks + 10
     G.mode = MODE.WORLD
-    say1(G, "", "Mason spits in the dirt. The path is yours. Calder still waits south.")
+    G.battles = G.battles + 1
+    sayn(G, data.TALK.masonWin, 8)
     return
   end
   if G.bTrainer == "Shinigami" then
-    -- crymon.c just prints a line and drops you back in the world here;
-    -- engine.ts instead ends the demo on a dedicated screen (mode
-    -- "demoEnd"). We follow engine.ts since the task calls for a real
-    -- ending sequence, not a silent return to free movement.
     G.beatShin = true
     G.marks = G.marks + 14
     G.mode = MODE.DEMOEND
@@ -249,10 +285,16 @@ local function finishWin(G)
   end
   G.marks = G.marks + 3
   G.mode = MODE.WORLD
+  G.battles = G.battles + 1
   if G.bFoe.species == "cathleen" and not G.cathCaught then
-    say1(G, "Cathleen", "You stand. Come again if you mean to keep me.")
+    sayn(G, data.TALK.cathleenAfter, 0)
   else
-    note(G, "The grass goes still.")
+    local m = G.party[G.lead]
+    if grew then
+      note(G, ("%s grew to lv %d."):format(m.name, m.lv))
+    else
+      note(G, ("%s stands over the grass."):format(m.name))
+    end
   end
   G.encLock = 3
 end
@@ -260,23 +302,22 @@ end
 local function applyHit(G)
   G.bFoe.hp = G.bFoe.hp - G.bDmg
   if G.bFoe.hp < 0 then G.bFoe.hp = 0 end
+  local hitLine = ("%s  %d dmg."):format(G.bLabel, G.bDmg)
   if G.bFoe.hp <= 0 then
     if G.nbench > 0 then
       data.grantXp(G.bPl, G.bFoe.lv)
+      local fallenName = G.bFoe.name
       G.bFoe = G.bBench[1]
       if G.nbench == 2 then G.bBench[1] = G.bBench[2] end
       G.nbench = G.nbench - 1
       G.modsFoeStr, G.modsFoeAgl, G.modsFoeSpc = 0, 0, 0
-      setMsg(G, { "It falls.", ("%s sends %s."):format(G.bFoeName, G.bFoe.name) }, 1)
+      setMsg(G, { hitLine, ("%s falls."):format(fallenName), ("%s sends %s."):format(G.bFoeName, G.bFoe.name) }, 1)
       return
     end
-    -- NOTE: crymon.c always names the player's *basic* move here even when
-    -- a special/spell landed the finishing blow -- preserved verbatim for
-    -- fidelity (see README for the full list of such quirks).
-    setMsg(G, { ("%s  %d dmg."):format(data.specOf(G.bPl.species).basic, G.bDmg), ("%s falls."):format(G.bFoe.name) }, 5)
+    setMsg(G, { hitLine, ("%s falls."):format(G.bFoe.name) }, 5)
     return
   end
-  setMsg(G, { ("Hit  %d dmg."):format(G.bDmg), "Choose a guard." }, 3)
+  setMsg(G, { hitLine, ("%s answers. Choose a guard."):format(G.bFoeName) }, 3)
 end
 
 local ITEM_KIND_FIELD = { salve = "salve", bandage = "bandage", bitterroot = "bitterroot", dust = "dust", gem = "gem" }
@@ -286,6 +327,18 @@ local function pickItem(G)
   if row.kind == "pass" then
     G.bPhase = 2
     fillAtkMenu(G)
+    return
+  end
+  if row.kind == "switch" then
+    local nxt = row.target
+    if not nxt or not G.party[nxt] or G.party[nxt].hp <= 0 then
+      setMsg(G, { "No other CryMon can stand." }, 1)
+      return
+    end
+    G.party[G.lead] = G.bPl
+    G.lead = nxt
+    G.bPl = shallowcopy(G.party[nxt])
+    setMsg(G, { ("%s out."):format(G.bPl.name) }, 2)
     return
   end
   if row.kind == "salve" and G.bag.salve > 0 then
@@ -303,14 +356,14 @@ local function pickItem(G)
   elseif row.kind == "bitterroot" and G.bag.bitterroot > 0 then
     G.bag.bitterroot = G.bag.bitterroot - 1
     G.modsSelfStr = G.modsSelfStr + 4
-    setMsg(G, { "Bitterroot. STR +4." }, 2)
+    setMsg(G, { "Bitterroot. STR +4 this fight." }, 2)
     return
   elseif row.kind == "dust" and G.bag.dust > 0 then
     G.bag.dust = G.bag.dust - 1
     G.modsFoeStr = G.modsFoeStr - 3
     G.modsFoeAgl = G.modsFoeAgl - 2
     G.modsFoeSpc = G.modsFoeSpc - 2
-    setMsg(G, { "Ash dust. Foe stats drop." }, 2)
+    setMsg(G, { "Ash dust. Foe STR-3 AGI-2 SPC-2." }, 2)
     return
   elseif row.kind == "gem" and G.bag.gem > 0 then
     G.bag.gem = G.bag.gem - 1
@@ -340,28 +393,46 @@ local function pickItem(G)
   setMsg(G, { "Nothing happens." }, 2)
 end
 
+-- engine.ts's castSpell(id, fromPlayer): shared by Cathleen's player-cast
+-- spells and by a Cathleen foe casting against the player. "self"/"foe" mod
+-- fields always refer to the player/opponent respectively, regardless of
+-- who is casting -- so a foe's Fire Bolt lowers the player's (self) STR.
+-- Returns (nil, nil) for a spent Mana Surge (and, for the player, queues
+-- the "is spent" message itself, matching engine.ts returning early).
+local function castSpell(G, fromPlayer, id)
+  local caster = fromPlayer and G.bPl or G.bFoe
+  if id == "firebolt" then
+    if fromPlayer then G.modsFoeStr = G.modsFoeStr - 4 else G.modsSelfStr = G.modsSelfStr - 4 end
+    return math.max(1, jground(5 + caster.spc * 0.35 + irand(0, 2))), "Fire Bolt  STR-4"
+  elseif id == "icebeam" then
+    if fromPlayer then G.modsFoeAgl = G.modsFoeAgl - 4 else G.modsSelfAgl = G.modsSelfAgl - 4 end
+    return math.max(1, jground(5 + caster.spc * 0.35 + irand(0, 2))), "Ice Beam  AGI-4"
+  elseif id == "lightning" then
+    if fromPlayer then G.modsFoeSpc = G.modsFoeSpc - 4 else G.modsSelfSpc = G.modsSelfSpc - 4 end
+    return math.max(1, jground(5 + caster.spc * 0.35 + irand(0, 2))), "Lightning Strike  SPC-4"
+  elseif id == "manasurge" then
+    if caster.spp <= 0 then
+      if fromPlayer then setMsg(G, { "Mana Surge is spent." }, 2) end
+      return nil, nil
+    end
+    caster.spp = caster.spp - 1
+    local debuffed = fromPlayer and foeDebuffed(G) or selfDebuffed(G)
+    local mul = debuffed and 2 or 1
+    local atk = caster.spc
+    local def = fromPlayer and (G.bFoe.spc + G.modsFoeSpc) or (G.bPl.spc + G.modsSelfSpc)
+    local dmg = math.max(1, jground((11 + atk * 0.75 - def * 0.18) * mul + irand(0, 2)))
+    return dmg, (debuffed and "Mana Surge  2x" or "Mana Surge")
+  end
+end
+
 local function pickAtk(G)
   local s = data.specOf(G.bPl.species)
   if G.bPl.species == "cathleen" then
     local kind = G.bMenu[G.bCur].kind
-    if kind == "firebolt" then
-      G.modsFoeStr = G.modsFoeStr - 4
-      G.bDmg = 5 + math.floor(G.bPl.spc / 3)
-    elseif kind == "icebeam" then
-      G.modsFoeAgl = G.modsFoeAgl - 4
-      G.bDmg = 5 + math.floor(G.bPl.spc / 3)
-    elseif kind == "lightning" then
-      G.modsFoeSpc = G.modsFoeSpc - 4
-      G.bDmg = 5 + math.floor(G.bPl.spc / 3)
-    else -- manasurge
-      if G.bPl.spp <= 0 then
-        setMsg(G, { "Mana Surge is spent." }, 2)
-        return
-      end
-      G.bPl.spp = G.bPl.spp - 1
-      local deb = (G.modsFoeStr < 0 or G.modsFoeAgl < 0 or G.modsFoeSpc < 0) and 2 or 1
-      G.bDmg = math.floor((11 + G.bPl.spc) * deb / 2)
-    end
+    local dmg, label = castSpell(G, true, kind)
+    if not dmg then return end -- "is spent" message already queued
+    G.bDmg = dmg
+    G.bLabel = label
     applyHit(G)
     return
   end
@@ -377,25 +448,88 @@ local function pickAtk(G)
     end
     G.bPl.spp = G.bPl.spp - 1
     G.mg = 8
+    G.mgDir = 1
     G.bPhase = 4
     return
   end
   -- basic
   local atk = G.bPl.str + G.modsSelfStr
   local def = G.bFoe.str + G.modsFoeStr
-  G.bDmg = math.max(1, 6 + math.floor(atk * 62 / 100) - math.floor(def * 16 / 100) + irand(0, 3))
+  G.bDmg = math.max(1, jground(6 + atk * 0.62 - def * 0.16 + irand(0, 3)))
+  G.bLabel = s.basic
   applyHit(G)
 end
 
+-- engine.ts's resolve_guard: the foe picks its own move (a random spell for
+-- Cathleen, otherwise a str/agl-based basic or a 28%-chance special), the
+-- player's chosen guard (dodge/AGI, block/STR, barrier/SPC) is checked
+-- against a stat-difference success chance, and damage is scaled per
+-- guard kind on success. Matches engine.ts's updateBattle "resolve_guard"
+-- phase and pickGuard() exactly (replacing the old flat 50%/half/40% model,
+-- which had no stats, no move choice, and no success-chance formula at all).
 local function pickGuard(G)
-  local dmg = math.max(1, 6 + math.floor((G.bFoe.str + G.modsFoeStr) * 6 / 10))
-  if G.bCur == 1 and irand(0, 99) < 50 then
-    dmg = 0
-  elseif G.bCur == 2 then
-    dmg = math.floor(dmg / 2) + 1
+  local kinds = { "dodge", "block", "barrier" }
+  local guardKind = kinds[G.bCur] or "block"
+  local foeSpec = data.specOf(G.bFoe.species)
+  local useSpecial = false
+  local moveName = foeSpec.basic
+  local base, atkStat
+
+  if G.bFoe.species == "cathleen" then
+    local candidates = { "firebolt", "icebeam", "lightning" }
+    local spellId = candidates[irand(1, 3)]
+    if selfDebuffed(G) and G.bFoe.spp > 0 and math.random() < 0.55 then
+      spellId = "manasurge"
+    end
+    local dmg, label = castSpell(G, false, spellId)
+    if not dmg then dmg, label = 1, foeSpec.special end
+    base = dmg
+    moveName = label
+    atkStat = G.bFoe.str + G.modsFoeStr -- useSpecial stays false in the spell branch
   else
-    dmg = math.floor(dmg * 2 / 5) + 1
+    useSpecial = G.bFoe.spp > 0 and math.random() < 0.28
+    if useSpecial then G.bFoe.spp = G.bFoe.spp - 1 end
+    moveName = useSpecial and foeSpec.special or foeSpec.basic
+    if useSpecial then
+      atkStat = G.bFoe.spc + G.modsFoeSpc
+      base = 10 + (G.bFoe.spc + G.modsFoeSpc) * 0.7 - (G.bPl.spc + G.modsSelfSpc) * 0.12
+    else
+      atkStat = G.bFoe.str + G.modsFoeStr
+      base = 6 + (G.bFoe.str + G.modsFoeStr) * 0.6 - (G.bPl.str + G.modsSelfStr) * 0.15
+    end
   end
+
+  local defStat
+  if guardKind == "dodge" then defStat = G.bPl.agl + G.modsSelfAgl
+  elseif guardKind == "block" then defStat = G.bPl.str + G.modsSelfStr
+  else defStat = G.bPl.spc + G.modsSelfSpc end
+  local chance = clampi(50 + math.floor((defStat - atkStat) * 5) + irand(-10, 10), 12, 88)
+  local success = irand(1, 100) <= chance
+  local dmg = math.max(1, jground(base + irand(0, 3)))
+  local line
+  if guardKind == "dodge" then
+    if success then
+      dmg = 0
+      line = ("%s slips aside."):format(G.bPl.name)
+    else
+      line = ("The dodge fails. %d dmg."):format(dmg)
+    end
+  elseif guardKind == "block" then
+    if success then
+      dmg = math.max(1, jground(dmg * 0.5))
+      line = ("Blocked. %d dmg leaks through."):format(dmg)
+    else
+      line = ("The block breaks. %d dmg."):format(dmg)
+    end
+  else
+    if success then
+      dmg = math.max(1, jground(dmg * 0.4))
+      line = ("A thin barrier holds. %d dmg."):format(dmg)
+    else
+      line = ("The barrier shivers apart. %d dmg."):format(dmg)
+    end
+  end
+
   G.bPl.hp = math.max(0, G.bPl.hp - dmg)
   if G.bPl.hp <= 0 then
     G.party[G.lead] = G.bPl
@@ -406,13 +540,13 @@ local function pickGuard(G)
     if nxt then
       G.lead = nxt
       G.bPl = shallowcopy(G.party[G.lead])
-      setMsg(G, { ("%s jumps in."):format(G.bPl.name) }, 1)
+      setMsg(G, { line, ("%s jumps in."):format(G.bPl.name) }, 1)
       return
     end
-    setMsg(G, { ("%s cannot stand."):format(G.bPl.name) }, 7)
+    setMsg(G, { line, ("%s cannot stand."):format(G.bPl.name) }, 7)
     return
   end
-  setMsg(G, { ("Took %d. Your turn."):format(dmg) }, 1)
+  setMsg(G, { ("%s uses %s."):format(G.bFoe.name, moveName), line }, 1)
 end
 
 -- ===== soldiers (forest) =====
@@ -541,23 +675,43 @@ local function beginTalkEnd(G)
     startBattle(G, data.mintMonster("razorbat", 4), false, "Calder sends Razorbat", "Calder")
   elseif a == 5 and not G.beatMason then
     startBattle(G, data.mintMonster("glimmoth", 3), false, "Mason sends Glimmoth", "Mason")
+  elseif a == 6 then
+    local sol
+    for _, s in ipairs(G.sols) do if s.id == G.pendingSoldier then sol = s end end
+    if sol and not sol.beaten then
+      startBattle(G, data.mintMonster(sol.spec, sol.lv), false, ("%s sends %s"):format(sol.name, data.specOf(sol.spec).name), sol.name)
+      G.bTrainer = "soldier:" .. sol.id
+    end
+  elseif a == 9 then
+    G.mode = MODE.SHOP
+    G.shopTab = "buy"
+    G.shopCursor = 1
   end
   G.afterTalk = 0
 end
 
 -- ===== interact =====
 
+local function fullHeal(G)
+  for _, m in ipairs(G.party) do m.hp = m.maxHp; m.spp = m.sppMax end
+end
+
+-- engine.ts's interact(): all dialogue text/order below is taken verbatim
+-- from data.lua's TALK table (itself verbatim from src/game/data.ts), and
+-- all trigger radii match engine.ts's closestMark(HOUSE, ..., 36) and
+-- closestVeldMark(..., 26) / grove's 52px checks exactly (distSq compares
+-- squared radii: 36*36=1296, 26*26=676, 52*52=2704).
 local function interact(G)
   if G.mapId == MAP_HOUSE then
-    local best, hit = 36 * 36, nil
+    local best, hit = 1296, nil
     for _, mark in ipairs({ "U", "B", "S", "C" }) do
       local hx, hy = data.spawnOf(data.HOUSE, mark)
       local d = distSq(hx, hy, G.px, G.py)
       if d <= best then best, hit = d, mark end
     end
     if hit == "U" then
-      for _, m in ipairs(G.party) do m.hp = m.maxHp; m.spp = m.sppMax end
-      say1(G, "Max", "Cuts close. Specials return.")
+      fullHeal(G)
+      sayn(G, data.TALK.bed, 0)
       return
     end
     if hit == "B" then
@@ -575,7 +729,7 @@ local function interact(G)
         G.lead = 1
         sayn(G, data.TALK.shelf, 0)
       else
-        say1(G, "Max", "Dust. The crystal is already open.")
+        sayn(G, data.TALK.shelfEmpty, 0)
       end
       return
     end
@@ -583,9 +737,9 @@ local function interact(G)
       if not G.lootedCrate then
         G.lootedCrate = true
         G.bag.bandage = G.bag.bandage + 1
-        say1(G, "Max", "A wrap in the crate. Better than nothing.")
+        sayn(G, data.TALK.crate, 0)
       else
-        say1(G, "Max", "Splinters and a moth. Empty.")
+        sayn(G, data.TALK.crateEmpty, 0)
       end
       return
     end
@@ -595,13 +749,13 @@ local function interact(G)
   if G.mapId == MAP_FOREST then
     ensureSoldiers(G)
     for _, s in ipairs(G.sols) do
-      if distSq(s.fx, s.fy, G.px, G.py) <= 1600 then
+      if distSq(s.fx, s.fy, G.px, G.py) <= 676 then
         if s.beaten then
-          say1(G, "", "They already lost.")
+          sayn(G, data.TALK.soldierDone, 0)
           return
         end
-        startBattle(G, data.mintMonster(s.spec, s.lv), false, "A soldier sends a CryMon", s.name)
-        G.bTrainer = "soldier:" .. s.id
+        G.pendingSoldier = s.id
+        sayn(G, data.TALK.soldierSpot, 6)
         return
       end
     end
@@ -610,19 +764,31 @@ local function interact(G)
 
   if G.mapId == MAP_GROVE then
     local cx, cy = data.spawnOf(data.GROVE, "8")
-    local d8 = distSq(cx, cy, G.px, G.py)
     local sx, sy = data.spawnOf(data.GROVE, "9")
+    local d8 = distSq(cx, cy, G.px, G.py)
     local d9 = distSq(sx, sy, G.px, G.py)
-    if d9 <= 2704 and (G.cathCaught or d9 <= d8 or d8 > 2704) then
+    -- engine.ts collects every mark within its own radius (52px for
+    -- Cathleen while uncaught, 40px for her "gone" spot once caught, 52px
+    -- for Shinigami) and picks the closest; there is no overlap here in
+    -- practice (the marks are far enough apart), so picking whichever
+    -- candidate is nearer reproduces the same result.
+    local hasCath = (not G.cathCaught and d8 <= 2704)
+    local hasCathGone = (G.cathCaught and d8 <= 1600)
+    local hasShin = d9 <= 2704
+    if hasShin and (not (hasCath or hasCathGone) or d9 <= d8) then
       if G.beatShin then
-        say1(G, "Shinigami", "The graves are quiet. Go.")
+        sayn(G, data.TALK.shinigamiDone, 0)
       else
         sayn(G, data.TALK.shinigamiSpot, 3)
       end
       return
     end
-    if not G.cathCaught and d8 <= 2704 then
+    if hasCath then
       sayn(G, data.TALK.cathleenSpot, 2)
+      return
+    end
+    if hasCathGone then
+      sayn(G, data.TALK.cathleenGone, 0)
       return
     end
     return
@@ -630,7 +796,7 @@ local function interact(G)
 
   if G.mapId == MAP_VELD then
     if G.annePh == 2 then
-      if distSq(G.ax, G.ay, G.px, G.py) < 2704 then
+      if distSq(G.ax, G.ay, G.px, G.py) <= 676 then
         if not G.anneGift then
           G.anneGift = true
           G.bag.gem = G.bag.gem + 5
@@ -642,7 +808,7 @@ local function interact(G)
       end
     end
     if G.masonPh >= 2 then
-      if distSq(G.mxm, G.mym, G.px, G.py) < 2704 then
+      if distSq(G.mxm, G.mym, G.px, G.py) <= 676 then
         if G.beatMason then
           sayn(G, data.TALK.masonAfter, 0)
         else
@@ -654,120 +820,130 @@ local function interact(G)
     local nx, ny
 
     nx, ny = data.spawnOf(data.VELD, "K")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       if not G.talkedWren then
         G.talkedWren = true
         G.bag.salve = G.bag.salve + 1
-        say1(G, "Wren", "Too young. Take the salve. Calder camps south.")
+        sayn(G, data.TALK.wrenFirst, 0)
+      elseif G.beatCalder then
+        sayn(G, data.TALK.wrenBeat, 0)
+      elseif G.readCart then
+        sayn(G, data.TALK.wrenCart, 0)
       else
-        for _, m in ipairs(G.party) do m.hp = m.maxHp; m.spp = m.sppMax end
-        say1(G, "Wren", "Cuts bound. Specials return.")
+        fullHeal(G)
+        sayn(G, data.TALK.wrenHeal, 0)
       end
       return
     end
     nx, ny = data.spawnOf(data.VELD, "I")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       if not G.talkedMae then
         G.talkedMae = true
         G.bag.bandage = G.bag.bandage + 1
-        say1(G, "Mae", "Take the wrap. I didn't want the path empty.")
+        sayn(G, data.TALK.maeFirst, 0)
       else
-        say1(G, "Mae", "I'll be here. South still drums.")
+        sayn(G, data.TALK.maeAgain, 0)
       end
       return
     end
     nx, ny = data.spawnOf(data.VELD, "V")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       if not G.talkedIvo then
         G.talkedIvo = true
         G.bag.bitterroot = G.bag.bitterroot + 1
-        say1(G, "Ivo", "Camp took my CryMon. Chew this. Calder sits south.")
+        sayn(G, data.TALK.ivoFirst, 0)
       else
-        say1(G, "Ivo", "Hit first. Run if the bat folds you.")
+        sayn(G, data.TALK.ivoAgain, 0)
       end
       return
     end
     nx, ny = data.spawnOf(data.VELD, "A")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       if not G.talkedNell then
         G.talkedNell = true
         G.bag.salve = G.bag.salve + 1
-        say1(G, "Nell", "Too young. Drink this anyway. Reeds hide a stone.")
+        sayn(G, data.TALK.nellFirst, 0)
       elseif #G.party > 1 and not G.nellBonus then
         G.nellBonus = true
         G.bag.salve = G.bag.salve + 1
-        say1(G, "Nell", "That moth wasn't yours yesterday. Another salve.")
+        sayn(G, data.TALK.nellBonus, 0)
       else
-        say1(G, "Nell", "The pond keeps its dead. Don't join them.")
+        sayn(G, data.TALK.nellAgain, 0)
       end
       return
     end
     nx, ny = data.spawnOf(data.VELD, "Q")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       if G.gotGem and not G.pikeHelped then
         G.pikeHelped = true
         G.bag.bandage = G.bag.bandage + 1
-        say1(G, "Pike", "You found it. A wrap. Don't tell Calder.")
+        sayn(G, data.TALK.pikeHelp, 0)
       elseif not G.talkedPike then
         G.talkedPike = true
-        say1(G, "Pike", "I dropped a stone in the east reeds. I'm not going back.")
+        sayn(G, data.TALK.pikeFirst, 0)
       elseif G.pikeHelped then
-        say1(G, "Pike", "We're even.")
+        sayn(G, data.TALK.pikeDone, 0)
       else
-        say1(G, "Pike", "East reeds. Look down.")
+        sayn(G, data.TALK.pikeHint, 0)
       end
       return
     end
     nx, ny = data.spawnOf(data.VELD, "J")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
-      G.mode = MODE.SHOP
-      G.shopTab = "buy"
-      G.shopCursor = 1
-      return
-    end
-    nx, ny = data.spawnOf(data.VELD, "E")
-    if not G.beatCalder and distSq(nx, ny, G.px, G.py) < 2704 then
-      sayn(G, data.TALK.calderFight, 4)
+    if distSq(nx, ny, G.px, G.py) <= 676 then
+      sayn(G, data.TALK.bramOpen, 9)
       return
     end
     nx, ny = data.spawnOf(data.VELD, "M")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       if not G.gotHerb then
         G.gotHerb = true
         G.bag.bitterroot = G.bag.bitterroot + 1
-        say1(G, "Max", "Bitterroot. It bites back.")
+        sayn(G, data.TALK.herb, 0)
       else
-        say1(G, "Max", "Picked clean.")
+        sayn(G, data.TALK.herbGone, 0)
       end
       return
     end
     nx, ny = data.spawnOf(data.VELD, "G")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       if not G.gotGem then
         G.gotGem = true
         G.bag.gem = G.bag.gem + 1
-        say1(G, "Max", G.talkedPike and "Pike's stone. Cold." or "A Capture Crystal.")
+        sayn(G, G.talkedPike and data.TALK.gemPike or data.TALK.gemWild, 0)
       else
-        say1(G, "Max", "The mud is empty.")
+        sayn(G, data.TALK.gemGone, 0)
       end
       return
     end
     nx, ny = data.spawnOf(data.VELD, "L")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       if not G.gotStump then
         G.gotStump = true
         G.bag.bandage = G.bag.bandage + 1
-        say1(G, "Max", "A wrap stuffed in the stump.")
+        sayn(G, data.TALK.stump, 0)
       else
-        say1(G, "Max", "Just a stump.")
+        sayn(G, data.TALK.stumpGone, 0)
       end
       return
     end
     nx, ny = data.spawnOf(data.VELD, "X")
-    if distSq(nx, ny, G.px, G.py) < 2704 then
+    if distSq(nx, ny, G.px, G.py) <= 676 then
       G.readCart = true
-      say1(G, "Max", "A letter. They already knew her name.")
+      sayn(G, data.TALK.cart, 0)
       return
+    end
+    -- Calder's tent occupies both the "E" and "N" marks in data.lua's VELD
+    -- map (engine.ts checks `mark === "E" || mark === "N"`).
+    for _, mark in ipairs({ "E", "N" }) do
+      nx, ny = data.spawnOf(data.VELD, mark)
+      if distSq(nx, ny, G.px, G.py) <= 676 then
+        if G.beatCalder then
+          sayn(G, data.TALK.calderAfter, 0)
+        else
+          sayn(G, data.TALK.calderFight, 4)
+        end
+        return
+      end
     end
   end
 end
@@ -782,14 +958,20 @@ local function tryEncounter(G)
   G.lastTx, G.lastTy = tx, ty
   if tileAtPix(G, G.px, G.py) ~= "T" then return end
   if G.encLock > 0 then G.encLock = G.encLock - 1; return end
-  if irand(0, 99) > 18 then return end
+  -- data.ts/engine.ts: Math.random() > .18 means an exact 18% trigger
+  -- chance; irand(0,99) is 100 equally likely integers, so the trigger set
+  -- must be exactly 18 of them (0..17), not 19 (0..18).
+  if irand(0, 99) >= 18 then return end
   G.encLock = 3
-  local id, lv = "glimmoth", 2 + irand(0, 1)
+  local id, lv
   if G.mapId == MAP_FOREST then
     id = ENC_POOL_FOREST[irand(1, 3)]
     lv = 3 + irand(0, 2)
-  elseif tx > 18 then
-    id = "tortcask"
+  else
+    if tx < 12 then id = "glimmoth"
+    elseif tx > 18 then id = "tortcask"
+    else id = (math.random() < 0.5) and "glimmoth" or "tortcask" end
+    lv = 2 + (ty > 14 and 1 or 0) + irand(0, 1)
   end
   local title = ("A wild %s"):format(data.specOf(id).name)
   startBattle(G, data.mintMonster(id, lv), true, title, "wild")
@@ -829,6 +1011,18 @@ local function updateWorld(G, dt)
       G.aanim = G.aanim + dt * 8
       G.aframe = math.floor(G.aanim) % 4
       if G.ay > G.py + 300 then G.annePh = 0 end
+    end
+  end
+
+  if G.masonPh == 3 then
+    if G.mapId ~= MAP_VELD then
+      G.masonPh = 0
+    else
+      G.mym = G.mym + 80 * dt
+      G.mdir = "down"
+      G.manim = G.manim + dt * 8
+      G.mframe = math.floor(G.manim) % 4
+      if G.mym > G.py + 300 then G.masonPh = 0 end
     end
   end
 
@@ -918,7 +1112,7 @@ local function updateWorld(G, dt)
         G.py = ddy - data.TILE
         G.pdir = "up"
         G.doorLock = 20
-        say1(G, "Max", "Not yet. Father's CryMon is still on the shelf.")
+        sayn(G, data.TALK.doorLocked, 0)
       else
         warp(G, MAP_VELD, "D", true)
         if G.masonPh == 0 then
@@ -928,24 +1122,27 @@ local function updateWorld(G, dt)
           G.mdir = "up"
           G.mframe = 0
           G.manim = 0
-          say1(G, "", "Footsteps on the path. Someone followed you out.")
+          sayn(G, data.TALK.footsteps, 0)
         else
-          say1(G, "Max", "Night air. I can do this.")
+          sayn(G, data.TALK.doorOut, 0)
         end
       end
     elseif G.mapId == MAP_VELD and ch == "D" then
       warp(G, MAP_HOUSE, "D", false)
+      sayn(G, data.TALK.cottage, 0)
     elseif G.mapId == MAP_VELD and ch == "Z" then
       warp(G, MAP_FOREST, "Y", true)
       ensureSoldiers(G)
-      say1(G, "Max", "The trees close over the path.")
+      sayn(G, data.TALK.forestEnter, 0)
     elseif G.mapId == MAP_FOREST and ch == "Y" then
       warp(G, MAP_VELD, "Z", false)
+      sayn(G, data.TALK.forestLeave, 0)
     elseif G.mapId == MAP_FOREST and ch == "O" then
       warp(G, MAP_GROVE, "O", true)
-      say1(G, "Max", "The grass dies out. Stone and hush.")
+      sayn(G, data.TALK.groveEnter, 0)
     elseif G.mapId == MAP_GROVE and ch == "O" then
       warp(G, MAP_FOREST, "O", false)
+      sayn(G, data.TALK.groveLeave, 0)
     end
   end
 
@@ -972,7 +1169,15 @@ local function updateBattle(G, dt)
           local L = leader(G)
           if L then L.hp = math.max(1, math.floor(L.maxHp * 2 / 5)) end
           G.encLock = 3
+          G.battles = G.battles + 1
           say1(G, "Max", "We still breathe. Crawl back.")
+          return
+        end
+        if G.bAfter == 8 then
+          G.mode = MODE.WORLD
+          G.masonPh = 3
+          G.mdir = "down"
+          G.mframe = 0
           return
         end
         G.bPhase = G.bAfter
@@ -987,14 +1192,20 @@ local function updateBattle(G, dt)
     return
   end
   if G.bPhase == 4 then
-    G.mg = G.mg + dt * 110
-    if G.mg > 100 then G.mg = 0 end
+    -- engine.ts: the needle bounces back and forth between 0 and 100
+    -- (minigameDir flips at each end), it does not sawtooth-reset to 0.
+    G.mg = G.mg + G.mgDir * dt * 110
+    if G.mg > 100 then G.mg = 100; G.mgDir = -1 end
+    if G.mg < 0 then G.mg = 0; G.mgDir = 1 end
     if input.confirmPressed() then
-      local mul
-      if G.mg >= 46 and G.mg <= 54 then mul = 2.0
-      elseif G.mg >= 38 and G.mg <= 62 then mul = 1.45
-      else mul = 0.7 end
-      G.bDmg = math.max(1, math.floor((11 + G.bPl.spc * 0.75) * mul))
+      local mul, label
+      if G.mg >= 46 and G.mg <= 54 then mul, label = 2.0, "perfect"
+      elseif G.mg >= 38 and G.mg <= 62 then mul, label = 1.45, "connected"
+      else mul, label = 0.7, "fizzled" end
+      local atk = G.bPl.spc + G.modsSelfStr * 0.2
+      local def = G.bFoe.spc + G.modsFoeSpc
+      G.bDmg = math.max(1, jground((11 + atk * 0.75 - def * 0.18) * mul + irand(0, 2)))
+      G.bLabel = ("%s %s"):format(data.specOf(G.bPl.species).special, label)
       applyHit(G)
     end
     return

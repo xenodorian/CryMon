@@ -18,7 +18,8 @@ local MOVE_KEYS = {
 local CONFIRM_KEYS = { z = true, ["return"] = false, space = true } -- return is Start, not confirm (matches crymon.c)
 local CANCEL_KEYS = { x = true, c = true, escape = true }
 local START_KEYS = { ["return"] = true }
-local SELECT_KEYS = { tab = true, q = true }
+-- src/game/input.ts's select(): KeyQ, Tab, or Backspace.
+local SELECT_KEYS = { tab = true, q = true, backspace = true }
 
 local pressedThisFrame = {}
 

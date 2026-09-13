@@ -1,8 +1,9 @@
 -- src/data.lua
 -- Static game data: species, items, maps, dialogue, formulas.
--- Ported from native/crymon.c (primary reference) and src/game/data.ts
--- (cross-checked for text/constants). Where the two disagreed, the choice
--- made is noted inline with a comment.
+-- src/game/data.ts is the single source of truth for every value and every
+-- line of dialogue here; native/crymon.c is read only for implementation
+-- ideas, never as a tiebreaker. Divergences from data.ts found during audit
+-- are noted inline with a comment.
 
 local data = {}
 
@@ -44,7 +45,8 @@ end
 -- ===== Formulas =====
 
 -- Capture chance: 5% per foe agility, +1% per % of foe HP missing, +25%
--- if any foe stat has been lowered this fight. crymon.c and data.ts agree.
+-- if any foe stat has been lowered this fight. Verbatim from data.ts's
+-- captureChance().
 function data.captureChance(agl, hp, maxHp, vulnerable)
   local missing = 0
   if maxHp > 0 then missing = math.floor((maxHp - hp) * 100 / maxHp) end
@@ -59,9 +61,9 @@ function data.specOf(id)
   return data.SPECIES[id] or data.SPECIES.quillpup
 end
 
--- Mint a monster of species `id` at level `lv`. Growth curve and rounding
--- match crymon.c (round-half-up via +0.5 floor) and data.ts (Math.round) —
--- these agree for all positive values used here.
+-- Mint a monster of species `id` at level `lv`. Growth curve matches
+-- data.ts's mintMonster() exactly; floor(x+0.5) here reproduces JS
+-- Math.round() for the positive inputs used here.
 function data.mintMonster(id, lv)
   local s = data.specOf(id)
   lv = math.max(1, lv or 3)
@@ -84,9 +86,12 @@ function data.mintMonster(id, lv)
 end
 
 -- XP curve: +6 + 4*foeLevel per win, level up while xp >= lv*10 (cap lv 12).
--- Matches crymon.c grant() and data.ts grantXp() exactly.
+-- Matches src/game/data.ts's grantXp() exactly. Returns true if the monster
+-- leveled up at least once (engine.ts uses this to pick the "grew to lv X"
+-- vs "stands over the grass" note after a wild win).
 function data.grantXp(m, foeLv)
   m.xp = m.xp + 6 + foeLv * 4
+  local grew = false
   while m.xp >= m.lv * 10 and m.lv < 12 do
     m.xp = m.xp - m.lv * 10
     m.lv = m.lv + 1
@@ -95,11 +100,13 @@ function data.grantXp(m, foeLv)
     m.str = m.str + 1
     m.agl = m.agl + 1
     m.spc = m.spc + 1
+    grew = true
   end
+  return grew
 end
 
 -- ===== Maps =====
--- Row-strings identical to crymon.c / data.ts. Index 1 = house, 2 = veld,
+-- Row-strings identical to src/game/data.ts. Index 1 = house, 2 = veld,
 -- 3 = forest, 4 = grove (Lua 1-based).
 
 data.HOUSE = {
@@ -206,12 +213,15 @@ function data.mapDims(map)
   return w, h
 end
 
--- Exact solid-tile set from crymon.c's solid(): note 'D' (door) is
--- deliberately absent -- doors must be walkable so stepping onto them
--- triggers a warp. Grove's extra door-gate ('D' mid-map, see GROVE above)
--- is handled specially in state.lua instead of here.
+-- Exact solid-tile set: matches src/game/data.ts's solidTile() verbatim
+-- ("#HWRBC^NKEVAQXUJI"). Note 'D' (door) is deliberately absent -- doors
+-- must be walkable so stepping onto them triggers a warp. Also note 'S'
+-- (house shelf) and 'L' are NOT solid in the TS source -- the shelf is
+-- interacted with via proximity (see interact()/closestMark in engine.ts),
+-- not by blocking movement onto it. Grove's extra door-gate ('D' mid-map,
+-- see GROVE above) is handled specially in state.lua instead of here.
 local SOLID_SET = {}
-for c in string.gmatch("#HWRBC^NKEVAQXUJSLI", ".") do SOLID_SET[c] = true end
+for c in string.gmatch("#HWRBC^NKEVAQXUJI", ".") do SOLID_SET[c] = true end
 function data.isSolidTile(ch)
   return SOLID_SET[ch] == true
 end
