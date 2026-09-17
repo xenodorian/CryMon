@@ -1,0 +1,54 @@
+{
+  "source": "Dreamcast main.c — canonical game logic. Web and Dreamcast both interpret this file. Do not fork rules in engine.ts or main.c.",
+  "screenFade": {
+    "outSec": 0.267,
+    "holdSec": 0.05,
+    "inSec": 0.267
+  },
+  "arrivals": {
+    "masonAmbush": {
+      "needParty": true,
+      "unless": "foughtMason",
+      "spawn": {
+        "actor": "mason",
+        "oy": 160,
+        "dir": "up",
+        "phase": "approach"
+      }
+    },
+    "ensureSoldiers": {
+      "call": "ensureSoldiers"
+    }
+  },
+  "masonRematch": {
+    "unlockOn": "beatCalder",
+    "once": "mason2Done",
+    "maps": ["veld", "forest", "grove"],
+    "oy": 160,
+    "dir": "up",
+    "talk": "masonFight2",
+    "battle": {
+      "lead": ["glimmoth", 6],
+      "bench": [
+        ["briarfox", 7],
+        ["duskhorn", 8]
+      ],
+      "title": "Mason sends Glimmoth",
+      "marks": 20,
+      "winTalk": "masonWin2"
+    }
+  },
+  "bed": {
+    "talk": "bed",
+    "afterTalk": "bedHeal",
+    "healParty": true,
+    "fade": true
+  },
+  "partyWipe": {
+    "fade": true,
+    "healParty": true,
+    "map": "house",
+    "mark": "U",
+    "dir": "up"
+  }
+}

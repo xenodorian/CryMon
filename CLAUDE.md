@@ -10,14 +10,14 @@ Full contract: [`docs/CRYMON.md`](docs/CRYMON.md)
 
 | What | Where |
 |---|---|
-| Maps, species, items, talk, warps, wild pools, trainers, NPC marks | `content/*.json` |
+| Maps, species, items, talk, warps, wild pools, trainers, NPC marks, **rules** | `content/*.json` (`logic.json` is the Dreamcast spec) |
 | Pixel art | `public/sprites/` |
 | Web engine / UI | `src/game/`, `src/components/gemwar-app.tsx` |
 | Dreamcast runtime (video, Maple, battle loop) | `ports/dreamcast/src/main.c` |
 | Dreamcast sprite bake | `ports/dreamcast/tools/gen_sprites.py` |
 | Content bake (JSON → C) | `tools/bake_content.py` |
 
-If JSON and `main.c` disagree, **JSON wins.** Re-bake. Do not patch the `.inc` files.
+If JSON and `main.c` disagree, **`content/logic.json` + the rest of `content/` win.** Re-bake. Do not patch the `.inc` files.
 
 ## Build web
 

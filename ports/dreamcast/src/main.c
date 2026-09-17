@@ -710,6 +710,7 @@ typedef struct {
 } Map;
 
 #include "content_maps.inc"
+#include "content_logic.inc"
 
 static int tile_is_solid(char ch) {
     static const char *const solid = "#HWRBC^NKEVAQXUJISMGL89r";
@@ -3677,9 +3678,7 @@ void main(void) {
                                        depends on it having happened
                                        either. */
                                     if(!mason2_done && mason2_map < 0) {
-                                        static const int MASON2_MAPS[3] =
-                                            { MAP_VELD, MAP_FOREST, MAP_GROVE };
-                                        mason2_map = MASON2_MAPS[irand(0, 2)];
+                                        mason2_map = LOGIC_MASON2_MAPS[irand(0, LOGIC_MASON2_MAP_N - 1)];
                                     }
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_CLIFFS) {
@@ -4361,7 +4360,9 @@ void main(void) {
                                Guarded on !beat_mason so re-using this
                                door after he's already been fought (and
                                left) doesn't respawn him. */
-                            if(mason_state == 0 && !beat_mason) {
+                            if(mason_state == 0
+                               && (!LOGIC_MASON_AMBUSH_UNLESS_BEAT || !beat_mason)
+                               && (!LOGIC_MASON_AMBUSH_NEED_PARTY || party_n >= 1)) {
                                 mason_state = 1;
                                 mason_x = (float)px;
                                 mason_y = (float)py + 100.0f; /* 160 * 0.625 */

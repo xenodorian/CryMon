@@ -65,7 +65,7 @@ export function GemwarApp() {
             </Button>
             <a
               className={cn(buttonVariants({ variant: "default", size: "sm" }))}
-              href="/rom/CryMon.cdi?v=dc4"
+              href="/rom/CryMon.cdi?v=dc5"
               download="CryMon.cdi"
               rel="noopener"
             >

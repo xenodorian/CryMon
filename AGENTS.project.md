@@ -10,7 +10,7 @@ Read [`CLAUDE.md`](CLAUDE.md) if you are Claude; same rules, DC-focused build st
 
 ## Do
 
-- Edit **`content/*.json`** for species, items, maps, dialogue, warps, encounters, NPC marks, trainer kits.
+- Edit **`content/*.json`** for species, items, maps, dialogue, warps, encounters, NPC marks, trainer kits, **and rules** (`logic.json`).
 - Edit **`public/sprites/`** for art. Do not duplicate sprite packs per port.
 - Keep web playable: `src/game/` loads JSON directly. Preview must keep running.
 - After JSON edits that should hit Dreamcast: `python3 tools/bake_content.py --content content --out ports/dreamcast/src`
@@ -18,7 +18,8 @@ Read [`CLAUDE.md`](CLAUDE.md) if you are Claude; same rules, DC-focused build st
 
 ## Do not
 
-- Do not re-author maps, talk beats, or species tables inside `src/game/engine.ts` or `ports/dreamcast/src/main.c`.
+- Do not re-author maps, talk beats, species tables, **or Mason/fade/warp rules** inside `src/game/engine.ts` or `ports/dreamcast/src/main.c`.
+- Do not invent a second logic file "just for DC". Bake `content/logic.json`.
 - Do not revive the SNES port. It was abandoned; do not add `.sfc` / 65816 sources.
 - Do not revive the LÖVE2D port. It was abandoned; do not add `love/` sources.
 - Do not revive the SDL2 / R36S PortMaster port. It was abandoned; do not add `native/` sources.

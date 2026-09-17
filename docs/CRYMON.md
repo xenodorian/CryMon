@@ -26,17 +26,19 @@ Repos:
 - `content/maps.json` — ASCII maps, solid tiles, tile art keys
 - `content/dialogue.json` — every talk beat, intro, ending, speaker names
 - `content/world.json` — start bag, map names, warps, encounters, trainer kits, NPC marks, formulas
+- `content/logic.json` — **canonical game rules** (Dreamcast spec): Mason once-only ambush, Calder rematch, bed fade, party-wipe fade-home
 - `public/sprites/` — walk cycles, portraits, monsters, items, props
 
-**Per port (do not try to unify):**
+**Per port (presentation only):**
 
 - Rendering (canvas vs PVR framebuffer)
 - Input (keyboard / touch vs Maple)
 - Audio
-- The battle/menu state machine implementation (same formulas, different code)
 
-Formulas in `world.json` `formulas` are the contract. Ports implement them;
-they do not invent a second capture/XP rule.
+Do not keep a second Mason/fade/warp rule in `engine.ts` or `main.c`.
+Those engines **interpret** `content/logic.json`. Formulas in `world.json`
+`formulas` are the combat contract.
+
 
 ## Web build
 

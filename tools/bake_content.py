@@ -148,6 +148,7 @@ def load_pack(content: Path) -> dict:
         "maps": json.loads((content / "maps.json").read_text()),
         "dialogue": json.loads((content / "dialogue.json").read_text()),
         "world": json.loads((content / "world.json").read_text()),
+        "logic": json.loads((content / "logic.json").read_text()),
     }
 
 
@@ -228,6 +229,36 @@ def bake_species(data: dict, out: Path) -> None:
     out.write_text("\n".join(lines) + "\n")
 
 
+MAP_C = {
+    "house": "MAP_HOUSE",
+    "veld": "MAP_VELD",
+    "forest": "MAP_FOREST",
+    "grove": "MAP_GROVE",
+    "camp": "MAP_CAMP",
+    "cliffs": "MAP_CLIFFS",
+    "ruins": "MAP_RUINS",
+}
+
+
+def bake_logic(data: dict, out: Path) -> None:
+    logic = data["logic"]
+    ambush = logic["arrivals"]["masonAmbush"]
+    rematch = logic["masonRematch"]
+    fade = logic["screenFade"]
+    lines = [HEADER]
+    lines.append("/* Canonical rules from content/logic.json (Dreamcast spec). */")
+    lines.append(f"#define LOGIC_FADE_OUT_FRAMES {max(1, int(round(fade['outSec'] * 60)))}")
+    lines.append(f"#define LOGIC_FADE_HOLD_FRAMES {max(1, int(round(fade['holdSec'] * 60)))}")
+    lines.append(f"#define LOGIC_FADE_IN_FRAMES {max(1, int(round(fade['inSec'] * 60)))}")
+    lines.append(f"#define LOGIC_MASON_AMBUSH_NEED_PARTY {1 if ambush.get('needParty') else 0}")
+    lines.append(f"#define LOGIC_MASON_AMBUSH_UNLESS_BEAT {1 if ambush.get('unless') == 'foughtMason' else 0}")
+    maps = ", ".join(MAP_C[m] for m in rematch["maps"])
+    lines.append(f"static const int LOGIC_MASON2_MAPS[] = {{ {maps} }};")
+    lines.append(f"#define LOGIC_MASON2_MAP_N {len(rematch['maps'])}")
+    lines.append("")
+    out.write_text("\n".join(lines) + "\n")
+
+
 def bake_items(data: dict, out: Path) -> None:
     items = data["items"]
     order = items["order"]
@@ -262,7 +293,8 @@ def main() -> None:
     bake_talk(data, outdir / "content_talk.inc")
     bake_species(data, outdir / "content_species.inc")
     bake_items(data, outdir / "content_items.inc")
-    print(f"baked maps/talk/species/items -> {outdir}")
+    bake_logic(data, outdir / "content_logic.inc")
+    print(f"baked maps/talk/species/items/logic -> {outdir}")
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ OBJS = src/start.o src/main.o
 
 CONTENT_JSON = $(wildcard $(CONTENT)/*.json)
 CONTENT_INC  = src/content_maps.inc src/content_talk.inc \
-               src/content_species.inc src/content_items.inc
+               src/content_species.inc src/content_items.inc src/content_logic.inc
 
 all: crymon.elf
 

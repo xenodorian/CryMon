@@ -35,6 +35,7 @@ import {
   WARPS,
   TRAINERS,
 } from "./data";
+import { LOGIC, arrivalAllowed, fadeAlpha, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
 import type {
   BattleState,
@@ -55,7 +56,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | "shop" | "orenShop" | "mason" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending";
+type TalkAfter = null | "shop" | "orenShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "bedHeal";
 
 const STEP = 1 / 60;
 function loadImg(src) {
@@ -178,6 +179,10 @@ export class Gemwar {
 	beatConscript = false;
 	beatEnforcer = false;
 	beatSentry = false;
+	mason2Map: string | null = null;
+	mason2Done = false;
+	masonRematch = false;
+	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" };
 	pendingWs = null;
 	choiceCur = 0;
 	shopKeep = "bram";
@@ -556,6 +561,10 @@ export class Gemwar {
 		this.beatConscript = false;
 		this.beatEnforcer = false;
 		this.beatSentry = false;
+		this.mason2Map = null;
+		this.mason2Done = false;
+		this.masonRematch = false;
+		this.fade = { phase: "off", t: 0, action: null };
 		this.pendingWs = null;
 		this.choiceCur = 0;
 		this.shopKeep = "bram";
@@ -861,6 +870,18 @@ export class Gemwar {
 				this.startAnneLeave();
 			} else if (next === "masonLeave") {
 				this.startMasonLeave();
+			} else if (next === "bedHeal") {
+				this.startFade("bed");
+			} else if (next === "mason2") {
+				const kit = LOGIC.masonRematch.battle;
+				this.startBattle(
+					mintMonster(kit.lead[0], kit.lead[1]),
+					false,
+					kit.title,
+					"mason2",
+					null,
+					kit.bench.map((b) => mintMonster(b[0], b[1]))
+				);
 			} else if (next === "choice") {
 				this.mode = "choice";
 				this.choiceCur = 0;
@@ -996,6 +1017,7 @@ export class Gemwar {
 	}
 	update(dt) {
 		this.clock += dt;
+		this.tickFade(dt);
 		if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
 		if (this.hudT > 0) this.hudT -= dt;
 		if (this.mode === "title") {
@@ -1240,10 +1262,15 @@ export class Gemwar {
 		}
 	}
 	updateWorld(dt) {
+		if (this.fade.phase !== "off") {
+			this.world.moving = false;
+			return;
+		}
 		if (this.talkLock > 0) this.talkLock = Math.max(0, this.talkLock - dt);
 		if (this.doorLock > 0) this.doorLock -= dt;
 		if (this.mapBannerT > 0) this.mapBannerT = Math.max(0, this.mapBannerT - dt);
 		if (!this.talking() && this.hudT <= 0) this.maybeStartAnne();
+		this.maybeStartMasonRematch();
 		if (this.rival.phase === "approach") {
 			this.world.moving = false;
 			this.world.frame = 0;
@@ -1253,7 +1280,7 @@ export class Gemwar {
 			if (dist < 36) {
 				this.rival.phase = "talk";
 				this.rival.frame = 0;
-				this.say(TALK.masonFight, "mason");
+				this.say(this.masonRematch ? TALK.masonFight2 : TALK.masonFight, this.masonRematch ? "mason2" : "mason");
 				return;
 			}
 			const sp = 52 * dt;
@@ -1460,7 +1487,81 @@ export class Gemwar {
 		if (need === "tookStarter") return this.tookStarter;
 		if (need === "beatCalder") return this.beatCalder;
 		if (need === "beatShin") return this.beatShinigami;
+		if (need === "foughtMason") return this.foughtMason;
+		if (need === "hasParty") return this.party.length >= 1;
 		return true;
+	}
+	logicFlags() {
+		return {
+			foughtMason: this.foughtMason,
+			beatCalder: this.beatCalder,
+			hasParty: this.party.length >= 1,
+			mason2Done: this.mason2Done,
+			mason2Map: this.mason2Map,
+			mapId: this.world.mapId,
+			rivalOff: this.rival.phase === "off"
+		};
+	}
+	spawnMasonApproach(rematch: boolean) {
+		const oy = rematch ? LOGIC.masonRematch.oy : LOGIC.arrivals.masonAmbush.spawn.oy;
+		const dir = rematch ? LOGIC.masonRematch.dir : LOGIC.arrivals.masonAmbush.spawn.dir;
+		this.masonRematch = rematch;
+		this.rival = {
+			phase: "approach",
+			x: this.world.x,
+			y: this.world.y + oy,
+			dir,
+			frame: 0,
+			anim: 0
+		};
+	}
+	runArrival(name: string | undefined) {
+		if (!name) return;
+		if (name === "ensureSoldiers") {
+			this.ensureSoldiers();
+			return;
+		}
+		if (!arrivalAllowed(this.logicFlags(), name)) return;
+		const spec = LOGIC.arrivals[name];
+		if (spec && "spawn" in spec && spec.spawn.actor === "mason") this.spawnMasonApproach(false);
+	}
+	startFade(action: "bed" | "loss") {
+		this.fade = { phase: "out", t: 0, action };
+	}
+	applyFadeHold() {
+		if (this.fade.action === "bed" && LOGIC.bed.healParty) this.sleepHeal();
+		if (this.fade.action === "loss") {
+			if (LOGIC.partyWipe.healParty) this.sleepHeal();
+			const mark = spawnOf(HOUSE, LOGIC.partyWipe.mark);
+			this.world.mapId = LOGIC.partyWipe.map;
+			this.world.x = mark.x + TILE;
+			this.world.y = mark.y;
+			this.world.dir = LOGIC.partyWipe.dir;
+			this.doorLock = 0.4;
+			this.announceMap();
+		}
+	}
+	tickFade(dt: number) {
+		if (this.fade.phase === "off") return;
+		const { outSec, holdSec, inSec } = LOGIC.screenFade;
+		this.fade.t += dt;
+		if (this.fade.phase === "out" && this.fade.t >= outSec) {
+			this.fade.phase = "hold";
+			this.fade.t = 0;
+			this.applyFadeHold();
+		} else if (this.fade.phase === "hold" && this.fade.t >= holdSec) {
+			this.fade.phase = "in";
+			this.fade.t = 0;
+		} else if (this.fade.phase === "in" && this.fade.t >= inSec) {
+			this.fade = { phase: "off", t: 0, action: null };
+		}
+	}
+	maybeStartMasonRematch() {
+		if (!this.mason2Map && this.beatCalder && !this.mason2Done) {
+			this.mason2Map = pickMason2Map(Math.random());
+		}
+		if (!shouldSpawnMasonRematch(this.logicFlags())) return;
+		this.spawnMasonApproach(true);
 	}
 	applyWarp(ch: string) {
 		const warp = WARPS.find((w) => w.from === this.world.mapId && w.tile === ch);
@@ -1478,18 +1579,7 @@ export class Gemwar {
 		}
 		if (warp.onArrive === "ensureSoldiers") this.ensureSoldiers();
 		this.warpTo(warp.to, warp.spawn, warp.dir, warp.oy);
-		if (warp.onArrive === "masonAmbush") {
-			if (this.party.length >= 1 && this.rival.phase === "off") {
-				this.rival = {
-					phase: "approach",
-					x: this.world.x,
-					y: this.world.y + 160,
-					dir: "up",
-					frame: 0,
-					anim: 0
-				};
-			}
-		}
+		if (warp.onArrive && warp.onArrive !== "ensureSoldiers") this.runArrival(warp.onArrive);
 		this.maybeStartAnne();
 		return true;
 	}
@@ -1502,8 +1592,7 @@ export class Gemwar {
 				"C"
 			], 36);
 			if (hit === "U") {
-				this.sleepHeal();
-				this.say(TALK.bed);
+				this.say(TALK[LOGIC.bed.talk], LOGIC.bed.afterTalk);
 				this.audio.ok();
 				return;
 			}
@@ -1991,7 +2080,7 @@ export class Gemwar {
 		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross" };
 		const foeName = wild
 			? foe.name
-			: trainer === "mason"
+			: trainer === "mason" || trainer === "mason2"
 				? "Mason"
 				: trainer === "soldier"
 					? soldierName
@@ -2113,11 +2202,9 @@ export class Gemwar {
 					}
 					if (b.afterMsg === "end_lose") {
 						this.leaveBattle();
-						const m = this.lead();
-						m.hp = Math.max(1, Math.floor(m.maxHp * .4));
 						this.world.encounterLock = 3;
 						this.onBattleOver();
-						this.say(TALK.lose);
+						this.startFade("loss");
 						return;
 					}
 					if (b.afterMsg === "end_catch" || b.afterMsg === "end_run") {
@@ -2590,6 +2677,7 @@ export class Gemwar {
 		if (!b.wild) {
 			if (b.trainer === "calder") {
 				this.beatCalder = true;
+				if (!this.mason2Done && !this.mason2Map) this.mason2Map = pickMason2Map(Math.random());
 				this.marks += 18;
 				this.mode = "world";
 				this.battle = null;
@@ -2649,6 +2737,18 @@ export class Gemwar {
 				this.audio.ok();
 				return;
 			}
+			if (b.trainer === "mason2") {
+				this.mason2Done = true;
+				this.masonRematch = false;
+				this.marks += LOGIC.masonRematch.battle.marks;
+				this.mode = "world";
+				this.battle = null;
+				this.world.encounterLock = 3;
+				this.onBattleOver();
+				this.say(TALK[LOGIC.masonRematch.battle.winTalk], "masonLeave");
+				this.audio.ok();
+				return;
+			}
 			this.foughtMason = true;
 			this.rival.phase = "done";
 			this.marks += 10;
@@ -2699,7 +2799,17 @@ export class Gemwar {
 		else if (this.mode === "shop") this.drawShop();
 		else if (this.mode === "choice") this.drawChoice();
 		else this.drawWorld();
+		this.drawFade();
 		ctx.restore();
+	}
+	drawFade() {
+		const a = fadeAlpha(this.fade.phase, this.fade.t);
+		if (a <= 0) return;
+		this.ctx.save();
+		this.ctx.globalAlpha = a;
+		this.ctx.fillStyle = "#000";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.ctx.restore();
 	}
 	fill(c) {
 		this.ctx.fillStyle = c;
