@@ -1,32 +1,8 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
-import { Download, Volume2, VolumeX } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Volume2, VolumeX } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Gemwar } from "@/game/engine";
 import { cn } from "@/lib/utils";
-
-function RomFile({
-  href,
-  filename,
-  children,
-  variant = "outline",
-}: {
-  href: string;
-  filename: string;
-  children: ReactNode;
-  variant?: "default" | "outline";
-}) {
-  return (
-    <a
-      className={cn(buttonVariants({ variant, size: "sm" }))}
-      href={href}
-      download={filename}
-      rel="noopener"
-    >
-      <Download className="size-4" />
-      {children}
-    </a>
-  );
-}
 
 export function GemwarApp() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -87,9 +63,6 @@ export function GemwarApp() {
               {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
               {muted ? "Muted" : "Sound"}
             </Button>
-            <RomFile href="/rom/CryMon-ports.zip?v=cm14" filename="CryMon-ports.zip" variant="default">
-              Copy into Ports
-            </RomFile>
           </div>
         </div>
       </header>
@@ -121,47 +94,6 @@ export function GemwarApp() {
         </section>
 
         <aside className="flex flex-col gap-4 text-sm leading-relaxed text-muted">
-          <h2 className="font-display text-lg text-fg">Install on the R36S</h2>
-          <p>
-            Unzip into the existing ports folder. These zips only contain CryMon.sh and the crymon
-            folder. They will not replace the Ports list.
-          </p>
-          <ol className="list-decimal space-y-2 pl-5 text-fg">
-            <li>Power off. Take out the ROMs SD card and open it on a computer.</li>
-            <li>
-              Open the existing <span className="text-muted">ports</span> folder (EASYROMS/ports or roms/ports).
-            </li>
-            <li>
-              Unzip <span className="text-muted">CryMon-ports.zip</span> there. You should see CryMon.sh next to
-              your other port launchers, and a crymon folder beside them.
-            </li>
-            <li>
-              Do not replace the ports folder.
-            </li>
-          </ol>
-          <p>
-            <a
-              className="text-fg underline underline-offset-4 hover:text-accent"
-              href="/rom/CryMon-ports.zip?v=cm14"
-              download="CryMon-ports.zip"
-              rel="noopener"
-            >
-              CryMon-ports.zip
-            </a>
-            {" — "}
-            aarch64 for the R36S, plus x86_64 for a PC.
-          </p>
-          <h2 className="font-display text-lg text-fg">If Ports is already missing</h2>
-          <p>
-            An older zip dumped a game-list XML into ports. Delete{" "}
-            <span className="text-muted">gamelist.xml</span> and{" "}
-            <span className="text-muted">gameinfo.xml</span> from that folder, leave PortMaster alone,
-            then on the device: Visible Systems → Ports on, Parse Gamelists Only → Off, Update
-            Gamelists, reboot.
-          </p>
-          <p>
-            If PortMaster itself is gone from Tools, run Options → Tools → Install PortMaster, then reboot.
-          </p>
           <h2 className="font-display text-lg text-fg">How to play</h2>
           <p>
             Max walks out with Quillpup and no Capture Crystals. Anne presses five into her hand after the first fight. Tall grass hides wild CryMon. Tamers will not.
@@ -201,9 +133,6 @@ export function GemwarApp() {
             Mason waits outside the cottage. Wren is west, Ivo in the grove, Nell by the pond. Bram keeps a stall on the path.
             Pike lost a crystal in the east reeds. Tall grass west hides Glimmoth; east hides Tortcask; south hits
             harder. Calder waits at the south tent.
-          </p>
-          <p className="text-xs text-subtle">
-            Copy into Ports is only CryMon.sh and the crymon folder. No XML. This screen is the same 640×480 game.
           </p>
         </aside>
       </main>
