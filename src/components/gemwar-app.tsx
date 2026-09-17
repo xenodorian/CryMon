@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
-import { Volume2, VolumeX } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Download, Volume2, VolumeX } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Gemwar } from "@/game/engine";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +63,15 @@ export function GemwarApp() {
               {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
               {muted ? "Muted" : "Sound"}
             </Button>
+            <a
+              className={cn(buttonVariants({ variant: "default", size: "sm" }))}
+              href="/rom/CryMon.cdi?v=dc1"
+              download="CryMon.cdi"
+              rel="noopener"
+            >
+              <Download className="size-4" />
+              Dreamcast CDI
+            </a>
           </div>
         </div>
       </header>
