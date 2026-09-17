@@ -77,14 +77,10 @@ def make_placeholder(w, h, tag):
 
 
 def open_or_placeholder(root, relpath, w, h, tag, manifest, note=''):
-    # Prefer the shared web sprite pack, then a leftover local art/
-    # override, then the synthesized placeholder cache.
+    # Shared web pack only (public/sprites). No local art/ override.
     shared = os.path.join(root, relpath)
-    local = os.path.join(HERE, '..', 'art', 'sprites', relpath)
     if os.path.exists(shared):
         return Image.open(shared)
-    if os.path.exists(local):
-        return Image.open(local)
     cached = os.path.join(PLACEHOLDER_DIR, relpath)
     if not os.path.exists(cached):
         os.makedirs(os.path.dirname(cached), exist_ok=True)
@@ -249,7 +245,6 @@ def default_sprite_root():
         base = os.path.join(here, *(['..'] * up))
         candidates.append(os.path.join(base, 'public', 'sprites'))
         candidates.append(os.path.join(base, 'CryMon', 'public', 'sprites'))
-    candidates.append(os.path.join(here, '..', 'art', 'sprites'))
     for cand in candidates:
         cand = os.path.normpath(cand)
         if os.path.isdir(cand):
