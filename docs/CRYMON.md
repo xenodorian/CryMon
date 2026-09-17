@@ -9,6 +9,7 @@ public/sprites/           art source of truth
 src/game/                 web engine (loads JSON)
 native/                   R36S / PortMaster SDL2 (640×480)
 ports/dreamcast/          Dreamcast runtime (bakes JSON + sprites to C)
+love/                     LÖVE port (still has its own data.lua — keep it in sync with content/, or replace it)
 backups/dreamcast-pre-fuse/  frozen DC snapshot from before the fuse
 ```
 
