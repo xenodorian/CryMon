@@ -1,12 +1,11 @@
 CryMon
 ======
 
-Two downloads on the cart page:
+One download on the cart page:
 
   Copy into Ports  — CryMon-ports.zip  (R36S / PortMaster SDL2, 640×480)
-  SNES             — CryMon.sfc        (Super Nintendo LoROM, 256×224)
 
-Neither zip dumps XML into the ports folder.
+The zip does not dump XML into the ports folder.
 
 
 Copy into Ports (CryMon-ports.zip)
@@ -32,20 +31,6 @@ The aarch64 binary is the R36S build (RK3326, native 640×480, SDL2,
 glibc 2.17). The device already has libSDL2. gptokeyb maps the pad:
 A confirm, B back, Start party, Y/Select bag. In-game text is 32px
 (2× the old port); the web preview stays 16px.
-
-
-SNES cart (CryMon.sfc)
-----------------------
-256 KB LoROM. Mode 1, 256×224. Load it in Snes9x, bsnes, or any SNES
-core (including the R36S RetroArch SNES core).
-
-  A / Start  — begin
-  D-pad      — walk
-  A          — talk / confirm
-  Start      — party
-  Select     — bag
-
-Same story as the 640×480 cart: Max, Quillpup, the cottage, the veld.
 
 
 Flycast disc

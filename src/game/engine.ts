@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { Chip } from "./audio";
 import {
+  CAMP,
+  CLIFFS,
   FOREST,
   GROVE,
   HOUSE,
@@ -9,6 +11,7 @@ import {
   ITEM_ORDER,
   MAPS,
   PARTY_MAX,
+  RUINS,
   SPECIES,
   SPEAKER_NAME,
   START_BAG,
@@ -23,10 +26,14 @@ import {
   grantXp,
   healAmount,
   mintMonster,
+  rollShiny,
   solidTile,
   spawnOf,
   ENDING_WIN,
-  DEMO_END,
+  MAP_NAME,
+  ENCOUNTERS,
+  WARPS,
+  TRAINERS,
 } from "./data";
 import { Input } from "./input";
 import type {
@@ -48,7 +55,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | "shop" | "mason" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "rivalLeave";
+type TalkAfter = null | "shop" | "orenShop" | "mason" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending";
 
 const STEP = 1 / 60;
 function loadImg(src) {
@@ -159,10 +166,26 @@ export class Gemwar {
 	battlesDone = 0;
 	anneGifted = false;
 	cathleenCaught = false;
+	beatCathleen = false;
 	beatShinigami = false;
+	hasScroll = false;
+	anne2Told = false;
+	tessaGifted = false;
+	birchGifted = false;
+	sableGifted = false;
+	chestLooted = false;
+	beatCross = false;
+	beatConscript = false;
+	beatEnforcer = false;
+	beatSentry = false;
+	pendingWs = null;
+	choiceCur = 0;
+	shopKeep = "bram";
 	doorLock = 0;
 	hudFlash = "";
 	hudT = 0;
+	mapBanner = "";
+	mapBannerT = 0;
 	talkLock = 0;
 	lastTx = -1;
 	lastTy = -1;
@@ -202,22 +225,22 @@ export class Gemwar {
 			["max-up-2", "/sprites/max/up-2.png?v=max6"],
 			["max-up-3", "/sprites/max/up-3.png?v=max6"],
 			["max-up-4", "/sprites/max/up-4.png?v=max6"],
-			["mason-down-1", "/sprites/mason/down-1.png?v=ow5"],
-			["mason-down-2", "/sprites/mason/down-2.png?v=ow5"],
-			["mason-down-3", "/sprites/mason/down-3.png?v=ow5"],
-			["mason-down-4", "/sprites/mason/down-4.png?v=ow5"],
-			["mason-left-1", "/sprites/mason/left-1.png?v=ow2"],
-			["mason-left-2", "/sprites/mason/left-2.png?v=ow2"],
-			["mason-left-3", "/sprites/mason/left-3.png?v=ow2"],
-			["mason-left-4", "/sprites/mason/left-4.png?v=ow2"],
-			["mason-right-1", "/sprites/mason/right-1.png?v=ow2"],
-			["mason-right-2", "/sprites/mason/right-2.png?v=ow2"],
-			["mason-right-3", "/sprites/mason/right-3.png?v=ow2"],
-			["mason-right-4", "/sprites/mason/right-4.png?v=ow2"],
-			["mason-up-1", "/sprites/mason/up-1.png?v=ow3"],
-			["mason-up-2", "/sprites/mason/up-2.png?v=ow3"],
-			["mason-up-3", "/sprites/mason/up-3.png?v=ow3"],
-			["mason-up-4", "/sprites/mason/up-4.png?v=ow3"],
+			["mason-down-1", "/sprites/mason/down-1.png?v=ow6"],
+			["mason-down-2", "/sprites/mason/down-2.png?v=ow6"],
+			["mason-down-3", "/sprites/mason/down-3.png?v=ow6"],
+			["mason-down-4", "/sprites/mason/down-4.png?v=ow6"],
+			["mason-left-1", "/sprites/mason/left-1.png?v=ow6"],
+			["mason-left-2", "/sprites/mason/left-2.png?v=ow6"],
+			["mason-left-3", "/sprites/mason/left-3.png?v=ow6"],
+			["mason-left-4", "/sprites/mason/left-4.png?v=ow6"],
+			["mason-right-1", "/sprites/mason/right-1.png?v=ow6"],
+			["mason-right-2", "/sprites/mason/right-2.png?v=ow6"],
+			["mason-right-3", "/sprites/mason/right-3.png?v=ow6"],
+			["mason-right-4", "/sprites/mason/right-4.png?v=ow6"],
+			["mason-up-1", "/sprites/mason/up-1.png?v=ow6"],
+			["mason-up-2", "/sprites/mason/up-2.png?v=ow6"],
+			["mason-up-3", "/sprites/mason/up-3.png?v=ow6"],
+			["mason-up-4", "/sprites/mason/up-4.png?v=ow6"],
 			["anne-down-1", "/sprites/anne/down-1.png?v=anne2"],
 			["anne-down-2", "/sprites/anne/down-2.png?v=anne2"],
 			["anne-down-3", "/sprites/anne/down-3.png?v=anne2"],
@@ -295,6 +318,42 @@ export class Gemwar {
 			["crymare-2", "/sprites/monsters/crymare/2.png?v=hq1"],
 			["crymare-3", "/sprites/monsters/crymare/3.png?v=hq1"],
 			["crymare-4", "/sprites/monsters/crymare/4.png?v=hq1"],
+			["emberling-1", "/sprites/monsters/emberling/1.png?v=art1"],
+			["emberling-2", "/sprites/monsters/emberling/2.png?v=art1"],
+			["emberling-3", "/sprites/monsters/emberling/3.png?v=art1"],
+			["emberling-4", "/sprites/monsters/emberling/4.png?v=art1"],
+			["frostail-1", "/sprites/monsters/frostail/1.png?v=art1"],
+			["frostail-2", "/sprites/monsters/frostail/2.png?v=art1"],
+			["frostail-3", "/sprites/monsters/frostail/3.png?v=art1"],
+			["frostail-4", "/sprites/monsters/frostail/4.png?v=art1"],
+			["boulderam-1", "/sprites/monsters/boulderam/1.png?v=art1"],
+			["boulderam-2", "/sprites/monsters/boulderam/2.png?v=art1"],
+			["boulderam-3", "/sprites/monsters/boulderam/3.png?v=art1"],
+			["boulderam-4", "/sprites/monsters/boulderam/4.png?v=art1"],
+			["stormwing-1", "/sprites/monsters/stormwing/1.png?v=art1"],
+			["stormwing-2", "/sprites/monsters/stormwing/2.png?v=art1"],
+			["stormwing-3", "/sprites/monsters/stormwing/3.png?v=art1"],
+			["stormwing-4", "/sprites/monsters/stormwing/4.png?v=art1"],
+			["sableclaw-1", "/sprites/monsters/sableclaw/1.png?v=art1"],
+			["sableclaw-2", "/sprites/monsters/sableclaw/2.png?v=art1"],
+			["sableclaw-3", "/sprites/monsters/sableclaw/3.png?v=art1"],
+			["sableclaw-4", "/sprites/monsters/sableclaw/4.png?v=art1"],
+			["thornhide-1", "/sprites/monsters/thornhide/1.png?v=art1"],
+			["thornhide-2", "/sprites/monsters/thornhide/2.png?v=art1"],
+			["thornhide-3", "/sprites/monsters/thornhide/3.png?v=art1"],
+			["thornhide-4", "/sprites/monsters/thornhide/4.png?v=art1"],
+			["glasswisp-1", "/sprites/monsters/glasswisp/1.png?v=art1"],
+			["glasswisp-2", "/sprites/monsters/glasswisp/2.png?v=art1"],
+			["glasswisp-3", "/sprites/monsters/glasswisp/3.png?v=art1"],
+			["glasswisp-4", "/sprites/monsters/glasswisp/4.png?v=art1"],
+			["ashenmaw-1", "/sprites/monsters/ashenmaw/1.png?v=art1"],
+			["ashenmaw-2", "/sprites/monsters/ashenmaw/2.png?v=art1"],
+			["ashenmaw-3", "/sprites/monsters/ashenmaw/3.png?v=art1"],
+			["ashenmaw-4", "/sprites/monsters/ashenmaw/4.png?v=art1"],
+			["heavenfall-1", "/sprites/monsters/heavenfall/1.png?v=art1"],
+			["heavenfall-2", "/sprites/monsters/heavenfall/2.png?v=art1"],
+			["heavenfall-3", "/sprites/monsters/heavenfall/3.png?v=art1"],
+			["heavenfall-4", "/sprites/monsters/heavenfall/4.png?v=art1"],
 			["calder-1", "/sprites/npc/calder-1.png"],
 			["calder-2", "/sprites/npc/calder-2.png"],
 			["calder-3", "/sprites/npc/calder-3.png"],
@@ -323,6 +382,42 @@ export class Gemwar {
 			["bram-2", "/sprites/npc/bram-2.png"],
 			["bram-3", "/sprites/npc/bram-3.png"],
 			["bram-4", "/sprites/npc/bram-4.png"],
+			["oren-1", "/sprites/npc/oren-1.png?v=art1"],
+			["oren-2", "/sprites/npc/oren-2.png?v=art1"],
+			["oren-3", "/sprites/npc/oren-3.png?v=art1"],
+			["oren-4", "/sprites/npc/oren-4.png?v=art1"],
+			["tessa-1", "/sprites/npc/tessa-1.png?v=art1"],
+			["tessa-2", "/sprites/npc/tessa-2.png?v=art1"],
+			["tessa-3", "/sprites/npc/tessa-3.png?v=art1"],
+			["tessa-4", "/sprites/npc/tessa-4.png?v=art1"],
+			["birch-1", "/sprites/npc/birch-1.png?v=art1"],
+			["birch-2", "/sprites/npc/birch-2.png?v=art1"],
+			["birch-3", "/sprites/npc/birch-3.png?v=art1"],
+			["birch-4", "/sprites/npc/birch-4.png?v=art1"],
+			["sable-1", "/sprites/npc/sable-1.png?v=art1"],
+			["sable-2", "/sprites/npc/sable-2.png?v=art1"],
+			["sable-3", "/sprites/npc/sable-3.png?v=art1"],
+			["sable-4", "/sprites/npc/sable-4.png?v=art1"],
+			["cross-1", "/sprites/npc/cross-1.png?v=art1"],
+			["cross-2", "/sprites/npc/cross-2.png?v=art1"],
+			["cross-3", "/sprites/npc/cross-3.png?v=art1"],
+			["cross-4", "/sprites/npc/cross-4.png?v=art1"],
+			["commander-1", "/sprites/npc/commander-1.png?v=art1"],
+			["commander-2", "/sprites/npc/commander-2.png?v=art1"],
+			["commander-3", "/sprites/npc/commander-3.png?v=art1"],
+			["commander-4", "/sprites/npc/commander-4.png?v=art1"],
+			["conscript-1", "/sprites/npc/conscript-1.png?v=art1"],
+			["conscript-2", "/sprites/npc/conscript-2.png?v=art1"],
+			["conscript-3", "/sprites/npc/conscript-3.png?v=art1"],
+			["conscript-4", "/sprites/npc/conscript-4.png?v=art1"],
+			["enforcer-1", "/sprites/npc/enforcer-1.png?v=art1"],
+			["enforcer-2", "/sprites/npc/enforcer-2.png?v=art1"],
+			["enforcer-3", "/sprites/npc/enforcer-3.png?v=art1"],
+			["enforcer-4", "/sprites/npc/enforcer-4.png?v=art1"],
+			["sentry-1", "/sprites/npc/sentry-1.png?v=art1"],
+			["sentry-2", "/sprites/npc/sentry-2.png?v=art1"],
+			["sentry-3", "/sprites/npc/sentry-3.png?v=art1"],
+			["sentry-4", "/sprites/npc/sentry-4.png?v=art1"],
 			["soldier-down-1", "/sprites/npc/soldier/down-1.png?v=for1"],
 			["soldier-down-2", "/sprites/npc/soldier/down-2.png?v=for1"],
 			["soldier-down-3", "/sprites/npc/soldier/down-3.png?v=for1"],
@@ -341,7 +436,7 @@ export class Gemwar {
 			["soldier-up-4", "/sprites/npc/soldier/up-4.png?v=for1"],
 			["port-max", "/sprites/portraits/max.png?v=max6"],
 			["port-anne", "/sprites/portraits/anne.png?v=anne8"],
-			["port-mason", "/sprites/portraits/mason.png?v=port1"],
+			["port-mason", "/sprites/portraits/mason.png?v=port2"],
 			["port-wren", "/sprites/portraits/wren.png?v=wren4"],
 			["port-mae", "/sprites/portraits/mae.png?v=mae1"],
 			["port-ivo", "/sprites/portraits/ivo.png?v=port1"],
@@ -360,12 +455,27 @@ export class Gemwar {
 			["port-needleroot", "/sprites/portraits/needleroot.png?v=hq1"],
 			["port-cathleen", "/sprites/portraits/cathleen.png"],
 			["port-shinigami", "/sprites/portraits/shinigami.png"],
+			["port-oren", "/sprites/portraits/oren.png?v=art1"],
+			["port-tessa", "/sprites/portraits/tessa.png?v=art1"],
+			["port-birch", "/sprites/portraits/birch.png?v=art1"],
+			["port-sable", "/sprites/portraits/sable.png?v=art1"],
+			["port-cross", "/sprites/portraits/cross.png?v=art1"],
+			["port-commander", "/sprites/portraits/commander.png?v=art1"],
+			["port-conscript", "/sprites/portraits/conscript.png?v=art1"],
+			["port-enforcer", "/sprites/portraits/enforcer.png?v=art1"],
+			["port-sentry", "/sprites/portraits/sentry.png?v=art1"],
+			["port-father", "/sprites/portraits/father.png?v=art1"],
+			["port-heavenfall", "/sprites/portraits/heavenfall.png?v=art1"],
 			["port-crymare", "/sprites/portraits/crymare.png?v=hq1"],
 			["item-gem", "/sprites/items/gem.png"],
 			["item-salve", "/sprites/items/salve.png"],
 			["item-bitterroot", "/sprites/items/bitterroot.png"],
 			["item-dust", "/sprites/items/dust.png"],
 			["item-bandage", "/sprites/items/bandage.png"],
+			["item-sunbalm", "/sprites/items/sunbalm.png"],
+			["item-warroot", "/sprites/items/warroot.png"],
+			["item-smokebomb", "/sprites/items/smokebomb.png"],
+			["item-greatcrystal", "/sprites/items/greatcrystal.png"],
 			["prop-bed-father", "/sprites/props/bed-father.png?v=bed3"],
 			["prop-bed-empty", "/sprites/props/bed-empty.png?v=bed3"],
 			["prop-shelf", "/sprites/props/shelf.png"],
@@ -434,7 +544,21 @@ export class Gemwar {
 		this.battlesDone = 0;
 		this.anneGifted = false;
 		this.cathleenCaught = false;
+		this.beatCathleen = false;
 		this.beatShinigami = false;
+		this.hasScroll = false;
+		this.anne2Told = false;
+		this.tessaGifted = false;
+		this.birchGifted = false;
+		this.sableGifted = false;
+		this.chestLooted = false;
+		this.beatCross = false;
+		this.beatConscript = false;
+		this.beatEnforcer = false;
+		this.beatSentry = false;
+		this.pendingWs = null;
+		this.choiceCur = 0;
+		this.shopKeep = "bram";
 		this.rival = {
 			phase: "off",
 			x: 0,
@@ -456,6 +580,8 @@ export class Gemwar {
 		this.doorLock = 0;
 		this.hudFlash = "";
 		this.hudT = 0;
+		this.mapBanner = "";
+		this.mapBannerT = 0;
 		this.talkLock = 0;
 		this.lastTx = -1;
 		this.lastTy = -1;
@@ -518,6 +644,24 @@ export class Gemwar {
 			this.world.x = s.x;
 			this.world.y = s.y + TILE + 8;
 			this.world.dir = "down";
+		} else if (mapId === "camp") {
+			this.beatCalder = true;
+			const s = spawnOf(CAMP, "D");
+			this.world.x = s.x;
+			this.world.y = s.y + TILE + 8;
+			this.world.dir = "down";
+		} else if (mapId === "cliffs") {
+			const s = spawnOf(CLIFFS, "D");
+			this.world.x = s.x;
+			this.world.y = s.y + TILE + 8;
+			this.world.dir = "down";
+		} else if (mapId === "ruins") {
+			this.beatShinigami = true;
+			this.hasScroll = true;
+			const s = spawnOf(RUINS, "D");
+			this.world.x = s.x;
+			this.world.y = s.y + TILE + 8;
+			this.world.dir = "down";
 		} else {
 			const s = spawnOf(HOUSE, "P");
 			this.world.x = s.x;
@@ -553,6 +697,9 @@ export class Gemwar {
 			skipToHouse: () => this.skipToWorld("house"),
 			skipToForest: () => this.skipToWorld("forest"),
 			skipToGrove: () => this.skipToWorld("grove"),
+			skipToCamp: () => this.skipToWorld("camp"),
+			skipToCliffs: () => this.skipToWorld("cliffs"),
+			skipToRuins: () => this.skipToWorld("ruins"),
 			resetRun: () => {
 				this.reset();
 				this.skipToWorld("veld");
@@ -618,7 +765,15 @@ export class Gemwar {
 				anne: this.anne.phase,
 				anneGifted: this.anneGifted,
 				battles: this.battlesDone,
-				marks: this.marks
+				marks: this.marks,
+				beatCathleen: this.beatCathleen,
+				beatShinigami: this.beatShinigami,
+				hasScroll: this.hasScroll,
+				anne2Told: this.anne2Told,
+				beatSentry: this.beatSentry,
+				beatConscript: this.beatConscript,
+				beatEnforcer: this.beatEnforcer,
+				beatCross: this.beatCross
 			}),
 			forceWild: () => {
 				this.skipToWorld("veld");
@@ -654,6 +809,10 @@ export class Gemwar {
 		this.hudFlash = s;
 		this.hudT = 12;
 	}
+	announceMap() {
+		this.mapBanner = MAP_NAME[this.world.mapId] ?? this.world.mapId.toUpperCase();
+		this.mapBannerT = 2.4;
+	}
 	say(beats, after: TalkAfter = null) {
 		this.talkQ = beats;
 		this.talkI = 0;
@@ -676,7 +835,8 @@ export class Gemwar {
 			this.talkI = 0;
 			const next = this.afterTalk;
 			this.afterTalk = null;
-			if (next === "shop") this.openShop();
+			if (next === "shop") this.openShop("bram");
+			else if (next === "orenShop") this.openShop("oren");
 			else if (next === "mason") {
 				this.foughtMason = true;
 				this.startBattle(mintMonster("glimmoth", 3), false, "Mason sends Glimmoth", "mason");
@@ -699,8 +859,16 @@ export class Gemwar {
 				}
 			} else if (next === "anneLeave") {
 				this.startAnneLeave();
-			} else if (next === "rivalLeave") {
-				this.startRivalLeave();
+			} else if (next === "masonLeave") {
+				this.startMasonLeave();
+			} else if (next === "choice") {
+				this.mode = "choice";
+				this.choiceCur = 0;
+			} else if (next === "wsoldier") {
+				this.startWsBattle(this.pendingWs);
+			} else if (next === "ending") {
+				this.mode = "ending";
+				this.endI = 0;
 			}
 			this.maybeStartAnne();
 		}
@@ -721,8 +889,9 @@ export class Gemwar {
 		this.actCursor = 0;
 		this.audio.ui();
 	}
-	openShop() {
+	openShop(keep = "bram") {
 		this.mode = "shop";
+		this.shopKeep = keep;
 		this.shopTab = "buy";
 		this.shopCursor = 0;
 		this.audio.ui();
@@ -769,24 +938,37 @@ export class Gemwar {
 		this.anne.dir = "down";
 		this.anne.frame = 0;
 	}
-	startRivalLeave() {
+	startMasonLeave() {
 		this.rival.phase = "leave";
 		this.rival.dir = "down";
 		this.rival.frame = 0;
+		this.rival.anim = 0;
 	}
 	maybeStartAnne() {
-		if (this.anneGifted || this.anne.phase !== "off") return;
-		if (this.battlesDone < 1) return;
+		if (this.anne.phase !== "off") return;
 		if (this.talking() || this.hudT > 0) return;
-		if (this.world.mapId !== "veld") return;
-		this.anne = {
-			phase: "approach",
-			x: this.world.x,
-			y: this.world.y + 72,
-			dir: "up",
-			frame: 0,
-			anim: 0
-		};
+		if (!this.anneGifted && this.battlesDone >= 1 && this.world.mapId === "veld") {
+			this.anne = {
+				phase: "approach",
+				x: this.world.x,
+				y: this.world.y + 72,
+				dir: "up",
+				frame: 0,
+				anim: 0
+			};
+			return;
+		}
+		if (!this.anne2Told && this.anneGifted && (this.beatCathleen || this.cathleenCaught)) {
+			this.anne2Told = true;
+			this.anne = {
+				phase: "approach2",
+				x: this.world.x,
+				y: this.world.y + 72,
+				dir: "up",
+				frame: 0,
+				anim: 0
+			};
+		}
 	}
 	onBattleOver() {
 		this.battlesDone += 1;
@@ -840,21 +1022,13 @@ export class Gemwar {
 				this.audio.ui();
 				this.endI += 1;
 				if (this.endI >= ENDING_WIN.length) {
-					this.mode = "world";
-					this.note("The camp takes strays. South still drums.");
+					this.reset();
 				}
 			}
 			return;
 		}
-		if (this.mode === "demoEnd") {
-			if (this.input.confirm()) {
-				this.audio.ui();
-				this.endI += 1;
-				if (this.endI >= DEMO_END.length) {
-					this.reset();
-					this.mode = "title";
-				}
-			}
+		if (this.mode === "choice") {
+			this.updateChoice();
 			return;
 		}
 		if (this.mode === "bag") {
@@ -1068,6 +1242,7 @@ export class Gemwar {
 	updateWorld(dt) {
 		if (this.talkLock > 0) this.talkLock = Math.max(0, this.talkLock - dt);
 		if (this.doorLock > 0) this.doorLock -= dt;
+		if (this.mapBannerT > 0) this.mapBannerT = Math.max(0, this.mapBannerT - dt);
 		if (!this.talking() && this.hudT <= 0) this.maybeStartAnne();
 		if (this.rival.phase === "approach") {
 			this.world.moving = false;
@@ -1089,18 +1264,22 @@ export class Gemwar {
 			this.rival.frame = Math.floor(this.rival.anim) % 4;
 			return;
 		}
-		if (this.anne.phase === "approach") {
+		if (this.anne.phase === "approach" || this.anne.phase === "approach2") {
 			this.world.moving = false;
 			this.world.frame = 0;
 			const dx = this.world.x - this.anne.x;
 			const dy = this.world.y - this.anne.y;
 			const dist = Math.hypot(dx, dy);
 			if (dist < 36) {
+				const second = this.anne.phase === "approach2";
 				this.anne.phase = "done";
 				this.anne.frame = 0;
-				this.giveAnneGems();
-				this.say(TALK.anneGift, "anneLeave");
-				this.audio.ok();
+				if (second) this.say(TALK.anneReturn, "anneLeave");
+				else {
+					this.giveAnneGems();
+					this.say(TALK.anneGift, "anneLeave");
+					this.audio.ok();
+				}
 				return;
 			}
 			const sp = 52 * dt;
@@ -1128,19 +1307,16 @@ export class Gemwar {
 			return;
 		}
 		if (this.anne.phase === "leave") {
-			if (this.world.mapId !== "veld") this.anne.phase = "off";
-			else {
-				this.anne.y += 80 * dt;
-				this.anne.dir = "down";
-				this.anne.anim += dt * 8;
-				this.anne.frame = Math.floor(this.anne.anim) % 4;
-				if (this.anne.y > this.world.y + VIEW_H / 2 + 48) this.anne.phase = "off";
-			}
+			this.anne.y += 80 * dt;
+			this.anne.dir = "down";
+			this.anne.anim += dt * 8;
+			this.anne.frame = Math.floor(this.anne.anim) % 4;
+			if (this.anne.y > this.world.y + VIEW_H / 2 + 48) this.anne.phase = "off";
 		}
 		if (this.rival.phase === "leave") {
 			if (this.world.mapId !== "veld") this.rival.phase = "off";
 			else {
-				this.rival.y += 80 * dt;
+				this.rival.y += 90 * dt;
 				this.rival.dir = "down";
 				this.rival.anim += dt * 8;
 				this.rival.frame = Math.floor(this.rival.anim) % 4;
@@ -1197,22 +1373,17 @@ export class Gemwar {
 				if (Math.abs(sol.x - x) < 16 && Math.abs(sol.y - y) < 16) return true;
 			}
 		}
-		if (this.world.mapId === "grove" && !this.cathleenCaught) {
+		if (this.world.mapId === "grove" && !(this.cathleenCaught || this.beatCathleen)) {
 			const c = spawnOf(GROVE, "8");
 			if (Math.abs(c.x - x) < 18 && Math.abs(c.y - y) < 20) return true;
+			if (tileAt(this.map(), x, y) === "D" || tileAt(this.map(), x, y + 8) === "D") return true;
 		}
-		if (this.world.mapId === "grove") {
+		if (this.world.mapId === "grove" && !this.beatShinigami) {
 			const s = spawnOf(GROVE, "9");
 			if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 18) return true;
+			if (tileAt(this.map(), x, y) === "g") return true;
 		}
-		if (this.world.mapId === "grove" && !this.cathleenCaught) {
-			if ([
-				[x - r, y],
-				[x + r, y],
-				[x, y - 2],
-				[x, y + r]
-			].some(([px, py]) => doorTile(tileAt(this.map(), px, py)))) return true;
-		}
+		if (this.world.mapId === "veld" && !this.beatCalder && tileAt(this.map(), x, y) === "F") return true;
 		return false;
 	}
 	tryEncounter() {
@@ -1221,26 +1392,21 @@ export class Gemwar {
 		if (tx === this.lastTx && ty === this.lastTy) return;
 		this.lastTx = tx;
 		this.lastTy = ty;
-		if (tileAt(this.map(), this.world.x, this.world.y) !== "T") return;
+		const rule = ENCOUNTERS.find((e) => e.maps.includes(this.world.mapId));
+		if (!rule) return;
+		if (tileAt(this.map(), this.world.x, this.world.y) !== rule.tile) return;
 		if (this.world.encounterLock > 0) {
 			this.world.encounterLock -= 1;
 			return;
 		}
-		if (Math.random() > .18) return;
+		if (Math.random() > rule.rate) return;
 		this.world.encounterLock = 3;
-		let id: SpeciesId;
-		let lv;
-		if (this.world.mapId === "forest") {
-			const pool: SpeciesId[] = ["fenwisp", "duskhorn", "needleroot"];
-			id = pool[randI(0, pool.length - 1)];
-			lv = 3 + randI(0, 2);
-		} else {
-			if (tx < 12) id = "glimmoth";
-			else if (tx > 18) id = "tortcask";
-			else id = Math.random() < .5 ? "glimmoth" : "tortcask";
-			lv = 2 + (ty > 14 ? 1 : 0) + randI(0, 1);
-		}
-		this.startBattle(mintMonster(id, lv), true, `A wild ${SPECIES[id].name}`);
+		const pool = rule.pool as SpeciesId[];
+		const id = pool[randI(0, pool.length - 1)];
+		let lv = rule.levelMin + randI(0, Math.max(0, rule.levelMax - rule.levelMin));
+		if (rule.levelBonusIfTyGt && ty > rule.levelBonusIfTyGt) lv += 1;
+		const shiny = rollShiny();
+		this.startBattle(mintMonster(id, lv, shiny), true, `A ${shiny ? "shiny " : "wild "}${SPECIES[id].name}`);
 	}
 	nearMark(map, mark, radius = 52) {
 		const s = spawnOf(map, mark);
@@ -1273,7 +1439,7 @@ export class Gemwar {
 		const oy = d === "up" ? -20 : d === "down" ? 20 : 0;
 		const here = tileAt(this.map(), this.world.x, this.world.y);
 		const ahead = tileAt(this.map(), this.world.x + ox, this.world.y + oy);
-		if (doorTile(here) || this.world.moving && doorTile(ahead)) this.useDoor();
+		if ((this.world.mapId === "house" || this.world.mapId === "veld") && (doorTile(here) || this.world.moving && doorTile(ahead))) this.useDoor();
 	}
 	nearbyTiles() {
 		const { x, y } = this.world;
@@ -1287,31 +1453,32 @@ export class Gemwar {
 		];
 	}
 	useDoor() {
-		if (this.world.mapId === "grove") {
-			if (!this.cathleenCaught) {
+		this.applyWarp("D");
+	}
+	flagFor(need: string | undefined) {
+		if (!need) return true;
+		if (need === "tookStarter") return this.tookStarter;
+		if (need === "beatCalder") return this.beatCalder;
+		if (need === "beatShin") return this.beatShinigami;
+		return true;
+	}
+	applyWarp(ch: string) {
+		const warp = WARPS.find((w) => w.from === this.world.mapId && w.tile === ch);
+		if (!warp) return false;
+		if (warp.need && !this.flagFor(warp.need)) {
+			if (warp.failTalk) {
+				const d = spawnOf(this.map(), ch);
+				if (ch === "D" && this.world.mapId === "house") {
+					this.world.y = Math.min(this.world.y, d.y - TILE);
+				}
 				this.doorLock = .5;
-				this.say(TALK.groveDoorLocked);
+				this.say(TALK[warp.failTalk] || TALK.doorLocked);
 			}
-			return;
+			return true;
 		}
-		if (this.world.mapId === "house" && !this.tookStarter) {
-			const d = spawnOf(HOUSE, "D");
-			this.world.y = Math.min(this.world.y, d.y - TILE);
-			this.doorLock = .5;
-			this.say(TALK.doorLocked);
-			return;
-		}
-		this.audio.ui();
-		this.doorLock = .5;
-		if (this.world.mapId === "house") {
-			const s = spawnOf(VELD, "D");
-			this.world.mapId = "veld";
-			this.world.x = s.x;
-			this.world.y = s.y + TILE + 12;
-			this.world.dir = "down";
-			this.world.encounterLock = 3;
-			this.lastTx = -1;
-			this.lastTy = -1;
+		if (warp.onArrive === "ensureSoldiers") this.ensureSoldiers();
+		this.warpTo(warp.to, warp.spawn, warp.dir, warp.oy);
+		if (warp.onArrive === "masonAmbush") {
 			if (this.party.length >= 1 && this.rival.phase === "off") {
 				this.rival = {
 					phase: "approach",
@@ -1321,19 +1488,10 @@ export class Gemwar {
 					frame: 0,
 					anim: 0
 				};
-				this.say(TALK.footsteps);
-			} else this.say(TALK.doorOut);
-		} else {
-			const s = spawnOf(HOUSE, "D");
-			this.world.mapId = "house";
-			this.world.x = s.x;
-			this.world.y = s.y - TILE;
-			this.world.dir = "up";
-			this.lastTx = -1;
-			this.lastTy = -1;
-			this.say(TALK.cottage);
+			}
 		}
 		this.maybeStartAnne();
+		return true;
 	}
 	interact() {
 		if (this.world.mapId === "house") {
@@ -1408,16 +1566,104 @@ export class Gemwar {
 				const d = (c.x - this.world.x) ** 2 + (c.y - this.world.y) ** 2;
 				if (d <= 1600) here.push({ id: "cathleen-gone", d });
 			}
-			const s = spawnOf(GROVE, "9");
-			const ds = (s.x - this.world.x) ** 2 + (s.y - this.world.y) ** 2;
-			if (ds <= 2704) here.push({ id: "shinigami", d: ds });
+			if (!this.beatShinigami) {
+				const s = spawnOf(GROVE, "9");
+				const ds = (s.x - this.world.x) ** 2 + (s.y - this.world.y) ** 2;
+				if (ds <= 2704) here.push({ id: "shinigami", d: ds });
+			}
+			const k = spawnOf(GROVE, "K");
+			const dk = (k.x - this.world.x) ** 2 + (k.y - this.world.y) ** 2;
+			if (dk <= 2704) here.push({ id: "cross", d: dk });
 			here.sort((a, b) => a.d - b.d);
 			const hit = here[0];
 			if (!hit) return;
 			if (hit.id === "cathleen") this.say(TALK.cathleenSpot, "cathleen");
 			else if (hit.id === "cathleen-gone") this.say(TALK.cathleenGone);
-			else if (this.beatShinigami) this.say(TALK.shinigamiDone);
-			else this.say(TALK.shinigamiSpot, "shinigami");
+			else if (hit.id === "shinigami") this.say(TALK.shinigamiSpot, "shinigami");
+			else if (this.beatCross) this.say(TALK.crossWin);
+			else {
+				this.pendingWs = "cross";
+				this.say(TALK.crossSpot, "wsoldier");
+			}
+			return;
+		}
+		if (this.world.mapId === "camp") {
+			const mark = this.closestMark(CAMP, ["I", "K", "A"], 52);
+			if (mark === "I") {
+				this.say(TALK.commander);
+				return;
+			}
+			if (mark === "K") {
+				if (this.beatConscript) this.say(TALK.conscriptWin);
+				else {
+					this.pendingWs = "conscript";
+					this.say(TALK.conscriptSpot, "wsoldier");
+				}
+				return;
+			}
+			if (mark === "A") {
+				if (this.beatEnforcer) this.say(TALK.enforcerWin);
+				else {
+					this.pendingWs = "enforcer";
+					this.say(TALK.enforcerSpot, "wsoldier");
+				}
+			}
+			return;
+		}
+		if (this.world.mapId === "cliffs") {
+			const mark = this.closestMark(CLIFFS, ["V", "Y", "C"], 52);
+			if (mark === "V") {
+				if (this.beatSentry) this.say(TALK.sentryWin);
+				else {
+					this.pendingWs = "sentry";
+					this.say(TALK.sentrySpot, "wsoldier");
+				}
+				return;
+			}
+			if (mark === "Y") {
+				if (!this.tessaGifted) {
+					this.tessaGifted = true;
+					this.bag.greatcrystal += 1;
+					this.say(TALK.tessaFirst);
+					this.audio.ok();
+				} else this.say(TALK.tessaAgain);
+				return;
+			}
+			if (mark === "C") {
+				if (!this.chestLooted) {
+					this.chestLooted = true;
+					this.marks += 25;
+					this.bag.sunbalm += 1;
+					this.bag.greatcrystal += 1;
+					this.say(TALK.chest);
+					this.audio.ok();
+				} else this.say(TALK.chestEmpty);
+			}
+			return;
+		}
+		if (this.world.mapId === "ruins") {
+			const mark = this.closestMark(RUINS, ["J", "K", "A"], 52);
+			if (mark === "J") {
+				this.say(TALK.orenOpen, "orenShop");
+				return;
+			}
+			if (mark === "K") {
+				if (!this.birchGifted) {
+					this.birchGifted = true;
+					this.bag.sunbalm += 1;
+					this.say(TALK.birchFirst);
+					this.audio.ok();
+				} else this.say(TALK.birchAgain);
+				return;
+			}
+			if (mark === "A") {
+				if (!this.sableGifted) {
+					this.sableGifted = true;
+					this.bag.warroot += 1;
+					this.say(TALK.sableFirst);
+					this.audio.ok();
+				} else this.say(TALK.sableAgain);
+			}
 			return;
 		}
 		if (this.world.mapId !== "veld") return;
@@ -1437,7 +1683,7 @@ export class Gemwar {
 			const dx = this.rival.x - this.world.x;
 			const dy = this.rival.y - this.world.y;
 			if (dx * dx + dy * dy <= 676) {
-				if (this.foughtMason) this.say(TALK.masonAfter, "rivalLeave");
+				if (this.foughtMason) this.say(TALK.masonAfter);
 				else this.startBattle(mintMonster("glimmoth", 3), false, "Mason sends Glimmoth", "mason");
 				return;
 			}
@@ -1708,68 +1954,41 @@ export class Gemwar {
 	tryMapWarp() {
 		if (this.doorLock > 0) return;
 		const ch = tileAt(this.map(), this.world.x, this.world.y);
-		if (this.world.mapId === "veld" && ch === "Z") {
-			this.audio.ui();
-			this.doorLock = .5;
-			this.ensureSoldiers();
-			const s = spawnOf(FOREST, "Y");
-			this.world.mapId = "forest";
-			this.world.x = s.x;
-			this.world.y = s.y + TILE + 8;
-			this.world.dir = "down";
-			this.world.encounterLock = 3;
-			this.lastTx = -1;
-			this.lastTy = -1;
-			this.say(TALK.forestEnter);
-			return;
-		}
-		if (this.world.mapId === "forest" && ch === "Y") {
-			this.audio.ui();
-			this.doorLock = .5;
-			const s = spawnOf(VELD, "Z");
-			this.world.mapId = "veld";
-			this.world.x = s.x;
-			this.world.y = s.y - TILE;
-			this.world.dir = "up";
-			this.world.encounterLock = 3;
-			this.lastTx = -1;
-			this.lastTy = -1;
-			this.say(TALK.forestLeave);
-			return;
-		}
-		if (this.world.mapId === "forest" && ch === "O") {
-			this.audio.ui();
-			this.doorLock = .5;
-			const s = spawnOf(GROVE, "O");
-			this.world.mapId = "grove";
-			this.world.x = s.x;
-			this.world.y = s.y + TILE + 8;
-			this.world.dir = "down";
-			this.world.encounterLock = 3;
-			this.lastTx = -1;
-			this.lastTy = -1;
-			this.say(TALK.groveEnter);
-			return;
-		}
-		if (this.world.mapId === "grove" && ch === "O") {
-			this.audio.ui();
-			this.doorLock = .5;
-			const s = spawnOf(FOREST, "O");
-			this.world.mapId = "forest";
-			this.world.x = s.x;
-			this.world.y = s.y - TILE;
-			this.world.dir = "up";
-			this.world.encounterLock = 3;
-			this.lastTx = -1;
-			this.lastTy = -1;
-			this.say(TALK.groveLeave);
-		}
+		this.applyWarp(ch);
+	}
+	warpTo(mapId, mark, dir, yOff = 0) {
+		const rows = MAPS[mapId];
+		const s = spawnOf(rows, mark);
+		this.world.mapId = mapId;
+		this.world.x = s.x;
+		this.world.y = s.y + yOff;
+		this.world.dir = dir;
+		this.world.encounterLock = 3;
+		this.lastTx = -1;
+		this.lastTy = -1;
+		this.doorLock = .5;
+		this.audio.ui();
+		this.announceMap();
+	}
+	startWsBattle(who) {
+		const kit = TRAINERS[who];
+		if (!kit) return;
+		this.pendingWs = who;
+		this.startBattle(
+			mintMonster(kit.lead[0], kit.lead[1]),
+			false,
+			kit.title,
+			"wsoldier",
+			who,
+			kit.bench.map((b) => mintMonster(b[0], b[1]))
+		);
 	}
 	startBattle(foe, wild, title, trainer = wild ? "wild" : "calder", soldierId = null, bench = []) {
 		const lead = this.lead();
 		if (!lead) return;
 		const player = { ...lead };
-		const soldierName = soldierId ? (this.soldiers.find((s) => s.id === soldierId)?.name ?? "Soldier") : "Soldier";
+		const soldierName = soldierId ? (this.soldiers.find((s) => s.id === soldierId)?.name ?? soldierId) : "Soldier";
+		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross" };
 		const foeName = wild
 			? foe.name
 			: trainer === "mason"
@@ -1778,7 +1997,9 @@ export class Gemwar {
 					? soldierName
 					: trainer === "shinigami"
 						? "Shinigami"
-						: "Calder";
+						: trainer === "wsoldier"
+							? (wsName[soldierId] ?? "Soldier")
+							: "Calder";
 		this.battle = {
 			wild,
 			trainer,
@@ -1808,7 +2029,13 @@ export class Gemwar {
 			},
 			catchUsed: false,
 			t: 0,
-			foeBench: bench
+			foeBench: bench,
+			enterT: 0,
+			faintT: 0,
+			foeEnterT: 0,
+			foeFaintT: 0,
+			plPoisoned: false,
+			foePoisoned: false
 		};
 		this.mode = "battle";
 		this.audio.ok();
@@ -1837,6 +2064,9 @@ export class Gemwar {
 		if (id === "dust") return `Ash dust -3/-2/-2 x${n}`;
 		if (id === "salve") return `Moss salve +22 HP x${n}`;
 		if (id === "bandage") return `Linen wrap +12 HP x${n}`;
+		if (id === "sunbalm") return `Sunbalm +40 HP x${n}`;
+		if (id === "warroot") return `Warroot +4 AGL x${n}`;
+		if (id === "smokebomb") return `Smoke Bomb flee x${n}`;
 		if (id === "gem") {
 			const b = this.battle;
 			if (b?.wild) {
@@ -1845,6 +2075,14 @@ export class Gemwar {
 			}
 			return `Capture Crystal x${n}`;
 		}
+		if (id === "greatcrystal") {
+			const b = this.battle;
+			if (b?.wild) {
+				const chance = captureChance(b.foe.agl, b.foe.hp, b.foe.maxHp, this.foeDebuffed(), 25);
+				return `Greater Crystal ${chance}% x${n}`;
+			}
+			return `Greater Crystal x${n}`;
+		}
 		return `${ITEMS[id].name} x${n}`;
 	}
 	attackMenu(p) {
@@ -1852,11 +2090,18 @@ export class Gemwar {
 		if (s.spells?.length) {
 			return s.spells.map((sp) => sp.pp ? `${sp.name}  ${p.specialPp}/${p.specialPpMax}` : sp.name);
 		}
-		return [`${s.basic}`, `${s.special}  ${p.specialPp}/${p.specialPpMax}`, "Wait"];
+		const rows = [`${s.basic}`, `${s.special}  ${p.specialPp}/${p.specialPpMax}`];
+		if (p.shiny) rows.push("Toxic Burst");
+		rows.push("Wait");
+		return rows;
 	}
 	updateBattle(dt) {
 		const b = this.battle;
 		b.t += dt;
+		if (b.enterT < 10) b.enterT += dt;
+		if (b.foeEnterT < 10) b.foeEnterT += dt;
+		if (b.player.hp <= 0) b.faintT += dt;
+		if (b.foe.hp <= 0 || b.afterMsg === "end_catch") b.foeFaintT += dt;
 		if (b.phase === "msg") {
 			if (this.input.confirm()) {
 				this.audio.ui();
@@ -1875,7 +2120,7 @@ export class Gemwar {
 						this.say(TALK.lose);
 						return;
 					}
-					if (b.afterMsg === "end_catch") {
+					if (b.afterMsg === "end_catch" || b.afterMsg === "end_run") {
 						this.leaveBattle();
 						this.onBattleOver();
 						return;
@@ -1937,10 +2182,16 @@ export class Gemwar {
 			return;
 		}
 		if (b.phase === "resolve_hit") {
+			let poisonLine = "";
+			if (b.foePoisoned && b.foe.hp > 0) {
+				const tick = Math.max(1, Math.floor(b.foe.maxHp / 16));
+				b.foe.hp = Math.max(0, b.foe.hp - tick);
+				poisonLine = ` Psn-${tick}`;
+			}
 			b.foe.hp = Math.max(0, b.foe.hp - b.pendingDmg);
 			this.shake = .25;
 			this.audio.hit();
-			const lines = [`${b.pendingLabel}  ${b.pendingDmg} dmg.`];
+			const lines = [`${b.pendingLabel}  ${b.pendingDmg} dmg.${poisonLine}`];
 			if (b.foe.hp <= 0) {
 				const lines2 = [...lines, `${b.foe.name} falls.`];
 				if (b.foeBench.length) {
@@ -1952,6 +2203,8 @@ export class Gemwar {
 					b.mods.foeStr = 0;
 					b.mods.foeAgl = 0;
 					b.mods.foeSpc = 0;
+					b.foeEnterT = 0;
+					b.foeFaintT = 0;
 					b.msg = [...lines2, `${b.foeName} sends ${nxt.name}.`];
 					b.msgI = 0;
 					b.phase = "msg";
@@ -1971,6 +2224,10 @@ export class Gemwar {
 			return;
 		}
 		if (b.phase === "resolve_guard") {
+			if (b.plPoisoned && b.player.hp > 0) {
+				const tick = Math.max(1, Math.floor(b.player.maxHp / 16));
+				b.player.hp = Math.max(0, b.player.hp - tick);
+			}
 			const g = b.guard ?? "block";
 			const foeS = SPECIES[b.foe.species];
 			let useSpecial = false;
@@ -1991,7 +2248,14 @@ export class Gemwar {
 				const atkStat = useSpecial ? b.foe.spc + b.mods.foeSpc : b.foe.str + b.mods.foeStr;
 				base = useSpecial ? 10 + (b.foe.spc + b.mods.foeSpc) * .7 - (b.player.spc + b.mods.selfSpc) * .12 : 6 + (b.foe.str + b.mods.foeStr) * .6 - (b.player.str + b.mods.selfStr) * .15;
 			}
-			const atkStat = useSpecial ? b.foe.spc + b.mods.foeSpc : b.foe.str + b.mods.foeStr;
+			let atkStat = useSpecial ? b.foe.spc + b.mods.foeSpc : b.foe.str + b.mods.foeStr;
+			if (b.foe.shiny && !b.plPoisoned && randI(0, 99) < 30) {
+				useSpecial = false;
+				moveName = "Toxic Burst";
+				base = 4 + (b.foe.str + b.mods.foeStr) * .5 - (b.player.str + b.mods.selfStr) * .16;
+				atkStat = b.foe.str + b.mods.foeStr;
+				b.plPoisoned = true;
+			}
 			const defStat = g === "dodge" ? b.player.agl + b.mods.selfAgl : g === "block" ? b.player.str + b.mods.selfStr : b.player.spc + b.mods.selfSpc;
 			const chance = clamp(50 + (defStat - atkStat) * 5 + randI(-10, 10), 12, 88);
 			const success = randI(1, 100) <= chance;
@@ -2030,6 +2294,8 @@ export class Gemwar {
 				if (next >= 0) {
 					this.partyIndex = next;
 					b.player = { ...this.party[next] };
+					b.enterT = 0;
+					b.faintT = 0;
 					b.msg = [line, `${b.player.name} jumps in.`];
 					b.msgI = 0;
 					b.phase = "msg";
@@ -2118,6 +2384,53 @@ export class Gemwar {
 			b.mods.foeAgl -= 2;
 			b.mods.foeSpc -= 2;
 			b.msg = ["Ash dust. Foe STR-3 AGI-2 SPC-2."];
+		} else if (id === "sunbalm") {
+			const n = Math.min(40, b.player.maxHp - b.player.hp);
+			b.player.hp += n;
+			b.msg = [`Sunbalm. ${n} HP.`];
+		} else if (id === "warroot") {
+			b.mods.selfAgl += 4;
+			b.msg = ["Warroot. AGL +4 this fight."];
+		} else if (id === "smokebomb") {
+			if (!b.wild) {
+				this.bag.smokebomb += 1;
+				b.msg = ["Cannot flee a tamer's fight."];
+			} else {
+				b.msg = ["Smoke Bomb. Max slips away."];
+				b.msgI = 0;
+				b.phase = "msg";
+				b.afterMsg = "end_run";
+				this.audio.ok();
+				return;
+			}
+		} else if (id === "greatcrystal") {
+			if (!b.wild) {
+				this.bag.greatcrystal += 1;
+				b.msg = ["Crystals will not take a tamer's CryMon."];
+			} else {
+				const chance = captureChance(b.foe.agl, b.foe.hp, b.foe.maxHp, this.foeDebuffed(), 25);
+				if (randI(1, 100) <= chance && this.party.length < PARTY_MAX) {
+					this.party.push({
+						...b.foe,
+						hp: Math.max(1, Math.floor(b.foe.maxHp * .4))
+					});
+					this.caughtOnce = true;
+					if (b.foe.species === "cathleen") {
+						this.cathleenCaught = true;
+						this.beatCathleen = true;
+					}
+					b.msg = [`The greater crystal takes. ${b.foe.name} is yours.`];
+					b.msgI = 0;
+					b.phase = "msg";
+					b.afterMsg = "end_catch";
+					this.audio.catch();
+					return;
+				}
+				if (this.party.length >= PARTY_MAX) {
+					this.bag.greatcrystal += 1;
+					b.msg = ["Six is all Max can hold."];
+				} else b.msg = ["The greater crystal cracks dark. It slips free."];
+			}
 		} else if (id === "gem") {
 			if (!b.wild) {
 				this.bag.gem += 1;
@@ -2130,7 +2443,10 @@ export class Gemwar {
 						hp: Math.max(1, Math.floor(b.foe.maxHp * .4))
 					});
 					this.caughtOnce = true;
-					if (b.foe.species === "cathleen") this.cathleenCaught = true;
+					if (b.foe.species === "cathleen") {
+						this.cathleenCaught = true;
+						this.beatCathleen = true;
+					}
 					b.msg = [`The crystal takes. ${b.foe.name} is yours.`];
 					b.msgI = 0;
 					b.phase = "msg";
@@ -2158,12 +2474,24 @@ export class Gemwar {
 			this.castSpell(spell.id, true);
 			return;
 		}
-		if (i === 2) {
+		const waitI = b.player.shiny ? 3 : 2;
+		const toxicI = b.player.shiny ? 2 : -1;
+		if (i === waitI) {
 			b.msg = ["Max holds."];
 			b.msgI = 0;
 			b.phase = "msg";
 			b.afterMsg = "guard";
 			this.audio.ui();
+			return;
+		}
+		if (i === toxicI) {
+			const atk = b.player.str + b.mods.selfStr;
+			const def = b.foe.str + b.mods.foeStr;
+			b.pendingDmg = Math.max(1, Math.round(4 + atk * .5 - def * .16 + randI(0, 2)));
+			b.pendingLabel = "Toxic Burst";
+			b.foePoisoned = true;
+			b.phase = "resolve_hit";
+			this.audio.special();
 			return;
 		}
 		if (i === 1) {
@@ -2263,9 +2591,11 @@ export class Gemwar {
 			if (b.trainer === "calder") {
 				this.beatCalder = true;
 				this.marks += 18;
-				this.mode = "ending";
-				this.endI = 0;
+				this.mode = "world";
 				this.battle = null;
+				this.world.encounterLock = 3;
+				this.onBattleOver();
+				this.say(TALK.calderWin);
 				this.audio.ok();
 				return;
 			}
@@ -2281,12 +2611,41 @@ export class Gemwar {
 				this.audio.ok();
 				return;
 			}
+			if (b.trainer === "wsoldier") {
+				const who = b.soldierId || this.pendingWs;
+				this.mode = "world";
+				this.battle = null;
+				this.world.encounterLock = 3;
+				this.onBattleOver();
+				if (who === "sentry") {
+					this.beatSentry = true;
+					this.marks += 12;
+					this.say(TALK.sentryWin);
+				} else if (who === "conscript") {
+					this.beatConscript = true;
+					this.marks += 14;
+					this.say(TALK.conscriptWin);
+				} else if (who === "enforcer") {
+					this.beatEnforcer = true;
+					this.marks += 15;
+					this.say(TALK.enforcerWin);
+				} else {
+					this.beatCross = true;
+					this.marks += 18;
+					this.say(TALK.crossWin);
+				}
+				this.audio.ok();
+				return;
+			}
 			if (b.trainer === "shinigami") {
 				this.beatShinigami = true;
+				this.hasScroll = true;
 				this.marks += 14;
-				this.mode = "demoEnd";
-				this.endI = 0;
+				this.mode = "world";
 				this.battle = null;
+				this.world.encounterLock = 3;
+				this.onBattleOver();
+				this.say(TALK.shinigamiAfter, "choice");
 				this.audio.ok();
 				return;
 			}
@@ -2297,7 +2656,7 @@ export class Gemwar {
 			this.battle = null;
 			this.world.encounterLock = 3;
 			this.onBattleOver();
-			this.say(TALK.masonWin, "rivalLeave");
+			this.say(TALK.masonWin, "masonLeave");
 			this.audio.ok();
 			return;
 		}
@@ -2307,10 +2666,23 @@ export class Gemwar {
 		this.world.encounterLock = 3;
 		this.onBattleOver();
 		if (b.foe.species === "cathleen" && !this.cathleenCaught) {
+			this.beatCathleen = true;
 			this.say(TALK.cathleenAfter);
 			return;
 		}
 		this.note(grew ? `${m.name} grew to lv ${m.level}.` : `${m.name} stands over the grass.`);
+	}
+	updateChoice() {
+		if (this.input.up() || this.input.down()) {
+			this.choiceCur = 1 - this.choiceCur;
+			this.audio.ui();
+		}
+		if (this.input.confirm()) {
+			this.audio.ok();
+			this.mode = "world";
+			if (this.choiceCur === 0) this.say(TALK.choiceFather, "ending");
+			else this.say(TALK.choiceHeavenfall, "ending");
+		}
 	}
 	draw() {
 		const ctx = this.ctx;
@@ -2321,11 +2693,11 @@ export class Gemwar {
 		if (this.mode === "title") this.drawTitle();
 		else if (this.mode === "intro") this.drawStory(INTRO[this.introI] ?? "", "The leaving");
 		else if (this.mode === "ending") this.drawStory(ENDING_WIN[this.endI] ?? "", "The war");
-		else if (this.mode === "demoEnd") this.drawDemoEnd();
 		else if (this.mode === "battle") this.drawBattle();
 		else if (this.mode === "bag") this.drawBag();
 		else if (this.mode === "party") this.drawParty();
 		else if (this.mode === "shop") this.drawShop();
+		else if (this.mode === "choice") this.drawChoice();
 		else this.drawWorld();
 		ctx.restore();
 	}
@@ -2369,7 +2741,7 @@ export class Gemwar {
 	drawMap(map, camx, camy) {
 		const mw = (map[0]?.length ?? 1) * TILE;
 		const mh = map.length * TILE;
-		this.fill(map === HOUSE ? "#1a1410" : map === FOREST ? "#121810" : map === GROVE ? "#161218" : "#1c2418");
+		this.fill(map === HOUSE ? "#1a1410" : map === FOREST ? "#121810" : map === GROVE ? "#161218" : map === CAMP ? "#241810" : map === CLIFFS ? "#2a2418" : map === RUINS ? "#1a1814" : "#1c2418");
 		const x0 = Math.max(0, Math.floor(camx / TILE) - 1);
 		const y0 = Math.max(0, Math.floor(camy / TILE) - 1);
 		const x1 = Math.min(mw / TILE, Math.ceil((camx + VIEW_W) / TILE) + 1);
@@ -2419,16 +2791,6 @@ export class Gemwar {
 		this.box(X(8), Y(112), X(224), Y(42));
 		this.wrap(body, 42).slice(0, 3).forEach((ln, i) => this.text(ln, X(14), Y(118 + i * 10), "#e8e4d8", FONT));
 	}
-	drawDemoEnd() {
-		const s = spawnOf(GROVE, "9");
-		this.drawMap(GROVE, s.x - VIEW_W / 2, s.y - VIEW_H / 2);
-		this.drawSprite("shinigami-down-1", X(120), Y(28), SPR_W, SPR_H);
-		this.ctx.fillStyle = "rgba(10,9,8,0.62)";
-		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-		this.text("DEMO COMPLETE", X(12), Y(6), "#c5cec6", FONT);
-		this.box(X(8), Y(96), X(224), Y(56));
-		this.wrap(DEMO_END[this.endI] ?? "", 42).slice(0, 4).forEach((ln, i) => this.text(ln, X(14), Y(102 + i * 10), "#e8e4d8", FONT));
-	}
 	cam() {
 		const map = this.map();
 		const mw = (map[0]?.length ?? 1) * TILE;
@@ -2457,10 +2819,16 @@ export class Gemwar {
 			fill("#4a382c", dx + 9, dy + 9, 5, 3);
 			return;
 		}
-		if (ch === "R") {
+		if (ch === "R" || ch === "r") {
 			fill("#6a4030");
 			fill("#4a2a20", dx, dy + 7, t, 1);
 			fill("#8a5040", dx + 3, dy + 3, 2, 2);
+			return;
+		}
+		if (ch === "F" && this.world.mapId !== "house") {
+			fill("#1a120c");
+			fill("#2a1c14", dx + 1, dy, 14, t);
+			fill("#0e0a08", dx + 4, dy + 2, 8, 13);
 			return;
 		}
 		if (ch === "F" || ch === "P") {
@@ -2501,7 +2869,7 @@ export class Gemwar {
 			fill("#6a8a3a", dx + 12, dy + 3, 2, 10);
 			return;
 		}
-		if (ch === "=" || ch === "," || ch === "Z" || ch === "Y" || ch === "3") {
+		if (ch === "=" || ch === "," || ch === "Z" || ch === "Y" || ch === "3" || ch === "c" || ch === "g" || ch === "O" || ch === "8" || ch === "9") {
 			fill(ch === "," ? "#5a4a32" : "#6b5a3a");
 			fill("#8a7348", dx + 2, dy + 4, 1, 1);
 			fill("#4a3a28", dx + 9, dy + 11, 1, 1);
@@ -2585,6 +2953,21 @@ export class Gemwar {
 		else dy = y + (h - dh) / 2;
 		ctx.drawImage(im, dx, dy, dw, dh);
 	}
+	drawBattleMon(key, x, y, w, h, enterT, faintT, shiny) {
+		const ctx = this.ctx;
+		const enter = Math.min(1, (enterT ?? 1) / 0.3);
+		const faint = faintT > 0 ? Math.max(0, 1 - faintT / 0.4) : 1;
+		ctx.save();
+		ctx.globalAlpha *= faint;
+		if (shiny) ctx.filter = "hue-rotate(38deg) saturate(1.45) brightness(1.12)";
+		const visH = Math.max(1, h * enter);
+		ctx.beginPath();
+		ctx.rect(x, y + h - visH, w, visH);
+		ctx.clip();
+		this.drawSprite(key, x, y, w, h, false);
+		ctx.restore();
+		ctx.filter = "none";
+	}
 	drawActor(key, wx, wy) {
 		const { cx, cy } = this.cam();
 		this.drawSprite(key, wx - cx - SPR_W / 2, wy - cy - SPR_H + 4, SPR_W, SPR_H);
@@ -2596,6 +2979,7 @@ export class Gemwar {
 		this.text(`Xtals ${this.bag.gem}`, 88, 12, "#c5cec6", FONT);
 		this.text(`M ${this.marks}`, 250, 12, "#8f4a40", FONT);
 		this.text(lead ? `${lead.name} Lv${lead.level}  ${lead.hp}/${lead.maxHp}` : "No CryMon yet", 16, 28, "#8a8678", FONT);
+		if (this.hasScroll) this.text("SCROLL", 250, 28, "#c5cec6", FONT);
 	}
 	drawProp(key, wx, wy, w, h) {
 		const { cx, cy } = this.cam();
@@ -2611,7 +2995,7 @@ export class Gemwar {
 	drawWorld() {
 		const { cx, cy } = this.cam();
 		const map = this.map();
-		this.fill(this.world.mapId === "house" ? "#1a1410" : this.world.mapId === "forest" ? "#121810" : this.world.mapId === "grove" ? "#161218" : "#1c2418");
+		this.fill(this.world.mapId === "house" ? "#1a1410" : this.world.mapId === "forest" ? "#121810" : this.world.mapId === "grove" ? "#161218" : this.world.mapId === "camp" ? "#241810" : this.world.mapId === "cliffs" ? "#2a2418" : this.world.mapId === "ruins" ? "#1a1814" : "#1c2418");
 		this.drawMap(map, cx, cy);
 		if (this.world.mapId === "house") {
 			const bed = spawnOf(HOUSE, "B");
@@ -2672,22 +3056,20 @@ export class Gemwar {
 			const bram = spawnOf(VELD, "J");
 			this.drawActor(`bram-${wf}`, bram.x, bram.y);
 			this.hintZ(bram.x, bram.y);
-			if (!this.beatCalder) {
-				const e = spawnOf(VELD, "E");
-				this.drawActor(`calder-${wf}`, e.x, e.y);
-				this.hintZ(e.x, e.y);
-			}
+			const e = spawnOf(VELD, "E");
+			this.drawActor(`calder-${wf}`, e.x, e.y);
+			this.hintZ(e.x, e.y);
 			if (this.rival.phase !== "off") {
-				const rWalking = this.rival.phase === "approach" || this.rival.phase === "leave";
-				const rf = rWalking ? this.rival.frame % 4 + 1 : 1;
+				const walking = this.rival.phase === "approach" || this.rival.phase === "leave";
+				const rf = walking ? this.rival.frame % 4 + 1 : 1;
 				this.drawActor(`mason-${this.rival.dir}-${rf}`, this.rival.x, this.rival.y);
 				if (this.rival.phase === "done") this.hintZ(this.rival.x, this.rival.y);
 			}
-			if (this.anne.phase !== "off") {
-				const walking = this.anne.phase === "approach" || this.anne.phase === "leave";
-				const af = walking ? this.anne.frame % 4 + 1 : 1;
-				this.drawActor(`anne-${this.anne.dir}-${af}`, this.anne.x, this.anne.y);
-			}
+		}
+		if (this.anne.phase !== "off") {
+			const walking = this.anne.phase === "approach" || this.anne.phase === "approach2" || this.anne.phase === "leave";
+			const af = walking ? this.anne.frame % 4 + 1 : 1;
+			this.drawActor(`anne-${this.anne.dir}-${af}`, this.anne.x, this.anne.y);
 		}
 		if (this.world.mapId === "forest") {
 			this.ensureSoldiers();
@@ -2697,16 +3079,54 @@ export class Gemwar {
 				this.hintZ(sol.x, sol.y);
 			}
 		}
-		if (this.world.mapId === "grove" && !this.cathleenCaught) {
-			const c = spawnOf(GROVE, "8");
-			this.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
-			this.hintZ(c.x, c.y);
-		}
 		if (this.world.mapId === "grove") {
-			const s = spawnOf(GROVE, "9");
-			const sf = Math.floor(this.clock * 3) % 4 + 1;
-			this.drawActor(`shinigami-down-${sf}`, s.x, s.y);
-			this.hintZ(s.x, s.y);
+			const k = spawnOf(GROVE, "K");
+			this.drawActor(`cross-${wf}`, k.x, k.y);
+			this.hintZ(k.x, k.y);
+			if (!this.cathleenCaught) {
+				const c = spawnOf(GROVE, "8");
+				this.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
+				this.hintZ(c.x, c.y);
+			}
+			if (!this.beatShinigami) {
+				const s = spawnOf(GROVE, "9");
+				const sf = Math.floor(this.clock * 3) % 4 + 1;
+				this.drawActor(`shinigami-down-${sf}`, s.x, s.y);
+				this.hintZ(s.x, s.y);
+			}
+		}
+		if (this.world.mapId === "camp") {
+			const commander = spawnOf(CAMP, "I");
+			this.drawActor(`commander-${wf}`, commander.x, commander.y);
+			this.hintZ(commander.x, commander.y);
+			const conscript = spawnOf(CAMP, "K");
+			this.drawActor(`conscript-${wf}`, conscript.x, conscript.y);
+			this.hintZ(conscript.x, conscript.y);
+			const enforcer = spawnOf(CAMP, "A");
+			this.drawActor(`enforcer-${wf}`, enforcer.x, enforcer.y);
+			this.hintZ(enforcer.x, enforcer.y);
+		}
+		if (this.world.mapId === "cliffs") {
+			const sentry = spawnOf(CLIFFS, "V");
+			this.drawActor(`sentry-${wf}`, sentry.x, sentry.y);
+			this.hintZ(sentry.x, sentry.y);
+			const tessa = spawnOf(CLIFFS, "Y");
+			this.drawActor(`tessa-${wf}`, tessa.x, tessa.y);
+			this.hintZ(tessa.x, tessa.y);
+			const chest = spawnOf(CLIFFS, "C");
+			this.drawProp("prop-crate", chest.x, chest.y + 4, 32, 32);
+			this.hintZ(chest.x, chest.y);
+		}
+		if (this.world.mapId === "ruins") {
+			const oren = spawnOf(RUINS, "J");
+			this.drawActor(`oren-${wf}`, oren.x, oren.y);
+			this.hintZ(oren.x, oren.y);
+			const birch = spawnOf(RUINS, "K");
+			this.drawActor(`birch-${wf}`, birch.x, birch.y);
+			this.hintZ(birch.x, birch.y);
+			const sable = spawnOf(RUINS, "A");
+			this.drawActor(`sable-${wf}`, sable.x, sable.y);
+			this.hintZ(sable.x, sable.y);
 		}
 		const frame = this.world.moving ? this.world.frame % 4 + 1 : 1;
 		this.drawActor(`max-${this.world.dir}-${frame}`, this.world.x, this.world.y);
@@ -2715,6 +3135,16 @@ export class Gemwar {
 			return;
 		}
 		this.drawWorldHud();
+		if (this.mapBannerT > 0) {
+			const total = 2.4;
+			const elapsed = total - this.mapBannerT;
+			let fade = 1;
+			if (elapsed < 0.4) fade = elapsed / 0.4;
+			else if (this.mapBannerT < 0.4) fade = this.mapBannerT / 0.4;
+			this.ctx.globalAlpha = fade;
+			this.text(this.mapBanner, VIEW_W - 16, 14, "#e8e4d8", FONT, "right");
+			this.ctx.globalAlpha = 1;
+		}
 		if (this.hudT > 0) {
 			this.box(X(8), Y(116), X(224), Y(40));
 			this.wrap(this.hudFlash, 40).slice(0, 3).forEach((ln, i) => this.text(ln, X(14), Y(122 + i * 10), "#e8e4d8", FONT));
@@ -2739,6 +3169,21 @@ export class Gemwar {
 			this.text("Z", X(218), Y(144), "#8a8678", FONT);
 		}
 	}
+	drawChoice() {
+		this.drawWorld();
+		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.box(X(20), Y(24), X(200), Y(112));
+		this.text("THE SCROLL", X(120), Y(32), "#c5cec6", FONT, "center");
+		this.text("The scroll can wake one of the dead.", X(32), Y(48), "#8a8678", FONT);
+		const rows = ["Resurrect Father", "Resurrect Heavenfall"];
+		rows.forEach((row, i) => {
+			const on = i === this.choiceCur;
+			this.text(on ? `> ${row}` : `  ${row}`, X(32), Y(68 + i * 16), on ? "#e8e4d8" : "#8a8678", FONT);
+		});
+		this.text(this.choiceCur === 0 ? "He comes back as he was. Human, and hers." : "An ancient CryMon wakes. Vast and unknown.", X(32), Y(108), "#8a8678", FONT);
+		this.text("Z  choose", X(32), Y(122), "#5a7a52", FONT);
+	}
 	drawBag() {
 		this.drawWorld();
 		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
@@ -2749,13 +3194,18 @@ export class Gemwar {
 		const items = this.ownedItems();
 		if (items.length === 0) this.text("The pouch is empty.", X(18), Y(36), "#8a8678", FONT);
 		else {
-			items.forEach((id, i) => {
+			const shown = 5;
+			const start = Math.max(0, Math.min(this.bagCursor, Math.max(0, items.length - shown)));
+			for (let i = 0; i < shown; i++) {
+				const idx = start + i;
+				const id = items[idx];
+				if (!id) break;
 				const y = Y(32 + i * 18);
-				const on = i === this.bagCursor;
+				const on = idx === this.bagCursor;
 				this.text(on ? ">" : " ", X(18), y, "#e8e4d8", FONT);
 				this.drawSprite(`item-${id}`, X(30), y - 2, X(14), X(14), false);
 				this.text(`${ITEMS[id].name}  x${this.bag[id]}`, X(48), y, on ? "#e8e4d8" : "#8a8678", FONT);
-			});
+			}
 			const cur = items[this.bagCursor];
 			if (cur) {
 				this.wrap(ITEMS[cur].desc, 40).slice(0, 1).forEach((ln) => this.text(ln, X(18), Y(124), "#8a8678", FONT));
@@ -2830,17 +3280,24 @@ export class Gemwar {
 		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 		this.box(X(10), Y(8), X(220), Y(144));
-		this.text("BRAM'S STALL", X(18), Y(14), "#c5cec6", FONT);
+		this.text(this.shopKeep === "oren" ? "OREN'S STALL" : "BRAM'S STALL", X(18), Y(14), "#c5cec6", FONT);
 		this.text(`Marks ${this.marks}`, X(150), Y(14), "#8f4a40", FONT);
 		this.text(this.shopTab === "buy" ? ">BUY   sell" : " buy   >SELL", X(18), Y(28), "#e8e4d8", FONT);
 		const rows = this.shopTab === "buy" ? ITEM_ORDER : this.ownedItems();
 		if (rows.length === 0) this.text("Nothing to sell.", X(18), Y(48), "#8a8678", FONT);
-		else rows.forEach((id, i) => {
-			const y = Y(44 + i * 16);
-			const on = i === this.shopCursor;
-			const price = this.shopTab === "buy" ? ITEMS[id].buy : ITEMS[id].sell;
-			this.text(`${on ? ">" : " "}${ITEMS[id].name}  ${price}m  x${this.bag[id]}`, X(18), y, on ? "#e8e4d8" : "#8a8678", FONT);
-		});
+		else {
+			const shown = 6;
+			const start = Math.max(0, Math.min(this.shopCursor, Math.max(0, rows.length - shown)));
+			for (let i = 0; i < shown; i++) {
+				const idx = start + i;
+				const id = rows[idx];
+				if (!id) break;
+				const y = Y(44 + i * 14);
+				const on = idx === this.shopCursor;
+				const price = this.shopTab === "buy" ? ITEMS[id].buy : ITEMS[id].sell;
+				this.text(`${on ? ">" : " "}${ITEMS[id].name}  ${price}m  x${this.bag[id]}`, X(18), y, on ? "#e8e4d8" : "#8a8678", FONT);
+			}
+		}
 		this.text("A/D tab   Z trade   X leave", X(18), Y(140), "#5a7a52", FONT);
 		if (this.hudT > 0) this.text(this.hudFlash.slice(0, 34), X(18), Y(148), "#e8e4d8", FONT);
 	}
@@ -2861,14 +3318,14 @@ export class Gemwar {
 		if (bg) this.ctx.drawImage(bg, 0, 0, VIEW_W, VIEW_H);
 		else this.fill("#2a2418");
 		const pf = Math.floor(b.t * 4) % 4 + 1;
-		this.drawSprite(`${b.foe.species}-${pf}`, X(168), Y(8), X(52), Y(52), false);
-		this.drawSprite(`${b.player.species}-${pf}`, X(12), Y(52), X(48), Y(48), false);
+		this.drawBattleMon(`${b.foe.species}-${pf}`, X(168), Y(8), X(52), Y(52), b.foeEnterT, b.foeFaintT, b.foe.shiny);
+		this.drawBattleMon(`${b.player.species}-${pf}`, X(12), Y(52), X(48), Y(48), b.enterT, b.faintT, b.player.shiny);
 		this.box(X(6), Y(6), X(124), Y(32));
-		this.text(b.foe.name.toUpperCase(), X(10), Y(9), "#e8e4d8", FONT);
+		this.text(`${b.foe.shiny ? "*" : ""}${b.foe.name.toUpperCase()}`, X(10), Y(9), b.foe.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(10), Y(22), X(96), b.foe.hp, b.foe.maxHp);
 		this.text(`${b.foe.hp}`, X(110), Y(20), "#8a8678", FONT);
 		this.box(X(108), Y(78), X(126), Y(28));
-		this.text(`${b.player.name.toUpperCase()} Lv${b.player.level}`, X(112), Y(80), "#e8e4d8", FONT);
+		this.text(`${b.player.shiny ? "*" : ""}${b.player.name.toUpperCase()} Lv${b.player.level}`, X(112), Y(80), b.player.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(112), Y(92), X(96), b.player.hp, b.player.maxHp);
 		this.text(`${b.player.hp}`, X(212), Y(90), "#8a8678", FONT);
 		if (b.phase === "msg") {

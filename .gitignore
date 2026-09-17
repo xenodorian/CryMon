@@ -3,3 +3,8 @@ node_modules/
 .github_repo
 .env
 .env.*
+ports/dreamcast/*.elf
+ports/dreamcast/*.cdi
+ports/dreamcast/src/*.o
+ports/dreamcast/src/sprites.h
+backups/**/*.tar.gz

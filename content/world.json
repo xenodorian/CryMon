@@ -1,0 +1,557 @@
+{
+  "startBag": {
+    "gem": 0,
+    "salve": 2,
+    "bitterroot": 1,
+    "dust": 1,
+    "bandage": 2,
+    "sunbalm": 0,
+    "warroot": 0,
+    "smokebomb": 1,
+    "greatcrystal": 0
+  },
+  "startMarks": 16,
+  "mapNames": {
+    "house": "HOME",
+    "veld": "CRYTOWN",
+    "forest": "THE FOREST",
+    "grove": "THE GROVE",
+    "camp": "THE CAMP",
+    "cliffs": "THE CLIFFS",
+    "ruins": "THE RUINS"
+  },
+  "mapIds": [
+    "house",
+    "veld",
+    "forest",
+    "grove",
+    "camp",
+    "cliffs",
+    "ruins"
+  ],
+  "formulas": {
+    "capture": "5 * agl + missingHpPercent + bonus + (vulnerable ? 25 : 0), clamp 0..100",
+    "xpGain": "6 + foeLevel * 4",
+    "levelUp": "while xp >= level * 10 and level < 12: xp -= level*10; level++; maxHp+=3; str+=1; agl+=1; spc+=1",
+    "mintGrow": "1 + (level - 3) * 0.12",
+    "shinyOdds": "1/64",
+    "heal": {
+      "salve": 22,
+      "bandage": 12,
+      "sunbalm": 40
+    },
+    "encounterRate": 0.18
+  },
+  "encounters": [
+    {
+      "maps": [
+        "forest"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "fenwisp",
+        "duskhorn",
+        "needleroot"
+      ],
+      "levelMin": 3,
+      "levelMax": 5
+    },
+    {
+      "maps": [
+        "cliffs"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "stormwing",
+        "sableclaw",
+        "frostail",
+        "emberling",
+        "glasswisp",
+        "thornhide"
+      ],
+      "levelMin": 5,
+      "levelMax": 7
+    },
+    {
+      "maps": [
+        "veld"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "glimmoth",
+        "tortcask",
+        "emberling",
+        "ashenmaw"
+      ],
+      "levelMin": 2,
+      "levelMax": 4,
+      "levelBonusIfTyGt": 14
+    }
+  ],
+  "warps": [
+    {
+      "from": "house",
+      "tile": "D",
+      "to": "veld",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 44,
+      "need": "tookStarter",
+      "failTalk": "doorLocked",
+      "onArrive": "masonAmbush"
+    },
+    {
+      "from": "veld",
+      "tile": "D",
+      "to": "house",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "veld",
+      "tile": "Z",
+      "to": "forest",
+      "spawn": "Y",
+      "dir": "down",
+      "oy": 40,
+      "onArrive": "ensureSoldiers"
+    },
+    {
+      "from": "forest",
+      "tile": "Y",
+      "to": "veld",
+      "spawn": "Z",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "forest",
+      "tile": "O",
+      "to": "grove",
+      "spawn": "O",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "grove",
+      "tile": "O",
+      "to": "forest",
+      "spawn": "O",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "veld",
+      "tile": "F",
+      "to": "camp",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40,
+      "need": "beatCalder"
+    },
+    {
+      "from": "camp",
+      "tile": "D",
+      "to": "veld",
+      "spawn": "F",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "veld",
+      "tile": "c",
+      "to": "cliffs",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "cliffs",
+      "tile": "D",
+      "to": "veld",
+      "spawn": "c",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "grove",
+      "tile": "g",
+      "to": "ruins",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40,
+      "need": "beatShin"
+    },
+    {
+      "from": "ruins",
+      "tile": "D",
+      "to": "grove",
+      "spawn": "g",
+      "dir": "up",
+      "oy": -32
+    }
+  ],
+  "trainers": {
+    "sentry": {
+      "lead": [
+        "emberling",
+        5
+      ],
+      "bench": [
+        [
+          "frostail",
+          6
+        ],
+        [
+          "stormwing",
+          7
+        ]
+      ],
+      "title": "Sentry sends Emberling",
+      "name": "Sentry"
+    },
+    "conscript": {
+      "lead": [
+        "sableclaw",
+        7
+      ],
+      "bench": [
+        [
+          "boulderam",
+          8
+        ],
+        [
+          "ashenmaw",
+          9
+        ]
+      ],
+      "title": "Conscript sends Sableclaw",
+      "name": "Conscript"
+    },
+    "enforcer": {
+      "lead": [
+        "thornhide",
+        8
+      ],
+      "bench": [
+        [
+          "glasswisp",
+          9
+        ],
+        [
+          "duskhorn",
+          10
+        ]
+      ],
+      "title": "Enforcer sends Thornhide",
+      "name": "Enforcer"
+    },
+    "cross": {
+      "lead": [
+        "crymare",
+        9
+      ],
+      "bench": [
+        [
+          "ashenmaw",
+          10
+        ],
+        [
+          "boulderam",
+          11
+        ]
+      ],
+      "title": "Warden sends CryMare",
+      "name": "Warden Cross"
+    }
+  },
+  "npcs": [
+    {
+      "map": "house",
+      "mark": "P",
+      "id": "spawn",
+      "role": "playerStart"
+    },
+    {
+      "map": "house",
+      "mark": "B",
+      "id": "father",
+      "role": "talk",
+      "talk": "father",
+      "talkDone": "fatherAfter"
+    },
+    {
+      "map": "house",
+      "mark": "U",
+      "id": "bed",
+      "role": "heal",
+      "talk": "bed"
+    },
+    {
+      "map": "house",
+      "mark": "S",
+      "id": "shelf",
+      "role": "starter",
+      "talk": "shelf",
+      "talkDone": "shelfEmpty",
+      "grantMonster": [
+        "quillpup",
+        3
+      ]
+    },
+    {
+      "map": "house",
+      "mark": "C",
+      "id": "crate",
+      "role": "loot",
+      "talk": "crate",
+      "talkDone": "crateEmpty",
+      "grantItem": [
+        "bandage",
+        1
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "D",
+      "id": "houseDoor",
+      "role": "door"
+    },
+    {
+      "map": "veld",
+      "mark": "K",
+      "id": "wren",
+      "role": "talk",
+      "sprite": "npc/wren"
+    },
+    {
+      "map": "veld",
+      "mark": "I",
+      "id": "mae",
+      "role": "talk",
+      "sprite": "npc/mae"
+    },
+    {
+      "map": "veld",
+      "mark": "V",
+      "id": "ivo",
+      "role": "talk",
+      "sprite": "npc/ivo"
+    },
+    {
+      "map": "veld",
+      "mark": "A",
+      "id": "nell",
+      "role": "talk",
+      "sprite": "npc/nell"
+    },
+    {
+      "map": "veld",
+      "mark": "Q",
+      "id": "pike",
+      "role": "talk",
+      "sprite": "npc/pike"
+    },
+    {
+      "map": "veld",
+      "mark": "J",
+      "id": "bram",
+      "role": "shop",
+      "sprite": "npc/bram",
+      "talk": "bramOpen"
+    },
+    {
+      "map": "veld",
+      "mark": "E",
+      "id": "calder",
+      "role": "trainer",
+      "sprite": "npc/calder",
+      "talk": "calderFight",
+      "talkDone": "calderAfter"
+    },
+    {
+      "map": "veld",
+      "mark": "M",
+      "id": "herb",
+      "role": "loot",
+      "talk": "herb",
+      "talkDone": "herbGone",
+      "grantItem": [
+        "bitterroot",
+        1
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "G",
+      "id": "gem",
+      "role": "loot",
+      "talk": "gemWild",
+      "talkDone": "gemGone",
+      "grantItem": [
+        "gem",
+        1
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "L",
+      "id": "stump",
+      "role": "loot",
+      "talk": "stump",
+      "talkDone": "stumpGone",
+      "grantItem": [
+        "bandage",
+        1
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "X",
+      "id": "cart",
+      "role": "talk",
+      "talk": "cart"
+    },
+    {
+      "map": "forest",
+      "mark": "1",
+      "id": "soldier1",
+      "role": "trainer",
+      "sprite": "npc/soldier"
+    },
+    {
+      "map": "forest",
+      "mark": "2",
+      "id": "soldier2",
+      "role": "trainer",
+      "sprite": "npc/soldier"
+    },
+    {
+      "map": "forest",
+      "mark": "3",
+      "id": "soldier3",
+      "role": "trainer",
+      "sprite": "npc/soldier"
+    },
+    {
+      "map": "grove",
+      "mark": "8",
+      "id": "cathleen",
+      "role": "trainer",
+      "talk": "cathleenSpot",
+      "talkDone": "cathleenAfter"
+    },
+    {
+      "map": "grove",
+      "mark": "9",
+      "id": "shinigami",
+      "role": "trainer",
+      "sprite": "shinigami",
+      "talk": "shinigamiSpot",
+      "talkDone": "shinigamiAfter"
+    },
+    {
+      "map": "grove",
+      "mark": "K",
+      "id": "cross",
+      "role": "trainer",
+      "sprite": "npc/cross",
+      "talk": "crossSpot",
+      "talkDone": "crossWin"
+    },
+    {
+      "map": "camp",
+      "mark": "I",
+      "id": "commander",
+      "role": "talk",
+      "sprite": "npc/commander",
+      "talk": "commander"
+    },
+    {
+      "map": "camp",
+      "mark": "K",
+      "id": "conscript",
+      "role": "trainer",
+      "sprite": "npc/conscript",
+      "talk": "conscriptSpot",
+      "talkDone": "conscriptWin"
+    },
+    {
+      "map": "camp",
+      "mark": "A",
+      "id": "enforcer",
+      "role": "trainer",
+      "sprite": "npc/enforcer",
+      "talk": "enforcerSpot",
+      "talkDone": "enforcerWin"
+    },
+    {
+      "map": "cliffs",
+      "mark": "V",
+      "id": "sentry",
+      "role": "trainer",
+      "sprite": "npc/sentry",
+      "talk": "sentrySpot",
+      "talkDone": "sentryWin"
+    },
+    {
+      "map": "cliffs",
+      "mark": "Y",
+      "id": "tessa",
+      "role": "talk",
+      "sprite": "npc/tessa",
+      "talk": "tessaFirst",
+      "talkDone": "tessaAgain",
+      "grantItem": [
+        "greatcrystal",
+        1
+      ]
+    },
+    {
+      "map": "cliffs",
+      "mark": "C",
+      "id": "chest",
+      "role": "loot",
+      "talk": "chest",
+      "talkDone": "chestEmpty"
+    },
+    {
+      "map": "ruins",
+      "mark": "J",
+      "id": "oren",
+      "role": "shop",
+      "sprite": "npc/oren",
+      "talk": "orenOpen"
+    },
+    {
+      "map": "ruins",
+      "mark": "K",
+      "id": "birch",
+      "role": "talk",
+      "sprite": "npc/birch",
+      "talk": "birchFirst",
+      "talkDone": "birchAgain",
+      "grantItem": [
+        "sunbalm",
+        1
+      ]
+    },
+    {
+      "map": "ruins",
+      "mark": "A",
+      "id": "sable",
+      "role": "talk",
+      "sprite": "npc/sable",
+      "talk": "sableFirst",
+      "talkDone": "sableAgain",
+      "grantItem": [
+        "warroot",
+        1
+      ]
+    }
+  ]
+}

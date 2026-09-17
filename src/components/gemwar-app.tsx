@@ -90,9 +90,6 @@ export function GemwarApp() {
             <RomFile href="/rom/CryMon-ports.zip?v=cm14" filename="CryMon-ports.zip" variant="default">
               Copy into Ports
             </RomFile>
-            <RomFile href="/rom/CryMon.sfc?v=cm18" filename="CryMon.sfc">
-              SNES
-            </RomFile>
           </div>
         </div>
       </header>
@@ -153,20 +150,6 @@ export function GemwarApp() {
             </a>
             {" — "}
             aarch64 for the R36S, plus x86_64 for a PC.
-          </p>
-          <h2 className="font-display text-lg text-fg">SNES cart</h2>
-          <p>
-            <a
-              className="text-fg underline underline-offset-4 hover:text-accent"
-              href="/rom/CryMon.sfc?v=cm18"
-              download="CryMon.sfc"
-              rel="noopener"
-            >
-              CryMon.sfc
-            </a>
-            {" — "}
-            Super Nintendo port. Load it in any SNES emulator (Snes9x, bsnes, the
-            device's SNES core). Native 256×224 Mode 1.
           </p>
           <h2 className="font-display text-lg text-fg">If Ports is already missing</h2>
           <p>

@@ -1,12 +1,17 @@
 export type Dir = "down" | "left" | "right" | "up";
 
-export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "demoEnd" | "bag" | "party" | "shop";
+export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop" | "choice";
 
 export type PartyView = "list" | "act" | "stats" | "moves" | "target";
 
 export type ShopTab = "buy" | "sell";
 
-export type SpeakerId = "max" | "anne" | "mason" | "wren" | "mae" | "ivo" | "nell" | "pike" | "calder" | "bram" | "cathleen" | "shinigami" | "none";
+export type SpeakerId =
+  | "max" | "anne" | "mason" | "wren" | "mae" | "ivo" | "nell" | "pike"
+  | "calder" | "bram" | "cathleen" | "shinigami"
+  | "oren" | "tessa" | "birch" | "sable"
+  | "cross" | "commander" | "conscript" | "enforcer" | "sentry"
+  | "father" | "heavenfall" | "none";
 
 export interface TalkBeat {
   speaker: SpeakerId;
@@ -27,11 +32,15 @@ export type BattlePhase =
 
 export type GuardKind = "dodge" | "block" | "barrier";
 
-export type TrainerId = "wild" | "mason" | "calder" | "soldier" | "shinigami";
+export type TrainerId = "wild" | "mason" | "calder" | "soldier" | "shinigami" | "wsoldier";
 
-export type SpeciesId = "quillpup" | "glimmoth" | "tortcask" | "razorbat" | "mossback" | "briarfox" | "fenwisp" | "duskhorn" | "needleroot" | "cathleen" | "crymare";
+export type SpeciesId =
+  | "quillpup" | "glimmoth" | "tortcask" | "razorbat" | "mossback"
+  | "briarfox" | "fenwisp" | "duskhorn" | "needleroot" | "cathleen" | "crymare"
+  | "emberling" | "frostail" | "boulderam" | "stormwing"
+  | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall";
 
-export type MapId = "house" | "veld" | "forest" | "grove";
+export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins";
 
 export type SpellId = "firebolt" | "icebeam" | "lightning" | "manasurge";
 
@@ -69,9 +78,10 @@ export interface Monster {
   specialPpMax: number;
   level: number;
   xp: number;
+  shiny: boolean;
 }
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage";
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal";
 
 export interface ItemDef {
   id: ItemId;
@@ -115,6 +125,12 @@ export interface BattleState {
   catchUsed: boolean;
   t: number;
   foeBench: Monster[];
+  enterT: number;
+  faintT: number;
+  foeEnterT: number;
+  foeFaintT: number;
+  plPoisoned: boolean;
+  foePoisoned: boolean;
 }
 
 export interface WorldState {
@@ -136,14 +152,15 @@ export interface Soldier {
   dir: Dir;
   frame: number;
   anim: number;
-  beaten: boolean;
   chase: boolean;
+  beaten: boolean;
+  species: SpeciesId;
+  level: number;
   axis: "x" | "y" | "none";
   min: number;
   max: number;
   sign: number;
-  species: SpeciesId;
-  level: number;
+  bench?: Monster[];
 }
 
 export type RivalPhase = "off" | "approach" | "talk" | "done" | "leave";
