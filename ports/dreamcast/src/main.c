@@ -1419,6 +1419,8 @@ typedef struct {
     int maxHp, str, agl, spc, spp;
     int spells_n;      /* 0 for every species but Cathleen */
     int spells[4];     /* SPELL_* ids, spells_n of them valid */
+    int nature;        /* index into NATURES -- a crystal belongs to the
+                          species, so every one of them shares it */
 } Species;
 
 #include "content_species.inc"
@@ -1429,8 +1431,14 @@ typedef struct {
     int lv, xp;
     int maxHp, hp, str, agl, spc, spp, sppMax;
     int shiny; /* see mint_shiny() below */
-    int nature;
 } Monster;
+
+/* A crystal belongs to the species, so every CryMon of a species shares it.
+   Look it up rather than storing a copy on each monster. */
+static int species_nature(int species) {
+    if(species < 0 || species >= SPECIES_N) return 0;
+    return SPECIES[species].nature;
+}
 
 static unsigned char g_dex_seen[SAVE_DEX_BYTES];
 static unsigned char g_dex_caught[SAVE_DEX_BYTES];
@@ -1510,11 +1518,10 @@ static Monster mint_monster(int species, int lv) {
     m.sppMax = s->spp;
     m.hp = m.maxHp;
     m.shiny = 0;
-    m.nature = NATURE_N > 0 ? irand(0, NATURE_N - 1) : 0;
-    nat = &NATURES[m.nature];
-    m.str += nat->str; if(m.str < 1) m.str = 1;
-    m.agl += nat->agl; if(m.agl < 1) m.agl = 1;
-    m.spc += nat->spc; if(m.spc < 1) m.spc = 1;
+    nat = &NATURES[species_nature(species)];
+    m.str += nat->str;
+    m.agl += nat->agl;
+    m.spc += nat->spc;
     dex_note_seen(species);
     return m;
 }
@@ -1792,7 +1799,7 @@ static void draw_party_detail(const Monster *party, int party_n, int idx) {
     n = s_cat(buf, 0, "LV");
     n = s_cat_uint(buf, n, m->lv);
     n = s_cat(buf, n, "  ");
-    n = s_cat(buf, n, NATURES[m->nature < NATURE_N ? m->nature : 0].name);
+    n = s_cat(buf, n, NATURES[species_nature(m->species)].name);
     n = s_cat(buf, n, "  HP ");
     n = s_cat_uint(buf, n, m->hp);
     n = s_cat(buf, n, "/");
@@ -2102,7 +2109,8 @@ static void battle_apply_hit(Battle *b) {
        branches that feed this, so every player attack is scaled exactly
        once and by the same rule the foe's attacks get in
        battle_pick_guard(). */
-    b->dmg = nature_scale_dmg(b->dmg, b->pl.nature, b->foe.nature, &nat_sign);
+    b->dmg = nature_scale_dmg(b->dmg, species_nature(b->pl.species),
+                              species_nature(b->foe.species), &nat_sign);
 
     /* TOXIC BURST's ongoing chip damage: ticks whatever poison state
        the foe was ALREADY carrying into this turn, before this turn's
@@ -2365,7 +2373,8 @@ guard_chance:
     /* Crystal matchup on the incoming hit, before the guard reduces it: the
        matchup decides how hard the blow lands, the guard decides how much of
        it the player eats. */
-    dmg = nature_scale_dmg(dmg, b->foe.nature, b->pl.nature, &nat_sign);
+    dmg = nature_scale_dmg(dmg, species_nature(b->foe.species),
+                           species_nature(b->pl.species), &nat_sign);
 
     if(kind == 0) {
         if(success) {
@@ -3871,7 +3880,9 @@ void main(void) {
                             party[pi].sppMax = sl.party[pi].sppMax;
                             party[pi].shiny = sl.party[pi].shiny;
                             party[pi].xp = sl.party[pi].xp;
-                            party[pi].nature = sl.party[pi].nature;
+                            /* slot byte 12 (was a per-monster crystal) is
+                               reserved now -- the crystal comes from the
+                               species, so old saves need no migration. */
                             dex_note_caught(party[pi].species);
                         }
                         {
@@ -4049,7 +4060,7 @@ void main(void) {
                         sl.party[pi].sppMax = (unsigned char)party[pi].sppMax;
                         sl.party[pi].shiny = (unsigned char)party[pi].shiny;
                         sl.party[pi].xp = (unsigned short)party[pi].xp;
-                        sl.party[pi].nature = (unsigned char)party[pi].nature;
+                        sl.party[pi].nature = 0; /* reserved, see the reader */
                     }
                     {
                         int di;

@@ -114,7 +114,9 @@ export const NATURE_TYPES = (logicJson.natureTypes || {
 }) as NatureTypes;
 
 /** +1 if the attacker's crystal splits the defender's, -1 if split by it, 0 neutral. */
-export function natureMatchup(atkIndex: number, defIndex: number): number {
+export function natureMatchup(atkSpecies: SpeciesId, defSpecies: SpeciesId): number {
+  const atkIndex = speciesNature(atkSpecies);
+  const defIndex = speciesNature(defSpecies);
   const ring = NATURE_TYPES.ring;
   const n = ring.length;
   if (!n) return 0;
@@ -131,10 +133,10 @@ export function natureMatchup(atkIndex: number, defIndex: number): number {
 /** Scales a finished damage number by the matchup; `sign` says which way it went. */
 export function natureScaleDmg(
   dmg: number,
-  atkIndex: number,
-  defIndex: number,
+  atkSpecies: SpeciesId,
+  defSpecies: SpeciesId,
 ): { dmg: number; sign: number } {
-  const sign = natureMatchup(atkIndex, defIndex);
+  const sign = natureMatchup(atkSpecies, defSpecies);
   if (sign > 0) dmg = Math.round(dmg * NATURE_TYPES.strongMul);
   else if (sign < 0) dmg = Math.round(dmg * NATURE_TYPES.weakMul);
   return { dmg: Math.max(1, dmg), sign };
@@ -147,9 +149,13 @@ export function natureTag(sign: number): string {
   return "";
 }
 
-export function rollNature(): number {
-  if (!NATURES.length) return 0;
-  return Math.floor(Math.random() * NATURES.length);
+/** Index into NATURES for a species' crystal. A crystal is a property of the
+ *  species, so every CryMon of that species shares it. */
+export function speciesNature(species: SpeciesId): number {
+  const nid = (SPECIES[species] as { nature?: string })?.nature;
+  if (!nid) return 0;
+  const i = NATURES.findIndex((n) => n.id === nid);
+  return i < 0 ? 0 : i;
 }
 
 export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature?: number): Monster {
@@ -158,7 +164,7 @@ export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature
   if (shiny) lv = Math.max(lv, lv * 2 > 12 ? 12 : lv * 2);
   const grow = 1 + (lv - FORMULAS.mintBaseLevel) * FORMULAS.mintGrowPerLevel;
   const maxHp = Math.round(s.maxHp * grow);
-  const ni = nature ?? rollNature();
+  const ni = nature ?? speciesNature(species);
   const nat = natureOf(ni);
   return {
     id: `${species}-${Math.random().toString(36).slice(2, 7)}`,
@@ -166,9 +172,9 @@ export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature
     name: shiny ? `Shiny ${s.name}` : s.name,
     hp: maxHp,
     maxHp,
-    str: Math.max(1, Math.round(s.str * grow) + nat.str),
-    agl: Math.max(1, Math.round(s.agl * grow) + nat.agl),
-    spc: Math.max(1, Math.round(s.spc * grow) + nat.spc),
+    str: Math.round(s.str * grow) + nat.str,
+    agl: Math.round(s.agl * grow) + nat.agl,
+    spc: Math.round(s.spc * grow) + nat.spc,
     specialPp: s.specialPp,
     specialPpMax: s.specialPp,
     level: lv,

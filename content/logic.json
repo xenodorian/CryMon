@@ -68,15 +68,15 @@
     {
       "id": "quartz",
       "name": "Quartz",
-      "str": 0,
-      "agl": 0,
-      "spc": 0
+      "str": 1,
+      "agl": 1,
+      "spc": 1
     },
     {
       "id": "hematite",
       "name": "Hematite",
-      "str": 2,
-      "agl": -1,
+      "str": 3,
+      "agl": 0,
       "spc": 0
     },
     {
@@ -84,34 +84,34 @@
       "name": "Diamond",
       "str": 2,
       "agl": 0,
-      "spc": -1
+      "spc": 1
     },
     {
       "id": "opal",
       "name": "Opal",
-      "str": -1,
-      "agl": 2,
+      "str": 0,
+      "agl": 3,
       "spc": 0
     },
     {
       "id": "spinel",
       "name": "Spinel",
-      "str": 0,
+      "str": 1,
       "agl": 2,
-      "spc": -1
+      "spc": 0
     },
     {
       "id": "lapis",
       "name": "Lapis Lazuli",
-      "str": -1,
+      "str": 0,
       "agl": 0,
-      "spc": 2
+      "spc": 3
     },
     {
       "id": "amethyst",
       "name": "Amethyst",
       "str": 0,
-      "agl": -1,
+      "agl": 1,
       "spc": 2
     }
   ],
@@ -132,7 +132,7 @@
     "keepLast": true
   },
   "natureTypes": {
-    "note": "Crystal matchups. Same natures as above: one crystal gives both the stat bonuses and the type. Derived from the ring, not stored as a matrix. Both engines interpret this; neither hardcodes it.",
+    "note": "Crystal matchups. A crystal is a property of the SPECIES, not of an individual, and several species share each crystal. The same crystal gives the species its stat bonus (always positive; a stat never goes down) and its type. Derived from the ring, not stored as a matrix. Both engines interpret this.",
     "ring": [
       "diamond",
       "hematite",
@@ -143,9 +143,9 @@
       "spinel"
     ],
     "beatsAhead": 2,
-    "strongMul": 1.5,
-    "weakMul": 0.65,
-    "strongText": "The crystal splits",
-    "weakText": "The crystal holds"
+    "strongMul": 2.0,
+    "weakMul": 0.5,
+    "strongText": "Weakness x2",
+    "weakText": "Resisted x0.5"
   }
 }

@@ -329,6 +329,22 @@ def bake_talk(data: dict, out: Path) -> None:
     out.write_text("\n".join(lines) + "\n")
 
 
+def nature_index(data: dict, species_entry: dict) -> int:
+    """Index into logic.json `natures` for a species' crystal. A crystal is a
+    property of the species, so this is looked up once at bake time rather
+    than stored per monster."""
+    ids = [n["id"] for n in (data["logic"].get("natures") or [])]
+    nid = species_entry.get("nature")
+    if nid is None:
+        raise SystemExit(f"species {species_entry.get('id')!r} has no `nature`")
+    if nid not in ids:
+        raise SystemExit(
+            f"species {species_entry.get('id')!r} nature {nid!r} is not in "
+            f"logic.json natures {ids}"
+        )
+    return ids.index(nid)
+
+
 def bake_species(data: dict, out: Path) -> None:
     spec = data["species"]
     order = species_order(data)
@@ -352,7 +368,8 @@ def bake_species(data: dict, out: Path) -> None:
         lines.append(
             f'    {{ "{c_escape(name)}", "{c_escape(basic)}", "{c_escape(special)}", '
             f'{s["maxHp"]}, {s["str"]}, {s["agl"]}, {s["spc"]}, {s["specialPp"]}, '
-            f"{nsp}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}} }},"
+            f"{nsp}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}}, "
+            f"{nature_index(data, s)} }},"
         )
     lines.append("};")
     lines.append("")

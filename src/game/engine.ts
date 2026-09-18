@@ -31,6 +31,7 @@ import {
   healAmount,
   mintMonster,
   natureOf,
+  speciesNature,
   natureScaleDmg,
   natureTag,
   rollShiny,
@@ -2216,7 +2217,7 @@ export class CryMon {
 			// Crystal matchup, applied once here rather than in each move
 			// branch that sets pendingDmg, so every player attack is scaled
 			// exactly once and by the same rule the foe's attacks get below.
-			const hit = natureScaleDmg(b.pendingDmg, b.player.nature ?? 0, b.foe.nature ?? 0);
+			const hit = natureScaleDmg(b.pendingDmg, b.player.species, b.foe.species);
 			b.foe.hp = Math.max(0, b.foe.hp - hit.dmg);
 			this.shake = .25;
 			this.audio.hit();
@@ -2292,8 +2293,8 @@ export class CryMon {
 			// how much of it the player eats.
 			const incoming = natureScaleDmg(
 				Math.max(1, Math.round(base + randI(0, 3))),
-				b.foe.nature ?? 0,
-				b.player.nature ?? 0,
+				b.foe.species,
+				b.player.species,
 			);
 			let dmg = incoming.dmg;
 			let line = "";
@@ -3382,7 +3383,7 @@ export class CryMon {
 			const s = SPECIES[m.species];
 			this.drawMonIcon(m, X(12), Y(24), X(88), Y(110));
 			this.text(m.name.toUpperCase(), X(108), Y(28), "#e8e4d8", FONT);
-			this.text(`Lv${m.level}  ${natureOf(m.nature ?? 0).name}`, X(108), Y(40), "#8a8678", FONT);
+			this.text(`Lv${m.level}  ${natureOf(speciesNature(m.species)).name}`, X(108), Y(40), "#8a8678", FONT);
 			if (this.partyView === "stats") {
 				this.text(`HP  ${m.hp}/${m.maxHp}`, X(108), Y(56), "#e8e4d8", FONT);
 				this.hpBar(X(108), Y(68), X(100), m.hp, m.maxHp);
