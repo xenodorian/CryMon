@@ -376,15 +376,39 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define LOGIC_MASON2_MAP_N {len(rematch['maps'])}")
     lines.append("")
     natures = logic.get("natures") or []
-    lines.append("typedef struct { const char *name; int str, agl, spc; } NatureDef;")
+    # `ring` is the matchup order and is independent of this array's order,
+    # which is frozen by the save layout (party slot byte 12 stores the index).
+    types = logic.get("natureTypes") or {}
+    ring = list(types.get("ring") or [])
+    ids = [n["id"] for n in natures]
+    if ring and sorted(ring) != sorted(ids):
+        raise SystemExit(
+            f"logic.json natureTypes.ring does not match natures ids: "
+            f"{sorted(ring)} vs {sorted(ids)}"
+        )
+    lines.append("typedef struct { const char *name; int str, agl, spc; int ring; } NatureDef;")
     lines.append(f"#define NATURE_N {len(natures)}")
     lines.append("static const NatureDef NATURES[NATURE_N] = {")
     for nat in natures:
+        pos = ring.index(nat["id"]) if ring else 0
         lines.append(
             f'    {{ "{c_escape(dc_text(nat["name"]))}", '
-            f'{int(nat.get("str") or 0)}, {int(nat.get("agl") or 0)}, {int(nat.get("spc") or 0)} }},'
+            f'{int(nat.get("str") or 0)}, {int(nat.get("agl") or 0)}, '
+            f'{int(nat.get("spc") or 0)}, {pos} }},'
         )
     lines.append("};")
+    if ring:
+        lines.append("/* Crystal matchups: each crystal splits the next")
+        lines.append("   NATURE_BEATS_AHEAD around the ring and is split by the")
+        lines.append("   previous that many. Derived, not a stored matrix. */")
+        lines.append(f"#define NATURE_RING_N {len(ring)}")
+        lines.append(f"#define NATURE_BEATS_AHEAD {int(types.get('beatsAhead') or 0)}")
+        lines.append(f"#define NATURE_STRONG_MUL {float(types.get('strongMul') or 1.0)}f")
+        lines.append(f"#define NATURE_WEAK_MUL {float(types.get('weakMul') or 1.0)}f")
+        lines.append(
+            f'#define NATURE_STRONG_TEXT "{c_escape(dc_text(types.get("strongText") or ""))}"')
+        lines.append(
+            f'#define NATURE_WEAK_TEXT "{c_escape(dc_text(types.get("weakText") or ""))}"')
     lines.append("")
     party = logic.get("party") or {}
     lines.append(f"#define PARTY_MAX {int(party.get('max') or 6)}")

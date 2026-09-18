@@ -1960,7 +1960,9 @@ typedef struct {
     int wild;
     int phase;      /* 0 msg, 1 item menu, 2 attack menu, 3 guard menu,
                         4 special-move timing minigame */
-    char msg[3][40];
+    char msg[3][80];  /* a move label plus damage, a crystal-matchup tag and
+                         a poison tick can share one line; draw_wrapped()
+                         re-flows it to fit the box */
     int msg_n, msg_i;
     int after;
     int cur;        /* menu cursor for phases 1-3 */
@@ -2066,8 +2068,41 @@ static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_
     return 1;
 }
 
+/* Crystal matchup between two party/foe natures. Returns +1 when the
+   attacker's crystal splits the defender's, -1 when it is split by it, 0
+   for neutral. Ring position and the reach come from content/logic.json
+   via content_logic.inc, so the web port uses the same table. */
+static int nature_matchup(int atk_nat, int def_nat) {
+    int a, d, step;
+    if(atk_nat < 0 || atk_nat >= NATURE_N || def_nat < 0 || def_nat >= NATURE_N)
+        return 0;
+    a = NATURES[atk_nat].ring;
+    d = NATURES[def_nat].ring;
+    step = d - a;
+    if(step < 0) step += NATURE_RING_N;
+    if(step >= 1 && step <= NATURE_BEATS_AHEAD) return 1;
+    if(step >= NATURE_RING_N - NATURE_BEATS_AHEAD) return -1;
+    return 0;
+}
+
+static int nature_scale_dmg(int dmg, int atk_nat, int def_nat, int *out_sign) {
+    int sign = nature_matchup(atk_nat, def_nat);
+    if(out_sign) *out_sign = sign;
+    if(sign > 0)      dmg = jground((float)dmg * NATURE_STRONG_MUL);
+    else if(sign < 0) dmg = jground((float)dmg * NATURE_WEAK_MUL);
+    if(dmg < 1) dmg = 1;
+    return dmg;
+}
+
 static void battle_apply_hit(Battle *b) {
     int n, poison_tick = 0;
+    int nat_sign = 0;
+
+    /* Crystal matchup, applied once here rather than in each of the move
+       branches that feed this, so every player attack is scaled exactly
+       once and by the same rule the foe's attacks get in
+       battle_pick_guard(). */
+    b->dmg = nature_scale_dmg(b->dmg, b->pl.nature, b->foe.nature, &nat_sign);
 
     /* TOXIC BURST's ongoing chip damage: ticks whatever poison state
        the foe was ALREADY carrying into this turn, before this turn's
@@ -2088,6 +2123,8 @@ static void battle_apply_hit(Battle *b) {
     n = s_cat(b->msg[0], n, " ");
     n = s_cat_uint(b->msg[0], n, b->dmg);
     n = s_cat(b->msg[0], n, " DMG");
+    if(nat_sign > 0)      n = s_cat(b->msg[0], n, " " NATURE_STRONG_TEXT);
+    else if(nat_sign < 0) n = s_cat(b->msg[0], n, " " NATURE_WEAK_TEXT);
     if(poison_tick > 0) {
         n = s_cat(b->msg[0], n, " PSN-");
         n = s_cat_uint(b->msg[0], n, poison_tick);
@@ -2239,10 +2276,11 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
     const char *move_name;
     float base;
     int atk_stat, def_stat, chance, success, dmg;
-    char line[56];
+    char line[96];
     int n = 0;
     int poison_tick = 0;
     int inflicts_poison = 0;
+    int nat_sign = 0;
 
     /* TOXIC BURST's chip damage on the player's side, same ordering
        as battle_apply_hit()'s foe-side tick: whatever poison state
@@ -2324,6 +2362,11 @@ guard_chance:
     dmg = jground(base + (float)irand(0, 3));
     if(dmg < 1) dmg = 1;
 
+    /* Crystal matchup on the incoming hit, before the guard reduces it: the
+       matchup decides how hard the blow lands, the guard decides how much of
+       it the player eats. */
+    dmg = nature_scale_dmg(dmg, b->foe.nature, b->pl.nature, &nat_sign);
+
     if(kind == 0) {
         if(success) {
             dmg = 0;
@@ -2363,6 +2406,13 @@ guard_chance:
             n = s_cat_uint(line, n, dmg);
             n = s_cat(line, n, " DMG");
         }
+    }
+    /* Only worth saying when something landed: a clean dodge zeroes dmg,
+       and a matchup tag on a hit that never connected reads as a
+       contradiction. */
+    if(dmg > 0) {
+        if(nat_sign > 0)      n = s_cat(line, n, " " NATURE_STRONG_TEXT);
+        else if(nat_sign < 0) n = s_cat(line, n, " " NATURE_WEAK_TEXT);
     }
     if(poison_tick > 0) {
         n = s_cat(line, n, " PSN-");

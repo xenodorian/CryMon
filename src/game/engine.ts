@@ -31,6 +31,8 @@ import {
   healAmount,
   mintMonster,
   natureOf,
+  natureScaleDmg,
+  natureTag,
   rollShiny,
   solidTile,
   spawnOf,
@@ -2211,10 +2213,14 @@ export class CryMon {
 				b.foe.hp = Math.max(0, b.foe.hp - tick);
 				poisonLine = ` Psn-${tick}`;
 			}
-			b.foe.hp = Math.max(0, b.foe.hp - b.pendingDmg);
+			// Crystal matchup, applied once here rather than in each move
+			// branch that sets pendingDmg, so every player attack is scaled
+			// exactly once and by the same rule the foe's attacks get below.
+			const hit = natureScaleDmg(b.pendingDmg, b.player.nature ?? 0, b.foe.nature ?? 0);
+			b.foe.hp = Math.max(0, b.foe.hp - hit.dmg);
 			this.shake = .25;
 			this.audio.hit();
-			const lines = [`${b.pendingLabel}  ${b.pendingDmg} dmg.${poisonLine}`];
+			const lines = [`${b.pendingLabel}  ${hit.dmg} dmg.${natureTag(hit.sign)}${poisonLine}`];
 			if (b.foe.hp <= 0) {
 				const lines2 = [...lines, `${b.foe.name} falls.`];
 				if (b.foeBench.length) {
@@ -2282,7 +2288,14 @@ export class CryMon {
 			const defStat = g === "dodge" ? b.player.agl + b.mods.selfAgl : g === "block" ? b.player.str + b.mods.selfStr : b.player.spc + b.mods.selfSpc;
 			const chance = clamp(50 + (defStat - atkStat) * 5 + randI(-10, 10), 12, 88);
 			const success = randI(1, 100) <= chance;
-			let dmg = Math.max(1, Math.round(base + randI(0, 3)));
+			// Matchup decides how hard the blow lands; the guard below decides
+			// how much of it the player eats.
+			const incoming = natureScaleDmg(
+				Math.max(1, Math.round(base + randI(0, 3))),
+				b.foe.nature ?? 0,
+				b.player.nature ?? 0,
+			);
+			let dmg = incoming.dmg;
 			let line = "";
 			if (g === "dodge") {
 				if (success) {
@@ -2309,6 +2322,10 @@ export class CryMon {
 				line = `The barrier shivers apart. ${dmg} dmg.`;
 				this.audio.hit();
 			}
+			// Only tag a hit that actually landed: a clean dodge zeroes dmg, and
+			// an effectiveness note on a blow that never connected reads as a
+			// contradiction.
+			if (dmg > 0) line += natureTag(incoming.sign);
 			b.player.hp = Math.max(0, b.player.hp - dmg);
 			this.shake = success && dmg === 0 ? .05 : .28;
 			if (b.player.hp <= 0) {

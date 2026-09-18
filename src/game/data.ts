@@ -95,6 +95,58 @@ export function natureOf(index: number): NatureDef {
   return NATURES[index] ?? NATURES[0] ?? { id: "hardy", name: "Hardy", str: 0, agl: 0, spc: 0 };
 }
 
+/* ------------------------------------------------------------------
+ * Crystal matchups. One crystal gives a CryMon both its stat bonuses
+ * (above) and its type. The ring, its reach and the multipliers all come
+ * from content/logic.json, so the Dreamcast port derives the same table
+ * from the same numbers instead of hardcoding a second one.
+ * ------------------------------------------------------------------ */
+export type NatureTypes = {
+  ring: string[];
+  beatsAhead: number;
+  strongMul: number;
+  weakMul: number;
+  strongText: string;
+  weakText: string;
+};
+export const NATURE_TYPES = (logicJson.natureTypes || {
+  ring: [], beatsAhead: 0, strongMul: 1, weakMul: 1, strongText: "", weakText: "",
+}) as NatureTypes;
+
+/** +1 if the attacker's crystal splits the defender's, -1 if split by it, 0 neutral. */
+export function natureMatchup(atkIndex: number, defIndex: number): number {
+  const ring = NATURE_TYPES.ring;
+  const n = ring.length;
+  if (!n) return 0;
+  const a = ring.indexOf(natureOf(atkIndex).id);
+  const d = ring.indexOf(natureOf(defIndex).id);
+  if (a < 0 || d < 0) return 0;
+  let step = (d - a) % n;
+  if (step < 0) step += n;
+  if (step >= 1 && step <= NATURE_TYPES.beatsAhead) return 1;
+  if (step >= n - NATURE_TYPES.beatsAhead) return -1;
+  return 0;
+}
+
+/** Scales a finished damage number by the matchup; `sign` says which way it went. */
+export function natureScaleDmg(
+  dmg: number,
+  atkIndex: number,
+  defIndex: number,
+): { dmg: number; sign: number } {
+  const sign = natureMatchup(atkIndex, defIndex);
+  if (sign > 0) dmg = Math.round(dmg * NATURE_TYPES.strongMul);
+  else if (sign < 0) dmg = Math.round(dmg * NATURE_TYPES.weakMul);
+  return { dmg: Math.max(1, dmg), sign };
+}
+
+/** " The crystal splits" / " The crystal holds" / "" for the battle log. */
+export function natureTag(sign: number): string {
+  if (sign > 0) return ` ${NATURE_TYPES.strongText}.`;
+  if (sign < 0) return ` ${NATURE_TYPES.weakText}.`;
+  return "";
+}
+
 export function rollNature(): number {
   if (!NATURES.length) return 0;
   return Math.floor(Math.random() * NATURES.length);

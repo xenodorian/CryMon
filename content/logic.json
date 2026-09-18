@@ -66,50 +66,50 @@
   },
   "natures": [
     {
-      "id": "hardy",
-      "name": "Hardy",
+      "id": "quartz",
+      "name": "Quartz",
       "str": 0,
       "agl": 0,
       "spc": 0
     },
     {
-      "id": "lonely",
-      "name": "Lonely",
+      "id": "hematite",
+      "name": "Hematite",
       "str": 2,
       "agl": -1,
       "spc": 0
     },
     {
-      "id": "adamant",
-      "name": "Adamant",
+      "id": "diamond",
+      "name": "Diamond",
       "str": 2,
       "agl": 0,
       "spc": -1
     },
     {
-      "id": "bold",
-      "name": "Bold",
+      "id": "opal",
+      "name": "Opal",
       "str": -1,
       "agl": 2,
       "spc": 0
     },
     {
-      "id": "timid",
-      "name": "Timid",
+      "id": "spinel",
+      "name": "Spinel",
       "str": 0,
       "agl": 2,
       "spc": -1
     },
     {
-      "id": "modest",
-      "name": "Modest",
+      "id": "lapis",
+      "name": "Lapis Lazuli",
       "str": -1,
       "agl": 0,
       "spc": 2
     },
     {
-      "id": "calm",
-      "name": "Calm",
+      "id": "amethyst",
+      "name": "Amethyst",
       "str": 0,
       "agl": -1,
       "spc": 2
@@ -130,5 +130,22 @@
     "release": true,
     "catchSwap": true,
     "keepLast": true
+  },
+  "natureTypes": {
+    "note": "Crystal matchups. Same natures as above: one crystal gives both the stat bonuses and the type. Derived from the ring, not stored as a matrix. Both engines interpret this; neither hardcodes it.",
+    "ring": [
+      "diamond",
+      "hematite",
+      "quartz",
+      "amethyst",
+      "lapis",
+      "opal",
+      "spinel"
+    ],
+    "beatsAhead": 2,
+    "strongMul": 1.5,
+    "weakMul": 0.65,
+    "strongText": "The crystal splits",
+    "weakText": "The crystal holds"
   }
 }

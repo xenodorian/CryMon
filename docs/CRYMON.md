@@ -107,9 +107,28 @@ and the natures table from JSON. **Do not add a parallel C/TS table.**
 3. If the flag must persist: **append** it to `save.json` `flags`, add the boolean on both engines, and on DC point `ft[FLAG_*]` at the live int. Runtime-only flags (`hasParty2`, `hasCageKey`) stay in baker `FLAG_IDS` without a save bit.
 4. Never silently reuse another character’s sprite. Missing art → `PLACEHOLDER_ART`.
 
-### New nature
+### New nature (Crystal)
 
-Append to `logic.json` `natures` (`id`, `name`, `str`, `agl`, `spc`). Mint applies the bonuses once; party slot **byte 12** stores the index. Hardy (`0/0/0`) is index 0, so old saves look Hardy without a version bump.
+A nature is a **crystal**, and one crystal gives a CryMon both its stat
+bonuses and its **type**. There is no separate typing field.
+
+Append to `logic.json` `natures` (`id`, `name`, `str`, `agl`, `spc`) **and** to
+`natureTypes.ring`. The baker refuses to bake if the two lists disagree.
+
+- **Never reorder `natures`.** Party slot **byte 12** stores the index, so the
+  order is frozen by the save layout. Quartz (`0/0/0`) is index 0, so old saves
+  read as Quartz without a version bump.
+- `natureTypes.ring` is its own order and is what decides matchups, which is
+  why it can be listed independently of the frozen array above.
+- Matchups are **derived, not stored**: each crystal splits the next
+  `beatsAhead` around the ring and is split by the previous `beatsAhead`.
+  With 7 crystals and `beatsAhead: 2` that is exactly 2 strong, 2 weak and
+  2 neutral each, so the table stays symmetric and no crystal is a blanket
+  pick. Adding an 8th makes the ring even and breaks that symmetry — keep the
+  count odd, or accept mirror matchups.
+- `strongMul` / `weakMul` (1.5 / 0.65) and the log text live in the same block.
+  Neither engine hardcodes them: web reads `NATURE_TYPES` in `data.ts`, DC reads
+  the baked `NATURE_*` defines and the `ring` field on `NatureDef`.
 
 ### Bench XP / formulas
 
