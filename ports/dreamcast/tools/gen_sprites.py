@@ -32,20 +32,12 @@ OUT = os.path.join(HERE, '..', 'src', 'sprites.h')
 KEY = 0xF81F  # magenta
 
 # ----------------------------------------------------------------------
-# Placeholder art: any entity below tagged PLACEHOLDER_ART (grep for it)
-# has no real source art in xenodorian/CryMon yet. Rather than fail the
-# build, open_or_placeholder() synthesizes a "missing texture" PNG (a
-# magenta/black checkerboard with the entity's short tag stamped on it)
-# on first run and caches it under PLACEHOLDER_DIR, at the exact
-# relative path real art would use -- so dropping a real PNG in at that
-# same path (in the CryMon checkout) is a straight replacement, no code
-# changes needed. Every placeholder actually used in a given run is
-# collected into `manifest` and written out as ART_NEEDED.md at the end,
-# so the manifest can never drift out of sync with what's actually
-# missing.
+# Placeholder art: any entity tagged PLACEHOLDER_ART has no PNG in
+# public/sprites yet. open_or_placeholder() synthesizes a checkerboard
+# in memory (never writes a PNG). Dropping the real file in
+# public/sprites/ at that relative path replaces it. Missing files are
+# listed in ART_NEEDED.md at the end of the run.
 # ----------------------------------------------------------------------
-PLACEHOLDER_DIR = os.path.join(HERE, 'placeholder_sprites')
-
 
 def _placeholder_font(size):
     try:
@@ -82,12 +74,9 @@ def open_or_placeholder(root, relpath, w, h, tag, manifest, note=''):
     shared = os.path.join(root, relpath)
     if os.path.exists(shared):
         return Image.open(shared)
-    cached = os.path.join(PLACEHOLDER_DIR, relpath)
-    if not os.path.exists(cached):
-        os.makedirs(os.path.dirname(cached), exist_ok=True)
-        make_placeholder(w, h, tag).save(cached)
+    # In-memory only. Do not write PNG caches outside public/sprites/.
     manifest.append((relpath, w, h, tag, note))
-    return Image.open(cached)
+    return make_placeholder(w, h, tag)
 
 PLAYER_DIRS = ['down', 'up', 'left', 'right']
 PLAYER_FRAMES = [1, 2, 3, 4]

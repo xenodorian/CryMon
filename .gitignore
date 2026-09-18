@@ -7,4 +7,7 @@ ports/dreamcast/*.elf
 ports/dreamcast/*.cdi
 ports/dreamcast/src/*.o
 ports/dreamcast/src/sprites.h
+ports/dreamcast/tools/placeholder_sprites/
+tools/__pycache__/
+ports/dreamcast/tools/__pycache__/
 backups/**/*.tar.gz

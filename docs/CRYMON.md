@@ -179,7 +179,11 @@ Redundancy is how this tree forked before: three docs, two repos, rules in C, a 
 
 **One bake.** `python3 tools/bake_content.py --content content --out ports/dreamcast/src`
 
-**One art tree.** `public/sprites/`. `ports/dreamcast/tools/placeholder_sprites/` is a generated fallback cache for missing files, not a place to author art.
+**One art tree.** `public/sprites/`. Tools that write PNGs call
+`tools/sprite_root.assert_write` and will refuse any other path.
+`python3 tools/check_sync.py` fails if another directory named `sprites/`
+appears outside `backups/`. Do not author in `placeholder_sprites/` —
+missing art is generated in memory and listed as `PLACEHOLDER_ART`.
 
 **Pack hash.** The baker stamps `PACK_HASH=` into every `content_*.inc` from the JSON files listed in `tools/bake_content.py` (`PACK_FILES`). After a JSON or catalog change:
 

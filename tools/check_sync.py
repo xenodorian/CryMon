@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bake_content import PACK_FILES, pack_hash  # noqa: E402
+from sprite_root import stray_sprite_dirs  # noqa: E402
 
 INC_DIR = ROOT / "ports" / "dreamcast" / "src"
 SPRITES = ROOT / "public" / "sprites"
@@ -88,6 +89,14 @@ def main() -> int:
     missing = sprite_gaps()
     if missing:
         errors.append(f"{len(missing)} sprites.json paths missing under public/sprites/ (e.g. {missing[0]})")
+
+    stray = stray_sprite_dirs()
+    if stray:
+        errors.append(
+            "second art tree "
+            + ", ".join(stray)
+            + " — write sprites only to public/sprites/"
+        )
 
     for w in warns:
         print(f"WARN  {w}")

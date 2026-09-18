@@ -16,6 +16,8 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 SPRITES = ROOT / "public" / "sprites"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sprite_root import assert_write  # noqa: E402
 
 # Exact key plus the leftover rose/hot-pink used on some NPC sheets
 # (Tessa/sentry ~ hue 317–327, (174,24,123) / (180,12,104)).
@@ -161,7 +163,7 @@ def process_file(path: Path, portraits: bool) -> tuple[bool, int]:
     out, n = strip_one(im)
     if n == 0:
         return False, 0
-    out.save(path)
+    out.save(assert_write(path))
     return True, n
 
 
@@ -192,7 +194,7 @@ def make_key_icon(src: Path, dest: Path) -> None:
     canvas.paste(crop, ((side - crop.size[0]) // 2, (side - crop.size[1]) // 2), crop)
     icon = canvas.resize((128, 128), Image.Resampling.LANCZOS)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    icon.save(dest)
+    icon.save(assert_write(dest))
     print(f"cageKey: keyed {n} px -> {dest} {icon.size}")
 
 
