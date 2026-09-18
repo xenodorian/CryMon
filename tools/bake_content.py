@@ -44,56 +44,11 @@ SPEAKER = {
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
-TALK_C = {
-    "father": "TALK_FATHER",
-    "fatherAfter": "TALK_FATHER_AFTER",
-    "bed": "TALK_BED",
-    "shelf": "TALK_SHELF",
-    "shelfEmpty": "TALK_SHELF_EMPTY",
-    "crate": "TALK_CRATE",
-    "crateEmpty": "TALK_CRATE_EMPTY",
-    "doorLocked": "TALK_DOOR_LOCKED",
-    "masonFight": "TALK_MASON_FIGHT",
-    "masonWin": "TALK_MASON_WIN",
-    "masonFight2": "TALK_MASON_FIGHT2",
-    "masonWin2": "TALK_MASON_WIN2",
-    "wrenFirst": "TALK_WREN_FIRST",
-    "wrenBeat": "TALK_WREN_BEAT",
-    "wrenCart": "TALK_WREN_CART",
-    "wrenHeal": "TALK_WREN_HEAL",
-    "maeFirst": "TALK_MAE_FIRST",
-    "maeAgain": "TALK_MAE_AGAIN",
-    "ivoFirst": "TALK_IVO_FIRST",
-    "ivoAgain": "TALK_IVO_AGAIN",
-    "nellFirst": "TALK_NELL_FIRST",
-    "nellBonus": "TALK_NELL_BONUS",
-    "nellAgain": "TALK_NELL_AGAIN",
-    "pikeFirst": "TALK_PIKE_FIRST",
-    "pikeHelp": "TALK_PIKE_HELP",
-    "pikeDone": "TALK_PIKE_DONE",
-    "pikeHint": "TALK_PIKE_HINT",
-    "herb": "TALK_HERB",
-    "herbGone": "TALK_HERB_GONE",
-    "gemPike": "TALK_GEM_PIKE",
-    "gemWild": "TALK_GEM_WILD",
-    "gemGone": "TALK_GEM_GONE",
-    "stump": "TALK_STUMP",
-    "stumpGone": "TALK_STUMP_GONE",
-    "cart": "TALK_CART",
-    "calderAfter": "TALK_CALDER_AFTER",
-    "calderFight": "TALK_CALDER_FIGHT",
-    "calderWin": "TALK_CALDER_WIN",
+# C symbol names that predate the JSON keys. Everything else is derived, so a
+# new talk beat in dialogue.json needs no edit here.
+TALK_ALIAS = {
     "commander": "TALK_CAMP_COMMANDER",
-    "cathleenSpot": "TALK_CATHLEEN_SPOT",
-    "cathleenAfter": "TALK_CATHLEEN_AFTER",
-    "cathleenGone": "TALK_CATHLEEN_GONE",
-    "shinigamiSpot": "TALK_SHINIGAMI_SPOT",
     "shinigamiAfter": "TALK_SHINIGAMI_WIN",
-    "shinigamiDone": "TALK_SHINIGAMI_DONE",
-    "soldierSpot": "TALK_SOLDIER_SPOT",
-    "soldierDone": "TALK_SOLDIER_DONE",
-    "soldierAfter": "TALK_SOLDIER_AFTER",
-    "bramOpen": "TALK_BRAM_OPEN",
     "sentrySpot": "TALK_WSOLDIER_CLIFFS_SPOT",
     "sentryWin": "TALK_WSOLDIER_CLIFFS_WIN",
     "conscriptSpot": "TALK_WSOLDIER_CAMP1_SPOT",
@@ -102,31 +57,30 @@ TALK_C = {
     "enforcerWin": "TALK_WSOLDIER_CAMP2_WIN",
     "crossSpot": "TALK_WSOLDIER_GROVE_SPOT",
     "crossWin": "TALK_WSOLDIER_GROVE_WIN",
-    "orenOpen": "TALK_OREN_OPEN",
-    "tessaFirst": "TALK_TESSA_FIRST",
-    "tessaAgain": "TALK_TESSA_AGAIN",
-    "birchFirst": "TALK_BIRCH_FIRST",
-    "birchAgain": "TALK_BIRCH_AGAIN",
-    "sableFirst": "TALK_SABLE_FIRST",
-    "sableAgain": "TALK_SABLE_AGAIN",
-    "chest": "TALK_CHEST",
-    "chestEmpty": "TALK_CHEST_EMPTY",
-    "anneGift": "TALK_ANNE_GIFT",
-    "anneReturn": "TALK_ANNE_RETURN",
-    "choiceFather": "TALK_CHOICE_FATHER",
-    "choiceHeavenfall": "TALK_CHOICE_HEAVENFALL",
 }
+
+
+def talk_symbol(key: str) -> str:
+    """dialogue.json key -> C symbol. reachBossSpotFather -> TALK_REACH_BOSS_SPOT_FATHER."""
+    if key in TALK_ALIAS:
+        return TALK_ALIAS[key]
+    return "TALK_" + re.sub(r"(?<!^)(?=[A-Z])", "_", key).upper()
 
 SPELL = {"firebolt": 0, "icebeam": 1, "lightning": 2, "manasurge": 3}
 
-SPECIES_ORDER = [
-    "quillpup", "glimmoth", "tortcask", "razorbat", "mossback",
-    "briarfox", "fenwisp", "duskhorn", "needleroot", "cathleen",
-    "crymare", "emberling", "frostail", "boulderam", "stormwing",
-    "sableclaw", "thornhide", "glasswisp", "ashenmaw", "heavenfall",
-]
+# Species and map order come from the pack itself. They used to be hand-kept
+# lists here, which meant adding either one silently skipped the Dreamcast
+# until somebody remembered to edit this file too.
+def species_order(data: dict) -> list:
+    return list(data["species"].keys())
 
-MAP_ORDER = ["house", "veld", "forest", "grove", "camp", "cliffs", "ruins"]
+
+def map_order(data: dict) -> list:
+    return list(data["world"]["mapIds"])
+
+
+def map_c(mid: str) -> str:
+    return "MAP_" + mid.upper()
 
 
 def c_escape(s: str) -> str:
@@ -152,29 +106,36 @@ def load_pack(content: Path) -> dict:
     }
 
 
-HEADER = "/* AUTO-GENERATED from content/*.json — do not edit. python3 tools/bake_content.py */\n"
+HEADER = "/* AUTO-GENERATED from the content pack - do not edit. python3 tools/bake_content.py */\n"
 
 
 def bake_maps(data: dict, out: Path) -> None:
     maps = data["maps"]["rows"]
     names = data["world"]["mapNames"]
+    order = map_order(data)
     lines = [HEADER]
-    for mid in MAP_ORDER:
+    # Map ids are emitted here rather than hand-written in main.c, so adding a
+    # map to world.json's mapIds is all it takes.
+    for i, mid in enumerate(order):
+        lines.append(f"#define {map_c(mid)} {i}")
+    lines.append(f"#define MAP_COUNT {len(order)}")
+    lines.append("")
+    for mid in order:
         rows = maps[mid]
         lines.append(f"static const char *const map_{mid}_rows[] = {{")
         for r in rows:
             lines.append(f'    "{c_escape(r)}",')
         lines.append("};")
         lines.append("")
-    lines.append("static const Map MAPS[7] = {")
-    for mid in MAP_ORDER:
+    lines.append("static const Map MAPS[MAP_COUNT] = {")
+    for mid in order:
         rows = maps[mid]
         cols = max(len(r) for r in rows)
         lines.append(f"    {{ map_{mid}_rows, {cols}, {len(rows)} }},")
     lines.append("};")
     lines.append("")
-    lines.append("static const char *const MAP_DISPLAY_NAME[7] = {")
-    lines.append("    " + ", ".join(f'"{c_escape(dc_text(names[m]))}"' for m in MAP_ORDER) + ",")
+    lines.append("static const char *const MAP_DISPLAY_NAME[MAP_COUNT] = {")
+    lines.append("    " + ", ".join(f'"{c_escape(dc_text(names[m]))}"' for m in order) + ",")
     lines.append("};")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
@@ -187,7 +148,8 @@ def bake_talk(data: dict, out: Path) -> None:
     lines.append("#pragma GCC diagnostic ignored \"-Wunused-const-variable\"")
     lines.append("#endif")
     lines.append("")
-    for key, symbol in TALK_C.items():
+    for key in talk:
+        symbol = talk_symbol(key)
         beats = talk[key]
         lines.append(f"static const TalkBeat {symbol}[] = {{")
         for b in beats:
@@ -208,8 +170,14 @@ def bake_talk(data: dict, out: Path) -> None:
 
 def bake_species(data: dict, out: Path) -> None:
     spec = data["species"]
-    lines = [HEADER, "static const Species SPECIES[20] = {"]
-    for sid in SPECIES_ORDER:
+    order = species_order(data)
+    lines = [HEADER]
+    for i, sid in enumerate(order):
+        lines.append(f"#define SP_{sid.upper()} {i}")
+    lines.append(f"#define SPECIES_COUNT {len(order)}")
+    lines.append("")
+    lines.append("static const Species SPECIES[SPECIES_COUNT] = {")
+    for sid in order:
         s = spec[sid]
         spells = s.get("spells") or []
         ids = [SPELL[sp["id"]] for sp in spells]
@@ -222,22 +190,12 @@ def bake_species(data: dict, out: Path) -> None:
         lines.append(
             f'    {{ "{c_escape(name)}", "{c_escape(basic)}", "{c_escape(special)}", '
             f'{s["maxHp"]}, {s["str"]}, {s["agl"]}, {s["spc"]}, {s["specialPp"]}, '
-            f"{n}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}} }},"
+            f"{n}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}}, "
+            f'NAT_{s["nature"].upper()} }},'
         )
     lines.append("};")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
-
-
-MAP_C = {
-    "house": "MAP_HOUSE",
-    "veld": "MAP_VELD",
-    "forest": "MAP_FOREST",
-    "grove": "MAP_GROVE",
-    "camp": "MAP_CAMP",
-    "cliffs": "MAP_CLIFFS",
-    "ruins": "MAP_RUINS",
-}
 
 
 def bake_logic(data: dict, out: Path) -> None:
@@ -252,9 +210,38 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define LOGIC_FADE_IN_FRAMES {max(1, int(round(fade['inSec'] * 60)))}")
     lines.append(f"#define LOGIC_MASON_AMBUSH_NEED_PARTY {1 if ambush.get('needParty') else 0}")
     lines.append(f"#define LOGIC_MASON_AMBUSH_UNLESS_BEAT {1 if ambush.get('unless') == 'foughtMason' else 0}")
-    maps = ", ".join(MAP_C[m] for m in rematch["maps"])
+    maps = ", ".join(map_c(m) for m in rematch["maps"])
     lines.append(f"static const int LOGIC_MASON2_MAPS[] = {{ {maps} }};")
     lines.append(f"#define LOGIC_MASON2_MAP_N {len(rematch['maps'])}")
+    lines.append("")
+
+    # Crystal Natures. The ring and the multipliers are content, not engine
+    # constants -- the web port reads the same numbers out of logic.json.
+    nat = logic["natures"]
+    ring = nat["ring"]
+    lines.append("/* Crystal Natures (content/logic.json -> natures). */")
+    for i, n in enumerate(ring):
+        lines.append(f"#define NAT_{n.upper()} {i}")
+    lines.append(f"#define NAT_COUNT {len(ring)}")
+    lines.append(f"#define NAT_BEATS_AHEAD {nat['beatsAhead']}")
+    lines.append(f"#define NATURE_STRONG_MUL {float(nat['strongMul'])}f")
+    lines.append(f"#define NATURE_WEAK_MUL {float(nat['weakMul'])}f")
+    names = ", ".join(f'"{c_escape(dc_text(n))}"' for n in ring)
+    lines.append(f"static const char *const NATURE_NAME[NAT_COUNT] = {{ {names} }};")
+    lines.append(f'#define NATURE_STRONG_TEXT "{c_escape(dc_text(nat["strongText"]))}"')
+    lines.append(f'#define NATURE_WEAK_TEXT "{c_escape(dc_text(nat["weakText"]))}"')
+    lines.append("")
+
+    bench = logic["benchXp"]
+    lines.append("/* Bench XP share (content/logic.json -> benchXp). */")
+    lines.append(f"#define BENCH_XP_NUMERATOR {bench['numerator']}")
+    lines.append(f"#define BENCH_XP_DENOMINATOR {bench['denominator']}")
+    lines.append(f"#define BENCH_XP_REQUIRE_ALIVE {1 if bench.get('requireAlive') else 0}")
+    lines.append("")
+
+    dex = logic["dex"]
+    lines.append("/* CryDex (content/logic.json -> dex). */")
+    lines.append(f'#define DEX_UNKNOWN_TEXT "{c_escape(dc_text(dex["unknownText"]))}"')
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 

@@ -1,7 +1,7 @@
 /*
  * Story, maps, species, items, and talk beats are NOT authored here.
- * They live in content/*.json (shared with the web build) and are
- * baked into src/content_*.inc by tools/bake_content.py. Edit the
+ * They live in the content pack (shared with the web build) and are
+ * baked into src/content_ headers by tools/bake_content.py. Edit the
  * JSON, bake, then rebuild. Runtime (video, Maple, battle loop) stays
  * in this file.
  *
@@ -696,13 +696,8 @@ static int pressed(u16 raw, u16 mask) {
  * ---------------------------------------------------------------------- */
 #define TILE 20
 
-#define MAP_HOUSE  0
-#define MAP_VELD   1
-#define MAP_FOREST 2
-#define MAP_GROVE  3
-#define MAP_CAMP   4
-#define MAP_CLIFFS 5
-#define MAP_RUINS  6
+/* MAP_* ids come from content_maps.inc (baked from world.json's mapIds),
+   so adding a map needs no edit here. */
 
 typedef struct {
     const char *const *rows;
@@ -1364,28 +1359,10 @@ typedef struct {
     int maxHp, str, agl, spc, spp;
     int spells_n;      /* 0 for every species but Cathleen */
     int spells[4];     /* SPELL_* ids, spells_n of them valid */
+    int nature;        /* NAT_*, from content/logic.json's nature ring */
 } Species;
 
-#define SP_QUILLPUP   0
-#define SP_GLIMMOTH   1
-#define SP_TORTCASK   2
-#define SP_RAZORBAT   3
-#define SP_MOSSBACK   4
-#define SP_BRIARFOX   5
-#define SP_FENWISP    6
-#define SP_DUSKHORN   7
-#define SP_NEEDLEROOT 8
-#define SP_CATHLEEN   9
-#define SP_CRYMARE    10
-#define SP_EMBERLING  11
-#define SP_FROSTAIL   12
-#define SP_BOULDERAM  13
-#define SP_STORMWING  14
-#define SP_SABLECLAW  15
-#define SP_THORNHIDE  16
-#define SP_GLASSWISP  17
-#define SP_ASHENMAW   18
-#define SP_HEAVENFALL 19
+/* SP_* ids and SPECIES_COUNT come from content_species.inc. */
 
 #include "content_species.inc"
 
@@ -1414,6 +1391,60 @@ static int irand(int a, int b) {
 
 static int jground(float x) {
     return (int)(x + 0.5f);
+}
+
+/* ----------------------------------------------------------------------
+ * Crystal Natures. The ring, how far around it a nature reaches, and the
+ * two multipliers all come from content/logic.json via content_logic.inc
+ * -- the web port reads the same numbers, so neither engine owns them.
+ * Each nature splits the next NAT_BEATS_AHEAD around the ring and is
+ * split by the previous NAT_BEATS_AHEAD, which leaves the table
+ * symmetric with no dominant pick.
+ * ---------------------------------------------------------------------- */
+static int nature_matchup(int atk_nat, int def_nat) {
+    int step = def_nat - atk_nat;
+    if(step < 0) step += NAT_COUNT;
+    if(step >= 1 && step <= NAT_BEATS_AHEAD) return 1;
+    if(step >= NAT_COUNT - NAT_BEATS_AHEAD) return -1;
+    return 0;
+}
+
+/* Scales a finished damage number by the matchup and reports which way it
+   went, so the battle log can say so. */
+static int nature_scale_dmg(int dmg, int atk_nat, int def_nat, int *out_sign) {
+    int sign = nature_matchup(atk_nat, def_nat);
+    if(out_sign) *out_sign = sign;
+    if(sign > 0)      dmg = jground((float)dmg * NATURE_STRONG_MUL);
+    else if(sign < 0) dmg = jground((float)dmg * NATURE_WEAK_MUL);
+    if(dmg < 1) dmg = 1;
+    return dmg;
+}
+
+/* ----------------------------------------------------------------------
+ * CryDex. A species registers when one enters the party (starter grant or
+ * capture) and never un-registers. Registering is what identifies it: an
+ * unregistered species hides its nature both in the dex and in the battle
+ * matchup line, so carrying the dex is what turns a fight into a read.
+ * ---------------------------------------------------------------------- */
+static u8 dex_caught[SPECIES_COUNT];
+
+static void dex_register(int species) {
+    if(species >= 0 && species < SPECIES_COUNT)
+        dex_caught[species] = 1;
+}
+static int dex_has(int species) {
+    return species >= 0 && species < SPECIES_COUNT && dex_caught[species];
+}
+static void dex_reset(void) {
+    int i;
+    for(i = 0; i < SPECIES_COUNT; i++)
+        dex_caught[i] = 0;
+}
+static int dex_count(void) {
+    int i, n = 0;
+    for(i = 0; i < SPECIES_COUNT; i++)
+        if(dex_caught[i]) n++;
+    return n;
 }
 
 static int clampi(int v, int lo, int hi) {
@@ -1477,9 +1508,10 @@ static int roll_shiny(void) {
 /* data.grantXp: +6+4*foeLv xp per win, level up (+3 maxHp, +1 each
    stat) while xp >= lv*10, capped at lv 12. Returns 1 if it leveled
    up at least once. */
-static int grant_xp(Monster *m, int foe_lv) {
+static int grant_xp_amount(Monster *m, int amount) {
     int grew = 0;
-    m->xp += 6 + foe_lv * 4;
+    if(amount < 1) amount = 1;
+    m->xp += amount;
     while(m->xp >= m->lv * 10 && m->lv < 12) {
         m->xp -= m->lv * 10;
         m->lv++;
@@ -1492,6 +1524,29 @@ static int grant_xp(Monster *m, int foe_lv) {
         grew = 1;
     }
     return grew;
+}
+
+static int xp_for_win(int foe_lv) {
+    return 6 + foe_lv * 4;
+}
+static int grant_xp(Monster *m, int foe_lv) {
+    return grant_xp_amount(m, xp_for_win(foe_lv));
+}
+
+/* Bench share: every party member that isn't the lead and is still standing
+   takes BENCH_XP_NUMERATOR/BENCH_XP_DENOMINATOR of what the lead earned
+   (both baked from content/logic.json). Fainted members get nothing -- they
+   were carried, not blooded. Returns how many of them leveled up. */
+static int grant_bench_xp(Monster *party, int party_n, int lead, int foe_lv) {
+    int i, grew_n = 0;
+    int share = xp_for_win(foe_lv) * BENCH_XP_NUMERATOR / BENCH_XP_DENOMINATOR;
+    for(i = 0; i < party_n; i++) {
+        if(i == lead) continue;
+        if(BENCH_XP_REQUIRE_ALIVE && party[i].hp <= 0) continue;
+        if(grant_xp_amount(&party[i], share))
+            grew_n++;
+    }
+    return grew_n;
 }
 
 /* fullHeal(), also used by the bed and by a party wipe's fade-and-
@@ -1794,7 +1849,9 @@ typedef struct {
     int wild;
     int phase;      /* 0 msg, 1 item menu, 2 attack menu, 3 guard menu,
                         4 special-move timing minigame */
-    char msg[3][40];
+    char msg[3][80];  /* worst case is a move label plus damage, a Crystal
+                         Nature tag and a poison tick on one line;
+                         draw_wrapped() re-flows it to fit the box */
     int msg_n, msg_i;
     int after;
     int cur;        /* menu cursor for phases 1-3 */
@@ -1806,6 +1863,7 @@ typedef struct {
     int dmg;
     char label[28];
     int grew;       /* set by finish_win() below, read by the WIN_NOTE beat */
+    int bench_grew; /* how many benched CryMon leveled on the same win */
     int trainer_kind;      /* TRAINER_* below */
     int soldier_id;        /* valid when trainer_kind == TRAINER_SOLDIER */
     Monster bench[2];
@@ -1901,6 +1959,14 @@ static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_
 
 static void battle_apply_hit(Battle *b) {
     int n, poison_tick = 0;
+    int nat_sign = 0;
+
+    /* Crystal Nature matchup, applied once here rather than in each of the
+       four move branches that feed this (basic/toxic/special/spell), so
+       every player attack is scaled exactly once and by the same rule the
+       foe's attacks get in battle_pick_guard(). */
+    b->dmg = nature_scale_dmg(b->dmg, SPECIES[b->pl.species].nature,
+                              SPECIES[b->foe.species].nature, &nat_sign);
 
     /* TOXIC BURST's ongoing chip damage: ticks whatever poison state
        the foe was ALREADY carrying into this turn, before this turn's
@@ -1921,6 +1987,8 @@ static void battle_apply_hit(Battle *b) {
     n = s_cat(b->msg[0], n, " ");
     n = s_cat_uint(b->msg[0], n, b->dmg);
     n = s_cat(b->msg[0], n, " DMG");
+    if(nat_sign > 0)      n = s_cat(b->msg[0], n, " " NATURE_STRONG_TEXT);
+    else if(nat_sign < 0) n = s_cat(b->msg[0], n, " " NATURE_WEAK_TEXT);
     if(poison_tick > 0) {
         n = s_cat(b->msg[0], n, " PSN-");
         n = s_cat_uint(b->msg[0], n, poison_tick);
@@ -2066,10 +2134,11 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
     const char *move_name;
     float base;
     int atk_stat, def_stat, chance, success, dmg;
-    char line[56];
+    char line[96];
     int n = 0;
     int poison_tick = 0;
     int inflicts_poison = 0;
+    int nat_sign = 0;
 
     /* TOXIC BURST's chip damage on the player's side, same ordering
        as battle_apply_hit()'s foe-side tick: whatever poison state
@@ -2151,6 +2220,12 @@ guard_chance:
     dmg = jground(base + (float)irand(0, 3));
     if(dmg < 1) dmg = 1;
 
+    /* Crystal Nature scaling on the incoming hit, before the guard gets to
+       reduce it: the matchup decides how hard the blow lands, the guard
+       decides how much of it the player eats. */
+    dmg = nature_scale_dmg(dmg, SPECIES[b->foe.species].nature,
+                           SPECIES[b->pl.species].nature, &nat_sign);
+
     if(kind == 0) {
         if(success) {
             dmg = 0;
@@ -2190,6 +2265,13 @@ guard_chance:
             n = s_cat_uint(line, n, dmg);
             n = s_cat(line, n, " DMG");
         }
+    }
+    /* Only worth saying when something landed -- a clean dodge zeroes dmg,
+       and an effectiveness tag on a hit that never connected reads as a
+       contradiction. */
+    if(dmg > 0) {
+        if(nat_sign > 0)      n = s_cat(line, n, " " NATURE_STRONG_TEXT);
+        else if(nat_sign < 0) n = s_cat(line, n, " " NATURE_WEAK_TEXT);
     }
     if(poison_tick > 0) {
         n = s_cat(line, n, " PSN-");

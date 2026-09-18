@@ -27,15 +27,16 @@
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
-    "Max is eight. CryMon \u2014 Crystal Monsters \u2014 sleep inside Capture Crystals.",
+    "Max is eight. CryMon — Crystal Monsters — sleep inside Capture Crystals.",
     "Father is too sick to stand. His crystal sits on the shelf.",
     "Quillpup is inside it. She will take the CryMon. CryTown does not get to fall."
   ],
   "endingWin": [
-    "Max stands at the edge of the Grove, the scroll empty in her hands.",
-    "The war isn't over. It isn't even close to over.",
-    "But for the first time since she left home, she isn't alone in it.",
-    "Thank you for playing the CryMon demo."
+    "The Weeping Army's staging ground stands empty behind her.",
+    "The war is over. Not paused, not traded away. Over.",
+    "Max walks back down toward Veld with her CryMon at her heels.",
+    "She is still eight years old. She will be for a while yet.",
+    "Thank you for playing CryMon."
   ],
   "talk": {
     "father": [
@@ -960,6 +961,176 @@
       {
         "speaker": "none",
         "text": "Mason kneels. Three down. He has nothing left to prove."
+      }
+    ],
+    "reachArriveHeavenfall": [
+      {
+        "speaker": "none",
+        "text": "The scroll burns away. Heavenfall follows her like a second sky."
+      },
+      {
+        "speaker": "none",
+        "text": "The Weeping Army's staging ground sits below. Every tent, every road."
+      },
+      {
+        "speaker": "max",
+        "text": "They built all this to take Crytown."
+      },
+      {
+        "speaker": "max",
+        "text": "So we take it first."
+      }
+    ],
+    "reachArriveFather": [
+      {
+        "speaker": "none",
+        "text": "The scroll burns away. Her father walks beside her, thin but breathing."
+      },
+      {
+        "speaker": "father",
+        "text": "Something vast stirred when the scroll opened. It didn't come to us."
+      },
+      {
+        "speaker": "max",
+        "text": "Then someone else will call it."
+      },
+      {
+        "speaker": "max",
+        "text": "The Weeping Army's staging ground sits below. We finish it there."
+      }
+    ],
+    "fatherHeal": [
+      {
+        "speaker": "father",
+        "text": "Sit. Let me look at them."
+      },
+      {
+        "speaker": "father",
+        "text": "Your CryMon are whole again. Go."
+      }
+    ],
+    "reach1Spot": [
+      {
+        "speaker": "sentry",
+        "text": "The line holds here. It has always held here."
+      },
+      {
+        "speaker": "max",
+        "text": "Not today."
+      }
+    ],
+    "reach1Win": [
+      {
+        "speaker": "none",
+        "text": "The line breaks. One post down, three still standing."
+      }
+    ],
+    "reach2Spot": [
+      {
+        "speaker": "conscript",
+        "text": "You're the child from Veld. They said you'd come."
+      },
+      {
+        "speaker": "max",
+        "text": "Then you know how this goes."
+      },
+      {
+        "speaker": "conscript",
+        "text": "I know. I'm still standing here."
+      }
+    ],
+    "reach2Win": [
+      {
+        "speaker": "none",
+        "text": "He steps aside without being told. Two posts down."
+      }
+    ],
+    "reach3Spot": [
+      {
+        "speaker": "enforcer",
+        "text": "We burned your fields. We'd do it again tomorrow."
+      },
+      {
+        "speaker": "max",
+        "text": "There isn't going to be a tomorrow for this camp."
+      }
+    ],
+    "reach3Win": [
+      {
+        "speaker": "none",
+        "text": "The enforcer goes quiet. Three posts down."
+      }
+    ],
+    "reach4Spot": [
+      {
+        "speaker": "cross",
+        "text": "The commander is behind me. I am the last door."
+      },
+      {
+        "speaker": "max",
+        "text": "Then open."
+      }
+    ],
+    "reach4Win": [
+      {
+        "speaker": "none",
+        "text": "The last door opens. Only the commander is left."
+      }
+    ],
+    "reachBossSpotHeavenfall": [
+      {
+        "speaker": "commander",
+        "text": "So the rat walked all the way up my hill."
+      },
+      {
+        "speaker": "max",
+        "text": "Look past me."
+      },
+      {
+        "speaker": "commander",
+        "text": "...What is that behind you."
+      },
+      {
+        "speaker": "max",
+        "text": "Something that was asleep until you made me wake it."
+      }
+    ],
+    "reachBossSpotFather": [
+      {
+        "speaker": "commander",
+        "text": "So the rat walked all the way up my hill. And brought her dead father."
+      },
+      {
+        "speaker": "max",
+        "text": "He's not dead."
+      },
+      {
+        "speaker": "commander",
+        "text": "No. You spent it on him. And left the real prize lying in the dirt."
+      },
+      {
+        "speaker": "commander",
+        "text": "We picked it up. Heavenfall answers to the Weeping Army now."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll take it off you."
+      }
+    ],
+    "reachBossWin": [
+      {
+        "speaker": "none",
+        "text": "The commander falls. The staging ground is quiet for the first time."
+      },
+      {
+        "speaker": "max",
+        "text": "It's done. Crytown is safe."
+      }
+    ],
+    "reachLocked": [
+      {
+        "speaker": "commander",
+        "text": "Four of my posts are still standing. Come back when they aren't."
       }
     ]
   }

@@ -18,7 +18,8 @@
     "grove": "THE GROVE",
     "camp": "THE CAMP",
     "cliffs": "THE CLIFFS",
-    "ruins": "THE RUINS"
+    "ruins": "THE RUINS",
+    "reach": "THE REACH"
   },
   "mapIds": [
     "house",
@@ -27,7 +28,8 @@
     "grove",
     "camp",
     "cliffs",
-    "ruins"
+    "ruins",
+    "reach"
   ],
   "formulas": {
     "capture": "5 * agl + missingHpPercent + bonus + (vulnerable ? 25 : 0), clamp 0..100",
@@ -193,6 +195,23 @@
       "spawn": "g",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "grove",
+      "tile": "k",
+      "to": "reach",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 44,
+      "need": "reachOpen"
+    },
+    {
+      "from": "reach",
+      "tile": "D",
+      "to": "grove",
+      "spawn": "k",
+      "dir": "up",
+      "oy": -32
     }
   ],
   "trainers": {
@@ -267,6 +286,112 @@
       ],
       "title": "Warden sends CryMare",
       "name": "Warden Cross"
+    },
+    "reach1": {
+      "lead": [
+        "duskhorn",
+        10
+      ],
+      "bench": [
+        [
+          "fenwisp",
+          11
+        ],
+        [
+          "thornhide",
+          11
+        ]
+      ],
+      "title": "The post sends Duskhorn",
+      "name": "Sentry"
+    },
+    "reach2": {
+      "lead": [
+        "frostail",
+        11
+      ],
+      "bench": [
+        [
+          "stormwing",
+          11
+        ],
+        [
+          "ashenmaw",
+          12
+        ]
+      ],
+      "title": "The post sends Frostail",
+      "name": "Conscript"
+    },
+    "reach3": {
+      "lead": [
+        "boulderam",
+        11
+      ],
+      "bench": [
+        [
+          "glasswisp",
+          12
+        ],
+        [
+          "emberling",
+          12
+        ]
+      ],
+      "title": "The post sends Boulderam",
+      "name": "Enforcer"
+    },
+    "reach4": {
+      "lead": [
+        "crymare",
+        12
+      ],
+      "bench": [
+        [
+          "quillpup",
+          12
+        ],
+        [
+          "mossback",
+          12
+        ]
+      ],
+      "title": "Cross sends Crymare",
+      "name": "Cross"
+    },
+    "reachBoss": {
+      "lead": [
+        "tortcask",
+        12
+      ],
+      "bench": [
+        [
+          "cathleen",
+          13
+        ]
+      ],
+      "benchIfFather": [
+        [
+          "cathleen",
+          13
+        ],
+        [
+          "heavenfall",
+          14
+        ]
+      ],
+      "benchIfHeavenfall": [
+        [
+          "cathleen",
+          13
+        ],
+        [
+          "ashenmaw",
+          13
+        ]
+      ],
+      "title": "The commander sends Tortcask",
+      "name": "Commander"
     }
   },
   "npcs": [
@@ -552,6 +677,73 @@
         "warroot",
         1
       ]
+    },
+    {
+      "map": "reach",
+      "mark": "1",
+      "id": "reach1",
+      "role": "trainer",
+      "talk": "reach1Spot",
+      "trainer": "reach1",
+      "sprite": "sentry",
+      "hideWhenBeaten": true
+    },
+    {
+      "map": "reach",
+      "mark": "2",
+      "id": "reach2",
+      "role": "trainer",
+      "talk": "reach2Spot",
+      "trainer": "reach2",
+      "sprite": "conscript",
+      "hideWhenBeaten": true
+    },
+    {
+      "map": "reach",
+      "mark": "4",
+      "id": "reach3",
+      "role": "trainer",
+      "talk": "reach3Spot",
+      "trainer": "reach3",
+      "sprite": "enforcer",
+      "hideWhenBeaten": true
+    },
+    {
+      "map": "reach",
+      "mark": "5",
+      "id": "reach4",
+      "role": "trainer",
+      "talk": "reach4Spot",
+      "trainer": "reach4",
+      "sprite": "cross",
+      "hideWhenBeaten": true
+    },
+    {
+      "map": "reach",
+      "mark": "6",
+      "id": "reachBoss",
+      "role": "trainer",
+      "talk": "reachBossSpotHeavenfall",
+      "talkIfFather": "reachBossSpotFather",
+      "talkLocked": "reachLocked",
+      "requireBeaten": [
+        "reach1",
+        "reach2",
+        "reach3",
+        "reach4"
+      ],
+      "trainer": "reachBoss",
+      "sprite": "commander",
+      "hideWhenBeaten": true
+    },
+    {
+      "map": "reach",
+      "mark": "7",
+      "id": "fatherAlive",
+      "role": "heal",
+      "talk": "fatherHeal",
+      "sprite": "father",
+      "onlyIf": "choseFather"
     }
   ]
 }

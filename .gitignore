@@ -8,3 +8,11 @@ ports/dreamcast/*.cdi
 ports/dreamcast/src/*.o
 ports/dreamcast/src/sprites.h
 backups/**/*.tar.gz
+
+# Baked from content/*.json by tools/bake_content.py. Build output, not source:
+# never hand-edit and never hand-merge one. `make` regenerates them.
+ports/dreamcast/src/content_*.inc
+
+# Python bytecode from tools/
+__pycache__/
+*.pyc
