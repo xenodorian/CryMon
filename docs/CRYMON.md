@@ -14,9 +14,11 @@ backups/                  frozen dead ports (reference only)
 **Canonical repo:** `xenodorian/CryMon`. There is no second game tree.
 `xenodorian/BeelzFight` is a different project (side-scroller + console hellos).
 It has **no** `crymon-dreamcast/` folder and no unique CryMon content. Do not
-put CryMon work there. Commit `90602a8` (natures / CryDex / bench XP / The Reach)
-lived only in an ephemeral container and was never pushed — those features now
-live in this tree.
+put CryMon work there. There is no BeelzFight build, no `CRYMON_SPRITES`
+path, and no “copy JSON back.” Content originates **only** here. Commit
+`90602a8` (natures / CryDex / bench XP / The Reach) lived only in an
+ephemeral container and was never pushed — those features now live in this
+tree.
 
 ---
 
@@ -47,9 +49,9 @@ implements a feature only in “their” engine.
 | `items.json` | bag/shop, effects (heal/buff/debuff/capture/flee) |
 | `maps.json` | ASCII maps, solid tiles, tile art keys |
 | `dialogue.json` | every talk beat, intro, ending, speaker names |
-| `world.json` | start bag, map names **and mapIds**, warps, wild pools, trainer kits, NPC marks + first-match scripts, combat formulas (including `benchXpShare`) |
+| `world.json` | start bag, map names **and mapIds**, warps, wild pools, trainer kits, NPC marks + first-match scripts. The `formulas` key is the combat contract (including `benchXpShare`) |
 | `sprites.json` | art catalog (walkers, NPCs, monsters, portraits, items, props). Optional per-id `scale` for overworld draw size |
-| `logic.json` | **shared rules both engines interpret** — arrivals, rematches, fades, party-wipe, **Crystal Natures** |
+| `logic.json` | **canonical rules both engines interpret** — arrivals, rematches, fades, party-wipe, Crystal Natures. Originated as the Dreamcast spec; that label is retired. Not DC-only. |
 | `audio.json` | chiptune songs + GBA-style SFX ids/patterns + `mapSongs` |
 | `save.json` | blob version, flag names, byte layout, `mapOrder`, `speciesOrder` |
 | `public/sprites/` | walk cycles, portraits, monsters, items, props |
@@ -74,7 +76,7 @@ Keep it in the engine when it is how a device draws or hears: a blit size in pix
 
 If you add a **rule** and it is not in JSON yet, add a key there first, then interpret it in both engines. Do not ship the behaviour in only `engine.ts` or only `main.c`.
 
-`logic.json` is not “the Dreamcast spec.” It is the shared rules file.
+`logic.json` is canonical for both ports. It is not a Dreamcast-only spec.
 
 ---
 
@@ -114,7 +116,9 @@ Append to `logic.json` `natures` (`id`, `name`, `str`, `agl`, `spc`). Mint appli
 
 ### Bench XP / formulas
 
-`world.json` `formulas`. `benchXpShare` is 0.5 (lead full XP, other *living* party members get the share). Baker emits `BENCH_XP_PCT`.
+The `formulas` key in `world.json` is the combat contract. `benchXpShare` is 0.5
+(lead full XP, other *living* party members get the share). Baker emits
+`BENCH_XP_PCT`.
 
 ### CryDex
 
@@ -122,15 +126,32 @@ Not a separate file. Bitfields at save bytes **134** (seen, 4 bytes) and **138**
 
 ### After any pack edit
 
+Always bake. Baking is Python; it does **not** need `sh-elf-gcc`. Skipping the
+bake because you cannot link a CDI is how JSON and C drift.
+
 ```
 python3 tools/bake_content.py --content content --out ports/dreamcast/src
 python3 ports/dreamcast/tools/gen_sprites.py   # only if art changed
-python3 tools/check_sync.py --strict
+python3 tools/check_sync.py --strict           # required before you call the pack done
 ```
+
+`--strict` is what catches JSON/C drift before commit. A web-only turn may drop
+`--strict` (warn-only) **only if** no CDI will ship this turn; the bake must
+still have run.
 
 `ports/dreamcast/tools/bake_content.py` is a **wrapper**. Do not copy the baker.
 `content_*.inc` stay generated; `make` rebuilds them. Do not hand-edit them and
 do not invent a second sprite folder.
+
+### If you do not have the Dreamcast toolchain
+
+Grok’s sandbox and ChatGPT’s VM typically do not. That is fine.
+
+1. Still do the bake + `check_sync` above.
+2. Interpret the pack in the engine you own (web: `src/game/`).
+3. Do **not** run `make` / `make cdi`. Do **not** claim a CDI. Do **not** skip
+   the bake.
+4. Stop. Claude builds the disc from the baked `.inc` files on the next DC turn.
 
 ---
 
@@ -206,21 +227,35 @@ npm run typecheck
 python3 tools/check_sync.py
 ```
 
-`src/game/data.ts` (and `logic.ts` / `audio.ts` / `save.ts`) import JSON. No bake step to play.
+`src/game/data.ts` (and `logic.ts` / `audio.ts` / `save.ts`) import JSON. Web
+does not need a bake **to play**. You still bake after a pack edit so the DC
+`.inc` files do not drift (see “After any pack edit”).
 
 ## Dreamcast
 
-Toolchain: `sh-elf-gcc`, `mkdcdisc`.
+Only Claude is expected to have `sh-elf-gcc` and `mkdcdisc`. Commands below are
+from the **CryMon repo root**. There is no second invocation on BeelzFight.
+
+Bake (anyone, Python):
 
 ```
 python3 tools/bake_content.py --content content --out ports/dreamcast/src
-python3 ports/dreamcast/tools/gen_sprites.py
 python3 tools/check_sync.py --strict
+```
+
+Disc (Claude only, after `--strict` is green):
+
+```
+python3 ports/dreamcast/tools/gen_sprites.py
 make -C ports/dreamcast
 make -C ports/dreamcast cdi
 ```
 
-`content_*.inc` and `sprites.h` are generated. `MAP_*` / `SP_*` / `NATURES` / `BENCH_XP_PCT` come from the bake — do not redefine them in `main.c`.
+No toolchain → follow “If you do not have the Dreamcast toolchain” above. Never
+silently skip the bake.
+
+`content_*.inc` and `sprites.h` are generated. `MAP_*` / `SP_*` / `NATURES` /
+`BENCH_XP_PCT` come from the bake — do not redefine them in `main.c`.
 
 ---
 
