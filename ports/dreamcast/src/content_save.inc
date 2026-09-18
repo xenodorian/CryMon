@@ -1,0 +1,61 @@
+/* AUTO-GENERATED from content/*.json PACK_HASH=cdecab0082db2463 — do not edit. python3 tools/bake_content.py */
+
+#ifndef CONTENT_SAVE_INC
+#define CONTENT_SAVE_INC
+
+#define SAVE_VERSION 1
+#define SAVE_SIZE 256
+#define SAVE_PARTY_SLOT 16
+#define SAVE_PARTY_MAX 6
+#define SAVE_FLAG_N 37
+#define SAVE_ITEM_N 10
+#define SAVE_FLAG_TOOK_STARTER 0
+#define SAVE_FLAG_TALKED_FATHER 1
+#define SAVE_FLAG_LOOTED_CRATE 2
+#define SAVE_FLAG_TALKED_WREN 3
+#define SAVE_FLAG_BEAT_CALDER 4
+#define SAVE_FLAG_READ_CART 5
+#define SAVE_FLAG_TALKED_MAE 6
+#define SAVE_FLAG_TALKED_IVO 7
+#define SAVE_FLAG_TALKED_NELL 8
+#define SAVE_FLAG_NELL_BONUS 9
+#define SAVE_FLAG_GOT_FIELD_GEM 10
+#define SAVE_FLAG_PIKE_HELPED 11
+#define SAVE_FLAG_TALKED_PIKE 12
+#define SAVE_FLAG_GOT_HERB 13
+#define SAVE_FLAG_GOT_STUMP 14
+#define SAVE_FLAG_CATHLEEN_CAUGHT 15
+#define SAVE_FLAG_BEAT_SHINIGAMI 16
+#define SAVE_FLAG_BEAT_CROSS 17
+#define SAVE_FLAG_BEAT_CONSCRIPT 18
+#define SAVE_FLAG_BEAT_ENFORCER 19
+#define SAVE_FLAG_BEAT_SENTRY 20
+#define SAVE_FLAG_TESSA_GIFTED 21
+#define SAVE_FLAG_CHEST_LOOTED 22
+#define SAVE_FLAG_BIRCH_GIFTED 23
+#define SAVE_FLAG_SABLE_GIFTED 24
+#define SAVE_FLAG_CAGE_OPEN 25
+#define SAVE_FLAG_FOUGHT_MASON 26
+#define SAVE_FLAG_CAUGHT_ONCE 27
+#define SAVE_FLAG_ANNE_GIFTED 28
+#define SAVE_FLAG_BEAT_CATHLEEN 29
+#define SAVE_FLAG_HAS_SCROLL 30
+#define SAVE_FLAG_ANNE2_TOLD 31
+#define SAVE_FLAG_MASON2_DONE 32
+#define SAVE_FLAG_SOLDIER_BEATEN0 33
+#define SAVE_FLAG_SOLDIER_BEATEN1 34
+#define SAVE_FLAG_SOLDIER_BEATEN2 35
+#define SAVE_FLAG_TALKED_REACH 36
+
+/* Blob layout (little-endian), shared with src/game/save.ts:
+   0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,
+   8 x u16, 10 y u16, 12 marks u16, 14 lead, 15 battles,
+   16 mason2_map (0xFF none), 18 bag[10], 28 flags[8],
+   36 party[6]*16 (byte 12 = nature), 132 checksum u16,
+   134 dexSeen[4], 138 dexCaught[4]. Checksum is 0..131 only. */
+#define SAVE_DEX_SEEN 134
+#define SAVE_DEX_CAUGHT 138
+#define SAVE_DEX_BYTES 4
+#define SAVE_PARTY_NATURE 12
+
+#endif

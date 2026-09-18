@@ -18,31 +18,38 @@ CFLAGS    = $(ARCHFLAGS) -O2 -fno-builtin -ffreestanding -fomit-frame-pointer \
             -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 LDFLAGS   = $(ARCHFLAGS) -nostdlib -nostartfiles -nodefaultlibs -T dc.ld -Wl,--build-id=none
 
-OBJS = src/start.o src/main.o
+OBJS = src/start.o src/main.o src/chip.o src/save.o
 
 CONTENT_JSON = $(wildcard $(CONTENT)/*.json)
 CONTENT_INC  = src/content_maps.inc src/content_talk.inc \
-               src/content_species.inc src/content_items.inc src/content_logic.inc
+               src/content_species.inc src/content_items.inc src/content_logic.inc \
+               src/content_world.inc src/content_audio.inc src/content_save.inc
 
 all: crymon.elf
 
 $(CONTENT_INC): $(CONTENT_JSON) $(BAKE)
 	python3 $(BAKE) --content $(CONTENT) --out src
 
-src/sprites.h: $(SPRITES) tools/gen_sprites.py
+src/sprites.h: $(SPRITES) $(CONTENT)/sprites.json tools/gen_sprites.py
 	python3 tools/gen_sprites.py $(SPRITES)
 
 src/start.o: src/start.S
 	$(AS) $(ARCHFLAGS) -c -o $@ $<
 
-src/main.o: src/main.c src/sprites.h $(CONTENT_INC)
+src/main.o: src/main.c src/sprites.h src/chip.h src/save.h $(CONTENT_INC)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+src/chip.o: src/chip.c src/chip.h src/content_audio.inc
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+src/save.o: src/save.c src/save.h src/content_save.inc
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 crymon.elf: $(OBJS) dc.ld
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) -lgcc
 
 cdi: crymon.elf
-	mkdcdisc -e crymon.elf -o crymon.cdi -n "CryMon" -a "BeelzFight" \
+	mkdcdisc -e crymon.elf -o crymon.cdi -n "CryMon" -a "CryMon" \
 		-N --allow-overwrite
 
 clean:

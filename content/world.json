@@ -8,7 +8,8 @@
     "sunbalm": 0,
     "warroot": 0,
     "smokebomb": 1,
-    "greatcrystal": 0
+    "greatcrystal": 0,
+    "cageKey": 0
   },
   "startMarks": 16,
   "mapNames": {
@@ -32,17 +33,39 @@
     "reach"
   ],
   "formulas": {
-    "capture": "5 * agl + missingHpPercent + bonus + (vulnerable ? 25 : 0), clamp 0..100",
-    "xpGain": "6 + foeLevel * 4",
-    "levelUp": "while xp >= level * 10 and level < 12: xp -= level*10; level++; maxHp+=3; str+=1; agl+=1; spc+=1",
-    "mintGrow": "1 + (level - 3) * 0.12",
-    "shinyOdds": "1/64",
+    "notes": {
+      "capture": "captureAgl * agl + missingHpPercent + bonus + (vulnerable ? captureVulnerable : 0), clamp 0..100",
+      "xpGain": "xpBase + foeLevel * xpPerLevel",
+      "levelUp": "while xp >= level * levelXpMul and level < levelCap: xp -= level*levelXpMul; level++; maxHp+=levelHp; str/agl/spc += levelStat",
+      "mintGrow": "1 + (level - mintBaseLevel) * mintGrowPerLevel",
+      "shiny": "1/shinyDenom",
+      "benchXp": "lead full XP; other living party members floor(xp * benchXpShare)",
+      "nature": "on mint: +str/+agl/+spc from logic.json natures[i]; hardy is 0; stored in party slot byte 12"
+    },
+    "captureAgl": 5,
+    "captureVulnerable": 25,
+    "xpBase": 6,
+    "xpPerLevel": 4,
+    "levelXpMul": 10,
+    "levelCap": 12,
+    "levelHp": 3,
+    "levelStat": 1,
+    "mintGrowPerLevel": 0.12,
+    "mintBaseLevel": 3,
+    "shinyDenom": 64,
     "heal": {
       "salve": 22,
       "bandage": 12,
       "sunbalm": 40
     },
-    "encounterRate": 0.18
+    "encounterPercent": 18,
+    "bitterrootStr": 4,
+    "warrootAgl": 4,
+    "dustStr": -3,
+    "dustAgl": -2,
+    "dustSpc": -2,
+    "greatcrystalBonus": 25,
+    "benchXpShare": 0.5
   },
   "encounters": [
     {
@@ -91,6 +114,23 @@
       "levelMin": 2,
       "levelMax": 4,
       "levelBonusIfTyGt": 14
+    },
+    {
+      "maps": [
+        "reach"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "briarfox",
+        "duskhorn",
+        "crymare",
+        "stormwing",
+        "glasswisp",
+        "mossback"
+      ],
+      "levelMin": 8,
+      "levelMax": 11
     }
   ],
   "warps": [
@@ -153,7 +193,8 @@
       "spawn": "D",
       "dir": "down",
       "oy": 40,
-      "need": "beatCalder"
+      "need": "beatCalder",
+      "failTalk": "campLocked"
     },
     {
       "from": "camp",
@@ -186,7 +227,8 @@
       "spawn": "D",
       "dir": "down",
       "oy": 40,
-      "need": "beatShin"
+      "need": "beatShin",
+      "failTalk": "groveLocked"
     },
     {
       "from": "ruins",
@@ -197,19 +239,20 @@
       "oy": -32
     },
     {
-      "from": "grove",
-      "tile": "k",
+      "from": "ruins",
+      "tile": "e",
       "to": "reach",
       "spawn": "D",
       "dir": "down",
-      "oy": 44,
-      "need": "reachOpen"
+      "oy": 40,
+      "need": "hasScroll",
+      "failTalk": "reachLocked"
     },
     {
       "from": "reach",
       "tile": "D",
-      "to": "grove",
-      "spawn": "k",
+      "to": "ruins",
+      "spawn": "e",
       "dir": "up",
       "oy": -32
     }
@@ -231,7 +274,16 @@
         ]
       ],
       "title": "Sentry sends Emberling",
-      "name": "Sentry"
+      "name": "Sentry",
+      "marks": 12,
+      "winTalk": "sentryWin",
+      "grant": [
+        [
+          "cageKey",
+          1
+        ]
+      ],
+      "set": "beatSentry"
     },
     "conscript": {
       "lead": [
@@ -249,7 +301,10 @@
         ]
       ],
       "title": "Conscript sends Sableclaw",
-      "name": "Conscript"
+      "name": "Conscript",
+      "marks": 14,
+      "winTalk": "conscriptWin",
+      "set": "beatConscript"
     },
     "enforcer": {
       "lead": [
@@ -267,7 +322,10 @@
         ]
       ],
       "title": "Enforcer sends Thornhide",
-      "name": "Enforcer"
+      "name": "Enforcer",
+      "marks": 15,
+      "winTalk": "enforcerWin",
+      "set": "beatEnforcer"
     },
     "cross": {
       "lead": [
@@ -285,114 +343,98 @@
         ]
       ],
       "title": "Warden sends CryMare",
-      "name": "Warden Cross"
+      "name": "Warden Cross",
+      "marks": 18,
+      "winTalk": "crossWin",
+      "set": "beatCross"
     },
-    "reach1": {
+    "mason": {
       "lead": [
-        "duskhorn",
-        10
+        "glimmoth",
+        3
       ],
-      "bench": [
-        [
-          "fenwisp",
-          11
-        ],
-        [
-          "thornhide",
-          11
-        ]
-      ],
-      "title": "The post sends Duskhorn",
-      "name": "Sentry"
+      "bench": [],
+      "title": "Mason sends Glimmoth",
+      "name": "Mason",
+      "marks": 10,
+      "winTalk": "masonWin",
+      "set": "foughtMason"
     },
-    "reach2": {
+    "calder": {
       "lead": [
-        "frostail",
-        11
+        "razorbat",
+        4
       ],
-      "bench": [
-        [
-          "stormwing",
-          11
-        ],
-        [
-          "ashenmaw",
-          12
-        ]
-      ],
-      "title": "The post sends Frostail",
-      "name": "Conscript"
+      "bench": [],
+      "title": "Calder sends Razorbat",
+      "name": "Calder",
+      "marks": 18,
+      "winTalk": "calderWin",
+      "set": "beatCalder"
     },
-    "reach3": {
-      "lead": [
-        "boulderam",
-        11
-      ],
-      "bench": [
-        [
-          "glasswisp",
-          12
-        ],
-        [
-          "emberling",
-          12
-        ]
-      ],
-      "title": "The post sends Boulderam",
-      "name": "Enforcer"
-    },
-    "reach4": {
+    "shinigami": {
       "lead": [
         "crymare",
-        12
+        5
       ],
       "bench": [
         [
-          "quillpup",
-          12
+          "crymare",
+          6
         ],
         [
-          "mossback",
-          12
+          "crymare",
+          7
         ]
       ],
-      "title": "Cross sends Crymare",
-      "name": "Cross"
+      "title": "Shinigami sends CryMare",
+      "name": "Shinigami",
+      "marks": 14,
+      "winTalk": "shinigamiAfter",
+      "set": [
+        "beatShinigami",
+        "hasScroll"
+      ]
     },
-    "reachBoss": {
+    "cathleen": {
       "lead": [
-        "tortcask",
-        12
+        "cathleen",
+        6
       ],
-      "bench": [
-        [
-          "cathleen",
-          13
-        ]
-      ],
-      "benchIfFather": [
-        [
-          "cathleen",
-          13
-        ],
-        [
-          "heavenfall",
-          14
-        ]
-      ],
-      "benchIfHeavenfall": [
-        [
-          "cathleen",
-          13
-        ],
-        [
-          "ashenmaw",
-          13
-        ]
-      ],
-      "title": "The commander sends Tortcask",
-      "name": "Commander"
-    }
+      "bench": [],
+      "wild": true,
+      "title": "Cathleen stands against you",
+      "name": "Cathleen"
+    },
+    "forestSoldiers": [
+      {
+        "id": "patrol",
+        "name": "Patrol",
+        "mark": "1",
+        "species": "briarfox",
+        "level": 4,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      },
+      {
+        "id": "scout",
+        "name": "Scout",
+        "mark": "2",
+        "species": "mossback",
+        "level": 4,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      },
+      {
+        "id": "sentry",
+        "name": "Sentry",
+        "mark": "3",
+        "species": "razorbat",
+        "level": 5,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      }
+    ]
   },
   "npcs": [
     {
@@ -407,14 +449,30 @@
       "id": "father",
       "role": "talk",
       "talk": "father",
-      "talkDone": "fatherAfter"
+      "talkDone": "fatherAfter",
+      "script": [
+        {
+          "if": "tookStarter",
+          "talk": "fatherAfter"
+        },
+        {
+          "set": "talkedFather",
+          "talk": "father"
+        }
+      ]
     },
     {
       "map": "house",
       "mark": "U",
       "id": "bed",
       "role": "heal",
-      "talk": "bed"
+      "talk": "bed",
+      "script": [
+        {
+          "talk": "bed",
+          "after": "bedHeal"
+        }
+      ]
     },
     {
       "map": "house",
@@ -426,6 +484,20 @@
       "grantMonster": [
         "quillpup",
         3
+      ],
+      "script": [
+        {
+          "ifNot": "tookStarter",
+          "set": "tookStarter",
+          "grantMonster": [
+            "quillpup",
+            3
+          ],
+          "talk": "shelf"
+        },
+        {
+          "talk": "shelfEmpty"
+        }
       ]
     },
     {
@@ -438,6 +510,22 @@
       "grantItem": [
         "bandage",
         1
+      ],
+      "script": [
+        {
+          "ifNot": "lootedCrate",
+          "set": "lootedCrate",
+          "grant": [
+            [
+              "bandage",
+              1
+            ]
+          ],
+          "talk": "crate"
+        },
+        {
+          "talk": "crateEmpty"
+        }
       ]
     },
     {
@@ -451,35 +539,146 @@
       "mark": "K",
       "id": "wren",
       "role": "talk",
-      "sprite": "npc/wren"
+      "sprite": "npc/wren",
+      "script": [
+        {
+          "ifNot": "talkedWren",
+          "set": "talkedWren",
+          "grant": [
+            [
+              "salve",
+              1
+            ]
+          ],
+          "talk": "wrenFirst"
+        },
+        {
+          "if": "beatCalder",
+          "talk": "wrenBeat"
+        },
+        {
+          "if": "readCart",
+          "talk": "wrenCart"
+        },
+        {
+          "heal": true,
+          "talk": "wrenHeal"
+        }
+      ]
     },
     {
       "map": "veld",
       "mark": "I",
       "id": "mae",
       "role": "talk",
-      "sprite": "npc/mae"
+      "sprite": "npc/mae",
+      "script": [
+        {
+          "ifNot": "talkedMae",
+          "set": "talkedMae",
+          "grant": [
+            [
+              "bandage",
+              1
+            ]
+          ],
+          "talk": "maeFirst"
+        },
+        {
+          "talk": "maeAgain"
+        }
+      ]
     },
     {
       "map": "veld",
       "mark": "V",
       "id": "ivo",
       "role": "talk",
-      "sprite": "npc/ivo"
+      "sprite": "npc/ivo",
+      "script": [
+        {
+          "ifNot": "talkedIvo",
+          "set": "talkedIvo",
+          "grant": [
+            [
+              "bitterroot",
+              1
+            ]
+          ],
+          "talk": "ivoFirst"
+        },
+        {
+          "talk": "ivoAgain"
+        }
+      ]
     },
     {
       "map": "veld",
       "mark": "A",
       "id": "nell",
       "role": "talk",
-      "sprite": "npc/nell"
+      "sprite": "npc/nell",
+      "script": [
+        {
+          "ifNot": "talkedNell",
+          "set": "talkedNell",
+          "grant": [
+            [
+              "salve",
+              1
+            ]
+          ],
+          "talk": "nellFirst"
+        },
+        {
+          "ifNot": "nellBonus",
+          "if": "hasParty2",
+          "set": "nellBonus",
+          "grant": [
+            [
+              "salve",
+              1
+            ]
+          ],
+          "talk": "nellBonus"
+        },
+        {
+          "talk": "nellAgain"
+        }
+      ]
     },
     {
       "map": "veld",
       "mark": "Q",
       "id": "pike",
       "role": "talk",
-      "sprite": "npc/pike"
+      "sprite": "npc/pike",
+      "script": [
+        {
+          "if": "gotFieldGem",
+          "ifNot": "pikeHelped",
+          "set": "pikeHelped",
+          "grant": [
+            [
+              "bandage",
+              1
+            ]
+          ],
+          "talk": "pikeHelp"
+        },
+        {
+          "ifNot": "talkedPike",
+          "set": "talkedPike",
+          "talk": "pikeFirst"
+        },
+        {
+          "if": "pikeHelped",
+          "talk": "pikeDone"
+        },
+        {
+          "talk": "pikeHint"
+        }
+      ]
     },
     {
       "map": "veld",
@@ -487,16 +686,36 @@
       "id": "bram",
       "role": "shop",
       "sprite": "npc/bram",
-      "talk": "bramOpen"
+      "talk": "bramOpen",
+      "script": [
+        {
+          "talk": "bramOpen",
+          "after": "shop"
+        }
+      ]
     },
     {
       "map": "veld",
       "mark": "E",
+      "marks": [
+        "E",
+        "N"
+      ],
       "id": "calder",
       "role": "trainer",
       "sprite": "npc/calder",
       "talk": "calderFight",
-      "talkDone": "calderAfter"
+      "talkDone": "calderAfter",
+      "script": [
+        {
+          "if": "beatCalder",
+          "talk": "calderAfter"
+        },
+        {
+          "talk": "calderFight",
+          "after": "calder"
+        }
+      ]
     },
     {
       "map": "veld",
@@ -508,6 +727,22 @@
       "grantItem": [
         "bitterroot",
         1
+      ],
+      "script": [
+        {
+          "ifNot": "gotHerb",
+          "set": "gotHerb",
+          "grant": [
+            [
+              "bitterroot",
+              1
+            ]
+          ],
+          "talk": "herb"
+        },
+        {
+          "talk": "herbGone"
+        }
       ]
     },
     {
@@ -520,6 +755,24 @@
       "grantItem": [
         "gem",
         1
+      ],
+      "script": [
+        {
+          "ifNot": "gotFieldGem",
+          "set": "gotFieldGem",
+          "grant": [
+            [
+              "gem",
+              1
+            ]
+          ],
+          "talkIf": "talkedPike",
+          "talk": "gemPike",
+          "talkElse": "gemWild"
+        },
+        {
+          "talk": "gemGone"
+        }
       ]
     },
     {
@@ -532,6 +785,22 @@
       "grantItem": [
         "bandage",
         1
+      ],
+      "script": [
+        {
+          "ifNot": "gotStump",
+          "set": "gotStump",
+          "grant": [
+            [
+              "bandage",
+              1
+            ]
+          ],
+          "talk": "stump"
+        },
+        {
+          "talk": "stumpGone"
+        }
       ]
     },
     {
@@ -539,7 +808,13 @@
       "mark": "X",
       "id": "cart",
       "role": "talk",
-      "talk": "cart"
+      "talk": "cart",
+      "script": [
+        {
+          "set": "readCart",
+          "talk": "cart"
+        }
+      ]
     },
     {
       "map": "forest",
@@ -568,7 +843,17 @@
       "id": "cathleen",
       "role": "trainer",
       "talk": "cathleenSpot",
-      "talkDone": "cathleenAfter"
+      "talkDone": "cathleenAfter",
+      "script": [
+        {
+          "ifNot": "cathleenCaught",
+          "talk": "cathleenSpot",
+          "after": "cathleen"
+        },
+        {
+          "talk": "cathleenGone"
+        }
+      ]
     },
     {
       "map": "grove",
@@ -577,7 +862,16 @@
       "role": "trainer",
       "sprite": "shinigami",
       "talk": "shinigamiSpot",
-      "talkDone": "shinigamiAfter"
+      "talkDone": "shinigamiAfter",
+      "script": [
+        {
+          "hideIf": "beatShinigami"
+        },
+        {
+          "talk": "shinigamiSpot",
+          "after": "shinigami"
+        }
+      ]
     },
     {
       "map": "grove",
@@ -586,7 +880,18 @@
       "role": "trainer",
       "sprite": "npc/cross",
       "talk": "crossSpot",
-      "talkDone": "crossWin"
+      "talkDone": "crossWin",
+      "script": [
+        {
+          "if": "beatCross",
+          "talk": "crossWin"
+        },
+        {
+          "talk": "crossSpot",
+          "after": "wsoldier",
+          "pending": "cross"
+        }
+      ]
     },
     {
       "map": "camp",
@@ -594,7 +899,12 @@
       "id": "commander",
       "role": "talk",
       "sprite": "npc/commander",
-      "talk": "commander"
+      "talk": "commander",
+      "script": [
+        {
+          "talk": "commander"
+        }
+      ]
     },
     {
       "map": "camp",
@@ -603,7 +913,18 @@
       "role": "trainer",
       "sprite": "npc/conscript",
       "talk": "conscriptSpot",
-      "talkDone": "conscriptWin"
+      "talkDone": "conscriptWin",
+      "script": [
+        {
+          "if": "beatConscript",
+          "talk": "conscriptWin"
+        },
+        {
+          "talk": "conscriptSpot",
+          "after": "wsoldier",
+          "pending": "conscript"
+        }
+      ]
     },
     {
       "map": "camp",
@@ -612,7 +933,18 @@
       "role": "trainer",
       "sprite": "npc/enforcer",
       "talk": "enforcerSpot",
-      "talkDone": "enforcerWin"
+      "talkDone": "enforcerWin",
+      "script": [
+        {
+          "if": "beatEnforcer",
+          "talk": "enforcerWin"
+        },
+        {
+          "talk": "enforcerSpot",
+          "after": "wsoldier",
+          "pending": "enforcer"
+        }
+      ]
     },
     {
       "map": "cliffs",
@@ -621,7 +953,18 @@
       "role": "trainer",
       "sprite": "npc/sentry",
       "talk": "sentrySpot",
-      "talkDone": "sentryWin"
+      "talkDone": "sentryWin",
+      "script": [
+        {
+          "if": "beatSentry",
+          "talk": "sentryWin"
+        },
+        {
+          "talk": "sentrySpot",
+          "after": "wsoldier",
+          "pending": "sentry"
+        }
+      ]
     },
     {
       "map": "cliffs",
@@ -634,6 +977,33 @@
       "grantItem": [
         "greatcrystal",
         1
+      ],
+      "script": [
+        {
+          "if": "cageOpen",
+          "ifNot": "tessaGifted",
+          "set": "tessaGifted",
+          "grant": [
+            [
+              "greatcrystal",
+              1
+            ]
+          ],
+          "talk": "tessaFirst"
+        },
+        {
+          "if": "cageOpen",
+          "talk": "tessaAgain"
+        },
+        {
+          "if": "hasCageKey",
+          "set": "cageOpen",
+          "takeItem": "cageKey",
+          "talk": "cageUnlock"
+        },
+        {
+          "talk": "cageLocked"
+        }
       ]
     },
     {
@@ -642,7 +1012,59 @@
       "id": "chest",
       "role": "loot",
       "talk": "chest",
-      "talkDone": "chestEmpty"
+      "talkDone": "chestEmpty",
+      "script": [
+        {
+          "if": "cageOpen",
+          "ifNot": "chestLooted",
+          "set": "chestLooted",
+          "marks": 25,
+          "grant": [
+            [
+              "sunbalm",
+              1
+            ],
+            [
+              "greatcrystal",
+              1
+            ]
+          ],
+          "talk": "chest"
+        },
+        {
+          "if": "cageOpen",
+          "talk": "chestEmpty"
+        },
+        {
+          "if": "hasCageKey",
+          "set": "cageOpen",
+          "takeItem": "cageKey",
+          "talk": "cageUnlock"
+        },
+        {
+          "talk": "cageLocked"
+        }
+      ]
+    },
+    {
+      "map": "cliffs",
+      "mark": "k",
+      "id": "cageGate",
+      "role": "talk",
+      "script": [
+        {
+          "hideIf": "cageOpen"
+        },
+        {
+          "if": "hasCageKey",
+          "set": "cageOpen",
+          "takeItem": "cageKey",
+          "talk": "cageUnlock"
+        },
+        {
+          "talk": "cageLocked"
+        }
+      ]
     },
     {
       "map": "ruins",
@@ -650,7 +1072,13 @@
       "id": "oren",
       "role": "shop",
       "sprite": "npc/oren",
-      "talk": "orenOpen"
+      "talk": "orenOpen",
+      "script": [
+        {
+          "talk": "orenOpen",
+          "after": "orenShop"
+        }
+      ]
     },
     {
       "map": "ruins",
@@ -663,6 +1091,22 @@
       "grantItem": [
         "sunbalm",
         1
+      ],
+      "script": [
+        {
+          "ifNot": "birchGifted",
+          "set": "birchGifted",
+          "grant": [
+            [
+              "sunbalm",
+              1
+            ]
+          ],
+          "talk": "birchFirst"
+        },
+        {
+          "talk": "birchAgain"
+        }
       ]
     },
     {
@@ -676,74 +1120,41 @@
       "grantItem": [
         "warroot",
         1
+      ],
+      "script": [
+        {
+          "ifNot": "sableGifted",
+          "set": "sableGifted",
+          "grant": [
+            [
+              "warroot",
+              1
+            ]
+          ],
+          "talk": "sableFirst"
+        },
+        {
+          "talk": "sableAgain"
+        }
       ]
     },
     {
       "map": "reach",
-      "mark": "1",
-      "id": "reach1",
-      "role": "trainer",
-      "talk": "reach1Spot",
-      "trainer": "reach1",
-      "sprite": "sentry",
-      "hideWhenBeaten": true
-    },
-    {
-      "map": "reach",
-      "mark": "2",
-      "id": "reach2",
-      "role": "trainer",
-      "talk": "reach2Spot",
-      "trainer": "reach2",
-      "sprite": "conscript",
-      "hideWhenBeaten": true
-    },
-    {
-      "map": "reach",
-      "mark": "4",
-      "id": "reach3",
-      "role": "trainer",
-      "talk": "reach3Spot",
-      "trainer": "reach3",
-      "sprite": "enforcer",
-      "hideWhenBeaten": true
-    },
-    {
-      "map": "reach",
-      "mark": "5",
-      "id": "reach4",
-      "role": "trainer",
-      "talk": "reach4Spot",
-      "trainer": "reach4",
-      "sprite": "cross",
-      "hideWhenBeaten": true
-    },
-    {
-      "map": "reach",
-      "mark": "6",
-      "id": "reachBoss",
-      "role": "trainer",
-      "talk": "reachBossSpotHeavenfall",
-      "talkIfFather": "reachBossSpotFather",
-      "talkLocked": "reachLocked",
-      "requireBeaten": [
-        "reach1",
-        "reach2",
-        "reach3",
-        "reach4"
-      ],
-      "trainer": "reachBoss",
-      "sprite": "commander",
-      "hideWhenBeaten": true
-    },
-    {
-      "map": "reach",
-      "mark": "7",
-      "id": "fatherAlive",
-      "role": "heal",
-      "talk": "fatherHeal",
-      "sprite": "father",
-      "onlyIf": "choseFather"
+      "mark": "Y",
+      "id": "reachStone",
+      "role": "talk",
+      "talk": "reachStone",
+      "talkDone": "reachAgain",
+      "script": [
+        {
+          "ifNot": "talkedReach",
+          "set": "talkedReach",
+          "talk": "reachStone"
+        },
+        {
+          "talk": "reachAgain"
+        }
+      ]
     }
   ]
 }

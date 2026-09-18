@@ -1,8 +1,8 @@
 export type Dir = "down" | "left" | "right" | "up";
 
-export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop" | "choice";
+export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop" | "choice" | "pause" | "crydex";
 
-export type PartyView = "list" | "act" | "stats" | "moves" | "target";
+export type PartyView = "list" | "act" | "stats" | "moves" | "target" | "release" | "catchSwap";
 
 export type ShopTab = "buy" | "sell";
 
@@ -40,7 +40,7 @@ export type SpeciesId =
   | "emberling" | "frostail" | "boulderam" | "stormwing"
   | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall";
 
-export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins";
+export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach";
 
 export type SpellId = "firebolt" | "icebeam" | "lightning" | "manasurge";
 
@@ -79,9 +79,10 @@ export interface Monster {
   level: number;
   xp: number;
   shiny: boolean;
+  nature: number;
 }
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal";
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey";
 
 export interface ItemDef {
   id: ItemId;
@@ -91,6 +92,14 @@ export interface ItemDef {
   field: boolean;
   buy: number;
   sell: number;
+  effect?: {
+    kind: "heal" | "buff" | "debuff" | "capture" | "flee";
+    amount?: number;
+    str?: number;
+    agl?: number;
+    spc?: number;
+    bonus?: number;
+  };
 }
 
 export interface BattleMods {

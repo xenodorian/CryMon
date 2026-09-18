@@ -1,5 +1,5 @@
 {
-  "source": "Dreamcast main.c \u2014 canonical game logic. Web and Dreamcast both interpret this file. Do not fork rules in engine.ts or main.c.",
+  "source": "Shared rules both engines interpret. Extend this file instead of forking engine.ts or main.c.",
   "screenFade": {
     "outSec": 0.267,
     "holdSec": 0.05,
@@ -64,35 +64,71 @@
     "mark": "U",
     "dir": "up"
   },
-  "natures": {
-    "note": "Crystal Natures. Each nature splits the next `beatsAhead` natures around `ring` and is split by the previous `beatsAhead`, leaving the rest neutral. With 7 natures and beatsAhead 2 that is exactly 2 strong, 2 weak and 2 neutral each, so no nature is a blanket answer. Both engines derive the table from this; neither hardcodes it.",
-    "ring": [
-      "diamond",
-      "ruby",
-      "opal",
-      "sapphire",
-      "emerald",
-      "obsidian",
-      "spinel"
-    ],
-    "beatsAhead": 2,
-    "strongMul": 1.5,
-    "weakMul": 0.65,
-    "strongText": "The crystal splits",
-    "weakText": "The crystal holds"
+  "natures": [
+    {
+      "id": "hardy",
+      "name": "Hardy",
+      "str": 0,
+      "agl": 0,
+      "spc": 0
+    },
+    {
+      "id": "lonely",
+      "name": "Lonely",
+      "str": 2,
+      "agl": -1,
+      "spc": 0
+    },
+    {
+      "id": "adamant",
+      "name": "Adamant",
+      "str": 2,
+      "agl": 0,
+      "spc": -1
+    },
+    {
+      "id": "bold",
+      "name": "Bold",
+      "str": -1,
+      "agl": 2,
+      "spc": 0
+    },
+    {
+      "id": "timid",
+      "name": "Timid",
+      "str": 0,
+      "agl": 2,
+      "spc": -1
+    },
+    {
+      "id": "modest",
+      "name": "Modest",
+      "str": -1,
+      "agl": 0,
+      "spc": 2
+    },
+    {
+      "id": "calm",
+      "name": "Calm",
+      "str": 0,
+      "agl": -1,
+      "spc": 2
+    }
+  ],
+  "runtimeFlags": [
+    "hasParty2",
+    "hasCageKey"
+  ],
+  "anneGift": {
+    "afterBattles": 1,
+    "item": "gem",
+    "qty": 5,
+    "map": "veld"
   },
-  "benchXp": {
-    "note": "Non-lead party members share the win. Fainted ones get nothing.",
-    "numerator": 1,
-    "denominator": 2,
-    "requireAlive": true
-  },
-  "dex": {
-    "note": "A species registers in the CryDex when one enters the party (starter grant or capture). Until it is registered its nature reads as unknown, in the dex and in the battle matchup line.",
-    "registerOn": [
-      "starter",
-      "capture"
-    ],
-    "unknownText": "???"
+  "party": {
+    "max": 6,
+    "release": true,
+    "catchSwap": true,
+    "keepLast": true
   }
 }

@@ -1,0 +1,122 @@
+{
+  "cache": "playfix1",
+  "walkers": {
+    "max": "max",
+    "mason": "mason",
+    "anne": "anne",
+    "soldier": "npc/soldier",
+    "shinigami": "shinigami"
+  },
+  "npcs": [
+    "wren",
+    "mae",
+    "ivo",
+    "nell",
+    "pike",
+    "bram",
+    "calder",
+    "oren",
+    "tessa",
+    "birch",
+    "sable",
+    "cross",
+    "commander",
+    "conscript",
+    "enforcer",
+    "sentry",
+    "father"
+  ],
+  "monsters": [
+    "quillpup",
+    "glimmoth",
+    "tortcask",
+    "razorbat",
+    "mossback",
+    "briarfox",
+    "fenwisp",
+    "duskhorn",
+    "needleroot",
+    "cathleen",
+    "crymare",
+    "emberling",
+    "frostail",
+    "boulderam",
+    "stormwing",
+    "sableclaw",
+    "thornhide",
+    "glasswisp",
+    "ashenmaw",
+    "heavenfall"
+  ],
+  "portraits": [
+    "max",
+    "anne",
+    "mason",
+    "wren",
+    "mae",
+    "ivo",
+    "nell",
+    "pike",
+    "calder",
+    "bram",
+    "cathleen",
+    "shinigami",
+    "oren",
+    "tessa",
+    "birch",
+    "sable",
+    "cross",
+    "commander",
+    "conscript",
+    "enforcer",
+    "sentry",
+    "father",
+    "heavenfall",
+    "briarfox",
+    "crymare",
+    "duskhorn",
+    "fenwisp",
+    "glimmoth",
+    "mossback",
+    "needleroot",
+    "quillpup",
+    "razorbat",
+    "tortcask"
+  ],
+  "items": [
+    "salve",
+    "bandage",
+    "bitterroot",
+    "dust",
+    "gem",
+    "sunbalm",
+    "warroot",
+    "smokebomb",
+    "greatcrystal",
+    "cageKey"
+  ],
+  "props": {
+    "bed-father": "props/bed-father.png",
+    "bed-empty": "props/bed-empty.png",
+    "shelf": "props/shelf.png",
+    "crate": "props/crate.png",
+    "cart": "props/cart.png",
+    "stump": "props/stump.png",
+    "herb": "props/herb.png",
+    "door": "props/door.png",
+    "moonstone": "props/moonstone.png"
+  },
+  "extra": [
+    [
+      "bg",
+      "/sprites/battle-bg.png"
+    ],
+    [
+      "cathleen-ow",
+      "/sprites/npc/cathleen.png"
+    ]
+  ],
+  "drawScale": {
+    "mason": 2
+  }
+}

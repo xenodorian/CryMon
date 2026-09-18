@@ -10,7 +10,7 @@ declare global {
       setKeys: (codes: string[]) => void;
       skipToWorld?: () => void;
     };
-    __gemwar?: {
+    __crymon?: {
       getMode: () => string;
       skipToWorld: () => void;
       tapConfirm: () => void;

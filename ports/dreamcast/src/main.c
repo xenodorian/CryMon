@@ -1,7 +1,7 @@
 /*
  * Story, maps, species, items, and talk beats are NOT authored here.
- * They live in the content pack (shared with the web build) and are
- * baked into src/content_ headers by tools/bake_content.py. Edit the
+ * They live in content/*.json (shared with the web build) and are
+ * baked into src/content_*.inc by tools/bake_content.py. Edit the
  * JSON, bake, then rebuild. Runtime (video, Maple, battle loop) stays
  * in this file.
  *
@@ -61,6 +61,8 @@ typedef unsigned short u16;
 typedef unsigned int   u32;
 
 #include "sprites.h"
+#include "chip.h"
+#include "save.h"
 
 #define PVR_BASE 0xa05f8000u
 #define PVR(reg) (*(volatile u32 *)(PVR_BASE + (reg)))
@@ -235,6 +237,40 @@ static void blit_sprite(const u16 *px, int w, int h, int x, int y) {
         }
     }
 }
+
+/* Nearest-neighbor 2x blit — Mason's walk frames are a small figure
+   in a padded 48x64 sheet, so he reads tiny next to Max unless the
+   dest quad is doubled. Same pixels, twice the size. */
+static void blit_sprite_2x(const u16 *px, int w, int h, int x, int y) {
+    int sx, sy;
+    for(sy = 0; sy < h; sy++) {
+        for(sx = 0; sx < w; sx++) {
+            u16 c = px[sy * w + sx];
+            if(c != SPRITE_KEY) {
+                int dx = x + sx * 2, dy = y + sy * 2;
+                put_pixel(dx, dy, c);
+                put_pixel(dx + 1, dy, c);
+                put_pixel(dx, dy + 1, c);
+                put_pixel(dx + 1, dy + 1, c);
+            }
+        }
+    }
+}
+
+static void blit_sprite_fit(const u16 *px, int sw, int sh, int dx, int dy, int dw, int dh) {
+    int x, y;
+    for(y = 0; y < dh; y++) {
+        int sy = y * sh / dh;
+        for(x = 0; x < dw; x++) {
+            int sx = x * sw / dw;
+            u16 c = px[sy * sw + sx];
+            if(c != SPRITE_KEY)
+                put_pixel(dx + x, dy + y, c);
+        }
+    }
+}
+
+static void draw_party_mon_icon(int species, int x, int y);
 
 /* Shiny palette swap: no second set of source art exists for shiny
    CryMon (see mint_shiny()), so this recolors the existing battle
@@ -595,10 +631,16 @@ static int s_cat_uint(char *dst, int len, int v) {
 #define TITLE_SCALE 3
 #define DIALOGUE_SCALE 1
 
-static void draw_press_start(void) {
+static void draw_press_start(int cur, int has_save) {
     vram_clear();
-    draw_text_center_s("PRESS START", SCREEN_W / 2,
-                        SCREEN_H / 2 - 4 * TITLE_SCALE, 0xFFFF, TITLE_SCALE);
+    draw_text_center_s("CRYMON", SCREEN_W / 2, 48, 0xFFFF, 2);
+    draw_text_center_s(cur == 0 ? "> CONTINUE" : "CONTINUE", SCREEN_W / 2, 120,
+                        has_save ? (cur == 0 ? rgb565(90, 122, 82) : rgb565(197, 206, 198))
+                                 : rgb565(80, 80, 72), 1);
+    draw_text_center_s(cur == 1 ? "> NEW GAME" : "NEW GAME", SCREEN_W / 2, 140,
+                        cur == 1 ? rgb565(90, 122, 82) : rgb565(197, 206, 198), 1);
+    draw_text_center_s("A CONFIRM", SCREEN_W / 2, SCREEN_H - 28,
+                        rgb565(90, 122, 82), 1);
 }
 
 /* ----------------------------------------------------------------------
@@ -696,9 +738,6 @@ static int pressed(u16 raw, u16 mask) {
  * ---------------------------------------------------------------------- */
 #define TILE 20
 
-/* MAP_* ids come from content_maps.inc (baked from world.json's mapIds),
-   so adding a map needs no edit here. */
-
 typedef struct {
     const char *const *rows;
     int cols, rows_n;
@@ -708,9 +747,8 @@ typedef struct {
 #include "content_logic.inc"
 
 static int tile_is_solid(char ch) {
-    static const char *const solid = "#HWRBC^NKEVAQXUJISMGL89r";
     const char *p;
-    for(p = solid; *p; p++)
+    for(p = SOLID_TILES; *p; p++)
         if(*p == ch)
             return 1;
     return 0;
@@ -726,13 +764,10 @@ static int tile_is_solid(char ch) {
    not (both call sites below OR beat_cathleen into the cath_caught
    param), so the 3rd param here still just means "the key is hers to
    give" regardless of which flag actually earned it. */
-static int tile_blocked(int map_id, char ch, int cath_caught, int beat_calder, int beat_shin) {
+static int tile_blocked(int map_id, char ch, int cath_caught, int beat_calder, int beat_shin, int cage_open) {
+    if(ch == 'k' && cage_open) return 0;
     if(tile_is_solid(ch)) return 1;
     if(map_id == MAP_GROVE && ch == 'D' && !cath_caught) return 1;
-    if(map_id == MAP_VELD && ch == 'F' && !beat_calder) return 1;
-    /* 'g': the way south past where Shinigami stood, to MAP_RUINS --
-       only open once he's gone (see map_grove_rows' own comment). */
-    if(map_id == MAP_GROVE && ch == 'g' && !beat_shin) return 1;
     return 0;
 }
 
@@ -776,7 +811,7 @@ static void mark_center(int map_id, char mark, int *out_x, int *out_y) {
    '*'). Tile chars not explicitly listed (every NPC/prop mark, plus
    VELD/FOREST/GROVE decoration letters not ported to real props
    here) fall through to paintTile's own grass-green default. */
-static void draw_tile(char ch, int dx, int dy) {
+static void draw_tile(int map_id, char ch, int dx, int dy) {
     int t = TILE;
 
     switch(ch) {
@@ -784,18 +819,38 @@ static void draw_tile(char ch, int dx, int dy) {
             fill_rect(dx, dy, t, t, rgb565(42, 30, 22));
             return;
         case 'r':
-            /* Roof cap: the top row of every real house block (Max's
-               own on VELD, the decorative houses, and any new-map
-               houses) is this instead of a second 'H' row now, so
-               a house reads as a peaked roof over a wall instead of
-               a flat two-tone block. Lowercase since every uppercase
-               letter is already spoken for by an existing tile/mark. */
-            fill_rect(dx, dy, t, t, rgb565(96, 40, 32));
+            /* Terracotta eaves — shingle rows + dark drip edge. */
+            fill_rect(dx, dy, t, t, rgb565(138, 48, 24));
+            fill_rect(dx, dy, t, 2, rgb565(196, 104, 64));
+            fill_rect(dx, dy + 6, t, 1, rgb565(74, 28, 18));
+            fill_rect(dx, dy + 12, t, 1, rgb565(74, 28, 18));
+            fill_rect(dx + 4, dy + 2, 1, 4, rgb565(74, 28, 18));
+            fill_rect(dx + 12, dy + 8, 1, 4, rgb565(74, 28, 18));
+            fill_rect(dx, dy + t - 2, t, 2, rgb565(58, 20, 14));
             return;
         case 'R':
-            fill_rect(dx, dy, t, t, rgb565(106, 64, 48));
+            /* Ridge cap on Max's house (the row above the eaves). */
+            fill_rect(dx, dy, t, t, rgb565(163, 74, 50));
+            fill_rect(dx, dy, t, 3, rgb565(210, 136, 88));
+            fill_rect(dx, dy + 8, t, 1, rgb565(90, 36, 24));
+            fill_rect(dx, dy + 14, t, 1, rgb565(90, 36, 24));
+            return;
+        case '%':
+        case 'g':
+        case 'k':
+            fill_rect(dx, dy, t, t, rgb565(74, 64, 48));
+            fill_rect(dx + 4, dy, 3, t, rgb565(26, 24, 20));
+            fill_rect(dx + 13, dy, 3, t, rgb565(42, 36, 28));
+            if(ch == 'k') {
+                fill_rect(dx + 7, dy + 8, 8, 8, rgb565(138, 115, 72));
+                fill_rect(dx + 10, dy + 11, 3, 3, rgb565(42, 28, 20));
+            }
             return;
         case 'F':
+            if(map_id != MAP_HOUSE) {
+                fill_rect(dx, dy, t, t, rgb565(107, 90, 58));
+                return;
+            }
         case 'P':
             fill_rect(dx, dy, t, t, rgb565(106, 82, 56));
             return;
@@ -909,7 +964,7 @@ static void draw_map(int map_id, int cam_x, int cam_y) {
 
     for(row = row0; row < row1; row++)
         for(col = col0; col < col1; col++)
-            draw_tile(m->rows[row][col], col * TILE - cam_x, row * TILE - cam_y);
+            draw_tile(map_id, m->rows[row][col], col * TILE - cam_x, row * TILE - cam_y);
 }
 
 /* Props are center-anchored on their mark's tile center, matching the
@@ -967,6 +1022,7 @@ typedef struct {
     const u16 *px;
     int w, h;
     int cx, cy;
+    int scale;
 } WorldSprite;
 
 #define MAX_WORLD_SPRITES 12
@@ -978,6 +1034,7 @@ static void ws_push(WorldSprite *list, int *n, const u16 *px, int w, int h, int 
     list[*n].h = h;
     list[*n].cx = cx;
     list[*n].cy = cy;
+    list[*n].scale = 1;
     (*n)++;
 }
 
@@ -1060,8 +1117,10 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, 'Q', PIKE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'J', BRAM_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        if(mason_state)
+        if(mason_state) {
             ws_push_walker(list, n, MASON_FRAMES, mason_x, mason_y, mason_dir, mason_frame);
+            if(*n > 0) list[*n - 1].scale = SPR_SCALE_MASON;
+        }
     }
     else if(map_id == MAP_FOREST) {
         int i;
@@ -1123,7 +1182,12 @@ static void ws_sort_and_draw(WorldSprite *list, int n, int cam_x, int cam_y) {
     }
     for(i = 0; i < n; i++) {
         const WorldSprite *s = &list[i];
-        blit_sprite(s->px, s->w, s->h, s->cx - cam_x - s->w / 2, s->cy - cam_y - s->h);
+        int sc = s->scale > 1 ? s->scale : 1;
+        int dw = s->w * sc, dh = s->h * sc;
+        int dx = s->cx - cam_x - dw / 2;
+        int dy = s->cy - cam_y - dh;
+        if(sc == 2) blit_sprite_2x(s->px, s->w, s->h, dx, dy);
+        else blit_sprite(s->px, s->w, s->h, dx, dy);
     }
 }
 
@@ -1300,22 +1364,18 @@ static void draw_hud_toast(const char *text) {
 #define MAP_BANNER_OUT   16
 #define MAP_BANNER_TOTAL (MAP_BANNER_IN + MAP_BANNER_HOLD + MAP_BANNER_OUT)
 
+static void draw_map_title(int map_id) {
+    const char *name;
+    int w;
+    if(map_id < 0 || map_id >= MAP_N) map_id = MAP_HOUSE;
+    name = MAP_DISPLAY_NAME[map_id];
+    w = text_width_s(name, 2);
+    draw_text_s(name, SCREEN_W - 6 - w, 4, rgb565(232, 228, 216), 2);
+}
+
 static void draw_map_banner(int map_id, int timer) {
-    int elapsed = MAP_BANNER_TOTAL - timer;
-    int level;
-    u16 color;
-
-    if(elapsed < MAP_BANNER_IN)
-        level = (elapsed * 16) / MAP_BANNER_IN;
-    else if(elapsed < MAP_BANNER_IN + MAP_BANNER_HOLD)
-        level = 16;
-    else
-        level = ((MAP_BANNER_TOTAL - elapsed) * 16) / MAP_BANNER_OUT;
-    if(level < 0) level = 0;
-    if(level > 16) level = 16;
-
-    color = rgb565((u8)((232 * level) / 16), (u8)((228 * level) / 16), (u8)((216 * level) / 16));
-    draw_text_center_s(MAP_DISPLAY_NAME[map_id], SCREEN_W / 2, 14, color, 2);
+    (void)timer;
+    draw_map_title(map_id);
 }
 
 /* Small HUD in the screen's top-left corner (fixed there regardless
@@ -1359,19 +1419,38 @@ typedef struct {
     int maxHp, str, agl, spc, spp;
     int spells_n;      /* 0 for every species but Cathleen */
     int spells[4];     /* SPELL_* ids, spells_n of them valid */
-    int nature;        /* NAT_*, from content/logic.json's nature ring */
 } Species;
 
-/* SP_* ids and SPECIES_COUNT come from content_species.inc. */
-
 #include "content_species.inc"
+#include "content_world.inc"
 
 typedef struct {
     int species;
     int lv, xp;
     int maxHp, hp, str, agl, spc, spp, sppMax;
     int shiny; /* see mint_shiny() below */
+    int nature;
 } Monster;
+
+static unsigned char g_dex_seen[SAVE_DEX_BYTES];
+static unsigned char g_dex_caught[SAVE_DEX_BYTES];
+static Monster *g_xp_party;
+static int g_xp_party_n, g_xp_lead;
+
+static void dex_set(unsigned char *bits, int sp) {
+    if(sp < 0 || sp > 31) return;
+    bits[sp >> 3] |= (unsigned char)(1u << (sp & 7));
+}
+static int dex_get(const unsigned char *bits, int sp) {
+    if(sp < 0 || sp > 31) return 0;
+    return (bits[sp >> 3] >> (sp & 7)) & 1;
+}
+static void dex_note_seen(int sp) { dex_set(g_dex_seen, sp); }
+static void dex_note_caught(int sp) { dex_note_seen(sp); dex_set(g_dex_caught, sp); }
+static void dex_clear(void) {
+    int i;
+    for(i = 0; i < SAVE_DEX_BYTES; i++) g_dex_seen[i] = g_dex_caught[i] = 0;
+}
 
 /* xorshift32, seeded from the frame counter at title-screen dismissal
    (see main()) -- there's no RTC/libc rand() in this freestanding
@@ -1391,60 +1470,6 @@ static int irand(int a, int b) {
 
 static int jground(float x) {
     return (int)(x + 0.5f);
-}
-
-/* ----------------------------------------------------------------------
- * Crystal Natures. The ring, how far around it a nature reaches, and the
- * two multipliers all come from content/logic.json via content_logic.inc
- * -- the web port reads the same numbers, so neither engine owns them.
- * Each nature splits the next NAT_BEATS_AHEAD around the ring and is
- * split by the previous NAT_BEATS_AHEAD, which leaves the table
- * symmetric with no dominant pick.
- * ---------------------------------------------------------------------- */
-static int nature_matchup(int atk_nat, int def_nat) {
-    int step = def_nat - atk_nat;
-    if(step < 0) step += NAT_COUNT;
-    if(step >= 1 && step <= NAT_BEATS_AHEAD) return 1;
-    if(step >= NAT_COUNT - NAT_BEATS_AHEAD) return -1;
-    return 0;
-}
-
-/* Scales a finished damage number by the matchup and reports which way it
-   went, so the battle log can say so. */
-static int nature_scale_dmg(int dmg, int atk_nat, int def_nat, int *out_sign) {
-    int sign = nature_matchup(atk_nat, def_nat);
-    if(out_sign) *out_sign = sign;
-    if(sign > 0)      dmg = jground((float)dmg * NATURE_STRONG_MUL);
-    else if(sign < 0) dmg = jground((float)dmg * NATURE_WEAK_MUL);
-    if(dmg < 1) dmg = 1;
-    return dmg;
-}
-
-/* ----------------------------------------------------------------------
- * CryDex. A species registers when one enters the party (starter grant or
- * capture) and never un-registers. Registering is what identifies it: an
- * unregistered species hides its nature both in the dex and in the battle
- * matchup line, so carrying the dex is what turns a fight into a read.
- * ---------------------------------------------------------------------- */
-static u8 dex_caught[SPECIES_COUNT];
-
-static void dex_register(int species) {
-    if(species >= 0 && species < SPECIES_COUNT)
-        dex_caught[species] = 1;
-}
-static int dex_has(int species) {
-    return species >= 0 && species < SPECIES_COUNT && dex_caught[species];
-}
-static void dex_reset(void) {
-    int i;
-    for(i = 0; i < SPECIES_COUNT; i++)
-        dex_caught[i] = 0;
-}
-static int dex_count(void) {
-    int i, n = 0;
-    for(i = 0; i < SPECIES_COUNT; i++)
-        if(dex_caught[i]) n++;
-    return n;
 }
 
 static int clampi(int v, int lo, int hi) {
@@ -1473,6 +1498,7 @@ static Monster mint_monster(int species, int lv) {
     const Species *s = &SPECIES[species];
     float g = 1.0f + (float)(lv - 3) * 0.12f;
     Monster m;
+    const NatureDef *nat;
     m.species = species;
     m.lv = lv < 1 ? 1 : lv;
     m.xp = 0;
@@ -1484,6 +1510,12 @@ static Monster mint_monster(int species, int lv) {
     m.sppMax = s->spp;
     m.hp = m.maxHp;
     m.shiny = 0;
+    m.nature = NATURE_N > 0 ? irand(0, NATURE_N - 1) : 0;
+    nat = &NATURES[m.nature];
+    m.str += nat->str; if(m.str < 1) m.str = 1;
+    m.agl += nat->agl; if(m.agl < 1) m.agl = 1;
+    m.spc += nat->spc; if(m.spc < 1) m.spc = 1;
+    dex_note_seen(species);
     return m;
 }
 
@@ -1502,21 +1534,20 @@ static Monster mint_shiny(int species, int lv) {
     return m;
 }
 static int roll_shiny(void) {
-    return irand(0, 63) == 0;
+    return irand(0, SHINY_DENOM - 1) == 0;
 }
 
 /* data.grantXp: +6+4*foeLv xp per win, level up (+3 maxHp, +1 each
    stat) while xp >= lv*10, capped at lv 12. Returns 1 if it leveled
    up at least once. */
-static int grant_xp_amount(Monster *m, int amount) {
+static int grant_xp(Monster *m, int foe_lv, int pct) {
     int grew = 0;
-    if(amount < 1) amount = 1;
-    m->xp += amount;
-    while(m->xp >= m->lv * 10 && m->lv < 12) {
-        m->xp -= m->lv * 10;
+    m->xp += (XP_BASE + foe_lv * XP_PER_LEVEL) * pct / 100;
+    while(m->xp >= m->lv * LEVEL_XP_MUL && m->lv < LEVEL_CAP) {
+        m->xp -= m->lv * LEVEL_XP_MUL;
         m->lv++;
-        m->maxHp += 3;
-        m->hp += 3;
+        m->maxHp += LEVEL_HP;
+        m->hp += LEVEL_HP;
         if(m->hp > m->maxHp) m->hp = m->maxHp;
         m->str++;
         m->agl++;
@@ -1526,27 +1557,15 @@ static int grant_xp_amount(Monster *m, int amount) {
     return grew;
 }
 
-static int xp_for_win(int foe_lv) {
-    return 6 + foe_lv * 4;
-}
-static int grant_xp(Monster *m, int foe_lv) {
-    return grant_xp_amount(m, xp_for_win(foe_lv));
-}
-
-/* Bench share: every party member that isn't the lead and is still standing
-   takes BENCH_XP_NUMERATOR/BENCH_XP_DENOMINATOR of what the lead earned
-   (both baked from content/logic.json). Fainted members get nothing -- they
-   were carried, not blooded. Returns how many of them leveled up. */
-static int grant_bench_xp(Monster *party, int party_n, int lead, int foe_lv) {
-    int i, grew_n = 0;
-    int share = xp_for_win(foe_lv) * BENCH_XP_NUMERATOR / BENCH_XP_DENOMINATOR;
+static int grant_party_xp(Monster *party, int party_n, int lead, int foe_lv) {
+    int i, grew = 0;
     for(i = 0; i < party_n; i++) {
-        if(i == lead) continue;
-        if(BENCH_XP_REQUIRE_ALIVE && party[i].hp <= 0) continue;
-        if(grant_xp_amount(&party[i], share))
-            grew_n++;
+        int pct;
+        if(party[i].hp <= 0) continue;
+        pct = (i == lead) ? 100 : BENCH_XP_PCT;
+        if(grant_xp(&party[i], foe_lv, pct)) grew = 1;
     }
-    return grew_n;
+    return grew;
 }
 
 /* fullHeal(), also used by the bed and by a party wipe's fade-and-
@@ -1563,8 +1582,8 @@ static void heal_party(Monster *party, int party_n) {
    missing, +25% if any foe stat has been lowered this fight. */
 static int capture_chance(int agl, int hp, int max_hp, int vulnerable) {
     int missing = max_hp > 0 ? (max_hp - hp) * 100 / max_hp : 0;
-    int chance = 5 * agl + missing;
-    if(vulnerable) chance += 25;
+    int chance = CAPTURE_AGL * agl + missing;
+    if(vulnerable) chance += CAPTURE_VULN;
     return clampi(chance, 0, 100);
 }
 
@@ -1585,8 +1604,29 @@ static int capture_chance(int agl, int hp, int max_hp, int vulnerable) {
  * ---------------------------------------------------------------------- */
 typedef struct {
     int salve, bandage, bitterroot, dust, gem;
-    int sunbalm, warroot, smokebomb, greatcrystal; /* the 4 new items */
+    int sunbalm, warroot, smokebomb, greatcrystal, cageKey;
 } Bag;
+
+typedef struct {
+    const char *name;
+    int buy, sell;
+} ItemDef;
+#include "content_items.inc"
+
+static int *bag_field(Bag *bag, int idx) {
+    switch(idx) {
+        case 0: return &bag->salve;
+        case 1: return &bag->bandage;
+        case 2: return &bag->bitterroot;
+        case 3: return &bag->dust;
+        case 4: return &bag->gem;
+        case 5: return &bag->sunbalm;
+        case 6: return &bag->warroot;
+        case 7: return &bag->smokebomb;
+        case 8: return &bag->greatcrystal;
+        default: return &bag->cageKey;
+    }
+}
 
 #define MENU_X 20
 #define MENU_Y 20
@@ -1604,23 +1644,77 @@ static void draw_menu_frame(const char *title, const char *footer) {
                 rgb565(180, 220, 170), MENU_SCALE);
 }
 
+static void draw_pause_menu(int cur) {
+    static const char *const rows[5] = { "PARTY", "BAG", "CRYDEX", "SAVE", "CLOSE" };
+    int i;
+    draw_menu_frame("PAUSE", "A SELECT  B CLOSE");
+    for(i = 0; i < 5; i++)
+        draw_text_s(rows[i], MENU_X + 16, MENU_Y + 24 + i * MENU_ROW_H,
+                    i == cur ? rgb565(90, 122, 82) : rgb565(197, 206, 198), MENU_SCALE);
+}
+
+static void draw_crydex(int cur) {
+    char buf[48];
+    int i, n, caught_n = 0, seen_n = 0, vis = 8, start, y;
+    for(i = 0; i < SPECIES_N; i++) {
+        if(dex_get(g_dex_caught, i)) caught_n++;
+        if(dex_get(g_dex_seen, i)) seen_n++;
+    }
+    draw_menu_frame("CRYDEX", "UP/DOWN  B BACK");
+    n = s_cat(buf, 0, "");
+    n = s_cat_uint(buf, 0, caught_n);
+    n = s_cat(buf, n, "/");
+    n = s_cat_uint(buf, n, SPECIES_N);
+    n = s_cat(buf, n, " CAUGHT  ");
+    n = s_cat_uint(buf, n, seen_n);
+    n = s_cat(buf, n, " SEEN");
+    buf[n] = 0;
+    draw_text_s(buf, MENU_X + 8, MENU_Y + 22, rgb565(197, 206, 198), MENU_SCALE);
+    start = cur - vis / 2;
+    if(start < 0) start = 0;
+    if(start > SPECIES_N - vis) start = SPECIES_N - vis;
+    if(start < 0) start = 0;
+    y = MENU_Y + 36;
+    for(i = 0; i < vis; i++) {
+        int idx = start + i;
+        u16 color;
+        if(idx >= SPECIES_N) break;
+        n = s_cat(buf, 0, (idx == cur) ? ">" : " ");
+        n = s_cat_uint(buf, n, idx + 1);
+        n = s_cat(buf, n, " ");
+        if(dex_get(g_dex_caught, idx)) {
+            n = s_cat(buf, n, SPECIES[idx].name);
+            color = rgb565(232, 228, 216);
+        } else if(dex_get(g_dex_seen, idx)) {
+            n = s_cat(buf, n, SPECIES[idx].name);
+            color = rgb565(180, 180, 160);
+        } else {
+            n = s_cat(buf, n, "?????");
+            color = rgb565(90, 88, 78);
+        }
+        buf[n] = 0;
+        draw_text_s(buf, MENU_X + 8, y, color, MENU_SCALE);
+        y += MENU_ROW_H;
+    }
+}
+
 /* ITEM_COUNT-indexed icon lookup (ITEM_SALVE..ITEM_GEM, defined
    further down with the rest of the item-menu kinds) -- shared by the
    bag, shop, and battle item-menu rows below, all of which previously
    showed items as bare text. icon may be null (the item-menu's "PASS"
    row has no matching icon). */
-static const u16 *const ITEM_ICONS[9] = {
+static const u16 *const ITEM_ICONS[] = {
     icon_salve, icon_bandage, icon_bitterroot, icon_dust, icon_gem,
-    icon_sunbalm, icon_warroot, icon_smokebomb, icon_greatcrystal
+    icon_sunbalm, icon_warroot, icon_smokebomb, icon_greatcrystal, icon_cageKey
 };
 
 /* Effect text is stripped out of the row's own title now (matching
    the battle item menu below) and only drawn when the row is the one
    under the cursor, so the list reads as plain item names/counts
    until the player actually navigates onto one. */
-static const char *const ITEM_EFFECT_DESC[9] = {
+static const char *const ITEM_EFFECT_DESC[] = {
     "+22 HP", "+12 HP", "STR+4", "-3/-2/-2", "CATCH",
-    "+40 HP", "AGL+4", "FLEE", "CATCH+"
+    "+40 HP", "AGL+4", "FLEE", "CATCH+", "CAGE KEY"
 };
 
 static void draw_bag_row(const u16 *icon, const char *label, int count,
@@ -1665,7 +1759,8 @@ static void draw_bag_menu(const Bag *bag, int marks, int cur) {
     draw_bag_row(icon_sunbalm, "SUNBALM", bag->sunbalm, 5, cur, y);          y += MENU_ROW_H;
     draw_bag_row(icon_warroot, "WARROOT", bag->warroot, 6, cur, y);          y += MENU_ROW_H;
     draw_bag_row(icon_smokebomb, "SMOKE BOMB", bag->smokebomb, 7, cur, y);   y += MENU_ROW_H;
-    draw_bag_row(icon_greatcrystal, "GREATER CRYSTAL", bag->greatcrystal, 8, cur, y);
+    draw_bag_row(icon_greatcrystal, "GREATER CRYSTAL", bag->greatcrystal, 8, cur, y); y += MENU_ROW_H;
+    draw_bag_row(icon_cageKey, "CAGE KEY", bag->cageKey, 9, cur, y);
 }
 
 /* drawParty(): lists every party member (up to data.PARTY_MAX -- see
@@ -1696,6 +1791,8 @@ static void draw_party_detail(const Monster *party, int party_n, int idx) {
 
     n = s_cat(buf, 0, "LV");
     n = s_cat_uint(buf, n, m->lv);
+    n = s_cat(buf, n, "  ");
+    n = s_cat(buf, n, NATURES[m->nature < NATURE_N ? m->nature : 0].name);
     n = s_cat(buf, n, "  HP ");
     n = s_cat_uint(buf, n, m->hp);
     n = s_cat(buf, n, "/");
@@ -1743,21 +1840,33 @@ static void draw_party_detail(const Monster *party, int party_n, int idx) {
 
 }
 
+static int party_release(Monster *party, int *party_n, int *lead, int idx) {
+    int i;
+    if(*party_n <= 1 || idx < 0 || idx >= *party_n) return 0;
+    for(i = idx; i < *party_n - 1; i++) party[i] = party[i + 1];
+    (*party_n)--;
+    if(*lead == idx) *lead = 0;
+    else if(*lead > idx) (*lead)--;
+    return 1;
+}
+
 /* heal_item selects who a salve/wrap/sunbalm picked from the bag menu
    goes to (0 salve, 1 wrap, 5 sunbalm, -1 not healing) -- same list as
    the plain party menu, just with a different title/footer and A
    applying the item to party_cur instead of setting the lead (see
    main()'s menu_mode==2 input handling). */
 static void draw_party_menu(const Monster *party, int party_n, int lead, int party_cur,
-                             int party_detail, int heal_item) {
+                             int party_detail, int heal_item, int catch_swap) {
     int y = MENU_Y + 24;
 
-    if(party_detail && party_n > 0) {
+    if(party_detail && party_n > 0 && !catch_swap) {
         draw_party_detail(party, party_n, party_cur);
         return;
     }
 
-    if(heal_item >= 0) {
+    if(catch_swap)
+        draw_menu_frame("PARTY FULL. RELEASE WHO?", "A RELEASE  B LET NEW GO");
+    else if(heal_item >= 0) {
         const char *title = heal_item == 0 ? "USE MOSS SALVE ON WHO?"
                            : heal_item == 1 ? "USE LINEN WRAP ON WHO?"
                                              : "USE SUNBALM ON WHO?";
@@ -1771,7 +1880,9 @@ static void draw_party_menu(const Monster *party, int party_n, int lead, int par
         for(i = 0; i < party_n; i++) {
             char buf[40];
             u16 color = (i == lead) ? rgb565(232, 228, 216) : rgb565(138, 134, 120);
-            int n = s_cat(buf, 0, (i == party_cur) ? "*" : " ");
+            int n;
+            draw_party_mon_icon(party[i].species, MENU_X + 8, y - 2);
+            n = s_cat(buf, 0, (i == party_cur) ? "*" : " ");
             n = s_cat(buf, n, (i == lead) ? "> " : "  ");
             if(party[i].shiny) n = s_cat(buf, n, "SHINY ");
             n = s_cat(buf, n, SPECIES[party[i].species].name);
@@ -1782,11 +1893,11 @@ static void draw_party_menu(const Monster *party, int party_n, int lead, int par
             n = s_cat(buf, n, "/");
             n = s_cat_uint(buf, n, party[i].maxHp);
             buf[n] = 0;
-            draw_text_s(buf, MENU_X + 8, y, color, MENU_SCALE);
-            y += MENU_ROW_H;
+            draw_text_s(buf, MENU_X + 28, y, color, MENU_SCALE);
+            y += 20;
         }
-        if(heal_item < 0)
-            draw_text_s("A LEAD  Y VIEW", MENU_X + 8, MENU_Y + MENU_H - 32,
+        if(heal_item < 0 && !catch_swap)
+            draw_text_s("A LEAD  X RELEASE  Y VIEW", MENU_X + 8, MENU_Y + MENU_H - 32,
                         rgb565(138, 134, 120), MENU_SCALE);
     }
     else {
@@ -1849,9 +1960,7 @@ typedef struct {
     int wild;
     int phase;      /* 0 msg, 1 item menu, 2 attack menu, 3 guard menu,
                         4 special-move timing minigame */
-    char msg[3][80];  /* worst case is a move label plus damage, a Crystal
-                         Nature tag and a poison tick on one line;
-                         draw_wrapped() re-flows it to fit the box */
+    char msg[3][40];
     int msg_n, msg_i;
     int after;
     int cur;        /* menu cursor for phases 1-3 */
@@ -1863,11 +1972,11 @@ typedef struct {
     int dmg;
     char label[28];
     int grew;       /* set by finish_win() below, read by the WIN_NOTE beat */
-    int bench_grew; /* how many benched CryMon leveled on the same win */
     int trainer_kind;      /* TRAINER_* below */
     int soldier_id;        /* valid when trainer_kind == TRAINER_SOLDIER */
     Monster bench[2];
     int bench_n;
+    int catch_full;
 } Battle;
 
 #define TRAINER_WILD     0
@@ -1959,14 +2068,6 @@ static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_
 
 static void battle_apply_hit(Battle *b) {
     int n, poison_tick = 0;
-    int nat_sign = 0;
-
-    /* Crystal Nature matchup, applied once here rather than in each of the
-       four move branches that feed this (basic/toxic/special/spell), so
-       every player attack is scaled exactly once and by the same rule the
-       foe's attacks get in battle_pick_guard(). */
-    b->dmg = nature_scale_dmg(b->dmg, SPECIES[b->pl.species].nature,
-                              SPECIES[b->foe.species].nature, &nat_sign);
 
     /* TOXIC BURST's ongoing chip damage: ticks whatever poison state
        the foe was ALREADY carrying into this turn, before this turn's
@@ -1987,8 +2088,6 @@ static void battle_apply_hit(Battle *b) {
     n = s_cat(b->msg[0], n, " ");
     n = s_cat_uint(b->msg[0], n, b->dmg);
     n = s_cat(b->msg[0], n, " DMG");
-    if(nat_sign > 0)      n = s_cat(b->msg[0], n, " " NATURE_STRONG_TEXT);
-    else if(nat_sign < 0) n = s_cat(b->msg[0], n, " " NATURE_WEAK_TEXT);
     if(poison_tick > 0) {
         n = s_cat(b->msg[0], n, " PSN-");
         n = s_cat_uint(b->msg[0], n, poison_tick);
@@ -2007,7 +2106,13 @@ static void battle_apply_hit(Battle *b) {
             int fn = s_cat(fallen, 0, SPECIES[b->foe.species].name);
             fallen[fn] = 0;
 
-            grant_xp(&b->pl, b->foe.lv);
+            if(g_xp_party) {
+                g_xp_party[g_xp_lead] = b->pl;
+                grant_party_xp(g_xp_party, g_xp_party_n, g_xp_lead, b->foe.lv);
+                b->pl = g_xp_party[g_xp_lead];
+            } else {
+                grant_xp(&b->pl, b->foe.lv, 100);
+            }
             b->foe = b->bench[0];
             if(b->bench_n == 2) b->bench[0] = b->bench[1];
             b->bench_n--;
@@ -2134,11 +2239,10 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
     const char *move_name;
     float base;
     int atk_stat, def_stat, chance, success, dmg;
-    char line[96];
+    char line[56];
     int n = 0;
     int poison_tick = 0;
     int inflicts_poison = 0;
-    int nat_sign = 0;
 
     /* TOXIC BURST's chip damage on the player's side, same ordering
        as battle_apply_hit()'s foe-side tick: whatever poison state
@@ -2220,12 +2324,6 @@ guard_chance:
     dmg = jground(base + (float)irand(0, 3));
     if(dmg < 1) dmg = 1;
 
-    /* Crystal Nature scaling on the incoming hit, before the guard gets to
-       reduce it: the matchup decides how hard the blow lands, the guard
-       decides how much of it the player eats. */
-    dmg = nature_scale_dmg(dmg, SPECIES[b->foe.species].nature,
-                           SPECIES[b->pl.species].nature, &nat_sign);
-
     if(kind == 0) {
         if(success) {
             dmg = 0;
@@ -2265,13 +2363,6 @@ guard_chance:
             n = s_cat_uint(line, n, dmg);
             n = s_cat(line, n, " DMG");
         }
-    }
-    /* Only worth saying when something landed -- a clean dodge zeroes dmg,
-       and an effectiveness tag on a hit that never connected reads as a
-       contradiction. */
-    if(dmg > 0) {
-        if(nat_sign > 0)      n = s_cat(line, n, " " NATURE_STRONG_TEXT);
-        else if(nat_sign < 0) n = s_cat(line, n, " " NATURE_WEAK_TEXT);
     }
     if(poison_tick > 0) {
         n = s_cat(line, n, " PSN-");
@@ -2346,6 +2437,9 @@ guard_chance:
 static void battle_pick_item(Battle *b, Bag *bag, int kind,
                               Monster *party, int *party_n, int lead) {
     int n = 0;
+    int idx, heal;
+    const ItemFx *fx;
+    int *slot;
 
     if(kind == ITEM_PASS) {
         b->phase = 2;
@@ -2353,120 +2447,112 @@ static void battle_pick_item(Battle *b, Bag *bag, int kind,
         return;
     }
 
-    if(kind == ITEM_SALVE && bag->salve > 0) {
-        int heal = b->pl.maxHp - b->pl.hp;
-        if(heal > 22) heal = 22;
-        bag->salve--;
+    idx = kind - 1;
+    if(idx < 0 || idx >= ITEM_COUNT) {
+        n = s_cat(b->msg[0], 0, "NOTHING HAPPENS");
+        b->msg[0][n] = 0;
+        b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ATK;
+        party[lead] = b->pl;
+        return;
+    }
+    fx = &ITEM_FX[idx];
+    slot = bag_field(bag, idx);
+    if(*slot <= 0) {
+        n = s_cat(b->msg[0], 0, "NOTHING HAPPENS");
+        b->msg[0][n] = 0;
+        b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ATK;
+        party[lead] = b->pl;
+        return;
+    }
+
+    if(fx->kind == 1) { /* heal */
+        heal = b->pl.maxHp - b->pl.hp;
+        if(heal > fx->amount) heal = fx->amount;
+        (*slot)--;
         b->pl.hp += heal;
-        n = s_cat(b->msg[0], 0, "MOSS SALVE ");
+        n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+        n = s_cat(b->msg[0], n, " ");
         n = s_cat_uint(b->msg[0], n, heal);
         n = s_cat(b->msg[0], n, " HP");
     }
-    else if(kind == ITEM_BANDAGE && bag->bandage > 0) {
-        int heal = b->pl.maxHp - b->pl.hp;
-        if(heal > 12) heal = 12;
-        bag->bandage--;
-        b->pl.hp += heal;
-        n = s_cat(b->msg[0], 0, "LINEN WRAP ");
-        n = s_cat_uint(b->msg[0], n, heal);
-        n = s_cat(b->msg[0], n, " HP");
+    else if(fx->kind == 2) { /* buff */
+        (*slot)--;
+        b->mods_self_str += fx->str;
+        b->mods_self_agl += fx->agl;
+        b->mods_self_spc += fx->spc;
+        n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+        if(fx->str) { n = s_cat(b->msg[0], n, " STR+"); n = s_cat_uint(b->msg[0], n, fx->str); n = s_cat(b->msg[0], n, " THIS FIGHT"); }
+        else if(fx->agl) { n = s_cat(b->msg[0], n, " AGL+"); n = s_cat_uint(b->msg[0], n, fx->agl); n = s_cat(b->msg[0], n, " THIS FIGHT"); }
     }
-    else if(kind == ITEM_BITTERROOT && bag->bitterroot > 0) {
-        bag->bitterroot--;
-        b->mods_self_str += 4;
-        n = s_cat(b->msg[0], 0, "BITTERROOT STR+4 THIS FIGHT");
+    else if(fx->kind == 3) { /* debuff */
+        (*slot)--;
+        b->mods_foe_str += fx->str;
+        b->mods_foe_agl += fx->agl;
+        b->mods_foe_spc += fx->spc;
+        n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+        n = s_cat(b->msg[0], n, " FOE STR");
+        /* dust amounts are negative; print as written */
+        n = s_cat(b->msg[0], n, "-");
+        n = s_cat_uint(b->msg[0], n, fx->str < 0 ? -fx->str : fx->str);
+        n = s_cat(b->msg[0], n, " AGI-");
+        n = s_cat_uint(b->msg[0], n, fx->agl < 0 ? -fx->agl : fx->agl);
+        n = s_cat(b->msg[0], n, " SPC-");
+        n = s_cat_uint(b->msg[0], n, fx->spc < 0 ? -fx->spc : fx->spc);
     }
-    else if(kind == ITEM_DUST && bag->dust > 0) {
-        bag->dust--;
-        b->mods_foe_str -= 3;
-        b->mods_foe_agl -= 2;
-        b->mods_foe_spc -= 2;
-        n = s_cat(b->msg[0], 0, "ASH DUST FOE STR-3 AGI-2 SPC-2");
-    }
-    else if(kind == ITEM_GEM && bag->gem > 0) {
-        bag->gem--;
-        if(!b->wild) {
-            bag->gem++;
-            n = s_cat(b->msg[0], 0, "CRYSTALS WILL NOT TAKE A TAMERS CRYMON");
-        }
-        else if(*party_n >= 6) {
-            bag->gem++;
-            n = s_cat(b->msg[0], 0, "SIX IS ALL MAX CAN HOLD");
-        }
-        else {
-            int chance = battle_capture_chance(b);
-            if(irand(1, 100) <= chance) {
-                Monster c = b->foe;
-                c.hp = c.maxHp * 2 / 5;
-                if(c.hp < 1) c.hp = 1;
-                party[*party_n] = c;
-                (*party_n)++;
-                n = s_cat(b->msg[0], 0, "THE CRYSTAL TAKES ");
-                n = s_cat(b->msg[0], n, SPECIES[c.species].name);
-                n = s_cat(b->msg[0], n, " IS YOURS");
-                b->msg[0][n] = 0;
-                b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_WORLD;
-                party[lead] = b->pl;
-                return;
-            }
-            n = s_cat(b->msg[0], 0, "THE CRYSTAL CRACKS DARK IT SLIPS FREE");
-        }
-    }
-    else if(kind == ITEM_SUNBALM && bag->sunbalm > 0) {
-        int heal = b->pl.maxHp - b->pl.hp;
-        if(heal > 40) heal = 40;
-        bag->sunbalm--;
-        b->pl.hp += heal;
-        n = s_cat(b->msg[0], 0, "SUNBALM ");
-        n = s_cat_uint(b->msg[0], n, heal);
-        n = s_cat(b->msg[0], n, " HP");
-    }
-    else if(kind == ITEM_WARROOT && bag->warroot > 0) {
-        bag->warroot--;
-        b->mods_self_agl += 4;
-        n = s_cat(b->msg[0], 0, "WARROOT AGL+4 THIS FIGHT");
-    }
-    else if(kind == ITEM_SMOKEBOMB && bag->smokebomb > 0) {
+    else if(fx->kind == 5) { /* flee */
         if(!b->wild) {
             n = s_cat(b->msg[0], 0, "CANNOT FLEE A TAMER'S FIGHT");
-        }
-        else {
-            bag->smokebomb--;
-            n = s_cat(b->msg[0], 0, "SMOKE BOMB MAX SLIPS AWAY");
+        } else {
+            (*slot)--;
+            n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+            n = s_cat(b->msg[0], n, " MAX SLIPS AWAY");
             b->msg[0][n] = 0;
             b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_WORLD;
             party[lead] = b->pl;
             return;
         }
     }
-    else if(kind == ITEM_GREATCRYSTAL && bag->greatcrystal > 0) {
-        bag->greatcrystal--;
+    else if(fx->kind == 4) { /* capture */
+        (*slot)--;
+        b->catch_full = 0;
         if(!b->wild) {
-            bag->greatcrystal++;
+            (*slot)++;
             n = s_cat(b->msg[0], 0, "CRYSTALS WILL NOT TAKE A TAMERS CRYMON");
         }
-        else if(*party_n >= 6) {
-            bag->greatcrystal++;
-            n = s_cat(b->msg[0], 0, "SIX IS ALL MAX CAN HOLD");
-        }
         else {
-            int chance = battle_capture_chance(b) + 25;
+            int chance = battle_capture_chance(b) + fx->bonus;
             if(chance > 100) chance = 100;
             if(irand(1, 100) <= chance) {
                 Monster c = b->foe;
                 c.hp = c.maxHp * 2 / 5;
                 if(c.hp < 1) c.hp = 1;
-                party[*party_n] = c;
-                (*party_n)++;
-                n = s_cat(b->msg[0], 0, "THE GREATER CRYSTAL TAKES ");
-                n = s_cat(b->msg[0], n, SPECIES[c.species].name);
-                n = s_cat(b->msg[0], n, " IS YOURS");
-                b->msg[0][n] = 0;
-                b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_WORLD;
+                if(*party_n < 6) {
+                    party[*party_n] = c;
+                    (*party_n)++;
+                    dex_note_caught(c.species);
+                    n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+                    n = s_cat(b->msg[0], n, " TAKES ");
+                    n = s_cat(b->msg[0], n, SPECIES[c.species].name);
+                    n = s_cat(b->msg[0], n, " IS YOURS");
+                    b->msg[0][n] = 0;
+                    b->msg_n = 1;
+                } else {
+                    b->foe = c;
+                    b->catch_full = 1;
+                    dex_note_caught(c.species);
+                    n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+                    n = s_cat(b->msg[0], n, " TAKES");
+                    b->msg[0][n] = 0;
+                    n = s_cat(b->msg[1], 0, "PARTY FULL. RELEASE ONE.");
+                    b->msg[1][n] = 0;
+                    b->msg_n = 2;
+                }
+                b->msg_i = 0; b->phase = 0; b->after = BAFTER_WORLD;
                 party[lead] = b->pl;
                 return;
             }
-            n = s_cat(b->msg[0], 0, "THE GREATER CRYSTAL CRACKS DARK IT SLIPS FREE");
+            n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+            n = s_cat(b->msg[0], n, " CRACKS DARK IT SLIPS FREE");
         }
     }
     else {
@@ -2488,8 +2574,9 @@ static void battle_pick_item(Battle *b, Bag *bag, int kind,
    marks and the mode/flag changes per trainer differ and are handled
    by the caller in main(), which is where all that state (soldiers,
    beat_calder, ending mode...) lives. */
-static void battle_finish_win(Battle *b, Monster *party, int lead) {
-    b->grew = grant_xp(&party[lead], b->foe.lv);
+static void battle_finish_win(Battle *b, Monster *party, int lead, int party_n) {
+    party[lead] = b->pl;
+    b->grew = grant_party_xp(party, party_n, lead, b->foe.lv);
     b->pl = party[lead];
 }
 
@@ -2508,48 +2595,37 @@ static void battle_finish_win(Battle *b, Monster *party, int lead) {
 static int try_encounter(int map_id, int px, int py, int party_n,
                           int *enc_lock, int *last_tx, int *last_ty,
                           Battle *out) {
-    static const int forest_pool[3] = { SP_FENWISP, SP_DUSKHORN, SP_NEEDLEROOT };
-    static const int cliffs_pool[6] = { SP_STORMWING, SP_SABLECLAW, SP_FROSTAIL,
-                                         SP_BOULDERAM, SP_THORNHIDE, SP_GLASSWISP };
     int tx = px / TILE, ty = py / TILE;
-    int id, lv, n;
+    int id, lv, n, i;
+    const EncDef *e = 0;
 
     if(tx == *last_tx && ty == *last_ty) return 0;
     *last_tx = tx;
     *last_ty = ty;
-    if(tile_at(map_id, tx, ty) != 'T') return 0;
     if(*enc_lock > 0) { (*enc_lock)--; return 0; }
-    if(irand(0, 99) >= 18) return 0;
     if(party_n <= 0) return 0;
 
-    *enc_lock = 3;
+    for(i = 0; i < ENC_N; i++) {
+        if(ENCOUNTERS[i].map_id == map_id &&
+           tile_at(map_id, tx, ty) == ENCOUNTERS[i].tile) {
+            e = &ENCOUNTERS[i];
+            break;
+        }
+    }
+    if(!e) return 0;
+    if(irand(0, 99) >= e->rate) return 0;
 
-    if(map_id == MAP_FOREST) {
-        id = forest_pool[irand(0, 2)];
-        lv = 3 + irand(0, 2);
-    }
-    else if(map_id == MAP_CLIFFS) {
-        id = cliffs_pool[irand(0, 5)];
-        lv = 5 + irand(0, 2);
-    }
-    else {
-        /* VELD's tall grass -- EMBERLING/ASHENMAW mixed in alongside
-           the original GLIMMOTH/TORTCASK split (1-in-4 each) so both
-           are reachable as wild encounters too, not just as the new
-           Weeping Army soldiers' fixed rosters. */
-        int roll = irand(0, 3);
-        if(roll == 0) id = SP_GLIMMOTH;
-        else if(roll == 1) id = SP_TORTCASK;
-        else if(roll == 2) id = SP_EMBERLING;
-        else id = SP_ASHENMAW;
-        lv = 2 + (ty > 14 ? 1 : 0) + irand(0, 1);
-    }
+    *enc_lock = 3;
+    id = e->pool[irand(0, e->pool_n - 1)];
+    lv = e->lv_min + irand(0, e->lv_max - e->lv_min);
+    if(e->ty_bonus_gt >= 0 && ty > e->ty_bonus_gt) lv += 1;
 
     out->foe = roll_shiny() ? mint_shiny(id, lv) : mint_monster(id, lv);
     out->wild = 1;
     out->trainer_kind = TRAINER_WILD;
     out->soldier_id = 0;
     out->bench_n = 0;
+    out->catch_full = 0;
     out->phase = 0;
     n = s_cat(out->msg[0], 0, out->foe.shiny ? "A SHINY " : "A WILD ");
     n = s_cat(out->msg[0], n, SPECIES[id].name);
@@ -2656,6 +2732,11 @@ static const u16 *const MONSTER_SPRITES[20][4] = {
     { monster_ashenmaw_1, monster_ashenmaw_2, monster_ashenmaw_3, monster_ashenmaw_4 },
     { monster_heavenfall_1, monster_heavenfall_2, monster_heavenfall_3, monster_heavenfall_4 },
 };
+
+static void draw_party_mon_icon(int species, int x, int y) {
+    if(species < 0) return;
+    blit_sprite_fit(MONSTER_SPRITES[species][0], MONSTER_SPRITE_W, MONSTER_SPRITE_H, x, y, 16, 16);
+}
 
 /* Idle-animated like the stationary world NPCs (drawBattle()'s own
    `Math.floor(b.t * 4) % 4 + 1`, shared by foe and player sprite) --
@@ -2982,12 +3063,104 @@ static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
  * intermediate has a real porting gap (a missing call site), not the
  * TS/canonical game; the faithful port includes Anne.
  * ---------------------------------------------------------------------- */
-static int near_mark(int map_id, char mark, int px, int py, int radius_sq) {
+static int __attribute__((unused))
+near_mark(int map_id, char mark, int px, int py, int radius_sq) {
     int mx, my, dx, dy;
     mark_center(map_id, mark, &mx, &my);
     dx = px - mx;
     dy = py - my;
     return dx * dx + dy * dy <= radius_sq;
+}
+
+static int npc_flag_on(int id, int **ft, int party_n) {
+    if(id == FLAG_HAS_PARTY2) return party_n > 1;
+    if(id < 0 || id >= FLAG_N || ft[id] == 0) return 0;
+    return *ft[id] != 0;
+}
+
+static void npc_flag_set(int id, int **ft) {
+    if(id < 0 || id >= FLAG_N || ft[id] == 0) return;
+    *ft[id] = 1;
+}
+
+static int npc_match_step(const NpcDef *d, int **ft, int party_n) {
+    int i;
+    for(i = 0; i < d->stepn; i++) {
+        const NpcStep *st = &NPC_STEPS[d->step0 + i];
+        if(st->hide_if >= 0) {
+            if(npc_flag_on(st->hide_if, ft, party_n)) return -1;
+            continue;
+        }
+        if(st->if_flag >= 0 && !npc_flag_on(st->if_flag, ft, party_n)) continue;
+        if(st->if_not >= 0 && npc_flag_on(st->if_not, ft, party_n)) continue;
+        return d->step0 + i;
+    }
+    return -2;
+}
+
+typedef struct {
+    int map_id, px, py, party_n;
+    int **ft;
+    Bag *bag;
+    int *marks;
+    Monster *party;
+    int *pn, *lead;
+    const TalkBeat **seq_lines;
+    int *seq_len;
+    int *after, *pending;
+} NpcRun;
+
+static int try_npc_script(NpcRun *R) {
+    unsigned char used[64];
+    int i, guard;
+    int rad = (R->map_id == MAP_HOUSE) ? 484 : 676;
+    if(NPC_DEF_N > 64) return 0;
+    for(i = 0; i < NPC_DEF_N; i++) used[i] = 0;
+    for(guard = 0; guard < NPC_DEF_N; guard++) {
+        int best = -1, best_d = rad, si, talk, gi;
+        const NpcStep *st;
+        for(i = 0; i < NPC_DEF_N; i++) {
+            int mx, my, dx, dy, d;
+            if(used[i] || NPC_DEFS[i].map_id != R->map_id) continue;
+            mark_center(R->map_id, NPC_DEFS[i].mark, &mx, &my);
+            dx = R->px - mx; dy = R->py - my;
+            d = dx * dx + dy * dy;
+            if(d <= best_d) { best_d = d; best = i; }
+        }
+        if(best < 0) return 0;
+        used[best] = 1;
+        si = npc_match_step(&NPC_DEFS[best], R->ft, R->party_n);
+        if(si < 0) continue;
+        st = &NPC_STEPS[si];
+        talk = st->talk;
+        if(st->talk_if >= 0)
+            talk = npc_flag_on(st->talk_if, R->ft, R->party_n) ? st->talk : st->talk_else;
+        if(st->set_flag >= 0) npc_flag_set(st->set_flag, R->ft);
+        for(gi = 0; gi < st->g_n; gi++) {
+            int *slot = bag_field(R->bag, st->g_item[gi]);
+            *slot += st->g_qty[gi];
+        }
+        if(st->g_sp >= 0 && *R->pn == 0) {
+            R->party[0] = mint_monster(st->g_sp, st->g_lv);
+            *R->pn = 1;
+            *R->lead = 0;
+            dex_note_caught(st->g_sp);
+        }
+        if(st->take_item >= 0) {
+            int *slot = bag_field(R->bag, st->take_item);
+            if(*slot > 0) (*slot)--;
+        }
+        if(st->heal) heal_party(R->party, *R->pn);
+        if(st->marks) *R->marks += st->marks;
+        if(talk >= 0 && talk < TALK_TABLE_N) {
+            *R->seq_lines = TALK_PTRS[talk];
+            *R->seq_len = TALK_COUNTS[talk];
+        }
+        *R->after = st->after;
+        *R->pending = st->pending;
+        return 1;
+    }
+    return 0;
 }
 
 /* ensureSoldiers(): id/name/species/level, matching state.lua's
@@ -3048,10 +3221,18 @@ static int soldier_los(int map_id, float sx, float sy, int dir, int ppx, int ppy
    around the actor's feet, not its full sprite box, so the player can
    still walk up close enough to trigger the proximity-interact/ambush
    checks that sit right next to this collision radius. */
+static int mark_hit(int map_id, char mark, int cx, int cy, int r2) {
+    int mx, my, dx, dy;
+    mark_center(map_id, mark, &mx, &my);
+    dx = cx - mx; dy = cy - my;
+    return dx * dx + dy * dy <= r2;
+}
+
 static int actor_blocks(int map_id, int cx, int cy,
                          int mason_state, float mason_x, float mason_y,
                          int anne_state, float anne_x, float anne_y,
-                         const Soldier *soldiers, const int *soldier_beaten) {
+                         const Soldier *soldiers, const int *soldier_beaten,
+                         int cath_caught, int beat_shin) {
     int dx, dy;
 #define HIT_R2 81 /* 9px radius, squared */
     if(map_id == MAP_VELD) {
@@ -3063,6 +3244,12 @@ static int actor_blocks(int map_id, int cx, int cy,
             dx = cx - (int)anne_x; dy = cy - (int)anne_y;
             if(dx * dx + dy * dy <= HIT_R2) return 1;
         }
+        if(mark_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'I', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'V', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'A', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'Q', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'J', cx, cy, HIT_R2)) return 1;
     }
     else if(map_id == MAP_FOREST && soldiers) {
         int i;
@@ -3071,6 +3258,25 @@ static int actor_blocks(int map_id, int cx, int cy,
             dx = cx - (int)soldiers[i].x; dy = cy - (int)soldiers[i].y;
             if(dx * dx + dy * dy <= HIT_R2) return 1;
         }
+    }
+    else if(map_id == MAP_GROVE) {
+        if(!beat_shin && mark_hit(map_id, '9', cx, cy, HIT_R2)) return 1;
+        if(!cath_caught && mark_hit(map_id, '8', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
+    }
+    else if(map_id == MAP_CAMP) {
+        if(mark_hit(map_id, 'I', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'A', cx, cy, HIT_R2)) return 1;
+    }
+    else if(map_id == MAP_CLIFFS) {
+        if(mark_hit(map_id, 'V', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'Y', cx, cy, HIT_R2)) return 1;
+    }
+    else if(map_id == MAP_RUINS) {
+        if(mark_hit(map_id, 'J', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
+        if(mark_hit(map_id, 'A', cx, cy, HIT_R2)) return 1;
     }
 #undef HIT_R2
     return 0;
@@ -3082,29 +3288,7 @@ static int actor_blocks(int map_id, int cx, int cy,
  * draws the shop, no purchase logic at all): the reference itself
  * ports engine.ts's working buy/sell UI instead, and so does this.
  * ---------------------------------------------------------------------- */
-typedef struct {
-    const char *name;
-    int buy, sell;
-} ItemDef;
-
-/* Index order matches data.ITEM_ORDER = {salve,bandage,bitterroot,dust,
-   gem}, extended with the 4 new items in the same order bag_field()
-   uses (5-8). */
-#include "content_items.inc"
-
-static int *bag_field(Bag *bag, int idx) {
-    switch(idx) {
-        case 0: return &bag->salve;
-        case 1: return &bag->bandage;
-        case 2: return &bag->bitterroot;
-        case 3: return &bag->dust;
-        case 4: return &bag->gem;
-        case 5: return &bag->sunbalm;
-        case 6: return &bag->warroot;
-        case 7: return &bag->smokebomb;
-        default: return &bag->greatcrystal;
-    }
-}
+/* ItemDef, ITEMS, bag_field: see Bag typedef above. */
 
 /* Buy tab always lists all 5 items; sell tab only ones actually owned
    (ownedItems()). Returns the row count and fills *rows with item
@@ -3115,8 +3299,11 @@ static int shop_rows(const Bag *bag, int sell_tab, int rows[ITEM_COUNT]) {
     int n = 0, i;
     for(i = 0; i < ITEM_COUNT; i++) {
         int owned = *bag_field((Bag *)bag, i);
-        if(!sell_tab || owned > 0)
+        if(!sell_tab) {
+            if(ITEMS[i].buy > 0) rows[n++] = i;
+        } else if(owned > 0 && ITEMS[i].sell > 0) {
             rows[n++] = i;
+        }
     }
     return n;
 }
@@ -3178,7 +3365,8 @@ static void draw_ending(const char *const *lines, int n, int i) {
    tiles that's a 22.5px radius (22*22=484). */
 /* HOUSE-only, matching interact()'s MAP_HOUSE branch -- callers only
    invoke this when map_id == MAP_HOUSE. */
-static char closest_mark(int px, int py) {
+static char __attribute__((unused))
+closest_mark(int px, int py) {
     static const char marks[4] = { 'U', 'B', 'S', 'C' };
     int i;
     int best = 484, best_i = -1;
@@ -3218,7 +3406,7 @@ static void do_warp(int *map_id, int *px, int *py, int *pdir,
 void main(void) {
     int state = 0; /* 0 = title screen, 1 = starting room */
     u32 frame_count = 0;
-    int prev_start = 0, prev_a = 0, prev_b = 0, prev_y = 0;
+    int prev_start = 0, prev_a = 0, prev_b = 0, prev_y = 0, prev_x = 0;
     int prev_up = 0, prev_down = 0, prev_left = 0, prev_right = 0;
     int map_id = MAP_HOUSE;
     int px, py, pdir = 0; /* dir: 0=down,1=up,2=left,3=right */
@@ -3226,7 +3414,7 @@ void main(void) {
     int col, row;
     int cam_x, cam_y;
     u16 raw;
-    int start_now, a_now, b_now, y_now, up_now, down_now, left_now, right_now;
+    int start_now, a_now, b_now, y_now, x_now, up_now, down_now, left_now, right_now;
 
     /* Frames left before a door tile can trigger another warp,
        matching state.lua's G.doorLock (set to 20 on spawn/warp,
@@ -3241,8 +3429,8 @@ void main(void) {
        port's only source of a party member is the shelf. */
     int got_shelf = 0, looted_crate = 0;
     /* salve, bandage, bitterroot, dust, gem, sunbalm, warroot, smokebomb, greatcrystal */
-    Bag bag = { 2, 2, 1, 1, 0, 0, 0, 1, 0 };
-    int marks = 16;
+    Bag bag = START_BAG_INIT;
+    int marks = START_MARKS;
 
     /* G.party, capped at data.PARTY_MAX (6); this port's only ways to
        grow it are the shelf's starter grant and a battle capture --
@@ -3250,6 +3438,8 @@ void main(void) {
        here). */
     Monster party[6];
     int party_n = 0, lead = 0;
+    int catch_swap = 0;
+    Monster pending_catch;
 
     /* In-battle state (see the Battle section above); in_battle == 0
        means the world is showing normally. enc_lock/last_tx/last_ty
@@ -3281,6 +3471,10 @@ void main(void) {
        and select; B alone is enough here since neither Y nor START
        need a second meaning while a menu is open). */
     int menu_mode = 0;
+    int pause_cur = 0;
+    int dex_cur = 0;
+    int title_cur = 0;
+    int have_save = 0;
     int party_cur = 0; /* cursor row inside the party menu */
     int party_detail = 0; /* party menu: 0 list, 1 viewing party_cur's detail */
     int bag_cur = 0; /* cursor row inside the bag menu */
@@ -3361,10 +3555,14 @@ void main(void) {
     int beat_wsoldier_camp2 = 0, beat_wsoldier_grove = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
+    int talked_reach = 0;
+    int cage_open = 0;
     int has_scroll = 0; /* Legendary Reanimation, granted once Shinigami's win dialogue closes */
     int anne2_told = 0; /* gates Anne's second (father-died/choice) approach to firing once */
     int choice_mode = 0, choice_cur = 0; /* father-vs-Heavenfall resurrection choice screen */
     int soldier_beaten[3] = { 0, 0, 0 };
+    int talked_father = 0;
+    int *ft[FLAG_N];
 
     /* Mason/Anne real movement, matching state.lua's rival/anne
        phase machines (see the world-actors section comment further
@@ -3414,6 +3612,12 @@ void main(void) {
 
     video_init();
     maple_init();
+    chip_init();
+    {
+        SaveLive probe;
+        have_save = save_restore(&probe);
+        if(!have_save) title_cur = 1;
+    }
 
     find_mark(MAP_HOUSE, 'P', &col, &row);
     px = col * TILE + TILE / 2;
@@ -3422,14 +3626,55 @@ void main(void) {
     /* Prime both buffers with the title screen before the main loop
        starts flipping, so the first flip doesn't show whatever
        garbage was in VRAM at boot. */
-    draw_press_start();
+    draw_press_start(title_cur, have_save);
     fb_flip();
-    draw_press_start();
+    draw_press_start(title_cur, have_save);
+
+    {
+        int fi;
+        for(fi = 0; fi < FLAG_N; fi++) ft[fi] = 0;
+        ft[FLAG_TOOK_STARTER] = &got_shelf;
+        ft[FLAG_TALKED_FATHER] = &talked_father;
+        ft[FLAG_LOOTED_CRATE] = &looted_crate;
+        ft[FLAG_TALKED_WREN] = &talked_wren;
+        ft[FLAG_BEAT_CALDER] = &beat_calder;
+        ft[FLAG_READ_CART] = &read_cart;
+        ft[FLAG_TALKED_MAE] = &talked_mae;
+        ft[FLAG_TALKED_IVO] = &talked_ivo;
+        ft[FLAG_TALKED_NELL] = &talked_nell;
+        ft[FLAG_NELL_BONUS] = &nell_bonus;
+        ft[FLAG_GOT_FIELD_GEM] = &got_gem;
+        ft[FLAG_PIKE_HELPED] = &pike_helped;
+        ft[FLAG_TALKED_PIKE] = &talked_pike;
+        ft[FLAG_GOT_HERB] = &got_herb;
+        ft[FLAG_GOT_STUMP] = &got_stump;
+        ft[FLAG_CATHLEEN_CAUGHT] = &cath_caught;
+        ft[FLAG_BEAT_SHINIGAMI] = &beat_shin;
+        ft[FLAG_BEAT_CROSS] = &beat_wsoldier_grove;
+        ft[FLAG_BEAT_CONSCRIPT] = &beat_wsoldier_camp1;
+        ft[FLAG_BEAT_ENFORCER] = &beat_wsoldier_camp2;
+        ft[FLAG_BEAT_SENTRY] = &beat_wsoldier_cliffs;
+        ft[FLAG_TESSA_GIFTED] = &talked_tessa;
+        ft[FLAG_CHEST_LOOTED] = &got_chest;
+        ft[FLAG_BIRCH_GIFTED] = &talked_birch;
+        ft[FLAG_SABLE_GIFTED] = &talked_sable;
+        ft[FLAG_CAGE_OPEN] = &cage_open;
+        ft[FLAG_HAS_CAGE_KEY] = &bag.cageKey;
+        ft[FLAG_TALKED_REACH] = &talked_reach;
+    }
 
     for(;;) {
         wait_vblank();
         fb_flip();
         frame_count++;
+        g_xp_party = party;
+        g_xp_party_n = party_n;
+        g_xp_lead = lead;
+        if(state == 0) chip_set_song(chip_song_title());
+        else if(ending_mode) chip_set_song(chip_song_ending());
+        else if(in_battle) chip_set_song(chip_song_battle(battle.wild ? 0 : 1));
+        else chip_set_song(chip_song_map(map_id));
+        chip_tick();
 
         if(map_banner_timer > 0) map_banner_timer--;
 
@@ -3489,6 +3734,7 @@ void main(void) {
         a_now     = pressed(raw, CONT_A);
         b_now     = pressed(raw, CONT_B);
         y_now     = pressed(raw, CONT_Y);
+        x_now     = pressed(raw, CONT_X);
         up_now    = pressed(raw, CONT_DPAD_UP);
         down_now  = pressed(raw, CONT_DPAD_DOWN);
         left_now  = pressed(raw, CONT_DPAD_LEFT);
@@ -3536,7 +3782,103 @@ void main(void) {
         }
 
         if(state == 0) {
-            if(start_now && !prev_start) {
+            chip_set_song(chip_song_title());
+            if(up_now && !prev_up) { title_cur = 0; chip_sfx_ui(); }
+            if(down_now && !prev_down) { title_cur = 1; chip_sfx_ui(); }
+            if((start_now && !prev_start) || (a_now && !prev_a)) {
+                int do_new = (title_cur == 1) || !have_save;
+                if(title_cur == 0 && have_save) {
+                    SaveLive sl;
+                    if(save_restore(&sl)) {
+                        int pi;
+                        dex_clear();
+                        map_id = sl.map_id;
+                        if(map_id < 0 || map_id >= MAP_N) map_id = MAP_HOUSE;
+                        px = sl.x;
+                        py = sl.y;
+                        pdir = sl.dir;
+                        if(pdir < 0 || pdir > 3) pdir = 0;
+                        marks = sl.marks;
+                        lead = sl.lead;
+                        party_n = sl.party_n;
+                        if(party_n > 6) party_n = 6;
+                        battles = sl.battles;
+                        mason2_map = sl.mason2_map == 0xff ? -1 : sl.mason2_map;
+                        bag.salve = sl.bag[0]; bag.bandage = sl.bag[1];
+                        bag.bitterroot = sl.bag[2]; bag.dust = sl.bag[3];
+                        bag.gem = sl.bag[4]; bag.sunbalm = sl.bag[5];
+                        bag.warroot = sl.bag[6]; bag.smokebomb = sl.bag[7];
+                        bag.greatcrystal = sl.bag[8]; bag.cageKey = sl.bag[9];
+                        for(pi = 0; pi < party_n; pi++) {
+                            party[pi].species = sl.party[pi].species;
+                            party[pi].lv = sl.party[pi].lv;
+                            party[pi].hp = sl.party[pi].hp;
+                            party[pi].maxHp = sl.party[pi].maxHp;
+                            party[pi].str = sl.party[pi].str;
+                            party[pi].agl = sl.party[pi].agl;
+                            party[pi].spc = sl.party[pi].spc;
+                            party[pi].spp = sl.party[pi].spp;
+                            party[pi].sppMax = sl.party[pi].sppMax;
+                            party[pi].shiny = sl.party[pi].shiny;
+                            party[pi].xp = sl.party[pi].xp;
+                            party[pi].nature = sl.party[pi].nature;
+                            dex_note_caught(party[pi].species);
+                        }
+                        {
+                            int di;
+                            for(di = 0; di < SAVE_DEX_BYTES; di++) {
+                                g_dex_seen[di] |= sl.dex_seen[di];
+                                g_dex_caught[di] |= sl.dex_caught[di];
+                            }
+                        }
+                        got_shelf = save_flag_get(&sl, SAVE_FLAG_TOOK_STARTER);
+                        talked_father = save_flag_get(&sl, SAVE_FLAG_TALKED_FATHER);
+                        looted_crate = save_flag_get(&sl, SAVE_FLAG_LOOTED_CRATE);
+                        talked_wren = save_flag_get(&sl, SAVE_FLAG_TALKED_WREN);
+                        beat_calder = save_flag_get(&sl, SAVE_FLAG_BEAT_CALDER);
+                        read_cart = save_flag_get(&sl, SAVE_FLAG_READ_CART);
+                        talked_mae = save_flag_get(&sl, SAVE_FLAG_TALKED_MAE);
+                        talked_ivo = save_flag_get(&sl, SAVE_FLAG_TALKED_IVO);
+                        talked_nell = save_flag_get(&sl, SAVE_FLAG_TALKED_NELL);
+                        nell_bonus = save_flag_get(&sl, SAVE_FLAG_NELL_BONUS);
+                        got_gem = save_flag_get(&sl, SAVE_FLAG_GOT_FIELD_GEM);
+                        pike_helped = save_flag_get(&sl, SAVE_FLAG_PIKE_HELPED);
+                        talked_pike = save_flag_get(&sl, SAVE_FLAG_TALKED_PIKE);
+                        got_herb = save_flag_get(&sl, SAVE_FLAG_GOT_HERB);
+                        got_stump = save_flag_get(&sl, SAVE_FLAG_GOT_STUMP);
+                        cath_caught = save_flag_get(&sl, SAVE_FLAG_CATHLEEN_CAUGHT);
+                        beat_shin = save_flag_get(&sl, SAVE_FLAG_BEAT_SHINIGAMI);
+                        beat_wsoldier_grove = save_flag_get(&sl, SAVE_FLAG_BEAT_CROSS);
+                        beat_wsoldier_camp1 = save_flag_get(&sl, SAVE_FLAG_BEAT_CONSCRIPT);
+                        beat_wsoldier_camp2 = save_flag_get(&sl, SAVE_FLAG_BEAT_ENFORCER);
+                        beat_wsoldier_cliffs = save_flag_get(&sl, SAVE_FLAG_BEAT_SENTRY);
+                        talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
+                        got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
+                        talked_birch = save_flag_get(&sl, SAVE_FLAG_BIRCH_GIFTED);
+                        talked_sable = save_flag_get(&sl, SAVE_FLAG_SABLE_GIFTED);
+                        cage_open = save_flag_get(&sl, SAVE_FLAG_CAGE_OPEN);
+                        beat_mason = save_flag_get(&sl, SAVE_FLAG_FOUGHT_MASON);
+                        anne_gifted = save_flag_get(&sl, SAVE_FLAG_ANNE_GIFTED);
+                        beat_cathleen = save_flag_get(&sl, SAVE_FLAG_BEAT_CATHLEEN);
+                        has_scroll = save_flag_get(&sl, SAVE_FLAG_HAS_SCROLL);
+                        anne2_told = save_flag_get(&sl, SAVE_FLAG_ANNE2_TOLD);
+                        mason2_done = save_flag_get(&sl, SAVE_FLAG_MASON2_DONE);
+                        talked_reach = save_flag_get(&sl, SAVE_FLAG_TALKED_REACH);
+                        soldier_beaten[0] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN0);
+                        soldier_beaten[1] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN1);
+                        soldier_beaten[2] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN2);
+                        soldiers_init = soldier_beaten[0] || soldier_beaten[1] || soldier_beaten[2];
+                        door_lock = 8;
+                        enc_lock = 8;
+                        state = 1;
+                        chip_sfx_ok();
+                        do_new = 0;
+                    } else {
+                        chip_sfx_miss();
+                        do_new = 0;
+                    }
+                }
+                if(do_new) {
                 /* resetRun(): every run-scoped variable back to its
                    startup value, matching state.lua's own resetRun()
                    (called on the title screen's next confirm/start
@@ -3555,11 +3897,11 @@ void main(void) {
                 pdir = 0;
                 anim_counter = 0;
                 door_lock = 0;
-                got_shelf = 0; looted_crate = 0;
-                bag.salve = 2; bag.bandage = 2; bag.bitterroot = 1; bag.dust = 1; bag.gem = 0;
-                bag.sunbalm = 0; bag.warroot = 0; bag.smokebomb = 1; bag.greatcrystal = 0;
-                marks = 16;
+                got_shelf = 0; looted_crate = 0; talked_father = 0;
+                { Bag start = START_BAG_INIT; bag = start; }
+                marks = START_MARKS;
                 party_n = 0; lead = 0;
+                catch_swap = 0;
                 in_battle = 0;
                 enc_lock = 8; last_tx = -1; last_ty = -1;
                 menu_mode = 0; party_cur = 0; party_detail = 0; bag_cur = 0; heal_item = -1;
@@ -3575,6 +3917,9 @@ void main(void) {
                 beat_wsoldier_camp2 = 0; beat_wsoldier_grove = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
+                cage_open = 0;
+                talked_reach = 0;
+                dex_clear();
                 choice_mode = 0; choice_cur = 0;
                 soldier_beaten[0] = soldier_beaten[1] = soldier_beaten[2] = 0;
                 mason_state = 0; mason_x = mason_y = 0.0f; mason_dir = 0; mason_anim = 0.0f;
@@ -3592,6 +3937,144 @@ void main(void) {
                    see rng_next()'s comment for why this stands in for
                    a real RTC/rand() source. */
                 rng_state ^= frame_count | 1u;
+                chip_sfx_ok();
+                }
+            }
+        }
+        else if(menu_mode == 3) {
+            if(up_now && !prev_up) {
+                pause_cur = (pause_cur + 4) % 5;
+                chip_sfx_ui();
+            }
+            if(down_now && !prev_down) {
+                pause_cur = (pause_cur + 1) % 5;
+                chip_sfx_ui();
+            }
+            if(b_now && !prev_b) {
+                menu_mode = 0;
+                chip_sfx_ui();
+            }
+            else if((a_now && !prev_a) || (start_now && !prev_start && pause_cur == 4)) {
+                if(pause_cur == 0) {
+                    menu_mode = 2;
+                    party_detail = 0;
+                    heal_item = -1;
+                    chip_sfx_ui();
+                } else if(pause_cur == 1) {
+                    menu_mode = 1;
+                    bag_cur = 0;
+                    heal_item = -1;
+                    chip_sfx_ui();
+                } else if(pause_cur == 2) {
+                    menu_mode = 4;
+                    dex_cur = 0;
+                    chip_sfx_ui();
+                } else if(pause_cur == 3) {
+                    SaveLive sl;
+                    int i, pi;
+                    for(i = 0; i < (int)sizeof(sl); i++) ((unsigned char *)&sl)[i] = 0;
+                    sl.map_id = (unsigned char)map_id;
+                    sl.dir = (unsigned char)pdir;
+                    sl.party_n = (unsigned char)party_n;
+                    sl.lead = (unsigned char)lead;
+                    sl.battles = (unsigned char)battles;
+                    sl.mason2_map = (unsigned char)(mason2_map < 0 ? 0xff : mason2_map);
+                    sl.x = (unsigned short)px;
+                    sl.y = (unsigned short)py;
+                    sl.marks = (unsigned short)marks;
+                    sl.bag[0] = (unsigned char)bag.salve; sl.bag[1] = (unsigned char)bag.bandage;
+                    sl.bag[2] = (unsigned char)bag.bitterroot; sl.bag[3] = (unsigned char)bag.dust;
+                    sl.bag[4] = (unsigned char)bag.gem; sl.bag[5] = (unsigned char)bag.sunbalm;
+                    sl.bag[6] = (unsigned char)bag.warroot; sl.bag[7] = (unsigned char)bag.smokebomb;
+                    sl.bag[8] = (unsigned char)bag.greatcrystal; sl.bag[9] = (unsigned char)bag.cageKey;
+                    for(pi = 0; pi < party_n && pi < 6; pi++) {
+                        sl.party[pi].species = (unsigned char)party[pi].species;
+                        sl.party[pi].lv = (unsigned char)party[pi].lv;
+                        sl.party[pi].hp = (unsigned char)party[pi].hp;
+                        sl.party[pi].maxHp = (unsigned char)party[pi].maxHp;
+                        sl.party[pi].str = (unsigned char)party[pi].str;
+                        sl.party[pi].agl = (unsigned char)party[pi].agl;
+                        sl.party[pi].spc = (unsigned char)party[pi].spc;
+                        sl.party[pi].spp = (unsigned char)party[pi].spp;
+                        sl.party[pi].sppMax = (unsigned char)party[pi].sppMax;
+                        sl.party[pi].shiny = (unsigned char)party[pi].shiny;
+                        sl.party[pi].xp = (unsigned short)party[pi].xp;
+                        sl.party[pi].nature = (unsigned char)party[pi].nature;
+                    }
+                    {
+                        int di;
+                        for(di = 0; di < SAVE_DEX_BYTES; di++) {
+                            sl.dex_seen[di] = g_dex_seen[di];
+                            sl.dex_caught[di] = g_dex_caught[di];
+                        }
+                    }
+                    save_flag_put(&sl, SAVE_FLAG_TOOK_STARTER, got_shelf);
+                    save_flag_put(&sl, SAVE_FLAG_TALKED_FATHER, talked_father);
+                    save_flag_put(&sl, SAVE_FLAG_LOOTED_CRATE, looted_crate);
+                    save_flag_put(&sl, SAVE_FLAG_TALKED_WREN, talked_wren);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_CALDER, beat_calder);
+                    save_flag_put(&sl, SAVE_FLAG_READ_CART, read_cart);
+                    save_flag_put(&sl, SAVE_FLAG_TALKED_MAE, talked_mae);
+                    save_flag_put(&sl, SAVE_FLAG_TALKED_IVO, talked_ivo);
+                    save_flag_put(&sl, SAVE_FLAG_TALKED_NELL, talked_nell);
+                    save_flag_put(&sl, SAVE_FLAG_NELL_BONUS, nell_bonus);
+                    save_flag_put(&sl, SAVE_FLAG_GOT_FIELD_GEM, got_gem);
+                    save_flag_put(&sl, SAVE_FLAG_PIKE_HELPED, pike_helped);
+                    save_flag_put(&sl, SAVE_FLAG_TALKED_PIKE, talked_pike);
+                    save_flag_put(&sl, SAVE_FLAG_GOT_HERB, got_herb);
+                    save_flag_put(&sl, SAVE_FLAG_GOT_STUMP, got_stump);
+                    save_flag_put(&sl, SAVE_FLAG_CATHLEEN_CAUGHT, cath_caught);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_SHINIGAMI, beat_shin);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_CROSS, beat_wsoldier_grove);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_CONSCRIPT, beat_wsoldier_camp1);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_ENFORCER, beat_wsoldier_camp2);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_SENTRY, beat_wsoldier_cliffs);
+                    save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
+                    save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
+                    save_flag_put(&sl, SAVE_FLAG_BIRCH_GIFTED, talked_birch);
+                    save_flag_put(&sl, SAVE_FLAG_SABLE_GIFTED, talked_sable);
+                    save_flag_put(&sl, SAVE_FLAG_CAGE_OPEN, cage_open);
+                    save_flag_put(&sl, SAVE_FLAG_FOUGHT_MASON, beat_mason);
+                    save_flag_put(&sl, SAVE_FLAG_ANNE_GIFTED, anne_gifted);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_CATHLEEN, beat_cathleen);
+                    save_flag_put(&sl, SAVE_FLAG_HAS_SCROLL, has_scroll);
+                    save_flag_put(&sl, SAVE_FLAG_ANNE2_TOLD, anne2_told);
+                    save_flag_put(&sl, SAVE_FLAG_MASON2_DONE, mason2_done);
+                    save_flag_put(&sl, SAVE_FLAG_TALKED_REACH, talked_reach);
+                    save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN0, soldier_beaten[0]);
+                    save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN1, soldier_beaten[1]);
+                    save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN2, soldier_beaten[2]);
+                    if(save_store(&sl)) {
+                        int n = s_cat(hud_flash, 0, "SAVED");
+                        hud_flash[n] = 0;
+                        hud_t = HUD_NOTE_FRAMES;
+                        have_save = 1;
+                        chip_sfx_save();
+                    } else {
+                        int n = s_cat(hud_flash, 0, "SAVE FAILED");
+                        hud_flash[n] = 0;
+                        hud_t = HUD_NOTE_FRAMES;
+                        chip_sfx_miss();
+                    }
+                    menu_mode = 0;
+                } else {
+                    menu_mode = 0;
+                    chip_sfx_ui();
+                }
+            }
+        }
+        else if(menu_mode == 4) {
+            if(up_now && !prev_up) {
+                dex_cur = (dex_cur + SPECIES_N - 1) % SPECIES_N;
+                chip_sfx_ui();
+            }
+            if(down_now && !prev_down) {
+                dex_cur = (dex_cur + 1) % SPECIES_N;
+                chip_sfx_ui();
+            }
+            if((b_now && !prev_b) || (start_now && !prev_start)) {
+                menu_mode = 0;
+                chip_sfx_ui();
             }
         }
         else if(menu_mode) {
@@ -3650,9 +4133,19 @@ void main(void) {
                     party_cur = (party_cur - 1 + party_n) % party_n;
                 if(down_now && !prev_down)
                     party_cur = (party_cur + 1) % party_n;
-                if(heal_item < 0 && y_now && !prev_y)
+                if(heal_item < 0 && !catch_swap && y_now && !prev_y)
                     party_detail = !party_detail;
-                if(a_now && !prev_a) {
+                if(catch_swap && a_now && !prev_a) {
+                    int n;
+                    party[party_cur] = pending_catch;
+                    n = s_cat(hud_flash, 0, SPECIES[pending_catch.species].name);
+                    n = s_cat(hud_flash, n, " STAYS");
+                    hud_flash[n] = 0;
+                    hud_t = HUD_NOTE_FRAMES;
+                    catch_swap = 0;
+                    menu_mode = 0;
+                }
+                else if(a_now && !prev_a) {
                     if(heal_item >= 0) {
                         int *count = bag_field(&bag, heal_item);
                         int heal = party[party_cur].maxHp - party[party_cur].hp;
@@ -3687,9 +4180,29 @@ void main(void) {
                         }
                     }
                 }
+                if(!catch_swap && heal_item < 0 && x_now && !prev_x) {
+                    if(party_n <= 1) {
+                        int n = s_cat(hud_flash, 0, "WILL NOT RELEASE THE LAST");
+                        hud_flash[n] = 0;
+                        hud_t = HUD_NOTE_FRAMES;
+                    } else if(party_release(party, &party_n, &lead, party_cur)) {
+                        int n = s_cat(hud_flash, 0, "RELEASED");
+                        hud_flash[n] = 0;
+                        hud_t = HUD_NOTE_FRAMES;
+                        if(party_cur >= party_n) party_cur = party_n - 1;
+                    }
+                }
             }
             if(b_now && !prev_b) {
-                if(menu_mode == 2 && heal_item >= 0) {
+                if(catch_swap) {
+                    int n = s_cat(hud_flash, 0, SPECIES[pending_catch.species].name);
+                    n = s_cat(hud_flash, n, " SLIPS AWAY");
+                    hud_flash[n] = 0;
+                    hud_t = HUD_NOTE_FRAMES;
+                    catch_swap = 0;
+                    menu_mode = 0;
+                }
+                else if(menu_mode == 2 && heal_item >= 0) {
                     heal_item = -1;
                     menu_mode = 1;
                 }
@@ -3699,6 +4212,13 @@ void main(void) {
                     menu_mode = 0;
             }
             else if(start_now && !prev_start) {
+                if(catch_swap) {
+                    int n = s_cat(hud_flash, 0, SPECIES[pending_catch.species].name);
+                    n = s_cat(hud_flash, n, " SLIPS AWAY");
+                    hud_flash[n] = 0;
+                    hud_t = HUD_NOTE_FRAMES;
+                    catch_swap = 0;
+                }
                 menu_mode = 0;
                 heal_item = -1;
                 party_detail = 0;
@@ -3730,7 +4250,7 @@ void main(void) {
                                    win here means she was defeated, not
                                    captured; capture ends the battle
                                    earlier via BAFTER_WORLD). */
-                                battle_finish_win(&battle, party, lead);
+                                battle_finish_win(&battle, party, lead, party_n);
 
                                 if(battle.trainer_kind == TRAINER_CALDER) {
                                     /* No ending cut here at all anymore
@@ -3765,6 +4285,7 @@ void main(void) {
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_CLIFFS) {
                                     beat_wsoldier_cliffs = 1;
+                                    bag.cageKey += 1; /* trainers.sentry.grant */
                                     marks += 12;
                                     battles++;
                                     in_battle = 0;
@@ -3937,6 +4458,14 @@ void main(void) {
                                    branch). */
                                 if(battle.foe.species == SP_CATHLEEN)
                                     cath_caught = 1;
+                                if(battle.catch_full) {
+                                    pending_catch = battle.foe;
+                                    catch_swap = 1;
+                                    menu_mode = 2;
+                                    party_detail = 0;
+                                    heal_item = -1;
+                                    party_cur = 0;
+                                }
                                 in_battle = 0;
                                 enc_lock = 3;
                                 break;
@@ -4172,7 +4701,7 @@ void main(void) {
                waiting for a trip back to town. Gated on
                (beat_cathleen || cath_caught) instead of beat_shin. */
             if(anne_state == 0 && !seq_lines &&
-               ((!anne_gifted && battles >= 1 && map_id == MAP_VELD) ||
+               ((!anne_gifted && battles >= ANNE_GIFT_AFTER && map_id == MAP_VELD) ||
                 (anne_gifted && (beat_cathleen || cath_caught) && !anne2_told))) {
                 anne_state = 1;
                 anne_x = (float)px;
@@ -4263,7 +4792,7 @@ void main(void) {
                     anne_state = 2;
                     if(!anne_gifted) {
                         anne_gifted = 1;
-                        bag.gem += 5;
+                        bag.gem += ANNE_GIFT_QTY;
                         seq_lines = TALK_ANNE_GIFT;
                         seq_len = TALK_LEN(TALK_ANNE_GIFT);
                         seq_beat = 0;
@@ -4387,15 +4916,17 @@ void main(void) {
                     /* hitActor(): a live NPC blocks movement like a
                        solid tile (see actor_blocks() above). */
                     if(dx != 0 && !tile_blocked(map_id, tile_at(map_id, (nx + (dx > 0 ? 6 : -6)) / TILE,
-                                                                 py / TILE), cath_caught || beat_cathleen, beat_calder, beat_shin) &&
+                                                                 py / TILE), cath_caught || beat_cathleen, beat_calder, beat_shin, cage_open) &&
                        !actor_blocks(map_id, nx, py, mason_state, mason_x, mason_y,
-                                     anne_state, anne_x, anne_y, soldiers, soldier_beaten)) {
+                                     anne_state, anne_x, anne_y, soldiers, soldier_beaten,
+                                     cath_caught || beat_cathleen, beat_shin)) {
                         px = nx;
                     }
                     if(dy != 0 && !tile_blocked(map_id, tile_at(map_id, px / TILE,
-                                                                 (ny + (dy > 0 ? 6 : -6)) / TILE), cath_caught || beat_cathleen, beat_calder, beat_shin) &&
+                                                                 (ny + (dy > 0 ? 6 : -6)) / TILE), cath_caught || beat_cathleen, beat_calder, beat_shin, cage_open) &&
                        !actor_blocks(map_id, px, ny, mason_state, mason_x, mason_y,
-                                     anne_state, anne_x, anne_y, soldiers, soldier_beaten)) {
+                                     anne_state, anne_x, anne_y, soldiers, soldier_beaten,
+                                     cath_caught || beat_cathleen, beat_shin)) {
                         py = ny;
                     }
 
@@ -4419,87 +4950,42 @@ void main(void) {
                    Shinigami) is battle-gated content not built yet. */
                 if(door_lock <= 0) {
                     char here = tile_at(map_id, px / TILE, py / TILE);
-
-                    if(map_id == MAP_HOUSE && here == 'D') {
-                        if(!got_shelf) {
-                            find_mark(MAP_HOUSE, 'D', &col, &row);
-                            py = row * TILE + TILE / 2 - TILE;
-                            pdir = 1;
-                            door_lock = 20;
-                            seq_lines = TALK_DOOR_LOCKED;
-                            seq_len = TALK_LEN(TALK_DOOR_LOCKED);
-                            seq_beat = 0;
-                        }
-                        else {
-                            do_warp(&map_id, &px, &py, &pdir, MAP_VELD, 'D', 1, &map_banner_timer);
-                            door_lock = 20;
-                            /* spawnRival()/footsteps: Mason starts
-                               south of the player's new VELD position
-                               and force-walks up to ambush them
-                               (mason_state 1 == "approach") -- their
-                               farewell conversation (TALK_MASON_FIGHT)
-                               happens once he reaches her, not here.
-                               Guarded on !beat_mason so re-using this
-                               door after he's already been fought (and
-                               left) doesn't respawn him. */
-                            if(mason_state == 0
-                               && (!LOGIC_MASON_AMBUSH_UNLESS_BEAT || !beat_mason)
-                               && (!LOGIC_MASON_AMBUSH_NEED_PARTY || party_n >= 1)) {
-                                mason_state = 1;
-                                mason_x = (float)px;
-                                mason_y = (float)py + 100.0f; /* 160 * 0.625 */
-                                mason_dir = 1; /* up */
-                                mason_anim = 0.0f;
+                    int wi;
+                    for(wi = 0; wi < WARP_N; wi++) {
+                        const WarpDef *w = &WARPS[wi];
+                        int need_ok;
+                        if(w->from_map != map_id || w->tile != here) continue;
+                        need_ok = 1;
+                        if(w->need == 1) need_ok = got_shelf;
+                        else if(w->need == 2) need_ok = beat_calder;
+                        else if(w->need == 3) need_ok = beat_shin;
+                        else if(w->need == 4) need_ok = has_scroll;
+                        if(!need_ok) {
+                            if(w->fail_talk >= 0 && w->fail_talk < TALK_TABLE_N) {
+                                find_mark(map_id, w->tile, &col, &row);
+                                if(w->face_down)
+                                    py = row * TILE + TILE / 2 - TILE;
+                                else
+                                    py = row * TILE + TILE / 2 + TILE;
+                                door_lock = 20;
+                                seq_lines = TALK_PTRS[w->fail_talk];
+                                seq_len = TALK_COUNTS[w->fail_talk];
+                                seq_beat = 0;
                             }
+                            break;
                         }
-                    }
-                    else if(map_id == MAP_VELD && here == 'D') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_HOUSE, 'D', 0, &map_banner_timer);
+                        do_warp(&map_id, &px, &py, &pdir, w->to_map, w->spawn, w->face_down, &map_banner_timer);
                         door_lock = 20;
-                    }
-                    else if(map_id == MAP_VELD && here == 'Z') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_FOREST, 'Y', 1, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_FOREST && here == 'Y') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_VELD, 'Z', 0, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_FOREST && here == 'O') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_GROVE, 'O', 1, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_GROVE && here == 'O') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_FOREST, 'O', 0, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_VELD && here == 'F') {
-                        /* Gated on beat_calder by tile_blocked() above
-                           -- this tile is only walkable, and so only
-                           reachable, once he's out of the way. */
-                        do_warp(&map_id, &px, &py, &pdir, MAP_CAMP, 'D', 1, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_CAMP && here == 'D') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_VELD, 'F', 0, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_VELD && here == 'c') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_CLIFFS, 'D', 1, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_CLIFFS && here == 'D') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_VELD, 'c', 0, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_GROVE && here == 'g') {
-                        /* Gated on beat_shin by tile_blocked() above. */
-                        do_warp(&map_id, &px, &py, &pdir, MAP_RUINS, 'D', 1, &map_banner_timer);
-                        door_lock = 20;
-                    }
-                    else if(map_id == MAP_RUINS && here == 'D') {
-                        do_warp(&map_id, &px, &py, &pdir, MAP_GROVE, 'g', 0, &map_banner_timer);
-                        door_lock = 20;
+                        if(w->on_arrive == 1 && mason_state == 0
+                           && (!LOGIC_MASON_AMBUSH_UNLESS_BEAT || !beat_mason)
+                           && (!LOGIC_MASON_AMBUSH_NEED_PARTY || party_n >= 1)) {
+                            mason_state = 1;
+                            mason_x = (float)px;
+                            mason_y = (float)py + 100.0f;
+                            mason_dir = 1;
+                            mason_anim = 0.0f;
+                        }
+                        break;
                     }
                 }
             }
@@ -4583,7 +5069,7 @@ void main(void) {
                                     in_battle = 1;
                                     break;
                                 case POST_WSOLDIER_CLIFFS:
-                                    battle.foe = mint_monster(SP_EMBERLING, 5);
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_SENTRY].lead_sp, TRAINER_KITS[KIT_SENTRY].lead_lv);
                                     battle.wild = 0;
                                     battle.trainer_kind = TRAINER_WSOLDIER_CLIFFS;
                                     battle.phase = 0;
@@ -4594,15 +5080,15 @@ void main(void) {
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
-                                    battle.bench[0] = mint_monster(SP_FROSTAIL, 6);
-                                    battle.bench[1] = mint_monster(SP_STORMWING, 7);
-                                    battle.bench_n = 2;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_SENTRY].bench_sp[0], TRAINER_KITS[KIT_SENTRY].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_SENTRY].bench_sp[1], TRAINER_KITS[KIT_SENTRY].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_SENTRY].bench_n;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
                                 case POST_WSOLDIER_CAMP1:
-                                    battle.foe = mint_monster(SP_SABLECLAW, 7);
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_CONSCRIPT].lead_sp, TRAINER_KITS[KIT_CONSCRIPT].lead_lv);
                                     battle.wild = 0;
                                     battle.trainer_kind = TRAINER_WSOLDIER_CAMP1;
                                     battle.phase = 0;
@@ -4613,15 +5099,15 @@ void main(void) {
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
-                                    battle.bench[0] = mint_monster(SP_BOULDERAM, 8);
-                                    battle.bench[1] = mint_monster(SP_ASHENMAW, 9);
-                                    battle.bench_n = 2;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_CONSCRIPT].bench_sp[0], TRAINER_KITS[KIT_CONSCRIPT].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_CONSCRIPT].bench_sp[1], TRAINER_KITS[KIT_CONSCRIPT].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_CONSCRIPT].bench_n;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
                                 case POST_WSOLDIER_CAMP2:
-                                    battle.foe = mint_monster(SP_THORNHIDE, 8);
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_ENFORCER].lead_sp, TRAINER_KITS[KIT_ENFORCER].lead_lv);
                                     battle.wild = 0;
                                     battle.trainer_kind = TRAINER_WSOLDIER_CAMP2;
                                     battle.phase = 0;
@@ -4632,15 +5118,15 @@ void main(void) {
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
-                                    battle.bench[0] = mint_monster(SP_GLASSWISP, 9);
-                                    battle.bench[1] = mint_monster(SP_DUSKHORN, 10);
-                                    battle.bench_n = 2;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_ENFORCER].bench_sp[0], TRAINER_KITS[KIT_ENFORCER].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_ENFORCER].bench_sp[1], TRAINER_KITS[KIT_ENFORCER].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_ENFORCER].bench_n;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
                                 case POST_WSOLDIER_GROVE:
-                                    battle.foe = mint_monster(SP_CRYMARE, 9);
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_CROSS].lead_sp, TRAINER_KITS[KIT_CROSS].lead_lv);
                                     battle.wild = 0;
                                     battle.trainer_kind = TRAINER_WSOLDIER_GROVE;
                                     battle.phase = 0;
@@ -4651,9 +5137,9 @@ void main(void) {
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
-                                    battle.bench[0] = mint_monster(SP_ASHENMAW, 10);
-                                    battle.bench[1] = mint_monster(SP_BOULDERAM, 11);
-                                    battle.bench_n = 2;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_CROSS].bench_sp[0], TRAINER_KITS[KIT_CROSS].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_CROSS].bench_sp[1], TRAINER_KITS[KIT_CROSS].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_CROSS].bench_n;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
                                     in_battle = 1;
@@ -4767,425 +5253,76 @@ void main(void) {
                         post_action = POST_NONE;
                     }
                 }
-                else if(map_id == MAP_HOUSE) {
-                    /* interact(): state.lua's MAP_HOUSE branch,
-                       verbatim -- U always shows TALK.bed; B shows
-                       TALK.father the first time and TALK.fatherAfter
-                       once the shelf is looted; S grants Quillpup
-                       (tracked as got_shelf, no party system exists
-                       yet to hold it) the first time and shows
-                       TALK.shelfEmpty after; C grants a bandage the
-                       first time and shows TALK.crateEmpty after. */
-                    char mark = closest_mark(px, py);
-
-                    switch(mark) {
-                        case 'U':
-                            seq_lines = TALK_BED;
-                            seq_len = TALK_LEN(TALK_BED);
-                            post_action = POST_BED_HEAL;
-                            break;
-                        case 'B':
-                            if(got_shelf) {
-                                seq_lines = TALK_FATHER_AFTER;
-                                seq_len = TALK_LEN(TALK_FATHER_AFTER);
-                            }
-                            else {
-                                seq_lines = TALK_FATHER;
-                                seq_len = TALK_LEN(TALK_FATHER);
-                            }
-                            break;
-                        case 'S':
-                            if(!got_shelf) {
-                                got_shelf = 1;
-                                party[0] = mint_monster(SP_QUILLPUP, 3);
-                                party_n = 1;
-                                lead = 0;
-                                seq_lines = TALK_SHELF;
-                                seq_len = TALK_LEN(TALK_SHELF);
-                            }
-                            else {
-                                seq_lines = TALK_SHELF_EMPTY;
-                                seq_len = TALK_LEN(TALK_SHELF_EMPTY);
-                            }
-                            break;
-                        case 'C':
-                            if(!looted_crate) {
-                                looted_crate = 1;
-                                bag.bandage++;
-                                seq_lines = TALK_CRATE;
-                                seq_len = TALK_LEN(TALK_CRATE);
-                            }
-                            else {
-                                seq_lines = TALK_CRATE_EMPTY;
-                                seq_len = TALK_LEN(TALK_CRATE_EMPTY);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                    seq_beat = 0;
-                }
-                else if(map_id == MAP_VELD) {
-                    /* interact()'s MAP_VELD branch, in the reference's
-                       exact check order (Wren, Mae, Ivo, Nell, Pike,
-                       Bram, herb, gem, stump, cart, Calder). Anne/
-                       Mason proximity checks (annePh==2/masonPh>=2 in
-                       the source) aren't here: Anne doesn't exist in
-                       this port (see the section comment above) and
-                       Mason's own mark is handled below, once spawned. */
-                    if(near_mark(map_id, 'K', px, py, 676)) {
-                        if(!talked_wren) {
-                            talked_wren = 1;
-                            bag.salve++;
-                            seq_lines = TALK_WREN_FIRST;
-                            seq_len = TALK_LEN(TALK_WREN_FIRST);
-                        }
-                        else if(beat_calder) {
-                            seq_lines = TALK_WREN_BEAT;
-                            seq_len = TALK_LEN(TALK_WREN_BEAT);
-                        }
-                        else if(read_cart) {
-                            seq_lines = TALK_WREN_CART;
-                            seq_len = TALK_LEN(TALK_WREN_CART);
-                        }
-                        else {
-                            /* fullHeal(): heals every party member --
-                               meaningful now that captures can bring
-                               in more than the lead. */
-                            int i;
-                            for(i = 0; i < party_n; i++) party[i].hp = party[i].maxHp;
-                            seq_lines = TALK_WREN_HEAL;
-                            seq_len = TALK_LEN(TALK_WREN_HEAL);
+                else {
+                    /* Scripted NPCs from content/world.json (first-match).
+                       Forest soldiers still move, so beaten-soldier talk
+                       stays as a special case after the table miss. */
+                    int npc_after = 0, npc_pending = -1;
+                    NpcRun nr;
+                    nr.map_id = map_id;
+                    nr.px = px;
+                    nr.py = py;
+                    nr.party_n = party_n;
+                    nr.ft = ft;
+                    nr.bag = &bag;
+                    nr.marks = &marks;
+                    nr.party = party;
+                    nr.pn = &party_n;
+                    nr.lead = &lead;
+                    nr.seq_lines = &seq_lines;
+                    nr.seq_len = &seq_len;
+                    nr.after = &npc_after;
+                    nr.pending = &npc_pending;
+                    if(try_npc_script(&nr)) {
+                        seq_beat = 0;
+                        switch(npc_after) {
+                            case NPC_AFTER_BED_HEAL:
+                                post_action = POST_BED_HEAL;
+                                break;
+                            case NPC_AFTER_SHOP:
+                            case NPC_AFTER_OREN_SHOP:
+                                post_action = POST_SHOP;
+                                break;
+                            case NPC_AFTER_CALDER:
+                                post_action = POST_CALDER;
+                                break;
+                            case NPC_AFTER_CATHLEEN:
+                                post_action = POST_CATHLEEN;
+                                break;
+                            case NPC_AFTER_SHINIGAMI:
+                                post_action = POST_SHINIGAMI;
+                                break;
+                            case NPC_AFTER_WSOLDIER:
+                                if(npc_pending == NPC_PENDING_CROSS)
+                                    post_action = POST_WSOLDIER_GROVE;
+                                else if(npc_pending == NPC_PENDING_CONSCRIPT)
+                                    post_action = POST_WSOLDIER_CAMP1;
+                                else if(npc_pending == NPC_PENDING_ENFORCER)
+                                    post_action = POST_WSOLDIER_CAMP2;
+                                else if(npc_pending == NPC_PENDING_SENTRY)
+                                    post_action = POST_WSOLDIER_CLIFFS;
+                                break;
+                            default:
+                                post_action = POST_NONE;
+                                break;
                         }
                     }
-                    else if(near_mark(map_id, 'I', px, py, 676)) {
-                        if(!talked_mae) {
-                            talked_mae = 1;
-                            bag.bandage++;
-                            seq_lines = TALK_MAE_FIRST;
-                            seq_len = TALK_LEN(TALK_MAE_FIRST);
-                        }
-                        else {
-                            seq_lines = TALK_MAE_AGAIN;
-                            seq_len = TALK_LEN(TALK_MAE_AGAIN);
-                        }
-                    }
-                    else if(near_mark(map_id, 'V', px, py, 676)) {
-                        if(!talked_ivo) {
-                            talked_ivo = 1;
-                            bag.bitterroot++;
-                            seq_lines = TALK_IVO_FIRST;
-                            seq_len = TALK_LEN(TALK_IVO_FIRST);
-                        }
-                        else {
-                            seq_lines = TALK_IVO_AGAIN;
-                            seq_len = TALK_LEN(TALK_IVO_AGAIN);
-                        }
-                    }
-                    else if(near_mark(map_id, 'A', px, py, 676)) {
-                        if(!talked_nell) {
-                            talked_nell = 1;
-                            bag.salve++;
-                            seq_lines = TALK_NELL_FIRST;
-                            seq_len = TALK_LEN(TALK_NELL_FIRST);
-                        }
-                        else if(party_n > 1 && !nell_bonus) {
-                            nell_bonus = 1;
-                            bag.salve++;
-                            seq_lines = TALK_NELL_BONUS;
-                            seq_len = TALK_LEN(TALK_NELL_BONUS);
-                        }
-                        else {
-                            seq_lines = TALK_NELL_AGAIN;
-                            seq_len = TALK_LEN(TALK_NELL_AGAIN);
-                        }
-                    }
-                    else if(near_mark(map_id, 'Q', px, py, 676)) {
-                        if(got_gem && !pike_helped) {
-                            pike_helped = 1;
-                            bag.bandage++;
-                            seq_lines = TALK_PIKE_HELP;
-                            seq_len = TALK_LEN(TALK_PIKE_HELP);
-                        }
-                        else if(!talked_pike) {
-                            talked_pike = 1;
-                            seq_lines = TALK_PIKE_FIRST;
-                            seq_len = TALK_LEN(TALK_PIKE_FIRST);
-                        }
-                        else if(pike_helped) {
-                            seq_lines = TALK_PIKE_DONE;
-                            seq_len = TALK_LEN(TALK_PIKE_DONE);
-                        }
-                        else {
-                            seq_lines = TALK_PIKE_HINT;
-                            seq_len = TALK_LEN(TALK_PIKE_HINT);
-                        }
-                    }
-                    else if(near_mark(map_id, 'J', px, py, 676)) {
-                        seq_lines = TALK_BRAM_OPEN;
-                        seq_len = TALK_LEN(TALK_BRAM_OPEN);
-                        post_action = POST_SHOP;
-                    }
-                    else if(near_mark(map_id, 'M', px, py, 676)) {
-                        if(!got_herb) {
-                            got_herb = 1;
-                            bag.bitterroot++;
-                            seq_lines = TALK_HERB;
-                            seq_len = TALK_LEN(TALK_HERB);
-                        }
-                        else {
-                            seq_lines = TALK_HERB_GONE;
-                            seq_len = TALK_LEN(TALK_HERB_GONE);
-                        }
-                    }
-                    else if(near_mark(map_id, 'G', px, py, 676)) {
-                        if(!got_gem) {
-                            got_gem = 1;
-                            bag.gem++;
-                            if(talked_pike) {
-                                seq_lines = TALK_GEM_PIKE;
-                                seq_len = TALK_LEN(TALK_GEM_PIKE);
-                            }
-                            else {
-                                seq_lines = TALK_GEM_WILD;
-                                seq_len = TALK_LEN(TALK_GEM_WILD);
+                    else if(map_id == MAP_FOREST) {
+                        int si;
+                        for(si = 0; si < 3; si++) {
+                            int ddx = px - (int)soldiers[si].x, ddy = py - (int)soldiers[si].y;
+                            if(soldier_beaten[si] && ddx * ddx + ddy * ddy <= 676) {
+                                seq_lines = TALK_SOLDIER_DONE;
+                                seq_len = TALK_LEN(TALK_SOLDIER_DONE);
+                                seq_beat = 0;
+                                break;
                             }
                         }
-                        else {
-                            seq_lines = TALK_GEM_GONE;
-                            seq_len = TALK_LEN(TALK_GEM_GONE);
-                        }
-                    }
-                    else if(near_mark(map_id, 'L', px, py, 676)) {
-                        if(!got_stump) {
-                            got_stump = 1;
-                            bag.bandage++;
-                            seq_lines = TALK_STUMP;
-                            seq_len = TALK_LEN(TALK_STUMP);
-                        }
-                        else {
-                            seq_lines = TALK_STUMP_GONE;
-                            seq_len = TALK_LEN(TALK_STUMP_GONE);
-                        }
-                    }
-                    else if(near_mark(map_id, 'X', px, py, 676)) {
-                        read_cart = 1;
-                        seq_lines = TALK_CART;
-                        seq_len = TALK_LEN(TALK_CART);
-                    }
-                    else if(near_mark(map_id, 'E', px, py, 676) || near_mark(map_id, 'N', px, py, 676)) {
-                        if(beat_calder) {
-                            seq_lines = TALK_CALDER_AFTER;
-                            seq_len = TALK_LEN(TALK_CALDER_AFTER);
-                        }
-                        else {
-                            seq_lines = TALK_CALDER_FIGHT;
-                            seq_len = TALK_LEN(TALK_CALDER_FIGHT);
-                            post_action = POST_CALDER;
-                        }
-                    }
-                    /* Mason has no standing/repeat-visit interact of
-                       his own either (mason_state == 2 is just the
-                       moment he's ambushing/fighting, not a wait-for-
-                       a-second-visit step): he leaves automatically
-                       the instant the win dialogue closes (see
-                       POST_MASON_LEAVE at the TRAINER_MASON win
-                       handler), same as Anne below. */
-                    /* Anne has no standing/repeat-visit interact of her
-                       own: she force-walks up, gifts, and leaves in
-                       one uninterrupted sequence (see the actor-
-                       movement update above), matching engine.ts --
-                       there's no anne.phase "done, stand and wait"
-                       state to interact with, unlike Mason's. */
-                    seq_beat = 0;
-                }
-                else if(map_id == MAP_FOREST) {
-                    /* Soldiers now patrol/chase for real (see the
-                       actor-movement update above) -- the un-beaten
-                       ambush trigger lives there (soldierLos catching
-                       the player), same as Mason's. This interact
-                       block only covers walking up to one already
-                       beaten, for the repeat-visit flavor line;
-                       engine.ts has no such line, this is a harmless
-                       extra. */
-                    int i;
-                    for(i = 0; i < 3; i++) {
-                        int ddx = px - (int)soldiers[i].x, ddy = py - (int)soldiers[i].y;
-                        if(soldier_beaten[i] && ddx * ddx + ddy * ddy <= 676) {
-                            seq_lines = TALK_SOLDIER_DONE;
-                            seq_len = TALK_LEN(TALK_SOLDIER_DONE);
-                            seq_beat = 0;
-                            break;
-                        }
-                    }
-                }
-                else if(map_id == MAP_GROVE) {
-                    /* Cathleen (mark '8') and Shinigami (mark '9').
-                       676 (26px, roughly one tile) matches every other
-                       mark's radius -- interacting should require
-                       actually touching the NPC, from any angle
-                       (near_mark is a plain radius check, no facing
-                       requirement), not being loosely nearby. Both are
-                       solid now too (tile_is_solid's extended set), so
-                       676 is also about as close as collision alone
-                       would ever let the player get. */
-                    if(near_mark(map_id, '9', px, py, 676)) {
-                        if(beat_shin) {
-                            seq_lines = TALK_SHINIGAMI_DONE;
-                            seq_len = TALK_LEN(TALK_SHINIGAMI_DONE);
-                        }
-                        else {
-                            seq_lines = TALK_SHINIGAMI_SPOT;
-                            seq_len = TALK_LEN(TALK_SHINIGAMI_SPOT);
-                            post_action = POST_SHINIGAMI;
-                        }
-                        seq_beat = 0;
-                    }
-                    else if(!cath_caught && near_mark(map_id, '8', px, py, 676)) {
-                        seq_lines = TALK_CATHLEEN_SPOT;
-                        seq_len = TALK_LEN(TALK_CATHLEEN_SPOT);
-                        post_action = POST_CATHLEEN;
-                        seq_beat = 0;
-                    }
-                    else if(cath_caught && near_mark(map_id, '8', px, py, 676)) {
-                        seq_lines = TALK_CATHLEEN_GONE;
-                        seq_len = TALK_LEN(TALK_CATHLEEN_GONE);
-                        seq_beat = 0;
-                    }
-                    else if(near_mark(map_id, 'K', px, py, 676)) {
-                        /* Warden Cross, a Weeping Army soldier. */
-                        if(beat_wsoldier_grove) {
-                            seq_lines = TALK_WSOLDIER_GROVE_WIN;
-                            seq_len = TALK_LEN(TALK_WSOLDIER_GROVE_WIN);
-                        }
-                        else {
-                            seq_lines = TALK_WSOLDIER_GROVE_SPOT;
-                            seq_len = TALK_LEN(TALK_WSOLDIER_GROVE_SPOT);
-                            post_action = POST_WSOLDIER_GROVE;
-                        }
-                        seq_beat = 0;
-                    }
-                }
-                else if(map_id == MAP_CAMP) {
-                    /* The Weeping Army officer (mark 'I'): a taunt,
-                       not an ending -- the story's real ending is the
-                       Grove/Shinigami/Anne chain, so this no longer
-                       cuts to a title-screen "win" the moment Calder
-                       falls (see MAP_CAMP's section comment). */
-                    if(near_mark(map_id, 'I', px, py, 676)) {
-                        seq_lines = TALK_CAMP_COMMANDER;
-                        seq_len = TALK_LEN(TALK_CAMP_COMMANDER);
-                        post_action = POST_NONE;
-                        seq_beat = 0;
-                    }
-                    else if(near_mark(map_id, 'K', px, py, 676)) {
-                        if(beat_wsoldier_camp1) {
-                            seq_lines = TALK_WSOLDIER_CAMP1_WIN;
-                            seq_len = TALK_LEN(TALK_WSOLDIER_CAMP1_WIN);
-                        }
-                        else {
-                            seq_lines = TALK_WSOLDIER_CAMP1_SPOT;
-                            seq_len = TALK_LEN(TALK_WSOLDIER_CAMP1_SPOT);
-                            post_action = POST_WSOLDIER_CAMP1;
-                        }
-                        seq_beat = 0;
-                    }
-                    else if(near_mark(map_id, 'A', px, py, 676)) {
-                        if(beat_wsoldier_camp2) {
-                            seq_lines = TALK_WSOLDIER_CAMP2_WIN;
-                            seq_len = TALK_LEN(TALK_WSOLDIER_CAMP2_WIN);
-                        }
-                        else {
-                            seq_lines = TALK_WSOLDIER_CAMP2_SPOT;
-                            seq_len = TALK_LEN(TALK_WSOLDIER_CAMP2_SPOT);
-                            post_action = POST_WSOLDIER_CAMP2;
-                        }
-                        seq_beat = 0;
-                    }
-                }
-                else if(map_id == MAP_CLIFFS) {
-                    if(near_mark(map_id, 'V', px, py, 676)) {
-                        if(beat_wsoldier_cliffs) {
-                            seq_lines = TALK_WSOLDIER_CLIFFS_WIN;
-                            seq_len = TALK_LEN(TALK_WSOLDIER_CLIFFS_WIN);
-                        }
-                        else {
-                            seq_lines = TALK_WSOLDIER_CLIFFS_SPOT;
-                            seq_len = TALK_LEN(TALK_WSOLDIER_CLIFFS_SPOT);
-                            post_action = POST_WSOLDIER_CLIFFS;
-                        }
-                        seq_beat = 0;
-                    }
-                    else if(near_mark(map_id, 'Y', px, py, 676)) {
-                        if(talked_tessa) {
-                            seq_lines = TALK_TESSA_AGAIN;
-                            seq_len = TALK_LEN(TALK_TESSA_AGAIN);
-                        }
-                        else {
-                            talked_tessa = 1;
-                            bag.greatcrystal++;
-                            seq_lines = TALK_TESSA_FIRST;
-                            seq_len = TALK_LEN(TALK_TESSA_FIRST);
-                        }
-                        post_action = POST_NONE;
-                        seq_beat = 0;
-                    }
-                    else if(near_mark(map_id, 'C', px, py, 676)) {
-                        if(got_chest) {
-                            seq_lines = TALK_CHEST_EMPTY;
-                            seq_len = TALK_LEN(TALK_CHEST_EMPTY);
-                        }
-                        else {
-                            got_chest = 1;
-                            marks += 25;
-                            bag.sunbalm++;
-                            bag.greatcrystal++;
-                            seq_lines = TALK_CHEST;
-                            seq_len = TALK_LEN(TALK_CHEST);
-                        }
-                        post_action = POST_NONE;
-                        seq_beat = 0;
-                    }
-                }
-                else if(map_id == MAP_RUINS) {
-                    if(near_mark(map_id, 'J', px, py, 676)) {
-                        seq_lines = TALK_OREN_OPEN;
-                        seq_len = TALK_LEN(TALK_OREN_OPEN);
-                        post_action = POST_SHOP;
-                        seq_beat = 0;
-                    }
-                    else if(near_mark(map_id, 'K', px, py, 676)) {
-                        if(talked_birch) {
-                            seq_lines = TALK_BIRCH_AGAIN;
-                            seq_len = TALK_LEN(TALK_BIRCH_AGAIN);
-                        }
-                        else {
-                            talked_birch = 1;
-                            bag.sunbalm++;
-                            seq_lines = TALK_BIRCH_FIRST;
-                            seq_len = TALK_LEN(TALK_BIRCH_FIRST);
-                        }
-                        post_action = POST_NONE;
-                        seq_beat = 0;
-                    }
-                    else if(near_mark(map_id, 'A', px, py, 676)) {
-                        if(talked_sable) {
-                            seq_lines = TALK_SABLE_AGAIN;
-                            seq_len = TALK_LEN(TALK_SABLE_AGAIN);
-                        }
-                        else {
-                            talked_sable = 1;
-                            bag.warroot++;
-                            seq_lines = TALK_SABLE_FIRST;
-                            seq_len = TALK_LEN(TALK_SABLE_FIRST);
-                        }
-                        post_action = POST_NONE;
-                        seq_beat = 0;
                     }
                 }
             }
 
-            /* Menu open, only from plain world state (state.lua only
+                        /* Menu open, only from plain world state (state.lua only
                reaches selectPressed()/startPressed() outside TALK/
                BATTLE/etc, which here just means no dialogue active). */
             if(!seq_lines && fade_state == FADE_NONE) {
@@ -5195,9 +5332,9 @@ void main(void) {
                     heal_item = -1;
                 }
                 else if(start_now && !prev_start) {
-                    menu_mode = 2;
-                    party_detail = 0;
-                    heal_item = -1;
+                    menu_mode = 3;
+                    pause_cur = 0;
+                    chip_sfx_ui();
                 }
             }
         }
@@ -5207,7 +5344,7 @@ void main(void) {
            why this has to be unconditional now, unlike the earlier
            dirty-check versions. */
         if(state == 0) {
-            draw_press_start();
+            draw_press_start(title_cur, have_save);
         }
         else if(ending_mode) {
             draw_ending(DEMO_END, TALK_LEN(DEMO_END), ending_i);
@@ -5234,12 +5371,15 @@ void main(void) {
                 draw_dialogue_box(&seq_lines[seq_beat]);
             else if(hud_t > 0)
                 draw_hud_toast(hud_flash);
-            if(map_banner_timer > 0)
-                draw_map_banner(map_id, map_banner_timer);
+            draw_map_title(map_id);
             if(menu_mode == 1)
                 draw_bag_menu(&bag, marks, bag_cur);
             else if(menu_mode == 2)
-                draw_party_menu(party, party_n, lead, party_cur, party_detail, heal_item);
+                draw_party_menu(party, party_n, lead, party_cur, party_detail, heal_item, catch_swap);
+            else if(menu_mode == 3)
+                draw_pause_menu(pause_cur);
+            else if(menu_mode == 4)
+                draw_crydex(dex_cur);
             if(in_battle)
                 draw_battle(&battle, &bag, frame_count,
                             battle_foe_enter_t, battle_foe_faint_t,
@@ -5262,6 +5402,7 @@ void main(void) {
         prev_start = start_now;
         prev_b = b_now;
         prev_y = y_now;
+        prev_x = x_now;
         prev_a = a_now;
         prev_up = up_now;
         prev_down = down_now;

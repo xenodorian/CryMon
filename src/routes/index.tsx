@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { GemwarApp } from "@/components/gemwar-app";
+import { CryMonApp } from "@/components/crymon-app";
 
 export const Route = createFileRoute("/")({ component: Home });
 
 function Home() {
-  return <GemwarApp />;
+  return <CryMonApp />;
 }
