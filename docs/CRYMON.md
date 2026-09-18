@@ -31,7 +31,7 @@ tree.
 | `src/game/`, `src/components/` | **Grok** | web loop, canvas, keyboard/touch, Web Audio, localStorage |
 | `ports/dreamcast/src/main.c`, `chip.c`, `save.c` | **Claude** | PVR, Maple, AICA, VMU, DC battle loop |
 | `tools/bake_content.py` | **both** | JSON → `.inc` only. Tables are derived from the pack |
-| `ports/dreamcast/tools/gen_sprites.py` | **Claude** | PNG → `sprites.h` only |
+| `ports/dreamcast/tools/gen_sprites.py` | **Claude** | may **edit** the script. Anyone **runs** it after art changes (Python, no SH toolchain) |
 | `ports/dreamcast/src/content_*.inc`, `sprites.h` | **neither** | generated. never hand-edit |
 
 Grok keeps the web preview playable. Claude keeps a CDI buildable. Neither
@@ -126,8 +126,9 @@ Not a separate file. Bitfields at save bytes **134** (seen, 4 bytes) and **138**
 
 ### After any pack edit
 
-Always bake. Baking is Python; it does **not** need `sh-elf-gcc`. Skipping the
-bake because you cannot link a CDI is how JSON and C drift.
+Always bake. Baking is Python (`bake_content.py` **and** `gen_sprites.py`);
+it does **not** need `sh-elf-gcc`. Skipping either because you cannot link a
+CDI is how JSON/C and PNG/`sprites.h` drift.
 
 ```
 python3 tools/bake_content.py --content content --out ports/dreamcast/src
@@ -147,7 +148,8 @@ do not invent a second sprite folder.
 
 Grok’s sandbox and ChatGPT’s VM typically do not. That is fine.
 
-1. Still do the bake + `check_sync` above.
+1. Still do the bake + `check_sync` above. If art changed, that includes
+   `gen_sprites.py` (Python → `sprites.h`). It is not a disc step.
 2. Interpret the pack in the engine you own (web: `src/game/`).
 3. Do **not** run `make` / `make cdi`. Do **not** claim a CDI. Do **not** skip
    the bake.
@@ -236,23 +238,28 @@ does not need a bake **to play**. You still bake after a pack edit so the DC
 Only Claude is expected to have `sh-elf-gcc` and `mkdcdisc`. Commands below are
 from the **CryMon repo root**. There is no second invocation on BeelzFight.
 
-Bake (anyone, Python):
+Bake (anyone, Python — no `sh-elf-gcc`):
 
 ```
 python3 tools/bake_content.py --content content --out ports/dreamcast/src
+python3 ports/dreamcast/tools/gen_sprites.py   # only if art changed
 python3 tools/check_sync.py --strict
 ```
 
-Disc (Claude only, after `--strict` is green):
+`gen_sprites.py` lives under `ports/dreamcast/tools/` because it emits
+`sprites.h`, not because it is Claude-only. Run it in this bake block, not
+with `make`.
+
+Disc (Claude only, after `--strict` is green — this is the SH toolchain):
 
 ```
-python3 ports/dreamcast/tools/gen_sprites.py
 make -C ports/dreamcast
 make -C ports/dreamcast cdi
 ```
 
 No toolchain → follow “If you do not have the Dreamcast toolchain” above. Never
-silently skip the bake.
+silently skip the bake or `gen_sprites.py`. `make` / `make cdi` are the only
+steps that wait for Claude.
 
 `content_*.inc` and `sprites.h` are generated. `MAP_*` / `SP_*` / `NATURES` /
 `BENCH_XP_PCT` come from the bake — do not redefine them in `main.c`.
