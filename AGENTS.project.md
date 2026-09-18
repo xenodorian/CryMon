@@ -2,14 +2,17 @@
 
 This file is the game-specific contract. Platform rules in `AGENTS.md` still apply.
 
-**Canonical tree is this repo (xenodorian/CryMon), web first.**
-Claude's Dreamcast work in `xenodorian/BeelzFight` is a port of this tree, not a second game.
+**This repo (xenodorian/CryMon) is the only tree, web first.** Both the web game
+and the Dreamcast port (`ports/dreamcast/`) live here. The older Dreamcast copy
+in `xenodorian/BeelzFight` is frozen and being retired, not a second home.
+
+> **More than one agent works on this project at once.** Read
+> [`docs/AGENT_COLLABORATION.md`](docs/AGENT_COLLABORATION.md) first — it is the
+> collaboration contract for every agent (Grok, Emergent, Claude). One repo, one
+> copy of everything shared, one direction of flow. Run
+> `python3 tools/check_shared.py` before you finish.
 
 Read [`docs/CRYMON.md`](docs/CRYMON.md) before changing story, maps, stats, or art.
-Read [`docs/CONTENT_PLAN.md`](docs/CONTENT_PLAN.md) before adding a **feature, file, or folder**,
-or when another agent is working at the same time — it holds the ownership
-lanes, the never-create-this-folder list, and the order that gets a feature
-into *both* ports.
 Read [`CLAUDE.md`](CLAUDE.md) if you are Claude; same rules, DC-focused build steps.
 
 ## Do
@@ -22,7 +25,7 @@ Read [`CLAUDE.md`](CLAUDE.md) if you are Claude; same rules, DC-focused build st
 
 - A feature is not done until **both** engines read the same shared value.
   Content → `logic.json` rules → baker → web → DC, in that order
-  (`docs/CONTENT_PLAN.md` §5).
+  (`docs/AGENT_COLLABORATION.md` §5).
 
 ## Do not
 
@@ -30,7 +33,10 @@ Read [`CLAUDE.md`](CLAUDE.md) if you are Claude; same rules, DC-focused build st
 - Do not invent a second logic file "just for DC". Bake `content/logic.json`.
 - **Do not create a second copy of anything shared** — no second `content/`,
   no second sprite pack, no second `bake_content.py` / `gen_sprites.py`, no
-  per-port data file. Full list and the reasons: `docs/CONTENT_PLAN.md` §3.
+  per-port data file, and no second repo. Full list and the decision procedure:
+  `docs/AGENT_COLLABORATION.md`.
+- Do not start or continue CryMon work in another repository. This tree is the
+  only one. `BeelzFight/crymon-dreamcast/` is frozen and being retired.
 - Do not hand-merge or hand-edit generated files (`content_*.inc`,
   `sprites.h`, `*.elf`, `*.cdi`). Re-run the tool instead.
 - Do not revive the SNES port. It was abandoned; do not add `.sfc` / 65816 sources.

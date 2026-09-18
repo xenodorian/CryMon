@@ -19,11 +19,12 @@ Repos:
   It has **already drifted** (its `content/` is missing `logic.json`; its
   `main.c`, `Makefile` and `gen_sprites.py` all differ from this tree's).
   Treat it as legacy, not as a place to start new work. See
-  [`CONTENT_PLAN.md`](CONTENT_PLAN.md) §8.
+  [`AGENT_COLLABORATION.md`](AGENT_COLLABORATION.md) §9.
 
 Working alongside another agent, or adding a file or folder? Read
-[`CONTENT_PLAN.md`](CONTENT_PLAN.md) first — ownership lanes, the
-never-create list, and the feature order that reaches both ports.
+[`AGENT_COLLABORATION.md`](AGENT_COLLABORATION.md) first — it is the
+contract every agent follows: one repo, one copy of everything shared,
+ownership lanes, and the feature order that reaches both ports.
 
 ## What is shared vs what is not
 
@@ -82,7 +83,7 @@ That is a display transform, not a second script.
 2. Confirm web preview.
 3. Bake DC includes (and sprites.h if art changed).
 4. Rebuild DC only if you need a new CDI this turn.
-5. If you are on BeelzFight, copy the JSON back to CryMon the same turn.
+5. Run `python3 tools/check_shared.py` before you finish.
 
 ## Abandoned
 
