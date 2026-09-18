@@ -1,8 +1,11 @@
 # Dreamcast port
 
-Runtime only. Story, maps, stats, and art come from the repo root:
+Runtime only. Contract: [`../../docs/CRYMON.md`](../../docs/CRYMON.md).
 
-- `../../content/*.json` → `python3 ../../tools/bake_content.py`
-- `../../public/sprites` → `python3 tools/gen_sprites.py`
-
-See [`../../docs/CRYMON.md`](../../docs/CRYMON.md) and [`../../CLAUDE.md`](../../CLAUDE.md).
+```
+python3 ../../tools/bake_content.py --content ../../content --out src
+python3 tools/gen_sprites.py
+python3 ../../tools/check_sync.py --strict
+make
+make cdi
+```
