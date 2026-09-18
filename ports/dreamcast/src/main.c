@@ -1556,9 +1556,9 @@ static int grant_xp(Monster *m, int foe_lv, int pct) {
         m->maxHp += LEVEL_HP;
         m->hp += LEVEL_HP;
         if(m->hp > m->maxHp) m->hp = m->maxHp;
-        m->str++;
-        m->agl++;
-        m->spc++;
+        m->str += LEVEL_STAT;
+        m->agl += LEVEL_STAT;
+        m->spc += LEVEL_STAT;
         grew = 1;
     }
     return grew;
