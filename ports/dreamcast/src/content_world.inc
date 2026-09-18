@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4a2cc637cba7400e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=cdecab0082db2463 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -123,7 +123,17 @@ static const ItemFx ITEM_FX[] = {
 #define FLAG_CAGE_OPEN 26
 #define FLAG_HAS_CAGE_KEY 27
 #define FLAG_TALKED_REACH 28
-#define FLAG_N 29
+#define FLAG_FOUGHT_MASON 29
+#define FLAG_CAUGHT_ONCE 30
+#define FLAG_ANNE_GIFTED 31
+#define FLAG_BEAT_CATHLEEN 32
+#define FLAG_HAS_SCROLL 33
+#define FLAG_ANNE2_TOLD 34
+#define FLAG_MASON2_DONE 35
+#define FLAG_SOLDIER_BEATEN0 36
+#define FLAG_SOLDIER_BEATEN1 37
+#define FLAG_SOLDIER_BEATEN2 38
+#define FLAG_N 39
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2

@@ -1119,7 +1119,7 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         if(mason_state) {
             ws_push_walker(list, n, MASON_FRAMES, mason_x, mason_y, mason_dir, mason_frame);
-            if(*n > 0) list[*n - 1].scale = 2;
+            if(*n > 0) list[*n - 1].scale = SPR_SCALE_MASON;
         }
     }
     else if(map_id == MAP_FOREST) {
@@ -4285,7 +4285,7 @@ void main(void) {
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_CLIFFS) {
                                     beat_wsoldier_cliffs = 1;
-                                    bag.cageKey += 1;
+                                    bag.cageKey += 1; /* trainers.sentry.grant */
                                     marks += 12;
                                     battles++;
                                     in_battle = 0;
@@ -4701,7 +4701,7 @@ void main(void) {
                waiting for a trip back to town. Gated on
                (beat_cathleen || cath_caught) instead of beat_shin. */
             if(anne_state == 0 && !seq_lines &&
-               ((!anne_gifted && battles >= 1 && map_id == MAP_VELD) ||
+               ((!anne_gifted && battles >= ANNE_GIFT_AFTER && map_id == MAP_VELD) ||
                 (anne_gifted && (beat_cathleen || cath_caught) && !anne2_told))) {
                 anne_state = 1;
                 anne_x = (float)px;
@@ -4792,7 +4792,7 @@ void main(void) {
                     anne_state = 2;
                     if(!anne_gifted) {
                         anne_gifted = 1;
-                        bag.gem += 5;
+                        bag.gem += ANNE_GIFT_QTY;
                         seq_lines = TALK_ANNE_GIFT;
                         seq_len = TALK_LEN(TALK_ANNE_GIFT);
                         seq_beat = 0;

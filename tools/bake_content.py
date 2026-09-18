@@ -180,8 +180,40 @@ def dc_text(s: str) -> str:
     return t
 
 
+def talk_table(data: dict) -> list[tuple[str, str]]:
+    """Existing TALK_C order first (DC indices), then any new dialogue.talk keys."""
+    talk = data["dialogue"]["talk"]
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for key, sym in TALK_C.items():
+        if key in talk and key not in seen:
+            out.append((key, sym))
+            seen.add(key)
+    for key in talk:
+        if key not in seen:
+            snake = re.sub(r"([A-Z])", r"_\1", key).upper().lstrip("_")
+            out.append((key, "TALK_" + snake))
+            seen.add(key)
+    return out
+
+
+def merged_flags(data: dict) -> list[str]:
+    """NPC FLAG_* index: baked FLAG_IDS order, then save.json flags, then runtimeFlags."""
+    out: list[str] = []
+    for name in FLAG_IDS:
+        if name not in out:
+            out.append(name)
+    for name in data["save"].get("flags") or []:
+        if name not in out:
+            out.append(name)
+    for name in data["logic"].get("runtimeFlags") or []:
+        if name not in out:
+            out.append(name)
+    return out
+
+
 def load_pack(content: Path) -> dict:
-    return {
+    pack = {
         "species": json.loads((content / "species.json").read_text()),
         "items": json.loads((content / "items.json").read_text()),
         "maps": json.loads((content / "maps.json").read_text()),
@@ -190,9 +222,31 @@ def load_pack(content: Path) -> dict:
         "logic": json.loads((content / "logic.json").read_text()),
         "audio": json.loads((content / "audio.json").read_text()),
         "save": json.loads((content / "save.json").read_text()),
+        "sprites": json.loads((content / "sprites.json").read_text()) if (content / "sprites.json").is_file() else {},
     }
+    global FLAG_INDEX, TALK_KEYS_ORDER
+    FLAG_INDEX = {name: i for i, name in enumerate(merged_flags(pack))}
+    TALK_KEYS_ORDER = [k for k, _ in talk_table(pack)]
+    return pack
 
 
+def bake_all(content: Path, outdir: Path) -> str:
+    data = load_pack(content)
+    h = pack_hash(content)
+    set_header(h)
+    outdir.mkdir(parents=True, exist_ok=True)
+    bake_maps(data, outdir / "content_maps.inc")
+    bake_talk(data, outdir / "content_talk.inc")
+    bake_species(data, outdir / "content_species.inc")
+    bake_items(data, outdir / "content_items.inc")
+    bake_logic(data, outdir / "content_logic.inc")
+    bake_world(data, outdir / "content_world.inc")
+    bake_audio(data, outdir / "content_audio.inc")
+    bake_save(data, outdir / "content_save.inc")
+    return h
+
+
+TALK_KEYS_ORDER: list[str] = []
 HEADER = "/* AUTO-GENERATED from content/*.json — do not edit. python3 tools/bake_content.py */\n"
 
 
@@ -241,11 +295,12 @@ def bake_maps(data: dict, out: Path) -> None:
 def bake_talk(data: dict, out: Path) -> None:
     talk = data["dialogue"]["talk"]
     ending = data["dialogue"]["endingWin"]
+    table = talk_table(data)
     lines = [HEADER, "#if defined(__GNUC__)"]
     lines.append("#pragma GCC diagnostic ignored \"-Wunused-const-variable\"")
     lines.append("#endif")
     lines.append("")
-    for key, symbol in TALK_C.items():
+    for key, symbol in table:
         beats = talk[key]
         lines.append(f"static const TalkBeat {symbol}[] = {{")
         for b in beats:
@@ -262,14 +317,14 @@ def bake_talk(data: dict, out: Path) -> None:
     lines.append("#define TALK_LEN(arr) (int)(sizeof(arr) / sizeof((arr)[0]))")
     lines.append("")
     lines.append("static const TalkBeat *const TALK_PTRS[] = {")
-    for _key, symbol in TALK_C.items():
+    for _key, symbol in table:
         lines.append(f"    {symbol},")
     lines.append("};")
     lines.append("static const int TALK_COUNTS[] = {")
-    for _key, symbol in TALK_C.items():
+    for _key, symbol in table:
         lines.append(f"    TALK_LEN({symbol}),")
     lines.append("};")
-    lines.append(f"#define TALK_TABLE_N {len(TALK_C)}")
+    lines.append(f"#define TALK_TABLE_N {len(table)}")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
@@ -330,6 +385,17 @@ def bake_logic(data: dict, out: Path) -> None:
             f'{int(nat.get("str") or 0)}, {int(nat.get("agl") or 0)}, {int(nat.get("spc") or 0)} }},'
         )
     lines.append("};")
+    lines.append("")
+    party = logic.get("party") or {}
+    lines.append(f"#define PARTY_MAX {int(party.get('max') or 6)}")
+    lines.append(f"#define PARTY_RELEASE {1 if party.get('release') else 0}")
+    lines.append(f"#define PARTY_CATCH_SWAP {1 if party.get('catchSwap') else 0}")
+    lines.append(f"#define PARTY_KEEP_LAST {1 if party.get('keepLast', True) else 0}")
+    anne = logic.get("anneGift") or {}
+    lines.append(f"#define ANNE_GIFT_AFTER {int(anne.get('afterBattles') or 1)}")
+    lines.append(f"#define ANNE_GIFT_QTY {int(anne.get('qty') or 5)}")
+    scale = (data.get("sprites") or {}).get("drawScale") or {}
+    lines.append(f"#define SPR_SCALE_MASON {int(scale.get('mason') or 1)}")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
@@ -525,10 +591,9 @@ def flag_id(name) -> int:
 def talk_id(key) -> int:
     if not key:
         return -1
-    keys = list(TALK_C.keys())
-    if key not in TALK_C:
+    if key not in TALK_KEYS_ORDER:
         raise SystemExit(f"unknown talk key {key!r}")
-    return keys.index(key)
+    return TALK_KEYS_ORDER.index(key)
 
 
 def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
@@ -537,9 +602,10 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     item_i = {iid: i for i, iid in enumerate(order)}
     sp = {s: i for i, s in enumerate(species_order(data))}
     lines.append("/* NPC first-match scripts from content/world.json. */")
-    for i, name in enumerate(FLAG_IDS):
+    flags = merged_flags(data)
+    for i, name in enumerate(flags):
         lines.append(f"#define FLAG_{_c_ident(name)} {i}")
-    lines.append(f"#define FLAG_N {len(FLAG_IDS)}")
+    lines.append(f"#define FLAG_N {len(flags)}")
     lines.append("#define NPC_AFTER_NONE 0")
     lines.append("#define NPC_AFTER_BED_HEAL 1")
     lines.append("#define NPC_AFTER_SHOP 2")
@@ -819,24 +885,13 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=None, help="Directory for *.inc")
     args = ap.parse_args()
     content = args.content
-    data = load_pack(content)
-    h = pack_hash(content)
-    set_header(h)
     if args.out:
         outdir = args.out
     else:
         outdir = ROOT / "ports" / "dreamcast" / "src"
         if not outdir.is_dir():
             raise SystemExit(f"no bake output dir: {outdir} (pass --out)")
-    outdir.mkdir(parents=True, exist_ok=True)
-    bake_maps(data, outdir / "content_maps.inc")
-    bake_talk(data, outdir / "content_talk.inc")
-    bake_species(data, outdir / "content_species.inc")
-    bake_items(data, outdir / "content_items.inc")
-    bake_logic(data, outdir / "content_logic.inc")
-    bake_world(data, outdir / "content_world.inc")
-    bake_audio(data, outdir / "content_audio.inc")
-    bake_save(data, outdir / "content_save.inc")
+    h = bake_all(content, outdir)
     print(f"baked maps/talk/species/items/logic/world/audio/save PACK_HASH={h} -> {outdir}")
 
 

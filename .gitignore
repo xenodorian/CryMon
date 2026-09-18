@@ -3,6 +3,10 @@ node_modules/
 .github_repo
 .env
 .env.*
+.vercel/
+artifacts/
+attachments/
+tmp/
 ports/dreamcast/*.elf
 ports/dreamcast/*.cdi
 ports/dreamcast/src/*.o

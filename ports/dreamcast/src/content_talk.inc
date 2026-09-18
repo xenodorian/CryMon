@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4a2cc637cba7400e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=cdecab0082db2463 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -347,6 +347,41 @@ static const TalkBeat TALK_REACH_STONE[] = {
 static const TalkBeat TALK_REACH_AGAIN[] = {
     { "THE STONE IS QUIET. THE GRASS IS NOT.", 1 },
 };
+static const TalkBeat TALK_DOOR_OUT[] = {
+    { "NIGHT AIR. I CAN DO THIS.", 1 },
+    { "TALL GRASS HIDES CRYMON. WREN WEST. POND EAST. BRAM ON THE PATH. CALDER SOUTH.", 0 },
+};
+static const TalkBeat TALK_FOOTSTEPS[] = {
+    { "FOOTSTEPS ON THE PATH. SOMEONE FOLLOWED YOU OUT.", 0 },
+};
+static const TalkBeat TALK_MASON_AFTER[] = {
+    { "FINE. CALDER IS STILL SOUTH.", 3 },
+    { "I WON'T DIE FIRST.", 1 },
+};
+static const TalkBeat TALK_FOREST_ENTER[] = {
+    { "THE TREES CLOSE OVER THE PATH.", 1 },
+    { "TALL GRASS. PATROLS. IF THEY SEE YOU, THEY WILL COME. THE PATH KEEPS SOUTH.", 0 },
+};
+static const TalkBeat TALK_FOREST_LEAVE[] = {
+    { "BACK TOWARD THE COTTAGE PATH.", 1 },
+};
+static const TalkBeat TALK_GROVE_ENTER[] = {
+    { "THE GRASS DIES OUT. STONE AND HUSH.", 1 },
+    { "NO TALL GRASS. SOMETHING WAITS ON THE PATH.", 0 },
+};
+static const TalkBeat TALK_GROVE_LEAVE[] = {
+    { "BACK UNDER THE TREES.", 1 },
+};
+static const TalkBeat TALK_ANNE_AGAIN[] = {
+    { "DON'T LOSE THOSE. CALDER IS STILL SOUTH.", 2 },
+    { "I KNOW THE WAY.", 1 },
+};
+static const TalkBeat TALK_COTTAGE[] = {
+    { "THE COTTAGE. FATHER IN THE BED. MY BED. SOUTH DOOR LEAVES.", 1 },
+};
+static const TalkBeat TALK_LOSE[] = {
+    { "WE STILL BREATHE. CRAWL BACK.", 1 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -436,6 +471,16 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_REACH_LOCKED,
     TALK_REACH_STONE,
     TALK_REACH_AGAIN,
+    TALK_DOOR_OUT,
+    TALK_FOOTSTEPS,
+    TALK_MASON_AFTER,
+    TALK_FOREST_ENTER,
+    TALK_FOREST_LEAVE,
+    TALK_GROVE_ENTER,
+    TALK_GROVE_LEAVE,
+    TALK_ANNE_AGAIN,
+    TALK_COTTAGE,
+    TALK_LOSE,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -516,6 +561,16 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_REACH_LOCKED),
     TALK_LEN(TALK_REACH_STONE),
     TALK_LEN(TALK_REACH_AGAIN),
+    TALK_LEN(TALK_DOOR_OUT),
+    TALK_LEN(TALK_FOOTSTEPS),
+    TALK_LEN(TALK_MASON_AFTER),
+    TALK_LEN(TALK_FOREST_ENTER),
+    TALK_LEN(TALK_FOREST_LEAVE),
+    TALK_LEN(TALK_GROVE_ENTER),
+    TALK_LEN(TALK_GROVE_LEAVE),
+    TALK_LEN(TALK_ANNE_AGAIN),
+    TALK_LEN(TALK_COTTAGE),
+    TALK_LEN(TALK_LOSE),
 };
-#define TALK_TABLE_N 78
+#define TALK_TABLE_N 88
 

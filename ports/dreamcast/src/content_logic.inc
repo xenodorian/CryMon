@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4a2cc637cba7400e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=cdecab0082db2463 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -20,4 +20,12 @@ static const NatureDef NATURES[NATURE_N] = {
     { "MODEST", -1, 0, 2 },
     { "CALM", 0, -1, 2 },
 };
+
+#define PARTY_MAX 6
+#define PARTY_RELEASE 1
+#define PARTY_CATCH_SWAP 1
+#define PARTY_KEEP_LAST 1
+#define ANNE_GIFT_AFTER 1
+#define ANNE_GIFT_QTY 5
+#define SPR_SCALE_MASON 2
 

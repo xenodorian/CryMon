@@ -274,7 +274,16 @@
         ]
       ],
       "title": "Sentry sends Emberling",
-      "name": "Sentry"
+      "name": "Sentry",
+      "marks": 12,
+      "winTalk": "sentryWin",
+      "grant": [
+        [
+          "cageKey",
+          1
+        ]
+      ],
+      "set": "beatSentry"
     },
     "conscript": {
       "lead": [
@@ -292,7 +301,10 @@
         ]
       ],
       "title": "Conscript sends Sableclaw",
-      "name": "Conscript"
+      "name": "Conscript",
+      "marks": 14,
+      "winTalk": "conscriptWin",
+      "set": "beatConscript"
     },
     "enforcer": {
       "lead": [
@@ -310,7 +322,10 @@
         ]
       ],
       "title": "Enforcer sends Thornhide",
-      "name": "Enforcer"
+      "name": "Enforcer",
+      "marks": 15,
+      "winTalk": "enforcerWin",
+      "set": "beatEnforcer"
     },
     "cross": {
       "lead": [
@@ -328,8 +343,98 @@
         ]
       ],
       "title": "Warden sends CryMare",
-      "name": "Warden Cross"
-    }
+      "name": "Warden Cross",
+      "marks": 18,
+      "winTalk": "crossWin",
+      "set": "beatCross"
+    },
+    "mason": {
+      "lead": [
+        "glimmoth",
+        3
+      ],
+      "bench": [],
+      "title": "Mason sends Glimmoth",
+      "name": "Mason",
+      "marks": 10,
+      "winTalk": "masonWin",
+      "set": "foughtMason"
+    },
+    "calder": {
+      "lead": [
+        "razorbat",
+        4
+      ],
+      "bench": [],
+      "title": "Calder sends Razorbat",
+      "name": "Calder",
+      "marks": 18,
+      "winTalk": "calderWin",
+      "set": "beatCalder"
+    },
+    "shinigami": {
+      "lead": [
+        "crymare",
+        5
+      ],
+      "bench": [
+        [
+          "crymare",
+          6
+        ],
+        [
+          "crymare",
+          7
+        ]
+      ],
+      "title": "Shinigami sends CryMare",
+      "name": "Shinigami",
+      "marks": 14,
+      "winTalk": "shinigamiAfter",
+      "set": [
+        "beatShinigami",
+        "hasScroll"
+      ]
+    },
+    "cathleen": {
+      "lead": [
+        "cathleen",
+        6
+      ],
+      "bench": [],
+      "wild": true,
+      "title": "Cathleen stands against you",
+      "name": "Cathleen"
+    },
+    "forestSoldiers": [
+      {
+        "id": "patrol",
+        "name": "Patrol",
+        "mark": "1",
+        "species": "briarfox",
+        "level": 4,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      },
+      {
+        "id": "scout",
+        "name": "Scout",
+        "mark": "2",
+        "species": "mossback",
+        "level": 4,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      },
+      {
+        "id": "sentry",
+        "name": "Sentry",
+        "mark": "3",
+        "species": "razorbat",
+        "level": 5,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      }
+    ]
   },
   "npcs": [
     {

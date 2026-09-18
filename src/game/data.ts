@@ -7,7 +7,7 @@ import worldJson from "../../content/world.json";
 import spritesJson from "../../content/sprites.json";
 import logicJson from "../../content/logic.json";
 
-export const PARTY_MAX = 6;
+export const PARTY_MAX = (logicJson as { party?: { max?: number } }).party?.max ?? 6;
 export const TILE = 32;
 export const VIEW_W = 640;
 export const VIEW_H = 480;

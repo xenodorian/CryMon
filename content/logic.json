@@ -114,5 +114,21 @@
       "agl": -1,
       "spc": 2
     }
-  ]
+  ],
+  "runtimeFlags": [
+    "hasParty2",
+    "hasCageKey"
+  ],
+  "anneGift": {
+    "afterBattles": 1,
+    "item": "gem",
+    "qty": 5,
+    "map": "veld"
+  },
+  "party": {
+    "max": 6,
+    "release": true,
+    "catchSwap": true,
+    "keepLast": true
+  }
 }

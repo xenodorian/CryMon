@@ -20,6 +20,8 @@ import {
   START_MARKS,
   TALK,
   TILE,
+  TRAINERS,
+  SPRITES,
   VELD,
   VIEW_H,
   VIEW_W,
@@ -36,7 +38,6 @@ import {
   MAP_NAME,
   ENCOUNTERS,
   WARPS,
-  TRAINERS,
   NPCS,
   artManifest,
   itemEffect,
@@ -785,23 +786,31 @@ export class CryMon {
 			if (next === "shop") this.openShop("bram");
 			else if (next === "orenShop") this.openShop("oren");
 			else if (next === "mason") {
+				const kit = TRAINERS.mason;
 				this.foughtMason = true;
-				this.startBattle(mintMonster("glimmoth", 3), false, "Mason sends Glimmoth", "mason");
-			} else if (next === "calder") this.startBattle(mintMonster("razorbat", 4), false, "Calder sends Razorbat", "calder");
-			else if (next === "soldier") {
+				this.startBattle(mintMonster(kit.lead[0], kit.lead[1]), false, kit.title, "mason");
+			} else if (next === "calder") {
+				const kit = TRAINERS.calder;
+				this.startBattle(mintMonster(kit.lead[0], kit.lead[1]), false, kit.title, "calder");
+			} else if (next === "soldier") {
 				const sol = this.soldiers.find((s) => s.id === this.pendingSoldier);
 				if (sol && !sol.beaten) this.startBattle(mintMonster(sol.species, sol.level), false, `${sol.name} sends ${SPECIES[sol.species].name}`, "soldier", sol.id);
 			} else if (next === "cathleen") {
-				if (!this.cathleenCaught) this.startBattle(mintMonster("cathleen", 6), true, "Cathleen stands against you", "wild");
+				if (!this.cathleenCaught) {
+					const kit = TRAINERS.cathleen;
+					this.startBattle(mintMonster(kit.lead[0], kit.lead[1]), true, kit.title, "wild");
+				}
 			} else if (next === "shinigami") {
 				if (!this.beatShinigami) {
+					const kit = TRAINERS.shinigami;
+					const bench = (kit.bench || []).map((b) => mintMonster(b[0], b[1]));
 					this.startBattle(
-						mintMonster("crymare", 5),
+						mintMonster(kit.lead[0], kit.lead[1]),
 						false,
-						"Shinigami sends CryMare",
+						kit.title,
 						"shinigami",
 						null,
-						[mintMonster("crymare", 6), mintMonster("crymare", 7)]
+						bench
 					);
 				}
 			} else if (next === "anneLeave") {
@@ -933,7 +942,8 @@ export class CryMon {
 		this.audio.ui();
 	}
 	releaseMember(idx) {
-		if (this.party.length <= 1) {
+		const keepLast = LOGIC.party?.keepLast !== false;
+		if (keepLast && this.party.length <= 1) {
 			this.note("Max will not send her last CryMon away.");
 			this.audio.miss();
 			return false;
@@ -977,7 +987,9 @@ export class CryMon {
 	giveAnneGems() {
 		if (this.anneGifted) return;
 		this.anneGifted = true;
-		this.bag.gem += 5;
+		const g = LOGIC.anneGift;
+		const id = (g?.item ?? "gem") as ItemId;
+		this.bag[id] = (this.bag[id] ?? 0) + (g?.qty ?? 5);
 	}
 	startAnneLeave() {
 		this.anne.phase = "leave";
@@ -993,7 +1005,7 @@ export class CryMon {
 	maybeStartAnne() {
 		if (this.anne.phase !== "off") return;
 		if (this.talking() || this.hudT > 0) return;
-		if (!this.anneGifted && this.battlesDone >= 1 && this.world.mapId === "veld") {
+		if (!this.anneGifted && this.battlesDone >= (LOGIC.anneGift?.afterBattles ?? 1) && this.world.mapId === (LOGIC.anneGift?.map ?? "veld")) {
 			this.anne = {
 				phase: "approach",
 				x: this.world.x,
@@ -1830,7 +1842,10 @@ export class CryMon {
 				const dy = this.rival.y - this.world.y;
 				if (dx * dx + dy * dy <= 676) {
 					if (this.foughtMason) this.say(TALK.masonAfter);
-					else this.startBattle(mintMonster("glimmoth", 3), false, "Mason sends Glimmoth", "mason");
+					else {
+						const kit = TRAINERS.mason;
+						this.startBattle(mintMonster(kit.lead[0], kit.lead[1]), false, kit.title, "mason");
+					}
 					return;
 				}
 			}
@@ -1840,62 +1855,32 @@ export class CryMon {
 	}
 	ensureSoldiers() {
 		if (this.soldiers.length) return;
-		const m1 = spawnOf(FOREST, "1");
-		const m2 = spawnOf(FOREST, "2");
-		const m3 = spawnOf(FOREST, "3");
-		this.soldiers = [
-			{
-				id: "patrol",
-				name: "Patrol",
-				x: m1.x,
-				y: m1.y,
-				dir: "right",
+		const kits = TRAINERS.forestSoldiers || [];
+		const marks = ["1", "2", "3"];
+		this.soldiers = kits.map((kit, i) => {
+			const mark = kit.mark || marks[i];
+			const pos = spawnOf(FOREST, mark);
+			const axis = i === 0 ? "x" : i === 1 ? "y" : "none";
+			return {
+				id: kit.id,
+				name: kit.name,
+				x: pos.x,
+				y: pos.y,
+				dir: i === 0 ? "right" : i === 1 ? "left" : "up",
 				frame: 0,
 				anim: 0,
 				beaten: false,
 				chase: false,
-				axis: "x",
-				min: m1.x - 16,
-				max: m1.x + 144,
-				sign: 1,
-				species: "briarfox",
-				level: 4
-			},
-			{
-				id: "scout",
-				name: "Scout",
-				x: m2.x,
-				y: m2.y,
-				dir: "left",
-				frame: 0,
-				anim: 0,
-				beaten: false,
-				chase: false,
-				axis: "y",
-				min: m2.y - 80,
-				max: m2.y + 80,
-				sign: -1,
-				species: "mossback",
-				level: 4
-			},
-			{
-				id: "sentry",
-				name: "Sentry",
-				x: m3.x,
-				y: m3.y,
-				dir: "up",
-				frame: 0,
-				anim: 0,
-				beaten: false,
-				chase: false,
-				axis: "none",
-				min: 0,
-				max: 0,
-				sign: 0,
-				species: "razorbat",
-				level: 5
-			}
-		];
+				axis,
+				min: axis === "x" ? pos.x - 16 : axis === "y" ? pos.y - 80 : 0,
+				max: axis === "x" ? pos.x + 144 : axis === "y" ? pos.y + 80 : 0,
+				sign: i === 0 ? 1 : i === 1 ? -1 : 0,
+				species: kit.species,
+				level: kit.level,
+				marks: kit.marks ?? 8,
+				winTalk: kit.winTalk || "soldierAfter",
+			};
+		});
 	}
 	soldierLos(sol) {
 		if (sol.beaten || sol.chase) return false;
@@ -2601,26 +2586,27 @@ export class CryMon {
 		const grew = grantPartyXp(this.party, this.partyIndex, b.foe.level);
 		if (!b.wild) {
 			if (b.trainer === "calder") {
+				const kit = TRAINERS.calder;
 				this.beatCalder = true;
 				if (!this.mason2Done && !this.mason2Map) this.mason2Map = pickMason2Map(Math.random());
-				this.marks += 18;
+				this.marks += kit.marks ?? 18;
 				this.mode = "world";
 				this.battle = null;
 				this.world.encounterLock = 3;
 				this.onBattleOver();
-				this.say(TALK.calderWin);
+				this.say(TALK[kit.winTalk] || TALK.calderWin);
 				this.audio.ok();
 				return;
 			}
 			if (b.trainer === "soldier") {
 				const sol = this.soldiers.find((s) => s.id === b.soldierId);
 				if (sol) sol.beaten = true;
-				this.marks += 8;
+				this.marks += sol?.marks ?? 8;
 				this.mode = "world";
 				this.battle = null;
 				this.world.encounterLock = 3;
 				this.onBattleOver();
-				this.say(TALK.soldierAfter);
+				this.say(TALK[sol?.winTalk] || TALK.soldierAfter);
 				this.audio.ok();
 				return;
 			}
@@ -2630,36 +2616,31 @@ export class CryMon {
 				this.battle = null;
 				this.world.encounterLock = 3;
 				this.onBattleOver();
-				if (who === "sentry") {
-					this.beatSentry = true;
-					this.bag.cageKey = (this.bag.cageKey ?? 0) + 1;
-					this.marks += 12;
-					this.say(TALK.sentryWin);
-				} else if (who === "conscript") {
-					this.beatConscript = true;
-					this.marks += 14;
-					this.say(TALK.conscriptWin);
-				} else if (who === "enforcer") {
-					this.beatEnforcer = true;
-					this.marks += 15;
-					this.say(TALK.enforcerWin);
-				} else {
-					this.beatCross = true;
-					this.marks += 18;
-					this.say(TALK.crossWin);
+				const kit = TRAINERS[who];
+				if (kit?.grant) {
+					for (const [iid, qty] of kit.grant) {
+						this.bag[iid] = (this.bag[iid] ?? 0) + qty;
+					}
 				}
+				if (who === "sentry") this.beatSentry = true;
+				else if (who === "conscript") this.beatConscript = true;
+				else if (who === "enforcer") this.beatEnforcer = true;
+				else this.beatCross = true;
+				this.marks += kit?.marks ?? 12;
+				this.say(TALK[kit?.winTalk] || TALK.sentryWin);
 				this.audio.ok();
 				return;
 			}
 			if (b.trainer === "shinigami") {
+				const kit = TRAINERS.shinigami;
 				this.beatShinigami = true;
 				this.hasScroll = true;
-				this.marks += 14;
+				this.marks += kit.marks ?? 14;
 				this.mode = "world";
 				this.battle = null;
 				this.world.encounterLock = 3;
 				this.onBattleOver();
-				this.say(TALK.shinigamiAfter, "choice");
+				this.say(TALK[kit.winTalk] || TALK.shinigamiAfter, "choice");
 				this.audio.ok();
 				return;
 			}
@@ -2675,14 +2656,15 @@ export class CryMon {
 				this.audio.ok();
 				return;
 			}
+			const kit = TRAINERS.mason;
 			this.foughtMason = true;
 			this.rival.phase = "done";
-			this.marks += 10;
+			this.marks += kit.marks ?? 10;
 			this.mode = "world";
 			this.battle = null;
 			this.world.encounterLock = 3;
 			this.onBattleOver();
-			this.say(TALK.masonWin, "masonLeave");
+			this.say(TALK[kit.winTalk] || TALK.masonWin, "masonLeave");
 			this.audio.ok();
 			return;
 		}
@@ -3106,12 +3088,10 @@ export class CryMon {
 	}
 	drawActor(key, wx, wy) {
 		const { cx, cy } = this.cam();
-		let w = SPR_W;
-		let h = SPR_H;
-		if (String(key).startsWith("mason-")) {
-			w *= 2;
-			h *= 2;
-		}
+		const who = String(key).split("-")[0];
+		const scale = Number((SPRITES as { drawScale?: Record<string, number> }).drawScale?.[who] ?? 1) || 1;
+		const w = SPR_W * scale;
+		const h = SPR_H * scale;
 		this.drawSprite(key, wx - cx - w / 2, wy - cy - h + 4, w, h);
 	}
 	drawWorldHud() {

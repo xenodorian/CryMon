@@ -204,14 +204,7 @@ python3 tools/check_sync.py --strict  # DC turn / before CDI: fail if stale
 
 ## Debt — rules still living in engines
 
-Lift these into JSON before touching them again. Until then, a port that implements one must implement the same behaviour, not a cousin.
-
-- Cage bars, lock, Tessa, chest loot, key from the sentry
-- Party release + full-party catch-swap
-- Pause / save / continue (flag names already in `save.json`; CryDex is in)
-- Anne gift trigger (`battlesDone >= 1`)
-- Trainer win-talk routing (calder, soldiers, sentry, …)
-- Mason overworld draw scale (belongs in `sprites.json`)
+Presentation-only (do not lift): pause / save / continue UI, tile paint, input.
 
 Landed in the pack (do not re-implement as engine-only):
 
@@ -219,6 +212,11 @@ Landed in the pack (do not re-implement as engine-only):
 - CryDex (save 134/138)
 - Bench XP (`formulas.benchXpShare`)
 - The Reach (`maps.reach`, ruins `e` warp, `need: hasScroll`)
+- Cage / Tessa / chest scripts (`world.json` npcs)
+- Party release + catch-swap (`logic.json` `party`)
+- Anne gift (`logic.json` `anneGift`)
+- Trainer kits + win-talk + sentry key (`world.json` `trainers`)
+- Mason overworld scale (`sprites.json` `drawScale.mason`)
 
 ---
 

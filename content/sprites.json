@@ -71,7 +71,17 @@
     "enforcer",
     "sentry",
     "father",
-    "heavenfall"
+    "heavenfall",
+    "briarfox",
+    "crymare",
+    "duskhorn",
+    "fenwisp",
+    "glimmoth",
+    "mossback",
+    "needleroot",
+    "quillpup",
+    "razorbat",
+    "tortcask"
   ],
   "items": [
     "salve",
@@ -105,5 +115,8 @@
       "cathleen-ow",
       "/sprites/npc/cathleen.png"
     ]
-  ]
+  ],
+  "drawScale": {
+    "mason": 2
+  }
 }
