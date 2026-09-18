@@ -1,6 +1,6 @@
-/* AUTO-GENERATED from content/*.json — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4a2cc637cba7400e — do not edit. python3 tools/bake_content.py */
 
-#define ITEM_COUNT 9
+#define ITEM_COUNT 10
 static const ItemDef ITEMS[ITEM_COUNT] = {
     { "MOSS SALVE", 10, 5 },
     { "LINEN WRAP", 6, 3 },
@@ -11,5 +11,6 @@ static const ItemDef ITEMS[ITEM_COUNT] = {
     { "WARROOT", 8, 4 },
     { "SMOKE BOMB", 12, 6 },
     { "GREATER CRYSTAL", 35, 17 },
+    { "CAGE KEY", 0, 0 },
 };
 

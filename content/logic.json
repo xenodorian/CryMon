@@ -1,5 +1,5 @@
 {
-  "source": "Dreamcast main.c — canonical game logic. Web and Dreamcast both interpret this file. Do not fork rules in engine.ts or main.c.",
+  "source": "Shared rules both engines interpret. Extend this file instead of forking engine.ts or main.c.",
   "screenFade": {
     "outSec": 0.267,
     "holdSec": 0.05,
@@ -23,15 +23,28 @@
   "masonRematch": {
     "unlockOn": "beatCalder",
     "once": "mason2Done",
-    "maps": ["veld", "forest", "grove"],
+    "maps": [
+      "veld",
+      "forest",
+      "grove"
+    ],
     "oy": 160,
     "dir": "up",
     "talk": "masonFight2",
     "battle": {
-      "lead": ["glimmoth", 6],
+      "lead": [
+        "glimmoth",
+        6
+      ],
       "bench": [
-        ["briarfox", 7],
-        ["duskhorn", 8]
+        [
+          "briarfox",
+          7
+        ],
+        [
+          "duskhorn",
+          8
+        ]
       ],
       "title": "Mason sends Glimmoth",
       "marks": 20,
@@ -50,5 +63,56 @@
     "map": "house",
     "mark": "U",
     "dir": "up"
-  }
+  },
+  "natures": [
+    {
+      "id": "hardy",
+      "name": "Hardy",
+      "str": 0,
+      "agl": 0,
+      "spc": 0
+    },
+    {
+      "id": "lonely",
+      "name": "Lonely",
+      "str": 2,
+      "agl": -1,
+      "spc": 0
+    },
+    {
+      "id": "adamant",
+      "name": "Adamant",
+      "str": 2,
+      "agl": 0,
+      "spc": -1
+    },
+    {
+      "id": "bold",
+      "name": "Bold",
+      "str": -1,
+      "agl": 2,
+      "spc": 0
+    },
+    {
+      "id": "timid",
+      "name": "Timid",
+      "str": 0,
+      "agl": 2,
+      "spc": -1
+    },
+    {
+      "id": "modest",
+      "name": "Modest",
+      "str": -1,
+      "agl": 0,
+      "spc": 2
+    },
+    {
+      "id": "calm",
+      "name": "Calm",
+      "str": 0,
+      "agl": -1,
+      "spc": 2
+    }
+  ]
 }

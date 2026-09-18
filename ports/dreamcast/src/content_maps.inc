@@ -1,4 +1,14 @@
-/* AUTO-GENERATED from content/*.json — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4a2cc637cba7400e — do not edit. python3 tools/bake_content.py */
+
+#define MAP_HOUSE 0
+#define MAP_VELD 1
+#define MAP_FOREST 2
+#define MAP_GROVE 3
+#define MAP_CAMP 4
+#define MAP_CLIFFS 5
+#define MAP_RUINS 6
+#define MAP_REACH 7
+#define MAP_N 8
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -18,7 +28,7 @@ static const char *const map_veld_rows[] = {
     "##############################",
     "####..........RRRR..........##",
     "##.Q.^^.......rrrr......WWW.##",
-    "##............HDH......WWA..##",
+    "##............HDHH.....WWA..##",
     "##..K.........===...I...W....#",
     "##...TTT.....=====.....TTT..G#",
     "##...TTT....===,===....TTT...#",
@@ -48,19 +58,19 @@ static const char *const map_forest_rows[] = {
     "##...TTT...=====...TTT..##",
     "##.1........===.......2.##",
     "##...TTT....===....TTT..##",
-    "##..........=====.......##",
+    "##.........=====........##",
     "##...TTT....===....TTT..##",
-    "##...........===........##",
-    "##...TTT....=====..TTT..##",
-    "##...........===........##",
-    "##...TTT.....===...TTT..##",
-    "##...........=====......##",
-    "##....TTT....===...TTT..##",
-    "##............===.......##",
-    "##...TTT......===..TTT..##",
-    "##............===....3..##",
-    "###...........===......###",
-    "#############=O=##########",
+    "##..........===.........##",
+    "##...TTT...=====...TTT..##",
+    "##..........===.........##",
+    "##...TTT....===....TTT..##",
+    "##.........=====........##",
+    "##....TTT...===....TTT..##",
+    "##..........===.........##",
+    "##...TTT....===....TTT..##",
+    "##..........===......3..##",
+    "###.........===.........##",
+    "############=O=###########",
 };
 
 static const char *const map_grove_rows[] = {
@@ -90,13 +100,13 @@ static const char *const map_grove_rows[] = {
 static const char *const map_camp_rows[] = {
     "################",
     "#######D########",
-    "#.....K..A.....#",
-    "#..H........H..#",
-    "#..H........H..#",
+    "#.rrr.K..A.rrr.#",
+    "#.HHH......HHH.#",
+    "#.HHH......HHH.#",
     "#..............#",
     "#......I.......#",
-    "#..............#",
-    "#..H........H..#",
+    "#.rrr......rrr.#",
+    "#.HHH......HHH.#",
     "################",
 };
 
@@ -104,13 +114,13 @@ static const char *const map_cliffs_rows[] = {
     "##################",
     "#........D.......#",
     "#................#",
-    "#.TTT........TTT.#",
-    "#.TTT........TTT.#",
-    "#...V........Y...#",
+    "#...V............#",
     "#................#",
-    "#.TTT........TTT.#",
-    "#.TTT....C...TTT.#",
+    "#.........%%%%%..#",
+    "#.........%Y.C%..#",
+    "#.........%%k%%..#",
     "#................#",
+    "#.TTT............#",
     "#................#",
     "##################",
 };
@@ -119,19 +129,38 @@ static const char *const map_ruins_rows[] = {
     "####################",
     "#.........D........#",
     "#..................#",
-    "#..R............R..#",
-    "#..R............R..#",
+    "#..rrr........rrr..#",
+    "#..HHH........HHH..#",
     "#..................#",
     "#....J........K....#",
     "#..................#",
-    "#..R............R..#",
-    "#..R......A.....R..#",
+    "#..rrr........rrr..#",
+    "#..HHH....A...HHH..#",
     "#..................#",
+    "#..................#",
+    "##########e#########",
+};
+
+static const char *const map_reach_rows[] = {
+    "####################",
+    "#.........D........#",
+    "#..................#",
+    "#..rrr........rrr..#",
+    "#..HHH........HHH..#",
+    "#..................#",
+    "#......TTTTTT......#",
+    "#......TTTTTT......#",
+    "#........Y.........#",
+    "#......TTTTTT......#",
+    "#......TTTTTT......#",
+    "#..................#",
+    "#..rrr........rrr..#",
+    "#..HHH........HHH..#",
     "#..................#",
     "####################",
 };
 
-static const Map MAPS[7] = {
+static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
     { map_forest_rows, 26, 20 },
@@ -139,9 +168,12 @@ static const Map MAPS[7] = {
     { map_camp_rows, 16, 10 },
     { map_cliffs_rows, 18, 12 },
     { map_ruins_rows, 20, 13 },
+    { map_reach_rows, 20, 16 },
 };
 
-static const char *const MAP_DISPLAY_NAME[7] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE GROVE", "THE CAMP", "THE CLIFFS", "THE RUINS",
+static const char *const MAP_DISPLAY_NAME[MAP_N] = {
+    "HOME", "CRYTOWN", "THE FOREST", "THE GROVE", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH",
 };
+
+static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";
 

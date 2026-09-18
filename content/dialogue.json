@@ -746,6 +746,10 @@
       {
         "speaker": "none",
         "text": "The sentry goes down hard. The cliffs are quiet."
+      },
+      {
+        "speaker": "none",
+        "text": "A rusted cage key hangs from his belt. You take it."
       }
     ],
     "conscriptSpot": [
@@ -921,7 +925,7 @@
       },
       {
         "speaker": "none",
-        "text": "Inside: marks, and a handful of supplies."
+        "text": "Max takes 25 marks, a Sunbalm, and a Greater Crystal."
       }
     ],
     "chestEmpty": [
@@ -960,6 +964,62 @@
       {
         "speaker": "none",
         "text": "Mason kneels. Three down. He has nothing left to prove."
+      }
+    ],
+    "campLocked": [
+      {
+        "speaker": "max",
+        "text": "The camp still holds this road. Calder isn't down yet."
+      }
+    ],
+    "groveLocked": [
+      {
+        "speaker": "max",
+        "text": "Sealed. The ruins stay shut until Shinigami is gone."
+      }
+    ],
+    "cageLocked": [
+      {
+        "speaker": "max",
+        "text": "Iron bars. A heavy lock. The sentry wears the key."
+      }
+    ],
+    "cageUnlock": [
+      {
+        "speaker": "max",
+        "text": "The key turns. The cage door swings open."
+      }
+    ],
+    "cageOpen": [
+      {
+        "speaker": "max",
+        "text": "The lock hangs open. Tessa and the chest are inside."
+      }
+    ],
+    "reachLocked": [
+      {
+        "speaker": "max",
+        "text": "The south path is sealed. The scroll would open it."
+      }
+    ],
+    "reachStone": [
+      {
+        "speaker": "max",
+        "text": "The scroll's writing lights a stone in the grass."
+      },
+      {
+        "speaker": "none",
+        "text": "The Reach. Past the ruins the crystals still sing."
+      },
+      {
+        "speaker": "max",
+        "text": "Wild CryMon out here hit harder than CryTown ever did."
+      }
+    ],
+    "reachAgain": [
+      {
+        "speaker": "max",
+        "text": "The stone is quiet. The grass is not."
       }
     ]
   }

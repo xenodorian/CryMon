@@ -8,7 +8,8 @@
     "sunbalm",
     "warroot",
     "smokebomb",
-    "greatcrystal"
+    "greatcrystal",
+    "cageKey"
   ],
   "defs": {
     "gem": {
@@ -18,7 +19,11 @@
       "battle": true,
       "field": false,
       "buy": 20,
-      "sell": 10
+      "sell": 10,
+      "effect": {
+        "kind": "capture",
+        "bonus": 0
+      }
     },
     "salve": {
       "id": "salve",
@@ -27,7 +32,11 @@
       "battle": true,
       "field": true,
       "buy": 10,
-      "sell": 5
+      "sell": 5,
+      "effect": {
+        "kind": "heal",
+        "amount": 22
+      }
     },
     "bitterroot": {
       "id": "bitterroot",
@@ -36,7 +45,11 @@
       "battle": true,
       "field": false,
       "buy": 8,
-      "sell": 4
+      "sell": 4,
+      "effect": {
+        "kind": "buff",
+        "str": 4
+      }
     },
     "dust": {
       "id": "dust",
@@ -45,7 +58,13 @@
       "battle": true,
       "field": false,
       "buy": 8,
-      "sell": 4
+      "sell": 4,
+      "effect": {
+        "kind": "debuff",
+        "str": -3,
+        "agl": -2,
+        "spc": -2
+      }
     },
     "bandage": {
       "id": "bandage",
@@ -54,7 +73,11 @@
       "battle": true,
       "field": true,
       "buy": 6,
-      "sell": 3
+      "sell": 3,
+      "effect": {
+        "kind": "heal",
+        "amount": 12
+      }
     },
     "sunbalm": {
       "id": "sunbalm",
@@ -63,7 +86,11 @@
       "battle": true,
       "field": true,
       "buy": 18,
-      "sell": 9
+      "sell": 9,
+      "effect": {
+        "kind": "heal",
+        "amount": 40
+      }
     },
     "warroot": {
       "id": "warroot",
@@ -72,7 +99,11 @@
       "battle": true,
       "field": false,
       "buy": 8,
-      "sell": 4
+      "sell": 4,
+      "effect": {
+        "kind": "buff",
+        "agl": 4
+      }
     },
     "smokebomb": {
       "id": "smokebomb",
@@ -81,7 +112,10 @@
       "battle": true,
       "field": false,
       "buy": 12,
-      "sell": 6
+      "sell": 6,
+      "effect": {
+        "kind": "flee"
+      }
     },
     "greatcrystal": {
       "id": "greatcrystal",
@@ -90,7 +124,20 @@
       "battle": true,
       "field": false,
       "buy": 35,
-      "sell": 17
+      "sell": 17,
+      "effect": {
+        "kind": "capture",
+        "bonus": 25
+      }
+    },
+    "cageKey": {
+      "id": "cageKey",
+      "name": "Cage Key",
+      "desc": "Rusted iron key from the cliffs sentry. Opens Tessa's cage.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
     }
   }
 }

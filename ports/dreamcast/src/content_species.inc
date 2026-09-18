@@ -1,6 +1,28 @@
-/* AUTO-GENERATED from content/*.json — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4a2cc637cba7400e — do not edit. python3 tools/bake_content.py */
 
-static const Species SPECIES[20] = {
+#define SP_QUILLPUP 0
+#define SP_GLIMMOTH 1
+#define SP_TORTCASK 2
+#define SP_RAZORBAT 3
+#define SP_MOSSBACK 4
+#define SP_BRIARFOX 5
+#define SP_FENWISP 6
+#define SP_DUSKHORN 7
+#define SP_NEEDLEROOT 8
+#define SP_CATHLEEN 9
+#define SP_CRYMARE 10
+#define SP_EMBERLING 11
+#define SP_FROSTAIL 12
+#define SP_BOULDERAM 13
+#define SP_STORMWING 14
+#define SP_SABLECLAW 15
+#define SP_THORNHIDE 16
+#define SP_GLASSWISP 17
+#define SP_ASHENMAW 18
+#define SP_HEAVENFALL 19
+#define SPECIES_N 20
+
+static const Species SPECIES[SPECIES_N] = {
     { "QUILLPUP", "NIP", "QUILLBURST", 34, 15, 10, 7, 3, 0, {0,0,0,0} },
     { "GLIMMOTH", "DUSTWING", "LAMPFLARE", 26, 7, 13, 16, 3, 0, {0,0,0,0} },
     { "TORTCASK", "SHOVE", "SHELLSLAM", 42, 13, 5, 8, 3, 0, {0,0,0,0} },
