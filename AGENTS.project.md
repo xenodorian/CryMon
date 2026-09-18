@@ -16,4 +16,3 @@ python3 ports/dreamcast/tools/gen_sprites.py
 
 Keep the preview playable. JSON first for rules. Never hand-edit
 `ports/dreamcast/src/content_*.inc` or `sprites.h`. Never revive SNES / LÖVE / SDL.
-Never treat BeelzFight as a CryMon tree.

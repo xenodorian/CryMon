@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
 import { Download, Volume2, VolumeX } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Gemwar } from "@/game/engine";
+import { CryMon } from "@/game/engine";
 import { cn } from "@/lib/utils";
 
-export function GemwarApp() {
+export function CryMonApp() {
   const ref = useRef<HTMLCanvasElement>(null);
-  const gameRef = useRef<Gemwar | null>(null);
+  const gameRef = useRef<CryMon | null>(null);
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
   const [pad, setPad] = useState({ x: 0, y: 0 });
@@ -15,14 +15,14 @@ export function GemwarApp() {
     const canvas = ref.current;
     if (!canvas) return;
     let live = true;
-    let g: Gemwar | null = null;
+    let g: CryMon | null = null;
     const failsafe = window.setTimeout(() => {
       if (!live) return;
       g?.startLoop();
       setReady(true);
     }, 900);
     try {
-      g = new Gemwar(canvas);
+      g = new CryMon(canvas);
       gameRef.current = g;
       void g
         .boot()

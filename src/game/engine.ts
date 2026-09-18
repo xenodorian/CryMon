@@ -104,7 +104,7 @@ function Y(n: number) {
 const SPR_W = 48;
 const SPR_H = 52;
 const FONT = 16;
-export class Gemwar {
+export class CryMon {
 	canvas: HTMLCanvasElement;
 	ctx: CanvasRenderingContext2D;
 	input = new Input();
@@ -586,7 +586,7 @@ export class Gemwar {
 			},
 			skipToWorld: () => this.skipToWorld("veld")
 		};
-		window.__gemwar = {
+		window.__crymon = {
 			getMode: () => this.mode,
 			getPhase: () => this.battle?.phase ?? null,
 			getMap: () => this.world.mapId,

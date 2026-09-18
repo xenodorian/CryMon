@@ -12,11 +12,8 @@ backups/                  frozen dead ports (reference only)
 ```
 
 **Canonical repo:** `xenodorian/CryMon`. There is no second game tree.
-`xenodorian/BeelzFight` is a different project (side-scroller + console hellos).
-It has **no** `crymon-dreamcast/` folder and no unique CryMon content. Do not
-put CryMon work there. There is no BeelzFight build, no `CRYMON_SPRITES`
-path, and no “copy JSON back.” Content originates **only** here. Commit
-`90602a8` (natures / CryDex / bench XP / The Reach) lived only in an
+Content originates **only** here. Do not put CryMon in another repository.
+Commit `90602a8` (natures / CryDex / bench XP / The Reach) lived only in an
 ephemeral container and was never pushed — those features now live in this
 tree.
 
@@ -236,7 +233,7 @@ does not need a bake **to play**. You still bake after a pack edit so the DC
 ## Dreamcast
 
 Only Claude is expected to have `sh-elf-gcc` and `mkdcdisc`. Commands below are
-from the **CryMon repo root**. There is no second invocation on BeelzFight.
+from the **CryMon repo root**.
 
 Bake (anyone, Python — no `sh-elf-gcc`):
 
@@ -276,4 +273,4 @@ Do not restore these. Snapshots are reference-only.
 | LÖVE2D | `backups/love-port/` |
 | SDL2 / R36S PortMaster | `backups/sdl-port/` |
 | Pre-fuse DC with hardcoded tables | `backups/dreamcast-pre-fuse/` |
-| BeelzFight `crymon-dreamcast/` | never existed on GitHub; do not create it |
+| A second Dreamcast tree in another repo | never existed; do not create it |

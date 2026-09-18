@@ -200,19 +200,7 @@ def emit_array(lines, name, pixels, w, h):
     lines.append('')
 
 def default_sprite_root():
-    env = os.environ.get('CRYMON_SPRITES')
-    if env:
-        return env
     here = os.path.dirname(os.path.abspath(__file__))
-    candidates = []
-    for up in (2, 3, 4):
-        base = os.path.join(here, *(['..'] * up))
-        candidates.append(os.path.join(base, 'public', 'sprites'))
-        candidates.append(os.path.join(base, 'CryMon', 'public', 'sprites'))
-    for cand in candidates:
-        cand = os.path.normpath(cand)
-        if os.path.isdir(cand):
-            return cand
     return os.path.normpath(os.path.join(here, '..', '..', '..', 'public', 'sprites'))
 
 
@@ -223,9 +211,9 @@ def main():
     elif len(sys.argv) == 1:
         root = default_sprite_root()
     else:
-        sys.exit('usage: gen_sprites.py [path-to-CryMon-checkout-or-public/sprites]')
+        sys.exit('usage: gen_sprites.py [path-to-public/sprites]')
     if not os.path.isdir(root):
-        sys.exit('sprite root not found: %s\nSet CRYMON_SPRITES or pass the CryMon checkout.' % root)
+        sys.exit('sprite root not found: %s (expected public/sprites in this repo)' % root)
     cat = load_catalog(root)
     manifest = []  # (relpath, w, h, tag, note) for every placeholder actually used this run
 

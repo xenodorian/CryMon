@@ -4,7 +4,7 @@
 You own the **Dreamcast runtime**. Grok owns the web runtime. Both edit
 `content/*.json` and `public/sprites/`.
 
-Canonical tree: `xenodorian/CryMon` `ports/dreamcast/`. Not BeelzFight.
+Canonical tree: `xenodorian/CryMon` `ports/dreamcast/`.
 
 ```
 python3 tools/bake_content.py --content content --out ports/dreamcast/src

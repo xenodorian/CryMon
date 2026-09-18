@@ -49,7 +49,7 @@ crymon.elf: $(OBJS) dc.ld
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) -lgcc
 
 cdi: crymon.elf
-	mkdcdisc -e crymon.elf -o crymon.cdi -n "CryMon" -a "BeelzFight" \
+	mkdcdisc -e crymon.elf -o crymon.cdi -n "CryMon" -a "CryMon" \
 		-N --allow-overwrite
 
 clean:

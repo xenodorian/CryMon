@@ -68,15 +68,6 @@ export const CLIFFS = normalize(raw.cliffs);
 export const RUINS = normalize(raw.ruins);
 export const REACH = normalize(raw.reach);
 
-export const HOUSE_MAP = raw.house;
-export const VELD_MAP = raw.veld;
-export const FOREST_MAP = raw.forest;
-export const GROVE_MAP = raw.grove;
-export const CAMP_MAP = raw.camp;
-export const CLIFFS_MAP = raw.cliffs;
-export const RUINS_MAP = raw.ruins;
-export const REACH_MAP = raw.reach;
-
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
