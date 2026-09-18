@@ -14,24 +14,35 @@ export function GemwarApp() {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    const g = new Gemwar(canvas);
-    gameRef.current = g;
     let live = true;
-    void g
-      .boot()
-      .then(() => {
-        if (!live) return;
-        g.startLoop();
-        setReady(true);
-      })
-      .catch(() => {
-        if (!live) return;
-        g.startLoop();
-        setReady(true);
-      });
+    let g: Gemwar | null = null;
+    const failsafe = window.setTimeout(() => {
+      if (!live) return;
+      g?.startLoop();
+      setReady(true);
+    }, 900);
+    try {
+      g = new Gemwar(canvas);
+      gameRef.current = g;
+      void g
+        .boot()
+        .then(() => {
+          if (!live) return;
+          g?.startLoop();
+          setReady(true);
+        })
+        .catch(() => {
+          if (!live) return;
+          g?.startLoop();
+          setReady(true);
+        });
+    } catch {
+      setReady(true);
+    }
     return () => {
       live = false;
-      g.stop();
+      window.clearTimeout(failsafe);
+      g?.stop();
     };
   }, []);
 
@@ -115,7 +126,7 @@ export function GemwarApp() {
               <span className="text-muted">Talk / confirm</span> Z Space · people, herbs, the wrecked cart
             </li>
             <li>
-              <span className="text-muted">CryMon (Start)</span> Enter · Start on a pad · S on touch — portraits, HP, send out, stats, moves
+              <span className="text-muted">CryMon (Start)</span> Enter · Start on a pad · S on touch — sprites, HP, send out, stats, moves, release. A full party asks you to release one when a capture lands.
             </li>
             <li>
               <span className="text-muted">Bag (Select)</span> Q Tab · Select on a pad · SEL on touch — use salves and wraps on a CryMon

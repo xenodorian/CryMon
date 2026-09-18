@@ -16,6 +16,23 @@ export type LogicFlags = {
 	rivalOff: boolean;
 };
 
+export type NpcStep = {
+	if?: string;
+	ifNot?: string;
+	hideIf?: string;
+	set?: string;
+	grant?: [string, number][];
+	grantMonster?: [string, number];
+	talk?: string;
+	talkIf?: string;
+	talkElse?: string;
+	after?: string;
+	pending?: string;
+	heal?: boolean;
+	marks?: number;
+	takeItem?: string;
+};
+
 export function arrivalAllowed(flags: LogicFlags, name: string): boolean {
 	const spec = LOGIC.arrivals[name as keyof typeof LOGIC.arrivals];
 	if (!spec) return false;
@@ -47,4 +64,19 @@ export function fadeAlpha(phase: FadePhase, t: number): number {
 	if (phase === "hold") return 1;
 	if (phase === "in") return Math.max(0, 1 - t / inSec);
 	return 0;
+}
+
+/** First-match NPC script from content/world.json. hideIf matching means the NPC is gone. */
+export function matchNpcScript(script: NpcStep[] | undefined, flags: Record<string, boolean>): NpcStep | null {
+	if (!script || !script.length) return null;
+	for (const step of script) {
+		if (step.hideIf) {
+			if (flags[step.hideIf]) return null;
+			continue;
+		}
+		if (step.if && !flags[step.if]) continue;
+		if (step.ifNot && flags[step.ifNot]) continue;
+		return step;
+	}
+	return null;
 }
