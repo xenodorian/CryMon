@@ -1,38 +1,35 @@
 # CryMon Agent Coordinator
 
-This directory contains the working implementation of the CryMon multi-agent coordination service.
+A local MCP stdio server that lets coding agents share coordination state without competing blindly over the same work.
 
-## Purpose
+## Start the MCP server
 
-The coordinator manages agent intent, ownership, communication, and architectural memory.
-Git remains the source of truth for code.
-
-## Implemented Features
-
-- Agent registration
-- Heartbeats
-- File ownership claims
-- Agent messaging
-- Decision storage
-- Local SQLite persistence
-
-## Commands
+From this directory:
 
 ```bash
-node src/cli.js register agent-name typescript frontend
-node src/cli.js claim src/file.ts agent-name refactor
-node src/cli.js message all agent-name "API changed"
-node src/cli.js decision auth "Use repository pattern" "Avoid route coupling"
+npm install
+npm start
 ```
 
-## Roadmap
+The process speaks newline-delimited JSON-RPC 2.0 on **stdout**. Logs go to stderr so the stream remains MCP-safe. Configure the MCP client to launch `npm start` with this directory as its working directory.
 
-- MCP transport layer
-- agent authentication
-- remote shared deployment
-- stale claim cleanup
-- event streaming
+Implemented MCP tools:
 
-## Design Principle
+- `agent.register`, `agent.heartbeat`, `agent.list`
+- `file.claim`, `file.release`, `file.list`
+- `message.send`, `message.read`, `message.ack`
+- `decision.record`, `decision.search`
 
-Agents should coordinate through shared state rather than competing edits. The coordinator records intent; Git records implementation.
+Agents must register before sending messages, claiming files, or reading messages. Messages can target one agent or `all`. Claims expire automatically when they are checked after their expiration time.
+
+## CLI
+
+The same service layer is available for local inspection:
+
+```bash
+npm run cli -- register agent-name typescript frontend
+npm run cli -- message agent-name all "API changed"
+npm run cli -- messages agent-name
+```
+
+State is stored in `data/coordinator.db` using SQLite. Git remains the source of truth for code; this service records intent, messages, and decisions.
