@@ -5,6 +5,7 @@ The Dreamcast port is `ports/dreamcast/` in that repo (mirrored under
 `crymon-dreamcast/` on `xenodorian/BeelzFight` when needed).
 
 Full contract: [`docs/CRYMON.md`](docs/CRYMON.md)
+Parallel-agent rules, folder bans, feature order: [`docs/CONTENT_PLAN.md`](docs/CONTENT_PLAN.md)
 
 ## Source of truth (edit these)
 
@@ -54,7 +55,13 @@ If CryMon sprites are missing, leftover `art/sprites/` is a fallback only.
 ## Standing rules
 
 1. **Do not fork the story.** Weeping Army, Shinigami scroll, father/Heavenfall choice, Anne crystals ×5, Mason leave after battle, map-name banners (not dialogue on warp).
-2. **Heavenfall / father resurrection is narrative-only** unless the user asks to make them party members.
+2. **Heavenfall / father resurrection is no longer narrative-only.** The owner
+   has asked for the endgame to continue past the choice: it opens a gauntlet
+   map, and Heavenfall is real on both branches — a party member if it is
+   woken, the enemy commander's ace if her father is woken instead. That work
+   currently exists only in the BeelzFight `main.c` and **still has to land in
+   `content/` + the baker** before the web port has it
+   (`docs/CONTENT_PLAN.md` §5, §8.3). Do not re-narrow this rule.
 3. **Do not touch Max's walk cycle** unless the user names Max.
 4. **No SNES, LÖVE2D, or SDL/R36S ports.** All abandoned. Do not add `.sfc` / `love/` / `native/` sources.
 5. **Placeholders:** if art is missing, tag `PLACEHOLDER_ART` and keep going. Do not silently reuse another character's sprite as a stand-in for a named NPC.

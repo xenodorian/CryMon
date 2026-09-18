@@ -13,9 +13,17 @@ backups/                  frozen snapshots of removed ports
 
 Repos:
 
-- **xenodorian/CryMon** — canonical. This tree.
-- **xenodorian/BeelzFight** `crymon-dreamcast/` — DC working copy. Must not
-  drift from CryMon `content/` + `public/sprites/`.
+- **xenodorian/CryMon** — canonical. This tree. The Dreamcast port lives here,
+  at `ports/dreamcast/`.
+- **xenodorian/BeelzFight** `crymon-dreamcast/` — a second DC working copy.
+  It has **already drifted** (its `content/` is missing `logic.json`; its
+  `main.c`, `Makefile` and `gen_sprites.py` all differ from this tree's).
+  Treat it as legacy, not as a place to start new work. See
+  [`CONTENT_PLAN.md`](CONTENT_PLAN.md) §8.
+
+Working alongside another agent, or adding a file or folder? Read
+[`CONTENT_PLAN.md`](CONTENT_PLAN.md) first — ownership lanes, the
+never-create list, and the feature order that reaches both ports.
 
 ## What is shared vs what is not
 
