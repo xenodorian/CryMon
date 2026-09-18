@@ -1,66 +1,20 @@
-# CryMon — instructions for Claude
+# CryMon — Claude stub
 
-You are working on **CryMon**. The **web tree in xenodorian/CryMon is the game.**
-The Dreamcast port is `ports/dreamcast/` in that repo (mirrored under
-`crymon-dreamcast/` on `xenodorian/BeelzFight` when needed).
+**Contract:** [`docs/CRYMON.md`](docs/CRYMON.md). Read it before editing.
+You own the **Dreamcast runtime**. Grok owns the web runtime. Both edit
+`content/*.json` and `public/sprites/`.
 
-Full contract: [`docs/CRYMON.md`](docs/CRYMON.md)
-
-## Source of truth (edit these)
-
-| What | Where |
-|---|---|
-| Maps, species, items, talk, warps, wild pools, trainers, NPC marks, **rules** | `content/*.json` (`logic.json` is the Dreamcast spec) |
-| Pixel art | `public/sprites/` |
-| Web engine / UI | `src/game/`, `src/components/gemwar-app.tsx` |
-| Dreamcast runtime (video, Maple, battle loop) | `ports/dreamcast/src/main.c` |
-| Dreamcast sprite bake | `ports/dreamcast/tools/gen_sprites.py` |
-| Content bake (JSON → C) | `tools/bake_content.py` |
-
-If JSON and `main.c` disagree, **`content/logic.json` + the rest of `content/` win.** Re-bake. Do not patch the `.inc` files.
-
-## Build web
-
-From the CryMon repo root (this workspace):
+Canonical tree: `xenodorian/CryMon` `ports/dreamcast/`. Not BeelzFight.
 
 ```
-npm run dev          # preview on 0.0.0.0:8080 — leave it running
-npm run typecheck
+python3 tools/bake_content.py --content content --out ports/dreamcast/src
+python3 ports/dreamcast/tools/gen_sprites.py
+python3 tools/check_sync.py --strict
+make -C ports/dreamcast
+make -C ports/dreamcast cdi
 ```
 
-`src/game/data.ts` imports `content/*.json`. No bake step.
-
-## Build Dreamcast
-
-From `ports/dreamcast/` (or `crymon-dreamcast/` on BeelzFight):
-
-```
-python3 ../../tools/bake_content.py --content ../../content --out src
-python3 tools/gen_sprites.py          # uses ../../public/sprites, or $CRYMON_SPRITES
-make                                  # needs sh-elf-gcc
-make cdi                              # needs mkdcdisc
-```
-
-On BeelzFight, if this folder is `crymon-dreamcast/` at repo root:
-
-```
-python3 tools/bake_content.py --content content --out src
-CRYMON_SPRITES=/path/to/CryMon/public/sprites python3 tools/gen_sprites.py
-make
-```
-
-If CryMon sprites are missing, leftover `art/sprites/` is a fallback only.
-
-## Standing rules
-
-1. **Do not fork the story.** Weeping Army, Shinigami scroll, father/Heavenfall choice, Anne crystals ×5, Mason leave after battle, map-name banners (not dialogue on warp).
-2. **Heavenfall / father resurrection is narrative-only** unless the user asks to make them party members.
-3. **Do not touch Max's walk cycle** unless the user names Max.
-4. **No SNES, LÖVE2D, or SDL/R36S ports.** All abandoned. Do not add `.sfc` / `love/` / `native/` sources.
-5. **Placeholders:** if art is missing, tag `PLACEHOLDER_ART` and keep going. Do not silently reuse another character's sprite as a stand-in for a named NPC.
-6. Pre-fusion DC sources (hardcoded tables, old art pack) live in CryMon `backups/dreamcast-pre-fuse/`. Reference only.
-
-## When you finish a DC change
-
-- If you changed story/maps/stats: put it in `content/*.json` first, bake, then any `main.c` logic.
-- Sync JSON back to CryMon if you edited a BeelzFight copy, or the web preview will drift.
+JSON first for rules, then `main.c`. Never hand-edit `content_*.inc` or `sprites.h`.
+If JSON and `main.c` disagree, JSON wins — re-bake.
+Do not touch Max’s walk cycle unless the user names Max.
+If art is missing, tag `PLACEHOLDER_ART`. Do not reuse another character’s sprite.
