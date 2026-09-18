@@ -2166,7 +2166,7 @@ export class CryMon {
 						b.menu = [
 							"Dodge  AGI",
 							"Block  STR",
-							"Barrier  SPC"
+							"Barrier  MAG"
 						];
 						b.cursor = 0;
 					}
@@ -2559,7 +2559,7 @@ export class CryMon {
 			if (fromPlayer) b.mods.foeSpc -= 4;
 			else b.mods.selfSpc -= 4;
 			dmg = Math.max(1, Math.round(5 + caster.spc * .35 + randI(0, 2)));
-			label = "Lightning Strike  SPC-4";
+			label = "Lightning Strike  MAG-4";
 		} else if (id === "manasurge") {
 			if (caster.specialPp <= 0) {
 				if (fromPlayer) {
@@ -3389,7 +3389,7 @@ export class CryMon {
 				this.hpBar(X(108), Y(68), X(100), m.hp, m.maxHp);
 				this.text(`STR ${m.str}`, X(108), Y(80), "#c5cec6", FONT);
 				this.text(`AGL ${m.agl}`, X(108), Y(92), "#c5cec6", FONT);
-				this.text(`SPC ${m.spc}`, X(108), Y(104), "#c5cec6", FONT);
+				this.text(`MAG ${m.spc}`, X(108), Y(104), "#c5cec6", FONT);
 				this.text(`XP  ${m.xp}/${m.level * 10}`, X(108), Y(116), "#8a8678", FONT);
 			} else {
 				this.text("BASIC", X(108), Y(56), "#8a8678", FONT);

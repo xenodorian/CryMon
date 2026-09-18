@@ -1844,7 +1844,7 @@ static void draw_party_detail(const Monster *party, int party_n, int idx) {
     n = s_cat_uint(buf, n, m->str);
     n = s_cat(buf, n, "  AGL ");
     n = s_cat_uint(buf, n, m->agl);
-    n = s_cat(buf, n, "  SPC ");
+    n = s_cat(buf, n, "  MAG ");
     n = s_cat_uint(buf, n, m->spc);
     buf[n] = 0;
     draw_text_s(buf, MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE); y += MENU_ROW_H * 2;
@@ -2087,7 +2087,7 @@ static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_
         if(from_player) b->mods_foe_spc -= 4; else b->mods_self_spc -= 4;
         dmg = jground(5.0f + (float)caster->spc * 0.35f + (float)irand(0, 2));
         if(dmg < 1) dmg = 1;
-        n = s_cat(label, 0, "LIGHTNING STRIKE  SPC-4");
+        n = s_cat(label, 0, "LIGHTNING STRIKE  MAG-4");
     }
     else {
         int debuffed, atk, def;
@@ -2588,7 +2588,7 @@ static void battle_pick_item(Battle *b, Bag *bag, int kind,
         n = s_cat_uint(b->msg[0], n, fx->str < 0 ? -fx->str : fx->str);
         n = s_cat(b->msg[0], n, " AGI-");
         n = s_cat_uint(b->msg[0], n, fx->agl < 0 ? -fx->agl : fx->agl);
-        n = s_cat(b->msg[0], n, " SPC-");
+        n = s_cat(b->msg[0], n, " MAG-");
         n = s_cat_uint(b->msg[0], n, fx->spc < 0 ? -fx->spc : fx->spc);
     }
     else if(fx->kind == 5) { /* flee */
@@ -3073,7 +3073,7 @@ static void draw_battle_guard_menu(int cur) {
     int y = BCONTENT_Y + 8;
     draw_battle_menu_row("DODGE AGI", 0, cur, y); y += MENU_ROW_H;
     draw_battle_menu_row("BLOCK STR", 1, cur, y); y += MENU_ROW_H;
-    draw_battle_menu_row("BARRIER SPC", 2, cur, y);
+    draw_battle_menu_row("BARRIER MAG", 2, cur, y);
 }
 
 static void draw_battle_minigame(const Battle *b) {
