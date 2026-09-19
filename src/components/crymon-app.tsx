@@ -102,8 +102,13 @@ export function CryMonApp() {
             )}
           </div>
 
-          <div className="flex w-full max-w-[960px] items-end justify-between gap-3 overflow-x-hidden lg:hidden">
-            <Dpad onPad={setPad} />
+          <div className="flex w-full max-w-[960px] items-end justify-between gap-3 overflow-x-hidden">
+            <Dpad
+              onPad={(v) => {
+                setPad(v);
+                gameRef.current?.input.setPad(v.x, v.y);
+              }}
+            />
             <div className="grid grid-cols-2 gap-2 pb-2">
               <Face label="B" onClick={() => gameRef.current?.input.queueB()} />
               <Face label="A" primary onClick={() => gameRef.current?.input.queueA()} />
