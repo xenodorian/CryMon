@@ -1,18 +1,47 @@
 {
   "trainers": {
     "sentry": {
-      "lead": ["emberling", 5],
-      "bench": [["frostail", 6], ["stormwing", 7]],
+      "lead": [
+        "emberling",
+        5
+      ],
+      "bench": [
+        [
+          "frostail",
+          6
+        ],
+        [
+          "stormwing",
+          7
+        ]
+      ],
       "title": "Sentry sends Emberling",
       "name": "Sentry",
       "marks": 12,
       "winTalk": "sentryWin",
-      "grant": [["cageKey", 1]],
+      "grant": [
+        [
+          "cageKey",
+          1
+        ]
+      ],
       "set": "beatSentry"
     },
     "conscript": {
-      "lead": ["sableclaw", 7],
-      "bench": [["boulderam", 8], ["ashenmaw", 9]],
+      "lead": [
+        "sableclaw",
+        7
+      ],
+      "bench": [
+        [
+          "boulderam",
+          8
+        ],
+        [
+          "ashenmaw",
+          9
+        ]
+      ],
       "title": "Conscript sends Sableclaw",
       "name": "Conscript",
       "marks": 14,
@@ -20,8 +49,20 @@
       "set": "beatConscript"
     },
     "enforcer": {
-      "lead": ["thornhide", 8],
-      "bench": [["glasswisp", 9], ["duskhorn", 10]],
+      "lead": [
+        "thornhide",
+        8
+      ],
+      "bench": [
+        [
+          "glasswisp",
+          9
+        ],
+        [
+          "duskhorn",
+          10
+        ]
+      ],
       "title": "Enforcer sends Thornhide",
       "name": "Enforcer",
       "marks": 15,
@@ -29,8 +70,20 @@
       "set": "beatEnforcer"
     },
     "cross": {
-      "lead": ["crymare", 9],
-      "bench": [["ashenmaw", 10], ["boulderam", 11]],
+      "lead": [
+        "crymare",
+        9
+      ],
+      "bench": [
+        [
+          "ashenmaw",
+          10
+        ],
+        [
+          "boulderam",
+          11
+        ]
+      ],
       "title": "Warden sends CryMare",
       "name": "Warden Cross",
       "marks": 18,
@@ -38,7 +91,10 @@
       "set": "beatCross"
     },
     "mason": {
-      "lead": ["glimmoth", 3],
+      "lead": [
+        "glimmoth",
+        3
+      ],
       "bench": [],
       "title": "Mason sends Glimmoth",
       "name": "Mason",
@@ -47,7 +103,10 @@
       "set": "foughtMason"
     },
     "calder": {
-      "lead": ["razorbat", 4],
+      "lead": [
+        "razorbat",
+        4
+      ],
       "bench": [],
       "title": "Calder sends Razorbat",
       "name": "Calder",
@@ -56,29 +115,79 @@
       "set": "beatCalder"
     },
     "shinigami": {
-      "lead": ["crymare", 15],
-      "bench": [["crymare", 14], ["crymare", 13]],
+      "lead": [
+        "crymare",
+        15
+      ],
+      "bench": [
+        [
+          "crymare",
+          14
+        ],
+        [
+          "crymare",
+          13
+        ]
+      ],
       "title": "Shinigami sends CryMare",
       "name": "Shinigami",
       "marks": 14,
       "winTalk": "shinigamiAfter",
-      "set": ["beatShinigami", "hasScroll"]
+      "set": [
+        "beatShinigami",
+        "hasScroll"
+      ]
     },
     "cathleen": {
-      "lead": ["cathleen", 10],
+      "lead": [
+        "cathleen",
+        10
+      ],
       "bench": [],
       "wild": true,
       "title": "Cathleen stands against you",
       "name": "Cathleen"
     },
     "forestSoldiers": [
-      {"id": "patrol", "name": "Patrol", "mark": "1", "species": "briarfox", "level": 4, "marks": 8, "winTalk": "soldierAfter"},
-      {"id": "scout", "name": "Scout", "mark": "2", "species": "mossback", "level": 4, "marks": 8, "winTalk": "soldierAfter"},
-      {"id": "sentry", "name": "Sentry", "mark": "3", "species": "razorbat", "level": 5, "marks": 8, "winTalk": "soldierAfter"}
+      {
+        "id": "patrol",
+        "name": "Patrol",
+        "mark": "1",
+        "species": "briarfox",
+        "level": 4,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      },
+      {
+        "id": "scout",
+        "name": "Scout",
+        "mark": "2",
+        "species": "mossback",
+        "level": 4,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      },
+      {
+        "id": "sentry",
+        "name": "Sentry",
+        "mark": "3",
+        "species": "razorbat",
+        "level": 5,
+        "marks": 8,
+        "winTalk": "soldierAfter"
+      }
     ],
     "forestRanger": {
-      "lead": ["briarfox", 5],
-      "bench": [["fenwisp", 5]],
+      "lead": [
+        "briarfox",
+        5
+      ],
+      "bench": [
+        [
+          "fenwisp",
+          5
+        ]
+      ],
       "title": "Ranger sends Briarfox",
       "name": "Ranger",
       "marks": 10,
@@ -86,8 +195,16 @@
       "set": "beatForestRanger"
     },
     "forestScout": {
-      "lead": ["duskhorn", 5],
-      "bench": [["razorbat", 6]],
+      "lead": [
+        "duskhorn",
+        5
+      ],
+      "bench": [
+        [
+          "razorbat",
+          6
+        ]
+      ],
       "title": "Scout sends Duskhorn",
       "name": "Scout",
       "marks": 11,
@@ -95,8 +212,16 @@
       "set": "beatForestScout"
     },
     "ruinsKeeper": {
-      "lead": ["mossback", 7],
-      "bench": [["glasswisp", 7]],
+      "lead": [
+        "mossback",
+        7
+      ],
+      "bench": [
+        [
+          "glasswisp",
+          7
+        ]
+      ],
       "title": "Keeper sends Mossback",
       "name": "Keeper",
       "marks": 13,
@@ -104,8 +229,16 @@
       "set": "beatRuinsKeeper"
     },
     "ruinsWarden": {
-      "lead": ["tortcask", 8],
-      "bench": [["ashenmaw", 8]],
+      "lead": [
+        "tortcask",
+        8
+      ],
+      "bench": [
+        [
+          "ashenmaw",
+          8
+        ]
+      ],
       "title": "Warden sends Tortcask",
       "name": "Warden",
       "marks": 14,
@@ -113,8 +246,16 @@
       "set": "beatRuinsWarden"
     },
     "marshBog": {
-      "lead": ["peatling", 5],
-      "bench": [["mireback", 6]],
+      "lead": [
+        "peatling",
+        5
+      ],
+      "bench": [
+        [
+          "mireback",
+          6
+        ]
+      ],
       "title": "Bogwalker sends Peatling",
       "name": "Bogwalker",
       "marks": 11,
@@ -122,8 +263,16 @@
       "set": "beatMarshBog"
     },
     "marshReed": {
-      "lead": ["fenwisp", 6],
-      "bench": [["glowcap", 7]],
+      "lead": [
+        "fenwisp",
+        6
+      ],
+      "bench": [
+        [
+          "glowcap",
+          7
+        ]
+      ],
       "title": "Reedguard sends Fenwisp",
       "name": "Reedguard",
       "marks": 12,
@@ -131,8 +280,16 @@
       "set": "beatMarshReed"
     },
     "quartz": {
-      "lead": ["mossback", 9],
-      "bench": [["needleroot", 10]],
+      "lead": [
+        "mossback",
+        9
+      ],
+      "bench": [
+        [
+          "needleroot",
+          10
+        ]
+      ],
       "title": "Quartz sends Mossback",
       "name": "Quartz",
       "marks": 16,
@@ -140,13 +297,38 @@
       "set": "badgeQuartz"
     },
     "opal": {
-      "lead": ["glasswisp", 10],
-      "bench": [["stormwing", 11]],
+      "lead": [
+        "glasswisp",
+        10
+      ],
+      "bench": [
+        [
+          "stormwing",
+          11
+        ]
+      ],
       "title": "Opal sends Glasswisp",
       "name": "Opal",
       "marks": 17,
       "winTalk": "opalWin",
       "set": "badgeOpal"
+    },
+    "quarryDriller": {
+      "lead": [
+        "slatekin",
+        8
+      ],
+      "bench": [
+        [
+          "glowcap",
+          9
+        ]
+      ],
+      "title": "Driller sends Slatekin",
+      "name": "Driller",
+      "marks": 15,
+      "winTalk": "quarryDrillerWin",
+      "set": "beatQuarryDriller"
     }
   }
 }
