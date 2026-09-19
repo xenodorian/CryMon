@@ -101,7 +101,9 @@
     "beatForestRanger",
     "beatForestScout",
     "beatRuinsKeeper",
-    "beatRuinsWarden"
+    "beatRuinsWarden",
+    "quarryCrateLooted",
+    "quarryShelfSearched"
   ],
   "layout": {
     "magic": [
