@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=f37523e5dd998be6 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=6e88d84b1c17e5c4 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -159,6 +159,7 @@ typedef struct {
     int map_id;
     char mark;
     int step0, stepn;
+    int w, h;
 } NpcDef;
 static const NpcStep NPC_STEPS[] = {
     { 0, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 1, -1, -1, 0, -1, 0, 0, -1 },
@@ -226,36 +227,37 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 77, -1, -1, 0, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
-    { MAP_HOUSE, 'B', 0, 2 },
-    { MAP_HOUSE, 'U', 2, 1 },
-    { MAP_HOUSE, 'S', 3, 2 },
-    { MAP_HOUSE, 'C', 5, 2 },
-    { MAP_VELD, 'K', 7, 4 },
-    { MAP_VELD, 'I', 11, 2 },
-    { MAP_VELD, 'V', 13, 2 },
-    { MAP_VELD, 'A', 15, 3 },
-    { MAP_VELD, 'Q', 18, 4 },
-    { MAP_VELD, 'J', 22, 1 },
-    { MAP_VELD, 'E', 23, 2 },
-    { MAP_VELD, 'N', 23, 2 },
-    { MAP_VELD, 'M', 25, 2 },
-    { MAP_VELD, 'G', 27, 2 },
-    { MAP_VELD, 'L', 29, 2 },
-    { MAP_VELD, 'X', 31, 1 },
-    { MAP_GROVE, '8', 32, 2 },
-    { MAP_GROVE, '9', 34, 2 },
-    { MAP_GROVE, 'K', 36, 2 },
-    { MAP_CAMP, 'I', 38, 1 },
-    { MAP_CAMP, 'K', 39, 2 },
-    { MAP_CAMP, 'A', 41, 2 },
-    { MAP_CLIFFS, 'V', 43, 2 },
-    { MAP_CLIFFS, 'Y', 45, 4 },
-    { MAP_CLIFFS, 'C', 49, 4 },
-    { MAP_CLIFFS, 'k', 53, 3 },
-    { MAP_RUINS, 'J', 56, 1 },
-    { MAP_RUINS, 'K', 57, 2 },
-    { MAP_RUINS, 'A', 59, 2 },
-    { MAP_REACH, 'Y', 61, 2 },
+    { MAP_HOUSE, 'B', 0, 2, 30, 32 },
+    { MAP_HOUSE, 'U', 2, 1, 40, 35 },
+    { MAP_HOUSE, 'S', 3, 2, 25, 28 },
+    { MAP_HOUSE, 'C', 5, 2, 20, 20 },
+    { MAP_VELD, 'K', 7, 4, 30, 32 },
+    { MAP_VELD, 'I', 11, 2, 30, 32 },
+    { MAP_VELD, 'V', 13, 2, 30, 32 },
+    { MAP_VELD, 'A', 15, 3, 30, 32 },
+    { MAP_VELD, 'Q', 18, 4, 30, 32 },
+    { MAP_VELD, 'J', 22, 1, 30, 32 },
+    { MAP_VELD, 'E', 23, 2, 30, 32 },
+    { MAP_VELD, 'N', 23, 2, 30, 32 },
+    { MAP_VELD, 'M', 25, 2, 20, 20 },
+    { MAP_VELD, 'G', 27, 2, 18, 18 },
+    { MAP_VELD, 'L', 29, 2, 20, 20 },
+    { MAP_VELD, 'X', 31, 1, 35, 30 },
+    { MAP_GROVE, '8', 32, 2, 30, 32 },
+    { MAP_GROVE, '9', 34, 2, 30, 32 },
+    { MAP_GROVE, 'K', 36, 2, 30, 32 },
+    { MAP_CAMP, 'I', 38, 1, 30, 32 },
+    { MAP_CAMP, 'K', 39, 2, 30, 32 },
+    { MAP_CAMP, 'A', 41, 2, 30, 32 },
+    { MAP_CLIFFS, 'V', 43, 2, 30, 32 },
+    { MAP_CLIFFS, 'Y', 45, 4, 30, 32 },
+    { MAP_CLIFFS, 'C', 49, 4, 20, 20 },
+    { MAP_CLIFFS, 'k', 53, 3, 30, 32 },
+    { MAP_RUINS, 'J', 56, 1, 30, 32 },
+    { MAP_RUINS, 'K', 57, 2, 30, 32 },
+    { MAP_RUINS, 'A', 59, 2, 30, 32 },
+    { MAP_REACH, 'Y', 61, 2, 30, 32 },
 };
 #define NPC_DEF_N 30
+#define INTERACT_BUFFER 10
 

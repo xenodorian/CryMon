@@ -46,6 +46,7 @@ import {
   itemEffect,
   COMBAT,
   TOXIC_BURST,
+  INTERACT,
   atkStatValue,
   frand,
 } from "./data";
@@ -1663,11 +1664,6 @@ export class CryMon {
 		if (Array.isArray(npc.marks) && npc.marks.length) return npc.marks;
 		return npc.mark ? [npc.mark] : [];
 	}
-	npcRadius() {
-		if (this.world.mapId === "house") return 36;
-		if (this.world.mapId === "veld") return 26;
-		return 52;
-	}
 	runNpc(npc) {
 		const flags = this.npcFlags();
 		const step = matchNpcScript(npc.script, flags);
@@ -1704,15 +1700,29 @@ export class CryMon {
 	}
 	runClosestNpc() {
 		const map = this.map();
-		const radius = this.npcRadius();
 		const flags = this.npcFlags();
 		let best = null;
-		let bestD = radius * radius;
+		let bestD = Infinity;
 		for (const npc of NPCS) {
 			if (npc.map !== this.world.mapId || !npc.script?.length) continue;
 			if (!matchNpcScript(npc.script, flags)) continue;
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(map, mark);
+				// Box test against the target's own footprint (npc.w/h,
+				// default the human sprite size) plus INTERACT.buffer on
+				// every side, feet-anchored the same way it's drawn: box
+				// bottom = mark y, box top = mark y - h. Not a radius --
+				// see content/logic.json's interact block. Dreamcast's
+				// try_npc_script() mirrors this exactly, scaled for its
+				// own tile size.
+				const w = npc.w ?? INTERACT.defaultW;
+				const h = npc.h ?? INTERACT.defaultH;
+				const halfW = w / 2 + INTERACT.buffer;
+				const left = s.x - halfW;
+				const right = s.x + halfW;
+				const bottom = s.y + INTERACT.buffer;
+				const top = s.y - h - INTERACT.buffer;
+				if (this.world.x < left || this.world.x > right || this.world.y < top || this.world.y > bottom) continue;
 				const dx = s.x - this.world.x;
 				const dy = s.y - this.world.y;
 				const d = dx * dx + dy * dy;

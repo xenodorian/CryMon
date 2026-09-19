@@ -771,13 +771,26 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("    int map_id;")
     lines.append("    char mark;")
     lines.append("    int step0, stepn;")
+    lines.append("    int w, h;")
     lines.append("} NpcDef;")
+    # Interact proximity is a box test against the target's own footprint
+    # (see content/logic.json's interact block), not a radius: w/h come
+    # from each npc entry (default defaultW/H, i.e. the human sprite size)
+    # in this pack's 32px-tile space, scaled down to this port's 20px
+    # tiles the same way try_npc_script's old radius constants were.
+    interact_cfg = data["logic"].get("interact") or {}
+    default_w = float(interact_cfg.get("defaultW") or 48)
+    default_h = float(interact_cfg.get("defaultH") or 52)
+    interact_buffer = float(interact_cfg.get("buffer") or 16)
+    dc_scale = 20.0 / 32.0
     steps: list[dict] = []
-    defs: list[tuple[str, str, int, int]] = []
+    defs: list[tuple[str, str, int, int, int, int]] = []
     for npc in world.get("npcs") or []:
         script = npc.get("script") or []
         if not script:
             continue
+        npc_w = round(float(npc.get("w") or default_w) * dc_scale)
+        npc_h = round(float(npc.get("h") or default_h) * dc_scale)
         start = len(steps)
         for st in script:
             grants = list(st.get("grant") or [])
@@ -816,7 +829,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
         n = len(steps) - start
         marks = npc.get("marks") or [npc["mark"]]
         for mark in marks:
-            defs.append((npc["map"], mark, start, n))
+            defs.append((npc["map"], mark, start, n, npc_w, npc_h))
     lines.append("static const NpcStep NPC_STEPS[] = {")
     for st in steps:
         gi = ",".join(str(x) for x in st["g_item"])
@@ -829,10 +842,11 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
         )
     lines.append("};")
     lines.append("static const NpcDef NPC_DEFS[] = {")
-    for mid, mark, start, n in defs:
-        lines.append(f"    {{ {map_sym(mid)}, '{mark}', {start}, {n} }},")
+    for mid, mark, start, n, w, h in defs:
+        lines.append(f"    {{ {map_sym(mid)}, '{mark}', {start}, {n}, {w}, {h} }},")
     lines.append("};")
     lines.append(f"#define NPC_DEF_N {len(defs)}")
+    lines.append(f"#define INTERACT_BUFFER {round(interact_buffer * dc_scale)}")
     lines.append("")
 
 

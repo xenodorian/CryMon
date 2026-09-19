@@ -165,5 +165,11 @@
     "power": 0.5,
     "speed": 1.0,
     "poisonDivisor": 16
+  },
+  "interact": {
+    "note": "World interact/talk proximity is a box test, not a radius: the target's own footprint (world.json npcs[].w/h, default 48x32 human size when absent) expanded by this buffer on every side, feet-anchored the same way it's drawn (box bottom = mark.y, box top = mark.y - h). Both engines interpret this the same way; the Dreamcast port scales w/h/buffer down by its own tile size (20px vs this pack's 32px).",
+    "defaultW": 48,
+    "defaultH": 52,
+    "buffer": 16
   }
 }

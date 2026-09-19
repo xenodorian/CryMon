@@ -466,6 +466,8 @@
       "mark": "U",
       "id": "bed",
       "role": "heal",
+      "w": 64,
+      "h": 56,
       "talk": "bed",
       "script": [
         {
@@ -479,6 +481,8 @@
       "mark": "S",
       "id": "shelf",
       "role": "starter",
+      "w": 40,
+      "h": 44,
       "talk": "shelf",
       "talkDone": "shelfEmpty",
       "grantMonster": [
@@ -505,6 +509,8 @@
       "mark": "C",
       "id": "crate",
       "role": "loot",
+      "w": 32,
+      "h": 32,
       "talk": "crate",
       "talkDone": "crateEmpty",
       "grantItem": [
@@ -722,6 +728,8 @@
       "mark": "M",
       "id": "herb",
       "role": "loot",
+      "w": 32,
+      "h": 32,
       "talk": "herb",
       "talkDone": "herbGone",
       "grantItem": [
@@ -750,6 +758,8 @@
       "mark": "G",
       "id": "gem",
       "role": "loot",
+      "w": 28,
+      "h": 28,
       "talk": "gemWild",
       "talkDone": "gemGone",
       "grantItem": [
@@ -780,6 +790,8 @@
       "mark": "L",
       "id": "stump",
       "role": "loot",
+      "w": 32,
+      "h": 32,
       "talk": "stump",
       "talkDone": "stumpGone",
       "grantItem": [
@@ -808,6 +820,8 @@
       "mark": "X",
       "id": "cart",
       "role": "talk",
+      "w": 56,
+      "h": 48,
       "talk": "cart",
       "script": [
         {
@@ -1011,6 +1025,8 @@
       "mark": "C",
       "id": "chest",
       "role": "loot",
+      "w": 32,
+      "h": 32,
       "talk": "chest",
       "talkDone": "chestEmpty",
       "script": [
