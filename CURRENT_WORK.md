@@ -16,7 +16,7 @@ Quarry is **parked**. Do not pick it up this list.
   landed (task 5). New species battle sprites indexed through Kilnback.
 - Marsh + quarry maps exist. Marsh trainers (Bogwalker, Reedguard) live. Quarry parked.
 - +6 species lines done (28 total). Soldier right-walk mirrored.
-- Quartz + Opal wardens live (web). Overworld NPC blit is JSON-driven. Quarry Driller wired by Claude A.
+- Quartz + Opal + marsh trainers live on web and Dreamcast PENDING. Quarry Driller by Claude A.
 
 ---
 
@@ -34,7 +34,7 @@ Quartz NPC art (quartz-1..4.png) + sprites.json entry by Grok C (took Grok A art
 
 ### 3. Crystal warden Opal — DONE (Grok C)
 JSON + badgeOpal + Reach mark O + dialogue + engine flags + opal-1..4 art.
-Dreamcast PENDING dispatch still thin (Claude noted for marsh/opal).
+Dreamcast PENDING dispatch for marshBog/marshReed/opal wired (Grok C).
 
 ### 4. Draw NPCs from JSON — DONE (Grok C)
 `engine.ts` overworld blit iterates `NPCS` / `npc.sprite`. Props, Mason/Anne,

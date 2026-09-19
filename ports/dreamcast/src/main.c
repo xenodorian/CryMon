@@ -2308,6 +2308,9 @@ typedef struct {
 #define TRAINER_WSOLDIER_WARDEN 13
 #define TRAINER_WSOLDIER_QUARTZ 14
 #define TRAINER_WSOLDIER_QUARRY_DRILLER 15
+#define TRAINER_WSOLDIER_OPAL 16
+#define TRAINER_WSOLDIER_MARSH_BOG 17
+#define TRAINER_WSOLDIER_MARSH_REED 18
 
 #define BAFTER_ITEM      1
 #define BAFTER_ATK       2
@@ -4015,6 +4018,9 @@ void main(void) {
 #define POST_WSOLDIER_WARDEN 21
 #define POST_WSOLDIER_QUARTZ 22
 #define POST_WSOLDIER_QUARRY_DRILLER 23
+#define POST_WSOLDIER_OPAL 24
+#define POST_WSOLDIER_MARSH_BOG 25
+#define POST_WSOLDIER_MARSH_REED 26
 /* Oren's stall reuses POST_SHOP directly -- same draw_shop()/ITEMS
    table Bram's does, no separate post_action needed. */
 
@@ -4031,6 +4037,7 @@ void main(void) {
     int beat_forest_ranger = 0, beat_forest_scout = 0;
     int beat_ruins_keeper = 0, beat_ruins_warden = 0, badge_quartz = 0;
     int beat_quarry_driller = 0;
+    int beat_marsh_bog = 0, beat_marsh_reed = 0, badge_opal = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
     int talked_reach = 0;
@@ -4139,6 +4146,9 @@ void main(void) {
         ft[FLAG_BEAT_RUINS_WARDEN] = &beat_ruins_warden;
         ft[FLAG_BADGE_QUARTZ] = &badge_quartz;
         ft[FLAG_BEAT_QUARRY_DRILLER] = &beat_quarry_driller;
+        ft[FLAG_BEAT_MARSH_BOG] = &beat_marsh_bog;
+        ft[FLAG_BEAT_MARSH_REED] = &beat_marsh_reed;
+        ft[FLAG_BADGE_OPAL] = &badge_opal;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
         ft[FLAG_CHEST_LOOTED] = &got_chest;
         ft[FLAG_BIRCH_GIFTED] = &talked_birch;
@@ -4353,6 +4363,9 @@ void main(void) {
                         beat_ruins_warden = save_flag_get(&sl, SAVE_FLAG_BEAT_RUINS_WARDEN);
                         badge_quartz = save_flag_get(&sl, SAVE_FLAG_BADGE_QUARTZ);
                         beat_quarry_driller = save_flag_get(&sl, SAVE_FLAG_BEAT_QUARRY_DRILLER);
+                        beat_marsh_bog = save_flag_get(&sl, SAVE_FLAG_BEAT_MARSH_BOG);
+                        beat_marsh_reed = save_flag_get(&sl, SAVE_FLAG_BEAT_MARSH_REED);
+                        badge_opal = save_flag_get(&sl, SAVE_FLAG_BADGE_OPAL);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
                         talked_birch = save_flag_get(&sl, SAVE_FLAG_BIRCH_GIFTED);
@@ -4422,6 +4435,7 @@ void main(void) {
                 beat_forest_ranger = 0; beat_forest_scout = 0;
                 beat_ruins_keeper = 0; beat_ruins_warden = 0; badge_quartz = 0;
                 beat_quarry_driller = 0;
+                beat_marsh_bog = 0; beat_marsh_reed = 0; badge_opal = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
@@ -4544,6 +4558,9 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_BEAT_RUINS_WARDEN, beat_ruins_warden);
                     save_flag_put(&sl, SAVE_FLAG_BADGE_QUARTZ, badge_quartz);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_QUARRY_DRILLER, beat_quarry_driller);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_MARSH_BOG, beat_marsh_bog);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_MARSH_REED, beat_marsh_reed);
+                    save_flag_put(&sl, SAVE_FLAG_BADGE_OPAL, badge_opal);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
                     save_flag_put(&sl, SAVE_FLAG_BIRCH_GIFTED, talked_birch);
@@ -4939,6 +4956,39 @@ void main(void) {
                                     enc_lock = 3;
                                     seq_lines = TALK_QUARRY_DRILLER_WIN;
                                     seq_len = TALK_LEN(TALK_QUARRY_DRILLER_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_NONE;
+                                }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_OPAL) {
+                                    badge_opal = 1;
+                                    marks += 17;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_OPAL_WIN;
+                                    seq_len = TALK_LEN(TALK_OPAL_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_NONE;
+                                }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_MARSH_BOG) {
+                                    beat_marsh_bog = 1;
+                                    marks += 11;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_MARSH_BOG_WIN;
+                                    seq_len = TALK_LEN(TALK_MARSH_BOG_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_NONE;
+                                }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_MARSH_REED) {
+                                    beat_marsh_reed = 1;
+                                    marks += 12;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_MARSH_REED_WIN;
+                                    seq_len = TALK_LEN(TALK_MARSH_REED_WIN);
                                     seq_beat = 0;
                                     post_action = POST_NONE;
                                 }
@@ -5861,6 +5911,66 @@ void main(void) {
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
+                                case POST_WSOLDIER_OPAL:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_OPAL].lead_sp, TRAINER_KITS[KIT_OPAL].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_OPAL;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "OPAL SENDS GLASSWISP");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_OPAL].bench_sp[0], TRAINER_KITS[KIT_OPAL].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_OPAL].bench_sp[1], TRAINER_KITS[KIT_OPAL].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_OPAL].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
+                                case POST_WSOLDIER_MARSH_BOG:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_MARSH_BOG].lead_sp, TRAINER_KITS[KIT_MARSH_BOG].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_MARSH_BOG;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "BOGWALKER SENDS PEATLING");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_MARSH_BOG].bench_sp[0], TRAINER_KITS[KIT_MARSH_BOG].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_MARSH_BOG].bench_sp[1], TRAINER_KITS[KIT_MARSH_BOG].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_MARSH_BOG].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
+                                case POST_WSOLDIER_MARSH_REED:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_MARSH_REED].lead_sp, TRAINER_KITS[KIT_MARSH_REED].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_MARSH_REED;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "REEDGUARD SENDS FENWISP");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_MARSH_REED].bench_sp[0], TRAINER_KITS[KIT_MARSH_REED].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_MARSH_REED].bench_sp[1], TRAINER_KITS[KIT_MARSH_REED].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_MARSH_REED].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
                                 case POST_WSOLDIER_WARDEN:
                                     battle.foe = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].lead_sp, TRAINER_KITS[KIT_RUINS_WARDEN].lead_lv);
                                     battle.wild = 0;
@@ -6053,6 +6163,12 @@ void main(void) {
                                     post_action = POST_WSOLDIER_QUARTZ;
                                 else if(npc_pending == NPC_PENDING_QUARRY_DRILLER)
                                     post_action = POST_WSOLDIER_QUARRY_DRILLER;
+                                else if(npc_pending == NPC_PENDING_OPAL)
+                                    post_action = POST_WSOLDIER_OPAL;
+                                else if(npc_pending == NPC_PENDING_MARSH_BOG)
+                                    post_action = POST_WSOLDIER_MARSH_BOG;
+                                else if(npc_pending == NPC_PENDING_MARSH_REED)
+                                    post_action = POST_WSOLDIER_MARSH_REED;
                                 break;
                             default:
                                 post_action = POST_NONE;

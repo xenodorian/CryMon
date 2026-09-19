@@ -77,7 +77,7 @@ typedef struct {
     int lead_sp, lead_lv;
     int bench_sp[2], bench_lv[2], bench_n;
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[10] = {
+static const TrainerKit TRAINER_KITS[13] = {
     { 11, 5, { 12, 14 }, { 6, 7 }, 2 },
     { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
     { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
@@ -88,6 +88,9 @@ static const TrainerKit TRAINER_KITS[10] = {
     { 2, 8, { 18, 0 }, { 8, 1 }, 1 },
     { 4, 9, { 8, 0 }, { 10, 1 }, 1 },
     { 23, 8, { 22, 0 }, { 9, 1 }, 1 },
+    { 20, 5, { 21, 0 }, { 6, 1 }, 1 },
+    { 6, 6, { 22, 0 }, { 7, 1 }, 1 },
+    { 17, 10, { 14, 0 }, { 11, 1 }, 1 },
 };
 #define KIT_SENTRY 0
 #define KIT_CONSCRIPT 1
@@ -99,6 +102,9 @@ static const TrainerKit TRAINER_KITS[10] = {
 #define KIT_RUINS_WARDEN 7
 #define KIT_QUARTZ 8
 #define KIT_QUARRY_DRILLER 9
+#define KIT_MARSH_BOG 10
+#define KIT_MARSH_REED 11
+#define KIT_OPAL 12
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
@@ -188,6 +194,9 @@ static const ItemFx ITEM_FX[] = {
 #define NPC_PENDING_RUINS_WARDEN 7
 #define NPC_PENDING_QUARTZ 8
 #define NPC_PENDING_QUARRY_DRILLER 12
+#define NPC_PENDING_MARSH_BOG 9
+#define NPC_PENDING_MARSH_REED 10
+#define NPC_PENDING_OPAL 11
 typedef struct {
     int if_flag, if_not, hide_if, set_flag;
     int g_item[3], g_qty[3], g_n;

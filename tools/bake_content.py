@@ -688,7 +688,7 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("} TrainerKit;")
     kit_keys = ["sentry", "conscript", "enforcer", "cross",
                 "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "quartz",
-                "quarryDriller"]
+                "quarryDriller", "marshBog", "marshReed", "opal"]
     lines.append(f"static const TrainerKit TRAINER_KITS[{len(kit_keys)}] = {{")
     for k in kit_keys:
         t = world["trainers"][k]
@@ -832,6 +832,9 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("#define NPC_PENDING_RUINS_WARDEN 7")
     lines.append("#define NPC_PENDING_QUARTZ 8")
     lines.append("#define NPC_PENDING_QUARRY_DRILLER 12")
+    lines.append("#define NPC_PENDING_MARSH_BOG 9")
+    lines.append("#define NPC_PENDING_MARSH_REED 10")
+    lines.append("#define NPC_PENDING_OPAL 11")
     lines.append("typedef struct {")
     lines.append("    int if_flag, if_not, hide_if, set_flag;")
     lines.append("    int g_item[3], g_qty[3], g_n;")
