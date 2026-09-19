@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, ENDING_SONG, VOLUME } from "./audio";
-import { packSave, unpackSave, writeSaveBlob, readSaveBlob, saveExists, SAVE_FLAGS, SAVE_SPECIES } from "./save";
+import { packSave, unpackSave, writeSaveBlob, readSaveBlob, saveExists, clearSave, SAVE_FLAGS, SAVE_SPECIES } from "./save";
 import {
   CAMP,
   CLIFFS,
@@ -290,6 +290,10 @@ export class CryMon {
 		}
 	}
 	reset() {
+		this.acc = 0;
+		this.shake = 0;
+		this.clock = 0;
+		this.lastAutosave = 0;
 		this.mode = "title";
 		this.introI = 0;
 		this.endI = 0;
@@ -1142,8 +1146,9 @@ export class CryMon {
 						if (!this.hasSave) this.audio.miss();
 					}
 				} else {
+					clearSave();
 					this.reset();
-					this.hasSave = saveExists();
+					this.hasSave = false;
 					this.mode = "intro";
 					this.introI = 0;
 					this.audio.ok();
