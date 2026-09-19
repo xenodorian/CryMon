@@ -705,7 +705,14 @@ static u16 maple_poll_buttons(void) {
     MAPLE_DMA_ADDR = PHYS(maple_cmd_buf);
     MAPLE_STATE = 1;
 
-    for(timeout = 0; timeout < 2000000u; timeout++) {
+    /* A real GetCondition transfer completes in well under a millisecond;
+       this spin only ever runs its full course when there's no
+       controller to answer (or a genuine bus stall). 2,000,000 iterations
+       of a volatile-register poll costs tens of milliseconds at 200MHz --
+       multiple whole frames -- and this function runs once every frame,
+       so a disconnected controller used to stall the game every single
+       frame. 100,000 is still ~50x the margin a real transfer needs. */
+    for(timeout = 0; timeout < 100000u; timeout++) {
         if(MAPLE_STATE == 0)
             break;
     }
