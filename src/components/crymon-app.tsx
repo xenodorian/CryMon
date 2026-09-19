@@ -76,7 +76,7 @@ export function CryMonApp() {
             </Button>
             <a
               className={cn(buttonVariants({ variant: "default", size: "sm" }))}
-              href="/rom/CryMon.cdi?v=dc5"
+              href="/rom/CryMon.cdi?v=dc6"
               download="CryMon.cdi"
               rel="noopener"
             >
