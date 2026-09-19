@@ -710,7 +710,12 @@ def bake_audio(data: dict, out: Path) -> None:
     out.write_text("\n".join(lines) + "\n")
 
 def _c_ident(name: str) -> str:
-    return re.sub(r"[^A-Za-z0-9_]", "_", name).upper()
+    out = []
+    for ch in name:
+        if ch.isupper() and out:
+            out.append("_")
+        out.append(ch.upper())
+    return "".join(out)
 
 def bake_save(data: dict, out: Path) -> None:
     save = data["save"]
@@ -724,6 +729,14 @@ def bake_save(data: dict, out: Path) -> None:
     lines.append(f"#define SAVE_PARTY_MAX 6")
     lines.append(f"#define SAVE_FLAG_N {len(flags)}")
     lines.append(f"#define SAVE_ITEM_N {len(items)}")
+    layout = save.get("layout") or {}
+    seen = layout.get("dexSeen") or [134, 4]
+    caught = layout.get("dexCaught") or [138, 4]
+    pnat = layout.get("partyNature") or 12
+    lines.append(f"#define SAVE_DEX_SEEN {int(seen[0])}")
+    lines.append(f"#define SAVE_DEX_CAUGHT {int(caught[0])}")
+    lines.append(f"#define SAVE_DEX_BYTES {int(seen[1])}")
+    lines.append(f"#define SAVE_PARTY_NATURE {int(pnat)}")
     for i, name in enumerate(flags):
         lines.append(f"#define SAVE_FLAG_{_c_ident(name)} {i}")
     lines.append("")
@@ -739,6 +752,9 @@ def bake_items(data: dict, out: Path) -> None:
         it = defs[iid]
         lines.append(f'    {{ "{c_escape(dc_text(it["name"]))}", {it["buy"]}, {it["sell"]} }},')
     lines.append("};")
+    lines.append("")
+    for i, iid in enumerate(order):
+        lines.append(f"#define ITEM_{_c_ident(iid)} {i}")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
