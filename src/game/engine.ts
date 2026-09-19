@@ -76,7 +76,6 @@ const STEP = 1 / 60;
 function loadImg(src, ms = 8000) {
 	return new Promise((res, rej) => {
 		const im = new Image();
-		im.crossOrigin = "anonymous";
 		let settled = false;
 		const done = (ok, val) => {
 			if (settled) return;
