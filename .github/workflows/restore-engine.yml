@@ -8,15 +8,54 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Merge world from parts
+      - name: Wire badgeOpal like badgeQuartz
         run: |
-          python3 tools/merge_world.py
-          python3 -c "import json; w=json.load(open('content/world.json')); assert 'opal' in w['trainers']; assert any(n.get('id')=='crystalOpal' for n in w['npcs']); print('ok', len(w['npcs']), len(w['trainers']))"
+          python3 << 'PY'
+          from pathlib import Path
+          p = Path("src/game/engine.ts")
+          eng = p.read_text()
+          if "badgeOpal" in eng and 'who === "opal"' in eng:
+              print("already wired")
+          else:
+              # property
+              eng = eng.replace(
+                  "\tbadgeQuartz = false;\n\tquarryCrateLooted = false;",
+                  "\tbadgeQuartz = false;\n\tbadgeOpal = false;\n\tquarryCrateLooted = false;",
+                  1,
+              )
+              # reset
+              eng = eng.replace(
+                  "\t\tthis.badgeQuartz = false;\n\t\tthis.quarryCrateLooted = false;",
+                  "\t\tthis.badgeQuartz = false;\n\t\tthis.badgeOpal = false;\n\t\tthis.quarryCrateLooted = false;",
+                  1,
+              )
+              # snapshot-style (two occurrences possible)
+              eng = eng.replace(
+                  "badgeQuartz: this.badgeQuartz,",
+                  "badgeQuartz: this.badgeQuartz,\n\t\t\t\tbadgeOpal: this.badgeOpal,",
+              )
+              # finishWin
+              eng = eng.replace(
+                  'else if (who === "quartz") this.badgeQuartz = true;',
+                  'else if (who === "quartz") this.badgeQuartz = true;\n\t\t\t\telse if (who === "opal") this.badgeOpal = true;',
+                  1,
+              )
+              # wsName map for overworld challenge text
+              eng = eng.replace(
+                  'quartz: "Quartz" }',
+                  'quartz: "Quartz", opal: "Opal" }',
+                  1,
+              )
+              assert eng.count("badgeOpal") >= 4, eng.count("badgeOpal")
+              assert 'who === "opal"' in eng
+              p.write_text(eng)
+              print("wired badgeOpal count", eng.count("badgeOpal"))
+          PY
       - name: Commit and push
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add content/world.json
+          git add src/game/engine.ts
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Task 3.6: merge world.json from parts (Opal + crystalOpal)"
+          git commit -m "Task 3.7: wire badgeOpal in engine (property, flags, finishWin, wsName)"
           git push
