@@ -437,11 +437,49 @@ def bake_logic(data: dict, out: Path) -> None:
     types = logic.get("natureTypes") or {}
     ring = list(types.get("ring") or [])
     ids = [n["id"] for n in natures]
-    if ring and sorted(ring) != sorted(ids):
+    if len(ids) != len(set(ids)):
+        dupes = sorted({i for i in ids if ids.count(i) > 1})
+        raise SystemExit(f"logic.json natures has duplicate id(s): {dupes}")
+    if natures and not ring:
         raise SystemExit(
-            f"logic.json natureTypes.ring does not match natures ids: "
-            f"{sorted(ring)} vs {sorted(ids)}"
+            "logic.json natureTypes.ring is missing -- every crystal needs a "
+            "matchup position"
         )
+    if ring:
+        if len(ring) != len(set(ring)):
+            dupes = sorted({i for i in ring if ring.count(i) > 1})
+            raise SystemExit(f"logic.json natureTypes.ring has duplicate id(s): {dupes}")
+        if len(ring) != len(ids):
+            raise SystemExit(
+                f"logic.json natureTypes.ring length {len(ring)} does not match "
+                f"natures length {len(ids)}"
+            )
+        if sorted(ring) != sorted(ids):
+            raise SystemExit(
+                f"logic.json natureTypes.ring does not match natures ids: "
+                f"{sorted(ring)} vs {sorted(ids)}"
+            )
+        for nat in natures:
+            for stat in ("str", "agl", "spc"):
+                v = nat.get(stat) or 0
+                if v < 0:
+                    raise SystemExit(
+                        f"logic.json natures {nat.get('id')!r} has negative "
+                        f"{stat} bonus {v} -- crystal stat bonuses must never "
+                        f"be negative"
+                    )
+        strong_mul = types.get("strongMul")
+        weak_mul = types.get("weakMul")
+        if not isinstance(strong_mul, (int, float)) or strong_mul <= 0:
+            raise SystemExit(f"logic.json natureTypes.strongMul must be a positive number, got {strong_mul!r}")
+        if not isinstance(weak_mul, (int, float)) or weak_mul <= 0:
+            raise SystemExit(f"logic.json natureTypes.weakMul must be a positive number, got {weak_mul!r}")
+        beats_ahead = types.get("beatsAhead")
+        if not isinstance(beats_ahead, int) or beats_ahead < 1 or beats_ahead * 2 >= len(ring):
+            raise SystemExit(
+                f"logic.json natureTypes.beatsAhead must be a positive int less "
+                f"than half the ring length ({len(ring)}), got {beats_ahead!r}"
+            )
     lines.append("typedef struct { const char *name; int str, agl, spc; int ring; } NatureDef;")
     lines.append(f"#define NATURE_N {len(natures)}")
     lines.append("static const NatureDef NATURES[NATURE_N] = {")

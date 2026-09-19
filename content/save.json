@@ -163,5 +163,5 @@
     "partyNature": 12
   },
   "partySlot": 16,
-  "comment": "Little-endian blob shared by web localStorage and Dreamcast VMU. Do not fork this layout in engine.ts or main.c. Checksum covers bytes 0..131 so dex bits at 134/138 and party nature at slot+12 load on old saves without a version bump (zeros = empty dex / Hardy)."
+  "comment": "Little-endian blob shared by web localStorage and Dreamcast VMU. Do not fork this layout in engine.ts or main.c. Checksum covers bytes 0..131 so dex bits at 134/138 and party slot+12 load on old saves without a version bump (zeros = empty dex; slot+12 is reserved/ignored, the crystal comes from the species)."
 }
