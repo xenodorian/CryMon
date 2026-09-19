@@ -1,0 +1,46 @@
+{
+  "startBag": {
+    "gem": 0,
+    "salve": 2,
+    "bitterroot": 1,
+    "dust": 1,
+    "bandage": 2,
+    "sunbalm": 0,
+    "warroot": 0,
+    "smokebomb": 1,
+    "greatcrystal": 0,
+    "cageKey": 0
+  },
+  "startMarks": 16,
+  "formulas": {
+    "notes": {
+      "capture": "captureAgl * agl + missingHpPercent + bonus + (vulnerable ? captureVulnerable : 0), clamp 0..100",
+      "xpGain": "xpBase + foeLevel * xpPerLevel",
+      "levelUp": "while xp >= level * levelXpMul and level < levelCap: xp -= level*levelXpMul; level++; maxHp+=levelHp; str/agl/spc += levelStat",
+      "mintGrow": "1 + (level - mintBaseLevel) * (species.str / 100)",
+      "shiny": "1/shinyDenom",
+      "benchXp": "lead full XP; other living party members floor(xp * benchXpShare)",
+      "nature": "on mint: +str/+agl/+spc from logic.json natures[i]; hardy is 0; stored in party slot byte 12"
+    },
+    "captureAgl": 5,
+    "captureVulnerable": 25,
+    "xpBase": 6,
+    "xpPerLevel": 4,
+    "levelXpMul": 10,
+    "levelCap": 20,
+    "levelHp": 3,
+    "levelStat": 1,
+    "mintGrowPerLevel": 0.12,
+    "mintBaseLevel": 3,
+    "shinyDenom": 64,
+    "heal": {"salve": 22, "bandage": 12, "sunbalm": 40},
+    "encounterPercent": 18,
+    "bitterrootStr": 4,
+    "warrootAgl": 4,
+    "dustStr": -3,
+    "dustAgl": -2,
+    "dustSpc": -2,
+    "greatcrystalBonus": 25,
+    "benchXpShare": 0.5
+  }
+}

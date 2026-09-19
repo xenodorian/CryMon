@@ -1,0 +1,14 @@
+{
+  "mapNames": {
+    "house": "HOME",
+    "veld": "CRYTOWN",
+    "forest": "THE FOREST",
+    "grove": "THE GROVE",
+    "camp": "THE CAMP",
+    "cliffs": "THE CLIFFS",
+    "ruins": "THE RUINS",
+    "reach": "THE REACH",
+    "marsh": "THE MARSH"
+  },
+  "mapIds": ["house", "veld", "forest", "grove", "camp", "cliffs", "ruins", "reach", "marsh"]
+}

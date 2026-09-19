@@ -1,0 +1,20 @@
+{
+  "warps": [
+    {"from": "house", "tile": "D", "to": "veld", "spawn": "D", "dir": "down", "oy": 44, "need": "tookStarter", "failTalk": "doorLocked", "onArrive": "masonAmbush"},
+    {"from": "veld", "tile": "D", "to": "house", "spawn": "D", "dir": "up", "oy": -32},
+    {"from": "veld", "tile": "Z", "to": "forest", "spawn": "Y", "dir": "down", "oy": 40, "onArrive": "ensureSoldiers"},
+    {"from": "forest", "tile": "Y", "to": "veld", "spawn": "Z", "dir": "up", "oy": -32},
+    {"from": "forest", "tile": "O", "to": "grove", "spawn": "O", "dir": "down", "oy": 40},
+    {"from": "grove", "tile": "O", "to": "forest", "spawn": "O", "dir": "up", "oy": -32},
+    {"from": "veld", "tile": "F", "to": "camp", "spawn": "D", "dir": "down", "oy": 40, "need": "beatCalder", "failTalk": "campLocked"},
+    {"from": "camp", "tile": "D", "to": "veld", "spawn": "F", "dir": "up", "oy": -32},
+    {"from": "veld", "tile": "c", "to": "cliffs", "spawn": "D", "dir": "down", "oy": 40},
+    {"from": "cliffs", "tile": "D", "to": "veld", "spawn": "c", "dir": "up", "oy": -32},
+    {"from": "grove", "tile": "g", "to": "ruins", "spawn": "D", "dir": "down", "oy": 40, "need": "beatShin", "failTalk": "groveLocked"},
+    {"from": "ruins", "tile": "D", "to": "grove", "spawn": "g", "dir": "up", "oy": -32},
+    {"from": "ruins", "tile": "e", "to": "reach", "spawn": "D", "dir": "down", "oy": 40, "need": "hasScroll", "failTalk": "reachLocked"},
+    {"from": "reach", "tile": "D", "to": "ruins", "spawn": "e", "dir": "up", "oy": -32},
+    {"from": "forest", "tile": "m", "to": "marsh", "spawn": "Y", "dir": "down", "oy": 40},
+    {"from": "marsh", "tile": "Y", "to": "forest", "spawn": "m", "dir": "up", "oy": -32}
+  ]
+}
