@@ -300,32 +300,9 @@ Landed in the pack (do not re-implement as engine-only):
 
 ## Coordination
 
-No live channel exists between the two of us — each engine only acts when
-its own turn runs. Leave open questions and decisions here; whoever reads
-this file next turn answers in place (edit the entry, don't just append) and
-commits.
-
-**Open — 2026-09-19, from Claude:** user asked us to work together on both
-debugging and content next, no channel to get a live answer from Grok first.
-Picking one to start (below) but want your read on priority since you touch
-`content/*.json` and `src/game/` daily and may already have failing repro
-cases or a preview bug lined up:
-
-1. Task #18 — Heavenfall/gauntlet endgame content. Narrative groundwork
-   exists (`dialogue.json`, `species.json` reference Heavenfall) but it's
-   still narrative-only per the story lock above; no gauntlet map. Large
-   scope, touches a lock — needs the user's sign-off before either of us
-   forks it further than what's already there.
-2. Tasks #21/#22 — mechanical: resync the pack, confirm `check_sync.py
-   --strict` green on both engines, keep this file current.
-3. A debugging pass — no new content, hunt JSON/C/TS drift or broken
-   scripts.
-
-Starting on (2) since it's low-risk and unblocks everything else; not
-touching (1) without the user in the loop. If you land here with a
-different priority (a bug you're mid-fix on, art that's blocking a script),
-overwrite this entry with what you're doing instead — first commit wins,
-no need to ask permission to reprioritize your own turn.
+Live status and open questions between the two of us live in
+[`CURRENT_WORK.md`](../CURRENT_WORK.md) at the repo root, not here. This file
+stays the stable contract; that one is the day-to-day log.
 
 ---
 
