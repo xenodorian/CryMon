@@ -162,7 +162,8 @@ export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature
   const s = SPECIES[species];
   let lv = Math.max(1, level);
   if (shiny) lv = Math.max(lv, lv * 2 > 12 ? 12 : lv * 2);
-  const grow = 1 + (lv - FORMULAS.mintBaseLevel) * FORMULAS.mintGrowPerLevel;
+  /* Grow per level = base strength / 100 (e.g. Quillpup str 15 → 0.15). */
+  const grow = 1 + (lv - FORMULAS.mintBaseLevel) * (s.str / 100);
   const maxHp = Math.round(s.maxHp * grow);
   const ni = nature ?? speciesNature(species);
   const nat = natureOf(ni);

@@ -1,0 +1,25 @@
+--- src/game/engine.ts
++++ src/game/engine.ts
+@@ -2106,11 +2106,18 @@
+ 	}
+ 	attackMenu(p) {
+ 		const s = SPECIES[p.species];
++		const disp = (power, speed) => ` P${Math.round((power ?? 0.6) * 10)} S${Math.round((speed ?? 1.2) * 10)}`;
+ 		if (s.spells?.length) {
+-			return s.spells.map((sp) => sp.pp ? `${sp.name}  ${p.specialPp}/${p.specialPpMax}` : sp.name);
+-		}
+-		const rows = [`${s.basic}`, `${s.special}  ${p.specialPp}/${p.specialPpMax}`];
+-		if (p.shiny) rows.push("Toxic Burst");
++			return s.spells.map((sp) => {
++				const base = sp.pp ? `${sp.name}  ${p.specialPp}/${p.specialPpMax}` : sp.name;
++				return base + disp(sp.power ?? (sp.pp ? 1.0 : 0.6), sp.speed ?? (sp.pp ? 0.8 : 1.2));
++			});
++		}
++		const rows = [
++			`${s.basic}${disp(s.basicPower, s.basicSpeed)}`,
++			`${s.special}${disp(s.specialPower, s.specialSpeed)}  ${p.specialPp}/${p.specialPpMax}`,
++		];
++		if (p.shiny) rows.push(`Toxic Burst${disp(0.5, 1.0)}`);
+ 		rows.push("Wait");
+ 		return rows;
+ 	}

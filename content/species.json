@@ -11,7 +11,13 @@
     "basic": "Nip",
     "special": "Quillburst",
     "specialPp": 3,
-    "wild": false
+    "wild": false,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "glimmoth": {
     "id": "glimmoth",
@@ -25,7 +31,13 @@
     "basic": "Dustwing",
     "special": "Lampflare",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   },
   "tortcask": {
     "id": "tortcask",
@@ -39,7 +51,13 @@
     "basic": "Shove",
     "special": "Shellslam",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "razorbat": {
     "id": "razorbat",
@@ -53,7 +71,13 @@
     "basic": "Rake",
     "special": "Swoopcut",
     "specialPp": 3,
-    "wild": false
+    "wild": false,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "mossback": {
     "id": "mossback",
@@ -67,7 +91,13 @@
     "basic": "Squelch",
     "special": "Mossguard",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "briarfox": {
     "id": "briarfox",
@@ -81,7 +111,13 @@
     "basic": "Bramble",
     "special": "Thornrush",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "fenwisp": {
     "id": "fenwisp",
@@ -95,7 +131,13 @@
     "basic": "Glim",
     "special": "Fenflare",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   },
   "duskhorn": {
     "id": "duskhorn",
@@ -109,7 +151,13 @@
     "basic": "Gore",
     "special": "Duskram",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "needleroot": {
     "id": "needleroot",
@@ -123,7 +171,13 @@
     "basic": "Prick",
     "special": "Sapdrain",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "cathleen": {
     "id": "cathleen",
@@ -139,27 +193,17 @@
     "specialPp": 4,
     "wild": true,
     "spells": [
-      {
-        "id": "firebolt",
-        "name": "Fire Bolt",
-        "pp": false
-      },
-      {
-        "id": "icebeam",
-        "name": "Ice Beam",
-        "pp": false
-      },
-      {
-        "id": "lightning",
-        "name": "Lightning Strike",
-        "pp": false
-      },
-      {
-        "id": "manasurge",
-        "name": "Mana Surge",
-        "pp": true
-      }
-    ]
+      {"id": "firebolt", "name": "Fire Bolt", "pp": false, "power": 0.6, "speed": 1.2, "stat": "spc"},
+      {"id": "icebeam", "name": "Ice Beam", "pp": false, "power": 0.6, "speed": 1.2, "stat": "spc"},
+      {"id": "lightning", "name": "Lightning Strike", "pp": false, "power": 0.6, "speed": 1.2, "stat": "spc"},
+      {"id": "manasurge", "name": "Mana Surge", "pp": true, "power": 1.0, "speed": 0.8, "stat": "spc"}
+    ],
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   },
   "crymare": {
     "id": "crymare",
@@ -173,7 +217,13 @@
     "basic": "Wail",
     "special": "Nightbridle",
     "specialPp": 3,
-    "wild": false
+    "wild": false,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   },
   "emberling": {
     "id": "emberling",
@@ -187,7 +237,13 @@
     "basic": "Spark",
     "special": "Emberblaze",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   },
   "frostail": {
     "id": "frostail",
@@ -201,7 +257,13 @@
     "basic": "Chill",
     "special": "Frostfang",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   },
   "boulderam": {
     "id": "boulderam",
@@ -215,7 +277,13 @@
     "basic": "Ram",
     "special": "Stoneslam",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "stormwing": {
     "id": "stormwing",
@@ -229,7 +297,13 @@
     "basic": "Gust",
     "special": "Thunderdive",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   },
   "sableclaw": {
     "id": "sableclaw",
@@ -243,7 +317,13 @@
     "basic": "Slash",
     "special": "Shadowrip",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "thornhide": {
     "id": "thornhide",
@@ -257,7 +337,13 @@
     "basic": "Barb",
     "special": "Thornwall",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "glasswisp": {
     "id": "glasswisp",
@@ -271,7 +357,13 @@
     "basic": "Chime",
     "special": "Prismflare",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   },
   "ashenmaw": {
     "id": "ashenmaw",
@@ -285,7 +377,13 @@
     "basic": "Bite",
     "special": "Ashenroar",
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "str",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "str"
   },
   "heavenfall": {
     "id": "heavenfall",
@@ -299,6 +397,12 @@
     "basic": "Meteor",
     "special": "Starfall",
     "specialPp": 4,
-    "wild": false
+    "wild": false,
+    "basicPower": 0.6,
+    "basicSpeed": 1.2,
+    "basicStat": "spc",
+    "specialPower": 1.0,
+    "specialSpeed": 0.8,
+    "specialStat": "spc"
   }
 }

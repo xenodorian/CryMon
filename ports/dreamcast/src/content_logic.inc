@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=b6ea3f1e9108af9c — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=bb70faa4653fb052 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -37,4 +37,16 @@ static const NatureDef NATURES[NATURE_N] = {
 #define ANNE_GIFT_AFTER 1
 #define ANNE_GIFT_QTY 5
 #define SPR_SCALE_MASON 2
+
+/* Combat: finalDamage = atkStat * power; finalSpeed = atkAgl * speed. */
+#define COMBAT_TOXIC_POWER 0.50f
+#define COMBAT_TOXIC_SPEED 1.00f
+#define COMBAT_TOXIC_STAT 0
+#define COMBAT_DODGE_MUL_MIN 0.75f
+#define COMBAT_DODGE_MUL_MAX 1.25f
+#define COMBAT_BLOCK_MUL_MIN 0.25f
+#define COMBAT_BLOCK_MUL_MAX 0.75f
+#define COMBAT_BARRIER_MUL_MIN 0.25f
+#define COMBAT_BARRIER_MUL_MAX 0.75f
+#define COMBAT_DISPLAY_SCALE 10
 

@@ -1447,13 +1447,17 @@ static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_s
  * further down) matching data.ts's own spell id order for her. Every
  * other species leaves spells_n at 0 and never touches battle_cast_spell.
  * ---------------------------------------------------------------------- */
+/* ATK_STR=0, ATK_SPC=1 — which base stat a move multiplies. */
+enum { ATK_STR = 0, ATK_SPC = 1 };
 typedef struct {
     const char *name, *basic, *special;
     int maxHp, str, agl, spc, spp;
     int spells_n;      /* 0 for every species but Cathleen */
     int spells[4];     /* SPELL_* ids, spells_n of them valid */
-    int nature;        /* index into NATURES -- a crystal belongs to the
-                          species, so every one of them shares it */
+    float basic_power, basic_speed;   /* 0.5–1.5; display ×10 as 5–15 */
+    int basic_stat;                   /* ATK_STR or ATK_SPC */
+    float special_power, special_speed;
+    int special_stat;
 } Species;
 
 #include "content_species.inc"
@@ -1508,6 +1512,10 @@ static u32 rng_next(void) {
 static int irand(int a, int b) {
     return a + (int)(rng_next() % (u32)(b - a + 1));
 }
+/* Inclusive float range [lo, hi]. */
+static float frand(float lo, float hi) {
+    return lo + (hi - lo) * ((float)(rng_next() & 0xffffu) / 65535.0f);
+}
 
 static int jground(float x) {
     return (int)(x + 0.5f);
@@ -1537,7 +1545,8 @@ static float f_sqrt(float x) {
 
 static Monster mint_monster(int species, int lv) {
     const Species *s = &SPECIES[species];
-    float g = 1.0f + (float)(lv - 3) * 0.12f;
+    /* Grow per level = base strength / 100 (e.g. Quillpup str 15 → 0.15). */
+    float g = 1.0f + (float)(lv - 3) * ((float)s->str / 100.0f);
     Monster m;
     const NatureDef *nat;
     m.species = species;
@@ -1998,20 +2007,18 @@ static void draw_choice(int cur) {
 typedef struct {
     Monster pl, foe;
     int wild;
-    int phase;      /* 0 msg, 1 item menu, 2 attack menu, 3 guard menu,
-                        4 special-move timing minigame */
-    char msg[3][80];  /* a move label plus damage, a crystal-matchup tag and
-                         a poison tick can share one line; draw_wrapped()
-                         re-flows it to fit the box */
+    int phase;      /* 0 msg, 1 item, 2 attack, 3 guard, 4 special minigame */
+    char msg[3][40];
     int msg_n, msg_i;
     int after;
     int cur;        /* menu cursor for phases 1-3 */
     int mods_self_str, mods_self_agl, mods_self_spc;
     int mods_foe_str, mods_foe_agl, mods_foe_spc;
     int pl_poisoned, foe_poisoned; /* TOXIC BURST, shiny-exclusive move */
-    float mg;       /* special-move timing needle, 0-100 */
+    int dmg;            /* finalDamage locked when attack chosen */
+    float atk_speed;    /* finalSpeed = agl * moveSpeed, locked with dmg */
+    float mg;           /* special timing needle 0–100 */
     int mg_dir;
-    int dmg;
     char label[28];
     int grew;       /* set by finish_win() below, read by the WIN_NOTE beat */
     int trainer_kind;      /* TRAINER_* below */
@@ -2221,62 +2228,64 @@ static void battle_apply_hit(Battle *b) {
     b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
 }
 
-/* pickAtk's basic-move branch. Only reached for a non-spellcaster
-   lead -- see battle_pick_spell() further down for Cathleen's own
-   branch, dispatched separately in main()'s battle-phase-2 handling. */
+/* Shared attack resolution: finalDamage = atkStat * power,
+   finalSpeed = atkAgl * moveSpeed. Both locked here. No minigame. */
+static void battle_resolve_player_attack(Battle *b, const char *move_name,
+                                         float power, float speed, int stat_kind,
+                                         int inflict_poison) {
+    int atk_stat, n = 0;
+    float agl = (float)(b->pl.agl + b->mods_self_agl);
+    if(stat_kind == ATK_SPC)
+        atk_stat = b->pl.spc + b->mods_self_spc;
+    else
+        atk_stat = b->pl.str + b->mods_self_str;
+    b->dmg = jground((float)atk_stat * power);
+    if(b->dmg < 1) b->dmg = 1;
+    b->atk_speed = agl * speed;
+    n = s_cat(b->label, 0, move_name);
+    b->label[n] = 0;
+    battle_apply_hit(b);
+    if(inflict_poison) b->foe_poisoned = 1;
+}
+
+/* Basic move: power/speed/stat from SPECIES table. */
 static void battle_pick_basic(Battle *b) {
-    int atk = b->pl.str + b->mods_self_str;
-    int def = b->foe.str + b->mods_foe_str;
-    int n = 0;
-
-    b->dmg = jground(6.0f + (float)atk * 0.62f - (float)def * 0.16f + (float)irand(0, 3));
-    if(b->dmg < 1) b->dmg = 1;
-    n = s_cat(b->label, n, SPECIES[b->pl.species].basic);
-    b->label[n] = 0;
-    battle_apply_hit(b);
+    const Species *s = &SPECIES[b->pl.species];
+    battle_resolve_player_attack(b, s->basic, s->basic_power, s->basic_speed,
+                                 s->basic_stat, 0);
 }
 
-/* TOXIC BURST: the shiny-exclusive move (see mint_shiny()). Weaker
-   than the plain basic move on its own, but poisons the foe for
-   ongoing chip damage every subsequent turn -- see the poison_tick
-   handling in battle_apply_hit()/battle_pick_guard(). Only offered to
-   a shiny player lead (draw_battle_atk_menu/main()'s phase-2 dispatch
-   add the extra row); no PP cost, always available, matching the
-   "rare but not fussy" spirit of a shiny encounter. */
+/* TOXIC BURST: shiny-exclusive. Weaker, poisons foe. */
 static void battle_pick_toxic(Battle *b) {
-    int atk = b->pl.str + b->mods_self_str;
-    int def = b->foe.str + b->mods_foe_str;
-    int n = 0;
-
-    b->dmg = jground(4.0f + (float)atk * 0.5f - (float)def * 0.16f + (float)irand(0, 2));
-    if(b->dmg < 1) b->dmg = 1;
-    n = s_cat(b->label, n, "TOXIC BURST");
-    b->label[n] = 0;
-    battle_apply_hit(b);
-    b->foe_poisoned = 1;
+    battle_resolve_player_attack(b, "TOXIC BURST",
+                                 COMBAT_TOXIC_POWER, COMBAT_TOXIC_SPEED,
+                                 COMBAT_TOXIC_STAT, 1);
 }
 
-/* pickAtk's special-move branch: engine.ts's timing minigame (mg
-   bounces 0-100; landing 46-54 is "perfect" 2x, 38-62 "connected"
-   1.45x, else "fizzled" 0.7x). Called once on A-press during phase 4
-   (see main()'s battle update). */
+/* Special move: resolve after timing minigame (phase 4).
+   Zones: green 45–55 = 2x, yellow 30–70 = 1.5x, red rest = 1x.
+   Base damage = atkStat * special_power, then × mul. */
 static void battle_pick_special(Battle *b) {
+    const Species *s = &SPECIES[b->pl.species];
     float mul;
     const char *tag;
-    int def = b->foe.spc + b->mods_foe_spc;
-    int n = 0;
+    int atk_stat, n = 0;
+    float agl = (float)(b->pl.agl + b->mods_self_agl);
 
-    if(b->mg >= 46.0f && b->mg <= 54.0f)      { mul = 2.0f;  tag = "PERFECT"; }
-    else if(b->mg >= 38.0f && b->mg <= 62.0f) { mul = 1.45f; tag = "CONNECTED"; }
-    else                                      { mul = 0.7f;  tag = "FIZZLED"; }
+    if(b->mg >= 45.0f && b->mg <= 55.0f)      { mul = 2.0f;  tag = "PERFECT"; }
+    else if(b->mg >= 30.0f && b->mg <= 70.0f) { mul = 1.5f;  tag = "CONNECTED"; }
+    else                                      { mul = 1.0f;  tag = "FIZZLED"; }
 
-    /* atk uses modsSelfStr, not modsSelfSpc -- verbatim from
-       state.lua's pickAtk: "local atk = G.bPl.spc + G.modsSelfStr * 0.2". */
-    b->dmg = jground((11.0f + ((float)b->pl.spc + (float)b->mods_self_str * 0.2f) * 0.75f
-                       - (float)def * 0.18f) * mul + (float)irand(0, 2));
+    if(s->special_stat == ATK_SPC)
+        atk_stat = b->pl.spc + b->mods_self_spc;
+    else
+        atk_stat = b->pl.str + b->mods_self_str;
+
+    b->dmg = jground((float)atk_stat * s->special_power * mul);
     if(b->dmg < 1) b->dmg = 1;
+    b->atk_speed = agl * s->special_speed;
 
-    n = s_cat(b->label, n, SPECIES[b->pl.species].special);
+    n = s_cat(b->label, 0, s->special);
     n = s_cat(b->label, n, " ");
     n = s_cat(b->label, n, tag);
     b->label[n] = 0;
@@ -2315,18 +2324,14 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
     int use_special = b->foe.spp > 0 && irand(0, 99) < 28;
     char move_name_buf[40];
     const char *move_name;
-    float base;
-    int atk_stat, def_stat, chance, success, dmg;
-    char line[96];
-    int n = 0;
+    float power, speed;
+    int stat_kind, atk_stat, dmg, n = 0;
+    float atk_speed;
+    char line[56];
     int poison_tick = 0;
     int inflicts_poison = 0;
-    int nat_sign = 0;
+    int i, found;
 
-    /* TOXIC BURST's chip damage on the player's side, same ordering
-       as battle_apply_hit()'s foe-side tick: whatever poison state
-       came INTO this turn ticks first, before this turn's own guard
-       result is resolved. */
     if(b->pl_poisoned) {
         poison_tick = b->pl.maxHp / 16;
         if(poison_tick < 1) poison_tick = 1;
@@ -2334,28 +2339,15 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
         if(b->pl.hp < 0) b->pl.hp = 0;
     }
 
-    /* A shiny foe has a chance to reach for its own TOXIC BURST
-       instead of the usual basic/special ladder, same shape as the
-       Cathleen spell branch below (goto guard_chance) -- skipped
-       once the player's already poisoned, same one-application-at-a-
-       time rule battle_pick_toxic() follows for the player's side. */
     if(b->foe.shiny && !b->pl_poisoned && irand(0, 99) < 30) {
-        atk_stat = b->foe.str + b->mods_foe_str;
-        base = 4.0f + (float)atk_stat * 0.5f - (float)(b->pl.str + b->mods_self_str) * 0.16f;
+        power = COMBAT_TOXIC_POWER;
+        speed = COMBAT_TOXIC_SPEED;
+        stat_kind = COMBAT_TOXIC_STAT;
         move_name = "TOXIC BURST";
         inflicts_poison = 1;
-        goto guard_chance;
+        goto compute_attack;
     }
 
-    /* resolve_guard()'s spell branch: Cathleen never uses the plain
-       basic/special ladder below, she casts one of her 4 spells
-       instead (weighted toward Mana Surge when the player is already
-       debuffed, same 55% roll as the reference). atkStat/base still
-       come from this branch's `base` alone -- the reference's own
-       atkStat calculation for the guard-chance formula, further down,
-       is untouched by this branch and keeps using the basic-move
-       formula even for a spellcaster, a quirk of resolve_guard()
-       ported here verbatim rather than "fixed". */
     if(foe_sp->spells_n > 0) {
         static const char *const SPELL_PLAIN_NAME[4] = {
             "FIRE BOLT", "ICE BEAM", "LIGHTNING STRIKE", "MANA SURGE"
@@ -2366,166 +2358,135 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
             spell_id = SPELL_MANASURGE;
         if(battle_cast_spell(b, spell_id, 0, &dmg, move_name_buf)) {
             move_name = move_name_buf;
-        }
-        else {
-            /* castSpell()'s spent-PP Mana Surge fallback: "?? { dmg: 1,
-               label: spell.name }" -- only reachable here since the
-               plain elemental spells never fail this check. */
+        } else {
             dmg = 1;
             move_name = SPELL_PLAIN_NAME[spell_id];
         }
-        base = (float)dmg;
-        atk_stat = b->foe.str + b->mods_foe_str;
-        goto guard_chance;
+        atk_speed = (float)(b->foe.agl + b->mods_foe_agl) * foe_sp->basic_speed;
+        b->dmg = dmg;
+        goto apply_guard;
     }
 
     if(use_special) b->foe.spp--;
     move_name = use_special ? foe_sp->special : foe_sp->basic;
-
     if(use_special) {
+        power = foe_sp->special_power;
+        speed = foe_sp->special_speed;
+        stat_kind = foe_sp->special_stat;
+    } else {
+        power = foe_sp->basic_power;
+        speed = foe_sp->basic_speed;
+        stat_kind = foe_sp->basic_stat;
+    }
+
+compute_attack:
+    if(stat_kind == ATK_SPC)
         atk_stat = b->foe.spc + b->mods_foe_spc;
-        base = 10.0f + (float)(b->foe.spc + b->mods_foe_spc) * 0.7f
-                     - (float)(b->pl.spc + b->mods_self_spc) * 0.12f;
-    }
-    else {
+    else
         atk_stat = b->foe.str + b->mods_foe_str;
-        base = 6.0f + (float)(b->foe.str + b->mods_foe_str) * 0.6f
-                    - (float)(b->pl.str + b->mods_self_str) * 0.15f;
-    }
-
-guard_chance:
-    if(kind == 0)      def_stat = b->pl.agl + b->mods_self_agl;
-    else if(kind == 1) def_stat = b->pl.str + b->mods_self_str;
-    else               def_stat = b->pl.spc + b->mods_self_spc;
-
-    chance = clampi(50 + (def_stat - atk_stat) * 5 + irand(-10, 10), 12, 88);
-    success = irand(1, 100) <= chance;
-    dmg = jground(base + (float)irand(0, 3));
+    dmg = jground((float)atk_stat * power);
     if(dmg < 1) dmg = 1;
+    atk_speed = (float)(b->foe.agl + b->mods_foe_agl) * speed;
+    b->dmg = dmg;
 
-    /* Crystal matchup on the incoming hit, before the guard reduces it: the
-       matchup decides how hard the blow lands, the guard decides how much of
-       it the player eats. */
-    dmg = nature_scale_dmg(dmg, species_nature(b->foe.species),
-                           species_nature(b->pl.species), &nat_sign);
-
+apply_guard:
     if(kind == 0) {
-        if(success) {
+        float def_score = (float)(b->pl.agl + b->mods_self_agl)
+                        * frand(COMBAT_DODGE_MUL_MIN, COMBAT_DODGE_MUL_MAX);
+        if(atk_speed - def_score > 0.0f) {
+            n = s_cat(line, 0, "THE DODGE FAILS ");
+            n = s_cat_uint(line, n, dmg);
+            n = s_cat(line, n, " DMG");
+        } else {
             dmg = 0;
             n = s_cat(line, 0, SPECIES[b->pl.species].name);
             n = s_cat(line, n, " SLIPS ASIDE");
         }
-        else {
-            n = s_cat(line, 0, "THE DODGE FAILS ");
-            n = s_cat_uint(line, n, dmg);
-            n = s_cat(line, n, " DMG");
-        }
-    }
-    else if(kind == 1) {
-        if(success) {
-            dmg = jground((float)dmg * 0.5f);
+    } else if(kind == 1) {
+        float block_score = (float)(b->pl.str + b->mods_self_str)
+                          * frand(COMBAT_BLOCK_MUL_MIN, COMBAT_BLOCK_MUL_MAX);
+        float remain = (float)dmg - block_score;
+        if(remain <= 0.0f) {
+            n = s_cat(line, 0, "PARRIED!");
+            b->foe.hp -= dmg;
+            if(b->foe.hp < 0) b->foe.hp = 0;
+            dmg = 0;
+        } else {
+            dmg = jground(remain);
             if(dmg < 1) dmg = 1;
             n = s_cat(line, 0, "BLOCKED ");
             n = s_cat_uint(line, n, dmg);
             n = s_cat(line, n, " DMG LEAKS THROUGH");
         }
-        else {
-            n = s_cat(line, 0, "THE BLOCK BREAKS ");
-            n = s_cat_uint(line, n, dmg);
-            n = s_cat(line, n, " DMG");
-        }
-    }
-    else {
-        if(success) {
-            dmg = jground((float)dmg * 0.4f);
+    } else {
+        float barrier_score = (float)(b->pl.spc + b->mods_self_spc)
+                            * frand(COMBAT_BARRIER_MUL_MIN, COMBAT_BARRIER_MUL_MAX);
+        float remain = (float)dmg - barrier_score;
+        if(remain <= 0.0f) {
+            int heal = dmg / 2;
+            if(heal < 1) heal = 1;
+            b->pl.hp += heal;
+            if(b->pl.hp > b->pl.maxHp) b->pl.hp = b->pl.maxHp;
+            n = s_cat(line, 0, "ABSORBED! +");
+            n = s_cat_uint(line, n, heal);
+            n = s_cat(line, n, " HP");
+            dmg = 0;
+        } else {
+            dmg = jground(remain);
             if(dmg < 1) dmg = 1;
             n = s_cat(line, 0, "A THIN BARRIER HOLDS ");
             n = s_cat_uint(line, n, dmg);
             n = s_cat(line, n, " DMG");
         }
-        else {
-            n = s_cat(line, 0, "THE BARRIER SHIVERS APART ");
-            n = s_cat_uint(line, n, dmg);
-            n = s_cat(line, n, " DMG");
-        }
-    }
-    /* Only worth saying when something landed: a clean dodge zeroes dmg,
-       and a matchup tag on a hit that never connected reads as a
-       contradiction. */
-    if(dmg > 0) {
-        if(nat_sign > 0)      n = s_cat(line, n, " " NATURE_STRONG_TEXT);
-        else if(nat_sign < 0) n = s_cat(line, n, " " NATURE_WEAK_TEXT);
-    }
-    if(poison_tick > 0) {
-        n = s_cat(line, n, " PSN-");
-        n = s_cat_uint(line, n, poison_tick);
-    }
-    else if(inflicts_poison) {
-        n = s_cat(line, n, " PSN");
     }
     line[n] = 0;
 
-    b->pl.hp -= dmg;
-    if(b->pl.hp < 0) b->pl.hp = 0;
+    if(dmg > 0) {
+        b->pl.hp -= dmg;
+        if(b->pl.hp < 0) b->pl.hp = 0;
+    }
     if(inflicts_poison) b->pl_poisoned = 1;
-    party[*lead] = b->pl;
+
+    n = s_cat(b->msg[0], 0, move_name);
+    n = s_cat(b->msg[0], n, " ");
+    n = s_cat_uint(b->msg[0], n, b->dmg);
+    n = s_cat(b->msg[0], n, " DMG");
+    b->msg[0][n] = 0;
+    for(i = 0; line[i]; i++) b->msg[1][i] = line[i];
+    b->msg[1][i] = 0;
 
     if(b->pl.hp <= 0) {
-        int i, nxt = -1;
-        for(i = 0; i < party_n; i++)
-            if(i != *lead && party[i].hp > 0) { nxt = i; break; }
-
-        n = s_cat(b->msg[0], 0, line);
-        b->msg[0][n] = 0;
-
-        if(nxt >= 0) {
-            *lead = nxt;
-            b->pl = party[nxt];
-            b->pl_poisoned = 0; /* fresh monster, not the fallen one */
-            n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
-            n = s_cat(b->msg[1], n, " JUMPS IN");
-            b->msg[1][n] = 0;
-            b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
+        found = -1;
+        for(i = 0; i < party_n; i++) {
+            if(i == *lead) continue;
+            if(party[i].hp > 0) { found = i; break; }
         }
-        else {
-            n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
-            n = s_cat(b->msg[1], n, " CANNOT STAND");
-            b->msg[1][n] = 0;
-            b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_LOSS;
+        if(found >= 0) {
+            party[*lead] = b->pl;
+            *lead = found;
+            b->pl = party[*lead];
+            n = s_cat(b->msg[2], 0, SPECIES[b->pl.species].name);
+            n = s_cat(b->msg[2], n, " JUMPS IN");
+            b->msg[2][n] = 0;
+            b->msg_n = 3; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
+        } else {
+            n = s_cat(b->msg[2], 0, SPECIES[b->pl.species].name);
+            n = s_cat(b->msg[2], n, " CANNOT STAND");
+            b->msg[2][n] = 0;
+            b->msg_n = 3; b->msg_i = 0; b->phase = 0; b->after = BAFTER_LOSS;
         }
         return;
     }
 
-    n = s_cat(b->msg[0], 0, SPECIES[b->foe.species].name);
-    n = s_cat(b->msg[0], n, " USES ");
-    n = s_cat(b->msg[0], n, move_name);
-    b->msg[0][n] = 0;
-    n = s_cat(b->msg[1], 0, line);
-    b->msg[1][n] = 0;
+    if(b->foe.hp <= 0) {
+        b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_WIN;
+        return;
+    }
+
     b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
 }
 
-/* Item menu kinds, matching fillItemMenu's row order (state.lua's
-   "switch" row is skipped -- see the item-menu drawing/input code in
-   main() for why). */
-#define ITEM_PASS       0
-#define ITEM_SALVE      1
-#define ITEM_BANDAGE    2
-#define ITEM_BITTERROOT 3
-#define ITEM_DUST       4
-#define ITEM_GEM        5
-#define ITEM_SUNBALM      6
-#define ITEM_WARROOT      7
-#define ITEM_SMOKEBOMB    8
-#define ITEM_GREATCRYSTAL 9
 
-/* pickItem(): items (heal/buff/debuff) are "free" -- they route back
-   to the attack menu (BAFTER_ATK), never to the guard phase, matching
-   state.lua exactly (only an actual attack or Wait lets the foe act).
-   A successful capture ends the battle outright (BAFTER_WORLD); every
-   other outcome, including a failed capture, also returns to the
-   attack menu. party/party_n are only touched by a successful
-   capture. */
 static void battle_pick_item(Battle *b, Bag *bag, int kind,
                               Monster *party, int *party_n, int lead) {
     int n = 0;
@@ -2729,6 +2690,7 @@ static int try_encounter(int map_id, int px, int py, int party_n,
     out->mods_self_str = out->mods_self_agl = out->mods_self_spc = 0;
     out->mods_foe_str = out->mods_foe_agl = out->mods_foe_spc = 0;
     out->pl_poisoned = out->foe_poisoned = 0;
+    out->atk_speed = 0.0f;
     out->mg = 8.0f;
     out->mg_dir = 1;
     out->grew = 0;
@@ -3049,9 +3011,20 @@ static void draw_battle_atk_menu(const Battle *b, int cur) {
         return;
     }
 
-    draw_battle_menu_row(s->basic, 0, cur, y); y += MENU_ROW_H;
+    /* Display power/speed as ×10 (5–15 range). */
+    n = s_cat(buf, 0, s->basic);
+    n = s_cat(buf, n, " P");
+    n = s_cat_uint(buf, n, (int)(s->basic_power * (float)COMBAT_DISPLAY_SCALE + 0.5f));
+    n = s_cat(buf, n, " S");
+    n = s_cat_uint(buf, n, (int)(s->basic_speed * (float)COMBAT_DISPLAY_SCALE + 0.5f));
+    buf[n] = 0;
+    draw_battle_menu_row(buf, 0, cur, y); y += MENU_ROW_H;
 
     n = s_cat(buf, 0, s->special);
+    n = s_cat(buf, n, " P");
+    n = s_cat_uint(buf, n, (int)(s->special_power * (float)COMBAT_DISPLAY_SCALE + 0.5f));
+    n = s_cat(buf, n, " S");
+    n = s_cat_uint(buf, n, (int)(s->special_speed * (float)COMBAT_DISPLAY_SCALE + 0.5f));
     n = s_cat(buf, n, " ");
     n = s_cat_uint(buf, n, b->pl.spp);
     n = s_cat(buf, n, "/");
@@ -3059,9 +3032,13 @@ static void draw_battle_atk_menu(const Battle *b, int cur) {
     buf[n] = 0;
     draw_battle_menu_row(buf, 1, cur, y); y += MENU_ROW_H;
 
-    /* Extra row, shiny leads only -- see battle_pick_toxic(). */
     if(b->pl.shiny) {
-        draw_battle_menu_row("TOXIC BURST", 2, cur, y); y += MENU_ROW_H;
+        n = s_cat(buf, 0, "TOXIC BURST P");
+        n = s_cat_uint(buf, n, (int)(COMBAT_TOXIC_POWER * (float)COMBAT_DISPLAY_SCALE + 0.5f));
+        n = s_cat(buf, n, " S");
+        n = s_cat_uint(buf, n, (int)(COMBAT_TOXIC_SPEED * (float)COMBAT_DISPLAY_SCALE + 0.5f));
+        buf[n] = 0;
+        draw_battle_menu_row(buf, 2, cur, y); y += MENU_ROW_H;
         draw_battle_menu_row("WAIT", 3, cur, y);
     }
     else {
@@ -3076,25 +3053,32 @@ static void draw_battle_guard_menu(int cur) {
     draw_battle_menu_row("BARRIER MAG", 2, cur, y);
 }
 
-static void draw_battle_minigame(const Battle *b) {
-    int bar_x = BCONTENT_X + 8, bar_y = BCONTENT_Y + 16, bar_w = BCONTENT_W - 16, bar_h = 10;
-    int needle_x = bar_x + (int)(b->mg * (float)bar_w / 100.0f);
-
-    fill_rect(bar_x, bar_y, bar_w, bar_h, rgb565(40, 38, 32));
-    fill_rect(bar_x + (int)(0.38f * (float)bar_w), bar_y,
-              (int)(0.24f * (float)bar_w), bar_h, rgb565(90, 122, 82));
-    fill_rect(bar_x + (int)(0.46f * (float)bar_w), bar_y,
-              (int)(0.08f * (float)bar_w), bar_h, rgb565(197, 206, 198));
-    fill_rect(needle_x - 1, bar_y - 4, 2, bar_h + 8, 0xFFFF);
-    draw_text_s("A TO STRIKE", BCONTENT_X + 8, bar_y + bar_h + 8, rgb565(138, 134, 120), MENU_SCALE);
-}
-
 /* drawBattle()'s full-screen background, drawn before the status
    boxes/sprites/content box, all of which are individually small so
    the background (and both battle sprites) stay visible around them
    -- see the section comment above. */
 static void draw_battle_bg(void) {
     blit_sprite(battle_bg, BATTLE_BG_W, BATTLE_BG_H, 0, 0);
+}
+
+
+/* Special timing bar: red = fizzle 1x, yellow = connected 1.5x (30–70),
+   green = perfect 2x (45–55). Needle tracks mg 0–100. */
+static void draw_battle_minigame(const Battle *b) {
+    int bar_x = BCONTENT_X + 8, bar_y = BCONTENT_Y + 16, bar_w = BCONTENT_W - 16, bar_h = 10;
+    int needle_x = bar_x + (int)(b->mg * (float)bar_w / 100.0f);
+
+    /* Red base (fizzle) */
+    fill_rect(bar_x, bar_y, bar_w, bar_h, rgb565(139, 48, 48));
+    /* Yellow band 30–70 */
+    fill_rect(bar_x + (int)(0.30f * (float)bar_w), bar_y,
+              (int)(0.40f * (float)bar_w), bar_h, rgb565(201, 162, 39));
+    /* Green slice 45–55 */
+    fill_rect(bar_x + (int)(0.45f * (float)bar_w), bar_y,
+              (int)(0.10f * (float)bar_w), bar_h, rgb565(74, 154, 74));
+    /* Needle */
+    fill_rect(needle_x - 1, bar_y - 4, 3, bar_h + 8, 0xFFFF);
+    draw_text_s("A TO STRIKE", BCONTENT_X + 8, bar_y + bar_h + 8, rgb565(138, 134, 120), MENU_SCALE);
 }
 
 static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
@@ -4587,13 +4571,14 @@ void main(void) {
                     }
                 }
             }
+            
             else if(battle.phase == 4) {
-                /* mg bounces 0-100 at ~110 units/sec, matching
-                   engine.ts's per-frame update at our fixed ~60fps
-                   vblank rate (no real dt in this bare-metal loop). */
+                /* Special timing minigame: needle bounces 0–100 at ~110/s.
+                   A locks the hit. Zones: green 45–55 = 2x, yellow 30–70 = 1.5x,
+                   red rest = 1x. */
                 battle.mg += (float)battle.mg_dir * (110.0f / 60.0f);
                 if(battle.mg > 100.0f) { battle.mg = 100.0f; battle.mg_dir = -1; }
-                if(battle.mg < 0.0f)   { battle.mg = 0.0f;    battle.mg_dir = 1; }
+                if(battle.mg < 0.0f)   { battle.mg = 0.0f;   battle.mg_dir = 1; }
                 if(a_now && !prev_a) {
                     battle_pick_special(&battle);
                     party[lead] = battle.pl;
