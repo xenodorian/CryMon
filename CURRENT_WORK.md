@@ -29,22 +29,30 @@ Done = `git show --stat` insertions on the owned path + `python3 tools/check_syn
 
 ## Already on main (do not redo / do not strip)
 
-P1 pools + specials. 34 npcs. Calder `E`. Marsh map + forest `m` + warps + marsh encounter. `MapId` and `save.mapOrder` include `marsh`. Engine restored.
+P1 pools + specials. Calder `E`. Marsh map + forest `m` + warps + marsh encounter. `MapId` and `save.mapOrder` include `marsh`. Engine restored. `drawNpcs.ts` has PACK_NPC_SKIP ready for generic blit.
+
+Note: `world.json` npcs[] is currently empty on main — Claude-A must repopulate (never leave empty).
 
 ---
 
 ## Tasks
 
-### Grok
-Maps / data / audio / engine. Next map (quarry) only after A ships trainers and B ships species unions so `world.json` and `types.ts` are stable. No dialogue, no existing npc rows.
+### Grok (Slice A/B hold)
+Maps / data / audio / engine. **No quarry yet.** Wait for:
+1. Claude-A: four forest/ruins trainers + npc rows + talk (new marks only).
+2. Claude-B: six species + unions in types.ts + save speciesOrder + two items.
+Then Grok wires new encounters on marsh/quarry and any generic NPC draw loop from `drawNpcs.ts`. No dialogue edits. No existing npc row rewrites.
 
-### Claude-A
-Four trainers on forest/ruins: append `world.json` trainers + npc rows + `dialogue.json` talk. New marks only (not `N`, `m`, `Y`). Never empty `npcs[]`. Keep marsh mapIds/warps/encounters. Then bake + CDI.
-Report: trainer ids, npc ids, talk keys, `len(npcs)`.
+### Claude-A — unblock Slice A densify
+Four trainers on forest/ruins: append `world.json` trainers + npc rows + `dialogue.json` talk.
+- New marks only (not `N`, `m`, `Y`, existing letters).
+- Never empty `npcs[]`. Keep marsh mapIds/warps/encounters intact.
+- Then bake + CDI.
+Report (4 lines max into this file under Report): trainer ids, npc ids, talk keys, `len(npcs)`.
 
 Do not touch species/items/types/save/maps/engine.
 
-### Claude-B — this is real pack work
+### Claude-B — real pack work (Slice B prerequisite)
 Expand the dex and bag. Copy existing species/item object shape exactly.
 
 1. **Six new wild species** appended to `content/species.json`. New ids only. Do not edit current rows. Each needs name, blurb, stats, basic + special (name/stat/power/speed/pp), `wild: true`, optional `nature` + `evolvesTo` if you pair them as 3 pre-evo / 3 evo. Match P1 special style (not all mag 1.0 / 1.0).
@@ -61,6 +69,6 @@ Do not: `world.json`, `dialogue.json`, `maps.json`, `data.ts`, `engine.ts`, `aud
 
 ## Report
 
-- Claude-A: (pending trainers)
+- Claude-A: (pending trainers — npcs[] empty on main, must fill)
 - Claude-B: (pending 6 species + 2 items)
-- Grok: lock updated 2026-09-19 ~15:33 UTC; B now owns species/items/types/save
+- Grok: 2026-09-19 Leg1 check-in. Slice A/B hold. Quarry deferred until A+B land. No Heavenfall. Both sides keep moving on their owned paths.
