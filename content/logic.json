@@ -147,5 +147,23 @@
     "weakMul": 0.5,
     "strongText": "Weakness x2",
     "weakText": "Resisted x0.5"
+  },
+  "combat": {
+    "note": "Full rewrite of the old flat+scale damage/guard formulas. Every attack (basic, special, spell, Toxic Burst) is atkStat (str or mag, whichever the move is tagged with, raw value plus battle mods) times the move's own power rating (0.5-1.5, shown to the player x10 as 5-15). Speed is the same shape off agility: atkAgl x the move's speed rating, used only to resolve Dodge. Guard has no percentage roll any more -- Dodge is a speed contest, Block/Barrier are a flat score subtracted from the incoming hit. Both engines interpret this block; neither hardcodes these constants.",
+    "dodgeDefenderRandMin": 0.75,
+    "dodgeDefenderRandMax": 1.25,
+    "guardRandMin": 0.25,
+    "guardRandMax": 0.75,
+    "barrierHealDivisor": 2,
+    "parriedText": "Parried!",
+    "absorbedText": "Absorbed!"
+  },
+  "toxicBurst": {
+    "note": "The shiny-exclusive move. Universal, not per-species -- every shiny CryMon can use it, and a shiny foe has a chance to reach for it instead of its usual moves. Poisons on hit.",
+    "name": "Toxic Burst",
+    "stat": "str",
+    "power": 0.5,
+    "speed": 1.0,
+    "poisonDivisor": 16
   }
 }

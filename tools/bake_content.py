@@ -345,6 +345,15 @@ def nature_index(data: dict, species_entry: dict) -> int:
     return ids.index(nid)
 
 
+ATK_STAT_SYM = {"str": "ATK_STR", "mag": "ATK_MAG"}
+
+
+def atk_stat_sym(stat: str, where: str) -> str:
+    if stat not in ATK_STAT_SYM:
+        raise SystemExit(f"{where}: stat {stat!r} must be \"str\" or \"mag\"")
+    return ATK_STAT_SYM[stat]
+
+
 def bake_species(data: dict, out: Path) -> None:
     spec = data["species"]
     order = species_order(data)
@@ -354,6 +363,32 @@ def bake_species(data: dict, out: Path) -> None:
         lines.append(f"#define {sp_sym(sid)} {i}")
     lines.append(f"#define SPECIES_N {n}")
     lines.append("")
+
+    # Cathleen's spell kit is a fixed global table (4 ids, always the same
+    # power/speed/stat) baked once here rather than per-species, since every
+    # spell-casting species would otherwise repeat the same 4 rows.
+    spell_defs: dict[int, dict] = {}
+    for sid in order:
+        for sp in spec[sid].get("spells") or []:
+            idx = SPELL[sp["id"]]
+            row = {"stat": sp["stat"], "power": sp["power"], "speed": sp["speed"]}
+            prev = spell_defs.get(idx)
+            if prev is not None and prev != row:
+                raise SystemExit(
+                    f"spell {sp['id']!r} has conflicting stat/power/speed "
+                    f"across species: {prev} vs {row}"
+                )
+            spell_defs[idx] = row
+    lines.append("static const SpellDef SPELLS[4] = {")
+    for idx in range(4):
+        row = spell_defs.get(idx, {"stat": "mag", "power": 1.0, "speed": 1.0})
+        lines.append(
+            f"    {{ {atk_stat_sym(row['stat'], 'spell ' + str(idx))}, "
+            f"{float(row['power'])}f, {float(row['speed'])}f }},"
+        )
+    lines.append("};")
+    lines.append("")
+
     lines.append(f"static const Species SPECIES[SPECIES_N] = {{")
     for sid in order:
         s = spec[sid]
@@ -368,6 +403,10 @@ def bake_species(data: dict, out: Path) -> None:
         lines.append(
             f'    {{ "{c_escape(name)}", "{c_escape(basic)}", "{c_escape(special)}", '
             f'{s["maxHp"]}, {s["str"]}, {s["agl"]}, {s["spc"]}, {s["specialPp"]}, '
+            f"{atk_stat_sym(s['basicStat'], sid + '.basicStat')}, "
+            f"{atk_stat_sym(s['specialStat'], sid + '.specialStat')}, "
+            f"{float(s['basicPower'])}f, {float(s['basicSpeed'])}f, "
+            f"{float(s['specialPower'])}f, {float(s['specialSpeed'])}f, "
             f"{nsp}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}}, "
             f"{nature_index(data, s)} }},"
         )
@@ -437,6 +476,28 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define ANNE_GIFT_QTY {int(anne.get('qty') or 5)}")
     scale = (data.get("sprites") or {}).get("drawScale") or {}
     lines.append(f"#define SPR_SCALE_MASON {int(scale.get('mason') or 1)}")
+    lines.append("")
+
+    combat = logic.get("combat") or {}
+    lines.append("/* Guard resolution -- see content/logic.json's combat block. */")
+    lines.append(f"#define DODGE_DEF_RAND_MIN {float(combat.get('dodgeDefenderRandMin') or 1.0)}f")
+    lines.append(f"#define DODGE_DEF_RAND_MAX {float(combat.get('dodgeDefenderRandMax') or 1.0)}f")
+    lines.append(f"#define GUARD_RAND_MIN {float(combat.get('guardRandMin') or 1.0)}f")
+    lines.append(f"#define GUARD_RAND_MAX {float(combat.get('guardRandMax') or 1.0)}f")
+    lines.append(f"#define BARRIER_HEAL_DIVISOR {int(combat.get('barrierHealDivisor') or 1)}")
+    lines.append(
+        f'#define GUARD_PARRIED_TEXT "{c_escape(dc_text(combat.get("parriedText") or ""))}"')
+    lines.append(
+        f'#define GUARD_ABSORBED_TEXT "{c_escape(dc_text(combat.get("absorbedText") or ""))}"')
+    lines.append("")
+
+    toxic = logic.get("toxicBurst") or {}
+    lines.append("/* Toxic Burst -- universal shiny-exclusive move, not per-species. */")
+    lines.append(f'#define TOXIC_NAME "{c_escape(dc_text(toxic.get("name") or "TOXIC BURST"))}"')
+    lines.append(f"#define TOXIC_STAT {atk_stat_sym(toxic.get('stat') or 'str', 'toxicBurst.stat')}")
+    lines.append(f"#define TOXIC_POWER {float(toxic.get('power') or 1.0)}f")
+    lines.append(f"#define TOXIC_SPEED {float(toxic.get('speed') or 1.0)}f")
+    lines.append(f"#define TOXIC_POISON_DIVISOR {int(toxic.get('poisonDivisor') or 16)}")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 

@@ -1447,14 +1447,33 @@ static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_s
  * further down) matching data.ts's own spell id order for her. Every
  * other species leaves spells_n at 0 and never touches battle_cast_spell.
  * ---------------------------------------------------------------------- */
+/* Every attack (basic, special, spell, Toxic Burst) is atkStat(str or mag)
+   times the move's own power rating -- see content/logic.json's "combat"
+   block. ATK_STR/ATK_MAG tag which raw stat a move draws on; agility is
+   never an attack stat, only a speed one (used solely to resolve Dodge). */
+#define ATK_STR 0
+#define ATK_MAG 1
+
 typedef struct {
     const char *name, *basic, *special;
     int maxHp, str, agl, spc, spp;
+    int basic_stat, special_stat;       /* ATK_STR / ATK_MAG */
+    float basic_power, basic_speed;     /* 0.5-1.5, shown to the player x10 */
+    float special_power, special_speed;
     int spells_n;      /* 0 for every species but Cathleen */
     int spells[4];     /* SPELL_* ids, spells_n of them valid */
     int nature;        /* index into NATURES -- a crystal belongs to the
                           species, so every one of them shares it */
 } Species;
+
+/* Cathleen's fixed 4-spell kit. Every spell is tagged Magic (see
+   content/species.json's spells[].stat), but power/speed still vary by
+   spell so casting a spell goes through the exact same atkStat*power
+   formula as every other move. */
+typedef struct {
+    int stat;
+    float power, speed;
+} SpellDef;
 
 #include "content_species.inc"
 #include "content_world.inc"
@@ -1998,8 +2017,10 @@ static void draw_choice(int cur) {
 typedef struct {
     Monster pl, foe;
     int wild;
-    int phase;      /* 0 msg, 1 item menu, 2 attack menu, 3 guard menu,
-                        4 special-move timing minigame */
+    int phase;      /* 0 msg, 1 item menu, 2 attack menu, 3 guard menu.
+                        Every move (basic/special/spell/Toxic Burst) resolves
+                        the instant it's picked now -- no more timing
+                        minigame phase. */
     char msg[3][80];  /* a move label plus damage, a crystal-matchup tag and
                          a poison tick can share one line; draw_wrapped()
                          re-flows it to fit the box */
@@ -2009,8 +2030,6 @@ typedef struct {
     int mods_self_str, mods_self_agl, mods_self_spc;
     int mods_foe_str, mods_foe_agl, mods_foe_spc;
     int pl_poisoned, foe_poisoned; /* TOXIC BURST, shiny-exclusive move */
-    float mg;       /* special-move timing needle, 0-100 */
-    int mg_dir;
     int dmg;
     char label[28];
     int grew;       /* set by finish_win() below, read by the WIN_NOTE beat */
@@ -2066,6 +2085,13 @@ static int battle_capture_chance(const Battle *b) {
 #define SPELL_ICEBEAM   1
 #define SPELL_LIGHTNING 2
 #define SPELL_MANASURGE 3
+/* Every spell is Magic (see SPELLS[] -- baked from species.json's
+   spells[].stat), so caster->spc is always the right stat here. Damage is
+   the same atkStat*power formula every other move uses (SPELLS[spell_id]
+   supplies the power); the three elemental bolts keep their stat-debuff
+   side effect and Mana Surge keeps its doubled-when-debuffed multiplier,
+   both untouched by the formula rewrite -- those are move-specific
+   effects layered on top of the shared damage core, not part of it. */
 static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_dmg, char *out_label) {
     Monster *caster = from_player ? &b->pl : &b->foe;
     int dmg = 0, n = 0;
@@ -2073,32 +2099,30 @@ static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_
 
     if(spell_id == SPELL_FIREBOLT) {
         if(from_player) b->mods_foe_str -= 4; else b->mods_self_str -= 4;
-        dmg = jground(5.0f + (float)caster->spc * 0.35f + (float)irand(0, 2));
+        dmg = jground((float)caster->spc * SPELLS[SPELL_FIREBOLT].power);
         if(dmg < 1) dmg = 1;
         n = s_cat(label, 0, "FIRE BOLT  STR-4");
     }
     else if(spell_id == SPELL_ICEBEAM) {
         if(from_player) b->mods_foe_agl -= 4; else b->mods_self_agl -= 4;
-        dmg = jground(5.0f + (float)caster->spc * 0.35f + (float)irand(0, 2));
+        dmg = jground((float)caster->spc * SPELLS[SPELL_ICEBEAM].power);
         if(dmg < 1) dmg = 1;
         n = s_cat(label, 0, "ICE BEAM  AGI-4");
     }
     else if(spell_id == SPELL_LIGHTNING) {
         if(from_player) b->mods_foe_spc -= 4; else b->mods_self_spc -= 4;
-        dmg = jground(5.0f + (float)caster->spc * 0.35f + (float)irand(0, 2));
+        dmg = jground((float)caster->spc * SPELLS[SPELL_LIGHTNING].power);
         if(dmg < 1) dmg = 1;
         n = s_cat(label, 0, "LIGHTNING STRIKE  MAG-4");
     }
     else {
-        int debuffed, atk, def;
+        int debuffed;
         float mul;
         if(caster->spp <= 0) return 0;
         caster->spp--;
         debuffed = from_player ? battle_foe_debuffed(b) : battle_self_debuffed(b);
         mul = debuffed ? 2.0f : 1.0f;
-        atk = caster->spc;
-        def = from_player ? (b->foe.spc + b->mods_foe_spc) : (b->pl.spc + b->mods_self_spc);
-        dmg = jground((11.0f + (float)atk * 0.75f - (float)def * 0.18f) * mul + (float)irand(0, 2));
+        dmg = jground((float)caster->spc * SPELLS[SPELL_MANASURGE].power * mul);
         if(dmg < 1) dmg = 1;
         n = s_cat(label, 0, debuffed ? "MANA SURGE  2X" : "MANA SURGE");
     }
@@ -2132,6 +2156,68 @@ static int nature_scale_dmg(int dmg, int atk_nat, int def_nat, int *out_sign) {
     else if(sign < 0) dmg = jground((float)dmg * NATURE_WEAK_MUL);
     if(dmg < 1) dmg = 1;
     return dmg;
+}
+
+/* Uniform-ish float in [lo, hi], built on irand() so it shares the same
+   rng_state every other roll in this file uses. Used by the Dodge/Block/
+   Barrier resolution below, which needs a random multiplier rather than a
+   random int. */
+static float frand(float lo, float hi) {
+    return lo + (hi - lo) * ((float)irand(0, 1000) / 1000.0f);
+}
+
+/* Shared bench-swap-or-win tail for whenever the foe's hp drops to 0 or
+   below, whether from a normal hit (battle_apply_hit) or a Parried counter-
+   blow (battle_pick_guard). Assumes the caller already wrote the turn's
+   hit-description line into b->msg[0]; fallen_prefix lets the caller mark a
+   parry-kill in msg[1] ("PARRIED! X FALLS") without a 4th message slot.
+   Returns 1 if it took over b->msg/phase/after (caller should return
+   immediately), 0 if the foe is still standing. */
+static int battle_foe_maybe_fall(Battle *b, const char *fallen_prefix) {
+    int n;
+    if(b->foe.hp > 0) return 0;
+    if(b->bench_n > 0) {
+        /* Shinigami's fight, and Mason's rematch too -- the two nbench > 0
+           fights. Grants XP for the fallen bench member (unlike the final
+           win, which grants XP once the whole fight ends), swaps the next
+           bench monster in, and clears the foe-side stat mods, matching
+           applyHit's bench branch. */
+        char fallen[24];
+        int fn = s_cat(fallen, 0, SPECIES[b->foe.species].name);
+        fallen[fn] = 0;
+
+        if(g_xp_party) {
+            g_xp_party[g_xp_lead] = b->pl;
+            grant_party_xp(g_xp_party, g_xp_party_n, g_xp_lead, b->foe.lv);
+            b->pl = g_xp_party[g_xp_lead];
+        } else {
+            grant_xp(&b->pl, b->foe.lv, 100);
+        }
+        b->foe = b->bench[0];
+        if(b->bench_n == 2) b->bench[0] = b->bench[1];
+        b->bench_n--;
+        b->mods_foe_str = b->mods_foe_agl = b->mods_foe_spc = 0;
+        b->foe_poisoned = 0; /* fresh bench monster, not the fallen one */
+
+        n = s_cat(b->msg[1], 0, fallen_prefix);
+        n = s_cat(b->msg[1], n, fallen);
+        n = s_cat(b->msg[1], n, " FALLS");
+        b->msg[1][n] = 0;
+
+        n = s_cat(b->msg[2], 0,
+                  b->trainer_kind == TRAINER_MASON2 ? "MASON SENDS " : "SHINIGAMI SENDS ");
+        n = s_cat(b->msg[2], n, SPECIES[b->foe.species].name);
+        b->msg[2][n] = 0;
+
+        b->msg_n = 3; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
+        return 1;
+    }
+    n = s_cat(b->msg[1], 0, fallen_prefix);
+    n = s_cat(b->msg[1], n, SPECIES[b->foe.species].name);
+    n = s_cat(b->msg[1], n, " FALLS");
+    b->msg[1][n] = 0;
+    b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_WIN;
+    return 1;
 }
 
 static void battle_apply_hit(Battle *b) {
@@ -2172,113 +2258,71 @@ static void battle_apply_hit(Battle *b) {
     }
     b->msg[0][n] = 0;
 
-    if(b->foe.hp <= 0) {
-        if(b->bench_n > 0) {
-            /* Shinigami's fight, and now Mason's rematch too -- the
-               two nbench > 0 fights. Grants XP for the fallen bench
-               member (unlike the final win, which grants XP once the
-               whole fight ends), swaps the next bench monster in, and
-               clears the foe-side stat mods, matching applyHit's
-               bench branch. */
-            char fallen[24];
-            int fn = s_cat(fallen, 0, SPECIES[b->foe.species].name);
-            fallen[fn] = 0;
-
-            if(g_xp_party) {
-                g_xp_party[g_xp_lead] = b->pl;
-                grant_party_xp(g_xp_party, g_xp_party_n, g_xp_lead, b->foe.lv);
-                b->pl = g_xp_party[g_xp_lead];
-            } else {
-                grant_xp(&b->pl, b->foe.lv, 100);
-            }
-            b->foe = b->bench[0];
-            if(b->bench_n == 2) b->bench[0] = b->bench[1];
-            b->bench_n--;
-            b->mods_foe_str = b->mods_foe_agl = b->mods_foe_spc = 0;
-            b->foe_poisoned = 0; /* fresh bench monster, not the fallen one */
-
-            n = s_cat(b->msg[1], 0, fallen);
-            n = s_cat(b->msg[1], n, " FALLS");
-            b->msg[1][n] = 0;
-
-            n = s_cat(b->msg[2], 0,
-                      b->trainer_kind == TRAINER_MASON2 ? "MASON SENDS " : "SHINIGAMI SENDS ");
-            n = s_cat(b->msg[2], n, SPECIES[b->foe.species].name);
-            b->msg[2][n] = 0;
-
-            b->msg_n = 3; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
-            return;
-        }
-        n = s_cat(b->msg[1], 0, SPECIES[b->foe.species].name);
-        n = s_cat(b->msg[1], n, " FALLS");
-        b->msg[1][n] = 0;
-        b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_WIN;
-        return;
-    }
+    if(battle_foe_maybe_fall(b, "")) return;
 
     n = s_cat(b->msg[1], 0, "FOE ANSWERS CHOOSE A GUARD");
     b->msg[1][n] = 0;
     b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
 }
 
+/* Raw stat a move draws on (str or mag), mods included -- the one shared
+   lookup every attacker-side move (basic/special/spell/Toxic Burst) and
+   every guard-side foe move go through. */
+static int atk_stat_value(const Monster *m, int mods_str, int mods_agl, int mods_spc, int stat) {
+    (void)mods_agl;
+    return stat == ATK_STR ? m->str + mods_str : m->spc + mods_spc;
+}
+
 /* pickAtk's basic-move branch. Only reached for a non-spellcaster
    lead -- see battle_pick_spell() further down for Cathleen's own
-   branch, dispatched separately in main()'s battle-phase-2 handling. */
+   branch, dispatched separately in main()'s battle-phase-2 handling.
+   Damage is the shared formula every move now uses: atkStat * power,
+   no defense term -- what the defender eats is decided entirely at the
+   guard step (Dodge/Block/Barrier), not baked into the attack. */
 static void battle_pick_basic(Battle *b) {
-    int atk = b->pl.str + b->mods_self_str;
-    int def = b->foe.str + b->mods_foe_str;
+    const Species *s = &SPECIES[b->pl.species];
+    int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, s->basic_stat);
     int n = 0;
 
-    b->dmg = jground(6.0f + (float)atk * 0.62f - (float)def * 0.16f + (float)irand(0, 3));
+    b->dmg = jground((float)atk * s->basic_power);
     if(b->dmg < 1) b->dmg = 1;
-    n = s_cat(b->label, n, SPECIES[b->pl.species].basic);
+    n = s_cat(b->label, n, s->basic);
     b->label[n] = 0;
     battle_apply_hit(b);
 }
 
-/* TOXIC BURST: the shiny-exclusive move (see mint_shiny()). Weaker
-   than the plain basic move on its own, but poisons the foe for
-   ongoing chip damage every subsequent turn -- see the poison_tick
-   handling in battle_apply_hit()/battle_pick_guard(). Only offered to
-   a shiny player lead (draw_battle_atk_menu/main()'s phase-2 dispatch
-   add the extra row); no PP cost, always available, matching the
-   "rare but not fussy" spirit of a shiny encounter. */
+/* TOXIC BURST: the shiny-exclusive move (see mint_shiny()). Universal --
+   not per-species, see content/logic.json's toxicBurst block -- and
+   weaker than a plain basic move, but poisons the foe for ongoing chip
+   damage every subsequent turn (see the poison_tick handling in
+   battle_apply_hit()/battle_pick_guard()). Only offered to a shiny
+   player lead (draw_battle_atk_menu/main()'s phase-2 dispatch add the
+   extra row); no PP cost, always available, matching the "rare but not
+   fussy" spirit of a shiny encounter. */
 static void battle_pick_toxic(Battle *b) {
-    int atk = b->pl.str + b->mods_self_str;
-    int def = b->foe.str + b->mods_foe_str;
+    int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, TOXIC_STAT);
     int n = 0;
 
-    b->dmg = jground(4.0f + (float)atk * 0.5f - (float)def * 0.16f + (float)irand(0, 2));
+    b->dmg = jground((float)atk * TOXIC_POWER);
     if(b->dmg < 1) b->dmg = 1;
-    n = s_cat(b->label, n, "TOXIC BURST");
+    n = s_cat(b->label, n, TOXIC_NAME);
     b->label[n] = 0;
     battle_apply_hit(b);
     b->foe_poisoned = 1;
 }
 
-/* pickAtk's special-move branch: engine.ts's timing minigame (mg
-   bounces 0-100; landing 46-54 is "perfect" 2x, 38-62 "connected"
-   1.45x, else "fizzled" 0.7x). Called once on A-press during phase 4
-   (see main()'s battle update). */
+/* pickAtk's special-move branch. No more timing minigame -- a special
+   resolves the instant it's picked, exactly like a basic move, just off
+   Species.special_stat/special_power instead of basic's. */
 static void battle_pick_special(Battle *b) {
-    float mul;
-    const char *tag;
-    int def = b->foe.spc + b->mods_foe_spc;
+    const Species *s = &SPECIES[b->pl.species];
+    int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, s->special_stat);
     int n = 0;
 
-    if(b->mg >= 46.0f && b->mg <= 54.0f)      { mul = 2.0f;  tag = "PERFECT"; }
-    else if(b->mg >= 38.0f && b->mg <= 62.0f) { mul = 1.45f; tag = "CONNECTED"; }
-    else                                      { mul = 0.7f;  tag = "FIZZLED"; }
-
-    /* atk uses modsSelfStr, not modsSelfSpc -- verbatim from
-       state.lua's pickAtk: "local atk = G.bPl.spc + G.modsSelfStr * 0.2". */
-    b->dmg = jground((11.0f + ((float)b->pl.spc + (float)b->mods_self_str * 0.2f) * 0.75f
-                       - (float)def * 0.18f) * mul + (float)irand(0, 2));
+    b->dmg = jground((float)atk * s->special_power);
     if(b->dmg < 1) b->dmg = 1;
 
-    n = s_cat(b->label, n, SPECIES[b->pl.species].special);
-    n = s_cat(b->label, n, " ");
-    n = s_cat(b->label, n, tag);
+    n = s_cat(b->label, n, s->special);
     b->label[n] = 0;
     battle_apply_hit(b);
 }
@@ -2301,22 +2345,33 @@ static int battle_pick_spell(Battle *b, int spell_id) {
     return 1;
 }
 
-/* pickGuard(): the foe picks its own move (28% chance of its special
-   if it has spp left, otherwise basic), the player's chosen guard is
-   checked against a stat-difference success chance, and damage scales
-   per guard kind on success. kind: 0 dodge (AGI), 1 block (STR), 2
-   barrier (SPC). Needs the live party array to resolve a faint the
-   same way state.lua does inline: swap in the next living member if
-   one exists (message becomes "<line>" + "<name> JUMPS IN", battle
-   continues at the item menu) or end the battle if none do ("<line>"
-   + "<name> CANNOT STAND", BAFTER_LOSS). */
+/* pickGuard(): the foe picks its own move (28% chance of its special if
+   it has spp left, otherwise basic). Guard resolution has no percentage
+   roll any more -- see content/logic.json's combat block:
+     Dodge:   a speed contest. attackerScore = foe's agl * the move's
+              speed rating; defenderScore = player's agl * a random
+              0.75-1.25x. attackerScore - defenderScore > 0 lands the hit
+              anyway; <= 0 the dodge succeeds outright.
+     Block:   blockScore = player's str * a random 0.25-0.75x, subtracted
+              from the incoming (matchup-scaled) damage. Reduced to 0 or
+              below and it's Parried -- the player takes nothing and the
+              FOE takes the full damage it would have dealt, which can
+              itself end the fight (battle_foe_maybe_fall() handles that).
+     Barrier: same shape off the player's mag, but a full negate is
+              Absorbed instead of reflected -- the player heals half the
+              would-be damage rather than dealing it back.
+   Needs the live party array to resolve a faint the same way state.lua
+   does inline: swap in the next living member if one exists (message
+   becomes "<line>" + "<name> JUMPS IN", battle continues at the item
+   menu) or end the battle if none do ("<line>" + "<name> CANNOT STAND",
+   BAFTER_LOSS). */
 static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, int *lead) {
     const Species *foe_sp = &SPECIES[b->foe.species];
     int use_special = b->foe.spp > 0 && irand(0, 99) < 28;
     char move_name_buf[40];
     const char *move_name;
-    float base;
-    int atk_stat, def_stat, chance, success, dmg;
+    int atk_stat_raw, dmg, counter_dmg = 0;
+    float move_power, move_speed;
     char line[96];
     int n = 0;
     int poison_tick = 0;
@@ -2334,28 +2389,29 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
         if(b->pl.hp < 0) b->pl.hp = 0;
     }
 
-    /* A shiny foe has a chance to reach for its own TOXIC BURST
-       instead of the usual basic/special ladder, same shape as the
-       Cathleen spell branch below (goto guard_chance) -- skipped
-       once the player's already poisoned, same one-application-at-a-
-       time rule battle_pick_toxic() follows for the player's side. */
+    /* A shiny foe has a chance to reach for its own TOXIC BURST instead
+       of the usual basic/special ladder, same shape as the Cathleen spell
+       branch below (goto move_chosen) -- skipped once the player's
+       already poisoned, same one-application-at-a-time rule
+       battle_pick_toxic() follows for the player's side. */
     if(b->foe.shiny && !b->pl_poisoned && irand(0, 99) < 30) {
-        atk_stat = b->foe.str + b->mods_foe_str;
-        base = 4.0f + (float)atk_stat * 0.5f - (float)(b->pl.str + b->mods_self_str) * 0.16f;
-        move_name = "TOXIC BURST";
+        atk_stat_raw = atk_stat_value(&b->foe, b->mods_foe_str, b->mods_foe_agl, b->mods_foe_spc, TOXIC_STAT);
+        move_power = TOXIC_POWER;
+        move_speed = TOXIC_SPEED;
+        move_name = TOXIC_NAME;
         inflicts_poison = 1;
-        goto guard_chance;
+        goto move_chosen;
     }
 
     /* resolve_guard()'s spell branch: Cathleen never uses the plain
-       basic/special ladder below, she casts one of her 4 spells
-       instead (weighted toward Mana Surge when the player is already
-       debuffed, same 55% roll as the reference). atkStat/base still
-       come from this branch's `base` alone -- the reference's own
-       atkStat calculation for the guard-chance formula, further down,
-       is untouched by this branch and keeps using the basic-move
-       formula even for a spellcaster, a quirk of resolve_guard()
-       ported here verbatim rather than "fixed". */
+       basic/special ladder below, she casts one of her 4 spells instead
+       (weighted toward Mana Surge when the player is already debuffed,
+       same 55% roll as the reference). Mana Surge's own doubling (and the
+       elemental spells' debuff side effects) already happened inside
+       battle_cast_spell() -- dmg here is its finished output, so this
+       branch skips the shared atkStat*power step below and goes straight
+       to the guard resolution with move_power effectively "already
+       applied". */
     if(foe_sp->spells_n > 0) {
         static const char *const SPELL_PLAIN_NAME[4] = {
             "FIRE BOLT", "ICE BEAM", "LIGHTNING STRIKE", "MANA SURGE"
@@ -2374,35 +2430,22 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
             dmg = 1;
             move_name = SPELL_PLAIN_NAME[spell_id];
         }
-        base = (float)dmg;
-        atk_stat = b->foe.str + b->mods_foe_str;
-        goto guard_chance;
+        move_speed = SPELLS[spell_id].speed;
+        goto guard_resolve;
     }
 
     if(use_special) b->foe.spp--;
     move_name = use_special ? foe_sp->special : foe_sp->basic;
+    atk_stat_raw = atk_stat_value(&b->foe, b->mods_foe_str, b->mods_foe_agl, b->mods_foe_spc,
+                                   use_special ? foe_sp->special_stat : foe_sp->basic_stat);
+    move_power = use_special ? foe_sp->special_power : foe_sp->basic_power;
+    move_speed = use_special ? foe_sp->special_speed : foe_sp->basic_speed;
 
-    if(use_special) {
-        atk_stat = b->foe.spc + b->mods_foe_spc;
-        base = 10.0f + (float)(b->foe.spc + b->mods_foe_spc) * 0.7f
-                     - (float)(b->pl.spc + b->mods_self_spc) * 0.12f;
-    }
-    else {
-        atk_stat = b->foe.str + b->mods_foe_str;
-        base = 6.0f + (float)(b->foe.str + b->mods_foe_str) * 0.6f
-                    - (float)(b->pl.str + b->mods_self_str) * 0.15f;
-    }
-
-guard_chance:
-    if(kind == 0)      def_stat = b->pl.agl + b->mods_self_agl;
-    else if(kind == 1) def_stat = b->pl.str + b->mods_self_str;
-    else               def_stat = b->pl.spc + b->mods_self_spc;
-
-    chance = clampi(50 + (def_stat - atk_stat) * 5 + irand(-10, 10), 12, 88);
-    success = irand(1, 100) <= chance;
-    dmg = jground(base + (float)irand(0, 3));
+move_chosen:
+    dmg = jground((float)atk_stat_raw * move_power);
     if(dmg < 1) dmg = 1;
 
+guard_resolve:
     /* Crystal matchup on the incoming hit, before the guard reduces it: the
        matchup decides how hard the blow lands, the guard decides how much of
        it the player eats. */
@@ -2410,48 +2453,69 @@ guard_chance:
                            species_nature(b->pl.species), &nat_sign);
 
     if(kind == 0) {
-        if(success) {
-            dmg = 0;
-            n = s_cat(line, 0, SPECIES[b->pl.species].name);
-            n = s_cat(line, n, " SLIPS ASIDE");
-        }
-        else {
+        /* Dodge: a speed contest, not a percentage roll. The move's own
+           speed rating only matters for the attacker's side; the
+           defender's is a flat random reaction roll off raw agility. */
+        float atk_speed = (float)(b->foe.agl + b->mods_foe_agl) * move_speed;
+        float def_speed = (float)(b->pl.agl + b->mods_self_agl)
+                           * frand(DODGE_DEF_RAND_MIN, DODGE_DEF_RAND_MAX);
+        if(atk_speed - def_speed > 0.0f) {
             n = s_cat(line, 0, "THE DODGE FAILS ");
             n = s_cat_uint(line, n, dmg);
             n = s_cat(line, n, " DMG");
         }
+        else {
+            dmg = 0;
+            n = s_cat(line, 0, SPECIES[b->pl.species].name);
+            n = s_cat(line, n, " SLIPS ASIDE");
+        }
     }
     else if(kind == 1) {
-        if(success) {
-            dmg = jground((float)dmg * 0.5f);
-            if(dmg < 1) dmg = 1;
+        int block_score = jground((float)(b->pl.str + b->mods_self_str) * frand(GUARD_RAND_MIN, GUARD_RAND_MAX));
+        int reduced = dmg - block_score;
+        if(reduced <= 0) {
+            /* Parried: the player takes nothing, and the full blow that
+               would have landed hits the foe instead -- possibly ending
+               the fight right here, handled after this if-chain. */
+            counter_dmg = dmg;
+            dmg = 0;
+            n = s_cat(line, 0, GUARD_PARRIED_TEXT);
+            n = s_cat(line, n, " FOE TAKES ");
+            n = s_cat_uint(line, n, counter_dmg);
+            n = s_cat(line, n, " DMG");
+        }
+        else {
+            dmg = reduced;
             n = s_cat(line, 0, "BLOCKED ");
             n = s_cat_uint(line, n, dmg);
             n = s_cat(line, n, " DMG LEAKS THROUGH");
         }
-        else {
-            n = s_cat(line, 0, "THE BLOCK BREAKS ");
-            n = s_cat_uint(line, n, dmg);
-            n = s_cat(line, n, " DMG");
-        }
     }
     else {
-        if(success) {
-            dmg = jground((float)dmg * 0.4f);
-            if(dmg < 1) dmg = 1;
+        int barrier_score = jground((float)(b->pl.spc + b->mods_self_spc) * frand(GUARD_RAND_MIN, GUARD_RAND_MAX));
+        int reduced = dmg - barrier_score;
+        if(reduced <= 0) {
+            /* Absorbed: the player takes nothing and heals half of what
+               would have landed instead. */
+            int heal = dmg / BARRIER_HEAL_DIVISOR;
+            dmg = 0;
+            b->pl.hp += heal;
+            if(b->pl.hp > b->pl.maxHp) b->pl.hp = b->pl.maxHp;
+            n = s_cat(line, 0, GUARD_ABSORBED_TEXT);
+            n = s_cat(line, n, " +");
+            n = s_cat_uint(line, n, heal);
+            n = s_cat(line, n, " HP");
+        }
+        else {
+            dmg = reduced;
             n = s_cat(line, 0, "A THIN BARRIER HOLDS ");
             n = s_cat_uint(line, n, dmg);
             n = s_cat(line, n, " DMG");
         }
-        else {
-            n = s_cat(line, 0, "THE BARRIER SHIVERS APART ");
-            n = s_cat_uint(line, n, dmg);
-            n = s_cat(line, n, " DMG");
-        }
     }
-    /* Only worth saying when something landed: a clean dodge zeroes dmg,
-       and a matchup tag on a hit that never connected reads as a
-       contradiction. */
+    /* Only worth saying when something landed: a clean dodge/parry/absorb
+       zeroes dmg, and a matchup tag on a hit that never connected reads as
+       a contradiction. */
     if(dmg > 0) {
         if(nat_sign > 0)      n = s_cat(line, n, " " NATURE_STRONG_TEXT);
         else if(nat_sign < 0) n = s_cat(line, n, " " NATURE_WEAK_TEXT);
@@ -2500,6 +2564,16 @@ guard_chance:
     n = s_cat(b->msg[0], n, " USES ");
     n = s_cat(b->msg[0], n, move_name);
     b->msg[0][n] = 0;
+
+    /* A Parry's counter-blow can itself finish the foe -- msg[0] above is
+       already set, so the shared helper only needs to fill msg[1] (and
+       msg[2] on a bench swap) with the prefix marking it a Parry-kill. */
+    if(counter_dmg > 0) {
+        b->foe.hp -= counter_dmg;
+        if(b->foe.hp < 0) b->foe.hp = 0;
+        if(battle_foe_maybe_fall(b, "PARRIED! ")) return;
+    }
+
     n = s_cat(b->msg[1], 0, line);
     b->msg[1][n] = 0;
     b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
@@ -2729,8 +2803,6 @@ static int try_encounter(int map_id, int px, int py, int party_n,
     out->mods_self_str = out->mods_self_agl = out->mods_self_spc = 0;
     out->mods_foe_str = out->mods_foe_agl = out->mods_foe_spc = 0;
     out->pl_poisoned = out->foe_poisoned = 0;
-    out->mg = 8.0f;
-    out->mg_dir = 1;
     out->grew = 0;
     return 1;
 }
@@ -3020,8 +3092,26 @@ static int draw_battle_item_menu(const Bag *bag, int cur) {
    names (4 rows for Cathleen, PP shown only next to Mana Surge, the
    one with a pp cost -- matches data.ts's spells[].pp flag), no
    basic/special/wait rows at all. */
+/* "should be apparent when selecting an attack" -- a move's power/speed
+   design values (0.5-1.5) are shown x10 as friendly 5-15 integers, one
+   shared detail line below the row list rather than crammed onto each
+   row: BCONTENT_W (180px) is too narrow to fit a 16-char move name like
+   "LIGHTNING STRIKE" AND a stat/power/speed suffix on the same line, but
+   the box has ~40px of headroom below up to 4 rows, easily enough for
+   this. Nothing is drawn for a stat-less row (WAIT). */
+static void draw_atk_detail(int stat, float power, float speed, int y) {
+    char buf[24];
+    int n = s_cat(buf, 0, stat == ATK_STR ? "STR PWR" : "MAG PWR");
+    n = s_cat_uint(buf, n, (unsigned)jground(power * 10.0f));
+    n = s_cat(buf, n, " SPD");
+    n = s_cat_uint(buf, n, (unsigned)jground(speed * 10.0f));
+    buf[n] = 0;
+    draw_text_s(buf, MENU_X + 8, y, rgb565(180, 220, 170), MENU_SCALE);
+}
+
 static void draw_battle_atk_menu(const Battle *b, int cur) {
     int y = BCONTENT_Y + 8;
+    int detail_y;
     char buf[32];
     int n;
     const Species *s = &SPECIES[b->pl.species];
@@ -3046,6 +3136,10 @@ static void draw_battle_atk_menu(const Battle *b, int cur) {
             }
             y += MENU_ROW_H;
         }
+        if(cur >= 0 && cur < s->spells_n) {
+            const SpellDef *sp = &SPELLS[s->spells[cur]];
+            draw_atk_detail(sp->stat, sp->power, sp->speed, y + 8);
+        }
         return;
     }
 
@@ -3062,11 +3156,17 @@ static void draw_battle_atk_menu(const Battle *b, int cur) {
     /* Extra row, shiny leads only -- see battle_pick_toxic(). */
     if(b->pl.shiny) {
         draw_battle_menu_row("TOXIC BURST", 2, cur, y); y += MENU_ROW_H;
-        draw_battle_menu_row("WAIT", 3, cur, y);
+        draw_battle_menu_row("WAIT", 3, cur, y); y += MENU_ROW_H;
     }
     else {
-        draw_battle_menu_row("WAIT", 2, cur, y);
+        draw_battle_menu_row("WAIT", 2, cur, y); y += MENU_ROW_H;
     }
+
+    detail_y = y + 8;
+    if(cur == 0)      draw_atk_detail(s->basic_stat, s->basic_power, s->basic_speed, detail_y);
+    else if(cur == 1) draw_atk_detail(s->special_stat, s->special_power, s->special_speed, detail_y);
+    else if(b->pl.shiny && cur == 2)
+        draw_atk_detail(TOXIC_STAT, TOXIC_POWER, TOXIC_SPEED, detail_y);
 }
 
 static void draw_battle_guard_menu(int cur) {
@@ -3074,19 +3174,6 @@ static void draw_battle_guard_menu(int cur) {
     draw_battle_menu_row("DODGE AGI", 0, cur, y); y += MENU_ROW_H;
     draw_battle_menu_row("BLOCK STR", 1, cur, y); y += MENU_ROW_H;
     draw_battle_menu_row("BARRIER MAG", 2, cur, y);
-}
-
-static void draw_battle_minigame(const Battle *b) {
-    int bar_x = BCONTENT_X + 8, bar_y = BCONTENT_Y + 16, bar_w = BCONTENT_W - 16, bar_h = 10;
-    int needle_x = bar_x + (int)(b->mg * (float)bar_w / 100.0f);
-
-    fill_rect(bar_x, bar_y, bar_w, bar_h, rgb565(40, 38, 32));
-    fill_rect(bar_x + (int)(0.38f * (float)bar_w), bar_y,
-              (int)(0.24f * (float)bar_w), bar_h, rgb565(90, 122, 82));
-    fill_rect(bar_x + (int)(0.46f * (float)bar_w), bar_y,
-              (int)(0.08f * (float)bar_w), bar_h, rgb565(197, 206, 198));
-    fill_rect(needle_x - 1, bar_y - 4, 2, bar_h + 8, 0xFFFF);
-    draw_text_s("A TO STRIKE", BCONTENT_X + 8, bar_y + bar_h + 8, rgb565(138, 134, 120), MENU_SCALE);
 }
 
 /* drawBattle()'s full-screen background, drawn before the status
@@ -3116,9 +3203,6 @@ static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
             break;
         case 3:
             draw_battle_guard_menu(b->cur);
-            break;
-        case 4:
-            draw_battle_minigame(b);
             break;
         default:
             break;
@@ -4587,18 +4671,6 @@ void main(void) {
                     }
                 }
             }
-            else if(battle.phase == 4) {
-                /* mg bounces 0-100 at ~110 units/sec, matching
-                   engine.ts's per-frame update at our fixed ~60fps
-                   vblank rate (no real dt in this bare-metal loop). */
-                battle.mg += (float)battle.mg_dir * (110.0f / 60.0f);
-                if(battle.mg > 100.0f) { battle.mg = 100.0f; battle.mg_dir = -1; }
-                if(battle.mg < 0.0f)   { battle.mg = 0.0f;    battle.mg_dir = 1; }
-                if(a_now && !prev_a) {
-                    battle_pick_special(&battle);
-                    party[lead] = battle.pl;
-                }
-            }
             else {
                 int n_rows = (battle.phase == 1) ? battle_item_menu_count(&bag)
                              : (battle.phase == 2 && SPECIES[battle.pl.species].spells_n > 0)
@@ -4654,10 +4726,8 @@ void main(void) {
                             }
                             else {
                                 battle.pl.spp--;
+                                battle_pick_special(&battle);
                                 party[lead] = battle.pl;
-                                battle.mg = 8.0f;
-                                battle.mg_dir = 1;
-                                battle.phase = 4;
                             }
                         }
                         else if(battle.pl.shiny && battle.cur == 2) {

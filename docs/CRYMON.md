@@ -149,6 +149,45 @@ The `formulas` key in `world.json` is the combat contract. `benchXpShare` is 0.5
 (lead full XP, other *living* party members get the share). Baker emits
 `BENCH_XP_PCT`.
 
+### Combat: move damage, speed, and guards
+
+Every move (basic, special, spell, Toxic Burst) draws on exactly one raw stat
+— `str` or `mag` — and multiplies it directly by the move's own `power`. No
+defense term, no normalization step, no hidden scale constant:
+`damage = round(atkStat * power)`, minimum 1. Speed works the same way off
+`agl`: `moveSpeed` is a flat multiplier used only at the guard step, not
+added to damage.
+
+- Per species (`species.json`): `basicStat`/`basicPower`/`basicSpeed` and
+  `specialStat`/`specialPower`/`specialSpeed`. Per spell (Cathleen's
+  `spells[]`): `stat`/`power`/`speed`.
+- `power`/`speed` are meant to sit roughly in **0.5–1.5**; the UI displays
+  them ×10 (so "PWR6" means `power: 0.6`) — this is a display convention
+  only, not a second multiplier applied to damage.
+- What the defender eats is decided entirely at the guard step, never baked
+  into the attack roll. Three guards, `logic.json`'s `combat` block:
+  - **Dodge**: a speed contest, not a percentage roll. Attacker's
+    `agl * moveSpeed` vs. defender's `agl * frand(dodgeDefenderRandMin,
+    dodgeDefenderRandMax)`. Attacker positive → lands anyway; zero or
+    negative → the defender slips aside, 0 dmg.
+  - **Block**: `str * frand(guardRandMin, guardRandMax)` subtracted from the
+    would-be damage. Reduces it to 0 or below → **Parried** (`parriedText`):
+    the defender takes nothing and the *would-be* damage counters straight
+    back at the attacker (can itself end the fight). Otherwise the leftover
+    leaks through.
+  - **Barrier**: same shape off `mag`. Reduces to 0 or below → **Absorbed**
+    (`absorbedText`): defender takes nothing and heals
+    `damage / barrierHealDivisor`. Otherwise the leftover leaks through.
+  - Crystal-nature scaling (2x weak / 0.5x resist) is applied once, to the
+    pre-guard damage, before any guard reduces it — same call site on both
+    engines (`nature_scale_dmg()` / `natureScaleDmg()`).
+- `Toxic Burst` (shiny-exclusive, `logic.json`'s `toxicBurst` block) is a
+  universal move, not per-species: same `stat`/`power`/`speed` shape, plus a
+  `poisonDivisor` for its ongoing chip tick.
+- Both engines share one lookup for "raw stat a move draws on, mods
+  included": `atk_stat_value()` (DC) / `atkStatValue()` (web). Do not
+  duplicate the stat-selection branch elsewhere.
+
 ### CryDex
 
 Not a separate file. Bitfields at save bytes **134** (seen, 4 bytes) and **138** (caught, 4 bytes), after the checksum, so old 256-byte blobs still validate. Seen on mint/encounter; caught when the player owns the species. Pause → CryDex.
