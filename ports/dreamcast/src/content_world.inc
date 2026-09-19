@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=9bd3c3f3b8ed7e12 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=dd65e715401e2b29 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -165,7 +165,8 @@ static const ItemFx ITEM_FX[] = {
 #define FLAG_BEAT_MARSH_BOG 45
 #define FLAG_BEAT_MARSH_REED 46
 #define FLAG_BADGE_QUARTZ 47
-#define FLAG_N 48
+#define FLAG_BADGE_OPAL 48
+#define FLAG_N 49
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
