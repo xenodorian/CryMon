@@ -150,9 +150,17 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 	};
 }
 
+/** True only for a save this build can actually load. A blob from before the
+ *  crystal schema (or any other version bump) fails unpackSave()'s version
+ *  check, so it's deleted here rather than left sitting in storage offering
+ *  a "Continue" that dead-ends into "No save." */
 export function saveExists(): boolean {
 	try {
-		return !!localStorage.getItem(SAVE_KEY);
+		const raw = localStorage.getItem(SAVE_KEY);
+		if (!raw) return false;
+		if (unpackSave(readSaveBlob() ?? new Uint8Array())) return true;
+		localStorage.removeItem(SAVE_KEY);
+		return false;
 	} catch {
 		return false;
 	}

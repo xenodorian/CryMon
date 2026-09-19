@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "magic": "CRYM",
   "size": 256,
   "itemOrder": [
@@ -163,5 +163,5 @@
     "partyNature": 12
   },
   "partySlot": 16,
-  "comment": "Little-endian blob shared by web localStorage and Dreamcast VMU. Do not fork this layout in engine.ts or main.c. Checksum covers bytes 0..131 so dex bits at 134/138 and party slot+12 load on old saves without a version bump (zeros = empty dex; slot+12 is reserved/ignored, the crystal comes from the species)."
+  "comment": "Little-endian blob shared by web localStorage and Dreamcast VMU. Do not fork this layout in engine.ts or main.c. version bumped 1 -> 2 for the per-species crystal schema: both engines reject a save whose byte 4 does not match SAVE_VERSION (save_unpack() on Dreamcast, unpackSave() on web), so a pre-crystal save is treated as absent rather than partially loaded. Checksum covers bytes 0..131; dex bits live at 134/138. Party slot+12 (partyNature) is reserved and ignored on load -- the crystal comes from the species, not the save."
 }

@@ -129,9 +129,16 @@ Rules that hold:
   they stay balanced against each other. Level up is `+levelHp` HP and
   `+levelStat` to each stat, always up.
 - **Never reorder `natures`.** Save slot byte 12 held a per-monster crystal
-  before this became per-species; it is **reserved** now and ignored on load,
-  so old saves need no migration, but the indices are still what the baker
-  emits per species.
+  before this became per-species; it is **reserved** now and ignored on load
+  regardless, but the indices are still what the baker emits per species.
+- **A save from before the crystal schema is rejected, not migrated.**
+  `save.json`'s `version` is 2 for exactly this reason: both engines refuse
+  to load a save whose byte 4 doesn't match `SAVE_VERSION`
+  (`save_unpack()` on Dreamcast, `unpackSave()` on web) and treat it as no
+  save at all. Web additionally deletes the stale blob from `localStorage`
+  the moment it's detected (`saveExists()`), rather than leaving it sitting
+  there offering a "Continue" that dead-ends into "No save." Bump `version`
+  again for any future save-incompatible change.
 - `natureTypes.ring` is its own order and is what decides matchups, so it does
   not have to match the array order above.
 - Matchups are **derived, not stored**: each crystal is weak to the next

@@ -467,6 +467,8 @@ export class CryMon {
 	tryContinue() {
 		const snap = unpackSave(readSaveBlob() || new Uint8Array());
 		if (!snap) {
+			try { localStorage.removeItem("crymon.save.v1"); } catch { /* ignore */ }
+			this.hasSave = false;
 			this.audio.miss();
 			this.note("No save.");
 			return false;

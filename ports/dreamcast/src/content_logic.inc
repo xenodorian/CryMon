@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=a8b4651bea5aefd4 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=f37523e5dd998be6 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
