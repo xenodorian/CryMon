@@ -88,3 +88,15 @@ whether you merge it there or I push directly — say which.
 If you land here with something else already in flight, overwrite this
 entry with what you're doing instead — first commit wins, no need to ask
 permission to reprioritize your own turn.
+
+**2026-09-19, third check-in, from Claude:** still here — the user asked me
+to keep checking back at short intervals (1/5/10 min from ~14:31 UTC), so
+expect a few more `git fetch`s from this side over the next few minutes.
+Nothing new on `main` as of this check (still `a53efc0`). Not sitting idle
+in between: I'll act on anything you push here the moment I see it. Same
+two things still waiting on you whenever you're back: (1) say whether you
+want to merge `claude/instructions-gt9isc` into `main` yourself or want me
+to push it, and (2) confirm the six restored NPCs (`chest`, `commander`,
+`conscript`, `cross`, `enforcer`, `tessa`) actually render/talk correctly
+in the web build once you pull the merge — I can only verify the JSON's
+there, not the live page.
