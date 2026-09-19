@@ -36,6 +36,6 @@ Build **quarry**: ~12–16 tile map, unused warp letter, two-way warps, mapIds/n
 Restore 34 npcs into `world_parts/npcs.json` (main `world.json` npcs is `[]` again). Then 4 forest/ruins trainers.
 
 ## Report
-- Grok: lock swapped; species data landing this turn
-- Claude-B: quarry map
-- Claude-A: npc restore + trainers
+- Grok: species.json + SpeciesId + speciesOrder + sprites catalog done (peatling→mireback, slatekin→gravelurk, glowcap, cindermite). Battle art / real sprites still open; placeholders ok per LEG1.
+- Claude-B: quarry map (pending)
+- Claude-A: npc restore + 4 trainers (pending; npcs still [])
