@@ -59,7 +59,7 @@ FORBIDDEN_TEXT = [
     r"CRYMON_SPRITES",
 ]
 SKIP_NAME = {".git", "node_modules", ".vercel", "backups", "__pycache__", "placeholder_sprites"}
-REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross"]
+REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross", "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "marshBog", "marshReed", "quartz"]
 REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat", "growth", "natureMoves", "toxicBurst", "natureTypes"]
 
 
@@ -388,6 +388,27 @@ def main() -> int:
     for tid, trainer in (data["world"].get("trainers") or {}).items():
         if isinstance(trainer, dict):
             check_talk_ref(trainer.get("winTalk"), f"trainer {tid!r}.winTalk")
+            set_flags = trainer.get("set")
+            if set_flags:
+                if isinstance(set_flags, str):
+                    set_flags = [set_flags]
+                if not isinstance(set_flags, list):
+                    errors.append(f"trainer {tid!r}.set must be a flag name or list of flag names")
+                else:
+                    for flag in set_flags:
+                        if flag not in flags:
+                            errors.append(f"trainer {tid!r}.set references unknown flag {flag!r}")
+
+    trainer_ids = {tid for tid, trainer in (data["world"].get("trainers") or {}).items() if isinstance(trainer, dict)}
+    for npc in data["world"].get("npcs") or []:
+        nid = npc.get("id", "?")
+        if npc.get("role") != "trainer":
+            continue
+        for si, step in enumerate(npc.get("script") or []):
+            pending = step.get("pending")
+            if pending and pending not in trainer_ids:
+                errors.append(f"trainer npc {nid!r} script[{si}].pending references unknown trainer {pending!r}")
+
 
     logic_mr = data["logic"].get("masonRematch") or {}
     check_talk_ref(logic_mr.get("talk"), "logic.masonRematch.talk")
@@ -404,6 +425,29 @@ def main() -> int:
     save_flags = list(data["save"]["flags"])
     if any(f not in flags for f in save_flags):
         errors.append("every save.json flag must be in FLAG_* (merged_flags)")
+    quartz = (data["world"].get("trainers") or {}).get("quartz") or {}
+    if quartz.get("set") != "badgeQuartz":
+        errors.append("world.trainers.quartz.set must be badgeQuartz")
+    if quartz.get("marks") != 16:
+        errors.append("world.trainers.quartz marks must be 16")
+    quartz_npcs = [n for n in data["world"].get("npcs") or [] if n.get("id") == "crystalQuartz"]
+    if len(quartz_npcs) != 1:
+        errors.append("world.npcs must contain exactly one crystalQuartz trainer")
+    else:
+        qnpc = quartz_npcs[0]
+        if qnpc.get("map") != "reach" or qnpc.get("mark") != "Q":
+            errors.append("crystalQuartz must be placed at reach.Q")
+        if qnpc.get("role") != "trainer":
+            errors.append("crystalQuartz must have role trainer")
+        if qnpc.get("sprite") != "npc/quartz":
+            errors.append("crystalQuartz must use npc/quartz")
+        steps = qnpc.get("script") or []
+        if not any(s.get("pending") == "quartz" for s in steps):
+            errors.append("crystalQuartz must have a pending quartz trainer step")
+        if not any(s.get("if") == "badgeQuartz" and s.get("talk") == "quartzWin" for s in steps):
+            errors.append("crystalQuartz must stop rematches with badgeQuartz")
+    if "badgeQuartz" not in save_flags:
+        errors.append("save.flags must contain badgeQuartz")
     runtime = list(data["logic"].get("runtimeFlags") or [])
     for name in ("hasParty2", "hasCageKey"):
         if name not in runtime and name not in save_flags:
