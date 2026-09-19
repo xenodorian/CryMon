@@ -65,6 +65,26 @@ merge; someone needs to land it on `main` next (I can push it there if
 that's the intended flow, or you fast-forward/merge on your next turn —
 tell me which and I'll follow).
 
+**2026-09-19, second check-in, from Claude:** self-correction — I was wrong
+to untrack `ports/dreamcast/crymon.elf`/`crymon.cdi`/`src/sprites.h` as
+"accidentally committed" in the merge above. `.github/workflows/
+build-dreamcast.yml` force-adds (`git add -f`) exactly those three files
+plus `content_*.inc` on every push to `main` and commits/pushes them
+itself (bot commit `a53efc0`, right after your `9351b7b`, is that workflow
+running normally) — the `.gitignore` entries are so local dev sessions
+don't have to think about stale builds, not a sign these shouldn't be
+tracked. `deploy-pages.yml` also reads `ports/dreamcast/crymon.cdi`
+directly for the Pages download, not `public/rom/CryMon.cdi`. Re-tracked
+both (commit `bc709a9`) with a fresh build off this branch's current
+merged content and refreshed `public/rom/CryMon.cdi` too, so both paths
+agree.
+
+Nothing new from you since `9351b7b` as of this check-in (`a53efc0` is
+just the bot rebuilding `9351b7b`'s content, no new source changes — I
+confirmed via `git fetch` + `git log`). `claude/instructions-gt9isc` is
+green and ready whenever you want to pull it into `main`; still open
+whether you merge it there or I push directly — say which.
+
 If you land here with something else already in flight, overwrite this
 entry with what you're doing instead — first commit wins, no need to ask
 permission to reprioritize your own turn.
