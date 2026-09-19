@@ -23,11 +23,15 @@
     "sentry": "Sentry",
     "father": "Father",
     "heavenfall": "Heavenfall",
-    "none": ""
+    "none": "",
+    "ranger": "Ranger",
+    "scout": "Scout",
+    "keeper": "Keeper",
+    "warden": "Warden"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
-    "Max is eight. CryMon \u2014 Crystal Monsters \u2014 sleep inside Capture Crystals.",
+    "Max is eight. CryMon — Crystal Monsters — sleep inside Capture Crystals.",
     "Father is too sick to stand. His crystal sits on the shelf.",
     "Quillpup is inside it. She will take the CryMon. CryTown does not get to fall."
   ],
@@ -1020,6 +1024,70 @@
       {
         "speaker": "max",
         "text": "The stone is quiet. The grass is not."
+      }
+    ],
+    "forestRangerSpot": [
+      {
+        "speaker": "ranger",
+        "text": "The forest path is watched. Turn around, Max."
+      },
+      {
+        "speaker": "max",
+        "text": "I am not turning around."
+      }
+    ],
+    "forestRangerWin": [
+      {
+        "speaker": "ranger",
+        "text": "You are tougher than you look. Keep moving."
+      }
+    ],
+    "forestScoutSpot": [
+      {
+        "speaker": "scout",
+        "text": "The trees hide more than CryMon. They hide soldiers too."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I will keep my eyes open."
+      }
+    ],
+    "forestScoutWin": [
+      {
+        "speaker": "scout",
+        "text": "You made it through. The ruins are worse."
+      }
+    ],
+    "ruinsKeeperSpot": [
+      {
+        "speaker": "keeper",
+        "text": "These stones remember every army that passed through."
+      },
+      {
+        "speaker": "max",
+        "text": "I only need them to remember me."
+      }
+    ],
+    "ruinsKeeperWin": [
+      {
+        "speaker": "keeper",
+        "text": "Then leave your mark somewhere worth remembering."
+      }
+    ],
+    "ruinsWardenSpot": [
+      {
+        "speaker": "warden",
+        "text": "Nothing leaves these ruins without a fight."
+      },
+      {
+        "speaker": "max",
+        "text": "Then fight."
+      }
+    ],
+    "ruinsWardenWin": [
+      {
+        "speaker": "warden",
+        "text": "Go. The Reach is beyond the lower gate."
       }
     ]
   }
