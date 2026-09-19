@@ -22,6 +22,7 @@ export type BattlePhase =
   | "enter"
   | "item"
   | "attack"
+  | "minigame"
   | "resolve_hit"
   | "guard"
   | "resolve_guard"

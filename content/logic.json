@@ -1,135 +1,36 @@
 {
-  "source": "Shared rules both engines interpret. Extend this file instead of forking engine.ts or main.c.",
   "screenFade": {
-    "outSec": 0.267,
+    "outSec": 0.26,
     "holdSec": 0.05,
-    "inSec": 0.267
+    "inSec": 0.26
   },
   "arrivals": {
     "masonAmbush": {
       "needParty": true,
-      "unless": "foughtMason",
-      "spawn": {
-        "actor": "mason",
-        "oy": 160,
-        "dir": "up",
-        "phase": "approach"
-      }
-    },
-    "ensureSoldiers": {
-      "call": "ensureSoldiers"
+      "unless": "foughtMason"
     }
   },
   "masonRematch": {
-    "unlockOn": "beatCalder",
-    "once": "mason2Done",
-    "maps": [
-      "veld",
-      "forest",
-      "grove"
-    ],
-    "oy": 160,
-    "dir": "up",
-    "talk": "masonFight2",
-    "battle": {
-      "lead": [
-        "glimmoth",
-        6
-      ],
-      "bench": [
-        [
-          "briarfox",
-          7
-        ],
-        [
-          "duskhorn",
-          8
-        ]
-      ],
-      "title": "Mason sends Glimmoth",
-      "marks": 20,
-      "winTalk": "masonWin2"
-    }
-  },
-  "bed": {
-    "talk": "bed",
-    "afterTalk": "bedHeal",
-    "healParty": true,
-    "fade": true
-  },
-  "partyWipe": {
-    "fade": true,
-    "healParty": true,
-    "map": "house",
-    "mark": "U",
-    "dir": "up"
+    "maps": ["veld", "forest", "grove"]
   },
   "natures": [
-    {
-      "id": "hardy",
-      "name": "Hardy",
-      "str": 0,
-      "agl": 0,
-      "spc": 0
-    },
-    {
-      "id": "lonely",
-      "name": "Lonely",
-      "str": 2,
-      "agl": -1,
-      "spc": 0
-    },
-    {
-      "id": "adamant",
-      "name": "Adamant",
-      "str": 2,
-      "agl": 0,
-      "spc": -1
-    },
-    {
-      "id": "bold",
-      "name": "Bold",
-      "str": -1,
-      "agl": 2,
-      "spc": 0
-    },
-    {
-      "id": "timid",
-      "name": "Timid",
-      "str": 0,
-      "agl": 2,
-      "spc": -1
-    },
-    {
-      "id": "modest",
-      "name": "Modest",
-      "str": -1,
-      "agl": 0,
-      "spc": 2
-    },
-    {
-      "id": "calm",
-      "name": "Calm",
-      "str": 0,
-      "agl": -1,
-      "spc": 2
-    }
+    { "name": "Hardy", "str": 0, "agl": 0, "spc": 0 },
+    { "name": "Lonely", "str": 2, "agl": -1, "spc": 0 },
+    { "name": "Adamant", "str": 2, "agl": 0, "spc": -1 },
+    { "name": "Bold", "str": -1, "agl": 2, "spc": 0 },
+    { "name": "Timid", "str": 0, "agl": 2, "spc": -1 },
+    { "name": "Modest", "str": -1, "agl": 0, "spc": 2 },
+    { "name": "Calm", "str": 0, "agl": -1, "spc": 2 }
   ],
-  "runtimeFlags": [
-    "hasParty2",
-    "hasCageKey"
-  ],
-  "anneGift": {
-    "afterBattles": 1,
-    "item": "gem",
-    "qty": 5,
-    "map": "veld"
-  },
   "party": {
     "max": 6,
     "release": true,
     "catchSwap": true,
     "keepLast": true
+  },
+  "anneGift": {
+    "afterBattles": 1,
+    "qty": 5
   },
   "combat": {
     "comment": "Direct multiplication. Power/speed are 0.5-1.5 (display x10 as 5-15). finalDamage = atkStat * power; finalSpeed = atkAgl * speed. Locked when attack chosen.",
@@ -150,6 +51,17 @@
       "mulMin": 0.25,
       "mulMax": 0.75
     },
-    "displayScale": 10
+    "displayScale": 10,
+    "minigame": {
+      "comment": "Special timing needle 0-100. Red=fizzle 1x, yellow=connected 1.5x, green=perfect 2x.",
+      "perfectMin": 45,
+      "perfectMax": 55,
+      "perfectMul": 2.0,
+      "connectedMin": 30,
+      "connectedMax": 70,
+      "connectedMul": 1.5,
+      "fizzleMul": 1.0,
+      "needleSpeed": 110
+    }
   }
 }
