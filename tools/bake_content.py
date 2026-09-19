@@ -46,6 +46,7 @@ SPEAKER = {
     "scout": 25,
     "keeper": 26,
     "warden": 27,
+    "quartz": 28,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -128,6 +129,8 @@ TALK_C = {
     "reachLocked": "TALK_REACH_LOCKED",
     "reachStone": "TALK_REACH_STONE",
     "reachAgain": "TALK_REACH_AGAIN",
+    "quartzSpot": "TALK_QUARTZ_SPOT",
+    "quartzWin": "TALK_QUARTZ_WIN",
 }
 
 SPELL = {"firebolt": 0, "icebeam": 1, "lightning": 2, "manasurge": 3}
@@ -772,6 +775,7 @@ PENDING_IDS = {
     "forestScout": 5,
     "ruinsKeeper": 6,
     "ruinsWarden": 7,
+    "quartz": 8,
 }
 
 
