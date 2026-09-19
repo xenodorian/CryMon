@@ -181,7 +181,7 @@
     "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn toxicBurst instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt.",
     "secondaryAt": 5,
     "specialAt": 10,
-    "evolveAt": 10
+    "evolveAt": 12
   },
   "natureMoves": [
     {
@@ -240,5 +240,11 @@
       "speed": 1.0,
       "mods": { "str": 0, "agl": -2, "spc": -2 }
     }
-  ]
+  ],
+  "interact": {
+    "note": "World interact/talk proximity is a box test, not a radius: the target's own footprint (world.json npcs[].w/h, default 48x32 human size when absent) expanded by this buffer on every side, feet-anchored the same way it's drawn (box bottom = mark.y, box top = mark.y - h). Both engines interpret this the same way; the Dreamcast port scales w/h/buffer down by its own tile size (20px vs this pack's 32px).",
+    "defaultW": 48,
+    "defaultH": 52,
+    "buffer": 16
+  }
 }

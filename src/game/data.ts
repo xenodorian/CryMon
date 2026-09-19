@@ -199,6 +199,14 @@ export const TOXIC_BURST = (logicJson.toxicBurst || {
   name: "Toxic Burst", stat: "str", power: 1, speed: 1, poisonDivisor: 16,
 }) as ToxicBurstConfig;
 
+/** World interact/talk proximity: a box test against the target's own
+ *  footprint (npc.w/h, default defaultW/H) plus this buffer on every
+ *  side, not a radius -- see content/logic.json's interact block. */
+export type InteractConfig = { defaultW: number; defaultH: number; buffer: number };
+export const INTERACT = (logicJson.interact || {
+  defaultW: 48, defaultH: 52, buffer: 16,
+}) as InteractConfig;
+
 export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number } }).growth || {
   secondaryAt: 5, specialAt: 10, evolveAt: 10,
 });

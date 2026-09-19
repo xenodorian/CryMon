@@ -3547,26 +3547,30 @@ typedef struct {
 static int try_npc_script(NpcRun *R) {
     unsigned char used[64];
     int i, guard;
-    /* engine.ts's npcRadius(): house 36px, veld 26px, everything else
-       52px, in its 32px-tile space. This port's tiles are 20px, so each
-       tier is scaled by 20/32 (matching near_mark's comment above: 36 ->
-       22.5 -> 22) rather than reusing one blanket radius for every
-       non-house map -- the old single "676 elsewhere" value was
-       veld's *unscaled* web radius applied to every outdoor map,
-       making FOREST/GROVE/CAMP/CLIFFS/RUINS/REACH interactables roughly
-       40% harder to reach than on web (33px scaled vs 26px). */
-    int rad = (R->map_id == MAP_HOUSE) ? 484 /* 22*22 */
-            : (R->map_id == MAP_VELD)  ? 256 /* 16*16 */
-            : 1089 /* 33*33 */;
     if(NPC_DEF_N > 64) return 0;
     for(i = 0; i < NPC_DEF_N; i++) used[i] = 0;
     for(guard = 0; guard < NPC_DEF_N; guard++) {
-        int best = -1, best_d = rad, si, talk, gi;
+        int best = -1, best_d = 0x7fffffff, si, talk, gi;
         const NpcStep *st;
         for(i = 0; i < NPC_DEF_N; i++) {
             int mx, my, dx, dy, d;
+            int half_w, left, right, top, bottom;
             if(used[i] || NPC_DEFS[i].map_id != R->map_id) continue;
             mark_center(R->map_id, NPC_DEFS[i].mark, &mx, &my);
+            /* Box test against the target's own footprint (NPC_DEFS[i].w/h,
+               already scaled to this port's tile size by the baker) plus
+               INTERACT_BUFFER on every side, feet-anchored the same way
+               it's drawn: box bottom = mark y, box top = mark y - h.
+               Matches engine.ts's runClosestNpc() exactly -- neither port
+               has ever used facing/direction here, only proximity, and
+               now both size that proximity off the sprite itself instead
+               of one flat radius. */
+            half_w = NPC_DEFS[i].w / 2 + INTERACT_BUFFER;
+            left = mx - half_w;
+            right = mx + half_w;
+            bottom = my + INTERACT_BUFFER;
+            top = my - NPC_DEFS[i].h - INTERACT_BUFFER;
+            if(R->px < left || R->px > right || R->py < top || R->py > bottom) continue;
             dx = R->px - mx; dy = R->py - my;
             d = dx * dx + dy * dy;
             if(d <= best_d) { best_d = d; best = i; }

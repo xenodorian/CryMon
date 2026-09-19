@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=7df9f54dbbe60966 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d036963285999c22 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -66,7 +66,7 @@ static const NatureDef NATURES[NATURE_N] = {
 /* Move unlocks + evolution -- logic.json growth. */
 #define LV_SECONDARY 5
 #define LV_SPECIAL 10
-#define LV_EVOLVE 10
+#define LV_EVOLVE 12
 
 typedef struct { const char *name; int stat; float power, speed; int dstr, dagl, dspc; } NatureMove;
 #define NATURE_MOVE_N 7
