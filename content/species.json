@@ -17,7 +17,7 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": false,
+    "wild": true,
     "evolvesTo": "needleroot"
   },
   "glimmoth": {
@@ -55,9 +55,9 @@
     "basicPower": 0.6,
     "basicSpeed": 1.2,
     "special": "Shellslam",
-    "specialStat": "mag",
-    "specialPower": 1.0,
-    "specialSpeed": 0.8,
+    "specialStat": "str",
+    "specialPower": 1.3,
+    "specialSpeed": 0.5,
     "specialPp": 3,
     "wild": true
   },
@@ -79,7 +79,7 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": false,
+    "wild": true,
     "evolvesTo": "sableclaw"
   },
   "mossback": {
@@ -97,8 +97,8 @@
     "basicSpeed": 1.2,
     "special": "Mossguard",
     "specialStat": "mag",
-    "specialPower": 1.0,
-    "specialSpeed": 0.8,
+    "specialPower": 0.6,
+    "specialSpeed": 0.7,
     "specialPp": 3,
     "wild": true
   },
@@ -180,8 +180,8 @@
     "basicSpeed": 1.2,
     "special": "Sapdrain",
     "specialStat": "mag",
-    "specialPower": 1.0,
-    "specialSpeed": 0.8,
+    "specialPower": 0.7,
+    "specialSpeed": 1.0,
     "specialPp": 3,
     "wild": true
   },
@@ -254,10 +254,10 @@
     "basicSpeed": 1.2,
     "special": "Nightbridle",
     "specialStat": "mag",
-    "specialPower": 1.0,
-    "specialSpeed": 0.8,
+    "specialPower": 1.2,
+    "specialSpeed": 0.6,
     "specialPp": 3,
-    "wild": false
+    "wild": true
   },
   "emberling": {
     "id": "emberling",
@@ -334,9 +334,9 @@
     "basicPower": 0.6,
     "basicSpeed": 1.2,
     "special": "Thunderdive",
-    "specialStat": "mag",
-    "specialPower": 1.0,
-    "specialSpeed": 0.8,
+    "specialStat": "str",
+    "specialPower": 1.1,
+    "specialSpeed": 1.2,
     "specialPp": 3,
     "wild": true
   },
