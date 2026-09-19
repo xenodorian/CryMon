@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=894e4908cfa50adb — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=672ad3c0adef615f — do not edit. python3 tools/bake_content.py */
 
 #define SP_QUILLPUP 0
 #define SP_GLIMMOTH 1
@@ -20,7 +20,13 @@
 #define SP_GLASSWISP 17
 #define SP_ASHENMAW 18
 #define SP_HEAVENFALL 19
-#define SPECIES_N 20
+#define SP_PEATLING 20
+#define SP_MIREBACK 21
+#define SP_GLOWCAP 22
+#define SP_SLATEKIN 23
+#define SP_GRAVELURK 24
+#define SP_CINDERMITE 25
+#define SPECIES_N 26
 
 static const SpellDef SPELLS[4] = {
     { ATK_MAG, 0.6f, 1.2f },
@@ -50,5 +56,11 @@ static const Species SPECIES[SPECIES_N] = {
     { "GLASSWISP", "CHIME", "PRISMFLARE", 22, 6, 14, 18, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 5, -1 },
     { "ASHENMAW", "BITE", "ASHENROAR", 34, 18, 12, 11, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 1, -1 },
     { "HEAVENFALL", "METEOR", "STARFALL", 58, 20, 10, 22, 4, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 2, -1 },
+    { "PEATLING", "SOP", "PEATSPIT", 30, 11, 12, 10, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 0.8f, 1.1f, 0, {0,0,0,0}, 0, 21 },
+    { "MIREBACK", "WALLOP", "SINKHOLE", 44, 16, 7, 12, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 1.25f, 0.55f, 0, {0,0,0,0}, 0, -1 },
+    { "GLOWCAP", "SPORE", "CAPFLARE", 28, 8, 11, 17, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.15f, 0.7f, 0, {0,0,0,0}, 6, -1 },
+    { "SLATEKIN", "CHIP", "FLAKEEDGE", 32, 14, 9, 8, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 1.05f, 1.05f, 0, {0,0,0,0}, 1, 24 },
+    { "GRAVELURK", "GRIND", "QUARRYDROP", 48, 18, 4, 7, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 1.35f, 0.45f, 0, {0,0,0,0}, 2, -1 },
+    { "CINDERMITE", "NIBBLE", "KILNSPARK", 26, 13, 15, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.1f, 1.15f, 0, {0,0,0,0}, 4, -1 },
 };
 
