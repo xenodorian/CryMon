@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=72449b82e83beaff — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=cbb639f34acbf37e — do not edit. python3 tools/bake_content.py */
 
 #define SP_QUILLPUP 0
 #define SP_GLIMMOTH 1
@@ -32,19 +32,19 @@ static const SpellDef SPELLS[4] = {
 static const Species SPECIES[SPECIES_N] = {
     { "QUILLPUP", "NIP", "QUILLBURST", 34, 15, 10, 7, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 0, 8 },
     { "GLIMMOTH", "DUSTWING", "LAMPFLARE", 26, 7, 13, 16, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 6, 14 },
-    { "TORTCASK", "SHOVE", "SHELLSLAM", 42, 13, 5, 8, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 2, -1 },
+    { "TORTCASK", "SHOVE", "SHELLSLAM", 42, 13, 5, 8, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 1.3f, 0.5f, 0, {0,0,0,0}, 2, -1 },
     { "RAZORBAT", "RAKE", "SWOOPCUT", 30, 14, 16, 9, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 4, 15 },
-    { "MOSSBACK", "SQUELCH", "MOSSGUARD", 38, 12, 6, 11, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 0, -1 },
+    { "MOSSBACK", "SQUELCH", "MOSSGUARD", 38, 12, 6, 11, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 0.6f, 0.7f, 0, {0,0,0,0}, 0, -1 },
     { "BRIARFOX", "BRAMBLE", "THORNRUSH", 28, 13, 17, 10, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 3, 16 },
     { "FENWISP", "GLIM", "FENFLARE", 24, 8, 16, 17, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 6, 17 },
     { "DUSKHORN", "GORE", "DUSKRAM", 36, 16, 8, 7, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 1, 13 },
-    { "NEEDLEROOT", "PRICK", "SAPDRAIN", 32, 12, 7, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 0, -1 },
+    { "NEEDLEROOT", "PRICK", "SAPDRAIN", 32, 12, 7, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 0.7f, 1.0f, 0, {0,0,0,0}, 0, -1 },
     { "CATHLEEN", "FIRE BOLT", "MANA SURGE", 38, 11, 13, 19, 4, ATK_MAG, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 4, {0,1,2,3}, 5, -1 },
-    { "CRYMARE", "WAIL", "NIGHTBRIDLE", 30, 9, 14, 18, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 5, -1 },
+    { "CRYMARE", "WAIL", "NIGHTBRIDLE", 30, 9, 14, 18, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.2f, 0.6f, 0, {0,0,0,0}, 5, -1 },
     { "EMBERLING", "SPARK", "EMBERBLAZE", 28, 14, 15, 12, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 4, 18 },
     { "FROSTAIL", "CHILL", "FROSTFANG", 32, 12, 11, 15, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 6, -1 },
     { "BOULDERAM", "RAM", "STONESLAM", 46, 17, 4, 6, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 1, -1 },
-    { "STORMWING", "GUST", "THUNDERDIVE", 26, 10, 19, 13, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 3, -1 },
+    { "STORMWING", "GUST", "THUNDERDIVE", 26, 10, 19, 13, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 1.1f, 1.2f, 0, {0,0,0,0}, 3, -1 },
     { "SABLECLAW", "SLASH", "SHADOWRIP", 30, 16, 13, 9, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 4, -1 },
     { "THORNHIDE", "BARB", "THORNWALL", 40, 11, 6, 10, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 2, -1 },
     { "GLASSWISP", "CHIME", "PRISMFLARE", 22, 6, 14, 18, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 5, -1 },
