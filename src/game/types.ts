@@ -42,7 +42,7 @@ export type SpeciesId =
   | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall"
   | "peatling" | "mireback" | "glowcap" | "slatekin" | "gravelurk" | "cindermite";
 
-export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh";
+export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry";
 
 export type SpellId = "firebolt" | "icebeam" | "lightning" | "manasurge";
 
