@@ -541,7 +541,75 @@
         "marks": 8,
         "winTalk": "soldierAfter"
       }
-    ]
+    ],
+    "forestRanger": {
+      "lead": [
+        "briarfox",
+        5
+      ],
+      "bench": [
+        [
+          "fenwisp",
+          5
+        ]
+      ],
+      "title": "Ranger sends Briarfox",
+      "name": "Ranger",
+      "marks": 10,
+      "winTalk": "forestRangerWin",
+      "set": "beatForestRanger"
+    },
+    "forestScout": {
+      "lead": [
+        "duskhorn",
+        5
+      ],
+      "bench": [
+        [
+          "razorbat",
+          6
+        ]
+      ],
+      "title": "Scout sends Duskhorn",
+      "name": "Scout",
+      "marks": 11,
+      "winTalk": "forestScoutWin",
+      "set": "beatForestScout"
+    },
+    "ruinsKeeper": {
+      "lead": [
+        "mossback",
+        7
+      ],
+      "bench": [
+        [
+          "glasswisp",
+          7
+        ]
+      ],
+      "title": "Keeper sends Mossback",
+      "name": "Keeper",
+      "marks": 13,
+      "winTalk": "ruinsKeeperWin",
+      "set": "beatRuinsKeeper"
+    },
+    "ruinsWarden": {
+      "lead": [
+        "tortcask",
+        8
+      ],
+      "bench": [
+        [
+          "ashenmaw",
+          8
+        ]
+      ],
+      "title": "Warden sends Tortcask",
+      "name": "Warden",
+      "marks": 14,
+      "winTalk": "ruinsWardenWin",
+      "set": "beatRuinsWarden"
+    }
   },
   "npcs": [
     {
@@ -1272,6 +1340,86 @@
         },
         {
           "talk": "reachAgain"
+        }
+      ]
+    },
+    {
+      "map": "forest",
+      "mark": "4",
+      "id": "forestRanger",
+      "role": "trainer",
+      "sprite": "npc/soldier",
+      "talk": "forestRangerSpot",
+      "talkDone": "forestRangerWin",
+      "script": [
+        {
+          "if": "beatForestRanger",
+          "talk": "forestRangerWin"
+        },
+        {
+          "talk": "forestRangerSpot",
+          "after": "wsoldier",
+          "pending": "forestRanger"
+        }
+      ]
+    },
+    {
+      "map": "forest",
+      "mark": "5",
+      "id": "forestScout",
+      "role": "trainer",
+      "sprite": "npc/soldier",
+      "talk": "forestScoutSpot",
+      "talkDone": "forestScoutWin",
+      "script": [
+        {
+          "if": "beatForestScout",
+          "talk": "forestScoutWin"
+        },
+        {
+          "talk": "forestScoutSpot",
+          "after": "wsoldier",
+          "pending": "forestScout"
+        }
+      ]
+    },
+    {
+      "map": "ruins",
+      "mark": "6",
+      "id": "ruinsKeeper",
+      "role": "trainer",
+      "sprite": "npc/soldier",
+      "talk": "ruinsKeeperSpot",
+      "talkDone": "ruinsKeeperWin",
+      "script": [
+        {
+          "if": "beatRuinsKeeper",
+          "talk": "ruinsKeeperWin"
+        },
+        {
+          "talk": "ruinsKeeperSpot",
+          "after": "wsoldier",
+          "pending": "ruinsKeeper"
+        }
+      ]
+    },
+    {
+      "map": "ruins",
+      "mark": "7",
+      "id": "ruinsWarden",
+      "role": "trainer",
+      "sprite": "npc/soldier",
+      "talk": "ruinsWardenSpot",
+      "talkDone": "ruinsWardenWin",
+      "script": [
+        {
+          "if": "beatRuinsWarden",
+          "talk": "ruinsWardenWin"
+        },
+        {
+          "talk": "ruinsWardenSpot",
+          "after": "wsoldier",
+          "pending": "ruinsWarden"
         }
       ]
     }
