@@ -12,7 +12,7 @@ export type SpeakerId =
   | "calder" | "bram" | "cathleen" | "shinigami"
   | "oren" | "tessa" | "birch" | "sable"
   | "cross" | "commander" | "conscript" | "enforcer" | "sentry"
-  | "father" | "heavenfall" | "none";
+  | "father" | "heavenfall" | "ranger" | "scout" | "keeper" | "warden" | "none";
 
 export interface TalkBeat {
   speaker: SpeakerId;
