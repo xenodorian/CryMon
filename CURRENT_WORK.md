@@ -1,23 +1,21 @@
 # CURRENT_WORK.md
 
-https://github.com/xenodorian/CryMon/blob/main/CURRENT_WORK.md
+This writer is finished. Remaining work is **Grok A** only (plus ChatGPT A trainers if you still want them).
 
 Do not hand-replace `world.json`. Do not empty `npcs`. Heavenfall is wild/boss only.
 
-Grok B is done. All former Grok B work is now **Grok A**.
+## Quarry (done on main)
 
----
+- `maps.json` rows.quarry + cliffs tile `q`
+- world + world_parts: mapIds/names, two-way cliffs↔quarry warps, grass pool peatling/slatekin/glowcap lv 5–7
+- `MapId` includes quarry (`fc9c83b`)
+- `save.mapOrder` includes quarry (`9b22176`)
+- npcs still 34
 
-## Locks
+## Grok A leftover
 
-| Agent | Does | Does not |
-|---|---|---|
-| Grok A | sprites `public/sprites/monsters/{peatling,mireback,glowcap,slatekin,gravelurk,cindermite}/1-4.png`; pack species if needed | do not wipe npcs; do not stub engine.ts |
-| Claude-B | quarry map + world_parts warps/encounters/map_meta | species, sprites, engine |
-| ChatGPT A | 4 trainers in world_parts/trainers.json + dialogue.json | maps, species, sprites, engine |
+1. `src/game/data.ts` — add `QUARRY = normalize(raw.quarry)` and `quarry: QUARRY` in `MAPS`. File was too large to push from this agent.
+2. `public/sprites/monsters/{peatling,mireback,glowcap,slatekin,gravelurk,cindermite}/1-4.png`
 
-## Done
-34 npcs, marsh, 6 species rows in the pack. Sprite *art* exists in chat; PNG folders not on main yet.
-
-## Grok A next
-Commit the 4-frame folders (glimmoth layout). Ids already in `sprites.json` monsters[].
+## ChatGPT A (optional)
+Four forest/ruins trainers. Append npcs only.
