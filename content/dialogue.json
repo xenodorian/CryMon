@@ -29,7 +29,8 @@
     "keeper": "Keeper",
     "warden": "Warden",
     "bogwalker": "Bogwalker",
-    "reedguard": "Reedguard"
+    "reedguard": "Reedguard",
+    "quartz": "Quartz"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
@@ -44,6 +45,22 @@
     "Thank you for playing the CryMon demo."
   ],
   "talk": {
-    "RESTORE": "incomplete - need full talk table"
+    "RESTORE": "incomplete - need full talk table",
+    "quartzSpot": [
+      {
+        "speaker": "quartz",
+        "text": "The crystals remember everyone who passes through the Reach."
+      },
+      {
+        "speaker": "max",
+        "text": "Then remember me."
+      }
+    ],
+    "quartzWin": [
+      {
+        "speaker": "quartz",
+        "text": "The Reach is yours to cross. Carry its mark carefully."
+      }
+    ]
   }
 }
