@@ -1,169 +1,25 @@
 {
-  "source": "Shared rules both engines interpret. Extend this file instead of forking engine.ts or main.c.",
-  "screenFade": {
-    "outSec": 0.267,
-    "holdSec": 0.05,
-    "inSec": 0.267
-  },
-  "arrivals": {
-    "masonAmbush": {
-      "needParty": true,
-      "unless": "foughtMason",
-      "spawn": {
-        "actor": "mason",
-        "oy": 160,
-        "dir": "up",
-        "phase": "approach"
-      }
-    },
-    "ensureSoldiers": {
-      "call": "ensureSoldiers"
-    }
-  },
-  "masonRematch": {
-    "unlockOn": "beatCalder",
-    "once": "mason2Done",
-    "maps": [
-      "veld",
-      "forest",
-      "grove"
-    ],
-    "oy": 160,
-    "dir": "up",
-    "talk": "masonFight2",
-    "battle": {
-      "lead": [
-        "glimmoth",
-        6
-      ],
-      "bench": [
-        [
-          "briarfox",
-          7
-        ],
-        [
-          "duskhorn",
-          8
-        ]
-      ],
-      "title": "Mason sends Glimmoth",
-      "marks": 20,
-      "winTalk": "masonWin2"
-    }
-  },
-  "bed": {
-    "talk": "bed",
-    "afterTalk": "bedHeal",
-    "healParty": true,
-    "fade": true
-  },
-  "partyWipe": {
-    "fade": true,
-    "healParty": true,
-    "map": "house",
-    "mark": "U",
-    "dir": "up"
-  },
+  "screenFade": {"outSec": 0.26, "holdSec": 0.05, "inSec": 0.26},
+  "arrivals": {"masonAmbush": {"needParty": true, "unless": "foughtMason"}},
+  "masonRematch": {"maps": ["veld", "forest", "grove"]},
   "natures": [
-    {
-      "id": "quartz",
-      "name": "Quartz",
-      "str": 1,
-      "agl": 1,
-      "spc": 1
-    },
-    {
-      "id": "hematite",
-      "name": "Hematite",
-      "str": 3,
-      "agl": 0,
-      "spc": 0
-    },
-    {
-      "id": "diamond",
-      "name": "Diamond",
-      "str": 2,
-      "agl": 0,
-      "spc": 1
-    },
-    {
-      "id": "opal",
-      "name": "Opal",
-      "str": 0,
-      "agl": 3,
-      "spc": 0
-    },
-    {
-      "id": "spinel",
-      "name": "Spinel",
-      "str": 1,
-      "agl": 2,
-      "spc": 0
-    },
-    {
-      "id": "lapis",
-      "name": "Lapis Lazuli",
-      "str": 0,
-      "agl": 0,
-      "spc": 3
-    },
-    {
-      "id": "amethyst",
-      "name": "Amethyst",
-      "str": 0,
-      "agl": 1,
-      "spc": 2
-    }
+    {"id":"quartz","name":"Quartz","str":1,"agl":1,"spc":1},
+    {"id":"hematite","name":"Hematite","str":3,"agl":0,"spc":0},
+    {"id":"diamond","name":"Diamond","str":2,"agl":0,"spc":1},
+    {"id":"opal","name":"Opal","str":0,"agl":3,"spc":0},
+    {"id":"spinel","name":"Spinel","str":1,"agl":2,"spc":0},
+    {"id":"lapis","name":"Lapis","str":0,"agl":0,"spc":3},
+    {"id":"amethyst","name":"Amethyst","str":0,"agl":1,"spc":2}
   ],
-  "runtimeFlags": [
-    "hasParty2",
-    "hasCageKey"
-  ],
-  "anneGift": {
-    "afterBattles": 1,
-    "item": "gem",
-    "qty": 5,
-    "map": "veld"
-  },
-  "party": {
-    "max": 6,
-    "release": true,
-    "catchSwap": true,
-    "keepLast": true
-  },
   "natureTypes": {
-    "note": "Crystal matchups. A crystal is a property of the SPECIES, not of an individual, and several species share each crystal. The same crystal gives the species its stat bonus (always positive; a stat never goes down) and its type. Derived from the ring, not stored as a matrix. Both engines interpret this.",
-    "ring": [
-      "diamond",
-      "hematite",
-      "quartz",
-      "amethyst",
-      "lapis",
-      "opal",
-      "spinel"
-    ],
-    "beatsAhead": 2,
-    "strongMul": 2.0,
-    "weakMul": 0.5,
-    "strongText": "Weakness x2",
-    "weakText": "Resisted x0.5"
+    "ring":["quartz","hematite","diamond","opal","spinel","lapis","amethyst"],
+    "beatsAhead":2,
+    "strongMul":2.0,
+    "weakMul":0.5,
+    "strongText":"Weakness x2",
+    "weakText":"Resisted x0.5"
   },
-  "combat": {
-    "note": "Full rewrite of the old flat+scale damage/guard formulas. Every attack (basic, special, spell, Toxic Burst) is atkStat (str or mag, whichever the move is tagged with, raw value plus battle mods) times the move's own power rating (0.5-1.5, shown to the player x10 as 5-15). Speed is the same shape off agility: atkAgl x the move's speed rating, used only to resolve Dodge. Guard has no percentage roll any more -- Dodge is a speed contest, Block/Barrier are a flat score subtracted from the incoming hit. Both engines interpret this block; neither hardcodes these constants.",
-    "dodgeDefenderRandMin": 0.75,
-    "dodgeDefenderRandMax": 1.25,
-    "guardRandMin": 0.25,
-    "guardRandMax": 0.75,
-    "barrierHealDivisor": 2,
-    "parriedText": "Parried!",
-    "absorbedText": "Absorbed!"
-  },
-  "toxicBurst": {
-    "note": "The shiny-exclusive move. Universal, not per-species -- every shiny CryMon can use it, and a shiny foe has a chance to reach for it instead of its usual moves. Poisons on hit.",
-    "name": "Toxic Burst",
-    "stat": "str",
-    "power": 0.5,
-    "speed": 1.0,
-    "poisonDivisor": 16
-  }
+  "party":{"max":6,"release":true,"catchSwap":true,"keepLast":true},
+  "anneGift":{"afterBattles":1,"qty":5},
+  "combat": {"displayScale":10}
 }
