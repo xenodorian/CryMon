@@ -65,71 +65,65 @@ TALK_C = {
 
 SPELL = {"firebolt": 0, "icebeam": 1, "lightning": 2, "manasurge": 3}
 
-def species_order(data: dict) -> list[str]:
-    return list(data["save"]["speciesOrder"])
-
-def map_order(data: dict) -> list[str]:
-    return list(data["world"]["mapIds"])
-
-def map_sym(mid: str) -> str:
-    return "MAP_" + mid.upper()
-
-def sp_sym(sid: str) -> str:
-    return "SP_" + sid.upper()
-
-PACK_FILES = [
-    "species.json", "items.json", "maps.json", "dialogue.json",
-    "world.json", "logic.json", "audio.json", "save.json", "sprites.json",
+FLAG_IDS = [
+    "tookStarter", "lootedCrate", "foughtMason", "talkedFather", "talkedWren",
+    "talkedMae", "talkedIvo", "talkedNell", "nellBonus", "talkedPike", "pikeHelped",
+    "gotHerb", "gotFieldGem", "gotStump", "readCart", "beatCalder", "beatShinigami",
+    "hasScroll", "cathleenCaught", "mason2", "gotChest", "cageOpen", "hasCageKey",
+    "beatSentry", "beatConscript", "beatEnforcer", "beatCross", "birchGifted",
+    "sableGifted", "tessaGifted", "talkedReach", "anneGifted",
 ]
 
-def pack_hash(content: Path) -> str:
+def species_order(data):
+    return list(data["save"]["speciesOrder"])
+def map_order(data):
+    return list(data["world"]["mapIds"])
+def map_sym(mid):
+    return "MAP_" + mid.upper()
+def sp_sym(sid):
+    return "SP_" + sid.upper()
+
+PACK_FILES = ["species.json", "items.json", "maps.json", "dialogue.json", "world.json", "logic.json", "audio.json", "save.json", "sprites.json"]
+
+def pack_hash(content):
     h = hashlib.sha256()
     for name in PACK_FILES:
         path = content / name
-        h.update(name.encode())
-        h.update(b"\0")
+        h.update(name.encode()); h.update(b"\0")
         h.update(path.read_bytes() if path.is_file() else b"<missing>")
     return h.hexdigest()[:16]
 
-def c_escape(s: str) -> str:
+def c_escape(s):
     return s.replace("\\", "\\\\").replace('"', '\\"')
-
-def dc_text(s: str) -> str:
+def dc_text(s):
     t = s.upper()
     t = t.replace("\u2014", ".").replace("\u2013", ".").replace("\u2018", "'").replace("\u2019", "'")
     t = t.replace('"', "").replace(":", ",").replace(";", ",")
-    t = re.sub(r"\s+", " ", t).strip()
-    return t
+    return re.sub(r"\s+", " ", t).strip()
 
-def talk_table(data: dict) -> list[tuple[str, str]]:
+def talk_table(data):
     talk = data["dialogue"]["talk"]
-    out: list[tuple[str, str]] = []
-    seen: set[str] = set()
+    out, seen = [], set()
     for key, sym in TALK_C.items():
         if key in talk and key not in seen:
-            out.append((key, sym))
-            seen.add(key)
+            out.append((key, sym)); seen.add(key)
     for key in talk:
         if key not in seen:
             snake = re.sub(r"([A-Z])", r"_\1", key).upper().lstrip("_")
-            out.append((key, "TALK_" + snake))
-            seen.add(key)
+            out.append((key, "TALK_" + snake)); seen.add(key)
     return out
 
-def merged_flags(data: dict) -> list[str]:
-    out: list[str] = []
+def merged_flags(data):
+    out = []
     for name in FLAG_IDS:
-        if name not in out:
-            out.append(name)
+        if name not in out: out.append(name)
     for name in data["save"].get("flags") or []:
-        if name not in out:
-            out.append(name)
+        if name not in out: out.append(name)
     for name in data["logic"].get("runtimeFlags") or []:
-        if name not in out:
-            out.append(name)
+        if name not in out: out.append(name)
     return out
 
-def load_pack(content: Path) -> dict:
+def load_pack(content):
     pack = {
         "species": json.loads((content / "species.json").read_text()),
         "items": json.loads((content / "items.json").read_text()),
@@ -146,7 +140,13 @@ def load_pack(content: Path) -> dict:
     TALK_KEYS_ORDER = [k for k, _ in talk_table(pack)]
     return pack
 
-def bake_all(content: Path, outdir: Path) -> str:
+TALK_KEYS_ORDER = []
+HEADER = "/* AUTO-GENERATED from content/*.json — do not edit. python3 tools/bake_content.py */\n"
+def set_header(h):
+    global HEADER
+    HEADER = f"/* AUTO-GENERATED from content/*.json PACK_HASH={h} — do not edit. python3 tools/bake_content.py */\n"
+
+def bake_all(content, outdir):
     data = load_pack(content)
     h = pack_hash(content)
     set_header(h)
@@ -161,35 +161,23 @@ def bake_all(content: Path, outdir: Path) -> str:
     bake_save(data, outdir / "content_save.inc")
     return h
 
-TALK_KEYS_ORDER: list[str] = []
-HEADER = "/* AUTO-GENERATED from content/*.json — do not edit. python3 tools/bake_content.py */\n"
-
-def set_header(h: str) -> None:
-    global HEADER
-    HEADER = f"/* AUTO-GENERATED from content/*.json PACK_HASH={h} — do not edit. python3 tools/bake_content.py */\n"
-
-def bake_maps(data: dict, out: Path) -> None:
-    maps = data["maps"]["rows"]
-    names = data["world"]["mapNames"]
-    order = map_order(data)
-    n = len(order)
+def bake_maps(data, out):
+    maps, names, order = data["maps"]["rows"], data["world"]["mapNames"], map_order(data)
     lines = [HEADER]
     for i, mid in enumerate(order):
         lines.append(f"#define {map_sym(mid)} {i}")
-    lines.append(f"#define MAP_N {n}")
+    lines.append(f"#define MAP_N {len(order)}")
     lines.append("")
     for mid in order:
-        rows = maps[mid]
         lines.append(f"static const char *const map_{mid}_rows[] = {{")
-        for r in rows:
+        for r in maps[mid]:
             lines.append(f'    "{c_escape(r)}",')
         lines.append("};")
         lines.append("")
     lines.append(f"static const Map MAPS[MAP_N] = {{")
     for mid in order:
         rows = maps[mid]
-        cols = max(len(r) for r in rows)
-        lines.append(f"    {{ map_{mid}_rows, {cols}, {len(rows)} }},")
+        lines.append(f"    {{ map_{mid}_rows, {max(len(r) for r in rows)}, {len(rows)} }},")
     lines.append("};")
     lines.append("")
     lines.append(f"static const char *const MAP_DISPLAY_NAME[MAP_N] = {{")
@@ -201,21 +189,13 @@ def bake_maps(data: dict, out: Path) -> None:
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
-def bake_talk(data: dict, out: Path) -> None:
-    talk = data["dialogue"]["talk"]
-    ending = data["dialogue"]["endingWin"]
-    table = talk_table(data)
-    lines = [HEADER, "#if defined(__GNUC__)"]
-    lines.append("#pragma GCC diagnostic ignored \"-Wunused-const-variable\"")
-    lines.append("#endif")
-    lines.append("")
+def bake_talk(data, out):
+    talk, ending, table = data["dialogue"]["talk"], data["dialogue"]["endingWin"], talk_table(data)
+    lines = [HEADER, "#if defined(__GNUC__)", "#pragma GCC diagnostic ignored \"-Wunused-const-variable\"", "#endif", ""]
     for key, symbol in table:
-        beats = talk[key]
         lines.append(f"static const TalkBeat {symbol}[] = {{")
-        for b in beats:
-            sp = SPEAKER[b["speaker"]]
-            text = dc_text(b["text"])
-            lines.append(f'    {{ "{c_escape(text)}", {sp} }},')
+        for b in talk[key]:
+            lines.append(f'    {{ "{c_escape(dc_text(b["text"]))}", {SPEAKER[b["speaker"]]} }},')
         lines.append("};")
     lines.append("")
     lines.append("static const char *const DEMO_END[] = {")
@@ -224,60 +204,48 @@ def bake_talk(data: dict, out: Path) -> None:
     lines.append("};")
     lines.append("")
     lines.append("#define TALK_LEN(arr) (int)(sizeof(arr) / sizeof((arr)[0]))")
-    lines.append("")
     lines.append("static const TalkBeat *const TALK_PTRS[] = {")
-    for _key, symbol in table:
+    for _, symbol in table:
         lines.append(f"    {symbol},")
     lines.append("};")
     lines.append("static const int TALK_COUNTS[] = {")
-    for _key, symbol in table:
+    for _, symbol in table:
         lines.append(f"    TALK_LEN({symbol}),")
     lines.append("};")
     lines.append(f"#define TALK_TABLE_N {len(table)}")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
-def bake_species(data: dict, out: Path) -> None:
-    spec = data["species"]
-    order = species_order(data)
-    n = len(order)
+def bake_species(data, out):
+    spec, order = data["species"], species_order(data)
     lines = [HEADER]
     for i, sid in enumerate(order):
         lines.append(f"#define {sp_sym(sid)} {i}")
-    lines.append(f"#define SPECIES_N {n}")
+    lines.append(f"#define SPECIES_N {len(order)}")
     lines.append("")
     lines.append(f"static const Species SPECIES[SPECIES_N] = {{")
     for sid in order:
         s = spec[sid]
         spells = s.get("spells") or []
         ids = [SPELL[sp["id"]] for sp in spells]
-        while len(ids) < 4:
-            ids.append(0)
-        nsp = len(spells)
-        name = dc_text(s["name"])
-        basic = dc_text(s["basic"])
-        special = dc_text(s["special"])
-        bp = float(s.get("basicPower", 0.6))
-        bs = float(s.get("basicSpeed", 1.2))
+        while len(ids) < 4: ids.append(0)
+        bp = float(s.get("basicPower", 0.6)); bs = float(s.get("basicSpeed", 1.2))
         bst = 1 if s.get("basicStat") == "spc" else 0
-        sp_ = float(s.get("specialPower", 1.0))
-        ss = float(s.get("specialSpeed", 0.8))
+        sp_ = float(s.get("specialPower", 1.0)); ss = float(s.get("specialSpeed", 0.8))
         sst = 1 if s.get("specialStat") == "spc" else 0
         lines.append(
-            f'    {{ "{c_escape(name)}", "{c_escape(basic)}", "{c_escape(special)}", '
+            f'    {{ "{c_escape(dc_text(s["name"]))}", "{c_escape(dc_text(s["basic"]))}", "{c_escape(dc_text(s["special"]))}", '
             f'{s["maxHp"]}, {s["str"]}, {s["agl"]}, {s["spc"]}, {s["specialPp"]}, '
-            f"{nsp}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}}, "
+            f"{len(spells)}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}}, "
             f"{bp:.2f}f, {bs:.2f}f, {bst}, {sp_:.2f}f, {ss:.2f}f, {sst} }},"
         )
     lines.append("};")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
-def bake_logic(data: dict, out: Path) -> None:
+def bake_logic(data, out):
     logic = data["logic"]
-    ambush = logic["arrivals"]["masonAmbush"]
-    rematch = logic["masonRematch"]
-    fade = logic["screenFade"]
+    ambush, rematch, fade = logic["arrivals"]["masonAmbush"], logic["masonRematch"], logic["screenFade"]
     lines = [HEADER]
     lines.append("/* Canonical rules from content/logic.json (Dreamcast spec). */")
     lines.append(f"#define LOGIC_FADE_OUT_FRAMES {max(1, int(round(fade['outSec'] * 60)))}")
@@ -294,10 +262,7 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define NATURE_N {len(natures)}")
     lines.append("static const NatureDef NATURES[NATURE_N] = {")
     for nat in natures:
-        lines.append(
-            f'    {{ "{c_escape(dc_text(nat["name"]))}", '
-            f'{int(nat.get("str") or 0)}, {int(nat.get("agl") or 0)}, {int(nat.get("spc") or 0)} }},'
-        )
+        lines.append(f'    {{ "{c_escape(dc_text(nat["name"]))}", {int(nat.get("str") or 0)}, {int(nat.get("agl") or 0)}, {int(nat.get("spc") or 0)} }},')
     lines.append("};")
     lines.append("")
     party = logic.get("party") or {}
@@ -312,10 +277,7 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define SPR_SCALE_MASON {int(scale.get('mason') or 1)}")
     lines.append("")
     combat = logic.get("combat") or {}
-    toxic = combat.get("toxicBurst") or {}
-    dodge = combat.get("dodge") or {}
-    block = combat.get("block") or {}
-    barrier = combat.get("barrier") or {}
+    toxic, dodge, block, barrier = combat.get("toxicBurst") or {}, combat.get("dodge") or {}, combat.get("block") or {}, combat.get("barrier") or {}
     lines.append("/* Combat: finalDamage = atkStat * power; finalSpeed = atkAgl * speed. */")
     lines.append(f"#define COMBAT_TOXIC_POWER {float(toxic.get('power', 0.5)):.2f}f")
     lines.append(f"#define COMBAT_TOXIC_SPEED {float(toxic.get('speed', 1.0)):.2f}f")
@@ -332,85 +294,54 @@ def bake_logic(data: dict, out: Path) -> None:
 
 NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4}
 ARRIVE = {"masonAmbush": 1, "ensureSoldiers": 2}
-ITEM_FX = {"heal": 1, "buff": 2, "debuff": 3, "capture": 4, "flee": 5}
 
-def talk_id(key: str) -> int:
-    try:
-        return TALK_KEYS_ORDER.index(key)
-    except ValueError:
-        return -1
+def talk_id(key):
+    try: return TALK_KEYS_ORDER.index(key)
+    except ValueError: return -1
 
-def bake_world(data: dict, out: Path) -> None:
-    world = data["world"]
-    items = data["items"]
-    f = world["formulas"]
+def bake_world(data, out):
+    world, items, f = data["world"], data["items"], data["world"]["formulas"]
     lines = [HEADER]
     lines.append("/* Canonical world tables from content/world.json + items.json. */")
-    lines.append(f"#define XP_BASE {int(f['xpBase'])}")
-    lines.append(f"#define XP_PER_LEVEL {int(f['xpPerLevel'])}")
-    lines.append(f"#define LEVEL_XP_MUL {int(f['levelXpMul'])}")
-    lines.append(f"#define LEVEL_CAP {int(f['levelCap'])}")
-    lines.append(f"#define LEVEL_HP {int(f['levelHp'])}")
-    lines.append(f"#define LEVEL_STAT {int(f['levelStat'])}")
-    lines.append(f"#define CAPTURE_AGL {int(f['captureAgl'])}")
-    lines.append(f"#define CAPTURE_VULN {int(f['captureVulnerable'])}")
-    lines.append(f"#define SHINY_DENOM {int(f['shinyDenom'])}")
-    lines.append(f"#define ENCOUNTER_PCT {int(f['encounterPercent'])}")
-    lines.append(f"#define GREATCRYSTAL_BONUS {int(f['greatcrystalBonus'])}")
-    share = float(f.get("benchXpShare") or 0.5)
-    lines.append(f"#define BENCH_XP_PCT {int(round(share * 100))}")
-    lines.append(f"#define BITTERROOT_STR {int(f['bitterrootStr'])}")
-    lines.append(f"#define WARROOT_AGL {int(f['warrootAgl'])}")
-    lines.append(f"#define DUST_STR {int(f['dustStr'])}")
-    lines.append(f"#define DUST_AGL {int(f['dustAgl'])}")
-    lines.append(f"#define DUST_SPC {int(f['dustSpc'])}")
-    lines.append(f"#define START_MARKS {int(world['startMarks'])}")
+    for k, v in [("XP_BASE", f["xpBase"]), ("XP_PER_LEVEL", f["xpPerLevel"]), ("LEVEL_XP_MUL", f["levelXpMul"]),
+                 ("LEVEL_CAP", f["levelCap"]), ("LEVEL_HP", f["levelHp"]), ("LEVEL_STAT", f["levelStat"]),
+                 ("CAPTURE_AGL", f["captureAgl"]), ("CAPTURE_VULN", f["captureVulnerable"]),
+                 ("SHINY_DENOM", f["shinyDenom"]), ("ENCOUNTER_PCT", f["encounterPercent"]),
+                 ("GREATCRYSTAL_BONUS", f["greatcrystalBonus"]), ("BITTERROOT_STR", f["bitterrootStr"]),
+                 ("WARROOT_AGL", f["warrootAgl"]), ("DUST_STR", f["dustStr"]), ("DUST_AGL", f["dustAgl"]),
+                 ("DUST_SPC", f["dustSpc"]), ("START_MARKS", world["startMarks"])]:
+        lines.append(f"#define {k} {int(v)}")
+    lines.append(f"#define BENCH_XP_PCT {int(round(float(f.get('benchXpShare') or 0.5) * 100))}")
     order = items["order"]
     bag = world["startBag"]
-    init = ", ".join(str(int(bag.get(i, 0))) for i in order)
-    lines.append(f"#define START_BAG_INIT {{ {init} }}")
+    lines.append(f"#define START_BAG_INIT {{ {', '.join(str(int(bag.get(i, 0))) for i in order)} }}")
     lines.append("")
-    lines.append("typedef struct {")
-    lines.append("    int from_map, to_map;")
-    lines.append("    char tile, spawn;")
-    lines.append("    int face_down;")
-    lines.append("    int need;")
-    lines.append("    int on_arrive;")
-    lines.append("    int fail_talk;")
-    lines.append("} WarpDef;")
+    lines.append("typedef struct { int from_map, to_map; char tile, spawn; int face_down, need, on_arrive, fail_talk; } WarpDef;")
     lines.append("static const WarpDef WARPS[] = {")
     for w in world["warps"]:
-        frm = map_sym(w["from"])
-        to = map_sym(w["to"])
-        tile = w["tile"]
-        spawn = w["spawn"]
-        face = 1 if w.get("dir") == "down" else 0
-        need = NEED.get(w.get("need") or "", 0)
-        arr = ARRIVE.get(w.get("onArrive") or "", 0)
         fail = talk_id(w["failTalk"]) if w.get("failTalk") else -1
-        lines.append(f"    {{ {frm}, {to}, '{tile}', '{spawn}', {face}, {need}, {arr}, {fail} }},")
+        lines.append(f"    {{ {map_sym(w['from'])}, {map_sym(w['to'])}, '{w['tile']}', '{w['spawn']}', "
+                     f"{1 if w.get('dir') == 'down' else 0}, {NEED.get(w.get('need') or '', 0)}, "
+                     f"{ARRIVE.get(w.get('onArrive') or '', 0)}, {fail} }},")
     lines.append("};")
-    lines.append(f"#define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))")
+    lines.append("#define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
-def bake_audio(data: dict, out: Path) -> None:
-    lines = [HEADER, "/* Audio tables from content/audio.json (stub if missing). */", ""]
-    out.write_text("\n".join(lines) + "\n")
+def bake_audio(data, out):
+    out.write_text(HEADER + "/* Audio from content/audio.json. */\n")
 
-def _c_ident(name: str) -> str:
+def _c_ident(name):
     return re.sub(r"[^A-Za-z0-9_]", "_", name).upper()
 
-def bake_save(data: dict, out: Path) -> None:
-    save = data["save"]
-    flags = merged_flags(data)
-    items = data["items"]["order"]
+def bake_save(data, out):
+    save, flags, items = data["save"], merged_flags(data), data["items"]["order"]
     lines = [HEADER, "#ifndef CONTENT_SAVE_INC", "#define CONTENT_SAVE_INC", ""]
     lines.append(f"#define SAVE_MAGIC 0x{int.from_bytes(b'CRYM', 'little'):08X}u")
     lines.append(f"#define SAVE_VERSION {int(save.get('version') or 1)}")
     lines.append(f"#define SAVE_SIZE {int(save.get('size') or 142)}")
     lines.append(f"#define SAVE_PARTY_SLOT {int(save.get('partySlot') or 16)}")
-    lines.append(f"#define SAVE_PARTY_MAX 6")
+    lines.append("#define SAVE_PARTY_MAX 6")
     lines.append(f"#define SAVE_FLAG_N {len(flags)}")
     lines.append(f"#define SAVE_ITEM_N {len(items)}")
     for i, name in enumerate(flags):
@@ -419,10 +350,8 @@ def bake_save(data: dict, out: Path) -> None:
     lines.append("#endif")
     out.write_text("\n".join(lines) + "\n")
 
-def bake_items(data: dict, out: Path) -> None:
-    items = data["items"]
-    order = items["order"]
-    defs = items["defs"]
+def bake_items(data, out):
+    order, defs = data["items"]["order"], data["items"]["defs"]
     lines = [HEADER, f"#define ITEM_COUNT {len(order)}", "static const ItemDef ITEMS[ITEM_COUNT] = {"]
     for iid in order:
         it = defs[iid]
@@ -431,20 +360,16 @@ def bake_items(data: dict, out: Path) -> None:
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
-def main() -> None:
+def main():
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--content", type=Path, default=CONTENT)
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
-    content = args.content
-    if args.out:
-        outdir = args.out
-    else:
-        outdir = ROOT / "ports" / "dreamcast" / "src"
-        if not outdir.is_dir():
-            raise SystemExit(f"no bake output dir: {outdir} (pass --out)")
-    h = bake_all(content, outdir)
+    outdir = args.out or (ROOT / "ports" / "dreamcast" / "src")
+    if not outdir.is_dir() and not args.out:
+        raise SystemExit(f"no bake output dir: {outdir}")
+    h = bake_all(args.content, outdir)
     print(f"baked maps/talk/species/items/logic/world/audio/save PACK_HASH={h} -> {outdir}")
 
 if __name__ == "__main__":
