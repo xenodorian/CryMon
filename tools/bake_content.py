@@ -679,8 +679,9 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("    int lead_sp, lead_lv;")
     lines.append("    int bench_sp[2], bench_lv[2], bench_n;")
     lines.append("} TrainerKit;")
-    kit_keys = ["sentry", "conscript", "enforcer", "cross"]
-    lines.append("static const TrainerKit TRAINER_KITS[4] = {")
+    kit_keys = ["sentry", "conscript", "enforcer", "cross",
+                "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden"]
+    lines.append(f"static const TrainerKit TRAINER_KITS[{len(kit_keys)}] = {{")
     for k in kit_keys:
         t = world["trainers"][k]
         lead_sp, lead_lv = t["lead"]
@@ -692,10 +693,8 @@ def bake_world(data: dict, out: Path) -> None:
             f"{{ {sp[b0[0]]}, {sp[b1[0]]} }}, {{ {int(b0[1])}, {int(b1[1])} }}, {len(benches)} }},"
         )
     lines.append("};")
-    lines.append("#define KIT_SENTRY 0")
-    lines.append("#define KIT_CONSCRIPT 1")
-    lines.append("#define KIT_ENFORCER 2")
-    lines.append("#define KIT_CROSS 3")
+    for i, k in enumerate(kit_keys):
+        lines.append(f"#define KIT_{_c_ident(k)} {i}")
     cath = world["trainers"]["cathleen"]["lead"]
     shin = world["trainers"]["shinigami"]
     shin_b = shin.get("bench") or []
@@ -769,6 +768,10 @@ PENDING_IDS = {
     "conscript": 1,
     "enforcer": 2,
     "sentry": 3,
+    "forestRanger": 4,
+    "forestScout": 5,
+    "ruinsKeeper": 6,
+    "ruinsWarden": 7,
 }
 
 
@@ -810,6 +813,10 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("#define NPC_PENDING_CONSCRIPT 1")
     lines.append("#define NPC_PENDING_ENFORCER 2")
     lines.append("#define NPC_PENDING_SENTRY 3")
+    lines.append("#define NPC_PENDING_FOREST_RANGER 4")
+    lines.append("#define NPC_PENDING_FOREST_SCOUT 5")
+    lines.append("#define NPC_PENDING_RUINS_KEEPER 6")
+    lines.append("#define NPC_PENDING_RUINS_WARDEN 7")
     lines.append("typedef struct {")
     lines.append("    int if_flag, if_not, hide_if, set_flag;")
     lines.append("    int g_item[3], g_qty[3], g_n;")

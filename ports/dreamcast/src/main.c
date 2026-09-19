@@ -1159,6 +1159,10 @@ static const u16 *const COMMANDER_FRAMES[4]  = { npc_commander_1, npc_commander_
 static const u16 *const CONSCRIPT_FRAMES[4]  = { npc_conscript_1, npc_conscript_2, npc_conscript_3, npc_conscript_4 };
 static const u16 *const ENFORCER_FRAMES[4]   = { npc_enforcer_1, npc_enforcer_2, npc_enforcer_3, npc_enforcer_4 };
 static const u16 *const SENTRY_FRAMES[4]     = { npc_sentry_1, npc_sentry_2, npc_sentry_3, npc_sentry_4 };
+static const u16 *const RANGER_FRAMES[4]     = { npc_ranger_1, npc_ranger_2, npc_ranger_3, npc_ranger_4 };
+static const u16 *const SCOUT_FRAMES[4]      = { npc_scout_1, npc_scout_2, npc_scout_3, npc_scout_4 };
+static const u16 *const KEEPER_FRAMES[4]     = { npc_keeper_1, npc_keeper_2, npc_keeper_3, npc_keeper_4 };
+static const u16 *const WARDEN_FRAMES[4]     = { npc_warden_1, npc_warden_2, npc_warden_3, npc_warden_4 };
 /* npc_father_1..4 (Father's walk frames) aren't used -- he's bedridden
    and only ever appears via his portrait (SPK_FATHER), never placed as
    a WorldSprite. */
@@ -1188,6 +1192,8 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
             ws_push_walker(list, n, SOLDIER_FRAMES, soldiers[i].x, soldiers[i].y, soldiers[i].dir,
                             (int)soldiers[i].anim);
         }
+        ws_push_mark_idle(list, n, map_id, '4', RANGER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, '5', SCOUT_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
     }
     else if(map_id == MAP_GROVE) {
         if(!beat_shin)
@@ -1213,6 +1219,8 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, 'J', OREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'K', BIRCH_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'A', SABLE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, '6', KEEPER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, '7', WARDEN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
     }
 
     /* Anne isn't tied to one map like the stationary VELD NPCs --
@@ -2294,6 +2302,10 @@ typedef struct {
 #define TRAINER_WSOLDIER_CAMP1  7
 #define TRAINER_WSOLDIER_CAMP2  8
 #define TRAINER_WSOLDIER_GROVE  9
+#define TRAINER_WSOLDIER_RANGER 10
+#define TRAINER_WSOLDIER_SCOUT  11
+#define TRAINER_WSOLDIER_KEEPER 12
+#define TRAINER_WSOLDIER_WARDEN 13
 
 #define BAFTER_ITEM      1
 #define BAFTER_ATK       2
@@ -3137,7 +3149,7 @@ static int try_encounter(int map_id, int px, int py, int party_n,
    "Max's CryMon" (the player's own active monster; Max herself
    already has her own walk sprite on the world map, so this is what
    "the player's battle sprite" actually means in this game). */
-static const u16 *const MONSTER_SPRITES[20][4] = {
+static const u16 *const MONSTER_SPRITES[SPECIES_N][4] = {
     { monster_quillpup_1, monster_quillpup_2, monster_quillpup_3, monster_quillpup_4 },
     { monster_glimmoth_1, monster_glimmoth_2, monster_glimmoth_3, monster_glimmoth_4 },
     { monster_tortcask_1, monster_tortcask_2, monster_tortcask_3, monster_tortcask_4 },
@@ -3158,6 +3170,14 @@ static const u16 *const MONSTER_SPRITES[20][4] = {
     { monster_glasswisp_1, monster_glasswisp_2, monster_glasswisp_3, monster_glasswisp_4 },
     { monster_ashenmaw_1, monster_ashenmaw_2, monster_ashenmaw_3, monster_ashenmaw_4 },
     { monster_heavenfall_1, monster_heavenfall_2, monster_heavenfall_3, monster_heavenfall_4 },
+    { monster_peatling_1, monster_peatling_2, monster_peatling_3, monster_peatling_4 },
+    { monster_mireback_1, monster_mireback_2, monster_mireback_3, monster_mireback_4 },
+    { monster_glowcap_1, monster_glowcap_2, monster_glowcap_3, monster_glowcap_4 },
+    { monster_slatekin_1, monster_slatekin_2, monster_slatekin_3, monster_slatekin_4 },
+    { monster_gravelurk_1, monster_gravelurk_2, monster_gravelurk_3, monster_gravelurk_4 },
+    { monster_cindermite_1, monster_cindermite_2, monster_cindermite_3, monster_cindermite_4 },
+    { monster_veilcap_1, monster_veilcap_2, monster_veilcap_3, monster_veilcap_4 },
+    { monster_kilnback_1, monster_kilnback_2, monster_kilnback_3, monster_kilnback_4 },
 };
 
 static void draw_party_mon_icon(int species, int x, int y) {
@@ -3987,6 +4007,10 @@ void main(void) {
 #define POST_WSOLDIER_CAMP1  15
 #define POST_WSOLDIER_CAMP2  16
 #define POST_WSOLDIER_GROVE  17
+#define POST_WSOLDIER_RANGER 18
+#define POST_WSOLDIER_SCOUT  19
+#define POST_WSOLDIER_KEEPER 20
+#define POST_WSOLDIER_WARDEN 21
 /* Oren's stall reuses POST_SHOP directly -- same draw_shop()/ITEMS
    table Bram's does, no separate post_action needed. */
 
@@ -4000,6 +4024,8 @@ void main(void) {
     int beat_cathleen = 0; /* set on any win vs her, not just a capture -- see tile_blocked's GROVE gate */
     int beat_wsoldier_cliffs = 0, beat_wsoldier_camp1 = 0;
     int beat_wsoldier_camp2 = 0, beat_wsoldier_grove = 0;
+    int beat_forest_ranger = 0, beat_forest_scout = 0;
+    int beat_ruins_keeper = 0, beat_ruins_warden = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
     int talked_reach = 0;
@@ -4101,6 +4127,10 @@ void main(void) {
         ft[FLAG_BEAT_CONSCRIPT] = &beat_wsoldier_camp1;
         ft[FLAG_BEAT_ENFORCER] = &beat_wsoldier_camp2;
         ft[FLAG_BEAT_SENTRY] = &beat_wsoldier_cliffs;
+        ft[FLAG_BEAT_FOREST_RANGER] = &beat_forest_ranger;
+        ft[FLAG_BEAT_FOREST_SCOUT] = &beat_forest_scout;
+        ft[FLAG_BEAT_RUINS_KEEPER] = &beat_ruins_keeper;
+        ft[FLAG_BEAT_RUINS_WARDEN] = &beat_ruins_warden;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
         ft[FLAG_CHEST_LOOTED] = &got_chest;
         ft[FLAG_BIRCH_GIFTED] = &talked_birch;
@@ -4307,6 +4337,10 @@ void main(void) {
                         beat_wsoldier_camp1 = save_flag_get(&sl, SAVE_FLAG_BEAT_CONSCRIPT);
                         beat_wsoldier_camp2 = save_flag_get(&sl, SAVE_FLAG_BEAT_ENFORCER);
                         beat_wsoldier_cliffs = save_flag_get(&sl, SAVE_FLAG_BEAT_SENTRY);
+                        beat_forest_ranger = save_flag_get(&sl, SAVE_FLAG_BEAT_FOREST_RANGER);
+                        beat_forest_scout = save_flag_get(&sl, SAVE_FLAG_BEAT_FOREST_SCOUT);
+                        beat_ruins_keeper = save_flag_get(&sl, SAVE_FLAG_BEAT_RUINS_KEEPER);
+                        beat_ruins_warden = save_flag_get(&sl, SAVE_FLAG_BEAT_RUINS_WARDEN);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
                         talked_birch = save_flag_get(&sl, SAVE_FLAG_BIRCH_GIFTED);
@@ -4370,6 +4404,8 @@ void main(void) {
                 beat_cathleen = 0; has_scroll = 0; anne2_told = 0;
                 beat_wsoldier_cliffs = 0; beat_wsoldier_camp1 = 0;
                 beat_wsoldier_camp2 = 0; beat_wsoldier_grove = 0;
+                beat_forest_ranger = 0; beat_forest_scout = 0;
+                beat_ruins_keeper = 0; beat_ruins_warden = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
@@ -4486,6 +4522,10 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_BEAT_CONSCRIPT, beat_wsoldier_camp1);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_ENFORCER, beat_wsoldier_camp2);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_SENTRY, beat_wsoldier_cliffs);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_FOREST_RANGER, beat_forest_ranger);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_FOREST_SCOUT, beat_forest_scout);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_RUINS_KEEPER, beat_ruins_keeper);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_RUINS_WARDEN, beat_ruins_warden);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
                     save_flag_put(&sl, SAVE_FLAG_BIRCH_GIFTED, talked_birch);
@@ -4813,6 +4853,50 @@ void main(void) {
                                     enc_lock = 3;
                                     seq_lines = TALK_WSOLDIER_GROVE_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_GROVE_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_NONE;
+                                }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_RANGER) {
+                                    beat_forest_ranger = 1;
+                                    marks += 10;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_FOREST_RANGER_WIN;
+                                    seq_len = TALK_LEN(TALK_FOREST_RANGER_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_NONE;
+                                }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_SCOUT) {
+                                    beat_forest_scout = 1;
+                                    marks += 11;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_FOREST_SCOUT_WIN;
+                                    seq_len = TALK_LEN(TALK_FOREST_SCOUT_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_NONE;
+                                }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_KEEPER) {
+                                    beat_ruins_keeper = 1;
+                                    marks += 13;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_RUINS_KEEPER_WIN;
+                                    seq_len = TALK_LEN(TALK_RUINS_KEEPER_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_NONE;
+                                }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_WARDEN) {
+                                    beat_ruins_warden = 1;
+                                    marks += 14;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_RUINS_WARDEN_WIN;
+                                    seq_len = TALK_LEN(TALK_RUINS_WARDEN_WIN);
                                     seq_beat = 0;
                                     post_action = POST_NONE;
                                 }
@@ -5634,6 +5718,86 @@ void main(void) {
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
+                                case POST_WSOLDIER_RANGER:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_FOREST_RANGER].lead_sp, TRAINER_KITS[KIT_FOREST_RANGER].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_RANGER;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "RANGER SENDS BRIARFOX");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_FOREST_RANGER].bench_sp[0], TRAINER_KITS[KIT_FOREST_RANGER].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_FOREST_RANGER].bench_sp[1], TRAINER_KITS[KIT_FOREST_RANGER].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_FOREST_RANGER].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
+                                case POST_WSOLDIER_SCOUT:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_FOREST_SCOUT].lead_sp, TRAINER_KITS[KIT_FOREST_SCOUT].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_SCOUT;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "SCOUT SENDS DUSKHORN");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_FOREST_SCOUT].bench_sp[0], TRAINER_KITS[KIT_FOREST_SCOUT].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_FOREST_SCOUT].bench_sp[1], TRAINER_KITS[KIT_FOREST_SCOUT].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_FOREST_SCOUT].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
+                                case POST_WSOLDIER_KEEPER:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_RUINS_KEEPER].lead_sp, TRAINER_KITS[KIT_RUINS_KEEPER].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_KEEPER;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "KEEPER SENDS MOSSBACK");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_RUINS_KEEPER].bench_sp[0], TRAINER_KITS[KIT_RUINS_KEEPER].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_RUINS_KEEPER].bench_sp[1], TRAINER_KITS[KIT_RUINS_KEEPER].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_RUINS_KEEPER].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
+                                case POST_WSOLDIER_WARDEN:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].lead_sp, TRAINER_KITS[KIT_RUINS_WARDEN].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_WARDEN;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "WARDEN SENDS TORTCASK");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].bench_sp[0], TRAINER_KITS[KIT_RUINS_WARDEN].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].bench_sp[1], TRAINER_KITS[KIT_RUINS_WARDEN].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_RUINS_WARDEN].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
                                 case POST_SHINIGAMI:
                                     battle.foe = mint_monster(SP_CRYMARE, KIT_SHINIGAMI_LEAD_LV);
                                     battle.wild = 0;
@@ -5794,6 +5958,14 @@ void main(void) {
                                     post_action = POST_WSOLDIER_CAMP2;
                                 else if(npc_pending == NPC_PENDING_SENTRY)
                                     post_action = POST_WSOLDIER_CLIFFS;
+                                else if(npc_pending == NPC_PENDING_FOREST_RANGER)
+                                    post_action = POST_WSOLDIER_RANGER;
+                                else if(npc_pending == NPC_PENDING_FOREST_SCOUT)
+                                    post_action = POST_WSOLDIER_SCOUT;
+                                else if(npc_pending == NPC_PENDING_RUINS_KEEPER)
+                                    post_action = POST_WSOLDIER_KEEPER;
+                                else if(npc_pending == NPC_PENDING_RUINS_WARDEN)
+                                    post_action = POST_WSOLDIER_WARDEN;
                                 break;
                             default:
                                 post_action = POST_NONE;

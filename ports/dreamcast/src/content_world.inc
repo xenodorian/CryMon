@@ -77,16 +77,24 @@ typedef struct {
     int lead_sp, lead_lv;
     int bench_sp[2], bench_lv[2], bench_n;
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[4] = {
+static const TrainerKit TRAINER_KITS[8] = {
     { 11, 5, { 12, 14 }, { 6, 7 }, 2 },
     { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
     { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
     { 10, 9, { 18, 13 }, { 10, 11 }, 2 },
+    { 5, 5, { 6, 0 }, { 5, 1 }, 1 },
+    { 7, 5, { 3, 0 }, { 6, 1 }, 1 },
+    { 4, 7, { 17, 0 }, { 7, 1 }, 1 },
+    { 2, 8, { 18, 0 }, { 8, 1 }, 1 },
 };
 #define KIT_SENTRY 0
 #define KIT_CONSCRIPT 1
 #define KIT_ENFORCER 2
 #define KIT_CROSS 3
+#define KIT_FOREST_RANGER 4
+#define KIT_FOREST_SCOUT 5
+#define KIT_RUINS_KEEPER 6
+#define KIT_RUINS_WARDEN 7
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
@@ -165,6 +173,10 @@ static const ItemFx ITEM_FX[] = {
 #define NPC_PENDING_CONSCRIPT 1
 #define NPC_PENDING_ENFORCER 2
 #define NPC_PENDING_SENTRY 3
+#define NPC_PENDING_FOREST_RANGER 4
+#define NPC_PENDING_FOREST_SCOUT 5
+#define NPC_PENDING_RUINS_KEEPER 6
+#define NPC_PENDING_RUINS_WARDEN 7
 typedef struct {
     int if_flag, if_not, hide_if, set_flag;
     int g_item[3], g_qty[3], g_n;
@@ -245,13 +257,13 @@ static const NpcStep NPC_STEPS[] = {
     { -1, 28, -1, 28, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 76, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 77, -1, -1, 0, -1, 0, 0, -1 },
     { 39, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 89, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 88, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 88, -1, -1, 7, 4, 0, 0, -1 },
     { 40, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 91, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 90, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 90, -1, -1, 7, 5, 0, 0, -1 },
     { 41, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 93, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 92, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 92, -1, -1, 7, 6, 0, 0, -1 },
     { 42, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 95, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 94, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 94, -1, -1, 7, 7, 0, 0, -1 },
     { -1, 43, -1, 43, { 7,-1,-1 }, { 1,0,0 }, 1, -1, 0, 96, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 97, -1, -1, 0, -1, 0, 0, -1 },
     { -1, 44, -1, 44, { 3,-1,-1 }, { 1,0,0 }, 1, -1, 0, 98, -1, -1, 0, -1, 0, 0, -1 },

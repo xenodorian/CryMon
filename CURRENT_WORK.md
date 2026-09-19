@@ -6,13 +6,14 @@ Do not hand-replace `world.json`. Do not empty `npcs`. Heavenfall is wild/boss
 only. **Cathleen is the only CryMon who speaks.** ChatGPT A: **no PNG work.**
 Claude B: encode, no drawing.
 
-Quarry is **parked** (Claude B timed out). Do not pick it up this list.
+Quarry is **parked**. Do not pick it up this list.
 
 ---
 
 ## Status
 
-- Forest/ruins extra trainers live (Ranger, Scout, Keeper, Warden) with unique art.
+- Forest/ruins extra trainers live on web. Encode of their art + fights
+  landed (task 5). New species battle sprites indexed through Kilnback.
 - Marsh + quarry maps exist. Marsh has grass, no trainers. Quarry parked.
 - +6 species lines done (28 total). Soldier right-walk mirrored.
 - Crystal wardens not started. Overworld still uses a hardcoded blit list.
@@ -36,9 +37,9 @@ Same as Quartz with `badgeOpal`. Second of the two wardens.
 `engine.ts` overworld blit should iterate `NPCS` / `npc.sprite` instead of the
 per-map hardcoded `drawActor` list.
 
-### 5. Encode new art — Claude B
-`ranger` `scout` `keeper` `warden` NPC frames + `veilcap` `kilnback` monster
-folders. Run sprite gen + CDI. No drawing. Stay off quarry.
+### 5. Encode new art — DONE
+Ranger/Scout/Keeper/Warden draw + fights. Veilcap/Kilnback (+ peatling line)
+in the battle sprite table.
 
 ---
 
