@@ -821,6 +821,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("#define NPC_PENDING_FOREST_SCOUT 5")
     lines.append("#define NPC_PENDING_RUINS_KEEPER 6")
     lines.append("#define NPC_PENDING_RUINS_WARDEN 7")
+    lines.append("#define NPC_PENDING_QUARTZ 8")
     lines.append("typedef struct {")
     lines.append("    int if_flag, if_not, hide_if, set_flag;")
     lines.append("    int g_item[3], g_qty[3], g_n;")
