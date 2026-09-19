@@ -1,0 +1,49 @@
+name: add-quartz-sprites
+on:
+  workflow_dispatch:
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Write quartz PNGs and update sprites.json
+        run: |
+          python3 << 'PY'
+          import base64, json
+          from pathlib import Path
+          Path("public/sprites/npc/quartz-1.png").write_bytes(base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAAC3UlEQVR4nO1Zv2/TQBT+UiGGZEioXISrCqTSIQPNgCqVIUKIocqQwQN0YOpAlw5k4c/o0DIhtQNdurBkSKWIoZVQB7J0SJcMUEGFatRGUISSgaFmQHYuzp19dt/FseJPsmLfj3fv833v3fkCJEgw3kipNP7u86Vl36/M5ZSMNaHCKAAY6zULAIp6tu+ZGsoIDAtKJfSj+cl563cKj5SMRWq0c/lXWiaZ3E2SsWMvITICQd6+bHs2i4lAJiFtcsb6dnIi3f7e7CzaP79zx+c5LkrDZDMgcoaqvQg3KIwA/zPOn9OjQO39MlNRz+LQ/O1ph2QGtMmZUIsUrx8rH9Z5UTyQEHDL4cGTZwNteGU8Gdlar1YPwf6KYoB0HbAXrno6j1K31VfnLvOSTyRBzMLtvKiMAsoXsnPTDNxnZS6XYqXjtZMlJcCTxW1dl2oXFuQzwDp3bprOxaunANk6wMJ2chi70WsROLvoeOb/qwBtp6cyoQiGklDYhUuF3UAz4HqLwsG0W2nnvlVfRb605Ty3f3X9bFsAsLZzIOWT0jRqO9+qryobQ5pAbb9pHR1/gX35gX3zKkkomQG3bAB1JMgJtBuVPud3v/Z2lPnSFtqNCul4pATajQq0xU3neXljD0U9i+WNPadMW9wkJSGde2v7zb6s83D+PgBw42Hp8bzQzoePxwNlti0WazsHMIyi74lecioRNWJPQMlmLiwmzF58vF3SUJfoMxIE7ESwoAXvO74SktlODAPSBBa03i7yShfneUC84wT4Od+xi953gbFeswzD36/YSyghEDWkY4D9KD+76Fh+QczTepg+foj9DIwsgerrsueJnI2RJSCLhEDUSAhEjYRA1BhPAjJH4dNTmZT7orDrRuAOzdpL7qn0afrVQNnd7hvpehaF8ra0X2T/mrgPvgCg/LSQkq0Pi/GMgVFCQiBqJASiBkkaffGcvzYAwO777ZRf/XXGjv0M/ANzaw14bfKcggAAAABJRU5ErkJggg=="))
+          Path("public/sprites/npc/quartz-2.png").write_bytes(base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAAC40lEQVR4nO1ZMW/TQBT+UiGGZEioXISrCqTSIQPNgCqVIUKoQ5UhgwfowNSBLh3Iws/o0DIhlYEuXVgypFLUoZVQB7J0SJcMpYIK1aiNoAglA0PNgOxc7Lv47LyLE8WfZMU+v3v3vrvv3p0vQIwYfSGh0vmH02vLvl+dyyhpa0KFUwAwNioWAOT1dNczNZQRGBSUSuhH/bPT6/dyT5S0Req0df1XWiapzG2StkdeQmQEgvS+rD2bxUQgk5A2OWN9OzuTtn8wO4vmz+/c9nmBi9Iw2QiIgqGyF+EWhRPgf8b5c34cyN4vM+X1NI7M3z39kIyANjkTapHi1WPlwwYvmg8kBNxyePTsuceGV8aTka31cvkI7K9oDpCuA/bCVU1mUWg3ut65y3rJJ5JJzMIdvKiMAsoXskvTDFxndS6TYKXTaydLSoAni7u6LmUXFuQjwAZ3aZrOxXtPAbJ1gIUd5CB2o30RuLhq9cz/NwFsp6dSoQiGklDYhUuF30Aj4OpFYWPanaRz36iuIVvYdp6bv9p+vi0AWN85lIpJaRq1g29U15S1IU2gclC3jk++wL78wPa8ShJKRsAtG0AdCXICzVqpK/jdr50dZbawjWatRNoeKYFmrQRtcct5XtncQ15PY2VzzynTFrdISUjn3spBvSvrPJ5/CADc+bD8dF7oZ//TiafM9sVifecQhpH3PdGLTyWixsgTULKZC4sJszM/3i1rqErUGQoCdiJY0ILXHV8JyWwnBgFpAgtaZxd5o4vzPCDecQL8nO/4Ree7wNioWIbhH9fISygmEDWk5wD7UX5x1bL8JjFP62Hq+GHkR2BoCZTfFHueyNkYWgKyiAlEjZhA1IgJRI3xJCBzFD49lUq4Lwq/bgSuUK+88pxKnydfDZTd7b6RrmdRKG9L+0X2r4n74AsAqi9LGSVbHxbDGQOjhJRA3EgJxA2SdPriOX9tAIDd99spv/rrjB37GfgH5tYasP3lP/gAAAAASUVORK5CYII="))
+          Path("public/sprites/npc/quartz-3.png").write_bytes(base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAAC3UlEQVR4nO1Zv2/TQBT+UiGGZEioXISrCqTSIQPNgCqVIUKIocqQwQN0YOpAlw5k4c/o0DIhtQNdurBkSKWIoZVQB7J0SJcMUEGFatRGUISSgaFmQHYuzp19dt/FseJPsmLfj3fv833v3fkCJEgw3kipNP7u86Vl36/M5ZSMNaHCKAAY6zULAIp6tu+ZGsoIDAtKJfSj+cl563cKj5SMRWq0c/lXWiaZ3E2SsWMvITICQd6+bHs2i4lAJiFtcsb6dnIi3f7e7CzaP79zx+c5LkrDZDMgcoaqvQg3KIwA/zPOn9OjQO39MlNRz+LQ/O1ph2QGtMmZUIsUrx8rH9Z5UTyQEHDL4cGTZwNteGU8Gdlar1YPwf6KYoB0HbAXrno6j1K31VfnLvOSTyRBzMLtvKiMAsoXsnPTDNxnZS6XYqXjtZMlJcCTxW1dl2oXFuQzwDp3bprOxaunANk6wMJ2chi70WsROLvoeOb/qwBtp6cyoQiGklDYhUuF3UAz4HqLwsG0W2nnvlVfRb605Ty3f3X9bFsAsLZzIOWT0jRqO9+qryobQ5pAbb9pHR1/gX35gX3zKkkomQG3bAB1JMgJtBuVPud3v/Z2lPnSFtqNCul4pATajQq0xU3neXljD0U9i+WNPadMW9wkJSGde2v7zb6s83D+PgBw42Hp8bzQzoePxwNlti0WazsHMIyi74lecioRNWJPQMlmLiwmzF58vF3SUJfoMxIE7ESwoAXvO74SktlODAPSBBa03i7yShfneUC84wT4Od+xi953gbFeswzD36/YSyghEDWkY4D9KD+76Fh+QczTepg+foj9DIwsgerrsueJnI2RJSCLhEDUSAhEjYRA1BhPAjJH4dNTmZT7orDrRuAOzdpL7qn0afrVQNnd7hvpehaF8ra0X2T/mrgPvgCg/LSQkq0Pi/GMgVFCQiBqJASiBkkaffGcvzYAwO777ZRf/XXGjv0M/ANzaw14bfKcggAAAABJRU5ErkJggg=="))
+          Path("public/sprites/npc/quartz-4.png").write_bytes(base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAAC1UlEQVR4nO1ZMW/TQBT+UiGGZEioXISrCqTSIQPNgCqVIUKIocqQwQPq3IEuHcjCz+jQsoBUBrpkYcngSlGHVkIdyNIhXTJABRWqUWtBEUoGhpoB2bk4Pvts3sWx4k+yYp/fvfe+u/fenS9AihQpEo2MTOXvPl1Z9v3aQkGKrSkZSgFA29QtACir+YFnakgjMCpIDaHv7Y/OqN8pPZJii1Rp9+qPcJjkCjdJbCc+hMgIhBl9UXm2ivFAFkLK9Jz19fRUWP7e/DzMH9887Xs5zivDZDPAc4ZKnocbFEqAfxXn99lxKPmgylRW8zgyfvnqIZkBZXou0iLl1Y8NH9Z5Xj6QEHCHw4Mnz4ZkvNq8wsiO9UbjCOwvLwdI1wF74Wpmi6j0OgPv3G1+4RNLErNwO89ro4D0hezCMEL3WVsoZNjQ8dvJkhLwCovbqiokFxXkM8A6d2EYzuX1ngJk6wAL28lR7Eb/i8D5Zde3/l+HkJ2dyUUiGCmEoi5cMvSGmgHXKHKNKbeyzn2nuY5iZcd5Nn/2gnRbALCxeyjkk9Qyajvfaa5LsyFMQD9oW8cnn2FfQWBHXiYJKTPgDhtAHglyAmarNuB8/Ut/R1ms7MBs1UjtkRIwWzUoy9vO8+rWHspqHqtbe06bsrxNSkK49uoH7YGq83DxPgB45sPK40Wunv0PJ0Ntti4WG7uH0LRy4IleeioRNxJPQMpmLiqmjH5+vFlR0BToMxYE7EKwpITvO7khJLKdGAWECSwp/V3ktcqv8wB/xwl413xHL/rfBdqmbmlasF+JD6GUQNwQzgH2o/z8smsFJbFXrEfpE4TEz8DYEmi8rPqeyNkYWwKiSAnEjZRA3EgJxI3JJCByFD47k8u4Lwq9boTu0Nafhz4CP8u+GGq723vFlS9V3wr7RfqvifvwCwCqT0sZXjuFzcnMgXFCSiBupATihvQyWn/Nr/f19+L1noe/tS4JdkftiwYAAAAASUVORK5CYII="))
+          s = json.loads(Path("content/sprites.json").read_text())
+          if "quartz" not in s["npcs"]:
+              s["npcs"].append("quartz")
+          Path("content/sprites.json").write_text(json.dumps(s, indent=2) + "\n")
+          print("wrote quartz frames, npcs", s["npcs"][-3:])
+          PY
+      - name: Update CURRENT_WORK.md
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          p = Path("CURRENT_WORK.md")
+          t = p.read_text()
+          t = t.replace("### 2. Crystal warden Quartz — unassigned", "### 2. Crystal warden Quartz — DONE (Grok C art)")
+          if "Quartz NPC art" not in t:
+              t = t.replace(
+                  "Optional side content, not a story fork. Not named \"gym\". Art is Grok A.",
+                  "Optional side content, not a story fork. Not named \"gym\".\n"
+                  "Quartz NPC art (quartz-1..4.png) + sprites.json entry by Grok C (took Grok A art slot).",
+              )
+          p.write_text(t)
+          print("CURRENT_WORK updated")
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add public/sprites/npc/quartz-*.png content/sprites.json CURRENT_WORK.md
+          git diff --staged --quiet && echo no changes && exit 0
+          git commit -m "Add Quartz crystal warden NPC art (4 frames) and sprites.json entry"
+          git push
