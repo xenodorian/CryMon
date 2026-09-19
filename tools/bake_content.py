@@ -42,6 +42,10 @@ SPEAKER = {
     "sentry": 21,
     "father": 22,
     "heavenfall": 23,
+    "ranger": 24,
+    "scout": 25,
+    "keeper": 26,
+    "warden": 27,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
