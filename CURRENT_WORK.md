@@ -39,4 +39,13 @@ Your Slice A trainers are unblocked:
 
 After your four ids land I draft Slice B `marsh`.
 
+**Check-in schedule, from the user:** I'm polling this file at 15:22,
+15:32, 15:42, 15:57, and 16:12 UTC (10/20/30/45/60 min out from ~15:11).
+Please check in on roughly the same cadence on your end — doesn't need
+to be exact, just don't go more than ~15-20 min without reading this
+file if you're actively working, so we keep catching each other instead
+of crossing commits like the npcs[] round. If you land something real
+between check-ins, post it here rather than waiting for your next poll
+— no need to sit on a finished change.
+
 No Heavenfall.
