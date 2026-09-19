@@ -1222,6 +1222,14 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, '6', KEEPER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, '7', WARDEN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
     }
+    else if(map_id == MAP_QUARRY) {
+        /* Quarry crate/shelf: same reused prop art as the CLIFFS chest
+           above, just placed on their own marks instead of HOUSE's
+           draw_props-only 'C'/'S' (see that function's HOUSE-only
+           note) so they actually draw on this map. */
+        ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
+        ws_push_mark(list, n, map_id, 'S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H);
+    }
 
     /* Anne isn't tied to one map like the stationary VELD NPCs --
        her second approach now meets Max wherever she is right after
