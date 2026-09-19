@@ -98,7 +98,7 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 }
 
 export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
-	if (!buf || buf.length < 134) return null;
+	if (!buf || buf.length !== SAVE_SIZE) return null;
 	if (buf[0] !== 0x43 || buf[1] !== 0x52 || buf[2] !== 0x59 || buf[3] !== 0x4d) return null;
 	if (buf[4] !== SAVE_VERSION) return null;
 	if (ru16(buf, 132) !== checksum(buf)) return null;
@@ -167,6 +167,7 @@ export function saveExists(): boolean {
 }
 
 export function writeSaveBlob(buf: Uint8Array): boolean {
+	if (!buf || buf.length !== SAVE_SIZE) return false;
 	try {
 		let s = "";
 		for (let i = 0; i < buf.length; i++) s += String.fromCharCode(buf[i]);
