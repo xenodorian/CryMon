@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=1c12f7445900e110 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=dd8bbf5fbf6ae637 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -410,6 +410,22 @@ static const TalkBeat TALK_RUINS_WARDEN_SPOT[] = {
 static const TalkBeat TALK_RUINS_WARDEN_WIN[] = {
     { "GO. THE REACH IS BEYOND THE LOWER GATE.", 27 },
 };
+static const TalkBeat TALK_QUARRY_CRATE[] = {
+    { "A QUARRY CRATE. SOMETHING RATTLES UNDER THE DUST.", 1 },
+    { "MAX FINDS A SMOKE BOMB TUCKED BENEATH THE BROKEN TOOLS.", 0 },
+    { "THAT COULD GET ME OUT OF A BAD FIGHT.", 1 },
+};
+static const TalkBeat TALK_QUARRY_CRATE_EMPTY[] = {
+    { "ONLY BROKEN TOOLS AND DUST. EMPTY.", 1 },
+};
+static const TalkBeat TALK_QUARRY_SHELF[] = {
+    { "OLD QUARRY SHELF. SOMEONE LEFT SUPPLIES BEHIND.", 1 },
+    { "MAX FINDS A POUCH OF ASH DUST WEDGED BEHIND THE STONE LEDGERS.", 0 },
+    { "STILL USEFUL.", 1 },
+};
+static const TalkBeat TALK_QUARRY_SHELF_EMPTY[] = {
+    { "NOTHING LEFT BUT STONE DUST.", 1 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -517,6 +533,10 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_RUINS_KEEPER_WIN,
     TALK_RUINS_WARDEN_SPOT,
     TALK_RUINS_WARDEN_WIN,
+    TALK_QUARRY_CRATE,
+    TALK_QUARRY_CRATE_EMPTY,
+    TALK_QUARRY_SHELF,
+    TALK_QUARRY_SHELF_EMPTY,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -615,6 +635,10 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_RUINS_KEEPER_WIN),
     TALK_LEN(TALK_RUINS_WARDEN_SPOT),
     TALK_LEN(TALK_RUINS_WARDEN_WIN),
+    TALK_LEN(TALK_QUARRY_CRATE),
+    TALK_LEN(TALK_QUARRY_CRATE_EMPTY),
+    TALK_LEN(TALK_QUARRY_SHELF),
+    TALK_LEN(TALK_QUARRY_SHELF_EMPTY),
 };
-#define TALK_TABLE_N 96
+#define TALK_TABLE_N 100
 
