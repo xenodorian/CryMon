@@ -435,3 +435,87 @@ freshly baked `.inc` files before building, `check_sync --strict` clean
 but for the pre-existing art debt, `npm run typecheck` clean, `make -C
 ports/dreamcast` clean (only pre-existing warnings, no new ones),
 `make -C ports/dreamcast cdi` succeeds.
+
+### Step 6 handoff (task #33) -- I'm out of context, writing this up so
+whoever picks it up doesn't have to re-derive any of it.
+
+**State: Steps 1-5 are all DONE and pushed (`main` @ `ac70a1f` as of
+this note).** Every rebake/`check_sync --strict`/typecheck/`make`/
+`make cdi` I ran after Step 5 landed clean. Step 6 is the one thing
+nobody has done yet: **an actual playthrough of both branches**, plus a
+final from-scratch verification pass and closing the loop on this doc.
+
+**Commands, in order (same race-safe protocol every step this session
+used -- fetch/rebase immediately before any push, never trust a stale
+base):**
+```
+git fetch origin main && git reset --hard origin/main   # or rebase if you have local work
+python3 tools/bake_content.py --content content --out ports/dreamcast/src
+python3 ports/dreamcast/tools/gen_sprites.py
+python3 tools/check_sync.py --strict   # expect exactly 1 FAIL: the 15-file art-placeholder debt, nothing else
+npm run typecheck
+make -C ports/dreamcast
+make -C ports/dreamcast cdi
+```
+If `check_sync --strict` reports anything other than the 15 missing
+sprite files, something regressed -- don't push until it's back to
+just that one line.
+
+**Playtest -- what to verify, and how to reach it fast:**
+The real path is: new game -> take Quillpup -> beat enough of the
+story to reach Shinigami in the Grove (needs `hasScroll`-gating content
+cleared: Calder, the camp, forest/ruins) -> beat Shinigami -> the
+father/Heavenfall choice screen -> confirm either option -> should warp
+onto the `gauntlet` map (not straight to credits) -> walk to mark `1` ->
+fight `commanderFinal` (lead `boulderam` 12, bench `duskhorn`/
+`sableclaw` 11 -- the hardest fight in the game, bring a real party) ->
+win should set `beatCommander`, fire the credits, and show
+`endingWin` (father branch) or `endingWinHeavenfall` (Heavenfall
+branch) depending on which choice was made.
+
+Playing all the way there for real is the most reliable check but
+slow. **If you try a dev-console shortcut instead, here's the mistake I
+made so you don't repeat it:** I reached into the running `CryMon`
+instance (`window.__cm`, wired up temporarily in
+`src/components/crymon-app.tsx`'s `new CryMon(canvas)` line, reverted
+before committing -- it's not in the tree now, you'd re-add it
+yourself) and called `g.updateChoice()` directly after setting
+`g.choiceCur`/`g.hasScroll`/`g.beatShinigami`. It appeared to do
+nothing (`mode` stayed `"title"`). **That wasn't a state-persistence
+bug -- I never actually set `g.mode` into `"choice"` or `"world"` in
+the first place, and `updateChoice()` gates on `this.input.confirm()`,
+which I never simulated, so its `if` body never ran.** A working
+version of that same shortcut: get the game off the title screen and
+into `mode === "world"` with a real party first (either play the very
+start for real, or set `g.mode = "world"`, `g.party = [/* a minted
+CryMon */]` directly), *then* set `g.hasScroll = true; g.beatShinigami
+= true; g.mode = "choice"; g.choiceCur = 0` (or `1`), then either
+monkey-patch `g.input.confirm = () => true` for one frame and call
+`g.updateChoice()`, or just replicate `updateChoice()`'s body by hand
+(`g.choseHeavenfall = g.choiceCur === 1; g.mode = "world"; g.say(...)`).
+The talk-advance logic that turns `TalkAfter: "ending"` into the
+gauntlet warp lives inline inside the big `if/else` chain in `update()`
+around where `next === "wsoldier"` etc. are handled (search
+`next === "ending"` in `engine.ts`) -- same story, it only fires on a
+simulated confirm press, not by itself.
+
+Dreamcast-side playtest (`make -C ports/dreamcast cdi` -> run the
+`.cdi` in an emulator) wasn't attempted at all this session -- no
+Dreamcast emulator in this sandbox. If one isn't available to you
+either, that's fine: the C-side logic was written to mirror the
+already-verified web logic field-for-field (documented above, Step 5),
+and both sides passed their respective build/typecheck gates. Note it
+as untested-on-real/emulated-hardware rather than claiming it's been
+played.
+
+**Not in scope for Step 6, leave alone:** the 15-file sprite art debt
+(bogwalker/reedguard/quartz-frame2/driller -- pre-existing, placeholder
+-covered, not this feature's problem). The story-lock boundary from
+Step 1 still holds: Heavenfall stays narrative-only, no party member,
+no capture -- nothing in Steps 1-5 touched that, don't let "integration
+pass" turn into scope creep on it.
+
+**When Step 6 is done:** mark task #33 completed, mark #18 (the parent
+"Extended endgame" task) completed too, and add a short "DONE" summary
+line to this section the same way Steps 1-5 above do. At that point the
+whole endgame breakdown (#28-33) and #18 are closed out.
