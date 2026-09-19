@@ -89,15 +89,51 @@ it now. Added `"driller"` to `content/sprites.json`'s `npcs` list too —
 it wasn't registered there at all, so `gen_sprites.py` didn't even know
 to placeholder it.
 
-**Still open, NOT fixed by this pass (out of quarry's scope, flagging
-for whoever picks up Opal/marsh Dreamcast wiring):** `main.c`'s
-`NPC_AFTER_WSOLDIER` dispatch and win-handler only cover
-`cross/conscript/enforcer/sentry/forestRanger/forestScout/ruinsKeeper/
-ruinsWarden/quartz/quarryDriller`. **`marshBog`, `marshReed`, and `opal`
-have `PENDING_IDS` entries (now, from this pass) but no `NPC_PENDING_*`
-C define, no dispatch case, no `TRAINER_KITS` kit_keys entry, and no
-win-handler branch on Dreamcast** — their battle win currently falls
-through to `post_action = POST_NONE` with no flag set. They work fine on
-web (engine.ts's win handling there really is generic). This is a
-pre-existing gap from whenever those three landed JSON-only; same shape
-of fix as quarryDriller's Task 4, just times three.
+~~Still open... marshBog/marshReed/opal Dreamcast wiring~~ **DONE (Grok C)**,
+commit `2209c25`: `NPC_PENDING_*` defines, dispatch, `kit_keys` entries,
+win-handler branches all landed for all three. Verified (Claude A):
+rebake/`gen_sprites`/`check_sync --strict`/typecheck/`make`+`make cdi`
+all pass. Quarry is fully closed out — all 5 steps done, Opal (BUG-004)
+done end to end on both web and Dreamcast.
+
+---
+
+## Endgame: Heavenfall + gauntlet map (was #18, unparked by the user)
+
+**Unparked.** Same reason as quarry: too big for one pass, broken into
+6 small independently-verifiable steps. **Story-lock boundary that does
+NOT move with this unparking** (per `docs/CRYMON.md`): Heavenfall and
+father resurrection stay **narrative-only** — no party member, no
+capture, no battle-usable Heavenfall — until the user explicitly asks
+for that separately. This breakdown only extends what happens *after*
+the existing father/Heavenfall choice dialogue, before the credits.
+
+Today: `POST_ENDING_FINAL` (main.c) fires `ending_mode=1` immediately
+after `TALK_CHOICE_FATHER`/`TALK_CHOICE_HEAVENFALL` closes, straight to
+the `endingWin` credits text. The "gauntlet map" is a new final-stretch
+map inserted in that gap, capped by a boss fight (likely the existing
+`commander` NPC on the camp map — dialogue-only today, no trainer kit
+yet) before the (rewritten) credits roll.
+
+1. Design the outline (JSON-first, no code) — open, task #28. Branching
+   climax dialogue (flavor only, not mechanics, by which choice was
+   made), pick/define the boss, sketch the gauntlet map layout.
+2. Add the `gauntlet` map + warp gating in JSON — open, task #29,
+   blocked on #28. Mirrors quarry Task 1's warp-gate precedent.
+3. Define the boss trainer + branching win dialogue in JSON — open,
+   task #30, blocked on #29. Append-only save flag, PLACEHOLDER_ART if
+   no boss art exists. Mirrors quarry Task 2.
+4. Wire into `engine.ts` (web) — open, task #31, blocked on #30.
+   Mirrors quarry Task 3's 5-touch-point template; relocates the ending
+   trigger to fire after the boss falls.
+5. Wire into `main.c` (Dreamcast) — open, task #32, blocked on #31.
+   Expect the same non-generic `TRAINER_*`/`POST_*`/dispatch/kit_keys
+   wiring quarry Task 4 needed, since the `wsoldier`/`pending` win path
+   isn't generic there.
+6. Integration pass — open, task #33, blocked on #32. Rebake,
+   `gen_sprites`, `check_sync --strict`, typecheck, `make` + `make cdi`,
+   playtest both branches if feasible.
+
+Claiming any of these: check task #28-33's status/owner in the task
+tool first (or this file, whichever's freshest) before starting, so we
+don't duplicate quarry's early friction.
