@@ -1,67 +1,25 @@
 {
-  "screenFade": {
-    "outSec": 0.26,
-    "holdSec": 0.05,
-    "inSec": 0.26
-  },
-  "arrivals": {
-    "masonAmbush": {
-      "needParty": true,
-      "unless": "foughtMason"
-    }
-  },
-  "masonRematch": {
-    "maps": ["veld", "forest", "grove"]
-  },
+  "screenFade": {"outSec": 0.26, "holdSec": 0.05, "inSec": 0.26},
+  "arrivals": {"masonAmbush": {"needParty": true, "unless": "foughtMason"}},
+  "masonRematch": {"maps": ["veld", "forest", "grove"]},
   "natures": [
-    { "name": "Hardy", "str": 0, "agl": 0, "spc": 0 },
-    { "name": "Lonely", "str": 2, "agl": -1, "spc": 0 },
-    { "name": "Adamant", "str": 2, "agl": 0, "spc": -1 },
-    { "name": "Bold", "str": -1, "agl": 2, "spc": 0 },
-    { "name": "Timid", "str": 0, "agl": 2, "spc": -1 },
-    { "name": "Modest", "str": -1, "agl": 0, "spc": 2 },
-    { "name": "Calm", "str": 0, "agl": -1, "spc": 2 }
+    {"id":"quartz","name":"Quartz","str":1,"agl":1,"spc":1},
+    {"id":"hematite","name":"Hematite","str":3,"agl":0,"spc":0},
+    {"id":"diamond","name":"Diamond","str":2,"agl":0,"spc":1},
+    {"id":"opal","name":"Opal","str":0,"agl":3,"spc":0},
+    {"id":"spinel","name":"Spinel","str":1,"agl":2,"spc":0},
+    {"id":"lapis","name":"Lapis","str":0,"agl":0,"spc":3},
+    {"id":"amethyst","name":"Amethyst","str":0,"agl":1,"spc":2}
   ],
-  "party": {
-    "max": 6,
-    "release": true,
-    "catchSwap": true,
-    "keepLast": true
+  "natureTypes": {
+    "ring":["quartz","hematite","diamond","opal","spinel","lapis","amethyst"],
+    "beatsAhead":2,
+    "strongMul":2.0,
+    "weakMul":0.5,
+    "strongText":"Weakness x2",
+    "weakText":"Resisted x0.5"
   },
-  "anneGift": {
-    "afterBattles": 1,
-    "qty": 5
-  },
-  "combat": {
-    "comment": "Direct multiplication. Power/speed are 0.5-1.5 (display x10 as 5-15). finalDamage = atkStat * power; finalSpeed = atkAgl * speed. Locked when attack chosen.",
-    "toxicBurst": {
-      "power": 0.5,
-      "speed": 1.0,
-      "stat": "str"
-    },
-    "dodge": {
-      "defMulMin": 0.75,
-      "defMulMax": 1.25
-    },
-    "block": {
-      "mulMin": 0.25,
-      "mulMax": 0.75
-    },
-    "barrier": {
-      "mulMin": 0.25,
-      "mulMax": 0.75
-    },
-    "displayScale": 10,
-    "minigame": {
-      "comment": "Special timing needle 0-100. Red=fizzle 1x, yellow=connected 1.5x, green=perfect 2x.",
-      "perfectMin": 45,
-      "perfectMax": 55,
-      "perfectMul": 2.0,
-      "connectedMin": 30,
-      "connectedMax": 70,
-      "connectedMul": 1.5,
-      "fizzleMul": 1.0,
-      "needleSpeed": 110
-    }
-  }
+  "party":{"max":6,"release":true,"catchSwap":true,"keepLast":true},
+  "anneGift":{"afterBattles":1,"qty":5},
+  "combat": {"displayScale":10}
 }
