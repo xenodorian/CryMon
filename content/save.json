@@ -3,7 +3,7 @@
   "magic": "CRYM",
   "size": 256,
   "itemOrder": ["salve", "bandage", "bitterroot", "dust", "gem", "sunbalm", "warroot", "smokebomb", "greatcrystal", "cageKey"],
-  "mapOrder": ["house", "veld", "forest", "grove", "camp", "cliffs", "ruins", "reach", "marsh"],
+  "mapOrder": ["house", "veld", "forest", "grove", "camp", "cliffs", "ruins", "reach", "marsh", "quarry"],
   "dirOrder": ["down", "up", "left", "right"],
   "speciesOrder": ["quillpup", "glimmoth", "tortcask", "razorbat", "mossback", "briarfox", "fenwisp", "duskhorn", "needleroot", "cathleen", "crymare", "emberling", "frostail", "boulderam", "stormwing", "sableclaw", "thornhide", "glasswisp", "ashenmaw", "heavenfall", "peatling", "mireback", "glowcap", "slatekin", "gravelurk", "cindermite"],
   "flags": ["tookStarter", "talkedFather", "lootedCrate", "talkedWren", "beatCalder", "readCart", "talkedMae", "talkedIvo", "talkedNell", "nellBonus", "gotFieldGem", "pikeHelped", "talkedPike", "gotHerb", "gotStump", "cathleenCaught", "beatShinigami", "beatCross", "beatConscript", "beatEnforcer", "beatSentry", "tessaGifted", "chestLooted", "birchGifted", "sableGifted", "cageOpen", "foughtMason", "caughtOnce", "anneGifted", "beatCathleen", "hasScroll", "anne2Told", "mason2Done", "soldierBeaten0", "soldierBeaten1", "soldierBeaten2", "talkedReach"],
