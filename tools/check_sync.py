@@ -349,6 +349,34 @@ def main() -> int:
     cap = int(formulas.get("levelCap") or 0)
     if cap < int(growth.get("evolveAt") or 10):
         errors.append("world.formulas.levelCap must be >= growth.evolveAt")
+    # Encounter-table validation for live maps. Quarry is intentionally excluded here
+    # while its content is still being coordinated separately.
+    rows = data["maps"].get("rows") or {}
+    enc_rules = data["world"].get("encounters") or []
+    known_species = set(data["species"].keys())
+    for map_id, map_rows in rows.items():
+        if map_id == "quarry":
+            continue
+        t_count = sum(row.count("T") for row in map_rows)
+        rules = [e for e in enc_rules if map_id in (e.get("maps") or []) and e.get("tile") == "T"]
+        if t_count and len(rules) != 1:
+            errors.append(f"encounters: {map_id} has {t_count} T tiles but {len(rules)} T encounter rules")
+        if not t_count and rules:
+            errors.append(f"encounters: {map_id} has no T tiles but has a T encounter rule")
+        for rule in rules:
+            pool = rule.get("pool") or []
+            rate = rule.get("rate")
+            lo, hi = rule.get("levelMin"), rule.get("levelMax")
+            if not pool:
+                errors.append(f"encounters: {map_id} has an empty pool")
+            unknown = [sid for sid in pool if sid not in known_species]
+            if unknown:
+                errors.append(f"encounters: {map_id} references unknown species {unknown[:4]}")
+            if not isinstance(rate, (int, float)) or not 0 <= rate <= 1:
+                errors.append(f"encounters: {map_id} rate must be between 0 and 1")
+            if not isinstance(lo, int) or not isinstance(hi, int) or lo > hi or lo < 1:
+                errors.append(f"encounters: {map_id} has invalid level range {lo}-{hi}")
+
     trainers = data["world"].get("trainers") or {}
     cath_lv = (trainers.get("cathleen") or {}).get("lead") or [None, 0]
     shin_lv = (trainers.get("shinigami") or {}).get("lead") or [None, 0]
