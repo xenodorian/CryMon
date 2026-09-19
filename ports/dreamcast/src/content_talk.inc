@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=644a58d7acb26033 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=767fa04fa4db1111 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -333,7 +333,7 @@ static const TalkBeat TALK_CHOICE_FATHER[] = {
 };
 static const TalkBeat TALK_CHOICE_HEAVENFALL[] = {
     { "MAX UNROLLS THE SCROLL OVER GROUND NO ONE HAS DUG IN A THOUSAND YEARS.", 0 },
-    { "THE SKY CRACKS. SOMETHING ANCIENT AND ENORMOUS OPENS ITS EYES.", 23 },
+    { "THE SKY CRACKS. SOMETHING ANCIENT AND ENORMOUS OPENS ITS EYES.", 0 },
     { "HEAVENFALL IS AWAKE. THE WEEPING ARMY DOESN'T KNOW YET WHAT'S COMING.", 1 },
 };
 static const TalkBeat TALK_REACH_LOCKED[] = {

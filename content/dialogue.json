@@ -31,7 +31,7 @@
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
-    "Max is eight. CryMon — Crystal Monsters — sleep inside Capture Crystals.",
+    "Max is eight. CryMon \u2014 Crystal Monsters \u2014 sleep inside Capture Crystals.",
     "Father is too sick to stand. His crystal sits on the shelf.",
     "Quillpup is inside it. She will take the CryMon. CryTown does not get to fall."
   ],
@@ -716,7 +716,7 @@
         "text": "Max unrolls the scroll over ground no one has dug in a thousand years."
       },
       {
-        "speaker": "heavenfall",
+        "speaker": "none",
         "text": "The sky cracks. Something ancient and enormous opens its eyes."
       },
       {
