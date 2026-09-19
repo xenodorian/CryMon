@@ -997,10 +997,24 @@ static void draw_map(int map_id, int cam_x, int cam_y) {
     if(col1 > m->cols) col1 = m->cols;
     if(row1 > m->rows_n) row1 = m->rows_n;
 
-    /* Letterboxed maps (HOUSE) leave a border the tile loop below
-       never touches, so it needs clearing or it'd show whatever was
-       drawn there previously (e.g. the title screen text). */
-    vram_clear();
+    /* Letterboxed maps (HOUSE, and CAMP vertically) leave a border the
+       tile loop below never touches, so it needs clearing or it'd show
+       whatever was drawn there previously (e.g. the title screen text).
+       Every other outdoor map is at least as big as the viewport in
+       both axes, so the tile loop below already overwrites every
+       screen pixel -- clearing first was pure wasted work there: a
+       full 320x240 scalar fill, every single frame, unconditionally,
+       immediately drawn over. That's exactly the kind of invisible
+       per-frame cost that reads as "slow for no reason" (nothing on
+       screen explains it, since the clear never stays visible).
+       Decided from this frame's actual drawn region rather than a
+       hardcoded map list, so it still clears correctly if the camera
+       ever clamps short of covering the screen (letterboxed maps, or
+       any edge case upstream). */
+    if(col0 * TILE - cam_x > 0 || col1 * TILE - cam_x < SCREEN_W ||
+       row0 * TILE - cam_y > 0 || row1 * TILE - cam_y < SCREEN_H) {
+        vram_clear();
+    }
 
     for(row = row0; row < row1; row++)
         for(col = col0; col < col1; col++)
