@@ -21,7 +21,7 @@ jobs:
         run: python3 ports/dreamcast/tools/gen_sprites.py public/sprites
       - name: Build ELF and CDI
         run: |
-          docker run --rm             -v "$GITHUB_WORKSPACE:/src"             -w /src             einsteinx2/dcdev-kos-toolchain:gcc-9             sh -lc 'make -C ports/dreamcast clean && make -C ports/dreamcast && cdi4dc ports/dreamcast/crymon.elf ports/dreamcast/crymon.cdi'
+          docker run --rm             -v "$GITHUB_WORKSPACE:/src"             -w /src             einsteinx2/dcdev-kos-toolchain:gcc-9             sh -lc 'export PATH=/opt/toolchains/dc/sh-elf/bin:/opt/toolchains/dc/bin:$PATH; make -C ports/dreamcast clean && make -C ports/dreamcast && cdi4dc ports/dreamcast/crymon.elf ports/dreamcast/crymon.cdi'
       - name: Verify outputs
         run: |
           file ports/dreamcast/crymon.elf
