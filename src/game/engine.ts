@@ -210,6 +210,10 @@ export class CryMon {
 	beatConscript = false;
 	beatEnforcer = false;
 	beatSentry = false;
+	beatForestRanger = false;
+	beatForestScout = false;
+	beatRuinsKeeper = false;
+	beatRuinsWarden = false;
 	cageOpen = false;
 	mason2Map: string | null = null;
 	mason2Done = false;
@@ -716,6 +720,10 @@ export class CryMon {
 				dexCaught: this.dexCaught,
 				anne2Told: this.anne2Told,
 				beatSentry: this.beatSentry,
+				beatForestRanger: this.beatForestRanger,
+				beatForestScout: this.beatForestScout,
+				beatRuinsKeeper: this.beatRuinsKeeper,
+				beatRuinsWarden: this.beatRuinsWarden,
 				beatConscript: this.beatConscript,
 				beatEnforcer: this.beatEnforcer,
 				beatCross: this.beatCross,
@@ -2103,7 +2111,7 @@ export class CryMon {
 		for (const m of bench) this.markSeen(m.species);
 		const player = { ...lead };
 		const soldierName = soldierId ? (this.soldiers.find((s) => s.id === soldierId)?.name ?? soldierId) : "Soldier";
-		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross" };
+		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross", forestRanger: "Ranger", forestScout: "Scout", ruinsKeeper: "Keeper", ruinsWarden: "Warden" };
 		const foeName = wild
 			? foe.name
 			: trainer === "mason" || trainer === "mason2"
@@ -2826,7 +2834,11 @@ export class CryMon {
 				if (who === "sentry") this.beatSentry = true;
 				else if (who === "conscript") this.beatConscript = true;
 				else if (who === "enforcer") this.beatEnforcer = true;
-				else this.beatCross = true;
+				else if (who === "cross") this.beatCross = true;
+				else if (who === "forestRanger") this.beatForestRanger = true;
+				else if (who === "forestScout") this.beatForestScout = true;
+				else if (who === "ruinsKeeper") this.beatRuinsKeeper = true;
+				else if (who === "ruinsWarden") this.beatRuinsWarden = true;
 				this.marks += kit?.marks ?? 12;
 				this.say(TALK[kit?.winTalk] || TALK.sentryWin);
 				this.audio.ok();
