@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=a09f66aadc71771f — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=64ee86c7e00e366e — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_AUDIO_INC
 #define CONTENT_AUDIO_INC
@@ -732,7 +732,7 @@ static const int MAP_SONG[MAP_SONG_N] = {
     SONG_OCCUPATION,
     SONG_WILDS,
     SONG_WILDS,
-    SONG_OVERWORLD,
+    SONG_WILDS,
 };
 #define SONG_ID_TITLE SONG_TITLE
 #define SONG_ID_BATTLE SONG_BATTLE

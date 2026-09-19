@@ -97,7 +97,8 @@
     "cliffs": "wilds",
     "ruins": "occupation",
     "reach": "wilds",
-    "marsh": "wilds"
+    "marsh": "wilds",
+    "quarry": "wilds"
   },
   "titleSong": "title",
   "battleSong": "battle",

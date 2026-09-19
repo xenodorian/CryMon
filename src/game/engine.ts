@@ -11,7 +11,9 @@ import {
   ITEMS,
   ITEM_ORDER,
   MAPS,
+  MARSH,
   PARTY_MAX,
+  QUARRY,
   REACH,
   RUINS,
   SPECIES,
@@ -578,6 +580,16 @@ export class CryMon {
 			this.world.x = s.x;
 			this.world.y = s.y + TILE + 8;
 			this.world.dir = "down";
+		} else if (mapId === "marsh") {
+			const s = spawnOf(MARSH, "Y");
+			this.world.x = s.x;
+			this.world.y = s.y + TILE + 8;
+			this.world.dir = "down";
+		} else if (mapId === "quarry") {
+			const s = spawnOf(QUARRY, "D");
+			this.world.x = s.x;
+			this.world.y = s.y + TILE + 8;
+			this.world.dir = "down";
 		} else {
 			const s = spawnOf(HOUSE, "P");
 			this.world.x = s.x;
@@ -617,6 +629,8 @@ export class CryMon {
 			skipToCliffs: () => this.skipToWorld("cliffs"),
 			skipToRuins: () => this.skipToWorld("ruins"),
 			skipToReach: () => this.skipToWorld("reach"),
+			skipToMarsh: () => this.skipToWorld("marsh"),
+			skipToQuarry: () => this.skipToWorld("quarry"),
 			resetRun: () => {
 				this.reset();
 				this.skipToWorld("veld");
