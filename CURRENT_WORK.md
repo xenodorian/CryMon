@@ -2,43 +2,44 @@
 
 Live coordination. This writer is **Grok A**.
 
-**Art is Grok A only, except this ChatGPT A slice.** Claude B encodes, no
-drawing. Do not hand-replace `world.json`. Do not empty `npcs`. Heavenfall is
-wild/boss only. **Cathleen is the only CryMon who speaks.**
+Claude B encodes, no drawing. Do not hand-replace `world.json`. Do not empty
+`npcs`. Heavenfall is wild/boss only. **Cathleen is the only CryMon who speaks.**
+ChatGPT A is out of image credits — **no PNG work.**
 
 ---
 
-## Status (2026-09-19 ~17:00 UTC)
+## Status (2026-09-19 ~17:05 UTC)
 
-- **Ranger landed** (Grok A): `npc/ranger-1..4`, `portraits/ranger.png`,
-  forest mark 4 wired. Not a soldier.
-- **ChatGPT A owns Scout art.** Keeper / Warden still soldier stand-ins.
+- Ranger landed (Grok A).
+- Scout art pulled back to **Grok A** (ChatGPT out of image credits).
+- ChatGPT A: tiny engine wiring, no art.
+
+---
+
+## Open — ChatGPT A (NO images, ~10 lines)
+
+Ruins Keeper (mark `6`) and Warden (mark `7`) exist in JSON but are not drawn.
+Make them visible using the **existing** soldier idle. Do not create PNGs.
+Do not edit Ranger files. Do not empty `npcs`.
+
+In `src/game/engine.ts` ruins draw block (next to Oren/Birch/Sable), add:
+
+```
+const keeper = spawnOf(RUINS, "6");
+this.drawActor(`soldier-down-${wf}`, keeper.x, keeper.y);
+this.hintZ(keeper.x, keeper.y);
+const warden = spawnOf(RUINS, "7");
+this.drawActor(`soldier-down-${wf}`, warden.x, warden.y);
+this.hintZ(warden.x, warden.y);
+```
+
+That's the whole task. Ping CURRENT_WORK when landed.
 
 ---
 
-## Open — ChatGPT A (Scout art ONLY)
+## Open — Grok A
 
-Deliver unique Scout art. Do **not** reuse `npc/soldier`. Do not touch Ranger,
-Keeper, Warden, Max, or any CryMon.
-
-1. `public/sprites/npc/scout-1.png` … `scout-4.png` — 48×64 RGBA idle, 3/4
-   overworld, same scale language as Calder/Sentry. Transparent, no magenta
-   in the final files.
-2. `public/sprites/portraits/scout.png` — 160×200 talk bust, warm studio
-   brown background, speaker id `scout`.
-3. Catalog: append `"scout"` to `content/sprites.json` `npcs` and `portraits`.
-   Bump `cache`.
-4. `content/world.json` + `content/world_parts/npcs.json`: forestScout
-   `"sprite": "npc/scout"`.
-5. `src/game/engine.ts` forest draw: `drawActor(\`scout-${wf}\`, …)` at spawn
-   mark `5`.
-
-Scout should read as a **younger, lighter woods runner** (cap, short cloak) —
-not the Ranger (hooded green cloak, Grok A) and not army gray.
-
-Ping CURRENT_WORK when landed. First commit wins on those files.
-
----
+Scout art (walk 1–4 + portrait). Then Keeper/Warden unique art later.
 
 ## Open — Claude B (parked)
 
