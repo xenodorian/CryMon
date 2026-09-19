@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, ENDING_SONG } from "./audio";
+import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, ENDING_SONG, VOLUME } from "./audio";
 import { packSave, unpackSave, writeSaveBlob, readSaveBlob, saveExists, SAVE_FLAGS, SAVE_SPECIES } from "./save";
 import {
   CAMP,
@@ -62,6 +62,7 @@ import type {
   PartyView,
   RivalState,
   ShopTab,
+  BagTab,
   Soldier,
   SpeciesId,
   TalkBeat,
@@ -162,6 +163,7 @@ export class CryMon {
 	talkI = 0;
 	afterTalk = null;
 	bagCursor = 0;
+	bagTab: BagTab = "items";
 	partyCursor = 0;
 	partyView = "list";
 	actCursor = 0;
@@ -286,6 +288,7 @@ export class CryMon {
 		this.talkI = 0;
 		this.afterTalk = null;
 		this.bagCursor = 0;
+		this.bagTab = "items";
 		this.partyCursor = 0;
 		this.partyView = "list";
 		this.actCursor = 0;
@@ -922,6 +925,7 @@ export class CryMon {
 	openBag() {
 		this.mode = "bag";
 		this.bagCursor = 0;
+		this.bagTab = "items";
 		this.pendingItem = null;
 		this.audio.ui();
 	}
@@ -1160,6 +1164,22 @@ export class CryMon {
 		const items = this.ownedItems();
 		if (this.input.select() || this.input.cancel() || this.input.start()) {
 			this.closeMenu();
+			return;
+		}
+		if (this.input.left() || this.input.right()) {
+			this.bagTab = this.bagTab === "items" ? "settings" : "items";
+			this.audio.ui();
+			return;
+		}
+		if (this.bagTab === "settings") {
+			if (this.input.up()) {
+				this.audio.nudgeVolume(1);
+				this.audio.ui();
+			}
+			if (this.input.down()) {
+				this.audio.nudgeVolume(-1);
+				this.audio.ui();
+			}
 			return;
 		}
 		if (items.length === 0) return;
@@ -3394,16 +3414,33 @@ export class CryMon {
 		this.box(X(10), Y(8), X(220), Y(144));
 		this.text("BAG", X(18), Y(14), "#c5cec6", FONT);
 		this.text(`Marks ${this.marks}`, X(150), Y(14), "#8f4a40", FONT);
+		this.text(this.bagTab === "items" ? ">ITEMS   settings" : " items   >SETTINGS", X(18), Y(28), "#e8e4d8", FONT);
+		if (this.bagTab === "settings") {
+			const pct = this.audio.volumePct();
+			this.text("VOLUME", X(18), Y(52), "#c5cec6", FONT);
+			this.text(`${pct}%`, X(168), Y(52), "#e8e4d8", FONT);
+			const bx = X(18), by = Y(72), bw = X(184), bh = Y(10);
+			this.ctx.fillStyle = "#2a2620";
+			this.ctx.fillRect(bx, by, bw, bh);
+			const fill = Math.max(0, Math.min(1, this.audio.volume / VOLUME.max));
+			this.ctx.fillStyle = "#5a7a52";
+			this.ctx.fillRect(bx, by, Math.round(bw * fill), bh);
+			this.text("UP louder   DOWN quieter", X(18), Y(92), "#8a8678", FONT);
+			this.text("200% is twice the old max", X(18), Y(108), "#8a8678", FONT);
+			this.text("LEFT/RIGHT  tabs", X(18), Y(136), "#5a7a52", FONT);
+			if (this.hudT > 0) this.text(this.hudFlash.slice(0, 34), X(18), Y(148), "#e8e4d8", FONT);
+			return;
+		}
 		const items = this.ownedItems();
-		if (items.length === 0) this.text("The pouch is empty.", X(18), Y(36), "#8a8678", FONT);
+		if (items.length === 0) this.text("The pouch is empty.", X(18), Y(48), "#8a8678", FONT);
 		else {
-			const shown = 5;
+			const shown = 4;
 			const start = Math.max(0, Math.min(this.bagCursor, Math.max(0, items.length - shown)));
 			for (let i = 0; i < shown; i++) {
 				const idx = start + i;
 				const id = items[idx];
 				if (!id) break;
-				const y = Y(32 + i * 18);
+				const y = Y(46 + i * 18);
 				const on = idx === this.bagCursor;
 				this.text(on ? ">" : " ", X(18), y, "#e8e4d8", FONT);
 				this.drawSprite(`item-${id}`, X(30), y - 2, X(14), X(14), false);

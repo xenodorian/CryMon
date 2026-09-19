@@ -5,6 +5,7 @@ export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "
 export type PartyView = "list" | "act" | "stats" | "moves" | "target" | "release" | "catchSwap";
 
 export type ShopTab = "buy" | "sell";
+export type BagTab = "items" | "settings";
 
 export type SpeakerId =
   | "max" | "anne" | "mason" | "wren" | "mae" | "ivo" | "nell" | "pike"

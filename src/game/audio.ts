@@ -79,6 +79,16 @@ export const BATTLE_SONG = audioJson.battleSong;
 export const TRAINER_SONG = audioJson.trainerSong;
 export const ENDING_SONG = audioJson.endingSong;
 
+const VOLUME_CFG = (audioJson as { volume?: { min: number; max: number; default: number; step: number; baseMaster: number } }).volume || {
+	min: 0,
+	max: 2,
+	default: 1,
+	step: 0.1,
+	baseMaster: 0.9,
+};
+export const VOLUME = VOLUME_CFG;
+const SETTINGS_KEY = "crymon.settings.v1";
+
 function midiHz(n: number) {
 	if (n <= 1) return 0;
 	return 440 * Math.pow(2, (n - 69) / 12);
@@ -110,6 +120,7 @@ class Chan {
 export class Chip {
 	ctx: AudioContext | null = null;
 	muted = false;
+	volume = VOLUME.default;
 	master: GainNode | null = null;
 	musicBus: GainNode | null = null;
 	sfxBus: GainNode | null = null;
@@ -123,6 +134,54 @@ export class Chip {
 	sfx: Chan[] = [new Chan(), new Chan()];
 	acc = 0;
 	playing = false;
+
+	constructor() {
+		this.loadSettings();
+	}
+
+	loadSettings() {
+		try {
+			const raw = localStorage.getItem(SETTINGS_KEY);
+			if (!raw) return;
+			const j = JSON.parse(raw) as { volume?: number };
+			if (typeof j.volume === "number") this.volume = this.clampVolume(j.volume);
+		} catch {
+			/* ignore */
+		}
+	}
+
+	saveSettings() {
+		try {
+			localStorage.setItem(SETTINGS_KEY, JSON.stringify({ volume: this.volume }));
+		} catch {
+			/* ignore */
+		}
+	}
+
+	clampVolume(v: number) {
+		const stepped = Math.round(v / VOLUME.step) * VOLUME.step;
+		return Math.min(VOLUME.max, Math.max(VOLUME.min, Math.round(stepped * 100) / 100));
+	}
+
+	setVolume(v: number) {
+		this.volume = this.clampVolume(v);
+		this.applyMaster();
+		this.saveSettings();
+	}
+
+	nudgeVolume(dir: number) {
+		this.setVolume(this.volume + dir * VOLUME.step);
+	}
+
+	volumePct() {
+		return Math.round(this.volume * 100);
+	}
+
+	private applyMaster() {
+		if (!this.master || !this.ctx) return;
+		const gain = this.muted ? 0.0001 : VOLUME.baseMaster * this.volume;
+		this.master.gain.setTargetAtTime(gain, this.ctx.currentTime, 0.02);
+	}
 
 	unlock() {
 		try {
@@ -144,7 +203,7 @@ export class Chip {
 		this.sfxBus = ctx.createGain();
 		this.musicBus.gain.value = 0.22;
 		this.sfxBus.gain.value = 0.32;
-		this.master.gain.value = this.muted ? 0 : 0.9;
+		this.master.gain.value = this.muted ? 0 : VOLUME.baseMaster * this.volume;
 		this.musicBus.connect(this.master);
 		this.sfxBus.connect(this.master);
 		this.master.connect(ctx.destination);
@@ -284,7 +343,7 @@ export class Chip {
 
 	tick(dt: number) {
 		try {
-			if (this.master && this.ctx) this.master.gain.setTargetAtTime(this.muted ? 0.0001 : 0.9, this.ctx.currentTime, 0.02);
+			if (this.master && this.ctx) this.applyMaster();
 			if (!this.ctx || this.ctx.state === "suspended") return;
 			this.acc += dt;
 			const step = 1 / 60;

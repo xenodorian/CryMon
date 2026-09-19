@@ -313,6 +313,12 @@ def main() -> int:
     for k in ("perfectMin", "perfectMax", "perfectMul", "connectedMin", "connectedMax", "connectedMul", "fizzleMul", "needleSpeed"):
         if k not in mg:
             errors.append(f"logic.combat.minigame missing {k}")
+    vol = data["audio"].get("volume") or {}
+    for k in ("min", "max", "default", "step", "baseMaster"):
+        if k not in vol:
+            errors.append(f"audio.volume missing {k}")
+    if float(vol.get("max") or 0) < 2:
+        errors.append("audio.volume.max must be at least 2 (2x original ceiling)")
     scale = catalog.get("drawScale") or {}
     if int(scale.get("mason") or 0) != 2:
         errors.append("sprites.json drawScale.mason must be 2")
