@@ -6,6 +6,8 @@ on:
     paths:
       - "src/**"
       - "public/**"
+      - "content/**"
+      - "ports/dreamcast/crymon.cdi"
       - "package.json"
       - "package-lock.json"
       - "vite.config.ts"

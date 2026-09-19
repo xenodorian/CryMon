@@ -167,6 +167,7 @@ export class CryMon {
 	partyCursor = 0;
 	partyView = "list";
 	actCursor = 0;
+	moveCursor = 0;
 	pendingItem = null;
 	pendingCatch = null;
 	shopTab = "buy";
@@ -292,6 +293,7 @@ export class CryMon {
 		this.partyCursor = 0;
 		this.partyView = "list";
 		this.actCursor = 0;
+		this.moveCursor = 0;
 		this.pendingItem = null;
 		this.pendingCatch = null;
 		this.shopTab = "buy";
@@ -1234,8 +1236,30 @@ export class CryMon {
 			}
 			return;
 		}
-		if (this.partyView === "stats" || this.partyView === "moves") {
+		if (this.partyView === "stats") {
 			if (this.input.cancel() || this.input.confirm() || this.input.start()) {
+				this.partyView = "list";
+				this.audio.ui();
+			}
+			return;
+		}
+		if (this.partyView === "moves") {
+			const m = this.party[this.partyCursor] ?? this.lead();
+			const moves = this.partyMoves(m);
+			if (this.input.cancel() || this.input.start()) {
+				this.partyView = "list";
+				this.audio.ui();
+				return;
+			}
+			if (moves.length && this.input.up()) {
+				this.moveCursor = (this.moveCursor + moves.length - 1) % moves.length;
+				this.audio.ui();
+			}
+			if (moves.length && this.input.down()) {
+				this.moveCursor = (this.moveCursor + 1) % moves.length;
+				this.audio.ui();
+			}
+			if (this.input.confirm()) {
 				this.partyView = "list";
 				this.audio.ui();
 			}
@@ -1314,6 +1338,7 @@ export class CryMon {
 					this.audio.ui();
 				} else if (this.actCursor === 2) {
 					this.partyView = "moves";
+					this.moveCursor = 0;
 					this.audio.ui();
 				} else {
 					if (this.party.length <= 1) {
@@ -2139,6 +2164,23 @@ export class CryMon {
 	atkDetail(stat, power, speed) {
 		const statLabel = stat === "str" ? "STR" : "MAG";
 		return `${statLabel} PWR${Math.round(power * 10)} SPD${Math.round(speed * 10)}`;
+	}
+	partyMoves(m) {
+		const s = SPECIES[m.species];
+		const row = (name, stat, power, speed, pp) => {
+			const atk = atkStatValue(m, 0, 0, stat);
+			const dmg = Math.max(1, Math.round(atk * power));
+			return { name, stat, power, speed, pp, dmg };
+		};
+		if (s.spells?.length) {
+			return s.spells.map((sp) => row(sp.name, sp.stat, sp.power, sp.speed, sp.pp ? `${m.specialPp}/${m.specialPpMax}` : null));
+		}
+		const rows = [
+			row(s.basic, s.basicStat, s.basicPower, s.basicSpeed, null),
+			row(s.special, s.specialStat, s.specialPower, s.specialSpeed, `${m.specialPp}/${m.specialPpMax}`),
+		];
+		if (m.shiny) rows.push(row(TOXIC_BURST.name, TOXIC_BURST.stat, TOXIC_BURST.power, TOXIC_BURST.speed, "psn"));
+		return rows;
 	}
 	attackMenu(p) {
 		const s = SPECIES[p.species];
@@ -3478,7 +3520,6 @@ export class CryMon {
 		this.text(title, X(16), Y(10), "#c5cec6", FONT);
 		if (this.partyView === "stats" || this.partyView === "moves") {
 			const m = this.party[this.partyCursor] ?? this.lead();
-			const s = SPECIES[m.species];
 			this.drawMonIcon(m, X(12), Y(24), X(88), Y(110));
 			this.text(m.name.toUpperCase(), X(108), Y(28), "#e8e4d8", FONT);
 			this.text(`Lv${m.level}  ${natureOf(speciesNature(m.species)).name}`, X(108), Y(40), "#8a8678", FONT);
@@ -3489,21 +3530,30 @@ export class CryMon {
 				this.text(`AGL ${m.agl}`, X(108), Y(92), "#c5cec6", FONT);
 				this.text(`MAG ${m.spc}`, X(108), Y(104), "#c5cec6", FONT);
 				this.text(`XP  ${m.xp}/${m.level * 10}`, X(108), Y(116), "#8a8678", FONT);
+				this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 			} else {
-				this.text("BASIC", X(108), Y(56), "#8a8678", FONT);
-				if (s.spells?.length) {
-					s.spells.forEach((sp, i) => {
-						const extra = sp.pp ? `  ${m.specialPp}/${m.specialPpMax}` : "";
-						this.text(sp.name + extra, X(108), Y(68 + i * 12), "#e8e4d8", FONT);
-					});
-				} else {
-					this.text(s.basic, X(108), Y(68), "#e8e4d8", FONT);
-					this.text("SPECIAL", X(108), Y(84), "#8a8678", FONT);
-					this.text(`${s.special}  ${m.specialPp}/${m.specialPpMax}`, X(108), Y(96), "#e8e4d8", FONT);
+				const moves = this.partyMoves(m);
+				const cur = clamp(this.moveCursor, 0, Math.max(0, moves.length - 1));
+				const shown = 3;
+				const start = Math.max(0, Math.min(cur, Math.max(0, moves.length - shown)));
+				for (let i = 0; i < shown; i++) {
+					const idx = start + i;
+					const mv = moves[idx];
+					if (!mv) break;
+					const on = idx === cur;
+					const pp = mv.pp ? `  ${mv.pp}` : "";
+					this.text(`${on ? ">" : " "}${mv.name}${pp}`, X(108), Y(54 + i * 12), on ? "#e8e4d8" : "#8a8678", FONT);
 				}
-				this.text(s.blurb.slice(0, 28), X(16), Y(140), "#8a8678", FONT);
+				const mv = moves[cur];
+				if (mv) {
+					this.text(mv.stat === "str" ? "STRENGTH based" : "MAGIC based", X(16), Y(100), "#c5cec6", FONT);
+					this.text(`Damage  ${mv.dmg}`, X(16), Y(112), "#e8e4d8", FONT);
+					this.text(`Speed   ${Math.round(mv.speed * 10)}`, X(16), Y(124), "#e8e4d8", FONT);
+					this.text(`Power   ${Math.round(mv.power * 10)}`, X(108), Y(112), "#8a8678", FONT);
+				}
+				this.text("UP/DOWN  inspect", X(16), Y(138), "#5a7a52", FONT);
+				this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 			}
-			this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 			return;
 		}
 		this.party.forEach((m, i) => {

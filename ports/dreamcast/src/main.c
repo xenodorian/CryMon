@@ -1880,6 +1880,23 @@ static void draw_bag_menu(const Bag *bag, int marks, int cur, int tab) {
    (main()'s menu_mode==2 input handling keeps party_cur live under
    up/down while this is open, so browsing the whole party doesn't
    need to back out to the list each time). */
+static void draw_move_facts(const char *name, int stat, float power, float speed, int atk, int *y) {
+    char buf[48];
+    int n;
+    int dmg = jground((float)atk * power);
+    int spd = jground(speed * 10.0f);
+    if(dmg < 1) dmg = 1;
+    draw_text_s(name, MENU_X + 8, *y, rgb565(232, 228, 216), MENU_SCALE);
+    *y += MENU_ROW_H;
+    n = s_cat(buf, 0, stat == ATK_STR ? "STR BASED  DMG " : "MAG BASED  DMG ");
+    n = s_cat_uint(buf, n, (unsigned)dmg);
+    n = s_cat(buf, n, "  SPD ");
+    n = s_cat_uint(buf, n, (unsigned)spd);
+    buf[n] = 0;
+    draw_text_s(buf, MENU_X + 16, *y, rgb565(180, 220, 170), MENU_SCALE);
+    *y += MENU_ROW_H;
+}
+
 static void draw_party_detail(const Monster *party, int party_n, int idx) {
     const Monster *m = &party[idx];
     const Species *s = &SPECIES[m->species];
@@ -1920,17 +1937,18 @@ static void draw_party_detail(const Monster *party, int party_n, int idx) {
         };
         int i;
         for(i = 0; i < s->spells_n; i++) {
-            draw_text_s(SPELL_MENU_NAME[s->spells[i]], MENU_X + 8, y,
-                        rgb565(232, 228, 216), MENU_SCALE);
-            y += MENU_ROW_H;
+            const SpellDef *sp = &SPELLS[s->spells[i]];
+            draw_move_facts(SPELL_MENU_NAME[s->spells[i]], sp->stat, sp->power, sp->speed,
+                            sp->stat == ATK_STR ? m->str : m->spc, &y);
         }
     }
     else {
-        draw_text_s(s->basic, MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE); y += MENU_ROW_H;
-        draw_text_s(s->special, MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE); y += MENU_ROW_H;
+        draw_move_facts(s->basic, s->basic_stat, s->basic_power, s->basic_speed,
+                        s->basic_stat == ATK_STR ? m->str : m->spc, &y);
+        draw_move_facts(s->special, s->special_stat, s->special_power, s->special_speed,
+                        s->special_stat == ATK_STR ? m->str : m->spc, &y);
         if(m->shiny) {
-            draw_text_s("TOXIC BURST", MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE);
-            y += MENU_ROW_H;
+            draw_move_facts("TOXIC BURST", TOXIC_STAT, TOXIC_POWER, TOXIC_SPEED, m->str, &y);
         }
     }
     y += MENU_ROW_H;
