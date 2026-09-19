@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=1b2e974ef9f1ae65 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d812bbd18b19b1db — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -77,7 +77,7 @@ typedef struct {
     int lead_sp, lead_lv;
     int bench_sp[2], bench_lv[2], bench_n;
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[8] = {
+static const TrainerKit TRAINER_KITS[9] = {
     { 11, 5, { 12, 14 }, { 6, 7 }, 2 },
     { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
     { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
@@ -86,6 +86,7 @@ static const TrainerKit TRAINER_KITS[8] = {
     { 7, 5, { 3, 0 }, { 6, 1 }, 1 },
     { 4, 7, { 17, 0 }, { 7, 1 }, 1 },
     { 2, 8, { 18, 0 }, { 8, 1 }, 1 },
+    { 4, 9, { 8, 0 }, { 10, 1 }, 1 },
 };
 #define KIT_SENTRY 0
 #define KIT_CONSCRIPT 1
@@ -95,6 +96,7 @@ static const TrainerKit TRAINER_KITS[8] = {
 #define KIT_FOREST_SCOUT 5
 #define KIT_RUINS_KEEPER 6
 #define KIT_RUINS_WARDEN 7
+#define KIT_QUARTZ 8
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
@@ -160,7 +162,10 @@ static const ItemFx ITEM_FX[] = {
 #define FLAG_BEAT_RUINS_WARDEN 42
 #define FLAG_QUARRY_CRATE_LOOTED 43
 #define FLAG_QUARRY_SHELF_SEARCHED 44
-#define FLAG_N 45
+#define FLAG_BEAT_MARSH_BOG 45
+#define FLAG_BEAT_MARSH_REED 46
+#define FLAG_BADGE_QUARTZ 47
+#define FLAG_N 48
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -177,6 +182,7 @@ static const ItemFx ITEM_FX[] = {
 #define NPC_PENDING_FOREST_SCOUT 5
 #define NPC_PENDING_RUINS_KEEPER 6
 #define NPC_PENDING_RUINS_WARDEN 7
+#define NPC_PENDING_QUARTZ 8
 typedef struct {
     int if_flag, if_not, hide_if, set_flag;
     int g_item[3], g_qty[3], g_n;
@@ -256,18 +262,24 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 68, -1, -1, 0, -1, 0, 0, -1 },
     { -1, 28, -1, 28, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 76, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 77, -1, -1, 0, -1, 0, 0, -1 },
-    { 39, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 89, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 88, -1, -1, 7, 4, 0, 0, -1 },
-    { 40, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 91, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 90, -1, -1, 7, 5, 0, 0, -1 },
-    { 41, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 93, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 92, -1, -1, 7, 6, 0, 0, -1 },
-    { 42, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 95, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 94, -1, -1, 7, 7, 0, 0, -1 },
-    { -1, 43, -1, 43, { 7,-1,-1 }, { 1,0,0 }, 1, -1, 0, 96, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 97, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, 44, -1, 44, { 3,-1,-1 }, { 1,0,0 }, 1, -1, 0, 98, -1, -1, 0, -1, 0, 0, -1 },
+    { 39, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 91, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 90, -1, -1, 7, 4, 0, 0, -1 },
+    { 40, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 93, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 92, -1, -1, 7, 5, 0, 0, -1 },
+    { 41, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 95, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 94, -1, -1, 7, 6, 0, 0, -1 },
+    { 42, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 97, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 96, -1, -1, 7, 7, 0, 0, -1 },
+    { -1, 43, -1, 43, { 7,-1,-1 }, { 1,0,0 }, 1, -1, 0, 98, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 99, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, 44, -1, 44, { 3,-1,-1 }, { 1,0,0 }, 1, -1, 0, 100, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 101, -1, -1, 0, -1, 0, 0, -1 },
+    { 45, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 103, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 102, -1, -1, 7, -1, 0, 0, -1 },
+    { 46, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 105, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 104, -1, -1, 7, -1, 0, 0, -1 },
+    { 47, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 79, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 78, -1, -1, 7, 8, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 2, 30, 32 },
@@ -305,7 +317,10 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_RUINS, '7', 69, 2, 30, 32 },
     { MAP_QUARRY, 'C', 71, 2, 20, 20 },
     { MAP_QUARRY, 'S', 73, 2, 25, 28 },
+    { MAP_MARSH, '1', 75, 2, 30, 32 },
+    { MAP_MARSH, '2', 77, 2, 30, 32 },
+    { MAP_REACH, 'Q', 79, 2, 30, 32 },
 };
-#define NPC_DEF_N 35
+#define NPC_DEF_N 38
 #define INTERACT_BUFFER 10
 

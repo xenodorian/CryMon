@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=1b2e974ef9f1ae65 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d812bbd18b19b1db — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -347,6 +347,13 @@ static const TalkBeat TALK_REACH_STONE[] = {
 static const TalkBeat TALK_REACH_AGAIN[] = {
     { "THE STONE IS QUIET. THE GRASS IS NOT.", 1 },
 };
+static const TalkBeat TALK_QUARTZ_SPOT[] = {
+    { "THE CRYSTALS REMEMBER EVERYONE WHO PASSES THROUGH THE REACH.", 28 },
+    { "THEN REMEMBER ME.", 1 },
+};
+static const TalkBeat TALK_QUARTZ_WIN[] = {
+    { "THE REACH IS YOURS TO CROSS. CARRY ITS MARK CAREFULLY.", 28 },
+};
 static const TalkBeat TALK_DOOR_OUT[] = {
     { "NIGHT AIR. I CAN DO THIS.", 1 },
     { "TALL GRASS HIDES CRYMON. WREN WEST. POND EAST. BRAM ON THE PATH. CALDER SOUTH.", 0 },
@@ -425,6 +432,20 @@ static const TalkBeat TALK_QUARRY_SHELF[] = {
 };
 static const TalkBeat TALK_QUARRY_SHELF_EMPTY[] = {
     { "NOTHING LEFT BUT STONE DUST.", 1 },
+};
+static const TalkBeat TALK_MARSH_BOG_SPOT[] = {
+    { "THE MARSH KEEPS WHAT FALLS INTO IT. YOU SHOULD TURN BACK.", 29 },
+    { "I AM NOT FALLING IN. I AM WALKING THROUGH.", 1 },
+};
+static const TalkBeat TALK_MARSH_BOG_WIN[] = {
+    { "THE MUD REMEMBERS YOU. KEEP YOUR BOOTS DRY.", 29 },
+};
+static const TalkBeat TALK_MARSH_REED_SPOT[] = {
+    { "REEDS HIDE MORE THAN BIRDS. THEY HIDE A FIGHT.", 30 },
+    { "THEN STOP HIDING AND STAND.", 1 },
+};
+static const TalkBeat TALK_MARSH_REED_WIN[] = {
+    { "FINE. THE FOREST PATH IS BEHIND YOU. DO NOT WASTE THE GROUND YOU TOOK.", 30 },
 };
 
 static const char *const DEMO_END[] = {
@@ -515,6 +536,8 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_REACH_LOCKED,
     TALK_REACH_STONE,
     TALK_REACH_AGAIN,
+    TALK_QUARTZ_SPOT,
+    TALK_QUARTZ_WIN,
     TALK_DOOR_OUT,
     TALK_FOOTSTEPS,
     TALK_MASON_AFTER,
@@ -537,6 +560,10 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_QUARRY_CRATE_EMPTY,
     TALK_QUARRY_SHELF,
     TALK_QUARRY_SHELF_EMPTY,
+    TALK_MARSH_BOG_SPOT,
+    TALK_MARSH_BOG_WIN,
+    TALK_MARSH_REED_SPOT,
+    TALK_MARSH_REED_WIN,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -617,6 +644,8 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_REACH_LOCKED),
     TALK_LEN(TALK_REACH_STONE),
     TALK_LEN(TALK_REACH_AGAIN),
+    TALK_LEN(TALK_QUARTZ_SPOT),
+    TALK_LEN(TALK_QUARTZ_WIN),
     TALK_LEN(TALK_DOOR_OUT),
     TALK_LEN(TALK_FOOTSTEPS),
     TALK_LEN(TALK_MASON_AFTER),
@@ -639,6 +668,10 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_QUARRY_CRATE_EMPTY),
     TALK_LEN(TALK_QUARRY_SHELF),
     TALK_LEN(TALK_QUARRY_SHELF_EMPTY),
+    TALK_LEN(TALK_MARSH_BOG_SPOT),
+    TALK_LEN(TALK_MARSH_BOG_WIN),
+    TALK_LEN(TALK_MARSH_REED_SPOT),
+    TALK_LEN(TALK_MARSH_REED_WIN),
 };
-#define TALK_TABLE_N 100
+#define TALK_TABLE_N 106
 
