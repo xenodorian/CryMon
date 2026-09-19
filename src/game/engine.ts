@@ -3500,6 +3500,12 @@ export class CryMon {
 			const sable = spawnOf(RUINS, "A");
 			this.drawActor(`sable-${wf}`, sable.x, sable.y);
 			this.hintZ(sable.x, sable.y);
+			const keeper = spawnOf(RUINS, "6");
+			this.drawActor(`soldier-down-${wf}`, keeper.x, keeper.y);
+			this.hintZ(keeper.x, keeper.y);
+			const warden = spawnOf(RUINS, "7");
+			this.drawActor(`soldier-down-${wf}`, warden.x, warden.y);
+			this.hintZ(warden.x, warden.y);
 		}
 		const frame = this.world.moving ? this.world.frame % 4 + 1 : 1;
 		this.drawActor(`max-${this.world.dir}-${frame}`, this.world.x, this.world.y);
