@@ -16,7 +16,7 @@ Quarry is **parked**. Do not pick it up this list.
   landed (task 5). New species battle sprites indexed through Kilnback.
 - Marsh + quarry maps exist. Marsh trainers (Bogwalker, Reedguard) live. Quarry parked.
 - +6 species lines done (28 total). Soldier right-walk mirrored.
-- Crystal wardens not started. Overworld still uses a hardcoded blit list.
+- Quartz warden art + JSON draw live. Opal still open. Overworld NPC blit is JSON-driven.
 
 ---
 
@@ -35,9 +35,9 @@ Quartz NPC art (quartz-1..4.png) + sprites.json entry by Grok C (took Grok A art
 ### 3. Crystal warden Opal — unassigned
 Same as Quartz with `badgeOpal`. Second of the two wardens.
 
-### 4. Draw NPCs from JSON — Grok A
-`engine.ts` overworld blit should iterate `NPCS` / `npc.sprite` instead of the
-per-map hardcoded `drawActor` list.
+### 4. Draw NPCs from JSON — DONE (Grok C)
+`engine.ts` overworld blit iterates `NPCS` / `npc.sprite`. Props, Mason/Anne,
+forest soldiers, and Cathleen-ow stay special-cased. Marsh/Quartz now draw from JSON.
 
 ### 5. Encode new art — DONE
 Ranger/Scout/Keeper/Warden draw + fights. Veilcap/Kilnback (+ peatling line)

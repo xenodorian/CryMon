@@ -3433,34 +3433,34 @@ export class CryMon {
 			}
 		}
 		const wf = Math.floor(this.clock * 4) % 4 + 1;
-		if (this.world.mapId === "veld") {
-			const k = spawnOf(VELD, "K");
-			this.drawActor(`wren-${wf}`, k.x, k.y);
-			this.hintZ(k.x, k.y);
-			const mae = spawnOf(VELD, "I");
-			this.drawActor(`mae-${wf}`, mae.x, mae.y);
-			this.hintZ(mae.x, mae.y);
-			const ivo = spawnOf(VELD, "V");
-			this.drawActor(`ivo-${wf}`, ivo.x, ivo.y);
-			this.hintZ(ivo.x, ivo.y);
-			const nell = spawnOf(VELD, "A");
-			this.drawActor(`nell-${wf}`, nell.x, nell.y);
-			this.hintZ(nell.x, nell.y);
-			const pike = spawnOf(VELD, "Q");
-			this.drawActor(`pike-${wf}`, pike.x, pike.y);
-			this.hintZ(pike.x, pike.y);
-			const bram = spawnOf(VELD, "J");
-			this.drawActor(`bram-${wf}`, bram.x, bram.y);
-			this.hintZ(bram.x, bram.y);
-			const e = spawnOf(VELD, "E");
-			this.drawActor(`calder-${wf}`, e.x, e.y);
-			this.hintZ(e.x, e.y);
-			if (this.rival.phase !== "off") {
-				const walking = this.rival.phase === "approach" || this.rival.phase === "leave";
-				const rf = walking ? this.rival.frame % 4 + 1 : 1;
-				this.drawActor(`mason-${this.rival.dir}-${rf}`, this.rival.x, this.rival.y);
-				if (this.rival.phase === "done") this.hintZ(this.rival.x, this.rival.y);
+		const flags = this.npcFlags();
+		// Task 4: draw map NPCs from JSON (NPCS / npc.sprite) instead of a
+		// per-map hardcoded drawActor list. Props, rivals, soldiers, and
+		// Cathleen's special overworld sprite stay special-cased.
+		for (const npc of NPCS) {
+			if (npc.map !== this.world.mapId || !npc.sprite) continue;
+			if (npc.sprite === "npc/soldier" || String(npc.id || "").startsWith("soldier")) continue;
+			if (npc.script?.some((s) => s.hideIf && flags[s.hideIf as string])) continue;
+			for (const mark of this.npcMarks(npc)) {
+				const s = spawnOf(this.map(), mark);
+				const base = String(npc.sprite).includes("/")
+					? String(npc.sprite).split("/").pop()!
+					: String(npc.sprite);
+				const walkers = (SPRITES as { walkers?: Record<string, string> }).walkers || {};
+				if (base in walkers || npc.sprite === "shinigami") {
+					const sf = Math.floor(this.clock * 3) % 4 + 1;
+					this.drawActor(`${base}-down-${sf}`, s.x, s.y);
+				} else {
+					this.drawActor(`${base}-${wf}`, s.x, s.y);
+				}
+				this.hintZ(s.x, s.y);
 			}
+		}
+		if (this.world.mapId === "veld" && this.rival.phase !== "off") {
+			const walking = this.rival.phase === "approach" || this.rival.phase === "leave";
+			const rf = walking ? this.rival.frame % 4 + 1 : 1;
+			this.drawActor(`mason-${this.rival.dir}-${rf}`, this.rival.x, this.rival.y);
+			if (this.rival.phase === "done") this.hintZ(this.rival.x, this.rival.y);
 		}
 		if (this.anne.phase !== "off") {
 			const walking = this.anne.phase === "approach" || this.anne.phase === "approach2" || this.anne.phase === "leave";
@@ -3474,67 +3474,17 @@ export class CryMon {
 				this.drawActor(`soldier-${sol.dir}-${sf}`, sol.x, sol.y);
 				this.hintZ(sol.x, sol.y);
 			}
-			const ranger = spawnOf(FOREST, "4");
-			this.drawActor(`ranger-${wf}`, ranger.x, ranger.y);
-			this.hintZ(ranger.x, ranger.y);
-			const scout = spawnOf(FOREST, "5");
-			this.drawActor(`scout-${wf}`, scout.x, scout.y);
-			this.hintZ(scout.x, scout.y);
 		}
-		if (this.world.mapId === "grove") {
-			const k = spawnOf(GROVE, "K");
-			this.drawActor(`cross-${wf}`, k.x, k.y);
-			this.hintZ(k.x, k.y);
-			if (!this.cathleenCaught) {
-				const c = spawnOf(GROVE, "8");
-				this.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
-				this.hintZ(c.x, c.y);
-			}
-			if (!this.beatShinigami) {
-				const s = spawnOf(GROVE, "9");
-				const sf = Math.floor(this.clock * 3) % 4 + 1;
-				this.drawActor(`shinigami-down-${sf}`, s.x, s.y);
-				this.hintZ(s.x, s.y);
-			}
-		}
-		if (this.world.mapId === "camp") {
-			const commander = spawnOf(CAMP, "I");
-			this.drawActor(`commander-${wf}`, commander.x, commander.y);
-			this.hintZ(commander.x, commander.y);
-			const conscript = spawnOf(CAMP, "K");
-			this.drawActor(`conscript-${wf}`, conscript.x, conscript.y);
-			this.hintZ(conscript.x, conscript.y);
-			const enforcer = spawnOf(CAMP, "A");
-			this.drawActor(`enforcer-${wf}`, enforcer.x, enforcer.y);
-			this.hintZ(enforcer.x, enforcer.y);
+		if (this.world.mapId === "grove" && !this.cathleenCaught) {
+			const { cx, cy } = this.cam();
+			const c = spawnOf(GROVE, "8");
+			this.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
+			this.hintZ(c.x, c.y);
 		}
 		if (this.world.mapId === "cliffs") {
-			const sentry = spawnOf(CLIFFS, "V");
-			this.drawActor(`sentry-${wf}`, sentry.x, sentry.y);
-			this.hintZ(sentry.x, sentry.y);
-			const tessa = spawnOf(CLIFFS, "Y");
-			this.drawActor(`tessa-${wf}`, tessa.x, tessa.y);
-			this.hintZ(tessa.x, tessa.y);
 			const chest = spawnOf(CLIFFS, "C");
 			this.drawProp("prop-crate", chest.x, chest.y + 4, 32, 32);
 			this.hintZ(chest.x, chest.y);
-		}
-		if (this.world.mapId === "ruins") {
-			const oren = spawnOf(RUINS, "J");
-			this.drawActor(`oren-${wf}`, oren.x, oren.y);
-			this.hintZ(oren.x, oren.y);
-			const birch = spawnOf(RUINS, "K");
-			this.drawActor(`birch-${wf}`, birch.x, birch.y);
-			this.hintZ(birch.x, birch.y);
-			const sable = spawnOf(RUINS, "A");
-			this.drawActor(`sable-${wf}`, sable.x, sable.y);
-			this.hintZ(sable.x, sable.y);
-			const keeper = spawnOf(RUINS, "6");
-			this.drawActor(`keeper-${wf}`, keeper.x, keeper.y);
-			this.hintZ(keeper.x, keeper.y);
-			const warden = spawnOf(RUINS, "7");
-			this.drawActor(`warden-${wf}`, warden.x, warden.y);
-			this.hintZ(warden.x, warden.y);
 		}
 		const frame = this.world.moving ? this.world.frame % 4 + 1 : 1;
 		this.drawActor(`max-${this.world.dir}-${frame}`, this.world.x, this.world.y);
