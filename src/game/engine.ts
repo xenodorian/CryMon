@@ -214,6 +214,8 @@ export class CryMon {
 	beatForestScout = false;
 	beatRuinsKeeper = false;
 	beatRuinsWarden = false;
+	quarryCrateLooted = false;
+	quarryShelfSearched = false;
 	cageOpen = false;
 	mason2Map: string | null = null;
 	mason2Done = false;
@@ -356,6 +358,8 @@ export class CryMon {
 		this.beatForestScout = false;
 		this.beatRuinsKeeper = false;
 		this.beatRuinsWarden = false;
+		this.quarryCrateLooted = false;
+		this.quarryShelfSearched = false;
 		this.cageOpen = false;
 		this.mason2Map = null;
 		this.mason2Done = false;
@@ -728,6 +732,8 @@ export class CryMon {
 				beatForestScout: this.beatForestScout,
 				beatRuinsKeeper: this.beatRuinsKeeper,
 				beatRuinsWarden: this.beatRuinsWarden,
+			quarryCrateLooted: this.quarryCrateLooted,
+			quarryShelfSearched: this.quarryShelfSearched,
 				beatConscript: this.beatConscript,
 				beatEnforcer: this.beatEnforcer,
 				beatCross: this.beatCross,
