@@ -4029,6 +4029,7 @@ void main(void) {
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
     int talked_reach = 0;
+    int quarry_crate_looted = 0, quarry_shelf_searched = 0;
     int cage_open = 0;
     int has_scroll = 0; /* Legendary Reanimation, granted once Shinigami's win dialogue closes */
     int anne2_told = 0; /* gates Anne's second (father-died/choice) approach to firing once */
@@ -4138,6 +4139,8 @@ void main(void) {
         ft[FLAG_CAGE_OPEN] = &cage_open;
         ft[FLAG_HAS_CAGE_KEY] = &bag.cageKey;
         ft[FLAG_TALKED_REACH] = &talked_reach;
+        ft[FLAG_QUARRY_CRATE_LOOTED] = &quarry_crate_looted;
+        ft[FLAG_QUARRY_SHELF_SEARCHED] = &quarry_shelf_searched;
     }
 
     for(;;) {
@@ -4356,6 +4359,8 @@ void main(void) {
                         soldier_beaten[0] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN0);
                         soldier_beaten[1] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN1);
                         soldier_beaten[2] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN2);
+                        quarry_crate_looted = save_flag_get(&sl, SAVE_FLAG_QUARRY_CRATE_LOOTED);
+                        quarry_shelf_searched = save_flag_get(&sl, SAVE_FLAG_QUARRY_SHELF_SEARCHED);
                         soldiers_init = soldier_beaten[0] || soldier_beaten[1] || soldier_beaten[2];
                         door_lock = 8;
                         enc_lock = 8;
@@ -4387,6 +4392,7 @@ void main(void) {
                 anim_counter = 0;
                 door_lock = 0;
                 got_shelf = 0; looted_crate = 0; talked_father = 0;
+                quarry_crate_looted = 0; quarry_shelf_searched = 0;
                 { Bag start = START_BAG_INIT; bag = start; }
                 marks = START_MARKS;
                 party_n = 0; lead = 0;
@@ -4541,6 +4547,8 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN0, soldier_beaten[0]);
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN1, soldier_beaten[1]);
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN2, soldier_beaten[2]);
+                    save_flag_put(&sl, SAVE_FLAG_QUARRY_CRATE_LOOTED, quarry_crate_looted);
+                    save_flag_put(&sl, SAVE_FLAG_QUARRY_SHELF_SEARCHED, quarry_shelf_searched);
                     if(save_store(&sl)) {
                         int n = s_cat(hud_flash, 0, "SAVED");
                         hud_flash[n] = 0;
