@@ -4415,7 +4415,7 @@ void main(void) {
                 beat_wsoldier_cliffs = 0; beat_wsoldier_camp1 = 0;
                 beat_wsoldier_camp2 = 0; beat_wsoldier_grove = 0;
                 beat_forest_ranger = 0; beat_forest_scout = 0;
-                beat_ruins_keeper = 0; beat_ruins_warden = 0;
+                beat_ruins_keeper = 0; beat_ruins_warden = 0; badge_quartz = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
