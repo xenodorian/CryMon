@@ -377,6 +377,40 @@ def main() -> int:
             if not isinstance(lo, int) or not isinstance(hi, int) or lo > hi or lo < 1:
                 errors.append(f"encounters: {map_id} has invalid level range {lo}-{hi}")
 
+    # Warp validation for live maps. Each warp endpoint must exist exactly once,
+    # and every reciprocal connection must return to the matching endpoint.
+    warps = data["world"].get("warps") or []
+    for i, warp in enumerate(warps):
+        src = warp.get("from")
+        dst = warp.get("to")
+        tile = warp.get("tile")
+        spawn = warp.get("spawn")
+        if src not in rows:
+            errors.append(f"warps[{i}]: source map {src!r} does not exist")
+            continue
+        if dst not in rows:
+            errors.append(f"warps[{i}]: destination map {dst!r} does not exist")
+            continue
+        src_count = sum(row.count(tile or "") for row in rows[src])
+        dst_count = sum(row.count(spawn or "") for row in rows[dst])
+        if src_count != 1:
+            errors.append(f"warps[{i}]: {src}.{tile} occurs {src_count} times; expected exactly 1")
+        if dst_count != 1:
+            errors.append(f"warps[{i}]: {dst}.{spawn} spawn occurs {dst_count} times; expected exactly 1")
+
+    for i, warp in enumerate(warps):
+        src, dst = warp.get("from"), warp.get("to")
+        tile, spawn = warp.get("tile"), warp.get("spawn")
+        reciprocal = [
+            other for other in warps
+            if other.get("from") == dst
+            and other.get("to") == src
+            and other.get("tile") == spawn
+            and other.get("spawn") == tile
+        ]
+        if len(reciprocal) != 1:
+            errors.append(f"warps[{i}]: missing or ambiguous reciprocal for {src}.{tile} -> {dst}.{spawn}")
+
     trainers = data["world"].get("trainers") or {}
     cath_lv = (trainers.get("cathleen") or {}).get("lead") or [None, 0]
     shin_lv = (trainers.get("shinigami") or {}).get("lead") or [None, 0]
