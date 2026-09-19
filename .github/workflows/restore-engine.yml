@@ -1,0 +1,55 @@
+name: restore-engine
+on:
+  workflow_dispatch:
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore engine from pre-break commit and patch flags
+        run: |
+          git show b6724cff7db33a65ecc9fd92d2db24fc9f7d8fcc:src/game/engine.ts > src/game/engine.ts
+          python3 << 'PY'
+          from pathlib import Path
+          eng = Path("src/game/engine.ts").read_text()
+          if "beatMarshBog" not in eng:
+              eng = eng.replace(
+                  "\tbeatRuinsWarden = false;\n\tquarryCrateLooted = false;",
+                  "\tbeatRuinsWarden = false;\n\tbeatMarshBog = false;\n\tbeatMarshReed = false;\n\tbadgeQuartz = false;\n\tquarryCrateLooted = false;",
+                  1,
+              )
+              eng = eng.replace(
+                  "\t\tthis.beatRuinsWarden = false;\n\t\tthis.quarryCrateLooted = false;",
+                  "\t\tthis.beatRuinsWarden = false;\n\t\tthis.beatMarshBog = false;\n\t\tthis.beatMarshReed = false;\n\t\tthis.badgeQuartz = false;\n\t\tthis.quarryCrateLooted = false;",
+              )
+              eng = eng.replace(
+                  '\t\t\t\telse if (who === "ruinsWarden") this.beatRuinsWarden = true;\n\t\t\t\tthis.marks += kit?.marks ?? 12;',
+                  '\t\t\t\telse if (who === "ruinsWarden") this.beatRuinsWarden = true;\n\t\t\t\telse if (who === "marshBog") this.beatMarshBog = true;\n\t\t\t\telse if (who === "marshReed") this.beatMarshReed = true;\n\t\t\t\telse if (who === "quartz") this.badgeQuartz = true;\n\t\t\t\tthis.marks += kit?.marks ?? 12;',
+                  1,
+              )
+              eng = eng.replace(
+                  "\t\t\tbeatRuinsWarden: this.beatRuinsWarden,\n\t\t};",
+                  "\t\t\tbeatRuinsWarden: this.beatRuinsWarden,\n\t\t\tbeatMarshBog: this.beatMarshBog,\n\t\t\tbeatMarshReed: this.beatMarshReed,\n\t\t\tbadgeQuartz: this.badgeQuartz,\n\t\t};",
+                  1,
+              )
+              old = "\t\t\t\tbeatRuinsWarden: this.beatRuinsWarden,\n\t\t\tquarryCrateLooted: this.quarryCrateLooted,"
+              new = "\t\t\t\tbeatRuinsWarden: this.beatRuinsWarden,\n\t\t\t\tbeatMarshBog: this.beatMarshBog,\n\t\t\t\tbeatMarshReed: this.beatMarshReed,\n\t\t\t\tbadgeQuartz: this.badgeQuartz,\n\t\t\tquarryCrateLooted: this.quarryCrateLooted,"
+              if old in eng:
+                  eng = eng.replace(old, new, 1)
+              Path("src/game/engine.ts").write_text(eng)
+              print("patched ok", eng.count("beatMarshBog"))
+          else:
+              print("already has flags")
+          PY
+      - name: Commit and push
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/engine.ts
+          git diff --staged --quiet && echo "no changes" && exit 0
+          git commit -m "Restore engine.ts with beatMarshBog, beatMarshReed, badgeQuartz"
+          git push
