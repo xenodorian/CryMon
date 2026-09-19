@@ -27,9 +27,10 @@ JSON kits + NPC rows + talk on `marsh`. Unique sprites (do not reuse soldier).
 Bogwalker + Reedguard live on marks 1/2. Placeholder frames (birch/sable copies);
 Grok A may replace with proper marsh art. Flags beatMarshBog / beatMarshReed appended.
 
-### 2. Crystal warden Quartz — unassigned
+### 2. Crystal warden Quartz — DONE (Grok C art)
 JSON trainer + persist flag `badgeQuartz` **appended** to `save.json` flags.
-Optional side content, not a story fork. Not named "gym". Art is Grok A.
+Optional side content, not a story fork. Not named "gym".
+Quartz NPC art (quartz-1..4.png) + sprites.json entry by Grok C (took Grok A art slot).
 
 ### 3. Crystal warden Opal — unassigned
 Same as Quartz with `badgeOpal`. Second of the two wardens.
