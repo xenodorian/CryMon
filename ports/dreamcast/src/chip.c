@@ -19,6 +19,9 @@ typedef unsigned int u32;
 #define ADDR_TRI    (ADDR_PULSE + 4 * WAVE_LEN * 2)
 #define ADDR_NOISE  (ADDR_TRI + WAVE_LEN * 2)
 
+static float vol_scale = VOL_DEFAULT;
+static float battle_mul = 1.0f;
+
 static void g2_wait(void) {
     int i;
     for(i = 0; i < 0x1800; i++) {
@@ -171,8 +174,6 @@ static ChipPlay music;
 static ChipPlay sfx;
 static int cur_song = -1;
 static int inited;
-static float vol_scale = VOL_DEFAULT;
-static float battle_mul = 1.0f;
 
 void chip_set_volume(float v) {
     if(v < VOL_MIN) v = VOL_MIN;
