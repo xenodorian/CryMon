@@ -751,6 +751,11 @@ static int pressed(u16 raw, u16 mask) {
  * ---------------------------------------------------------------------- */
 #define TILE 20
 
+/* ATK_STR/ATK_MAG tag which raw stat a move draws on. Defined before
+   content_logic.inc so baked NATURE_MOVES / TOXIC_STAT can use them. */
+#define ATK_STR 0
+#define ATK_MAG 1
+
 typedef struct {
     const char *const *rows;
     int cols, rows_n;
@@ -1468,12 +1473,10 @@ static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_s
  * further down) matching data.ts's own spell id order for her. Every
  * other species leaves spells_n at 0 and never touches battle_cast_spell.
  * ---------------------------------------------------------------------- */
-/* Every attack (basic, special, spell, Toxic Burst) is atkStat(str or mag)
-   times the move's own power rating -- see content/logic.json's "combat"
-   block. ATK_STR/ATK_MAG tag which raw stat a move draws on; agility is
-   never an attack stat, only a speed one (used solely to resolve Dodge). */
-#define ATK_STR 0
-#define ATK_MAG 1
+/* Every attack (basic, special, spell, Toxic Burst, crystal secondary)
+   is atkStat(str or mag) times the move's own power rating -- see
+   content/logic.json's "combat" block. Agility is never an attack stat,
+   only a speed one (used solely to resolve Dodge). */
 
 typedef struct {
     const char *name, *basic, *special;
@@ -1485,6 +1488,7 @@ typedef struct {
     int spells[4];     /* SPELL_* ids, spells_n of them valid */
     int nature;        /* index into NATURES -- a crystal belongs to the
                           species, so every one of them shares it */
+    int evolves_to;    /* SPECIES index, or -1 if this form is final */
 } Species;
 
 /* Cathleen's fixed 4-spell kit. Every spell is tagged Magic (see
@@ -1511,6 +1515,121 @@ typedef struct {
 static int species_nature(int species) {
     if(species < 0 || species >= SPECIES_N) return 0;
     return SPECIES[species].nature;
+}
+
+static int nature_index_by_ring(int ring) {
+    int i;
+    for(i = 0; i < NATURE_N; i++) if(NATURES[i].ring == ring) return i;
+    return 0;
+}
+
+#define UMOVE_BASIC 0
+#define UMOVE_SECONDARY 1
+#define UMOVE_TOXIC 2
+#define UMOVE_SPECIAL 3
+#define UMOVE_SPELL 4
+#define UMOVE_WAIT 5
+#define UMOVE_MAX 8
+
+typedef struct {
+    int kind;
+    const char *name;
+    int stat;
+    float power, speed;
+    int spell_id;
+    int dstr, dagl, dspc;
+} UMove;
+
+static const char *const SPELL_MENU_NAME[4] = {
+    "FIRE BOLT", "ICE BEAM", "LIGHTNING STRIKE", "MANA SURGE"
+};
+
+static int str_same(const char *a, const char *b) {
+    int i;
+    if(!a || !b) return 0;
+    for(i = 0; ; i++) {
+        if(a[i] != b[i]) return 0;
+        if(!a[i]) return 1;
+    }
+}
+
+static int unlocked_moves(const Monster *m, int include_wait, UMove *out, int cap) {
+    const Species *s;
+    int n = 0;
+    int i;
+    if(!m || !out || cap <= 0) return 0;
+    s = &SPECIES[m->species];
+    out[n].kind = UMOVE_BASIC;
+    out[n].name = s->basic;
+    out[n].stat = s->basic_stat;
+    out[n].power = s->basic_power;
+    out[n].speed = s->basic_speed;
+    out[n].spell_id = -1;
+    out[n].dstr = out[n].dagl = out[n].dspc = 0;
+    n++;
+    if(m->lv >= LV_SECONDARY && n < cap) {
+        if(m->shiny) {
+            out[n].kind = UMOVE_TOXIC;
+            out[n].name = TOXIC_NAME;
+            out[n].stat = TOXIC_STAT;
+            out[n].power = TOXIC_POWER;
+            out[n].speed = TOXIC_SPEED;
+            out[n].spell_id = -1;
+            out[n].dstr = out[n].dagl = out[n].dspc = 0;
+            n++;
+        } else {
+            const NatureMove *nm = &NATURE_MOVES[species_nature(m->species)];
+            out[n].kind = UMOVE_SECONDARY;
+            out[n].name = nm->name;
+            out[n].stat = nm->stat;
+            out[n].power = nm->power;
+            out[n].speed = nm->speed;
+            out[n].spell_id = -1;
+            out[n].dstr = nm->dstr;
+            out[n].dagl = nm->dagl;
+            out[n].dspc = nm->dspc;
+            n++;
+        }
+    }
+    if(m->lv >= LV_SPECIAL) {
+        if(s->spells_n > 0) {
+            for(i = 0; i < s->spells_n && n < cap; i++) {
+                int sid = s->spells[i];
+                const SpellDef *sp;
+                if(sid < 0 || sid > 3) continue;
+                if(str_same(SPELL_MENU_NAME[sid], s->basic)) continue;
+                sp = &SPELLS[sid];
+                out[n].kind = UMOVE_SPELL;
+                out[n].name = SPELL_MENU_NAME[sid];
+                out[n].stat = sp->stat;
+                out[n].power = sp->power;
+                out[n].speed = sp->speed;
+                out[n].spell_id = sid;
+                out[n].dstr = out[n].dagl = out[n].dspc = 0;
+                n++;
+            }
+        } else if(n < cap) {
+            out[n].kind = UMOVE_SPECIAL;
+            out[n].name = s->special;
+            out[n].stat = s->special_stat;
+            out[n].power = s->special_power;
+            out[n].speed = s->special_speed;
+            out[n].spell_id = -1;
+            out[n].dstr = out[n].dagl = out[n].dspc = 0;
+            n++;
+        }
+    }
+    if(include_wait && n < cap) {
+        out[n].kind = UMOVE_WAIT;
+        out[n].name = "WAIT";
+        out[n].stat = ATK_STR;
+        out[n].power = 0;
+        out[n].speed = 0;
+        out[n].spell_id = -1;
+        out[n].dstr = out[n].dagl = out[n].dspc = 0;
+        n++;
+    }
+    return n;
 }
 
 static unsigned char g_dex_seen[SAVE_DEX_BYTES];
@@ -1577,11 +1696,14 @@ static float f_sqrt(float x) {
 
 static Monster mint_monster(int species, int lv) {
     const Species *s = &SPECIES[species];
-    float g = 1.0f + (float)(lv - 3) * 0.12f;
+    float g;
     Monster m;
     const NatureDef *nat;
+    if(lv < 1) lv = 1;
+    if(lv > LEVEL_CAP) lv = LEVEL_CAP;
+    g = 1.0f + (float)(lv - 3) * 0.12f;
     m.species = species;
-    m.lv = lv < 1 ? 1 : lv;
+    m.lv = lv;
     m.xp = 0;
     m.maxHp = jground((float)s->maxHp * g);
     m.str = jground((float)s->str * g);
@@ -1600,16 +1722,15 @@ static Monster mint_monster(int species, int lv) {
 }
 
 /* Shiny variant: a rare (1/64) wild-encounter-only recolor, minted at
-   double the level try_encounter() would otherwise have picked, with
-   an extra move (TOXIC BURST, see battle_pick_toxic()) no normal
-   CryMon of the species has. Never rolled for a scripted trainer/NPC
-   fight (Mason's Glimmoth, Calder's Razorbat, etc. mint_monster()
-   directly) or for Cathleen -- only try_encounter()'s wild pool calls
-   this. The "palette swap" itself lives in draw_battle_sprites(),
-   which recolors the sprite at blit time rather than needing a second
-   set of source art (none exists). */
+   double the level try_encounter() would otherwise have picked (capped),
+   with Toxic Burst at LV_SECONDARY instead of the shared crystal secondary.
+   Never rolled for a scripted trainer/NPC fight. */
 static Monster mint_shiny(int species, int lv) {
-    Monster m = mint_monster(species, lv * 2);
+    int slv = lv * 2;
+    Monster m;
+    if(slv < lv) slv = lv;
+    if(slv > LEVEL_CAP) slv = LEVEL_CAP;
+    m = mint_monster(species, slv);
     m.shiny = 1;
     return m;
 }
@@ -1617,9 +1738,43 @@ static int roll_shiny(void) {
     return irand(0, SHINY_DENOM - 1) == 0;
 }
 
-/* data.grantXp: +6+4*foeLv xp per win, level up (+3 maxHp, +1 each
-   stat) while xp >= lv*10, capped at lv 12. Returns 1 if it leveled
-   up at least once. */
+/* data.grantXp: +xpBase+xpPerLevel*foeLv xp per win, level up
+   (+levelHp maxHp, +levelStat each stat) while xp >= lv*levelXpMul,
+   capped at LEVEL_CAP. Evolves at LV_EVOLVE when the species has
+   evolves_to. Returns 1 if it leveled or evolved. */
+static char g_evo_note[48];
+
+static int try_evolve(Monster *m) {
+    const Species *s;
+    int to, from, old_hp, old_max, shiny, xp, n, hp;
+    Monster next;
+    if(!m) return 0;
+    s = &SPECIES[m->species];
+    to = s->evolves_to;
+    if(to < 0 || to >= SPECIES_N || m->lv < LV_EVOLVE) return 0;
+    from = m->species;
+    old_hp = m->hp;
+    old_max = m->maxHp;
+    shiny = m->shiny;
+    xp = m->xp;
+    next = mint_monster(to, m->lv);
+    next.shiny = shiny;
+    next.xp = xp;
+    if(old_max > 0) {
+        hp = old_hp * next.maxHp / old_max;
+        if(hp < 1) hp = 1;
+        if(hp > next.maxHp) hp = next.maxHp;
+        next.hp = hp;
+    }
+    n = s_cat(g_evo_note, 0, SPECIES[from].name);
+    n = s_cat(g_evo_note, n, " EVOLVED INTO ");
+    n = s_cat(g_evo_note, n, SPECIES[to].name);
+    g_evo_note[n] = 0;
+    *m = next;
+    dex_note_caught(to);
+    return 1;
+}
+
 static int grant_xp(Monster *m, int foe_lv, int pct) {
     int grew = 0;
     m->xp += (XP_BASE + foe_lv * XP_PER_LEVEL) * pct / 100;
@@ -1634,11 +1789,13 @@ static int grant_xp(Monster *m, int foe_lv, int pct) {
         m->spc += LEVEL_STAT;
         grew = 1;
     }
+    if(try_evolve(m)) grew = 1;
     return grew;
 }
 
 static int grant_party_xp(Monster *party, int party_n, int lead, int foe_lv) {
     int i, grew = 0;
+    g_evo_note[0] = 0;
     for(i = 0; i < party_n; i++) {
         int pct;
         if(party[i].hp <= 0) continue;
@@ -1733,14 +1890,46 @@ static void draw_pause_menu(int cur) {
                     i == cur ? rgb565(90, 122, 82) : rgb565(197, 206, 198), MENU_SCALE);
 }
 
-static void draw_crydex(int cur) {
+static void draw_crydex(int cur, int entry) {
     char buf[48];
     int i, n, caught_n = 0, seen_n = 0, vis = 8, start, y;
     for(i = 0; i < SPECIES_N; i++) {
         if(dex_get(g_dex_caught, i)) caught_n++;
         if(dex_get(g_dex_seen, i)) seen_n++;
     }
-    draw_menu_frame("CRYDEX", "UP/DOWN  B BACK");
+    if(entry && cur >= 0 && cur < SPECIES_N && dex_get(g_dex_caught, cur)) {
+        int nat = species_nature(cur);
+        int pos = NATURES[nat].ring;
+        int k;
+        draw_menu_frame("CRYDEX", "A/B BACK");
+        draw_text_s(SPECIES[cur].name, MENU_X + 8, MENU_Y + 24, 0xFFFF, MENU_SCALE);
+        n = s_cat(buf, 0, NATURES[nat].name);
+        n = s_cat(buf, n, " CRYSTAL");
+        buf[n] = 0;
+        draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H, rgb565(197, 206, 198), MENU_SCALE);
+        draw_text_s("WEAK TO", MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 3, rgb565(143, 74, 64), MENU_SCALE);
+        n = 0;
+        buf[0] = 0;
+        for(k = 1; k <= NATURE_BEATS_AHEAD; k++) {
+            int wr = (pos - k + NATURE_RING_N) % NATURE_RING_N;
+            if(n) n = s_cat(buf, n, ", ");
+            n = s_cat(buf, n, NATURES[nature_index_by_ring(wr)].name);
+        }
+        buf[n] = 0;
+        draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 4, rgb565(232, 228, 216), MENU_SCALE);
+        draw_text_s("RESISTS", MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 6, rgb565(90, 122, 82), MENU_SCALE);
+        n = 0;
+        buf[0] = 0;
+        for(k = 1; k <= NATURE_BEATS_AHEAD; k++) {
+            int rr = (pos + k) % NATURE_RING_N;
+            if(n) n = s_cat(buf, n, ", ");
+            n = s_cat(buf, n, NATURES[nature_index_by_ring(rr)].name);
+        }
+        buf[n] = 0;
+        draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 7, rgb565(232, 228, 216), MENU_SCALE);
+        return;
+    }
+    draw_menu_frame("CRYDEX", dex_get(g_dex_caught, cur) ? "A MATCHUP  B BACK" : "UP/DOWN  B BACK");
     n = s_cat(buf, 0, "");
     n = s_cat_uint(buf, 0, caught_n);
     n = s_cat(buf, n, "/");
@@ -1764,6 +1953,8 @@ static void draw_crydex(int cur) {
         n = s_cat(buf, n, " ");
         if(dex_get(g_dex_caught, idx)) {
             n = s_cat(buf, n, SPECIES[idx].name);
+            n = s_cat(buf, n, "  ");
+            n = s_cat(buf, n, NATURES[species_nature(idx)].name);
             color = rgb565(232, 228, 216);
         } else if(dex_get(g_dex_seen, idx)) {
             n = s_cat(buf, n, SPECIES[idx].name);
@@ -1818,18 +2009,42 @@ static void draw_bag_row(const u16 *icon, const char *label, int count,
     draw_text_s(buf, MENU_X + 16 + ITEM_ICON_W + 4, y, color, MENU_SCALE);
 }
 
-static void draw_bag_menu(const Bag *bag, int marks, int cur) {
+static void draw_bag_menu(const Bag *bag, int marks, int cur, int tab) {
     int y = MENU_Y + 24;
     char marks_buf[16];
+    char line[40];
     int n;
 
-    draw_menu_frame("BAG", "UP/DOWN A USE  B CLOSE");
+    draw_menu_frame("BAG", tab ? "UP/DOWN VOLUME  L/R TABS  B CLOSE" : "UP/DOWN A USE  L/R TABS  B CLOSE");
 
     n = s_cat(marks_buf, 0, "MARKS ");
     n = s_cat_uint(marks_buf, n, marks);
     marks_buf[n] = 0;
     draw_text_s(marks_buf, MENU_X + MENU_W - 8 - text_width_s(marks_buf, MENU_SCALE),
                 MENU_Y + 8, rgb565(143, 74, 64), MENU_SCALE);
+
+    draw_text_s(tab ? " ITEMS   >SETTINGS" : ">ITEMS    SETTINGS",
+                MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE);
+    y += MENU_ROW_H + 4;
+
+    if(tab) {
+        int pct = chip_volume_pct();
+        int bar_w = MENU_W - 24;
+        int fill = chip_volume_fill(bar_w);
+        n = s_cat(line, 0, "VOLUME ");
+        n = s_cat_uint(line, n, (unsigned)pct);
+        n = s_cat(line, n, "%");
+        line[n] = 0;
+        draw_text_s(line, MENU_X + 8, y, rgb565(197, 206, 198), MENU_SCALE);
+        y += MENU_ROW_H;
+        fill_rect(MENU_X + 8, y, bar_w, 8, rgb565(42, 38, 32));
+        fill_rect(MENU_X + 8, y, fill, 8, rgb565(90, 122, 82));
+        y += MENU_ROW_H;
+        draw_text_s("200% IS TWICE THE OLD MAX", MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE);
+        (void)bag;
+        (void)cur;
+        return;
+    }
 
     draw_bag_row(icon_salve, "MOSS SALVE", bag->salve, 0, cur, y);            y += MENU_ROW_H;
     draw_bag_row(icon_bandage, "LINEN WRAP", bag->bandage, 1, cur, y);        y += MENU_ROW_H;
@@ -1856,6 +2071,23 @@ static void draw_bag_menu(const Bag *bag, int marks, int cur) {
    (main()'s menu_mode==2 input handling keeps party_cur live under
    up/down while this is open, so browsing the whole party doesn't
    need to back out to the list each time). */
+static void draw_move_facts(const char *name, int stat, float power, float speed, int atk, int *y) {
+    char buf[48];
+    int n;
+    int dmg = jground((float)atk * power);
+    int spd = jground(speed * 10.0f);
+    if(dmg < 1) dmg = 1;
+    n = s_cat(buf, 0, name);
+    n = s_cat(buf, n, stat == ATK_STR ? "  STR " : "  MAG ");
+    n = s_cat(buf, n, "DMG");
+    n = s_cat_uint(buf, n, (unsigned)dmg);
+    n = s_cat(buf, n, " SPD");
+    n = s_cat_uint(buf, n, (unsigned)spd);
+    buf[n] = 0;
+    draw_text_s(buf, MENU_X + 8, *y, rgb565(232, 228, 216), MENU_SCALE);
+    *y += MENU_ROW_H;
+}
+
 static void draw_party_detail(const Monster *party, int party_n, int idx) {
     const Monster *m = &party[idx];
     const Species *s = &SPECIES[m->species];
@@ -1890,23 +2122,14 @@ static void draw_party_detail(const Monster *party, int party_n, int idx) {
     draw_text_s(buf, MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE); y += MENU_ROW_H * 2;
 
     draw_text_s("ATTACKS", MENU_X + 8, y, rgb565(180, 220, 170), MENU_SCALE); y += MENU_ROW_H;
-    if(s->spells_n > 0) {
-        static const char *const SPELL_MENU_NAME[4] = {
-            "FIRE BOLT", "ICE BEAM", "LIGHTNING STRIKE", "MANA SURGE"
-        };
+    {
+        UMove moves[UMOVE_MAX];
+        int mn = unlocked_moves(m, 0, moves, UMOVE_MAX);
         int i;
-        for(i = 0; i < s->spells_n; i++) {
-            draw_text_s(SPELL_MENU_NAME[s->spells[i]], MENU_X + 8, y,
-                        rgb565(232, 228, 216), MENU_SCALE);
-            y += MENU_ROW_H;
-        }
-    }
-    else {
-        draw_text_s(s->basic, MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE); y += MENU_ROW_H;
-        draw_text_s(s->special, MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE); y += MENU_ROW_H;
-        if(m->shiny) {
-            draw_text_s("TOXIC BURST", MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE);
-            y += MENU_ROW_H;
+        for(i = 0; i < mn; i++) {
+            int atk = moves[i].stat == ATK_STR ? m->str : m->spc;
+            draw_move_facts(moves[i].name, moves[i].stat, moves[i].power, moves[i].speed,
+                            atk, &y);
         }
     }
     y += MENU_ROW_H;
@@ -2038,10 +2261,7 @@ static void draw_choice(int cur) {
 typedef struct {
     Monster pl, foe;
     int wild;
-    int phase;      /* 0 msg, 1 item menu, 2 attack menu, 3 guard menu.
-                        Every move (basic/special/spell/Toxic Burst) resolves
-                        the instant it's picked now -- no more timing
-                        minigame phase. */
+    int phase;      /* 0 msg, 1 item, 2 attack, 3 guard, 4 special minigame */
     char msg[3][80];  /* a move label plus damage, a crystal-matchup tag and
                          a poison tick can share one line; draw_wrapped()
                          re-flows it to fit the box */
@@ -2050,8 +2270,11 @@ typedef struct {
     int cur;        /* menu cursor for phases 1-3 */
     int mods_self_str, mods_self_agl, mods_self_spc;
     int mods_foe_str, mods_foe_agl, mods_foe_spc;
+    int pend_str, pend_agl, pend_spc; /* crystal secondary, applied on hit */
     int pl_poisoned, foe_poisoned; /* TOXIC BURST, shiny-exclusive move */
     int dmg;
+    float mg;           /* special timing needle 0-100 */
+    int mg_dir;
     char label[28];
     int grew;       /* set by finish_win() below, read by the WIN_NOTE beat */
     int trainer_kind;      /* TRAINER_* below */
@@ -2218,6 +2441,7 @@ static int battle_foe_maybe_fall(Battle *b, const char *fallen_prefix) {
         if(b->bench_n == 2) b->bench[0] = b->bench[1];
         b->bench_n--;
         b->mods_foe_str = b->mods_foe_agl = b->mods_foe_spc = 0;
+        b->pend_str = b->pend_agl = b->pend_spc = 0;
         b->foe_poisoned = 0; /* fresh bench monster, not the fallen one */
 
         n = s_cat(b->msg[1], 0, fallen_prefix);
@@ -2266,6 +2490,10 @@ static void battle_apply_hit(Battle *b) {
 
     b->foe.hp -= b->dmg;
     if(b->foe.hp < 0) b->foe.hp = 0;
+    b->mods_foe_str += b->pend_str;
+    b->mods_foe_agl += b->pend_agl;
+    b->mods_foe_spc += b->pend_spc;
+    b->pend_str = b->pend_agl = b->pend_spc = 0;
 
     n = s_cat(b->msg[0], 0, b->label);
     n = s_cat(b->msg[0], n, " ");
@@ -2300,14 +2528,15 @@ static int atk_stat_value(const Monster *m, int mods_str, int mods_agl, int mods
    Damage is the shared formula every move now uses: atkStat * power,
    no defense term -- what the defender eats is decided entirely at the
    guard step (Dodge/Block/Barrier), not baked into the attack. */
-static void battle_pick_basic(Battle *b) {
-    const Species *s = &SPECIES[b->pl.species];
-    int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, s->basic_stat);
-    int n = 0;
-
-    b->dmg = jground((float)atk * s->basic_power);
+static void battle_pick_umove(Battle *b, const UMove *mv) {
+    int atk, n = 0;
+    b->pend_str = mv->dstr;
+    b->pend_agl = mv->dagl;
+    b->pend_spc = mv->dspc;
+    atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, mv->stat);
+    b->dmg = jground((float)atk * mv->power);
     if(b->dmg < 1) b->dmg = 1;
-    n = s_cat(b->label, n, s->basic);
+    n = s_cat(b->label, n, mv->name);
     b->label[n] = 0;
     battle_apply_hit(b);
 }
@@ -2324,6 +2553,7 @@ static void battle_pick_toxic(Battle *b) {
     int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, TOXIC_STAT);
     int n = 0;
 
+    b->pend_str = b->pend_agl = b->pend_spc = 0;
     b->dmg = jground((float)atk * TOXIC_POWER);
     if(b->dmg < 1) b->dmg = 1;
     n = s_cat(b->label, n, TOXIC_NAME);
@@ -2332,18 +2562,30 @@ static void battle_pick_toxic(Battle *b) {
     b->foe_poisoned = 1;
 }
 
-/* pickAtk's special-move branch. No more timing minigame -- a special
-   resolves the instant it's picked, exactly like a basic move, just off
-   Species.special_stat/special_power instead of basic's. */
+/* pickAtk's special-move branch: timing bar (phase 4). Needle 0-100;
+   landing in SPEC_PERFECT_* is 2x, SPEC_CONN_* is 1.5x, else fizzle 1x.
+   Damage is still atkStat * special_power * mul -- same formula as web. */
 static void battle_pick_special(Battle *b) {
     const Species *s = &SPECIES[b->pl.species];
     int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, s->special_stat);
+    float mul = SPEC_MUL_FIZZ;
+    const char *tag = "FIZZLED";
     int n = 0;
 
-    b->dmg = jground((float)atk * s->special_power);
+    if(b->mg >= SPEC_PERFECT_LO && b->mg <= SPEC_PERFECT_HI) {
+        mul = SPEC_MUL_PERFECT;
+        tag = "PERFECT";
+    } else if(b->mg >= SPEC_CONN_LO && b->mg <= SPEC_CONN_HI) {
+        mul = SPEC_MUL_CONN;
+        tag = "CONNECTED";
+    }
+
+    b->dmg = jground((float)atk * s->special_power * mul);
     if(b->dmg < 1) b->dmg = 1;
 
     n = s_cat(b->label, n, s->special);
+    n = s_cat(b->label, n, " ");
+    n = s_cat(b->label, n, tag);
     b->label[n] = 0;
     battle_apply_hit(b);
 }
@@ -2358,6 +2600,7 @@ static void battle_pick_special(Battle *b) {
 static int battle_pick_spell(Battle *b, int spell_id) {
     int dmg;
     char label[40];
+    b->pend_str = b->pend_agl = b->pend_spc = 0;
     if(!battle_cast_spell(b, spell_id, 1, &dmg, label))
         return 0;
     b->dmg = dmg;
@@ -2388,21 +2631,21 @@ static int battle_pick_spell(Battle *b, int spell_id) {
    BAFTER_LOSS). */
 static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, int *lead) {
     const Species *foe_sp = &SPECIES[b->foe.species];
-    int use_special = b->foe.spp > 0 && irand(0, 99) < 28;
     char move_name_buf[40];
     const char *move_name;
-    int atk_stat_raw, dmg, counter_dmg = 0;
-    float move_power, move_speed;
+    int atk_stat_raw = 0, dmg, counter_dmg = 0;
+    float move_power = 1.0f, move_speed = 1.0f;
     char line[96];
     int n = 0;
     int poison_tick = 0;
     int inflicts_poison = 0;
     int nat_sign = 0;
+    UMove umoves[UMOVE_MAX];
+    int un, ui, pick_i = 0;
+    int n_special = 0, n_sec = 0, n_basic = 0;
+    int specials[UMOVE_MAX], secs[UMOVE_MAX], basics[UMOVE_MAX];
+    const UMove *pick;
 
-    /* TOXIC BURST's chip damage on the player's side, same ordering
-       as battle_apply_hit()'s foe-side tick: whatever poison state
-       came INTO this turn ticks first, before this turn's own guard
-       result is resolved. */
     if(b->pl_poisoned) {
         poison_tick = b->pl.maxHp / 16;
         if(poison_tick < 1) poison_tick = 1;
@@ -2410,59 +2653,57 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
         if(b->pl.hp < 0) b->pl.hp = 0;
     }
 
-    /* A shiny foe has a chance to reach for its own TOXIC BURST instead
-       of the usual basic/special ladder, same shape as the Cathleen spell
-       branch below (goto move_chosen) -- skipped once the player's
-       already poisoned, same one-application-at-a-time rule
-       battle_pick_toxic() follows for the player's side. */
-    if(b->foe.shiny && !b->pl_poisoned && irand(0, 99) < 30) {
-        atk_stat_raw = atk_stat_value(&b->foe, b->mods_foe_str, b->mods_foe_agl, b->mods_foe_spc, TOXIC_STAT);
-        move_power = TOXIC_POWER;
-        move_speed = TOXIC_SPEED;
-        move_name = TOXIC_NAME;
-        inflicts_poison = 1;
-        goto move_chosen;
+    un = unlocked_moves(&b->foe, 0, umoves, UMOVE_MAX);
+    for(ui = 0; ui < un; ui++) {
+        if(umoves[ui].kind == UMOVE_SPECIAL ||
+           (umoves[ui].kind == UMOVE_SPELL && umoves[ui].spell_id == SPELL_MANASURGE))
+            specials[n_special++] = ui;
+        else if(umoves[ui].kind == UMOVE_SECONDARY || umoves[ui].kind == UMOVE_TOXIC)
+            secs[n_sec++] = ui;
+        else
+            basics[n_basic++] = ui;
     }
-
-    /* resolve_guard()'s spell branch: Cathleen never uses the plain
-       basic/special ladder below, she casts one of her 4 spells instead
-       (weighted toward Mana Surge when the player is already debuffed,
-       same 55% roll as the reference). Mana Surge's own doubling (and the
-       elemental spells' debuff side effects) already happened inside
-       battle_cast_spell() -- dmg here is its finished output, so this
-       branch skips the shared atkStat*power step below and goes straight
-       to the guard resolution with move_power effectively "already
-       applied". */
-    if(foe_sp->spells_n > 0) {
-        static const char *const SPELL_PLAIN_NAME[4] = {
-            "FIRE BOLT", "ICE BEAM", "LIGHTNING STRIKE", "MANA SURGE"
-        };
-        int idx = irand(0, foe_sp->spells_n > 3 ? 2 : foe_sp->spells_n - 1);
-        int spell_id = foe_sp->spells[idx];
-        if(battle_self_debuffed(b) && b->foe.spp > 0 && irand(0, 99) < 55)
-            spell_id = SPELL_MANASURGE;
+    if(n_basic) pick_i = basics[irand(0, n_basic - 1)];
+    if(b->foe.shiny && n_sec && !b->pl_poisoned && irand(0, 99) < 30) {
+        for(ui = 0; ui < n_sec; ui++)
+            if(umoves[secs[ui]].kind == UMOVE_TOXIC) { pick_i = secs[ui]; break; }
+    } else if(n_special && b->foe.spp > 0 && irand(0, 99) < 28) {
+        pick_i = specials[irand(0, n_special - 1)];
+    } else if(n_sec && irand(0, 99) < 35) {
+        pick_i = secs[irand(0, n_sec - 1)];
+    } else if(n_basic) {
+        pick_i = basics[irand(0, n_basic - 1)];
+    }
+    if(b->foe.lv >= LV_SPECIAL && foe_sp->spells_n > 0 &&
+       battle_self_debuffed(b) && b->foe.spp > 0 && irand(0, 99) < 55) {
+        for(ui = 0; ui < un; ui++)
+            if(umoves[ui].kind == UMOVE_SPELL && umoves[ui].spell_id == SPELL_MANASURGE)
+                pick_i = ui;
+    }
+    pick = &umoves[pick_i];
+    if(pick->kind == UMOVE_SPELL) {
+        int spell_id = pick->spell_id;
         if(battle_cast_spell(b, spell_id, 0, &dmg, move_name_buf)) {
             move_name = move_name_buf;
-        }
-        else {
-            /* castSpell()'s spent-PP Mana Surge fallback: "?? { dmg: 1,
-               label: spell.name }" -- only reachable here since the
-               plain elemental spells never fail this check. */
+        } else {
             dmg = 1;
-            move_name = SPELL_PLAIN_NAME[spell_id];
+            move_name = SPELL_MENU_NAME[spell_id];
         }
         move_speed = SPELLS[spell_id].speed;
         goto guard_resolve;
     }
+    if(pick->kind == UMOVE_SPECIAL) b->foe.spp--;
+    if(pick->kind == UMOVE_TOXIC) inflicts_poison = 1;
+    if(pick->kind == UMOVE_SECONDARY) {
+        b->mods_self_str += pick->dstr;
+        b->mods_self_agl += pick->dagl;
+        b->mods_self_spc += pick->dspc;
+    }
+    move_name = pick->name;
+    atk_stat_raw = atk_stat_value(&b->foe, b->mods_foe_str, b->mods_foe_agl, b->mods_foe_spc, pick->stat);
+    move_power = pick->power;
+    move_speed = pick->speed;
 
-    if(use_special) b->foe.spp--;
-    move_name = use_special ? foe_sp->special : foe_sp->basic;
-    atk_stat_raw = atk_stat_value(&b->foe, b->mods_foe_str, b->mods_foe_agl, b->mods_foe_spc,
-                                   use_special ? foe_sp->special_stat : foe_sp->basic_stat);
-    move_power = use_special ? foe_sp->special_power : foe_sp->basic_power;
-    move_speed = use_special ? foe_sp->special_speed : foe_sp->basic_speed;
-
-move_chosen:
     dmg = jground((float)atk_stat_raw * move_power);
     if(dmg < 1) dmg = 1;
 
@@ -2823,6 +3064,7 @@ static int try_encounter(int map_id, int px, int py, int party_n,
     out->cur = 0;
     out->mods_self_str = out->mods_self_agl = out->mods_self_spc = 0;
     out->mods_foe_str = out->mods_foe_agl = out->mods_foe_spc = 0;
+    out->pend_str = out->pend_agl = out->pend_spc = 0;
     out->pl_poisoned = out->foe_poisoned = 0;
     out->grew = 0;
     return 1;
@@ -3127,67 +3369,46 @@ static void draw_atk_detail(int stat, float power, float speed, int y) {
     n = s_cat(buf, n, " SPD");
     n = s_cat_uint(buf, n, (unsigned)jground(speed * 10.0f));
     buf[n] = 0;
-    draw_text_s(buf, MENU_X + 8, y, rgb565(180, 220, 170), MENU_SCALE);
+    draw_text_s(buf, BCONTENT_X + 8, y, rgb565(180, 220, 170), MENU_SCALE);
+}
+
+#define ATK_MENU_VISIBLE 4
+
+static int battle_atk_count(const Battle *b) {
+    UMove moves[UMOVE_MAX];
+    return unlocked_moves(&b->pl, 1, moves, UMOVE_MAX);
 }
 
 static void draw_battle_atk_menu(const Battle *b, int cur) {
     int y = BCONTENT_Y + 8;
-    int detail_y;
+    int i, n, start, shown;
     char buf[32];
-    int n;
-    const Species *s = &SPECIES[b->pl.species];
+    UMove moves[UMOVE_MAX];
+    int mn = unlocked_moves(&b->pl, 1, moves, UMOVE_MAX);
 
-    if(s->spells_n > 0) {
-        static const char *const SPELL_MENU_NAME[4] = {
-            "FIRE BOLT", "ICE BEAM", "LIGHTNING STRIKE", "MANA SURGE"
-        };
-        int i;
-        for(i = 0; i < s->spells_n; i++) {
-            if(s->spells[i] == SPELL_MANASURGE) {
-                n = s_cat(buf, 0, SPELL_MENU_NAME[s->spells[i]]);
-                n = s_cat(buf, n, " ");
-                n = s_cat_uint(buf, n, b->pl.spp);
-                n = s_cat(buf, n, "/");
-                n = s_cat_uint(buf, n, b->pl.sppMax);
-                buf[n] = 0;
-                draw_battle_menu_row(buf, i, cur, y);
-            }
-            else {
-                draw_battle_menu_row(SPELL_MENU_NAME[s->spells[i]], i, cur, y);
-            }
-            y += MENU_ROW_H;
+    shown = mn < ATK_MENU_VISIBLE ? mn : ATK_MENU_VISIBLE;
+    start = cur - shown + 1;
+    if(start < 0) start = 0;
+    if(start > mn - shown) start = mn - shown;
+    if(start < 0) start = 0;
+    for(i = 0; i < shown; i++) {
+        int idx = start + i;
+        const UMove *mv = &moves[idx];
+        if(mv->kind == UMOVE_SPECIAL || (mv->kind == UMOVE_SPELL && mv->spell_id == SPELL_MANASURGE)) {
+            n = s_cat(buf, 0, mv->name);
+            n = s_cat(buf, n, " ");
+            n = s_cat_uint(buf, n, b->pl.spp);
+            n = s_cat(buf, n, "/");
+            n = s_cat_uint(buf, n, b->pl.sppMax);
+            buf[n] = 0;
+            draw_battle_menu_row(buf, idx, cur, y);
+        } else {
+            draw_battle_menu_row(mv->name, idx, cur, y);
         }
-        if(cur >= 0 && cur < s->spells_n) {
-            const SpellDef *sp = &SPELLS[s->spells[cur]];
-            draw_atk_detail(sp->stat, sp->power, sp->speed, y + 8);
-        }
-        return;
+        y += MENU_ROW_H;
     }
-
-    draw_battle_menu_row(s->basic, 0, cur, y); y += MENU_ROW_H;
-
-    n = s_cat(buf, 0, s->special);
-    n = s_cat(buf, n, " ");
-    n = s_cat_uint(buf, n, b->pl.spp);
-    n = s_cat(buf, n, "/");
-    n = s_cat_uint(buf, n, b->pl.sppMax);
-    buf[n] = 0;
-    draw_battle_menu_row(buf, 1, cur, y); y += MENU_ROW_H;
-
-    /* Extra row, shiny leads only -- see battle_pick_toxic(). */
-    if(b->pl.shiny) {
-        draw_battle_menu_row("TOXIC BURST", 2, cur, y); y += MENU_ROW_H;
-        draw_battle_menu_row("WAIT", 3, cur, y); y += MENU_ROW_H;
-    }
-    else {
-        draw_battle_menu_row("WAIT", 2, cur, y); y += MENU_ROW_H;
-    }
-
-    detail_y = y + 8;
-    if(cur == 0)      draw_atk_detail(s->basic_stat, s->basic_power, s->basic_speed, detail_y);
-    else if(cur == 1) draw_atk_detail(s->special_stat, s->special_power, s->special_speed, detail_y);
-    else if(b->pl.shiny && cur == 2)
-        draw_atk_detail(TOXIC_STAT, TOXIC_POWER, TOXIC_SPEED, detail_y);
+    if(cur >= 0 && cur < mn && moves[cur].kind != UMOVE_WAIT)
+        draw_atk_detail(moves[cur].stat, moves[cur].power, moves[cur].speed, y + 8);
 }
 
 static void draw_battle_guard_menu(int cur) {
@@ -3225,6 +3446,22 @@ static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
         case 3:
             draw_battle_guard_menu(b->cur);
             break;
+        case 4: {
+            int bx = BCONTENT_X + 8, by = BCONTENT_Y + 32;
+            int bw = BCONTENT_W - 16, bh = 10;
+            int c0 = (int)(SPEC_CONN_LO / 100.0f * (float)bw);
+            int c1 = (int)(SPEC_CONN_HI / 100.0f * (float)bw);
+            int p0 = (int)(SPEC_PERFECT_LO / 100.0f * (float)bw);
+            int p1 = (int)(SPEC_PERFECT_HI / 100.0f * (float)bw);
+            int nx = bx + (int)(b->mg / 100.0f * (float)bw) - 1;
+            draw_text_s("SPECIAL  HIT THE MARK", BCONTENT_X + 8, BCONTENT_Y + 8,
+                        rgb565(197, 206, 198), MENU_SCALE);
+            fill_rect(bx, by, bw, bh, rgb565(139, 48, 48));
+            fill_rect(bx + c0, by, c1 - c0, bh, rgb565(201, 162, 39));
+            fill_rect(bx + p0, by, p1 - p0, bh, rgb565(74, 154, 74));
+            fill_rect(nx, by - 4, 3, bh + 8, rgb565(232, 228, 216));
+            break;
+        }
         default:
             break;
     }
@@ -3684,11 +3921,13 @@ void main(void) {
     int menu_mode = 0;
     int pause_cur = 0;
     int dex_cur = 0;
+    int dex_entry = 0;
     int title_cur = 0;
     int have_save = 0;
     int party_cur = 0; /* cursor row inside the party menu */
     int party_detail = 0; /* party menu: 0 list, 1 viewing party_cur's detail */
     int bag_cur = 0; /* cursor row inside the bag menu */
+    int bag_tab = 0; /* 0 items, 1 settings */
     int heal_item = -1; /* -1 = not choosing a heal target, else bag_cur (0 salve, 1 wrap) */
 
     /* HUD toast, matching state.lua's G.hud/G.hudT/note(): a small
@@ -4179,11 +4418,13 @@ void main(void) {
                 } else if(pause_cur == 1) {
                     menu_mode = 1;
                     bag_cur = 0;
+                    bag_tab = 0;
                     heal_item = -1;
                     chip_sfx_ui();
                 } else if(pause_cur == 2) {
                     menu_mode = 4;
                     dex_cur = 0;
+                    dex_entry = 0;
                     chip_sfx_ui();
                 } else if(pause_cur == 3) {
                     SaveLive sl;
@@ -4280,17 +4521,32 @@ void main(void) {
             }
         }
         else if(menu_mode == 4) {
-            if(up_now && !prev_up) {
-                dex_cur = (dex_cur + SPECIES_N - 1) % SPECIES_N;
-                chip_sfx_ui();
-            }
-            if(down_now && !prev_down) {
-                dex_cur = (dex_cur + 1) % SPECIES_N;
-                chip_sfx_ui();
-            }
-            if((b_now && !prev_b) || (start_now && !prev_start)) {
-                menu_mode = 0;
-                chip_sfx_ui();
+            if(dex_entry) {
+                if((a_now && !prev_a) || (b_now && !prev_b) || (start_now && !prev_start)) {
+                    dex_entry = 0;
+                    chip_sfx_ui();
+                }
+            } else {
+                if(up_now && !prev_up) {
+                    dex_cur = (dex_cur + SPECIES_N - 1) % SPECIES_N;
+                    chip_sfx_ui();
+                }
+                if(down_now && !prev_down) {
+                    dex_cur = (dex_cur + 1) % SPECIES_N;
+                    chip_sfx_ui();
+                }
+                if(a_now && !prev_a) {
+                    if(dex_get(g_dex_caught, dex_cur)) {
+                        dex_entry = 1;
+                        chip_sfx_ui();
+                    } else {
+                        chip_sfx_miss();
+                    }
+                }
+                if((b_now && !prev_b) || (start_now && !prev_start)) {
+                    menu_mode = 0;
+                    chip_sfx_ui();
+                }
             }
         }
         else if(menu_mode) {
@@ -4309,6 +4565,21 @@ void main(void) {
                up/down keeps browsing live and B backs out of before
                closing the menu itself. */
             if(menu_mode == 1) {
+                if((left_now && !prev_left) || (right_now && !prev_right)) {
+                    bag_tab = 1 - bag_tab;
+                    chip_sfx_ui();
+                }
+                else if(bag_tab) {
+                    if(up_now && !prev_up) {
+                        chip_nudge_volume(1);
+                        chip_sfx_ui();
+                    }
+                    if(down_now && !prev_down) {
+                        chip_nudge_volume(-1);
+                        chip_sfx_ui();
+                    }
+                }
+                else {
                 if(up_now && !prev_up)
                     bag_cur = (bag_cur - 1 + ITEM_COUNT) % ITEM_COUNT;
                 if(down_now && !prev_down)
@@ -4342,6 +4613,7 @@ void main(void) {
                         hud_flash[n] = 0;
                         hud_t = HUD_NOTE_FRAMES;
                     }
+                }
                 }
             }
             else if(menu_mode == 2 && party_n > 0) {
@@ -4639,7 +4911,10 @@ void main(void) {
                                            sets mode="world" before
                                            calling note()). */
                                         n = s_cat(hud_flash, 0, SPECIES[party[lead].species].name);
-                                        if(battle.grew) {
+                                        if(g_evo_note[0]) {
+                                            n = s_cat(hud_flash, 0, g_evo_note);
+                                        }
+                                        else if(battle.grew) {
                                             n = s_cat(hud_flash, n, " GREW TO LV");
                                             n = s_cat_uint(hud_flash, n, party[lead].lv);
                                         }
@@ -4706,11 +4981,21 @@ void main(void) {
                     }
                 }
             }
+            else if(battle.phase == 4) {
+                /* Special timing needle. 60Hz, same 0-100 range as web. */
+                battle.mg += (float)battle.mg_dir * (SPEC_NEEDLE_SPEED / 60.0f);
+                if(battle.mg > 100.0f) { battle.mg = 100.0f; battle.mg_dir = -1; }
+                if(battle.mg < 0.0f)   { battle.mg = 0.0f;   battle.mg_dir = 1; }
+                if(a_now && !prev_a) {
+                    battle_pick_special(&battle);
+                    party[lead] = battle.pl;
+                }
+            }
             else {
                 int n_rows = (battle.phase == 1) ? battle_item_menu_count(&bag)
-                             : (battle.phase == 2 && SPECIES[battle.pl.species].spells_n > 0)
-                                 ? SPECIES[battle.pl.species].spells_n
-                             : (battle.phase == 2 && battle.pl.shiny) ? 4 : 3;
+                             : (battle.phase == 2) ? battle_atk_count(&battle)
+                             : 3;
+                if(n_rows < 1) n_rows = 1;
 
                 if(up_now && !prev_up)
                     battle.cur = (battle.cur - 1 + n_rows) % n_rows;
@@ -4727,55 +5012,51 @@ void main(void) {
                         int kind = battle_item_menu_kind(&bag, battle.cur);
                         battle_pick_item(&battle, &bag, kind, party, &party_n, lead);
                     }
-                    else if(battle.phase == 2 && SPECIES[battle.pl.species].spells_n > 0) {
-                        /* pickAttack()'s spell branch: every row casts
-                           directly, no minigame, no guard/wait row at
-                           all -- a Cathleen lead's attack menu is only
-                           ever her 4 spells (see draw_battle_atk_menu). */
-                        int spell_id = SPECIES[battle.pl.species].spells[battle.cur];
-                        if(battle_pick_spell(&battle, spell_id))
-                            party[lead] = battle.pl;
-                        else {
-                            int n = s_cat(battle.msg[0], 0, "MANA SURGE IS SPENT");
-                            battle.msg[0][n] = 0;
-                            battle.msg_n = 1;
-                            battle.msg_i = 0;
-                            battle.phase = 0;
-                            battle.after = BAFTER_ATK;
-                        }
-                    }
                     else if(battle.phase == 2) {
-                        if(battle.cur == 0) {
-                            battle_pick_basic(&battle);
-                            party[lead] = battle.pl;
-                        }
-                        else if(battle.cur == 1) {
-                            if(battle.pl.spp <= 0) {
-                                int n = s_cat(battle.msg[0], 0, SPECIES[battle.pl.species].special);
-                                n = s_cat(battle.msg[0], n, " IS SPENT");
-                                battle.msg[0][n] = 0;
-                                battle.msg_n = 1;
-                                battle.msg_i = 0;
-                                battle.phase = 0;
-                                battle.after = BAFTER_ATK;
-                            }
-                            else {
-                                battle.pl.spp--;
-                                battle_pick_special(&battle);
-                                party[lead] = battle.pl;
-                            }
-                        }
-                        else if(battle.pl.shiny && battle.cur == 2) {
-                            battle_pick_toxic(&battle);
-                            party[lead] = battle.pl;
-                        }
-                        else {
+                        UMove moves[UMOVE_MAX];
+                        int mn = unlocked_moves(&battle.pl, 1, moves, UMOVE_MAX);
+                        const UMove *mv = (battle.cur >= 0 && battle.cur < mn) ? &moves[battle.cur] : 0;
+                        if(!mv) {
+                            /* empty */
+                        } else if(mv->kind == UMOVE_WAIT) {
                             int n = s_cat(battle.msg[0], 0, "MAX HOLDS");
                             battle.msg[0][n] = 0;
                             battle.msg_n = 1;
                             battle.msg_i = 0;
                             battle.phase = 0;
                             battle.after = BAFTER_GUARD;
+                        } else if(mv->kind == UMOVE_SPELL) {
+                            if(battle_pick_spell(&battle, mv->spell_id))
+                                party[lead] = battle.pl;
+                            else {
+                                int n = s_cat(battle.msg[0], 0, "MANA SURGE IS SPENT");
+                                battle.msg[0][n] = 0;
+                                battle.msg_n = 1;
+                                battle.msg_i = 0;
+                                battle.phase = 0;
+                                battle.after = BAFTER_ATK;
+                            }
+                        } else if(mv->kind == UMOVE_TOXIC) {
+                            battle_pick_toxic(&battle);
+                            party[lead] = battle.pl;
+                        } else if(mv->kind == UMOVE_SPECIAL) {
+                            if(battle.pl.spp <= 0) {
+                                int n = s_cat(battle.msg[0], 0, mv->name);
+                                n = s_cat(battle.msg[0], n, " IS SPENT");
+                                battle.msg[0][n] = 0;
+                                battle.msg_n = 1;
+                                battle.msg_i = 0;
+                                battle.phase = 0;
+                                battle.after = BAFTER_ATK;
+                            } else {
+                                battle.pl.spp--;
+                                battle.mg = 8.0f;
+                                battle.mg_dir = 1;
+                                battle.phase = 4;
+                            }
+                        } else {
+                            battle_pick_umove(&battle, mv);
+                            party[lead] = battle.pl;
                         }
                     }
                     else {
@@ -5223,6 +5504,7 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                     battle.bench_n = 0;
                                     battle.grew = 0;
@@ -5240,6 +5522,7 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                     battle.bench_n = 0;
                                     battle.grew = 0;
@@ -5262,6 +5545,7 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                     battle.bench[0] = mint_monster(SP_BRIARFOX, 7);
                                     battle.bench[1] = mint_monster(SP_DUSKHORN, 8);
@@ -5281,6 +5565,7 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_SENTRY].bench_sp[0], TRAINER_KITS[KIT_SENTRY].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_SENTRY].bench_sp[1], TRAINER_KITS[KIT_SENTRY].bench_lv[1]);
@@ -5300,6 +5585,7 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_CONSCRIPT].bench_sp[0], TRAINER_KITS[KIT_CONSCRIPT].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_CONSCRIPT].bench_sp[1], TRAINER_KITS[KIT_CONSCRIPT].bench_lv[1]);
@@ -5319,6 +5605,7 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_ENFORCER].bench_sp[0], TRAINER_KITS[KIT_ENFORCER].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_ENFORCER].bench_sp[1], TRAINER_KITS[KIT_ENFORCER].bench_lv[1]);
@@ -5338,6 +5625,7 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_CROSS].bench_sp[0], TRAINER_KITS[KIT_CROSS].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_CROSS].bench_sp[1], TRAINER_KITS[KIT_CROSS].bench_lv[1]);
@@ -5347,7 +5635,7 @@ void main(void) {
                                     in_battle = 1;
                                     break;
                                 case POST_SHINIGAMI:
-                                    battle.foe = mint_monster(SP_CRYMARE, 5);
+                                    battle.foe = mint_monster(SP_CRYMARE, KIT_SHINIGAMI_LEAD_LV);
                                     battle.wild = 0;
                                     battle.trainer_kind = TRAINER_SHINIGAMI;
                                     battle.phase = 0;
@@ -5357,9 +5645,10 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
-                                    battle.bench[0] = mint_monster(SP_CRYMARE, 6);
-                                    battle.bench[1] = mint_monster(SP_CRYMARE, 7);
+                                    battle.bench[0] = mint_monster(SP_CRYMARE, KIT_SHINIGAMI_B0_LV);
+                                    battle.bench[1] = mint_monster(SP_CRYMARE, KIT_SHINIGAMI_B1_LV);
                                     battle.bench_n = 2;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
@@ -5381,6 +5670,7 @@ void main(void) {
                                     battle.cur = 0;
                                     battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                     battle.bench_n = 0;
                                     battle.grew = 0;
@@ -5391,7 +5681,7 @@ void main(void) {
                                 case POST_CATHLEEN:
                                     if(!cath_caught) {
                                         int n;
-                                        battle.foe = mint_monster(SP_CATHLEEN, 6);
+        battle.foe = mint_monster(SP_CATHLEEN, KIT_CATHLEEN_LV);
                                         battle.wild = 1;
                                         battle.trainer_kind = TRAINER_WILD;
                                         battle.phase = 0;
@@ -5401,6 +5691,7 @@ void main(void) {
                                         battle.cur = 0;
                                         battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
                                         battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
                                         battle.bench_n = 0;
                                         battle.grew = 0;
@@ -5531,6 +5822,7 @@ void main(void) {
                 if(y_now && !prev_y) {
                     menu_mode = 1;
                     bag_cur = 0;
+                    bag_tab = 0;
                     heal_item = -1;
                 }
                 else if(start_now && !prev_start) {
@@ -5575,13 +5867,13 @@ void main(void) {
                 draw_hud_toast(hud_flash);
             draw_map_title(map_id);
             if(menu_mode == 1)
-                draw_bag_menu(&bag, marks, bag_cur);
+                draw_bag_menu(&bag, marks, bag_cur, bag_tab);
             else if(menu_mode == 2)
                 draw_party_menu(party, party_n, lead, party_cur, party_detail, heal_item, catch_swap);
             else if(menu_mode == 3)
                 draw_pause_menu(pause_cur);
             else if(menu_mode == 4)
-                draw_crydex(dex_cur);
+                draw_crydex(dex_cur, dex_entry);
             if(in_battle)
                 draw_battle(&battle, &bag, frame_count,
                             battle_foe_enter_t, battle_foe_faint_t,

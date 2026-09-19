@@ -5,6 +5,7 @@ export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "
 export type PartyView = "list" | "act" | "stats" | "moves" | "target" | "release" | "catchSwap";
 
 export type ShopTab = "buy" | "sell";
+export type BagTab = "items" | "settings";
 
 export type SpeakerId =
   | "max" | "anne" | "mason" | "wren" | "mae" | "ivo" | "nell" | "pike"
@@ -22,6 +23,7 @@ export type BattlePhase =
   | "enter"
   | "item"
   | "attack"
+  | "minigame"
   | "resolve_hit"
   | "guard"
   | "resolve_guard"
@@ -73,6 +75,8 @@ export interface Species {
   specialPp: number;
   wild: boolean;
   spells?: Spell[];
+  nature?: string;
+  evolvesTo?: SpeciesId;
 }
 
 export interface Monster {
@@ -136,6 +140,10 @@ export interface BattleState {
   afterMsg: BattlePhase | "end_win" | "end_lose" | "end_catch" | "end_run";
   pendingDmg: number;
   pendingLabel: string;
+  pendingMods: { str: number; agl: number; spc: number };
+  minigame: number;
+  minigameDir: number;
+  minigameHit: number | null;
   guard: GuardKind | null;
   mods: BattleMods;
   catchUsed: boolean;

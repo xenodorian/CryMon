@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=6e88d84b1c17e5c4 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d036963285999c22 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_AUDIO_INC
 #define CONTENT_AUDIO_INC
@@ -736,5 +736,12 @@ static const int MAP_SONG[MAP_SONG_N] = {
 #define SONG_ID_BATTLE SONG_BATTLE
 #define SONG_ID_TRAINER SONG_BOSS
 #define SONG_ID_ENDING SONG_TITLE
+
+/* Master volume scale. 1 = original, 2 = 2x that ceiling. */
+#define VOL_MIN 0.0f
+#define VOL_MAX 2.0f
+#define VOL_DEFAULT 1.0f
+#define VOL_STEP 0.1f
+#define BATTLE_MUSIC_MUL 0.5f
 
 #endif

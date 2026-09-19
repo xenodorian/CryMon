@@ -1,10 +1,10 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=6e88d84b1c17e5c4 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d036963285999c22 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
 #define XP_PER_LEVEL 4
 #define LEVEL_XP_MUL 10
-#define LEVEL_CAP 12
+#define LEVEL_CAP 20
 #define LEVEL_HP 3
 #define LEVEL_STAT 1
 #define CAPTURE_AGL 5
@@ -58,7 +58,7 @@ typedef struct {
 } EncDef;
 static const EncDef ENCOUNTERS[] = {
     { MAP_FOREST, 'T', 18, { 6,7,8,0,0,0,0,0 }, 3, 3, 5, -1 },
-    { MAP_CLIFFS, 'T', 18, { 14,15,12,11,17,16,0,0 }, 6, 5, 7, -1 },
+    { MAP_CLIFFS, 'T', 18, { 14,15,12,11,17,16,13,0 }, 7, 5, 7, -1 },
     { MAP_VELD, 'T', 18, { 1,2,11,18,0,0,0,0 }, 4, 2, 4, 14 },
     { MAP_REACH, 'T', 22, { 5,7,10,14,17,4,0,0 }, 6, 8, 11, -1 },
 };
@@ -78,6 +78,10 @@ static const TrainerKit TRAINER_KITS[4] = {
 #define KIT_CONSCRIPT 1
 #define KIT_ENFORCER 2
 #define KIT_CROSS 3
+#define KIT_CATHLEEN_LV 10
+#define KIT_SHINIGAMI_LEAD_LV 15
+#define KIT_SHINIGAMI_B0_LV 14
+#define KIT_SHINIGAMI_B1_LV 13
 
 typedef struct { int kind, amount, str, agl, spc, bonus; } ItemFx;
 static const ItemFx ITEM_FX[] = {

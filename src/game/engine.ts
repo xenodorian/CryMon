@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, ENDING_SONG } from "./audio";
+import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, ENDING_SONG, VOLUME } from "./audio";
 import { packSave, unpackSave, writeSaveBlob, readSaveBlob, saveExists, SAVE_FLAGS, SAVE_SPECIES } from "./save";
 import {
   CAMP,
@@ -49,6 +49,8 @@ import {
   INTERACT,
   atkStatValue,
   frand,
+  unlockedMoves,
+  natureMatchNames,
 } from "./data";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
@@ -63,6 +65,7 @@ import type {
   PartyView,
   RivalState,
   ShopTab,
+  BagTab,
   Soldier,
   SpeciesId,
   TalkBeat,
@@ -163,9 +166,11 @@ export class CryMon {
 	talkI = 0;
 	afterTalk = null;
 	bagCursor = 0;
+	bagTab: BagTab = "items";
 	partyCursor = 0;
 	partyView = "list";
 	actCursor = 0;
+	moveCursor = 0;
 	pendingItem = null;
 	pendingCatch = null;
 	shopTab = "buy";
@@ -211,6 +216,7 @@ export class CryMon {
 	dexSeen = 0;
 	dexCaught = 0;
 	dexCursor = 0;
+	dexView = "list";
 	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" };
 	pendingWs = null;
 	choiceCur = 0;
@@ -287,9 +293,11 @@ export class CryMon {
 		this.talkI = 0;
 		this.afterTalk = null;
 		this.bagCursor = 0;
+		this.bagTab = "items";
 		this.partyCursor = 0;
 		this.partyView = "list";
 		this.actCursor = 0;
+		this.moveCursor = 0;
 		this.pendingItem = null;
 		this.pendingCatch = null;
 		this.shopTab = "buy";
@@ -346,6 +354,7 @@ export class CryMon {
 		this.dexSeen = 0;
 		this.dexCaught = 0;
 		this.dexCursor = 0;
+		this.dexView = "list";
 		this.fade = { phase: "off", t: 0, action: null };
 		this.pendingWs = null;
 		this.choiceCur = 0;
@@ -892,6 +901,7 @@ export class CryMon {
 	openCryDex() {
 		this.mode = "crydex";
 		this.dexCursor = 0;
+		this.dexView = "list";
 		this.audio.ui();
 	}
 	dexBit(id) {
@@ -907,6 +917,13 @@ export class CryMon {
 	}
 	updateCryDex() {
 		const n = SAVE_SPECIES.length;
+		if (this.dexView === "entry") {
+			if (this.input.cancel() || this.input.confirm() || this.input.start()) {
+				this.dexView = "list";
+				this.audio.ui();
+			}
+			return;
+		}
 		if (this.input.up()) {
 			this.dexCursor = (this.dexCursor + n - 1) % n;
 			this.audio.ui();
@@ -914,6 +931,13 @@ export class CryMon {
 		if (this.input.down()) {
 			this.dexCursor = (this.dexCursor + 1) % n;
 			this.audio.ui();
+		}
+		if (this.input.confirm()) {
+			const id = SAVE_SPECIES[this.dexCursor];
+			if (id && (this.dexCaught & this.dexBit(id))) {
+				this.dexView = "entry";
+				this.audio.ui();
+			} else this.audio.miss();
 		}
 		if (this.input.cancel() || this.input.start()) {
 			this.mode = "world";
@@ -923,6 +947,7 @@ export class CryMon {
 	openBag() {
 		this.mode = "bag";
 		this.bagCursor = 0;
+		this.bagTab = "items";
 		this.pendingItem = null;
 		this.audio.ui();
 	}
@@ -1163,6 +1188,22 @@ export class CryMon {
 			this.closeMenu();
 			return;
 		}
+		if (this.input.left() || this.input.right()) {
+			this.bagTab = this.bagTab === "items" ? "settings" : "items";
+			this.audio.ui();
+			return;
+		}
+		if (this.bagTab === "settings") {
+			if (this.input.up()) {
+				this.audio.nudgeVolume(1);
+				this.audio.ui();
+			}
+			if (this.input.down()) {
+				this.audio.nudgeVolume(-1);
+				this.audio.ui();
+			}
+			return;
+		}
 		if (items.length === 0) return;
 		if (this.input.up()) {
 			this.bagCursor = (this.bagCursor + items.length - 1) % items.length;
@@ -1215,8 +1256,30 @@ export class CryMon {
 			}
 			return;
 		}
-		if (this.partyView === "stats" || this.partyView === "moves") {
+		if (this.partyView === "stats") {
 			if (this.input.cancel() || this.input.confirm() || this.input.start()) {
+				this.partyView = "list";
+				this.audio.ui();
+			}
+			return;
+		}
+		if (this.partyView === "moves") {
+			const m = this.party[this.partyCursor] ?? this.lead();
+			const moves = this.partyMoves(m);
+			if (this.input.cancel() || this.input.start()) {
+				this.partyView = "list";
+				this.audio.ui();
+				return;
+			}
+			if (moves.length && this.input.up()) {
+				this.moveCursor = (this.moveCursor + moves.length - 1) % moves.length;
+				this.audio.ui();
+			}
+			if (moves.length && this.input.down()) {
+				this.moveCursor = (this.moveCursor + 1) % moves.length;
+				this.audio.ui();
+			}
+			if (this.input.confirm()) {
 				this.partyView = "list";
 				this.audio.ui();
 			}
@@ -1295,6 +1358,7 @@ export class CryMon {
 					this.audio.ui();
 				} else if (this.actCursor === 2) {
 					this.partyView = "moves";
+					this.moveCursor = 0;
 					this.audio.ui();
 				} else {
 					if (this.party.length <= 1) {
@@ -2052,6 +2116,10 @@ export class CryMon {
 			afterMsg: "item",
 			pendingDmg: 0,
 			pendingLabel: "",
+			pendingMods: { str: 0, agl: 0, spc: 0 },
+			minigame: 0,
+			minigameDir: 1,
+			minigameHit: null,
 			guard: null,
 			mods: {
 				selfStr: 0,
@@ -2127,21 +2195,21 @@ export class CryMon {
 		const statLabel = stat === "str" ? "STR" : "MAG";
 		return `${statLabel} PWR${Math.round(power * 10)} SPD${Math.round(speed * 10)}`;
 	}
+	partyMoves(m) {
+		return unlockedMoves(m, false).map((mv) => {
+			const atk = atkStatValue(m, 0, 0, mv.stat);
+			const dmg = Math.max(1, Math.round(atk * (mv.power || 0)));
+			const pp = mv.pp ? `${m.specialPp}/${m.specialPpMax}` : mv.kind === "toxic" ? "psn" : null;
+			return { name: mv.name, stat: mv.stat, power: mv.power, speed: mv.speed, pp, dmg, kind: mv.kind, mods: mv.mods };
+		});
+	}
 	attackMenu(p) {
-		const s = SPECIES[p.species];
-		if (s.spells?.length) {
-			return s.spells.map((sp) => {
-				const detail = this.atkDetail(sp.stat, sp.power, sp.speed);
-				return sp.pp ? `${sp.name}  ${p.specialPp}/${p.specialPpMax}  ${detail}` : `${sp.name}  ${detail}`;
-			});
-		}
-		const rows = [
-			`${s.basic}  ${this.atkDetail(s.basicStat, s.basicPower, s.basicSpeed)}`,
-			`${s.special}  ${p.specialPp}/${p.specialPpMax}  ${this.atkDetail(s.specialStat, s.specialPower, s.specialSpeed)}`,
-		];
-		if (p.shiny) rows.push(`${TOXIC_BURST.name}  ${this.atkDetail(TOXIC_BURST.stat, TOXIC_BURST.power, TOXIC_BURST.speed)}`);
-		rows.push("Wait");
-		return rows;
+		return unlockedMoves(p, true).map((mv) => {
+			if (mv.kind === "wait") return "Wait";
+			const detail = this.atkDetail(mv.stat, mv.power, mv.speed);
+			if (mv.pp) return `${mv.name}  ${p.specialPp}/${p.specialPpMax}  ${detail}`;
+			return `${mv.name}  ${detail}`;
+		});
 	}
 	updateBattle(dt) {
 		const b = this.battle;
@@ -2200,6 +2268,40 @@ export class CryMon {
 			}
 			return;
 		}
+		if (b.phase === "minigame") {
+			const mg = COMBAT.minigame;
+			const speed = mg?.needleSpeed ?? 110;
+			b.minigame += b.minigameDir * dt * speed;
+			if (b.minigame > 100) {
+				b.minigame = 100;
+				b.minigameDir = -1;
+			}
+			if (b.minigame < 0) {
+				b.minigame = 0;
+				b.minigameDir = 1;
+			}
+			if (this.input.confirm()) {
+				b.minigameHit = b.minigame;
+				const hit = b.minigame;
+				let mul = mg?.fizzleMul ?? 1;
+				let tag = "fizzled";
+				if (hit >= (mg?.perfectMin ?? 45) && hit <= (mg?.perfectMax ?? 55)) {
+					mul = mg?.perfectMul ?? 2;
+					tag = "perfect";
+					this.audio.special();
+				} else if (hit >= (mg?.connectedMin ?? 30) && hit <= (mg?.connectedMax ?? 70)) {
+					mul = mg?.connectedMul ?? 1.5;
+					tag = "connected";
+					this.audio.ok();
+				} else this.audio.miss();
+				const s = SPECIES[b.player.species];
+				const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, s.specialStat);
+				b.pendingDmg = Math.max(1, Math.round(atk * s.specialPower * mul));
+				b.pendingLabel = `${s.special} ${tag}`;
+				b.phase = "resolve_hit";
+			}
+			return;
+		}
 		if (b.phase === "resolve_hit") {
 			let poisonLine = "";
 			if (b.foePoisoned && b.foe.hp > 0) {
@@ -2212,6 +2314,12 @@ export class CryMon {
 			// exactly once and by the same rule the foe's attacks get below.
 			const hit = natureScaleDmg(b.pendingDmg, b.player.species, b.foe.species);
 			b.foe.hp = Math.max(0, b.foe.hp - hit.dmg);
+			if (b.pendingMods) {
+				b.mods.foeStr += b.pendingMods.str || 0;
+				b.mods.foeAgl += b.pendingMods.agl || 0;
+				b.mods.foeSpc += b.pendingMods.spc || 0;
+				b.pendingMods = { str: 0, agl: 0, spc: 0 };
+			}
 			this.shake = .25;
 			this.audio.hit();
 			const lines = [`${b.pendingLabel}  ${hit.dmg} dmg.${natureTag(hit.sign)}${poisonLine}`];
@@ -2219,7 +2327,8 @@ export class CryMon {
 				const lines2 = [...lines, `${b.foe.name} falls.`];
 				if (b.foeBench.length) {
 					this.party[this.partyIndex] = { ...b.player };
-					grantPartyXp(this.party, this.partyIndex, b.foe.level);
+					const xp = grantPartyXp(this.party, this.partyIndex, b.foe.level);
+					for (const p of this.party) this.markCaught(p.species);
 					b.player = { ...this.party[this.partyIndex] };
 					const nxt = b.foeBench.shift();
 					b.foe = nxt;
@@ -2228,7 +2337,8 @@ export class CryMon {
 					b.mods.foeSpc = 0;
 					b.foeEnterT = 0;
 					b.foeFaintT = 0;
-					b.msg = [...lines2, `${b.foeName} sends ${nxt.name}.`];
+					const evo = xp.notes[0] ? ` ${xp.notes[0]}` : "";
+					b.msg = [...lines2, `${b.foeName} sends ${nxt.name}.${evo}`];
 					b.msgI = 0;
 					b.phase = "msg";
 					b.afterMsg = "item";
@@ -2257,30 +2367,52 @@ export class CryMon {
 			let dmg = 0;
 			let moveSpeed = foeS.basicSpeed;
 			let inflictsPoison = false;
-			if (b.foe.shiny && !b.plPoisoned && randI(0, 99) < 30) {
+			const foeMoves = unlockedMoves(b.foe, false);
+			const specials = foeMoves.filter((mv) => mv.kind === "special" || (mv.kind === "spell" && mv.pp));
+			const secondaries = foeMoves.filter((mv) => mv.kind === "secondary" || mv.kind === "toxic");
+			const basics = foeMoves.filter((mv) => mv.kind === "basic" || (mv.kind === "spell" && !mv.pp));
+			let pick = basics[0] || foeMoves[0];
+			if (b.foe.shiny && secondaries.some((mv) => mv.kind === "toxic") && !b.plPoisoned && randI(0, 99) < 30) {
+				pick = secondaries.find((mv) => mv.kind === "toxic") || pick;
+			} else if (specials.length && b.foe.specialPp > 0 && Math.random() < 0.28) {
+				pick = specials[randI(0, specials.length - 1)];
+			} else if (secondaries.length && Math.random() < 0.35) {
+				pick = secondaries[randI(0, secondaries.length - 1)];
+			} else if (basics.length) {
+				pick = basics[randI(0, basics.length - 1)];
+			}
+			if (pick?.kind === "spell") {
+				const result = this.castSpell(pick.spellId, false) ?? { dmg: 1, label: pick.name };
+				dmg = result.dmg;
+				moveName = result.label;
+				moveSpeed = pick.speed;
+			} else if (pick?.kind === "toxic") {
 				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, TOXIC_BURST.stat);
 				dmg = Math.max(1, Math.round(atk * TOXIC_BURST.power));
 				moveSpeed = TOXIC_BURST.speed;
 				moveName = TOXIC_BURST.name;
 				inflictsPoison = true;
-			} else if (foeS.spells?.length) {
-				let spell = foeS.spells[randI(0, Math.min(2, foeS.spells.length - 1))];
-				if (this.selfDebuffed() && b.foe.specialPp > 0 && Math.random() < .55) {
-					spell = foeS.spells.find((sp) => sp.id === "manasurge") ?? spell;
+			} else if (pick?.kind === "secondary") {
+				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, pick.stat);
+				dmg = Math.max(1, Math.round(atk * pick.power));
+				moveSpeed = pick.speed;
+				moveName = pick.name;
+				if (pick.mods) {
+					b.mods.selfStr += pick.mods.str || 0;
+					b.mods.selfAgl += pick.mods.agl || 0;
+					b.mods.selfSpc += pick.mods.spc || 0;
 				}
-				const result = this.castSpell(spell.id, false) ?? { dmg: 1, label: spell.name };
-				dmg = result.dmg;
-				moveName = result.label;
-				moveSpeed = spell.speed;
+			} else if (pick?.kind === "special") {
+				b.foe.specialPp -= 1;
+				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, pick.stat);
+				dmg = Math.max(1, Math.round(atk * pick.power));
+				moveSpeed = pick.speed;
+				moveName = pick.name;
 			} else {
-				const useSpecial = b.foe.specialPp > 0 && Math.random() < .28;
-				if (useSpecial) b.foe.specialPp -= 1;
-				moveName = useSpecial ? foeS.special : foeS.basic;
-				const stat = useSpecial ? foeS.specialStat : foeS.basicStat;
-				const power = useSpecial ? foeS.specialPower : foeS.basicPower;
-				moveSpeed = useSpecial ? foeS.specialSpeed : foeS.basicSpeed;
-				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, stat);
-				dmg = Math.max(1, Math.round(atk * power));
+				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, pick?.stat || foeS.basicStat);
+				dmg = Math.max(1, Math.round(atk * (pick?.power || foeS.basicPower)));
+				moveSpeed = pick?.speed || foeS.basicSpeed;
+				moveName = pick?.name || foeS.basic;
 			}
 			// Matchup decides how hard the blow lands; the guard below decides
 			// how much of it the player eats.
@@ -2362,7 +2494,8 @@ export class CryMon {
 					const lines = [`${b.foe.name} uses ${moveName}.`, `Parried! ${b.foe.name} falls.`];
 					if (b.foeBench.length) {
 						this.party[this.partyIndex] = { ...b.player };
-						grantPartyXp(this.party, this.partyIndex, b.foe.level);
+						const xp = grantPartyXp(this.party, this.partyIndex, b.foe.level);
+						for (const p of this.party) this.markCaught(p.species);
 						b.player = { ...this.party[this.partyIndex] };
 						const nxt = b.foeBench.shift();
 						b.foe = nxt;
@@ -2372,7 +2505,8 @@ export class CryMon {
 						b.foeEnterT = 0;
 						b.foeFaintT = 0;
 						b.foePoisoned = false;
-						b.msg = [...lines, `${b.foeName} sends ${nxt.name}.`];
+						const evo = xp.notes[0] ? ` ${xp.notes[0]}` : "";
+						b.msg = [...lines, `${b.foeName} sends ${nxt.name}.${evo}`];
 						b.msgI = 0;
 						b.phase = "msg";
 						b.afterMsg = "item";
@@ -2392,11 +2526,11 @@ export class CryMon {
 			return;
 		}
 		if (b.phase === "item" || b.phase === "attack" || b.phase === "guard") {
-			if (this.input.pressed("ArrowUp") || this.input.pressed("KeyW")) {
+			if (this.input.up()) {
 				b.cursor = (b.cursor + b.menu.length - 1) % b.menu.length;
 				this.audio.ui();
 			}
-			if (this.input.pressed("ArrowDown") || this.input.pressed("KeyS")) {
+			if (this.input.down()) {
 				b.cursor = (b.cursor + 1) % b.menu.length;
 				this.audio.ui();
 			}
@@ -2518,16 +2652,10 @@ export class CryMon {
 	}
 	pickAttack(i) {
 		const b = this.battle;
-		const s = SPECIES[b.player.species];
-		if (s.spells?.length) {
-			const spell = s.spells[i];
-			if (!spell) return;
-			this.castSpell(spell.id, true);
-			return;
-		}
-		const waitI = b.player.shiny ? 3 : 2;
-		const toxicI = b.player.shiny ? 2 : -1;
-		if (i === waitI) {
+		const mv = unlockedMoves(b.player, true)[i];
+		if (!mv) return;
+		b.pendingMods = { str: 0, agl: 0, spc: 0 };
+		if (mv.kind === "wait") {
 			b.msg = ["Max holds."];
 			b.msgI = 0;
 			b.phase = "msg";
@@ -2535,7 +2663,11 @@ export class CryMon {
 			this.audio.ui();
 			return;
 		}
-		if (i === toxicI) {
+		if (mv.kind === "spell") {
+			this.castSpell(mv.spellId, true);
+			return;
+		}
+		if (mv.kind === "toxic") {
 			const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, TOXIC_BURST.stat);
 			b.pendingDmg = Math.max(1, Math.round(atk * TOXIC_BURST.power));
 			b.pendingLabel = TOXIC_BURST.name;
@@ -2544,25 +2676,26 @@ export class CryMon {
 			this.audio.special();
 			return;
 		}
-		if (i === 1) {
+		if (mv.kind === "special") {
 			if (b.player.specialPp <= 0) {
-				b.msg = [`${s.special} is spent.`];
+				b.msg = [`${mv.name} is spent.`];
 				b.msgI = 0;
 				b.phase = "msg";
 				b.afterMsg = "attack";
 				return;
 			}
 			b.player.specialPp -= 1;
-			const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, s.specialStat);
-			b.pendingDmg = Math.max(1, Math.round(atk * s.specialPower));
-			b.pendingLabel = s.special;
-			b.phase = "resolve_hit";
+			b.minigame = 8;
+			b.minigameDir = 1;
+			b.minigameHit = null;
+			b.phase = "minigame";
 			this.audio.special();
 			return;
 		}
-		const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, s.basicStat);
-		b.pendingDmg = Math.max(1, Math.round(atk * s.basicPower));
-		b.pendingLabel = s.basic;
+		const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, mv.stat);
+		b.pendingDmg = Math.max(1, Math.round(atk * mv.power));
+		b.pendingLabel = mv.name;
+		if (mv.kind === "secondary" && mv.mods) b.pendingMods = { ...mv.mods };
 		b.phase = "resolve_hit";
 	}
 	foeDebuffed() {
@@ -2635,7 +2768,9 @@ export class CryMon {
 		const b = this.battle;
 		this.party[this.partyIndex] = { ...b.player };
 		const m = this.party[this.partyIndex];
-		const grew = grantPartyXp(this.party, this.partyIndex, b.foe.level);
+		const { grew, notes } = grantPartyXp(this.party, this.partyIndex, b.foe.level);
+		for (const p of this.party) this.markCaught(p.species);
+		if (notes[0]) this.note(notes[0]);
 		if (!b.wild) {
 			if (b.trainer === "calder") {
 				const kit = TRAINERS.calder;
@@ -2730,7 +2865,7 @@ export class CryMon {
 			this.say(TALK.cathleenAfter);
 			return;
 		}
-		this.note(grew ? `${m.name} grew to lv ${m.level}.` : `${m.name} stands over the grass.`);
+		this.note(notes[0] || (grew ? `${m.name} grew to lv ${m.level}.` : `${m.name} stands over the grass.`));
 	}
 	updateChoice() {
 		if (this.input.up() || this.input.down()) {
@@ -2867,7 +3002,23 @@ export class CryMon {
 			if (this.dexSeen & bit) seenN++;
 		}
 		this.text(`CRYDEX  ${caughtN}/${ids.length} caught  ${seenN} seen`, X(16), Y(10), "#c5cec6", FONT);
-		const vis = 9;
+		if (this.dexView === "entry") {
+			const cur = ids[this.dexCursor];
+			const s = SPECIES[cur];
+			const nat = natureOf(speciesNature(cur));
+			const match = natureMatchNames(nat.id);
+			this.drawMonIcon({ species: cur, shiny: false, name: s.name }, X(16), Y(28), X(72), Y(88));
+			this.text(s.name.toUpperCase(), X(96), Y(28), "#e8e4d8", FONT);
+			this.text(`${nat.name} crystal`, X(96), Y(42), "#c5cec6", FONT);
+			this.text("Weak to", X(96), Y(58), "#8f4a40", FONT);
+			this.text(match.weakTo.join(", ") || "none", X(96), Y(70), "#e8e4d8", FONT);
+			this.text("Resists", X(96), Y(86), "#5a7a52", FONT);
+			this.text(match.resists.join(", ") || "none", X(96), Y(98), "#e8e4d8", FONT);
+			this.wrap(s.blurb, 38).slice(0, 2).forEach((ln, i) => this.text(ln, X(16), Y(122 + i * 12), "#8a8678", FONT));
+			this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
+			return;
+		}
+		const vis = 8;
 		const start = Math.max(0, Math.min(this.dexCursor - 4, Math.max(0, ids.length - vis)));
 		for (let i = 0; i < vis; i++) {
 			const idx = start + i;
@@ -2886,7 +3037,8 @@ export class CryMon {
 			let label = "?????";
 			let color = "#5a584e";
 			if (caught) {
-				label = `${s.name}  owned`;
+				const nat = natureOf(speciesNature(id)).name;
+				label = `${s.name}  ${nat}`;
 				color = on ? "#e8e4d8" : "#c5cec6";
 			} else if (seen) {
 				label = `${s.name}  seen`;
@@ -2900,7 +3052,7 @@ export class CryMon {
 		if (this.dexCaught & bit) this.text(s.blurb.slice(0, 42), X(16), Y(140), "#8a8678", FONT);
 		else if (this.dexSeen & bit) this.text("Seen in the field. Not yet yours.", X(16), Y(140), "#8a8678", FONT);
 		else this.text("An unknown CryMon.", X(16), Y(140), "#5a584e", FONT);
-		this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
+		this.text(this.dexCaught & bit ? "Z  matchup   X  back" : "Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 	}
 	drawStory(body, tag) {
 		if (tag === "The leaving") {
@@ -3367,16 +3519,33 @@ export class CryMon {
 		this.box(X(10), Y(8), X(220), Y(144));
 		this.text("BAG", X(18), Y(14), "#c5cec6", FONT);
 		this.text(`Marks ${this.marks}`, X(150), Y(14), "#8f4a40", FONT);
+		this.text(this.bagTab === "items" ? ">ITEMS   settings" : " items   >SETTINGS", X(18), Y(28), "#e8e4d8", FONT);
+		if (this.bagTab === "settings") {
+			const pct = this.audio.volumePct();
+			this.text("VOLUME", X(18), Y(52), "#c5cec6", FONT);
+			this.text(`${pct}%`, X(168), Y(52), "#e8e4d8", FONT);
+			const bx = X(18), by = Y(72), bw = X(184), bh = Y(10);
+			this.ctx.fillStyle = "#2a2620";
+			this.ctx.fillRect(bx, by, bw, bh);
+			const fill = Math.max(0, Math.min(1, this.audio.volume / VOLUME.max));
+			this.ctx.fillStyle = "#5a7a52";
+			this.ctx.fillRect(bx, by, Math.round(bw * fill), bh);
+			this.text("UP louder   DOWN quieter", X(18), Y(92), "#8a8678", FONT);
+			this.text("200% is twice the old max", X(18), Y(108), "#8a8678", FONT);
+			this.text("LEFT/RIGHT  tabs", X(18), Y(136), "#5a7a52", FONT);
+			if (this.hudT > 0) this.text(this.hudFlash.slice(0, 34), X(18), Y(148), "#e8e4d8", FONT);
+			return;
+		}
 		const items = this.ownedItems();
-		if (items.length === 0) this.text("The pouch is empty.", X(18), Y(36), "#8a8678", FONT);
+		if (items.length === 0) this.text("The pouch is empty.", X(18), Y(48), "#8a8678", FONT);
 		else {
-			const shown = 5;
+			const shown = 4;
 			const start = Math.max(0, Math.min(this.bagCursor, Math.max(0, items.length - shown)));
 			for (let i = 0; i < shown; i++) {
 				const idx = start + i;
 				const id = items[idx];
 				if (!id) break;
-				const y = Y(32 + i * 18);
+				const y = Y(46 + i * 18);
 				const on = idx === this.bagCursor;
 				this.text(on ? ">" : " ", X(18), y, "#e8e4d8", FONT);
 				this.drawSprite(`item-${id}`, X(30), y - 2, X(14), X(14), false);
@@ -3414,7 +3583,6 @@ export class CryMon {
 		this.text(title, X(16), Y(10), "#c5cec6", FONT);
 		if (this.partyView === "stats" || this.partyView === "moves") {
 			const m = this.party[this.partyCursor] ?? this.lead();
-			const s = SPECIES[m.species];
 			this.drawMonIcon(m, X(12), Y(24), X(88), Y(110));
 			this.text(m.name.toUpperCase(), X(108), Y(28), "#e8e4d8", FONT);
 			this.text(`Lv${m.level}  ${natureOf(speciesNature(m.species)).name}`, X(108), Y(40), "#8a8678", FONT);
@@ -3425,21 +3593,37 @@ export class CryMon {
 				this.text(`AGL ${m.agl}`, X(108), Y(92), "#c5cec6", FONT);
 				this.text(`MAG ${m.spc}`, X(108), Y(104), "#c5cec6", FONT);
 				this.text(`XP  ${m.xp}/${m.level * 10}`, X(108), Y(116), "#8a8678", FONT);
+				this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 			} else {
-				this.text("BASIC", X(108), Y(56), "#8a8678", FONT);
-				if (s.spells?.length) {
-					s.spells.forEach((sp, i) => {
-						const extra = sp.pp ? `  ${m.specialPp}/${m.specialPpMax}` : "";
-						this.text(sp.name + extra, X(108), Y(68 + i * 12), "#e8e4d8", FONT);
-					});
-				} else {
-					this.text(s.basic, X(108), Y(68), "#e8e4d8", FONT);
-					this.text("SPECIAL", X(108), Y(84), "#8a8678", FONT);
-					this.text(`${s.special}  ${m.specialPp}/${m.specialPpMax}`, X(108), Y(96), "#e8e4d8", FONT);
+				const moves = this.partyMoves(m);
+				const cur = clamp(this.moveCursor, 0, Math.max(0, moves.length - 1));
+				const shown = 3;
+				const start = Math.max(0, Math.min(cur, Math.max(0, moves.length - shown)));
+				for (let i = 0; i < shown; i++) {
+					const idx = start + i;
+					const mv = moves[idx];
+					if (!mv) break;
+					const on = idx === cur;
+					const pp = mv.pp ? `  ${mv.pp}` : "";
+					this.text(`${on ? ">" : " "}${mv.name}${pp}`, X(108), Y(54 + i * 12), on ? "#e8e4d8" : "#8a8678", FONT);
 				}
-				this.text(s.blurb.slice(0, 28), X(16), Y(140), "#8a8678", FONT);
+				const mv = moves[cur];
+				if (mv) {
+					this.text(mv.stat === "str" ? "STRENGTH based" : "MAGIC based", X(16), Y(100), "#c5cec6", FONT);
+					this.text(`Damage  ${mv.dmg}`, X(16), Y(112), "#e8e4d8", FONT);
+					this.text(`Speed   ${Math.round(mv.speed * 10)}`, X(16), Y(124), "#e8e4d8", FONT);
+					this.text(`Power   ${Math.round(mv.power * 10)}`, X(108), Y(112), "#8a8678", FONT);
+					if (mv.mods) {
+						const bits = [];
+						if (mv.mods.str) bits.push(`STR${mv.mods.str}`);
+						if (mv.mods.agl) bits.push(`AGL${mv.mods.agl}`);
+						if (mv.mods.spc) bits.push(`MAG${mv.mods.spc}`);
+						this.text(bits.join("  "), X(108), Y(124), "#8f4a40", FONT);
+					} else if (mv.kind === "toxic") this.text("Poisons", X(108), Y(124), "#8f4a40", FONT);
+				}
+				this.text("UP/DOWN  inspect", X(16), Y(138), "#5a7a52", FONT);
+				this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 			}
-			this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 			return;
 		}
 		this.party.forEach((m, i) => {
@@ -3528,6 +3712,25 @@ export class CryMon {
 			this.box(X(6), Y(110), X(228), Y(46));
 			const line = b.msg[b.msgI] ?? "";
 			this.wrap(line, 42).forEach((ln, i) => this.text(ln, X(12), Y(116 + i * 10), "#e8e4d8", FONT));
+			return;
+		}
+		if (b.phase === "minigame") {
+			this.box(X(16), Y(110), X(208), Y(44));
+			this.text("SPECIAL  hit the mark", X(24), Y(114), "#c5cec6", FONT);
+			const bx = X(24), by = Y(132), bw = X(192), bh = Y(10);
+			const mg = COMBAT.minigame;
+			const c0 = (mg?.connectedMin ?? 30) / 100;
+			const c1 = (mg?.connectedMax ?? 70) / 100;
+			const p0 = (mg?.perfectMin ?? 45) / 100;
+			const p1 = (mg?.perfectMax ?? 55) / 100;
+			this.ctx.fillStyle = "#8b3030";
+			this.ctx.fillRect(bx, by, bw, bh);
+			this.ctx.fillStyle = "#c9a227";
+			this.ctx.fillRect(bx + c0 * bw, by, (c1 - c0) * bw, bh);
+			this.ctx.fillStyle = "#4a9a4a";
+			this.ctx.fillRect(bx + p0 * bw, by, (p1 - p0) * bw, bh);
+			this.ctx.fillStyle = "#e8e4d8";
+			this.ctx.fillRect(bx + b.minigame / 100 * bw - 2, Y(128), 6, Y(18));
 			return;
 		}
 		this.box(X(6), Y(110), X(228), Y(46));

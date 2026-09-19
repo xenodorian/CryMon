@@ -19,6 +19,9 @@ typedef unsigned int u32;
 #define ADDR_TRI    (ADDR_PULSE + 4 * WAVE_LEN * 2)
 #define ADDR_NOISE  (ADDR_TRI + WAVE_LEN * 2)
 
+static float vol_scale = VOL_DEFAULT;
+static float battle_mul = 1.0f;
+
 static void g2_wait(void) {
     int i;
     for(i = 0; i < 0x1800; i++) {
@@ -140,9 +143,19 @@ static void aica_ch_vol_pitch(int ch, int hz, int vol) {
         g2_w32(base + 0x24, 0x00ff);
         return;
     }
-    if(vol > 15) vol = 15;
-    atten = (u32)((15 - vol) * 8);
-    if(atten > 0xff) atten = 0xff;
+    {
+        float scaled = (float)vol * vol_scale;
+        int atten_i;
+        if(scaled <= 0.0f) {
+            g2_w32(base + 0x24, 0x00ff);
+            return;
+        }
+        if(ch < 4) scaled *= battle_mul;
+        atten_i = (int)((15.0f - scaled) * 8.0f);
+        if(atten_i < 0) atten_i = 0;
+        if(atten_i > 0xff) atten_i = 0xff;
+        atten = (u32)atten_i;
+    }
     g2_w32(base + 0x10, aica_pitch(hz));
     g2_w32(base + 0x24, (atten << 8) | 0x80);
 }
@@ -161,6 +174,33 @@ static ChipPlay music;
 static ChipPlay sfx;
 static int cur_song = -1;
 static int inited;
+
+void chip_set_volume(float v) {
+    if(v < VOL_MIN) v = VOL_MIN;
+    if(v > VOL_MAX) v = VOL_MAX;
+    vol_scale = v;
+}
+
+void chip_nudge_volume(int dir) {
+    chip_set_volume(vol_scale + (dir > 0 ? VOL_STEP : -VOL_STEP));
+}
+
+float chip_volume(void) {
+    return vol_scale;
+}
+
+int chip_volume_pct(void) {
+    int p = (int)(vol_scale * 100.0f + 0.5f);
+    if(p < 0) p = 0;
+    return p;
+}
+
+int chip_volume_fill(int bar_w) {
+    int fill = (int)((float)bar_w * (vol_scale / VOL_MAX) + 0.5f);
+    if(fill < 0) fill = 0;
+    if(fill > bar_w) fill = bar_w;
+    return fill;
+}
 
 static void play_reset(ChipPlay *p, const ChipSong *song) {
     int c;
@@ -233,6 +273,7 @@ void chip_set_song(int id) {
     if(!inited) return;
     if(id == cur_song) return;
     cur_song = id;
+    battle_mul = (id == SONG_ID_BATTLE || id == SONG_ID_TRAINER) ? BATTLE_MUSIC_MUL : 1.0f;
     if(id < 0 || id >= SONG_N)
         play_reset(&music, 0);
     else

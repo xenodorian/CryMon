@@ -36,6 +36,10 @@ export class Input {
   tapStart = false;
   tapSelect = false;
   private touchPad = { x: 0, y: 0 };
+  private prevAxisX = 0;
+  private prevAxisY = 0;
+  private dirHeldAt: Record<string, number | null> = { up: null, down: null, left: null, right: null };
+  private dirLastFire: Record<string, number> = { up: 0, down: 0, left: 0, right: 0 };
 
   private tapAQueued = false;
   private tapBQueued = false;
@@ -86,6 +90,9 @@ export class Input {
 
   endFrame() {
     this.prev = new Set(this.live());
+    const a = this.rawAxis();
+    this.prevAxisX = a.x;
+    this.prevAxisY = a.y;
   }
 
   live() {
@@ -101,9 +108,13 @@ export class Input {
     return this.live().has(code) && !this.prev.has(code);
   }
 
+  rawAxis() {
+    return { x: this.padX + this.touchPad.x, y: this.padY + this.touchPad.y };
+  }
+
   axis() {
-    let x = this.padX + this.touchPad.x;
-    let y = this.padY + this.touchPad.y;
+    let x = this.rawAxis().x;
+    let y = this.rawAxis().y;
     if (this.held("KeyA") || this.held("ArrowLeft")) x -= 1;
     if (this.held("KeyD") || this.held("ArrowRight")) x += 1;
     if (this.held("KeyW") || this.held("ArrowUp")) y -= 1;
@@ -145,20 +156,45 @@ export class Input {
     return v;
   }
 
+  private dir(name: "up" | "down" | "left" | "right", keys: string[], cur: number, prev: number, negative: boolean) {
+    if (this.used.has("_" + name)) return false;
+    const thresh = 0.5;
+    const active = negative ? cur < -thresh : cur > thresh;
+    const was = negative ? prev < -thresh : prev > thresh;
+    const now = performance.now();
+    let v = keys.some((k) => this.pressed(k));
+    if (active && !was) {
+      v = true;
+      this.dirHeldAt[name] = now;
+      this.dirLastFire[name] = now;
+    } else if (!active) {
+      this.dirHeldAt[name] = null;
+    } else if (this.dirHeldAt[name] != null) {
+      const held = now - (this.dirHeldAt[name] as number);
+      const since = now - this.dirLastFire[name];
+      if (held > 280 && since > 110) {
+        this.dirLastFire[name] = now;
+        v = true;
+      }
+    }
+    if (v) this.used.add("_" + name);
+    return v;
+  }
+
   up() {
-    return this.pressed("ArrowUp") || this.pressed("KeyW");
+    return this.dir("up", ["ArrowUp", "KeyW"], this.rawAxis().y, this.prevAxisY, true);
   }
 
   down() {
-    return this.pressed("ArrowDown") || this.pressed("KeyS");
+    return this.dir("down", ["ArrowDown", "KeyS"], this.rawAxis().y, this.prevAxisY, false);
   }
 
   left() {
-    return this.pressed("ArrowLeft") || this.pressed("KeyA");
+    return this.dir("left", ["ArrowLeft", "KeyA"], this.rawAxis().x, this.prevAxisX, true);
   }
 
   right() {
-    return this.pressed("ArrowRight") || this.pressed("KeyD");
+    return this.dir("right", ["ArrowRight", "KeyD"], this.rawAxis().x, this.prevAxisX, false);
   }
 
   queueA() {

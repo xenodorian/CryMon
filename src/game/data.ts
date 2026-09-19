@@ -166,11 +166,26 @@ export type CombatConfig = {
   barrierHealDivisor: number;
   parriedText: string;
   absorbedText: string;
+  minigame: {
+    perfectMin: number;
+    perfectMax: number;
+    perfectMul: number;
+    connectedMin: number;
+    connectedMax: number;
+    connectedMul: number;
+    fizzleMul: number;
+    needleSpeed: number;
+  };
 };
 export const COMBAT = (logicJson.combat || {
   dodgeDefenderRandMin: 1, dodgeDefenderRandMax: 1,
   guardRandMin: 1, guardRandMax: 1,
   barrierHealDivisor: 1, parriedText: "Parried!", absorbedText: "Absorbed!",
+  minigame: {
+    perfectMin: 45, perfectMax: 55, perfectMul: 2,
+    connectedMin: 30, connectedMax: 70, connectedMul: 1.5,
+    fizzleMul: 1, needleSpeed: 110,
+  },
 }) as CombatConfig;
 
 export type ToxicBurstConfig = {
@@ -191,6 +206,116 @@ export type InteractConfig = { defaultW: number; defaultH: number; buffer: numbe
 export const INTERACT = (logicJson.interact || {
   defaultW: 48, defaultH: 52, buffer: 16,
 }) as InteractConfig;
+
+export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number } }).growth || {
+  secondaryAt: 5, specialAt: 10, evolveAt: 10,
+});
+
+export type NatureMoveDef = {
+  nature: string;
+  name: string;
+  stat: AtkStat;
+  power: number;
+  speed: number;
+  mods: { str: number; agl: number; spc: number };
+};
+export const NATURE_MOVES = ((logicJson as { natureMoves?: NatureMoveDef[] }).natureMoves || []) as NatureMoveDef[];
+
+export type UnlockedMove = {
+  kind: "basic" | "secondary" | "toxic" | "special" | "spell" | "wait";
+  name: string;
+  stat: AtkStat;
+  power: number;
+  speed: number;
+  pp?: boolean;
+  spellId?: string;
+  mods?: { str: number; agl: number; spc: number };
+};
+
+export function natureMoveFor(species: SpeciesId): NatureMoveDef | null {
+  const nid = (SPECIES[species] as { nature?: string })?.nature;
+  return NATURE_MOVES.find((m) => m.nature === nid) ?? NATURE_MOVES[0] ?? null;
+}
+
+export function unlockedMoves(m: Monster, includeWait = false): UnlockedMove[] {
+  const s = SPECIES[m.species];
+  const rows: UnlockedMove[] = [{
+    kind: "basic",
+    name: s.basic,
+    stat: s.basicStat,
+    power: s.basicPower,
+    speed: s.basicSpeed,
+  }];
+  if (m.level >= GROWTH.secondaryAt) {
+    if (m.shiny) {
+      rows.push({
+        kind: "toxic",
+        name: TOXIC_BURST.name,
+        stat: TOXIC_BURST.stat,
+        power: TOXIC_BURST.power,
+        speed: TOXIC_BURST.speed,
+      });
+    } else {
+      const nm = natureMoveFor(m.species);
+      if (nm) {
+        rows.push({
+          kind: "secondary",
+          name: nm.name,
+          stat: nm.stat,
+          power: nm.power,
+          speed: nm.speed,
+          mods: nm.mods,
+        });
+      }
+    }
+  }
+  if (m.level >= GROWTH.specialAt) {
+    if (s.spells?.length) {
+      for (const sp of s.spells) {
+        if (sp.name === s.basic) continue;
+        rows.push({
+          kind: "spell",
+          name: sp.name,
+          stat: sp.stat,
+          power: sp.power,
+          speed: sp.speed,
+          pp: sp.pp,
+          spellId: sp.id,
+        });
+      }
+    } else {
+      rows.push({
+        kind: "special",
+        name: s.special,
+        stat: s.specialStat,
+        power: s.specialPower,
+        speed: s.specialSpeed,
+        pp: true,
+      });
+    }
+  }
+  if (includeWait) rows.push({ kind: "wait", name: "Wait", stat: "str", power: 0, speed: 0 });
+  return rows;
+}
+
+export function natureMatchNames(natureId: string): { weakTo: string[]; resists: string[] } {
+  const ring = NATURE_TYPES.ring;
+  const i = ring.indexOf(natureId);
+  const weakTo: string[] = [];
+  const resists: string[] = [];
+  if (i < 0 || !ring.length) return { weakTo, resists };
+  const n = ring.length;
+  const ahead = NATURE_TYPES.beatsAhead;
+  for (let k = 1; k <= ahead; k++) {
+    const atk = ring[(i - k + n) % n];
+    const res = ring[(i + k) % n];
+    const atkName = NATURES.find((x) => x.id === atk)?.name ?? atk;
+    const resName = NATURES.find((x) => x.id === res)?.name ?? res;
+    weakTo.push(atkName);
+    resists.push(resName);
+  }
+  return { weakTo, resists };
+}
 
 /** Uniform float in [lo, hi]. Used for the Dodge/Block/Barrier rolls. */
 export function frand(lo: number, hi: number): number {
@@ -216,7 +341,7 @@ export function speciesNature(species: SpeciesId): number {
 export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature?: number): Monster {
   const s = SPECIES[species];
   let lv = Math.max(1, level);
-  if (shiny) lv = Math.max(lv, lv * 2 > 12 ? 12 : lv * 2);
+  if (shiny) lv = Math.min(FORMULAS.levelCap, Math.max(lv, lv * 2));
   const grow = 1 + (lv - FORMULAS.mintBaseLevel) * FORMULAS.mintGrowPerLevel;
   const maxHp = Math.round(s.maxHp * grow);
   const ni = nature ?? speciesNature(species);
@@ -243,10 +368,40 @@ export function rollShiny() {
   return Math.random() < 1 / FORMULAS.shinyDenom;
 }
 
+export function tryEvolve(m: Monster): string | null {
+  const s = SPECIES[m.species];
+  const to = s.evolvesTo;
+  if (!to || !SPECIES[to] || m.level < GROWTH.evolveAt) return null;
+  const from = m.name;
+  const ratio = m.maxHp > 0 ? m.hp / m.maxHp : 1;
+  const xp = m.xp;
+  /* Mint the new form at the current level. Do not pass shiny into
+     mintMonster — that would re-apply the wild shiny level boost. */
+  const next = mintMonster(to, m.level, false);
+  if (m.shiny) {
+    next.shiny = true;
+    next.name = `Shiny ${SPECIES[to].name}`;
+  }
+  m.species = next.species;
+  m.name = next.name;
+  m.maxHp = next.maxHp;
+  m.hp = Math.max(1, Math.min(next.maxHp, Math.round(next.maxHp * ratio)));
+  m.str = next.str;
+  m.agl = next.agl;
+  m.spc = next.spc;
+  m.specialPp = next.specialPp;
+  m.specialPpMax = next.specialPpMax;
+  m.nature = next.nature;
+  m.shiny = next.shiny;
+  m.xp = xp;
+  return `${from} evolved into ${m.name}!`;
+}
+
 export function grantXp(m: Monster, foeLevel: number, share = 1) {
   const gain = Math.floor((FORMULAS.xpBase + foeLevel * FORMULAS.xpPerLevel) * share);
   m.xp += gain;
   let grew = false;
+  const notes: string[] = [];
   while (m.xp >= m.level * FORMULAS.levelXpMul && m.level < FORMULAS.levelCap) {
     m.xp -= m.level * FORMULAS.levelXpMul;
     m.level += 1;
@@ -257,18 +412,23 @@ export function grantXp(m: Monster, foeLevel: number, share = 1) {
     m.spc += FORMULAS.levelStat;
     grew = true;
   }
-  return grew;
+  const evo = tryEvolve(m);
+  if (evo) notes.push(evo);
+  return { grew, notes };
 }
 
 export function grantPartyXp(party: Monster[], leadIndex: number, foeLevel: number) {
   const share = FORMULAS.benchXpShare ?? 0.5;
   let grew = false;
+  const notes: string[] = [];
   for (let i = 0; i < party.length; i++) {
     const m = party[i];
     if (!m || m.hp <= 0) continue;
-    if (grantXp(m, foeLevel, i === leadIndex ? 1 : share)) grew = true;
+    const r = grantXp(m, foeLevel, i === leadIndex ? 1 : share);
+    if (r.grew) grew = true;
+    notes.push(...r.notes);
   }
-  return grew;
+  return { grew, notes };
 }
 
 export function solidTile(ch: string) {

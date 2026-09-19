@@ -190,14 +190,21 @@ added to damage.
     engines (`nature_scale_dmg()` / `natureScaleDmg()`).
 - `Toxic Burst` (shiny-exclusive, `logic.json`'s `toxicBurst` block) is a
   universal move, not per-species: same `stat`/`power`/`speed` shape, plus a
-  `poisonDivisor` for its ongoing chip tick.
+  `poisonDivisor` for its ongoing chip tick. Shinies learn it at
+  `growth.secondaryAt` **instead of** the shared crystal secondary.
+- Crystal secondaries live in `logic.json` `natureMoves` — one stat-down
+  move per crystal, shared by every non-shiny of that nature at
+  `growth.secondaryAt`. Species specials (and extra spells) unlock at
+  `growth.specialAt`. Species with `evolvesTo` change form at
+  `growth.evolveAt` (same moment as the special, currently 10).
 - Both engines share one lookup for "raw stat a move draws on, mods
   included": `atk_stat_value()` (DC) / `atkStatValue()` (web). Do not
-  duplicate the stat-selection branch elsewhere.
+  duplicate the stat-selection branch elsewhere. Unlocked kits come from
+  `unlockedMoves()` / `unlocked_moves()`.
 
 ### CryDex
 
-Not a separate file. Bitfields at save bytes **134** (seen, 4 bytes) and **138** (caught, 4 bytes), after the checksum, so old 256-byte blobs still validate. Seen on mint/encounter; caught when the player owns the species. Pause → CryDex.
+Not a separate file. Bitfields at save bytes **134** (seen, 4 bytes) and **138** (caught, 4 bytes), after the checksum, so old 256-byte blobs still validate. Seen on mint/encounter; caught when the player owns the species. Pause → CryDex. Caught rows show the species crystal; confirm opens the entry with weaknesses and resistances derived from `natureTypes.ring`.
 
 ### After any pack edit
 

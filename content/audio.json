@@ -1,6 +1,17 @@
 {
   "tickHz": 60,
   "masterVol": 12,
+  "volume": {
+    "note": "1 is the original master (gain 0.9). 2 is twice that ceiling. Both engines read this.",
+    "min": 0,
+    "max": 2,
+    "default": 1,
+    "step": 0.1,
+    "baseMaster": 0.9
+  },
+  "musicBus": 0.22,
+  "sfxBus": 0.32,
+  "battleMusicMul": 0.5,
   "songs": {
     "title": {
       "loop": true,
