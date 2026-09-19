@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=d812bbd18b19b1db — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=9bd3c3f3b8ed7e12 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -389,6 +389,9 @@ static const TalkBeat TALK_COTTAGE[] = {
 static const TalkBeat TALK_LOSE[] = {
     { "WE STILL BREATHE. CRAWL BACK.", 1 },
 };
+static const TalkBeat TALK_QUARRY_LOCKED[] = {
+    { "THE QUARRY GATE STAYS SHUT WHILE SENTRY STILL STANDS.", 1 },
+};
 static const TalkBeat TALK_FOREST_RANGER_SPOT[] = {
     { "THE FOREST PATH IS WATCHED. TURN AROUND, MAX.", 24 },
     { "I AM NOT TURNING AROUND.", 1 },
@@ -548,6 +551,7 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_ANNE_AGAIN,
     TALK_COTTAGE,
     TALK_LOSE,
+    TALK_QUARRY_LOCKED,
     TALK_FOREST_RANGER_SPOT,
     TALK_FOREST_RANGER_WIN,
     TALK_FOREST_SCOUT_SPOT,
@@ -656,6 +660,7 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_ANNE_AGAIN),
     TALK_LEN(TALK_COTTAGE),
     TALK_LEN(TALK_LOSE),
+    TALK_LEN(TALK_QUARRY_LOCKED),
     TALK_LEN(TALK_FOREST_RANGER_SPOT),
     TALK_LEN(TALK_FOREST_RANGER_WIN),
     TALK_LEN(TALK_FOREST_SCOUT_SPOT),
@@ -673,5 +678,5 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_MARSH_REED_SPOT),
     TALK_LEN(TALK_MARSH_REED_WIN),
 };
-#define TALK_TABLE_N 106
+#define TALK_TABLE_N 107
 

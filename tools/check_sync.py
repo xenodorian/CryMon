@@ -250,6 +250,8 @@ def main() -> int:
 
     types = TYPES.read_text() if TYPES.is_file() else ""
     data_ts = DATA_TS.read_text() if DATA_TS.is_file() else ""
+    logic = data["logic"]
+    flags = merged_flags(data)
     map_ids = list(data["world"]["mapIds"])
     save_maps = list(data["save"]["mapOrder"])
     row_ids = list(data["maps"]["rows"].keys())
@@ -421,7 +423,6 @@ def main() -> int:
         missing_t = [k for k in talk_keys if k not in table_keys]
         errors.append(f"talk keys not baked: {missing_t[:8]}")
 
-    flags = merged_flags(data)
     save_flags = list(data["save"]["flags"])
     if any(f not in flags for f in save_flags):
         errors.append("every save.json flag must be in FLAG_* (merged_flags)")
@@ -453,7 +454,6 @@ def main() -> int:
         if name not in runtime and name not in save_flags:
             errors.append(f"runtime flag {name} missing from logic.runtimeFlags")
 
-    logic = data["logic"]
     for key in REQUIRED_LOGIC:
         if key not in logic:
             errors.append(f"logic.json missing {key}")

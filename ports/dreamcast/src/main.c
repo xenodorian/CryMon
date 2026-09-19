@@ -5551,6 +5551,7 @@ void main(void) {
                         else if(w->need == 2) need_ok = beat_calder;
                         else if(w->need == 3) need_ok = beat_shin;
                         else if(w->need == 4) need_ok = has_scroll;
+                        else if(w->need == 5) need_ok = beat_wsoldier_cliffs;
                         if(!need_ok) {
                             if(w->fail_talk >= 0 && w->fail_talk < TALK_TABLE_N) {
                                 find_mark(map_id, w->tile, &col, &row);

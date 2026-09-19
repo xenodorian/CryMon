@@ -590,7 +590,7 @@ def bake_logic(data: dict, out: Path) -> None:
     out.write_text("\n".join(lines) + "\n")
 
 
-NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4}
+NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4, "beatSentry": 5}
 ARRIVE = {"masonAmbush": 1, "ensureSoldiers": 2}
 ITEM_FX = {"heal": 1, "buff": 2, "debuff": 3, "capture": 4, "flee": 5}
 
