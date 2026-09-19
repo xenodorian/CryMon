@@ -195,7 +195,7 @@
     "agl": 13,
     "spc": 19,
     "basic": "Fire Bolt",
-    "basicStat": "str",
+    "basicStat": "mag",
     "basicPower": 0.6,
     "basicSpeed": 1.2,
     "special": "Mana Surge",

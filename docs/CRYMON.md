@@ -305,6 +305,14 @@ Landed in the pack (do not re-implement as engine-only):
 
 ---
 
+## Coordination
+
+Live status and open questions between the two of us live in
+[`CURRENT_WORK.md`](../CURRENT_WORK.md) at the repo root, not here. This file
+stays the stable contract; that one is the day-to-day log.
+
+---
+
 ## Web
 
 ```

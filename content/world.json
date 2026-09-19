@@ -80,7 +80,7 @@
       "maps": ["cliffs"],
       "tile": "T",
       "rate": 0.18,
-      "pool": ["stormwing", "sableclaw", "frostail", "emberling", "glasswisp", "thornhide"],
+      "pool": ["stormwing", "sableclaw", "frostail", "emberling", "glasswisp", "thornhide", "boulderam"],
       "levelMin": 5,
       "levelMax": 7
     },

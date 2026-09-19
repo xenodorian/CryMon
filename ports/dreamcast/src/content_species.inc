@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4533cc4a22dc2da3 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=7df9f54dbbe60966 — do not edit. python3 tools/bake_content.py */
 
 #define SP_QUILLPUP 0
 #define SP_GLIMMOTH 1
@@ -39,7 +39,7 @@ static const Species SPECIES[SPECIES_N] = {
     { "FENWISP", "GLIM", "FENFLARE", 24, 8, 16, 17, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 6, 17 },
     { "DUSKHORN", "GORE", "DUSKRAM", 36, 16, 8, 7, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 1, 13 },
     { "NEEDLEROOT", "PRICK", "SAPDRAIN", 32, 12, 7, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 0, -1 },
-    { "CATHLEEN", "FIRE BOLT", "MANA SURGE", 38, 11, 13, 19, 4, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 4, {0,1,2,3}, 5, -1 },
+    { "CATHLEEN", "FIRE BOLT", "MANA SURGE", 38, 11, 13, 19, 4, ATK_MAG, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 4, {0,1,2,3}, 5, -1 },
     { "CRYMARE", "WAIL", "NIGHTBRIDLE", 30, 9, 14, 18, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 5, -1 },
     { "EMBERLING", "SPARK", "EMBERBLAZE", 28, 14, 15, 12, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 4, 18 },
     { "FROSTAIL", "CHILL", "FROSTFANG", 32, 12, 11, 15, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 6, -1 },

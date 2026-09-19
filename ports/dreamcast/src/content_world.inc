@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4533cc4a22dc2da3 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=7df9f54dbbe60966 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -58,7 +58,7 @@ typedef struct {
 } EncDef;
 static const EncDef ENCOUNTERS[] = {
     { MAP_FOREST, 'T', 18, { 6,7,8,0,0,0,0,0 }, 3, 3, 5, -1 },
-    { MAP_CLIFFS, 'T', 18, { 14,15,12,11,17,16,0,0 }, 6, 5, 7, -1 },
+    { MAP_CLIFFS, 'T', 18, { 14,15,12,11,17,16,13,0 }, 7, 5, 7, -1 },
     { MAP_VELD, 'T', 18, { 1,2,11,18,0,0,0,0 }, 4, 2, 4, 14 },
     { MAP_REACH, 'T', 22, { 5,7,10,14,17,4,0,0 }, 6, 8, 11, -1 },
 };
