@@ -706,16 +706,67 @@ def bake_track_arrays(prefix: str, tracks: list, lines: list[str]) -> None:
 
 
 def bake_audio(data: dict, out: Path) -> None:
-    lines = [HEADER, "/* Audio tables from content/audio.json (stub if missing). */", ""]
+    audio = data["audio"]
+    songs = audio["songs"]
+    sfx = audio["sfx"]
+    song_ids = list(songs.keys())
+    sfx_ids = list(sfx.keys())
+    lines = [HEADER, "#ifndef CONTENT_AUDIO_INC", "#define CONTENT_AUDIO_INC", ""]
+    lines.append("typedef struct { unsigned char midi, frames, vol; } ChipEv;")
+    lines.append("typedef struct {")
+    lines.append("    unsigned char wave, duty, vol;")
+    lines.append("    const ChipEv *ev;")
+    lines.append("    int n;")
+    lines.append("} ChipTrack;")
+    lines.append("typedef struct { const ChipTrack *tr; int ntr; int loop; } ChipSong;")
+    lines.append("")
+    for i, sid in enumerate(song_ids):
+        lines.append(f"#define SONG_{_c_ident(sid)} {i}")
+    lines.append(f"#define SONG_N {len(song_ids)}")
+    lines.append("")
+    for i, sid in enumerate(sfx_ids):
+        lines.append(f"#define SFX_{_c_ident(sid)} {i}")
+    lines.append(f"#define SFX_N {len(sfx_ids)}")
+    lines.append("")
+    for sid, song in songs.items():
+        bake_track_arrays(f"song_{sid}", song["tracks"], lines)
+        lines.append("")
+    for sid, s in sfx.items():
+        bake_track_arrays(f"sfx_{sid}", s["tracks"], lines)
+        lines.append("")
+    lines.append("static const ChipSong CHIP_SONGS[SONG_N] = {")
+    for sid, song in songs.items():
+        ntr = len(song["tracks"])
+        loop = 1 if song.get("loop", True) else 0
+        lines.append(f"    {{ song_{sid}_tr, {ntr}, {loop} }},")
+    lines.append("};")
+    lines.append("static const ChipSong CHIP_SFX[SFX_N] = {")
+    for sid, s in sfx.items():
+        ntr = len(s["tracks"])
+        lines.append(f"    {{ sfx_{sid}_tr, {ntr}, 0 }},")
+    lines.append("};")
+    lines.append("")
+    map_songs = audio.get("mapSongs") or {}
+    order = map_order(data)
+    lines.append(f"#define MAP_SONG_N {len(order)}")
+    lines.append("static const int MAP_SONG[MAP_SONG_N] = {")
+    for mid in order:
+        name = map_songs.get(mid, "overworld")
+        idx = song_ids.index(name) if name in song_ids else 0
+        lines.append(f"    SONG_{_c_ident(song_ids[idx])},")
+    lines.append("};")
+    title = audio.get("titleSong") or "title"
+    battle = audio.get("battleSong") or "battle"
+    trainer = audio.get("trainerSong") or "boss"
+    ending = audio.get("endingSong") or "title"
+    lines.append(f"#define SONG_ID_TITLE SONG_{_c_ident(title)}")
+    lines.append(f"#define SONG_ID_BATTLE SONG_{_c_ident(battle)}")
+    lines.append(f"#define SONG_ID_TRAINER SONG_{_c_ident(trainer)}")
+    lines.append(f"#define SONG_ID_ENDING SONG_{_c_ident(ending)}")
+    lines.append("")
+    lines.append("#endif")
     out.write_text("\n".join(lines) + "\n")
 
-def _c_ident(name: str) -> str:
-    out = []
-    for ch in name:
-        if ch.isupper() and out:
-            out.append("_")
-        out.append(ch.upper())
-    return "".join(out)
 
 def bake_save(data: dict, out: Path) -> None:
     save = data["save"]
