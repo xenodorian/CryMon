@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=dd65e715401e2b29 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=b718d3578a7b961b — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -46,7 +46,7 @@ static const WarpDef WARPS[] = {
     { MAP_REACH, MAP_RUINS, 'D', 'e', 0, 0, 0, -1 },
     { MAP_FOREST, MAP_MARSH, 'm', 'Y', 1, 0, 0, -1 },
     { MAP_MARSH, MAP_FOREST, 'Y', 'm', 0, 0, 0, -1 },
-    { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 1, 5, 0, 90 },
+    { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 1, 0, 0, -1 },
     { MAP_QUARRY, MAP_CLIFFS, 'D', 'q', 0, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
@@ -77,7 +77,7 @@ typedef struct {
     int lead_sp, lead_lv;
     int bench_sp[2], bench_lv[2], bench_n;
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[9] = {
+static const TrainerKit TRAINER_KITS[10] = {
     { 11, 5, { 12, 14 }, { 6, 7 }, 2 },
     { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
     { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
@@ -87,6 +87,7 @@ static const TrainerKit TRAINER_KITS[9] = {
     { 4, 7, { 17, 0 }, { 7, 1 }, 1 },
     { 2, 8, { 18, 0 }, { 8, 1 }, 1 },
     { 4, 9, { 8, 0 }, { 10, 1 }, 1 },
+    { 23, 8, { 22, 0 }, { 9, 1 }, 1 },
 };
 #define KIT_SENTRY 0
 #define KIT_CONSCRIPT 1
@@ -97,6 +98,7 @@ static const TrainerKit TRAINER_KITS[9] = {
 #define KIT_RUINS_KEEPER 6
 #define KIT_RUINS_WARDEN 7
 #define KIT_QUARTZ 8
+#define KIT_QUARRY_DRILLER 9
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
@@ -166,7 +168,8 @@ static const ItemFx ITEM_FX[] = {
 #define FLAG_BEAT_MARSH_REED 46
 #define FLAG_BADGE_QUARTZ 47
 #define FLAG_BADGE_OPAL 48
-#define FLAG_N 49
+#define FLAG_BEAT_QUARRY_DRILLER 49
+#define FLAG_N 50
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -184,6 +187,7 @@ static const ItemFx ITEM_FX[] = {
 #define NPC_PENDING_RUINS_KEEPER 6
 #define NPC_PENDING_RUINS_WARDEN 7
 #define NPC_PENDING_QUARTZ 8
+#define NPC_PENDING_QUARRY_DRILLER 12
 typedef struct {
     int if_flag, if_not, hide_if, set_flag;
     int g_item[3], g_qty[3], g_n;
@@ -276,11 +280,15 @@ static const NpcStep NPC_STEPS[] = {
     { -1, 44, -1, 44, { 3,-1,-1 }, { 1,0,0 }, 1, -1, 0, 101, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 102, -1, -1, 0, -1, 0, 0, -1 },
     { 45, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 104, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 103, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 103, -1, -1, 7, 9, 0, 0, -1 },
     { 46, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 106, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 105, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 105, -1, -1, 7, 10, 0, 0, -1 },
     { 47, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 79, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 78, -1, -1, 7, 8, 0, 0, -1 },
+    { 48, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 108, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 107, -1, -1, 7, 11, 0, 0, -1 },
+    { 49, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 110, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 109, -1, -1, 7, 12, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 2, 30, 32 },
@@ -321,7 +329,9 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_MARSH, '1', 75, 2, 30, 32 },
     { MAP_MARSH, '2', 77, 2, 30, 32 },
     { MAP_REACH, 'Q', 79, 2, 30, 32 },
+    { MAP_REACH, 'O', 81, 2, 30, 32 },
+    { MAP_QUARRY, '1', 83, 2, 30, 32 },
 };
-#define NPC_DEF_N 38
+#define NPC_DEF_N 40
 #define INTERACT_BUFFER 10
 

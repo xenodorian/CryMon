@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=dd65e715401e2b29 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=b718d3578a7b961b — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -450,6 +450,20 @@ static const TalkBeat TALK_MARSH_REED_SPOT[] = {
 static const TalkBeat TALK_MARSH_REED_WIN[] = {
     { "FINE. THE FOREST PATH IS BEHIND YOU. DO NOT WASTE THE GROUND YOU TOOK.", 30 },
 };
+static const TalkBeat TALK_OPAL_SPOT[] = {
+    { "ANOTHER CRYSTAL ANSWERS THE REACH. STAND, IF YOU MEAN TO PASS.", 31 },
+    { "I MEAN TO. I WILL NOT TURN BACK.", 1 },
+};
+static const TalkBeat TALK_OPAL_WIN[] = {
+    { "THE STONE KEEPS YOUR NAME. WALK ON.", 31 },
+};
+static const TalkBeat TALK_QUARRY_DRILLER_SPOT[] = {
+    { "THE QUARRY PAYS IN STONE, NOT SYMPATHY. PROVE YOU CAN TAKE A HIT.", 32 },
+    { "I HAVE TAKEN WORSE.", 1 },
+};
+static const TalkBeat TALK_QUARRY_DRILLER_WIN[] = {
+    { "FINE. THE ROCK IS YOURS TO PICK THROUGH.", 32 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -568,6 +582,10 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_MARSH_BOG_WIN,
     TALK_MARSH_REED_SPOT,
     TALK_MARSH_REED_WIN,
+    TALK_OPAL_SPOT,
+    TALK_OPAL_WIN,
+    TALK_QUARRY_DRILLER_SPOT,
+    TALK_QUARRY_DRILLER_WIN,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -677,6 +695,10 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_MARSH_BOG_WIN),
     TALK_LEN(TALK_MARSH_REED_SPOT),
     TALK_LEN(TALK_MARSH_REED_WIN),
+    TALK_LEN(TALK_OPAL_SPOT),
+    TALK_LEN(TALK_OPAL_WIN),
+    TALK_LEN(TALK_QUARRY_DRILLER_SPOT),
+    TALK_LEN(TALK_QUARRY_DRILLER_WIN),
 };
-#define TALK_TABLE_N 107
+#define TALK_TABLE_N 111
 

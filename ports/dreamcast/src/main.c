@@ -2307,6 +2307,7 @@ typedef struct {
 #define TRAINER_WSOLDIER_KEEPER 12
 #define TRAINER_WSOLDIER_WARDEN 13
 #define TRAINER_WSOLDIER_QUARTZ 14
+#define TRAINER_WSOLDIER_QUARRY_DRILLER 15
 
 #define BAFTER_ITEM      1
 #define BAFTER_ATK       2
@@ -4013,6 +4014,7 @@ void main(void) {
 #define POST_WSOLDIER_KEEPER 20
 #define POST_WSOLDIER_WARDEN 21
 #define POST_WSOLDIER_QUARTZ 22
+#define POST_WSOLDIER_QUARRY_DRILLER 23
 /* Oren's stall reuses POST_SHOP directly -- same draw_shop()/ITEMS
    table Bram's does, no separate post_action needed. */
 
@@ -4028,6 +4030,7 @@ void main(void) {
     int beat_wsoldier_camp2 = 0, beat_wsoldier_grove = 0;
     int beat_forest_ranger = 0, beat_forest_scout = 0;
     int beat_ruins_keeper = 0, beat_ruins_warden = 0, badge_quartz = 0;
+    int beat_quarry_driller = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
     int talked_reach = 0;
@@ -4135,6 +4138,7 @@ void main(void) {
         ft[FLAG_BEAT_RUINS_KEEPER] = &beat_ruins_keeper;
         ft[FLAG_BEAT_RUINS_WARDEN] = &beat_ruins_warden;
         ft[FLAG_BADGE_QUARTZ] = &badge_quartz;
+        ft[FLAG_BEAT_QUARRY_DRILLER] = &beat_quarry_driller;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
         ft[FLAG_CHEST_LOOTED] = &got_chest;
         ft[FLAG_BIRCH_GIFTED] = &talked_birch;
@@ -4348,6 +4352,7 @@ void main(void) {
                         beat_ruins_keeper = save_flag_get(&sl, SAVE_FLAG_BEAT_RUINS_KEEPER);
                         beat_ruins_warden = save_flag_get(&sl, SAVE_FLAG_BEAT_RUINS_WARDEN);
                         badge_quartz = save_flag_get(&sl, SAVE_FLAG_BADGE_QUARTZ);
+                        beat_quarry_driller = save_flag_get(&sl, SAVE_FLAG_BEAT_QUARRY_DRILLER);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
                         talked_birch = save_flag_get(&sl, SAVE_FLAG_BIRCH_GIFTED);
@@ -4416,6 +4421,7 @@ void main(void) {
                 beat_wsoldier_camp2 = 0; beat_wsoldier_grove = 0;
                 beat_forest_ranger = 0; beat_forest_scout = 0;
                 beat_ruins_keeper = 0; beat_ruins_warden = 0; badge_quartz = 0;
+                beat_quarry_driller = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
@@ -4537,6 +4543,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_BEAT_RUINS_KEEPER, beat_ruins_keeper);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_RUINS_WARDEN, beat_ruins_warden);
                     save_flag_put(&sl, SAVE_FLAG_BADGE_QUARTZ, badge_quartz);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_QUARRY_DRILLER, beat_quarry_driller);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
                     save_flag_put(&sl, SAVE_FLAG_BIRCH_GIFTED, talked_birch);
@@ -4921,6 +4928,17 @@ void main(void) {
                                     enc_lock = 3;
                                     seq_lines = TALK_QUARTZ_WIN;
                                     seq_len = TALK_LEN(TALK_QUARTZ_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_NONE;
+                                }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_QUARRY_DRILLER) {
+                                    beat_quarry_driller = 1;
+                                    marks += 15;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_QUARRY_DRILLER_WIN;
+                                    seq_len = TALK_LEN(TALK_QUARRY_DRILLER_WIN);
                                     seq_beat = 0;
                                     post_action = POST_NONE;
                                 }
@@ -5823,6 +5841,26 @@ void main(void) {
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
+                                case POST_WSOLDIER_QUARRY_DRILLER:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_QUARRY_DRILLER].lead_sp, TRAINER_KITS[KIT_QUARRY_DRILLER].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_QUARRY_DRILLER;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "DRILLER SENDS SLATEKIN");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_QUARRY_DRILLER].bench_sp[0], TRAINER_KITS[KIT_QUARRY_DRILLER].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_QUARRY_DRILLER].bench_sp[1], TRAINER_KITS[KIT_QUARRY_DRILLER].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_QUARRY_DRILLER].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
                                 case POST_WSOLDIER_WARDEN:
                                     battle.foe = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].lead_sp, TRAINER_KITS[KIT_RUINS_WARDEN].lead_lv);
                                     battle.wild = 0;
@@ -6013,6 +6051,8 @@ void main(void) {
                                     post_action = POST_WSOLDIER_WARDEN;
                                 else if(npc_pending == NPC_PENDING_QUARTZ)
                                     post_action = POST_WSOLDIER_QUARTZ;
+                                else if(npc_pending == NPC_PENDING_QUARRY_DRILLER)
+                                    post_action = POST_WSOLDIER_QUARRY_DRILLER;
                                 break;
                             default:
                                 post_action = POST_NONE;

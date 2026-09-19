@@ -29,7 +29,7 @@ whatever is actually still missing, never hand-edited.
    to be pixel-identical at first (no animation) -- a real idle cycle can
    follow later.
 
-## Missing (11 files)
+## Missing (16 files)
 
 | Expected path (under `public/sprites/`) | Size | Entity | Note |
 |---|---|---|---|
@@ -42,6 +42,11 @@ whatever is actually still missing, never hand-edited.
 | `npc/reedguard-3.png` | 24x32 | reedguard | world sprite, idle frame 3/4 |
 | `npc/reedguard-4.png` | 24x32 | reedguard | world sprite, idle frame 4/4 |
 | `npc/quartz-2.png` | 24x32 | quartz | world sprite, idle frame 2/4 |
+| `npc/opal-2.png` | 24x32 | opal | world sprite, idle frame 2/4 |
+| `npc/driller-1.png` | 24x32 | driller | world sprite, idle frame 1/4 |
+| `npc/driller-2.png` | 24x32 | driller | world sprite, idle frame 2/4 |
+| `npc/driller-3.png` | 24x32 | driller | world sprite, idle frame 3/4 |
+| `npc/driller-4.png` | 24x32 | driller | world sprite, idle frame 4/4 |
 | `portraits/bogwalker.png` | 312x176 | bogwalker | dialogue-box portrait |
 | `portraits/reedguard.png` | 312x176 | reedguard | dialogue-box portrait |
 
