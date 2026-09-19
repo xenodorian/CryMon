@@ -227,3 +227,55 @@ that's Step 3 (#30). `MAP_GAUNTLET`'s Dreamcast define bakes for free
 Verified: rebake, `check_sync --strict` (clean but for the pre-existing
 15-file art-placeholder debt), `npm run typecheck`, `make -C ports/dreamcast`,
 `make -C ports/dreamcast cdi` all pass.
+
+### Step 3 — DONE (Claude A). Boss trainer + branching dialogue, JSON only.
+
+Landed with two deltas from Step 1's proposal, both to keep every step
+independently green (this session's hard-earned rule -- never leave a
+`KeyError`/bake crash for the next step to discover):
+
+- **Boss stat swap:** lead is `boulderam` lvl 12 (not `duskhorn`) --
+  reads better as a final boss leading with the evolved/tankier form;
+  bench is `[["duskhorn", 11], ["sableclaw", 11]]`. Still 2-bench,
+  still `marks: 25`, still the hardest kit in the demo on paper.
+- **`endingWin` is untouched, not renamed.** Step 1 proposed replacing
+  it with `endingWinFather`/`endingWinHeavenfall`, but `bake_content.py`
+  hardcodes `data["dialogue"]["endingWin"]` (a single `DEMO_END[]` C
+  array, not the generic talk table) -- deleting/renaming that key now
+  would crash bake for everyone until Step 4/5 lands. Instead:
+  `endingWin` stays as-is (reads as the father-branch/default ending),
+  and a new `endingWinHeavenfall` array was added alongside it, purely
+  additive. Step 4/5 needs to teach `bake_content.py` to emit both as
+  separate C arrays and `main.c`/`engine.ts` to pick between them on
+  `choseHeavenfall` -- may as well rename `endingWin`→`endingWinFather`
+  in that same commit for clarity, since the code and the rename would
+  land atomically then.
+
+**What actually landed:**
+- `content/world.json` `trainers.commanderFinal`: lead `boulderam` 12,
+  bench `duskhorn`/`sableclaw` 11, `marks: 25`, `winTalk:
+  "commanderFinalWin"`, `set: "beatCommander"`.
+- `content/world.json` `npcs[]`: new row, map `gauntlet`, mark `1`,
+  `sprite: "npc/commander"` (reused, no new art needed), 3-branch
+  script mirroring the quarryDriller/opal pattern exactly: `if
+  beatCommander → win text`, `if choseHeavenfall → Heavenfall-flavor
+  spot text`, else → father-flavor spot text (both spot branches go
+  `after: "wsoldier", pending: "commanderFinal"`).
+- `content/dialogue.json`: `commanderFinalSpotFather`,
+  `commanderFinalSpotHeavenfall`, `commanderFinalWin` (shared), and the
+  new `endingWinHeavenfall` array.
+- `content/save.json` flags: appended `choseHeavenfall` and
+  `beatCommander` (50/64-bit capacity now). Neither is set by any code
+  yet -- that's Step 4/5. `choseHeavenfall` defaults false, so today
+  the gauntlet NPC (once Step 4/5 makes it reachable) always shows the
+  father-branch text; that's expected until the choice sets the flag.
+
+Confirmed non-crashing: `commanderFinal` isn't yet in
+`bake_content.py`'s `kit_keys`/`PENDING_IDS`/Dreamcast `NPC_PENDING_*`
+defines (that's Step 5), so its `pending` field bakes to `-1` via the
+existing `PENDING_IDS.get(..., -1)` fallback -- same as quarryDriller
+sat between Task 2 and Task 4. No dispatch yet, nothing crashes.
+
+Verified: rebake (`PACK_HASH=96d660d5...`), `check_sync --strict`
+(clean but for the same 15-file art debt), `npm run typecheck`,
+`make -C ports/dreamcast`, `make -C ports/dreamcast cdi` all pass.

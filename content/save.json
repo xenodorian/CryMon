@@ -111,7 +111,9 @@
     "beatMarshReed",
     "badgeQuartz",
     "badgeOpal",
-    "beatQuarryDriller"
+    "beatQuarryDriller",
+    "choseHeavenfall",
+    "beatCommander"
   ],
   "layout": {
     "magic": [0, 4],

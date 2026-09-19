@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4948b4595f833a5b — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=96d660d56721f67f — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -464,6 +464,23 @@ static const TalkBeat TALK_QUARRY_DRILLER_SPOT[] = {
 static const TalkBeat TALK_QUARRY_DRILLER_WIN[] = {
     { "FINE. THE ROCK IS YOURS TO PICK THROUGH.", 32 },
 };
+static const TalkBeat TALK_COMMANDER_FINAL_SPOT_FATHER[] = {
+    { "YOU AGAIN. THIS TIME YOU BROUGHT YOUR FATHER BACK WITH YOU.", 18 },
+    { "HE'S NOT FIGHTING. I AM.", 1 },
+    { "THEN YOU'RE STILL ALONE UP HERE. GOOD.", 18 },
+    { "LET'S FIND OUT.", 1 },
+};
+static const TalkBeat TALK_COMMANDER_FINAL_SPOT_HEAVENFALL[] = {
+    { "YOU AGAIN. AND THE SKY'S STILL CRACKED OPEN BEHIND YOU.", 18 },
+    { "HEAVENFALL DOESN'T FIGHT FOR ME. I'M STILL ENOUGH.", 1 },
+    { "WE'LL SEE ABOUT THAT.", 18 },
+    { "YOU WILL.", 1 },
+};
+static const TalkBeat TALK_COMMANDER_FINAL_WIN[] = {
+    { "THE COMMANDER GOES DOWN. THE DRUMS STOP.", 0 },
+    { "THIS ISN'T FINISHED.", 18 },
+    { "IT IS FOR YOU.", 1 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -586,6 +603,9 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_OPAL_WIN,
     TALK_QUARRY_DRILLER_SPOT,
     TALK_QUARRY_DRILLER_WIN,
+    TALK_COMMANDER_FINAL_SPOT_FATHER,
+    TALK_COMMANDER_FINAL_SPOT_HEAVENFALL,
+    TALK_COMMANDER_FINAL_WIN,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -699,6 +719,9 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_OPAL_WIN),
     TALK_LEN(TALK_QUARRY_DRILLER_SPOT),
     TALK_LEN(TALK_QUARRY_DRILLER_WIN),
+    TALK_LEN(TALK_COMMANDER_FINAL_SPOT_FATHER),
+    TALK_LEN(TALK_COMMANDER_FINAL_SPOT_HEAVENFALL),
+    TALK_LEN(TALK_COMMANDER_FINAL_WIN),
 };
-#define TALK_TABLE_N 111
+#define TALK_TABLE_N 114
 

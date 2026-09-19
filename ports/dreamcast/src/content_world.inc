@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4948b4595f833a5b — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=96d660d56721f67f — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -175,7 +175,9 @@ static const ItemFx ITEM_FX[] = {
 #define FLAG_BADGE_QUARTZ 47
 #define FLAG_BADGE_OPAL 48
 #define FLAG_BEAT_QUARRY_DRILLER 49
-#define FLAG_N 50
+#define FLAG_CHOSE_HEAVENFALL 50
+#define FLAG_BEAT_COMMANDER 51
+#define FLAG_N 52
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -298,6 +300,9 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 107, -1, -1, 7, 11, 0, 0, -1 },
     { 49, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 110, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 109, -1, -1, 7, 12, 0, 0, -1 },
+    { 51, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 113, -1, -1, 0, -1, 0, 0, -1 },
+    { 50, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 112, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 111, -1, -1, 7, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 2, 30, 32 },
@@ -340,7 +345,8 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_REACH, 'Q', 79, 2, 30, 32 },
     { MAP_REACH, 'O', 81, 2, 30, 32 },
     { MAP_QUARRY, '1', 83, 2, 30, 32 },
+    { MAP_GAUNTLET, '1', 85, 3, 30, 32 },
 };
-#define NPC_DEF_N 40
+#define NPC_DEF_N 41
 #define INTERACT_BUFFER 10
 

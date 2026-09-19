@@ -696,6 +696,27 @@
       "marks": 15,
       "winTalk": "quarryDrillerWin",
       "set": "beatQuarryDriller"
+    },
+    "commanderFinal": {
+      "lead": [
+        "boulderam",
+        12
+      ],
+      "bench": [
+        [
+          "duskhorn",
+          11
+        ],
+        [
+          "sableclaw",
+          11
+        ]
+      ],
+      "title": "Commander sends everything he has",
+      "name": "Commander",
+      "marks": 25,
+      "winTalk": "commanderFinalWin",
+      "set": "beatCommander"
     }
   },
   "npcs": [
@@ -1667,6 +1688,32 @@
           "talk": "quarryDrillerSpot",
           "after": "wsoldier",
           "pending": "quarryDriller"
+        }
+      ]
+    },
+    {
+      "map": "gauntlet",
+      "mark": "1",
+      "id": "commanderFinal",
+      "role": "trainer",
+      "sprite": "npc/commander",
+      "talk": "commanderFinalSpotFather",
+      "talkDone": "commanderFinalWin",
+      "script": [
+        {
+          "if": "beatCommander",
+          "talk": "commanderFinalWin"
+        },
+        {
+          "if": "choseHeavenfall",
+          "talk": "commanderFinalSpotHeavenfall",
+          "after": "wsoldier",
+          "pending": "commanderFinal"
+        },
+        {
+          "talk": "commanderFinalSpotFather",
+          "after": "wsoldier",
+          "pending": "commanderFinal"
         }
       ]
     }
