@@ -306,6 +306,7 @@ def bake_maps(data: dict, out: Path) -> None:
 def bake_talk(data: dict, out: Path) -> None:
     talk = data["dialogue"]["talk"]
     ending = data["dialogue"]["endingWin"]
+    ending_heavenfall = data["dialogue"].get("endingWinHeavenfall") or ending
     table = talk_table(data)
     lines = [HEADER, "#if defined(__GNUC__)"]
     lines.append("#pragma GCC diagnostic ignored \"-Wunused-const-variable\"")
@@ -322,6 +323,10 @@ def bake_talk(data: dict, out: Path) -> None:
     lines.append("")
     lines.append("static const char *const DEMO_END[] = {")
     for s in ending:
+        lines.append(f'    "{c_escape(dc_text(s))}",')
+    lines.append("};")
+    lines.append("static const char *const DEMO_END_HEAVENFALL[] = {")
+    for s in ending_heavenfall:
         lines.append(f'    "{c_escape(dc_text(s))}",')
     lines.append("};")
     lines.append("")
@@ -688,7 +693,7 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("} TrainerKit;")
     kit_keys = ["sentry", "conscript", "enforcer", "cross",
                 "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "quartz",
-                "quarryDriller", "marshBog", "marshReed", "opal"]
+                "quarryDriller", "marshBog", "marshReed", "opal", "commanderFinal"]
     lines.append(f"static const TrainerKit TRAINER_KITS[{len(kit_keys)}] = {{")
     for k in kit_keys:
         t = world["trainers"][k]
@@ -785,6 +790,7 @@ PENDING_IDS = {
     "marshReed": 10,
     "opal": 11,
     "quarryDriller": 12,
+    "commanderFinal": 13,
 }
 
 
@@ -835,6 +841,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("#define NPC_PENDING_MARSH_BOG 9")
     lines.append("#define NPC_PENDING_MARSH_REED 10")
     lines.append("#define NPC_PENDING_OPAL 11")
+    lines.append("#define NPC_PENDING_COMMANDER_FINAL 13")
     lines.append("typedef struct {")
     lines.append("    int if_flag, if_not, hide_if, set_flag;")
     lines.append("    int g_item[3], g_qty[3], g_n;")

@@ -2311,6 +2311,7 @@ typedef struct {
 #define TRAINER_WSOLDIER_OPAL 16
 #define TRAINER_WSOLDIER_MARSH_BOG 17
 #define TRAINER_WSOLDIER_MARSH_REED 18
+#define TRAINER_WSOLDIER_COMMANDER_FINAL 19
 
 #define BAFTER_ITEM      1
 #define BAFTER_ATK       2
@@ -4021,6 +4022,8 @@ void main(void) {
 #define POST_WSOLDIER_OPAL 24
 #define POST_WSOLDIER_MARSH_BOG 25
 #define POST_WSOLDIER_MARSH_REED 26
+#define POST_WSOLDIER_COMMANDER_FINAL 27
+#define POST_CREDITS_FINAL 28
 /* Oren's stall reuses POST_SHOP directly -- same draw_shop()/ITEMS
    table Bram's does, no separate post_action needed. */
 
@@ -4038,6 +4041,7 @@ void main(void) {
     int beat_ruins_keeper = 0, beat_ruins_warden = 0, badge_quartz = 0;
     int beat_quarry_driller = 0;
     int beat_marsh_bog = 0, beat_marsh_reed = 0, badge_opal = 0;
+    int chose_heavenfall = 0, beat_commander = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
     int talked_reach = 0;
@@ -4149,6 +4153,8 @@ void main(void) {
         ft[FLAG_BEAT_MARSH_BOG] = &beat_marsh_bog;
         ft[FLAG_BEAT_MARSH_REED] = &beat_marsh_reed;
         ft[FLAG_BADGE_OPAL] = &badge_opal;
+        ft[FLAG_CHOSE_HEAVENFALL] = &chose_heavenfall;
+        ft[FLAG_BEAT_COMMANDER] = &beat_commander;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
         ft[FLAG_CHEST_LOOTED] = &got_chest;
         ft[FLAG_BIRCH_GIFTED] = &talked_birch;
@@ -4366,6 +4372,8 @@ void main(void) {
                         beat_marsh_bog = save_flag_get(&sl, SAVE_FLAG_BEAT_MARSH_BOG);
                         beat_marsh_reed = save_flag_get(&sl, SAVE_FLAG_BEAT_MARSH_REED);
                         badge_opal = save_flag_get(&sl, SAVE_FLAG_BADGE_OPAL);
+                        chose_heavenfall = save_flag_get(&sl, SAVE_FLAG_CHOSE_HEAVENFALL);
+                        beat_commander = save_flag_get(&sl, SAVE_FLAG_BEAT_COMMANDER);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
                         talked_birch = save_flag_get(&sl, SAVE_FLAG_BIRCH_GIFTED);
@@ -4436,6 +4444,7 @@ void main(void) {
                 beat_ruins_keeper = 0; beat_ruins_warden = 0; badge_quartz = 0;
                 beat_quarry_driller = 0;
                 beat_marsh_bog = 0; beat_marsh_reed = 0; badge_opal = 0;
+                chose_heavenfall = 0; beat_commander = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
@@ -4561,6 +4570,8 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_BEAT_MARSH_BOG, beat_marsh_bog);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_MARSH_REED, beat_marsh_reed);
                     save_flag_put(&sl, SAVE_FLAG_BADGE_OPAL, badge_opal);
+                    save_flag_put(&sl, SAVE_FLAG_CHOSE_HEAVENFALL, chose_heavenfall);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_COMMANDER, beat_commander);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
                     save_flag_put(&sl, SAVE_FLAG_BIRCH_GIFTED, talked_birch);
@@ -4992,6 +5003,17 @@ void main(void) {
                                     seq_beat = 0;
                                     post_action = POST_NONE;
                                 }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_COMMANDER_FINAL) {
+                                    beat_commander = 1;
+                                    marks += 25;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_COMMANDER_FINAL_WIN;
+                                    seq_len = TALK_LEN(TALK_COMMANDER_FINAL_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_CREDITS_FINAL;
+                                }
                                 else if(battle.trainer_kind == TRAINER_SOLDIER) {
                                     soldier_beaten[battle.soldier_id] = 1;
                                     marks += 8;
@@ -5286,12 +5308,16 @@ void main(void) {
                locks it in -- no B, this choice doesn't have a "never
                mind" (matches "present the player with a choice", not
                an optional detour). Resolution beat picked by
-               choice_cur, then POST_ENDING_FINAL takes it to the
-               single ending regardless of which was picked. */
+               choice_cur; POST_ENDING_FINAL then warps onto the
+               gauntlet map (see its case below) instead of jumping
+               straight to the ending -- the Commander's win-handler is
+               what actually fires the credits now, via
+               POST_CREDITS_FINAL. */
             if(up_now && !prev_up) choice_cur = 1 - choice_cur;
             if(down_now && !prev_down) choice_cur = 1 - choice_cur;
             if(a_now && !prev_a) {
                 choice_mode = 0;
+                chose_heavenfall = choice_cur;
                 if(choice_cur == 0) {
                     seq_lines = TALK_CHOICE_FATHER;
                     seq_len = TALK_LEN(TALK_CHOICE_FATHER);
@@ -5313,7 +5339,7 @@ void main(void) {
             if(a_now && !prev_a) {
                 ending_i++;
                 {
-                    int n = TALK_LEN(DEMO_END);
+                    int n = chose_heavenfall ? TALK_LEN(DEMO_END_HEAVENFALL) : TALK_LEN(DEMO_END);
                     if(ending_i >= n) {
                         ending_mode = 0;
                         state = 0;
@@ -5971,6 +5997,26 @@ void main(void) {
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
+                                case POST_WSOLDIER_COMMANDER_FINAL:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_COMMANDER_FINAL].lead_sp, TRAINER_KITS[KIT_COMMANDER_FINAL].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_COMMANDER_FINAL;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "COMMANDER SENDS BOULDERAM");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.bench[0] = mint_monster(TRAINER_KITS[KIT_COMMANDER_FINAL].bench_sp[0], TRAINER_KITS[KIT_COMMANDER_FINAL].bench_lv[0]);
+                                    battle.bench[1] = mint_monster(TRAINER_KITS[KIT_COMMANDER_FINAL].bench_sp[1], TRAINER_KITS[KIT_COMMANDER_FINAL].bench_lv[1]);
+                                    battle.bench_n = TRAINER_KITS[KIT_COMMANDER_FINAL].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
                                 case POST_WSOLDIER_WARDEN:
                                     battle.foe = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].lead_sp, TRAINER_KITS[KIT_RUINS_WARDEN].lead_lv);
                                     battle.wild = 0;
@@ -6088,6 +6134,15 @@ void main(void) {
                                     choice_cur = 0;
                                     break;
                                 case POST_ENDING_FINAL:
+                                    find_mark(MAP_GAUNTLET, '2', &col, &row);
+                                    map_id = MAP_GAUNTLET;
+                                    px = col * TILE + TILE / 2;
+                                    py = row * TILE + TILE / 2;
+                                    pdir = 0;
+                                    door_lock = 20;
+                                    map_banner_timer = MAP_BANNER_TOTAL;
+                                    break;
+                                case POST_CREDITS_FINAL:
                                     ending_mode = 1;
                                     ending_i = 0;
                                     break;
@@ -6169,6 +6224,8 @@ void main(void) {
                                     post_action = POST_WSOLDIER_MARSH_BOG;
                                 else if(npc_pending == NPC_PENDING_MARSH_REED)
                                     post_action = POST_WSOLDIER_MARSH_REED;
+                                else if(npc_pending == NPC_PENDING_COMMANDER_FINAL)
+                                    post_action = POST_WSOLDIER_COMMANDER_FINAL;
                                 break;
                             default:
                                 post_action = POST_NONE;
@@ -6216,7 +6273,10 @@ void main(void) {
             draw_press_start(title_cur, have_save);
         }
         else if(ending_mode) {
-            draw_ending(DEMO_END, TALK_LEN(DEMO_END), ending_i);
+            if(chose_heavenfall)
+                draw_ending(DEMO_END_HEAVENFALL, TALK_LEN(DEMO_END_HEAVENFALL), ending_i);
+            else
+                draw_ending(DEMO_END, TALK_LEN(DEMO_END), ending_i);
         }
         else {
             compute_camera(map_id, px, py, &cam_x, &cam_y);

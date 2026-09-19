@@ -337,3 +337,68 @@ not deep type-correctness inside `engine.ts` itself -- pre-existing,
 not something this step changed), `check_sync --strict` clean but for
 the pre-existing art debt, dev server boots and serves 200 with no
 console errors on load.
+
+### Step 5 — DONE (Claude A). main.c wiring, Dreamcast side.
+
+Same non-generic wiring quarryDriller's Task 4 needed, now for
+`commanderFinal`, plus the warp-relocation piece that's unique to this
+trainer (nobody else's win fires the ending).
+
+**Baker (`tools/bake_content.py`):**
+- Added `commanderFinal` to `kit_keys` (its 2-entry bench fits the
+  existing `bench_sp[2]`/`bench_lv[2]` struct fine, same shape as
+  Shinigami's bespoke kit).
+- Added `commanderFinal: 13` to `PENDING_IDS`, and the matching
+  `#define NPC_PENDING_COMMANDER_FINAL 13` hand-written line (this
+  file's `NPC_PENDING_*` defines and `PENDING_IDS` dict are two
+  separate hand-maintained lists that have to agree by number -- same
+  gap format as quarry Task 4 hit).
+
+**`main.c`, mirroring quartz/opal/quarryDriller's shape exactly:**
+- `TRAINER_WSOLDIER_COMMANDER_FINAL 19`, `POST_WSOLDIER_COMMANDER_FINAL
+  27` defines.
+- `NPC_PENDING_COMMANDER_FINAL` dispatch in the `NPC_AFTER_WSOLDIER`
+  chain.
+- `case POST_WSOLDIER_COMMANDER_FINAL:` battle-setup block (message
+  "COMMANDER SENDS BOULDERAM", matching the lead species from Step 3).
+- The 5 save-flag touch points, x2 (one pair for `chose_heavenfall`,
+  one for `beat_commander`): var decl, `ft[]` table, load, reset,
+  store.
+- Win-handler branch sets `beat_commander = 1`, `marks += 25`, plays
+  `TALK_COMMANDER_FINAL_WIN` -- **and, unlike every other `wsoldier`
+  trainer, sets `post_action = POST_CREDITS_FINAL` instead of
+  `POST_NONE`.** This is the Dreamcast mirror of engine.ts's `who ===
+  "commanderFinal" ? "creditsFinal" : null` from Step 4.
+
+**The actual warp relocation (`POST_ENDING_FINAL`'s case body):**
+used to be `ending_mode = 1; ending_i = 0;` directly. Now it does the
+same "place exactly at a mark, no door-offset math" teleport the
+title-screen new-game code already uses (`find_mark` + `col*TILE+TILE/2`
+placement, `door_lock = 20`, `map_banner_timer = MAP_BANNER_TOTAL`),
+landing on `gauntlet`'s mark `2`. `choice_mode`'s confirm handler now
+sets `chose_heavenfall = choice_cur` right before firing
+`POST_ENDING_FINAL`, mirroring engine.ts's `updateChoice()`.
+
+**New `POST_CREDITS_FINAL 28`** does what `POST_ENDING_FINAL` used to
+do (`ending_mode = 1; ending_i = 0;`) -- it's the real ending trigger
+now, reached only from `commanderFinal`'s win.
+
+**Also closed the ending-text-branching gap flagged in Step 3, rather
+than deferring it again:** `bake_content.py`'s `bake_talk()` now emits
+both `DEMO_END[]` (from `endingWin`) and a new `DEMO_END_HEAVENFALL[]`
+(from `endingWinHeavenfall`, falling back to `endingWin`'s content if
+that key were ever missing -- it isn't, Step 3 added it, this is just
+defensive). Both of `main.c`'s `ending_mode` read sites (the `a_now`
+length-check in the input handler, and the `draw_ending()` call in the
+draw pass) now branch on `chose_heavenfall` to pick the right array.
+Dreamcast's ending text matches web's now -- this step didn't leave
+that half-done.
+
+Verified: rebake (`PACK_HASH=96d660d5...` -- unchanged from Step 3
+despite this ending-text addition, since `content/*.json` itself didn't
+change, only the baker's Python and `main.c`), symbol-checked every new
+`#define`/`KIT_`/`TALK_`/`SAVE_FLAG_`/`FLAG_`/`MAP_` name against the
+freshly baked `.inc` files before building, `check_sync --strict` clean
+but for the pre-existing art debt, `npm run typecheck` clean, `make -C
+ports/dreamcast` clean (only pre-existing warnings, no new ones),
+`make -C ports/dreamcast cdi` succeeds.

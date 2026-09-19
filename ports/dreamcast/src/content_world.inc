@@ -77,7 +77,7 @@ typedef struct {
     int lead_sp, lead_lv;
     int bench_sp[2], bench_lv[2], bench_n;
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[13] = {
+static const TrainerKit TRAINER_KITS[14] = {
     { 11, 5, { 12, 14 }, { 6, 7 }, 2 },
     { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
     { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
@@ -91,6 +91,7 @@ static const TrainerKit TRAINER_KITS[13] = {
     { 20, 5, { 21, 0 }, { 6, 1 }, 1 },
     { 6, 6, { 22, 0 }, { 7, 1 }, 1 },
     { 17, 10, { 14, 0 }, { 11, 1 }, 1 },
+    { 13, 12, { 7, 15 }, { 11, 11 }, 2 },
 };
 #define KIT_SENTRY 0
 #define KIT_CONSCRIPT 1
@@ -105,6 +106,7 @@ static const TrainerKit TRAINER_KITS[13] = {
 #define KIT_MARSH_BOG 10
 #define KIT_MARSH_REED 11
 #define KIT_OPAL 12
+#define KIT_COMMANDER_FINAL 13
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
@@ -199,6 +201,7 @@ static const ItemFx ITEM_FX[] = {
 #define NPC_PENDING_MARSH_BOG 9
 #define NPC_PENDING_MARSH_REED 10
 #define NPC_PENDING_OPAL 11
+#define NPC_PENDING_COMMANDER_FINAL 13
 typedef struct {
     int if_flag, if_not, hide_if, set_flag;
     int g_item[3], g_qty[3], g_n;
@@ -301,8 +304,8 @@ static const NpcStep NPC_STEPS[] = {
     { 49, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 110, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 109, -1, -1, 7, 12, 0, 0, -1 },
     { 51, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 113, -1, -1, 0, -1, 0, 0, -1 },
-    { 50, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 112, -1, -1, 7, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 111, -1, -1, 7, -1, 0, 0, -1 },
+    { 50, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 112, -1, -1, 7, 13, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 111, -1, -1, 7, 13, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 2, 30, 32 },
