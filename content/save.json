@@ -108,77 +108,27 @@
     "quarryShelfSearched",
     "beatMarshBog",
     "beatMarshReed",
-    "badgeQuartz"
+    "badgeQuartz",
+    "badgeOpal"
   ],
   "layout": {
-    "magic": [
-      0,
-      4
-    ],
-    "version": [
-      4,
-      1
-    ],
-    "mapId": [
-      5,
-      1
-    ],
-    "dir": [
-      6,
-      1
-    ],
-    "partyCount": [
-      7,
-      1
-    ],
-    "x": [
-      8,
-      2
-    ],
-    "y": [
-      10,
-      2
-    ],
-    "marks": [
-      12,
-      2
-    ],
-    "partyIndex": [
-      14,
-      1
-    ],
-    "battlesDone": [
-      15,
-      1
-    ],
-    "mason2Map": [
-      16,
-      1
-    ],
-    "bag": [
-      18,
-      10
-    ],
-    "flags": [
-      28,
-      8
-    ],
-    "party": [
-      36,
-      96
-    ],
-    "checksum": [
-      132,
-      2
-    ],
-    "dexSeen": [
-      134,
-      4
-    ],
-    "dexCaught": [
-      138,
-      4
-    ],
+    "magic": [0, 4],
+    "version": [4, 1],
+    "mapId": [5, 1],
+    "dir": [6, 1],
+    "partyCount": [7, 1],
+    "x": [8, 2],
+    "y": [10, 2],
+    "marks": [12, 2],
+    "partyIndex": [14, 1],
+    "battlesDone": [15, 1],
+    "mason2Map": [16, 1],
+    "bag": [18, 10],
+    "flags": [28, 8],
+    "party": [36, 96],
+    "checksum": [132, 2],
+    "dexSeen": [134, 4],
+    "dexCaught": [138, 4],
     "partyNature": 12
   },
   "partySlot": 16,
