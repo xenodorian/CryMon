@@ -39,7 +39,8 @@ export type SpeciesId =
   | "quillpup" | "glimmoth" | "tortcask" | "razorbat" | "mossback"
   | "briarfox" | "fenwisp" | "duskhorn" | "needleroot" | "cathleen" | "crymare"
   | "emberling" | "frostail" | "boulderam" | "stormwing"
-  | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall";
+  | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall"
+  | "peatling" | "mireback" | "glowcap" | "slatekin" | "gravelurk" | "cindermite";
 
 export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh";
 
