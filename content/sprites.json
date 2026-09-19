@@ -31,7 +31,8 @@
     "warden",
     "bogwalker",
     "reedguard",
-    "quartz"
+    "quartz",
+    "opal"
   ],
   "monsters": [
     "quillpup",
