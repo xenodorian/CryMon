@@ -217,6 +217,7 @@ export class CryMon {
 	beatMarshBog = false;
 	beatMarshReed = false;
 	badgeQuartz = false;
+	badgeOpal = false;
 	quarryCrateLooted = false;
 	quarryShelfSearched = false;
 	cageOpen = false;
@@ -368,6 +369,7 @@ export class CryMon {
 		this.beatMarshBog = false;
 		this.beatMarshReed = false;
 		this.badgeQuartz = false;
+		this.badgeOpal = false;
 		this.quarryCrateLooted = false;
 		this.quarryShelfSearched = false;
 		this.cageOpen = false;
@@ -745,6 +747,7 @@ export class CryMon {
 				beatMarshBog: this.beatMarshBog,
 				beatMarshReed: this.beatMarshReed,
 				badgeQuartz: this.badgeQuartz,
+				badgeOpal: this.badgeOpal,
 			quarryCrateLooted: this.quarryCrateLooted,
 			quarryShelfSearched: this.quarryShelfSearched,
 				beatConscript: this.beatConscript,
@@ -1771,6 +1774,7 @@ export class CryMon {
 			beatMarshBog: this.beatMarshBog,
 			beatMarshReed: this.beatMarshReed,
 			badgeQuartz: this.badgeQuartz,
+				badgeOpal: this.badgeOpal,
 		};
 	}
 	setNpcFlag(name: string) {
@@ -2142,7 +2146,7 @@ export class CryMon {
 		for (const m of bench) this.markSeen(m.species);
 		const player = { ...lead };
 		const soldierName = soldierId ? (this.soldiers.find((s) => s.id === soldierId)?.name ?? soldierId) : "Soldier";
-		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross", forestRanger: "Ranger", forestScout: "Scout", ruinsKeeper: "Keeper", ruinsWarden: "Warden", marshBog: "Bogwalker", marshReed: "Reedguard", quartz: "Quartz" };
+		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross", forestRanger: "Ranger", forestScout: "Scout", ruinsKeeper: "Keeper", ruinsWarden: "Warden", marshBog: "Bogwalker", marshReed: "Reedguard", quartz: "Quartz", opal: "Opal" };
 		const foeName = wild
 			? foe.name
 			: trainer === "mason" || trainer === "mason2"
@@ -2873,6 +2877,7 @@ export class CryMon {
 				else if (who === "marshBog") this.beatMarshBog = true;
 				else if (who === "marshReed") this.beatMarshReed = true;
 				else if (who === "quartz") this.badgeQuartz = true;
+				else if (who === "opal") this.badgeOpal = true;
 				this.marks += kit?.marks ?? 12;
 				this.say(TALK[kit?.winTalk] || TALK.sentryWin);
 				this.audio.ok();
