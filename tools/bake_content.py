@@ -13,83 +13,150 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Workspace layout: /workspace/content  +  optional DC clone at --out
 CONTENT = ROOT / "content"
 
+
 SPEAKER = {
-    "none": 0, "max": 1, "anne": 2, "mason": 3, "wren": 4, "mae": 5,
-    "ivo": 6, "nell": 7, "pike": 8, "calder": 9, "bram": 10, "cathleen": 11,
-    "shinigami": 12, "oren": 13, "tessa": 14, "birch": 15, "sable": 16,
-    "cross": 17, "commander": 18, "conscript": 19, "enforcer": 20,
-    "sentry": 21, "father": 22, "heavenfall": 23,
+    "none": 0,
+    "max": 1,
+    "anne": 2,
+    "mason": 3,
+    "wren": 4,
+    "mae": 5,
+    "ivo": 6,
+    "nell": 7,
+    "pike": 8,
+    "calder": 9,
+    "bram": 10,
+    "cathleen": 11,
+    "shinigami": 12,
+    "oren": 13,
+    "tessa": 14,
+    "birch": 15,
+    "sable": 16,
+    "cross": 17,
+    "commander": 18,
+    "conscript": 19,
+    "enforcer": 20,
+    "sentry": 21,
+    "father": 22,
+    "heavenfall": 23,
 }
 
+# JSON camelCase key -> existing main.c TALK_* symbol
 TALK_C = {
-    "father": "TALK_FATHER", "fatherAfter": "TALK_FATHER_AFTER", "bed": "TALK_BED",
-    "shelf": "TALK_SHELF", "shelfEmpty": "TALK_SHELF_EMPTY", "crate": "TALK_CRATE",
-    "crateEmpty": "TALK_CRATE_EMPTY", "doorLocked": "TALK_DOOR_LOCKED",
-    "campLocked": "TALK_CAMP_LOCKED", "groveLocked": "TALK_GROVE_LOCKED",
-    "cageLocked": "TALK_CAGE_LOCKED", "cageUnlock": "TALK_CAGE_UNLOCK",
-    "cageOpen": "TALK_CAGE_OPEN", "masonFight": "TALK_MASON_FIGHT",
-    "masonWin": "TALK_MASON_WIN", "masonFight2": "TALK_MASON_FIGHT2",
-    "masonWin2": "TALK_MASON_WIN2", "wrenFirst": "TALK_WREN_FIRST",
-    "wrenBeat": "TALK_WREN_BEAT", "wrenCart": "TALK_WREN_CART",
-    "wrenHeal": "TALK_WREN_HEAL", "maeFirst": "TALK_MAE_FIRST",
-    "maeAgain": "TALK_MAE_AGAIN", "ivoFirst": "TALK_IVO_FIRST",
-    "ivoAgain": "TALK_IVO_AGAIN", "nellFirst": "TALK_NELL_FIRST",
-    "nellBonus": "TALK_NELL_BONUS", "nellAgain": "TALK_NELL_AGAIN",
-    "pikeFirst": "TALK_PIKE_FIRST", "pikeHelp": "TALK_PIKE_HELP",
-    "pikeDone": "TALK_PIKE_DONE", "pikeHint": "TALK_PIKE_HINT",
-    "herb": "TALK_HERB", "herbGone": "TALK_HERB_GONE", "gemPike": "TALK_GEM_PIKE",
-    "gemWild": "TALK_GEM_WILD", "gemGone": "TALK_GEM_GONE", "stump": "TALK_STUMP",
-    "stumpGone": "TALK_STUMP_GONE", "cart": "TALK_CART",
-    "calderAfter": "TALK_CALDER_AFTER", "calderFight": "TALK_CALDER_FIGHT",
-    "calderWin": "TALK_CALDER_WIN", "commander": "TALK_CAMP_COMMANDER",
-    "cathleenSpot": "TALK_CATHLEEN_SPOT", "cathleenAfter": "TALK_CATHLEEN_AFTER",
-    "cathleenGone": "TALK_CATHLEEN_GONE", "shinigamiSpot": "TALK_SHINIGAMI_SPOT",
-    "shinigamiAfter": "TALK_SHINIGAMI_WIN", "shinigamiDone": "TALK_SHINIGAMI_DONE",
-    "soldierSpot": "TALK_SOLDIER_SPOT", "soldierDone": "TALK_SOLDIER_DONE",
-    "soldierAfter": "TALK_SOLDIER_AFTER", "bramOpen": "TALK_BRAM_OPEN",
-    "sentrySpot": "TALK_WSOLDIER_CLIFFS_SPOT", "sentryWin": "TALK_WSOLDIER_CLIFFS_WIN",
-    "conscriptSpot": "TALK_WSOLDIER_CAMP1_SPOT", "conscriptWin": "TALK_WSOLDIER_CAMP1_WIN",
-    "enforcerSpot": "TALK_WSOLDIER_CAMP2_SPOT", "enforcerWin": "TALK_WSOLDIER_CAMP2_WIN",
-    "crossSpot": "TALK_WSOLDIER_GROVE_SPOT", "crossWin": "TALK_WSOLDIER_GROVE_WIN",
-    "orenOpen": "TALK_OREN_OPEN", "tessaFirst": "TALK_TESSA_FIRST",
-    "tessaAgain": "TALK_TESSA_AGAIN", "birchFirst": "TALK_BIRCH_FIRST",
-    "birchAgain": "TALK_BIRCH_AGAIN", "sableFirst": "TALK_SABLE_FIRST",
-    "sableAgain": "TALK_SABLE_AGAIN", "chest": "TALK_CHEST",
-    "chestEmpty": "TALK_CHEST_EMPTY", "anneGift": "TALK_ANNE_GIFT",
-    "anneReturn": "TALK_ANNE_RETURN", "choiceFather": "TALK_CHOICE_FATHER",
-    "choiceHeavenfall": "TALK_CHOICE_HEAVENFALL", "reachLocked": "TALK_REACH_LOCKED",
-    "reachStone": "TALK_REACH_STONE", "reachAgain": "TALK_REACH_AGAIN",
+    "father": "TALK_FATHER",
+    "fatherAfter": "TALK_FATHER_AFTER",
+    "bed": "TALK_BED",
+    "shelf": "TALK_SHELF",
+    "shelfEmpty": "TALK_SHELF_EMPTY",
+    "crate": "TALK_CRATE",
+    "crateEmpty": "TALK_CRATE_EMPTY",
+    "doorLocked": "TALK_DOOR_LOCKED",
+    "campLocked": "TALK_CAMP_LOCKED",
+    "groveLocked": "TALK_GROVE_LOCKED",
+    "cageLocked": "TALK_CAGE_LOCKED",
+    "cageUnlock": "TALK_CAGE_UNLOCK",
+    "cageOpen": "TALK_CAGE_OPEN",
+    "masonFight": "TALK_MASON_FIGHT",
+    "masonWin": "TALK_MASON_WIN",
+    "masonFight2": "TALK_MASON_FIGHT2",
+    "masonWin2": "TALK_MASON_WIN2",
+    "wrenFirst": "TALK_WREN_FIRST",
+    "wrenBeat": "TALK_WREN_BEAT",
+    "wrenCart": "TALK_WREN_CART",
+    "wrenHeal": "TALK_WREN_HEAL",
+    "maeFirst": "TALK_MAE_FIRST",
+    "maeAgain": "TALK_MAE_AGAIN",
+    "ivoFirst": "TALK_IVO_FIRST",
+    "ivoAgain": "TALK_IVO_AGAIN",
+    "nellFirst": "TALK_NELL_FIRST",
+    "nellBonus": "TALK_NELL_BONUS",
+    "nellAgain": "TALK_NELL_AGAIN",
+    "pikeFirst": "TALK_PIKE_FIRST",
+    "pikeHelp": "TALK_PIKE_HELP",
+    "pikeDone": "TALK_PIKE_DONE",
+    "pikeHint": "TALK_PIKE_HINT",
+    "herb": "TALK_HERB",
+    "herbGone": "TALK_HERB_GONE",
+    "gemPike": "TALK_GEM_PIKE",
+    "gemWild": "TALK_GEM_WILD",
+    "gemGone": "TALK_GEM_GONE",
+    "stump": "TALK_STUMP",
+    "stumpGone": "TALK_STUMP_GONE",
+    "cart": "TALK_CART",
+    "calderAfter": "TALK_CALDER_AFTER",
+    "calderFight": "TALK_CALDER_FIGHT",
+    "calderWin": "TALK_CALDER_WIN",
+    "commander": "TALK_CAMP_COMMANDER",
+    "cathleenSpot": "TALK_CATHLEEN_SPOT",
+    "cathleenAfter": "TALK_CATHLEEN_AFTER",
+    "cathleenGone": "TALK_CATHLEEN_GONE",
+    "shinigamiSpot": "TALK_SHINIGAMI_SPOT",
+    "shinigamiAfter": "TALK_SHINIGAMI_WIN",
+    "shinigamiDone": "TALK_SHINIGAMI_DONE",
+    "soldierSpot": "TALK_SOLDIER_SPOT",
+    "soldierDone": "TALK_SOLDIER_DONE",
+    "soldierAfter": "TALK_SOLDIER_AFTER",
+    "bramOpen": "TALK_BRAM_OPEN",
+    "sentrySpot": "TALK_WSOLDIER_CLIFFS_SPOT",
+    "sentryWin": "TALK_WSOLDIER_CLIFFS_WIN",
+    "conscriptSpot": "TALK_WSOLDIER_CAMP1_SPOT",
+    "conscriptWin": "TALK_WSOLDIER_CAMP1_WIN",
+    "enforcerSpot": "TALK_WSOLDIER_CAMP2_SPOT",
+    "enforcerWin": "TALK_WSOLDIER_CAMP2_WIN",
+    "crossSpot": "TALK_WSOLDIER_GROVE_SPOT",
+    "crossWin": "TALK_WSOLDIER_GROVE_WIN",
+    "orenOpen": "TALK_OREN_OPEN",
+    "tessaFirst": "TALK_TESSA_FIRST",
+    "tessaAgain": "TALK_TESSA_AGAIN",
+    "birchFirst": "TALK_BIRCH_FIRST",
+    "birchAgain": "TALK_BIRCH_AGAIN",
+    "sableFirst": "TALK_SABLE_FIRST",
+    "sableAgain": "TALK_SABLE_AGAIN",
+    "chest": "TALK_CHEST",
+    "chestEmpty": "TALK_CHEST_EMPTY",
+    "anneGift": "TALK_ANNE_GIFT",
+    "anneReturn": "TALK_ANNE_RETURN",
+    "choiceFather": "TALK_CHOICE_FATHER",
+    "choiceHeavenfall": "TALK_CHOICE_HEAVENFALL",
+    "reachLocked": "TALK_REACH_LOCKED",
+    "reachStone": "TALK_REACH_STONE",
+    "reachAgain": "TALK_REACH_AGAIN",
 }
 
 SPELL = {"firebolt": 0, "icebeam": 1, "lightning": 2, "manasurge": 3}
 
-FLAG_IDS = [
-    "tookStarter", "lootedCrate", "foughtMason", "talkedFather", "talkedWren",
-    "talkedMae", "talkedIvo", "talkedNell", "nellBonus", "talkedPike", "pikeHelped",
-    "gotHerb", "gotFieldGem", "gotStump", "readCart", "beatCalder", "beatShinigami",
-    "hasScroll", "cathleenCaught", "mason2", "gotChest", "cageOpen", "hasCageKey",
-    "beatSentry", "beatConscript", "beatEnforcer", "beatCross", "birchGifted",
-    "sableGifted", "tessaGifted", "talkedReach", "anneGifted",
-]
 
 def species_order(data: dict) -> list[str]:
     return list(data["save"]["speciesOrder"])
 
+
 def map_order(data: dict) -> list[str]:
     return list(data["world"]["mapIds"])
+
 
 def map_sym(mid: str) -> str:
     return "MAP_" + mid.upper()
 
+
 def sp_sym(sid: str) -> str:
     return "SP_" + sid.upper()
 
+
 PACK_FILES = [
-    "species.json", "items.json", "maps.json", "dialogue.json",
-    "world.json", "logic.json", "audio.json", "save.json", "sprites.json",
+    "species.json",
+    "items.json",
+    "maps.json",
+    "dialogue.json",
+    "world.json",
+    "logic.json",
+    "audio.json",
+    "save.json",
+    "sprites.json",
 ]
+
 
 def pack_hash(content: Path) -> str:
     h = hashlib.sha256()
@@ -100,8 +167,10 @@ def pack_hash(content: Path) -> str:
         h.update(path.read_bytes() if path.is_file() else b"<missing>")
     return h.hexdigest()[:16]
 
+
 def c_escape(s: str) -> str:
     return s.replace("\\", "\\\\").replace('"', '\\"')
+
 
 def dc_text(s: str) -> str:
     t = s.upper()
@@ -110,7 +179,9 @@ def dc_text(s: str) -> str:
     t = re.sub(r"\s+", " ", t).strip()
     return t
 
+
 def talk_table(data: dict) -> list[tuple[str, str]]:
+    """Existing TALK_C order first (DC indices), then any new dialogue.talk keys."""
     talk = data["dialogue"]["talk"]
     out: list[tuple[str, str]] = []
     seen: set[str] = set()
@@ -125,7 +196,9 @@ def talk_table(data: dict) -> list[tuple[str, str]]:
             seen.add(key)
     return out
 
+
 def merged_flags(data: dict) -> list[str]:
+    """NPC FLAG_* index: baked FLAG_IDS order, then save.json flags, then runtimeFlags."""
     out: list[str] = []
     for name in FLAG_IDS:
         if name not in out:
@@ -137,6 +210,7 @@ def merged_flags(data: dict) -> list[str]:
         if name not in out:
             out.append(name)
     return out
+
 
 def load_pack(content: Path) -> dict:
     pack = {
@@ -155,6 +229,7 @@ def load_pack(content: Path) -> dict:
     TALK_KEYS_ORDER = [k for k, _ in talk_table(pack)]
     return pack
 
+
 def bake_all(content: Path, outdir: Path) -> str:
     data = load_pack(content)
     h = pack_hash(content)
@@ -170,21 +245,28 @@ def bake_all(content: Path, outdir: Path) -> str:
     bake_save(data, outdir / "content_save.inc")
     return h
 
+
 TALK_KEYS_ORDER: list[str] = []
 HEADER = "/* AUTO-GENERATED from content/*.json — do not edit. python3 tools/bake_content.py */\n"
 
+
 def set_header(h: str) -> None:
     global HEADER
-    HEADER = f"/* AUTO-GENERATED from content/*.json PACK_HASH={h} — do not edit. python3 tools/bake_content.py */\n"
+    HEADER = (
+        f"/* AUTO-GENERATED from content/*.json PACK_HASH={h} "
+        "— do not edit. python3 tools/bake_content.py */\n"
+    )
+
 
 def bake_maps(data: dict, out: Path) -> None:
     maps = data["maps"]["rows"]
     names = data["world"]["mapNames"]
     order = map_order(data)
+    n = len(order)
     lines = [HEADER]
     for i, mid in enumerate(order):
         lines.append(f"#define {map_sym(mid)} {i}")
-    lines.append(f"#define MAP_N {len(order)}")
+    lines.append(f"#define MAP_N {n}")
     lines.append("")
     for mid in order:
         rows = maps[mid]
@@ -201,13 +283,14 @@ def bake_maps(data: dict, out: Path) -> None:
     lines.append("};")
     lines.append("")
     lines.append(f"static const char *const MAP_DISPLAY_NAME[MAP_N] = {{")
-    lines.append("    " + ", ".join(f'\"{c_escape(dc_text(names[m]))}\"' for m in order) + ",")
+    lines.append("    " + ", ".join(f'"{c_escape(dc_text(names[m]))}"' for m in order) + ",")
     lines.append("};")
     lines.append("")
     solid = data["maps"].get("solid", "#HWRBC^NKEVAQXUJISMGL89r")
     lines.append(f'static const char *const SOLID_TILES = "{c_escape(solid)}";')
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
+
 
 def bake_talk(data: dict, out: Path) -> None:
     talk = data["dialogue"]["talk"]
@@ -245,13 +328,40 @@ def bake_talk(data: dict, out: Path) -> None:
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
+
+def nature_index(data: dict, species_entry: dict) -> int:
+    """Index into logic.json `natures` for a species' crystal. A crystal is a
+    property of the species, so this is looked up once at bake time rather
+    than stored per monster."""
+    ids = [n["id"] for n in (data["logic"].get("natures") or [])]
+    nid = species_entry.get("nature")
+    if nid is None:
+        raise SystemExit(f"species {species_entry.get('id')!r} has no `nature`")
+    if nid not in ids:
+        raise SystemExit(
+            f"species {species_entry.get('id')!r} nature {nid!r} is not in "
+            f"logic.json natures {ids}"
+        )
+    return ids.index(nid)
+
+
+ATK_STAT_SYM = {"str": "ATK_STR", "mag": "ATK_MAG"}
+
+
+def atk_stat_sym(stat: str, where: str) -> str:
+    if stat not in ATK_STAT_SYM:
+        raise SystemExit(f"{where}: stat {stat!r} must be \"str\" or \"mag\"")
+    return ATK_STAT_SYM[stat]
+
+
 def bake_species(data: dict, out: Path) -> None:
     spec = data["species"]
     order = species_order(data)
+    n = len(order)
     lines = [HEADER]
     for i, sid in enumerate(order):
         lines.append(f"#define {sp_sym(sid)} {i}")
-    lines.append(f"#define SPECIES_N {len(order)}")
+    lines.append(f"#define SPECIES_N {n}")
     lines.append("")
 
     # Cathleen's spell kit is a fixed global table (4 ids, always the same
@@ -290,12 +400,6 @@ def bake_species(data: dict, out: Path) -> None:
         name = dc_text(s["name"])
         basic = dc_text(s["basic"])
         special = dc_text(s["special"])
-        bp = float(s.get("basicPower", 0.6))
-        bs = float(s.get("basicSpeed", 1.2))
-        bst = 1 if s.get("basicStat") == "spc" else 0
-        sp_ = float(s.get("specialPower", 1.0))
-        ss = float(s.get("specialSpeed", 0.8))
-        sst = 1 if s.get("specialStat") == "spc" else 0
         lines.append(
             f'    {{ "{c_escape(name)}", "{c_escape(basic)}", "{c_escape(special)}", '
             f'{s["maxHp"]}, {s["str"]}, {s["agl"]}, {s["spc"]}, {s["specialPp"]}, '
@@ -304,11 +408,12 @@ def bake_species(data: dict, out: Path) -> None:
             f"{float(s['basicPower'])}f, {float(s['basicSpeed'])}f, "
             f"{float(s['specialPower'])}f, {float(s['specialSpeed'])}f, "
             f"{nsp}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}}, "
-            f"{bp:.2f}f, {bs:.2f}f, {bst}, {sp_:.2f}f, {ss:.2f}f, {sst} }},"
+            f"{nature_index(data, s)} }},"
         )
     lines.append("};")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
+
 
 def bake_logic(data: dict, out: Path) -> None:
     logic = data["logic"]
@@ -410,24 +515,30 @@ def bake_logic(data: dict, out: Path) -> None:
     scale = (data.get("sprites") or {}).get("drawScale") or {}
     lines.append(f"#define SPR_SCALE_MASON {int(scale.get('mason') or 1)}")
     lines.append("")
+
     combat = logic.get("combat") or {}
-    toxic = combat.get("toxicBurst") or {}
-    dodge = combat.get("dodge") or {}
-    block = combat.get("block") or {}
-    barrier = combat.get("barrier") or {}
-    lines.append("/* Combat: finalDamage = atkStat * power; finalSpeed = atkAgl * speed. */")
-    lines.append(f"#define COMBAT_TOXIC_POWER {float(toxic.get('power', 0.5)):.2f}f")
-    lines.append(f"#define COMBAT_TOXIC_SPEED {float(toxic.get('speed', 1.0)):.2f}f")
-    lines.append(f"#define COMBAT_TOXIC_STAT {1 if toxic.get('stat') == 'spc' else 0}")
-    lines.append(f"#define COMBAT_DODGE_MUL_MIN {float(dodge.get('defMulMin', 0.75)):.2f}f")
-    lines.append(f"#define COMBAT_DODGE_MUL_MAX {float(dodge.get('defMulMax', 1.25)):.2f}f")
-    lines.append(f"#define COMBAT_BLOCK_MUL_MIN {float(block.get('mulMin', 0.25)):.2f}f")
-    lines.append(f"#define COMBAT_BLOCK_MUL_MAX {float(block.get('mulMax', 0.75)):.2f}f")
-    lines.append(f"#define COMBAT_BARRIER_MUL_MIN {float(barrier.get('mulMin', 0.25)):.2f}f")
-    lines.append(f"#define COMBAT_BARRIER_MUL_MAX {float(barrier.get('mulMax', 0.75)):.2f}f")
-    lines.append(f"#define COMBAT_DISPLAY_SCALE {int(combat.get('displayScale', 10))}")
+    lines.append("/* Guard resolution -- see content/logic.json's combat block. */")
+    lines.append(f"#define DODGE_DEF_RAND_MIN {float(combat.get('dodgeDefenderRandMin') or 1.0)}f")
+    lines.append(f"#define DODGE_DEF_RAND_MAX {float(combat.get('dodgeDefenderRandMax') or 1.0)}f")
+    lines.append(f"#define GUARD_RAND_MIN {float(combat.get('guardRandMin') or 1.0)}f")
+    lines.append(f"#define GUARD_RAND_MAX {float(combat.get('guardRandMax') or 1.0)}f")
+    lines.append(f"#define BARRIER_HEAL_DIVISOR {int(combat.get('barrierHealDivisor') or 1)}")
+    lines.append(
+        f'#define GUARD_PARRIED_TEXT "{c_escape(dc_text(combat.get("parriedText") or ""))}"')
+    lines.append(
+        f'#define GUARD_ABSORBED_TEXT "{c_escape(dc_text(combat.get("absorbedText") or ""))}"')
+    lines.append("")
+
+    toxic = logic.get("toxicBurst") or {}
+    lines.append("/* Toxic Burst -- universal shiny-exclusive move, not per-species. */")
+    lines.append(f'#define TOXIC_NAME "{c_escape(dc_text(toxic.get("name") or "TOXIC BURST"))}"')
+    lines.append(f"#define TOXIC_STAT {atk_stat_sym(toxic.get('stat') or 'str', 'toxicBurst.stat')}")
+    lines.append(f"#define TOXIC_POWER {float(toxic.get('power') or 1.0)}f")
+    lines.append(f"#define TOXIC_SPEED {float(toxic.get('speed') or 1.0)}f")
+    lines.append(f"#define TOXIC_POISON_DIVISOR {int(toxic.get('poisonDivisor') or 16)}")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
+
 
 NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4}
 ARRIVE = {"masonAmbush": 1, "ensureSoldiers": 2}
@@ -862,16 +973,24 @@ def bake_audio(data: dict, out: Path) -> None:
 
 def bake_save(data: dict, out: Path) -> None:
     save = data["save"]
-    flags = merged_flags(data)
-    items = data["items"]["order"]
+    flags = save["flags"]
+    items = save["itemOrder"]
     lines = [HEADER, "#ifndef CONTENT_SAVE_INC", "#define CONTENT_SAVE_INC", ""]
-    lines.append(f"#define SAVE_MAGIC 0x{int.from_bytes(b'CRYM', 'little'):08X}u")
-    lines.append(f"#define SAVE_VERSION {int(save.get('version') or 1)}")
-    lines.append(f"#define SAVE_SIZE {int(save.get('size') or 142)}")
-    lines.append(f"#define SAVE_PARTY_SLOT {int(save.get('partySlot') or 16)}")
+    lines.append(f"#define SAVE_VERSION {int(save['version'])}")
+    lines.append(f"#define SAVE_SIZE {int(save['size'])}")
+    lines.append(f"#define SAVE_PARTY_SLOT {int(save['partySlot'])}")
     lines.append(f"#define SAVE_PARTY_MAX 6")
     lines.append(f"#define SAVE_FLAG_N {len(flags)}")
     lines.append(f"#define SAVE_ITEM_N {len(items)}")
+    for i, name in enumerate(flags):
+        lines.append(f"#define SAVE_FLAG_{_c_ident(name)} {i}")
+    lines.append("")
+    lines.append("/* Blob layout (little-endian), shared with src/game/save.ts:")
+    lines.append("   0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,")
+    lines.append("   8 x u16, 10 y u16, 12 marks u16, 14 lead, 15 battles,")
+    lines.append("   16 mason2_map (0xFF none), 18 bag[10], 28 flags[8],")
+    lines.append("   36 party[6]*16 (byte 12 = nature), 132 checksum u16,")
+    lines.append("   134 dexSeen[4], 138 dexCaught[4]. Checksum is 0..131 only. */")
     layout = save.get("layout") or {}
     seen = layout.get("dexSeen") or [134, 4]
     caught = layout.get("dexCaught") or [138, 4]
@@ -880,11 +999,10 @@ def bake_save(data: dict, out: Path) -> None:
     lines.append(f"#define SAVE_DEX_CAUGHT {int(caught[0])}")
     lines.append(f"#define SAVE_DEX_BYTES {int(seen[1])}")
     lines.append(f"#define SAVE_PARTY_NATURE {int(pnat)}")
-    for i, name in enumerate(flags):
-        lines.append(f"#define SAVE_FLAG_{_c_ident(name)} {i}")
     lines.append("")
     lines.append("#endif")
     out.write_text("\n".join(lines) + "\n")
+
 
 def bake_items(data: dict, out: Path) -> None:
     items = data["items"]
@@ -896,17 +1014,15 @@ def bake_items(data: dict, out: Path) -> None:
         lines.append(f'    {{ "{c_escape(dc_text(it["name"]))}", {it["buy"]}, {it["sell"]} }},')
     lines.append("};")
     lines.append("")
-    for i, iid in enumerate(order):
-        lines.append(f"#define ITEM_{_c_ident(iid)} {i + 1}")
-    lines.append("#define ITEM_PASS 0")
-    lines.append("")
     out.write_text("\n".join(lines) + "\n")
+
 
 def main() -> None:
     import argparse
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--content", type=Path, default=CONTENT)
-    ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument("--out", type=Path, default=None, help="Directory for *.inc")
     args = ap.parse_args()
     content = args.content
     if args.out:
@@ -917,6 +1033,7 @@ def main() -> None:
             raise SystemExit(f"no bake output dir: {outdir} (pass --out)")
     h = bake_all(content, outdir)
     print(f"baked maps/talk/species/items/logic/world/audio/save PACK_HASH={h} -> {outdir}")
+
 
 if __name__ == "__main__":
     main()
