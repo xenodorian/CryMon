@@ -754,7 +754,8 @@ def bake_items(data: dict, out: Path) -> None:
     lines.append("};")
     lines.append("")
     for i, iid in enumerate(order):
-        lines.append(f"#define ITEM_{_c_ident(iid)} {i}")
+        lines.append(f"#define ITEM_{_c_ident(iid)} {i + 1}")
+    lines.append("#define ITEM_PASS 0")
     lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
