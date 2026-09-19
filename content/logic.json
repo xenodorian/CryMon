@@ -130,5 +130,26 @@
     "release": true,
     "catchSwap": true,
     "keepLast": true
+  },
+  "combat": {
+    "comment": "Direct multiplication. Power/speed are 0.5-1.5 (display x10 as 5-15). finalDamage = atkStat * power; finalSpeed = atkAgl * speed. Locked when attack chosen.",
+    "toxicBurst": {
+      "power": 0.5,
+      "speed": 1.0,
+      "stat": "str"
+    },
+    "dodge": {
+      "defMulMin": 0.75,
+      "defMulMax": 1.25
+    },
+    "block": {
+      "mulMin": 0.25,
+      "mulMax": 0.75
+    },
+    "barrier": {
+      "mulMin": 0.25,
+      "mulMax": 0.75
+    },
+    "displayScale": 10
   }
 }
