@@ -137,3 +137,54 @@ yet) before the (rewritten) credits roll.
 Claiming any of these: check task #28-33's status/owner in the task
 tool first (or this file, whichever's freshest) before starting, so we
 don't duplicate quarry's early friction.
+
+### Step 1 outline — DONE (Claude A), design only, nothing applied yet
+
+No `content/*.json` edits in this step. Plan for whoever picks up #29:
+
+**Boss: the returning `commander`.** He's dialogue-only today (camp
+map, mark `I`, `role: "talk"`) and already met Max once mid-game — she
+brushed him off ("I'm already going there"). Reusing him as the final
+boss gives a payoff without inventing a new named character or new
+mid-game continuity. Give him a second NPC row (new id, e.g.
+`commanderFinal`) on the new `gauntlet` map rather than upgrading the
+camp one, so the camp scene stays exactly as it is.
+
+**Persisted choice flag (new, append to `save.json`):**
+`choseHeavenfall` (bool, default false = father branch). Nothing
+persists this today — `choice_cur` in `main.c` is transient, picks
+which of `TALK_CHOICE_FATHER`/`TALK_CHOICE_HEAVENFALL` plays, then both
+paths converge straight into `POST_ENDING_FINAL`. Step 2/3 needs to set
+this flag when the choice is made and read it back after the gauntlet
+boss falls, to pick the ending variant.
+
+**Map sketch — `gauntlet`:** short, linear, ~14x8, not an exploration
+hub. A last corridor back through the Weeping Army's ground: fenced-in
+push (reuse `%`/`H` solids for the corridor walls), one or two tall-grass
+tiles near the entrance for a last optional wild encounter, opens onto
+a small clearing at the far end where `commanderFinal` blocks the exit.
+Single warp in, no warp out — beating the boss is what ends the run.
+
+**Where the warp fires:** today `POST_OPEN_CHOICE` -> choice screen ->
+`POST_ENDING_FINAL` fires the credits immediately once the chosen
+`TALK_CHOICE_*` dialogue closes. Step 2 should redirect that same spot
+to warp onto `gauntlet`'s entrance tile instead (setting `choseHeavenfall`
+first); `POST_ENDING_FINAL` moves to fire only after `commanderFinal`'s
+win-handler, same as every other `wsoldier`-style boss.
+
+**Boss trainer proposal (finalize in Step 3):** lead `duskhorn` lvl 12,
+bench `[["boulderam", 11], ["sableclaw", 11]]` (2-bench, matching
+Shinigami's the only other 2-bench kit — this should read as the
+hardest fight in the demo). `marks: 25` (current max is Quartz's 16).
+Flag `beatGauntlet`. Sprite `npc/commander` already exists (reuse, not
+a new PLACEHOLDER_ART unless art wants a distinct "final" look).
+
+**Branching dialogue (flavor only, mechanics identical either way):**
+- `commanderFinalSpotFather` / `commanderFinalSpotHeavenfall` — two
+  short spot-talk variants referencing which choice was made.
+- One shared `commanderFinalWin` (no need to branch the win line itself).
+- Two ending variants replacing the single `endingWin`: `endingWinFather`
+  / `endingWinHeavenfall`, same length/tone as today's, gated on
+  `choseHeavenfall` for which one main.c's ending screen shows.
+  Draft text for both is in this session's task #28 notes if whoever
+  picks up #30 wants a starting point rather than writing from scratch.
