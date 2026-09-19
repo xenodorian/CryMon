@@ -2042,6 +2042,9 @@ export class CryMon {
 			afterMsg: "item",
 			pendingDmg: 0,
 			pendingLabel: "",
+			minigame: 0,
+			minigameDir: 1,
+			minigameHit: null,
 			guard: null,
 			mods: {
 				selfStr: 0,
@@ -2187,6 +2190,40 @@ export class CryMon {
 						b.cursor = 0;
 					}
 				}
+			}
+			return;
+		}
+		if (b.phase === "minigame") {
+			const mg = COMBAT.minigame;
+			const speed = mg?.needleSpeed ?? 110;
+			b.minigame += b.minigameDir * dt * speed;
+			if (b.minigame > 100) {
+				b.minigame = 100;
+				b.minigameDir = -1;
+			}
+			if (b.minigame < 0) {
+				b.minigame = 0;
+				b.minigameDir = 1;
+			}
+			if (this.input.confirm()) {
+				b.minigameHit = b.minigame;
+				const hit = b.minigame;
+				let mul = mg?.fizzleMul ?? 1;
+				let tag = "fizzled";
+				if (hit >= (mg?.perfectMin ?? 45) && hit <= (mg?.perfectMax ?? 55)) {
+					mul = mg?.perfectMul ?? 2;
+					tag = "perfect";
+					this.audio.special();
+				} else if (hit >= (mg?.connectedMin ?? 30) && hit <= (mg?.connectedMax ?? 70)) {
+					mul = mg?.connectedMul ?? 1.5;
+					tag = "connected";
+					this.audio.ok();
+				} else this.audio.miss();
+				const s = SPECIES[b.player.species];
+				const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, s.specialStat);
+				b.pendingDmg = Math.max(1, Math.round(atk * s.specialPower * mul));
+				b.pendingLabel = `${s.special} ${tag}`;
+				b.phase = "resolve_hit";
 			}
 			return;
 		}
@@ -2543,10 +2580,10 @@ export class CryMon {
 				return;
 			}
 			b.player.specialPp -= 1;
-			const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, s.specialStat);
-			b.pendingDmg = Math.max(1, Math.round(atk * s.specialPower));
-			b.pendingLabel = s.special;
-			b.phase = "resolve_hit";
+			b.minigame = 8;
+			b.minigameDir = 1;
+			b.minigameHit = null;
+			b.phase = "minigame";
 			this.audio.special();
 			return;
 		}
@@ -3518,6 +3555,25 @@ export class CryMon {
 			this.box(X(6), Y(110), X(228), Y(46));
 			const line = b.msg[b.msgI] ?? "";
 			this.wrap(line, 42).forEach((ln, i) => this.text(ln, X(12), Y(116 + i * 10), "#e8e4d8", FONT));
+			return;
+		}
+		if (b.phase === "minigame") {
+			this.box(X(16), Y(110), X(208), Y(44));
+			this.text("SPECIAL  hit the mark", X(24), Y(114), "#c5cec6", FONT);
+			const bx = X(24), by = Y(132), bw = X(192), bh = Y(10);
+			const mg = COMBAT.minigame;
+			const c0 = (mg?.connectedMin ?? 30) / 100;
+			const c1 = (mg?.connectedMax ?? 70) / 100;
+			const p0 = (mg?.perfectMin ?? 45) / 100;
+			const p1 = (mg?.perfectMax ?? 55) / 100;
+			this.ctx.fillStyle = "#8b3030";
+			this.ctx.fillRect(bx, by, bw, bh);
+			this.ctx.fillStyle = "#c9a227";
+			this.ctx.fillRect(bx + c0 * bw, by, (c1 - c0) * bw, bh);
+			this.ctx.fillStyle = "#4a9a4a";
+			this.ctx.fillRect(bx + p0 * bw, by, (p1 - p0) * bw, bh);
+			this.ctx.fillStyle = "#e8e4d8";
+			this.ctx.fillRect(bx + b.minigame / 100 * bw - 2, Y(128), 6, Y(18));
 			return;
 		}
 		this.box(X(6), Y(110), X(228), Y(46));

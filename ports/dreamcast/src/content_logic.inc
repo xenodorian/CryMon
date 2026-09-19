@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=f2119809bd29eda5 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=a04217a25173de66 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -46,6 +46,15 @@ static const NatureDef NATURES[NATURE_N] = {
 #define BARRIER_HEAL_DIVISOR 2
 #define GUARD_PARRIED_TEXT "PARRIED!"
 #define GUARD_ABSORBED_TEXT "ABSORBED!"
+/* Special timing bar -- logic.json combat.minigame. */
+#define SPEC_PERFECT_LO 45.0f
+#define SPEC_PERFECT_HI 55.0f
+#define SPEC_CONN_LO 30.0f
+#define SPEC_CONN_HI 70.0f
+#define SPEC_MUL_PERFECT 2.0f
+#define SPEC_MUL_CONN 1.5f
+#define SPEC_MUL_FIZZ 1.0f
+#define SPEC_NEEDLE_SPEED 110.0f
 
 /* Toxic Burst -- universal shiny-exclusive move, not per-species. */
 #define TOXIC_NAME "TOXIC BURST"

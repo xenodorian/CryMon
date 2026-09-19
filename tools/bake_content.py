@@ -527,6 +527,16 @@ def bake_logic(data: dict, out: Path) -> None:
         f'#define GUARD_PARRIED_TEXT "{c_escape(dc_text(combat.get("parriedText") or ""))}"')
     lines.append(
         f'#define GUARD_ABSORBED_TEXT "{c_escape(dc_text(combat.get("absorbedText") or ""))}"')
+    mg = combat.get("minigame") or {}
+    lines.append("/* Special timing bar -- logic.json combat.minigame. */")
+    lines.append(f"#define SPEC_PERFECT_LO {float(mg.get('perfectMin') or 45)}f")
+    lines.append(f"#define SPEC_PERFECT_HI {float(mg.get('perfectMax') or 55)}f")
+    lines.append(f"#define SPEC_CONN_LO {float(mg.get('connectedMin') or 30)}f")
+    lines.append(f"#define SPEC_CONN_HI {float(mg.get('connectedMax') or 70)}f")
+    lines.append(f"#define SPEC_MUL_PERFECT {float(mg.get('perfectMul') or 2)}f")
+    lines.append(f"#define SPEC_MUL_CONN {float(mg.get('connectedMul') or 1.5)}f")
+    lines.append(f"#define SPEC_MUL_FIZZ {float(mg.get('fizzleMul') or 1)}f")
+    lines.append(f"#define SPEC_NEEDLE_SPEED {float(mg.get('needleSpeed') or 110)}f")
     lines.append("")
 
     toxic = logic.get("toxicBurst") or {}

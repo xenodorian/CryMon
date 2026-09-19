@@ -2038,10 +2038,7 @@ static void draw_choice(int cur) {
 typedef struct {
     Monster pl, foe;
     int wild;
-    int phase;      /* 0 msg, 1 item menu, 2 attack menu, 3 guard menu.
-                        Every move (basic/special/spell/Toxic Burst) resolves
-                        the instant it's picked now -- no more timing
-                        minigame phase. */
+    int phase;      /* 0 msg, 1 item, 2 attack, 3 guard, 4 special minigame */
     char msg[3][80];  /* a move label plus damage, a crystal-matchup tag and
                          a poison tick can share one line; draw_wrapped()
                          re-flows it to fit the box */
@@ -2052,6 +2049,8 @@ typedef struct {
     int mods_foe_str, mods_foe_agl, mods_foe_spc;
     int pl_poisoned, foe_poisoned; /* TOXIC BURST, shiny-exclusive move */
     int dmg;
+    float mg;           /* special timing needle 0-100 */
+    int mg_dir;
     char label[28];
     int grew;       /* set by finish_win() below, read by the WIN_NOTE beat */
     int trainer_kind;      /* TRAINER_* below */
@@ -2332,18 +2331,30 @@ static void battle_pick_toxic(Battle *b) {
     b->foe_poisoned = 1;
 }
 
-/* pickAtk's special-move branch. No more timing minigame -- a special
-   resolves the instant it's picked, exactly like a basic move, just off
-   Species.special_stat/special_power instead of basic's. */
+/* pickAtk's special-move branch: timing bar (phase 4). Needle 0-100;
+   landing in SPEC_PERFECT_* is 2x, SPEC_CONN_* is 1.5x, else fizzle 1x.
+   Damage is still atkStat * special_power * mul -- same formula as web. */
 static void battle_pick_special(Battle *b) {
     const Species *s = &SPECIES[b->pl.species];
     int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, s->special_stat);
+    float mul = SPEC_MUL_FIZZ;
+    const char *tag = "FIZZLED";
     int n = 0;
 
-    b->dmg = jground((float)atk * s->special_power);
+    if(b->mg >= SPEC_PERFECT_LO && b->mg <= SPEC_PERFECT_HI) {
+        mul = SPEC_MUL_PERFECT;
+        tag = "PERFECT";
+    } else if(b->mg >= SPEC_CONN_LO && b->mg <= SPEC_CONN_HI) {
+        mul = SPEC_MUL_CONN;
+        tag = "CONNECTED";
+    }
+
+    b->dmg = jground((float)atk * s->special_power * mul);
     if(b->dmg < 1) b->dmg = 1;
 
     n = s_cat(b->label, n, s->special);
+    n = s_cat(b->label, n, " ");
+    n = s_cat(b->label, n, tag);
     b->label[n] = 0;
     battle_apply_hit(b);
 }
@@ -3225,6 +3236,22 @@ static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
         case 3:
             draw_battle_guard_menu(b->cur);
             break;
+        case 4: {
+            int bx = BCONTENT_X + 8, by = BCONTENT_Y + 32;
+            int bw = BCONTENT_W - 16, bh = 10;
+            int c0 = (int)(SPEC_CONN_LO / 100.0f * (float)bw);
+            int c1 = (int)(SPEC_CONN_HI / 100.0f * (float)bw);
+            int p0 = (int)(SPEC_PERFECT_LO / 100.0f * (float)bw);
+            int p1 = (int)(SPEC_PERFECT_HI / 100.0f * (float)bw);
+            int nx = bx + (int)(b->mg / 100.0f * (float)bw) - 1;
+            draw_text_s("SPECIAL  HIT THE MARK", BCONTENT_X + 8, BCONTENT_Y + 8,
+                        rgb565(197, 206, 198), MENU_SCALE);
+            fill_rect(bx, by, bw, bh, rgb565(139, 48, 48));
+            fill_rect(bx + c0, by, c1 - c0, bh, rgb565(201, 162, 39));
+            fill_rect(bx + p0, by, p1 - p0, bh, rgb565(74, 154, 74));
+            fill_rect(nx, by - 4, 3, bh + 8, rgb565(232, 228, 216));
+            break;
+        }
         default:
             break;
     }
@@ -4702,6 +4729,16 @@ void main(void) {
                     }
                 }
             }
+            else if(battle.phase == 4) {
+                /* Special timing needle. 60Hz, same 0-100 range as web. */
+                battle.mg += (float)battle.mg_dir * (SPEC_NEEDLE_SPEED / 60.0f);
+                if(battle.mg > 100.0f) { battle.mg = 100.0f; battle.mg_dir = -1; }
+                if(battle.mg < 0.0f)   { battle.mg = 0.0f;   battle.mg_dir = 1; }
+                if(a_now && !prev_a) {
+                    battle_pick_special(&battle);
+                    party[lead] = battle.pl;
+                }
+            }
             else {
                 int n_rows = (battle.phase == 1) ? battle_item_menu_count(&bag)
                              : (battle.phase == 2 && SPECIES[battle.pl.species].spells_n > 0)
@@ -4757,8 +4794,9 @@ void main(void) {
                             }
                             else {
                                 battle.pl.spp--;
-                                battle_pick_special(&battle);
-                                party[lead] = battle.pl;
+                                battle.mg = 8.0f;
+                                battle.mg_dir = 1;
+                                battle.phase = 4;
                             }
                         }
                         else if(battle.pl.shiny && battle.cur == 2) {

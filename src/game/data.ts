@@ -166,11 +166,26 @@ export type CombatConfig = {
   barrierHealDivisor: number;
   parriedText: string;
   absorbedText: string;
+  minigame: {
+    perfectMin: number;
+    perfectMax: number;
+    perfectMul: number;
+    connectedMin: number;
+    connectedMax: number;
+    connectedMul: number;
+    fizzleMul: number;
+    needleSpeed: number;
+  };
 };
 export const COMBAT = (logicJson.combat || {
   dodgeDefenderRandMin: 1, dodgeDefenderRandMax: 1,
   guardRandMin: 1, guardRandMax: 1,
   barrierHealDivisor: 1, parriedText: "Parried!", absorbedText: "Absorbed!",
+  minigame: {
+    perfectMin: 45, perfectMax: 55, perfectMul: 2,
+    connectedMin: 30, connectedMax: 70, connectedMul: 1.5,
+    fizzleMul: 1, needleSpeed: 110,
+  },
 }) as CombatConfig;
 
 export type ToxicBurstConfig = {

@@ -60,7 +60,7 @@ FORBIDDEN_TEXT = [
 ]
 SKIP_NAME = {".git", "node_modules", ".vercel", "backups", "__pycache__", "placeholder_sprites"}
 REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross"]
-REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures"]
+REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat"]
 
 
 def union_members(text: str, name: str) -> list[str]:
@@ -309,6 +309,10 @@ def main() -> int:
     for k in ("afterBattles", "item", "qty", "map"):
         if k not in anne:
             errors.append(f"logic.anneGift missing {k}")
+    mg = (logic.get("combat") or {}).get("minigame") or {}
+    for k in ("perfectMin", "perfectMax", "perfectMul", "connectedMin", "connectedMax", "connectedMul", "fizzleMul", "needleSpeed"):
+        if k not in mg:
+            errors.append(f"logic.combat.minigame missing {k}")
     scale = catalog.get("drawScale") or {}
     if int(scale.get("mason") or 0) != 2:
         errors.append("sprites.json drawScale.mason must be 2")

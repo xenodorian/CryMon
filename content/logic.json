@@ -156,7 +156,18 @@
     "guardRandMax": 0.75,
     "barrierHealDivisor": 2,
     "parriedText": "Parried!",
-    "absorbedText": "Absorbed!"
+    "absorbedText": "Absorbed!",
+    "minigame": {
+      "note": "Special timing needle 0-100. Red=fizzle 1x, yellow=connected 1.5x, green=perfect 2x.",
+      "perfectMin": 45,
+      "perfectMax": 55,
+      "perfectMul": 2,
+      "connectedMin": 30,
+      "connectedMax": 70,
+      "connectedMul": 1.5,
+      "fizzleMul": 1,
+      "needleSpeed": 110
+    }
   },
   "toxicBurst": {
     "note": "The shiny-exclusive move. Universal, not per-species -- every shiny CryMon can use it, and a shiny foe has a chance to reach for it instead of its usual moves. Poisons on hit.",

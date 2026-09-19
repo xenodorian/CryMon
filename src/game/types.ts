@@ -22,6 +22,7 @@ export type BattlePhase =
   | "enter"
   | "item"
   | "attack"
+  | "minigame"
   | "resolve_hit"
   | "guard"
   | "resolve_guard"
@@ -136,6 +137,9 @@ export interface BattleState {
   afterMsg: BattlePhase | "end_win" | "end_lose" | "end_catch" | "end_run";
   pendingDmg: number;
   pendingLabel: string;
+  minigame: number;
+  minigameDir: number;
+  minigameHit: number | null;
   guard: GuardKind | null;
   mods: BattleMods;
   catchUsed: boolean;
