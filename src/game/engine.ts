@@ -40,6 +40,7 @@ import {
   solidTile,
   spawnOf,
   ENDING_WIN,
+  ENDING_WIN_HEAVENFALL,
   MAP_NAME,
   ENCOUNTERS,
   WARPS,
@@ -76,7 +77,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | "shop" | "orenShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "bedHeal";
+type TalkAfter = null | "shop" | "orenShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal";
 
 const STEP = 1 / 60;
 function loadImg(src, ms = 8000) {
@@ -219,6 +220,8 @@ export class CryMon {
 	badgeQuartz = false;
 	badgeOpal = false;
 	beatQuarryDriller = false;
+	choseHeavenfall = false;
+	beatCommander = false;
 	quarryCrateLooted = false;
 	quarryShelfSearched = false;
 	cageOpen = false;
@@ -372,6 +375,8 @@ export class CryMon {
 		this.badgeQuartz = false;
 		this.badgeOpal = false;
 		this.beatQuarryDriller = false;
+		this.choseHeavenfall = false;
+		this.beatCommander = false;
 		this.quarryCrateLooted = false;
 		this.quarryShelfSearched = false;
 		this.cageOpen = false;
@@ -751,6 +756,8 @@ export class CryMon {
 				badgeQuartz: this.badgeQuartz,
 				badgeOpal: this.badgeOpal,
 				beatQuarryDriller: this.beatQuarryDriller,
+				choseHeavenfall: this.choseHeavenfall,
+				beatCommander: this.beatCommander,
 			quarryCrateLooted: this.quarryCrateLooted,
 			quarryShelfSearched: this.quarryShelfSearched,
 				beatConscript: this.beatConscript,
@@ -904,6 +911,8 @@ export class CryMon {
 			} else if (next === "wsoldier") {
 				this.startWsBattle(this.pendingWs);
 			} else if (next === "ending") {
+				this.warpTo("gauntlet", "2", "down");
+			} else if (next === "creditsFinal") {
 				this.mode = "ending";
 				this.endI = 0;
 			}
@@ -1186,7 +1195,7 @@ export class CryMon {
 			if (this.input.confirm()) {
 				this.audio.ui();
 				this.endI += 1;
-				if (this.endI >= ENDING_WIN.length) {
+				if (this.endI >= this.endingText().length) {
 					this.reset();
 				}
 			}
@@ -1779,6 +1788,8 @@ export class CryMon {
 			badgeQuartz: this.badgeQuartz,
 				badgeOpal: this.badgeOpal,
 				beatQuarryDriller: this.beatQuarryDriller,
+				choseHeavenfall: this.choseHeavenfall,
+				beatCommander: this.beatCommander,
 		};
 	}
 	setNpcFlag(name: string) {
@@ -2130,6 +2141,9 @@ export class CryMon {
 		this.announceMap();
 		if (this.clock - this.lastAutosave > 4) this.persist(false);
 	}
+	endingText() {
+		return this.choseHeavenfall ? ENDING_WIN_HEAVENFALL : ENDING_WIN;
+	}
 	startWsBattle(who) {
 		const kit = TRAINERS[who];
 		if (!kit) return;
@@ -2150,7 +2164,7 @@ export class CryMon {
 		for (const m of bench) this.markSeen(m.species);
 		const player = { ...lead };
 		const soldierName = soldierId ? (this.soldiers.find((s) => s.id === soldierId)?.name ?? soldierId) : "Soldier";
-		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross", forestRanger: "Ranger", forestScout: "Scout", ruinsKeeper: "Keeper", ruinsWarden: "Warden", marshBog: "Bogwalker", marshReed: "Reedguard", quartz: "Quartz", opal: "Opal", quarryDriller: "Driller" };
+		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross", forestRanger: "Ranger", forestScout: "Scout", ruinsKeeper: "Keeper", ruinsWarden: "Warden", marshBog: "Bogwalker", marshReed: "Reedguard", quartz: "Quartz", opal: "Opal", quarryDriller: "Driller", commanderFinal: "Commander" };
 		const foeName = wild
 			? foe.name
 			: trainer === "mason" || trainer === "mason2"
@@ -2883,8 +2897,9 @@ export class CryMon {
 				else if (who === "quartz") this.badgeQuartz = true;
 				else if (who === "opal") this.badgeOpal = true;
 				else if (who === "quarryDriller") this.beatQuarryDriller = true;
+				else if (who === "commanderFinal") this.beatCommander = true;
 				this.marks += kit?.marks ?? 12;
-				this.say(TALK[kit?.winTalk] || TALK.sentryWin);
+				this.say(TALK[kit?.winTalk] || TALK.sentryWin, who === "commanderFinal" ? "creditsFinal" : null);
 				this.audio.ok();
 				return;
 			}
@@ -2945,6 +2960,7 @@ export class CryMon {
 		if (this.input.confirm()) {
 			this.audio.ok();
 			this.mode = "world";
+			this.choseHeavenfall = this.choiceCur === 1;
 			if (this.choiceCur === 0) this.say(TALK.choiceFather, "ending");
 			else this.say(TALK.choiceHeavenfall, "ending");
 		}
@@ -2957,7 +2973,7 @@ export class CryMon {
 		if (this.shake > 0) ctx.translate((Math.random() - .5) * 6 * this.shake, (Math.random() - .5) * 4 * this.shake);
 		if (this.mode === "title") this.drawTitle();
 		else if (this.mode === "intro") this.drawStory(INTRO[this.introI] ?? "", "The leaving");
-		else if (this.mode === "ending") this.drawStory(ENDING_WIN[this.endI] ?? "", "The war");
+		else if (this.mode === "ending") this.drawStory(this.endingText()[this.endI] ?? "", "The war");
 		else if (this.mode === "battle") this.drawBattle();
 		else if (this.mode === "bag") this.drawBag();
 		else if (this.mode === "party") this.drawParty();

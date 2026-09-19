@@ -20,6 +20,7 @@ export const ITEMS = itemsJson.defs as Record<ItemId, ItemDef>;
 export const SPEAKER_NAME = dialogueJson.speakers as Record<SpeakerId, string>;
 export const INTRO = dialogueJson.intro as string[];
 export const ENDING_WIN = dialogueJson.endingWin as string[];
+export const ENDING_WIN_HEAVENFALL = dialogueJson.endingWinHeavenfall as string[];
 export const DEMO_END = ENDING_WIN;
 export const TALK = dialogueJson.talk as Record<string, TalkBeat[]>;
 

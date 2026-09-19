@@ -279,3 +279,61 @@ sat between Task 2 and Task 4. No dispatch yet, nothing crashes.
 Verified: rebake (`PACK_HASH=96d660d5...`), `check_sync --strict`
 (clean but for the same 15-file art debt), `npm run typecheck`,
 `make -C ports/dreamcast`, `make -C ports/dreamcast cdi` all pass.
+
+### Step 4 — DONE (Claude A). engine.ts wiring, web side.
+
+5-touch-point wiring for `choseHeavenfall`/`beatCommander`, matching
+the `quarryDriller`/`badgeOpal` template exactly: property decl (both
+new flags), reset-state, both save-serialize spots, win-handler branch,
+`wsName` display entry (`commanderFinal: "Commander"`). `TRAINERS`
+reads generically off `worldJson.trainers`, so `commanderFinal` needed
+no separate registration to become winnable in a battle.
+
+**The actual endgame-flow rewire, beyond the standard template:**
+- `updateChoice()` now sets `this.choseHeavenfall = this.choiceCur ===
+  1` right when the player confirms, before the `TALK.choiceFather`/
+  `choiceHeavenfall` text plays (still tagged `"ending"` as its
+  `TalkAfter`, unchanged key name to keep the diff small).
+- The `next === "ending"` handler in the talk-advance switch — the spot
+  that used to jump straight into `mode = "ending"` (credits) — now
+  calls `this.warpTo("gauntlet", "2", "down")` instead. Beating
+  `Shinigami` still leads into the choice exactly as before; only what
+  happens after the choice text closes changed.
+- A new `TalkAfter` value, `"creditsFinal"`, is the actual ending
+  trigger now (`mode = "ending"; endI = 0`). Only `commanderFinal`'s
+  win-handler passes it: `this.say(TALK[kit.winTalk] ..., who ===
+  "commanderFinal" ? "creditsFinal" : null)` inside the shared
+  `wsoldier` win branch — every other `wsoldier` trainer keeps passing
+  `null` (no after-tag), unchanged.
+- Added `endingText()` (`choseHeavenfall ? ENDING_WIN_HEAVENFALL :
+  ENDING_WIN`), used at both spots that used to read `ENDING_WIN`
+  directly (the `endI` length check and the credits draw call).
+  `ENDING_WIN_HEAVENFALL` is a new `data.ts` export off
+  `dialogueJson.endingWinHeavenfall` (the key Step 3 added).
+
+**Not done, deliberately (Step 5's job):** no Dreamcast changes.
+`commanderFinal` still isn't in `bake_content.py`'s
+`kit_keys`/`PENDING_IDS`/Dreamcast defines, so `main.c` can't reach the
+gauntlet or fight the boss yet — only the web build can walk this path
+today.
+
+**Playtest note:** tried to smoke-test the full choice→gauntlet→boss
+flow in a headless browser by reaching into the running `CryMon`
+instance directly (temporary `window.__cm` hook, reverted before
+committing — not in this diff). Poking engine state mid-title didn't
+stick since the per-frame loop's own title-mode update overwrites it
+before a mode set from outside takes effect; getting a reliable
+console-driven playthrough working would need actually clicking
+through intro/title first, which felt like more machinery than this
+step warranted. Deferred to Step 6, which already owns "playtest both
+branches if feasible" -- do that one for real there, ideally by
+driving real input through intro → new game → (localStorage save
+injection or a very long real playthrough) rather than reaching into
+the instance mid-frame.
+
+Verified instead via: `npm run typecheck` clean (note: `engine.ts` is
+`// @ts-nocheck`, so this mostly checks the files that import from it,
+not deep type-correctness inside `engine.ts` itself -- pre-existing,
+not something this step changed), `check_sync --strict` clean but for
+the pre-existing art debt, dev server boots and serves 200 with no
+console errors on load.
