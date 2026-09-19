@@ -22,7 +22,6 @@ export type BattlePhase =
   | "enter"
   | "item"
   | "attack"
-  | "minigame"
   | "resolve_hit"
   | "guard"
   | "resolve_guard"
@@ -48,6 +47,9 @@ export interface Spell {
   id: SpellId;
   name: string;
   pp: boolean;
+  power?: number;
+  speed?: number;
+  stat?: "str" | "spc";
 }
 
 export interface Species {
@@ -63,6 +65,12 @@ export interface Species {
   specialPp: number;
   wild: boolean;
   spells?: Spell[];
+  basicPower?: number;
+  basicSpeed?: number;
+  basicStat?: "str" | "spc";
+  specialPower?: number;
+  specialSpeed?: number;
+  specialStat?: "str" | "spc";
 }
 
 export interface Monster {
