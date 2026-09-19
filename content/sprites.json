@@ -1,5 +1,5 @@
 {
-  "cache": "quarry1",
+  "cache": "quarry2",
   "walkers": {
     "max": "max",
     "mason": "mason",
@@ -9,7 +9,7 @@
   },
   "npcs": ["wren", "mae", "ivo", "nell", "pike", "bram", "calder", "oren", "tessa", "birch", "sable", "cross", "commander", "conscript", "enforcer", "sentry", "father"],
   "monsters": ["quillpup", "glimmoth", "tortcask", "razorbat", "mossback", "briarfox", "fenwisp", "duskhorn", "needleroot", "cathleen", "crymare", "emberling", "frostail", "boulderam", "stormwing", "sableclaw", "thornhide", "glasswisp", "ashenmaw", "heavenfall", "peatling", "mireback", "glowcap", "slatekin", "gravelurk", "cindermite"],
-  "portraits": ["max", "anne", "mason", "wren", "mae", "ivo", "nell", "pike", "calder", "bram", "cathleen", "shinigami", "oren", "tessa", "birch", "sable", "cross", "commander", "conscript", "enforcer", "sentry", "father", "heavenfall", "briarfox", "crymare", "duskhorn", "fenwisp", "glimmoth", "mossback", "needleroot", "quillpup", "razorbat", "tortcask"],
+  "portraits": ["max", "anne", "mason", "wren", "mae", "ivo", "nell", "pike", "calder", "bram", "cathleen", "shinigami", "oren", "tessa", "birch", "sable", "cross", "commander", "conscript", "enforcer", "sentry", "father", "heavenfall", "briarfox", "crymare", "duskhorn", "fenwisp", "glimmoth", "mossback", "needleroot", "quillpup", "razorbat", "tortcask", "peatling", "mireback", "glowcap", "slatekin", "gravelurk", "cindermite"],
   "items": ["salve", "bandage", "bitterroot", "dust", "gem", "sunbalm", "warroot", "smokebomb", "greatcrystal", "cageKey"],
   "props": {
     "bed-father": "props/bed-father.png",
