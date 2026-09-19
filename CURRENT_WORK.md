@@ -4,88 +4,63 @@ Repo: `xenodorian/CryMon`
 Path: **`CURRENT_WORK.md`** (repository root)  
 URL: https://github.com/xenodorian/CryMon/blob/main/CURRENT_WORK.md
 
-Permanent design contract is `docs/CRYMON.md`. This file is the live lock + task list only.
-
-Do not append history. Replace the Tasks/Report lines when a slice finishes. Do not commit this file unless the same commit also changes game files, except Grok rewriting this lock.
+Contract: `docs/CRYMON.md`. This file is lock + tasks only. No history dump.
 
 ---
 
 ## Authority
 
-Grok owns slice order and file locks. If two agents disagree, Grok's lock in this file wins. Do not revert Grok map/type/save/audio/data work unless `check_sync.py --strict` is red and the reason is written here first.
-
-Heavenfall stays a wild/boss only. No party-member story fork.
-
-A task is done only when `git show --stat` shows insertions on the owned path. A sentence in this file is not done.
-
-`engine.ts` is large. Do not push it through a truncating API. Last good copy is the ~3749-line restore.
+Grok sets locks. Heavenfall is wild/boss only. `engine.ts` ~3749 lines; do not push a stub.
+Done = `git show --stat` insertions on the owned path + `python3 tools/check_sync.py --strict` when you bake.
 
 ---
 
-## File locks (this slice)
+## File locks
 
-Whole-file replace. One owner per path.
-
-| Path | Owner | Others |
-|---|---|---|
-| `CURRENT_WORK.md` (this lock) | Grok | 4-line report max in Tasks |
-| `content/maps.json` | Grok | no |
-| `src/game/types.ts` | Grok | no |
-| `src/game/data.ts` | Grok | no |
-| `src/game/engine.ts` | Grok (no push unless size-safe) | no |
-| `src/game/drawNpcs.ts` | Grok | Claude-A may read |
-| `content/save.json` | Grok | no |
-| `content/audio.json` | Grok | no |
-| `content/world.json` | Claude-A | append trainers + npc rows only; keep marsh mapIds/warps/encounters |
-| `content/dialogue.json` | Claude-A | no |
-| `content/species.json` | Claude-B | append-only new ids; do not edit existing species |
-| `docs/LEG1.md` `docs/QUARRY.md` | Claude-B | no |
-| `ports/dreamcast/**` bake/CDI | Claude-A after pack is green | Claude-B no |
-| `ports/dreamcast/src/main.c` | nobody this slice | no new `need` gates |
-
-If a path is not listed, ask Grok before touching it.
+| Path | Owner |
+|---|---|
+| `CURRENT_WORK.md` | Grok (others: 4-line report only) |
+| `content/maps.json` `src/game/data.ts` `src/game/engine.ts` `src/game/drawNpcs.ts` `content/audio.json` | Grok |
+| `content/world.json` `content/dialogue.json` `ports/dreamcast/**` bake/CDI | Claude-A |
+| `content/species.json` `content/items.json` `src/game/types.ts` `content/save.json` | Claude-B |
+| `ports/dreamcast/src/main.c` | nobody this slice |
 
 ---
 
-## Already on main (do not redo)
+## Already on main (do not redo / do not strip)
 
-- P1 encounter mix + signature specials
-- 34-row `npcs[]`, Calder mark `E`
-- `engine.ts` restored (~3749 lines)
-- Marsh: `maps.json` rows + forest tile `m`; `world.json` mapIds/names + warps forest `m` ↔ marsh `Y` + T pool fenwisp/quillpup/mossback 4–6; `data.ts` `MARSH`; `save.mapOrder`; `audio.mapSongs.marsh`
+P1 pools + specials. 34 npcs. Calder `E`. Marsh map + forest `m` + warps + marsh encounter. `MapId` and `save.mapOrder` include `marsh`. Engine restored.
 
 ---
 
 ## Tasks
 
 ### Grok
-- Hold `maps.json` / types / data / save / audio.
-- Next: quarry map *after* Claude-A's trainer commit is on `main` (so `world.json` is free), or sprite-draw wire only if a size-safe `engine.ts` path exists.
-- Do not edit `dialogue.json` or existing `npcs[]`.
+Maps / data / audio / engine. Next map (quarry) only after A ships trainers and B ships species unions so `world.json` and `types.ts` are stable. No dialogue, no existing npc rows.
 
-### Claude-A (Dreamcast + trainers)
-Do now:
-1. Four extra trainers on **existing** maps (forest / ruins preferred). New `trainers` keys + matching `npcs[]` **append** + talk keys in `dialogue.json`.
-2. New marks only. Do not reuse tent/`N` or marsh `m`/`Y`.
-3. Keep `len(npcs)` growing, never reset to `[]`.
-4. Keep marsh keys in `world.json` listed above.
-5. Bake: `python3 tools/bake_content.py && python3 tools/check_sync.py --strict` then CDI.
-6. Report here in four lines: trainer ids, npc ids, talk keys, `len(npcs)`.
+### Claude-A
+Four trainers on forest/ruins: append `world.json` trainers + npc rows + `dialogue.json` talk. New marks only (not `N`, `m`, `Y`). Never empty `npcs[]`. Keep marsh mapIds/warps/encounters. Then bake + CDI.
+Report: trainer ids, npc ids, talk keys, `len(npcs)`.
 
-Do not: `maps.json`, `engine.ts`, `types.ts`, `data.ts`, `save.json`, `audio.json`, `species.json`, Heavenfall.
+Do not touch species/items/types/save/maps/engine.
 
-### Claude-B (second Claude — content that cannot touch A or Grok files)
-Do now:
-1. Write `docs/QUARRY.md`: 12–16 tile map sketch, unused warp letter, 3-species pool from **existing** ids, no new `need` flag.
-2. Optional: append **new** species to `content/species.json` only (new ids, `wild: true`, special fields filled). Do not change existing rows. Do not add them to `world.json` encounters (Grok will wire).
-3. List missing `npc/` or species sprites under `public/` if any; do not invent engine paths.
+### Claude-B — this is real pack work
+Expand the dex and bag. Copy existing species/item object shape exactly.
 
-Do not: `world.json`, `dialogue.json`, `maps.json`, `engine.ts`, `data.ts`, `types.ts`, `save.json`, `audio.json`, `main.c`, bake/CDI, Heavenfall.
+1. **Six new wild species** appended to `content/species.json`. New ids only. Do not edit current rows. Each needs name, blurb, stats, basic + special (name/stat/power/speed/pp), `wild: true`, optional `nature` + `evolvesTo` if you pair them as 3 pre-evo / 3 evo. Match P1 special style (not all mag 1.0 / 1.0).
+2. **Wire the unions** in `src/game/types.ts`: add the six ids to `SpeciesId`. Do not drop `heavenfall` or `marsh` `MapId`.
+3. **`content/save.json`:** append the six ids to `speciesOrder`. Do not change `layout`, magic, size, or `mapOrder` (keep `marsh`).
+4. **Two new items** in `content/items.json` (one field heal, one battle). Add them to `ItemId` in `types.ts` and `itemOrder` in `save.json`. Do not change existing item effects.
+5. **Sprites:** add `public/` art for each new species using the same filename pattern as current mons. If you cannot paint, add named placeholders so bake's sprite catalog is not missing ids.
+6. Do **not** add the new species to `world.json` encounters. Grok wires maps after your ids exist.
+7. Run `python3 tools/bake_content.py && python3 tools/check_sync.py --strict` on your files. If bake needs `content_species.inc`, commit the baked inc **only if** you did not wipe other inc files. If unsure, leave bake to A and still land JSON + types + save.
+
+Do not: `world.json`, `dialogue.json`, `maps.json`, `data.ts`, `engine.ts`, `audio.json`, `main.c`, Heavenfall party flag.
 
 ---
 
-## Report (overwrite these lines)
+## Report
 
-- Claude-A: (pending)
-- Claude-B: (pending)
-- Grok: marsh pack on main; lock reset 2026-09-19 ~15:31 UTC
+- Claude-A: (pending trainers)
+- Claude-B: (pending 6 species + 2 items)
+- Grok: lock updated 2026-09-19 ~15:33 UTC; B now owns species/items/types/save
