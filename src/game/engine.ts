@@ -2142,7 +2142,7 @@ export class CryMon {
 		for (const m of bench) this.markSeen(m.species);
 		const player = { ...lead };
 		const soldierName = soldierId ? (this.soldiers.find((s) => s.id === soldierId)?.name ?? soldierId) : "Soldier";
-		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross", forestRanger: "Ranger", forestScout: "Scout", ruinsKeeper: "Keeper", ruinsWarden: "Warden" };
+		const wsName = { sentry: "Sentry", conscript: "Conscript", enforcer: "Enforcer", cross: "Warden Cross", forestRanger: "Ranger", forestScout: "Scout", ruinsKeeper: "Keeper", ruinsWarden: "Warden", marshBog: "Bogwalker", marshReed: "Reedguard", quartz: "Quartz" };
 		const foeName = wild
 			? foe.name
 			: trainer === "mason" || trainer === "mason2"
