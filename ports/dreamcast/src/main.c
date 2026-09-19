@@ -3296,7 +3296,17 @@ typedef struct {
 static int try_npc_script(NpcRun *R) {
     unsigned char used[64];
     int i, guard;
-    int rad = (R->map_id == MAP_HOUSE) ? 484 : 676;
+    /* engine.ts's npcRadius(): house 36px, veld 26px, everything else
+       52px, in its 32px-tile space. This port's tiles are 20px, so each
+       tier is scaled by 20/32 (matching near_mark's comment above: 36 ->
+       22.5 -> 22) rather than reusing one blanket radius for every
+       non-house map -- the old single "676 elsewhere" value was
+       veld's *unscaled* web radius applied to every outdoor map,
+       making FOREST/GROVE/CAMP/CLIFFS/RUINS/REACH interactables roughly
+       40% harder to reach than on web (33px scaled vs 26px). */
+    int rad = (R->map_id == MAP_HOUSE) ? 484 /* 22*22 */
+            : (R->map_id == MAP_VELD)  ? 256 /* 16*16 */
+            : 1089 /* 33*33 */;
     if(NPC_DEF_N > 64) return 0;
     for(i = 0; i < NPC_DEF_N; i++) used[i] = 0;
     for(guard = 0; guard < NPC_DEF_N; guard++) {
