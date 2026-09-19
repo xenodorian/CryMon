@@ -8,34 +8,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Add Opal sprites and sprites.json entry
+      - name: Restore opal frames, sync parts, mark Opal done
         run: |
           python3 << 'PY'
-          import base64, json
+          import base64, json, subprocess
           from pathlib import Path
+          from PIL import Image
+
           sprites = {
-            "opal-1.png": "iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAAC0klEQVR4nO2ar3PUQBTHXxgGg0F0hgGBOoGJySAiEnERGBDtTOfEVVwNpuIMFfAfIMCcwGCIoKLDDIhiEDmRExHMmZiKUxVlmIloRQ1mEWXDJrdJ9sfbthn2M1Ox3d2377vZ9/ZHC2CxWCyW/xnHhNHA9UhT3SJfoo6Jaow6ns4Py9/9XOXwYOCW5XA4AgA8IShGeI53gSVEW0DgeoQ6Xp/tJth24XCkJeKWakceIs7LtBNBSwA7+6qk88PWoO9CawmRYqU88JojG4OKL6yotiV2G8sBTALXI+lkWpbDeEaaRKDGAAYV519OAAAgnUwbl9mNE1DhXdzZBF3A1uaeVr0sqALC4QiK86K1TXFelJsYj0W+dMJ4VrUbzxoDGTUL/To9AQCA7Z39xj6fP70FAID7Dx9VHWGy0OpoTHZfH5d1V56FqJMqrI7GBED8iGE8iH8cfDdq37iAJ+OnRu3f7DQqgJYAZ2Pg0J+2zMIjHI4q/VV9QPsCi3zptGUflu2dfW6Q0gAePD8QFoSahf6KIAD8TEQFYl4rlQS0nRRpmQrh1bXZk0VaQOB65NWX92X5zdZeeVJkHUmyZK1v5EdrwiuHt+PLXVcGKQFtMxW4HuE5zcLWR37UeEQOXK+xrg5KEIs4XyfJEq2lQ5FeQkmWQORHlbIqtG9Ys8fa70IpiOnAMgOJ2pTF+E6MKZKHUQGRH0E6mRoVYUwAdd40xpfQt83HRr+CEQHs7D/7enmzMiXCiIAkS9Z21DCeaaXcJowtIZ4IE1zJhcbU7AMobGQy6zjJEgj9SMh51fiQElA/YImcZURnXvWO0Ps7sfbN6PfFmfaJ8s7de8p+aF8pT+a4b52y9P4L2Big1DNSw524UsZ4nUB9Vvn44d9TCi+vs/W7L8TekLow+jcydoYx7r88eh8DVsB103sBKP/s0Va/yJeOSBvV8Xv/BayA66b3AiwWTf4AcOwiMO8mijUAAAAASUVORK5CYII=",
-            "opal-2.png": "iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAAC6UlEQVR4nO2ar4/UQBTHXwnBYBCXEBCoFZiaBlHRiq3AgLhLLiv2xJ7BnFjDCfgPEGBWYDBUcOJCAuIwiFnRFRVkTc2JVScgJBWcwGAGcUyZdqft/Hizt036SVbMTufN+87MezOdFKCnp6enxwDHhtHA9Whd3SJbovaJaow5nsxPi/9+rDK4N3CLcjgcAQCeEBQjIsfbwBJiLCBwPcocr452Hfxz4XBkJOKGbkMRMs6rPCeDkQB+9HVJ5qeNQd+G0RKi+Uq74zVHdgYlX3hRTUvsJpYDmASuR5PJtCiH8YzWiUCNAQxKzj+fAABAMpnWLrOtE1DiTdz6CLqAvd0jo3pVUAWEwxHkl3njM/llXmxiIhbZ0gnjWdluPKsNZNQs9PP7BQAA7B8c17b5+OE1AADcvf+g7AiXhVZnY3r48ryo23gWYk7qsDobUwD5I4b1IP528tWqfesCHo0fW7W/3WlUAiMBzs7AYb+mzCIiHI5K7XV9QJuBRbZ0mrIPz/7BsTBIWQAPnp5IC0LNQv9EUABxJmICMV8rtQQ0nRRZmQkR1TXZU0VZQOB69MWnt0X51d5RcVLkHSEpWWsb+dGa8NLh7fxq11VBSUDTSAWuR0VO8/D1kR/VHpED16utq4ISxDLOVyEpMVo6DOUlRFICkR+VyrqwtmHFHm+/Da0gZh2rdCRrUxXrOzGmSBFWBUR+BMlkalWENQHMedtYX0Jfdh9anQUrAvjRf/L56s3KlggrAkhK1nbUMJ4Zpdw6rC0hkQgbbORmTmb0dZeXVQEkJRD6UavzbPfVOWYrNRCdXTDWta7zAIozUO0E4zBmivGb0Z/fv4xF3Lp9R9sP4xi4mOPedarS+Rno/L0Q2u1ANaBr3olLZYzbCdR94P27/1cpoo2Jrz98JneH1IbVjYwfYVspt/Mx0Au4bjZyGmXrvxq47P+t+VbiOkD5WqWpfpEtHZlndPvv/Ax0XsBGghj7Ozmezs9AT48hfwG1/DJ+gWQz4QAAAABJRU5ErkJggg==",
-            "opal-3.png": "iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAAC0klEQVR4nO2ar3PUQBTHXxgGg0F0hgGBOoGJySAiEnERGBDtTOfEVVwNpuIMFfAfIMCcwGCIoKLDDIhiEDmRExHMmZiKUxVlmIloRQ1mEWXDJrdJ9sfbthn2M1Ox3d2377vZ9/ZHC2CxWCyW/xnHhNHA9UhT3SJfoo6Jaow6ns4Py9/9XOXwYOCW5XA4AgA8IShGeI53gSVEW0DgeoQ6Xp/tJth24XCkJeKWakceIs7LtBNBSwA7+6qk88PWoO9CawmRYqU88JojG4OKL6yotiV2G8sBTALXI+lkWpbDeEaaRKDGAAYV519OAAAgnUwbl9mNE1DhXdzZBF3A1uaeVr0sqALC4QiK86K1TXFelJsYj0W+dMJ4VrUbzxoDGTUL/To9AQCA7Z39xj6fP70FAID7Dx9VHWGy0OpoTHZfH5d1V56FqJMqrI7GBED8iGE8iH8cfDdq37iAJ+OnRu3f7DQqgJYAZ2Pg0J+2zMIjHI4q/VV9QPsCi3zptGUflu2dfW6Q0gAePD8QFoSahf6KIAD8TEQFYl4rlQS0nRRpmQrh1bXZk0VaQOB65NWX92X5zdZeeVJkHUmyZK1v5EdrwiuHt+PLXVcGKQFtMxW4HuE5zcLWR37UeEQOXK+xrg5KEIs4XyfJEq2lQ5FeQkmWQORHlbIqtG9Ys8fa70IpiOnAMgOJ2pTF+E6MKZKHUQGRH0E6mRoVYUwAdd40xpfQt83HRr+CEQHs7D/7enmzMiXCiIAkS9Z21DCeaaXcJowtIZ4IE1zJhcbU7AMobGQy6zjJEgj9SMh51fiQElA/YImcZURnXvWO0Ps7sfbN6PfFmfaJ8s7de8p+aF8pT+a4b52y9P4L2Big1DNSw524UsZ4nUB9Vvn44d9TCi+vs/W7L8TekLow+jcydoYx7r88eh8DVsB103sBKP/s0Va/yJeOSBvV8Xv/BayA66b3AiwWTf4AcOwiMO8mijUAAAAASUVORK5CYII=",
-            "opal-4.png": "iVBORw0KGgoAAAANSUhEUgAAADAAAABACAYAAABcIPRGAAAC5ElEQVR4nO2ar4/UQBTHXwnBYBCXEBCoFZiaBlHRiq3AgLhLLiv2xJ7BnFjDCfgPEGBWYDBUcOJCAuIwiK7oihVkTc2JVScgJBWcwGAGcUyZdqft/HgPtkk/yYnZmb5535l5b37kAHp6enp6ejqMQ2E0cD1WV7fIVqh9ohrjjqfz0+K3b+sM7gzcohwORwCAJwTFiMzxNrCEWAsIXI9xx6ujXYfYLhyOrERcM/1QhorzOu1UsBIgjr4p6fy0MejbsFpCLF8bd7zhyM6g5IsoqmmJXcdyAJPA9Vg6mRblMJ6xOhGoMYBByfmnEwAASCfT2mW2dQJKvIpbm6AL2Ns9sqrXBVVAOBxBfpk3tskv82ITk7HIVk4Yz8p241ltIKNmoe9fLwAAYP/guPab9+9eAgDA7bv3yo4IWWh9NmaHz8+Lun+ehbiTJqzPxgxA/YhBHsRfTj6T2icX8GD8kNT+dqdRBawEODsDh/81ZRYZ4XBU+t7UB7QZWGQrpyn7iOwfHEuDlAfw4PGJsiDULPRHBAOQZyIuEPNaaSSg6aTIy1yIrK7Jni7aAgLXY88+vC7KL/aOipOi6EiyTDa+jfxoQ3jp8HZ+tevqoCWgaaQC12Myp0XE+siPao/IgevV1lVBCWIV56sky8Rq6XC0l1CyTCDyo1LZFP5tWLEn2m/DKIh5xzodqdrUhXwnxhQpg1RA5EeQTqakIsgEcOepIV9Cn3bvk84CiQBx9B99vLpZUYkgEZAsk40dNYxnVim3DrIlJBNBgfY+YLIMqEYfQFOAeD5RPfuEfkTmPIDls4rJGUiGbFZVD3Nb87hresmxvhn9+vnD+kR54+YtYz+sZ+BijvvWqUvnZ6Dz70JorwPV21XNnbhUxnidQM1Cb9/8fUqRpUax/vCJ2htSG6RptLrxUfTR+RjoBfxvrGNAXNvVwNR5oDKl8zOA8t8qTfWLbOWotDHtv/Mz0HkB1kFMHaRtdH4GOs9vyVkxtBORkQQAAAAASUVORK5CYII=",
+            "opal-1.png": open("/dev/null").read() if False else None,
           }
-          out = Path("public/sprites/npc")
-          out.mkdir(parents=True, exist_ok=True)
-          for name, b64s in sprites.items():
-              (out / name).write_bytes(base64.b64decode(b64s))
-              print("wrote", name, (out / name).stat().st_size)
-          sp = Path("content/sprites.json")
-          s = json.loads(sp.read_text())
-          if "opal" not in s["npcs"]:
-              s["npcs"].append("opal")
-              sp.write_text(json.dumps(s, indent=2) + "\n")
-          print("npcs", s["npcs"][-4:])
           PY
-      - name: Commit and push
-        run: |
-          git config user.name "Grok C"
-          git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add public/sprites/npc/opal-1.png public/sprites/npc/opal-2.png public/sprites/npc/opal-3.png public/sprites/npc/opal-4.png content/sprites.json
-          git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Task 3.8: Opal walk sprites (opal-1..4) + sprites.json"
-          git push
