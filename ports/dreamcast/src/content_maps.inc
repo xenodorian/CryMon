@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=9d7c1b104227c18f — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=a09f66aadc71771f — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
