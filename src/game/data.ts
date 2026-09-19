@@ -1,4 +1,4 @@
-import type { ItemDef, ItemId, Monster, SpeakerId, Species, SpeciesId, TalkBeat } from "./types";
+import type { AtkStat, ItemDef, ItemId, Monster, SpeakerId, Species, SpeciesId, TalkBeat } from "./types";
 import speciesJson from "../../content/species.json";
 import itemsJson from "../../content/items.json";
 import mapsJson from "../../content/maps.json";
@@ -147,6 +147,53 @@ export function natureTag(sign: number): string {
   if (sign > 0) return ` ${NATURE_TYPES.strongText}.`;
   if (sign < 0) return ` ${NATURE_TYPES.weakText}.`;
   return "";
+}
+
+/* ------------------------------------------------------------------
+ * Combat. Every attack (basic, special, spell, Toxic Burst) is atkStat
+ * (str or mag, whichever the move is tagged with) times the move's own
+ * power rating (0.5-1.5, shown to the player x10 as 5-15). Speed is the
+ * same shape off agility, used only to resolve Dodge. Guard has no
+ * percentage roll -- Dodge is a speed contest, Block/Barrier are a flat
+ * score subtracted from the incoming hit. See content/logic.json's
+ * combat block; neither engine hardcodes these constants.
+ * ------------------------------------------------------------------ */
+export type CombatConfig = {
+  dodgeDefenderRandMin: number;
+  dodgeDefenderRandMax: number;
+  guardRandMin: number;
+  guardRandMax: number;
+  barrierHealDivisor: number;
+  parriedText: string;
+  absorbedText: string;
+};
+export const COMBAT = (logicJson.combat || {
+  dodgeDefenderRandMin: 1, dodgeDefenderRandMax: 1,
+  guardRandMin: 1, guardRandMax: 1,
+  barrierHealDivisor: 1, parriedText: "Parried!", absorbedText: "Absorbed!",
+}) as CombatConfig;
+
+export type ToxicBurstConfig = {
+  name: string;
+  stat: AtkStat;
+  power: number;
+  speed: number;
+  poisonDivisor: number;
+};
+export const TOXIC_BURST = (logicJson.toxicBurst || {
+  name: "Toxic Burst", stat: "str", power: 1, speed: 1, poisonDivisor: 16,
+}) as ToxicBurstConfig;
+
+/** Uniform float in [lo, hi]. Used for the Dodge/Block/Barrier rolls. */
+export function frand(lo: number, hi: number): number {
+  return lo + (hi - lo) * Math.random();
+}
+
+/** Raw stat a move draws on (str or mag), mods included -- the one shared
+ *  lookup every attacker-side move and every guard-side foe move go
+ *  through. Agility is never an attack stat, only a speed one. */
+export function atkStatValue(m: Monster, modsStr: number, modsSpc: number, stat: AtkStat): number {
+  return stat === "str" ? m.str + modsStr : m.spc + modsSpc;
 }
 
 /** Index into NATURES for a species' crystal. A crystal is a property of the

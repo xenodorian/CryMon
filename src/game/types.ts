@@ -22,7 +22,6 @@ export type BattlePhase =
   | "enter"
   | "item"
   | "attack"
-  | "minigame"
   | "resolve_hit"
   | "guard"
   | "resolve_guard"
@@ -44,6 +43,8 @@ export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | 
 
 export type SpellId = "firebolt" | "icebeam" | "lightning" | "manasurge";
 
+export type AtkStat = "str" | "mag";
+
 export interface Spell {
   id: SpellId;
   name: string;
@@ -62,7 +63,13 @@ export interface Species {
   agl: number;
   spc: number;
   basic: string;
+  basicStat: AtkStat;
+  basicPower: number;
+  basicSpeed: number;
   special: string;
+  specialStat: AtkStat;
+  specialPower: number;
+  specialSpeed: number;
   specialPp: number;
   wild: boolean;
   spells?: Spell[];
@@ -133,9 +140,6 @@ export interface BattleState {
   msg: string[];
   msgI: number;
   afterMsg: BattlePhase | "end_win" | "end_lose" | "end_catch" | "end_run";
-  minigame: number;
-  minigameDir: number;
-  minigameHit: number | null;
   pendingDmg: number;
   pendingLabel: string;
   guard: GuardKind | null;

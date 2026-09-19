@@ -44,6 +44,10 @@ import {
   NPCS,
   artManifest,
   itemEffect,
+  COMBAT,
+  TOXIC_BURST,
+  atkStatValue,
+  frand,
 } from "./data";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
@@ -463,6 +467,8 @@ export class CryMon {
 	tryContinue() {
 		const snap = unpackSave(readSaveBlob() || new Uint8Array());
 		if (!snap) {
+			try { localStorage.removeItem("crymon.save.v1"); } catch { /* ignore */ }
+			this.hasSave = false;
 			this.audio.miss();
 			this.note("No save.");
 			return false;
@@ -2035,9 +2041,6 @@ export class CryMon {
 			msg: [`${title}!`],
 			msgI: 0,
 			afterMsg: "item",
-			minigame: 0,
-			minigameDir: 1,
-			minigameHit: null,
 			pendingDmg: 0,
 			pendingLabel: "",
 			guard: null,
@@ -2106,6 +2109,14 @@ export class CryMon {
 			return `Greater Crystal x${n}`;
 		}
 		return `${ITEMS[id].name} x${n}`;
+	}
+	/* "should be apparent when selecting an attack" -- a move's power/speed
+	 * design values (0.5-1.5) are shown x10 as friendly 5-15 integers, right
+	 * on the row (the web menu has plenty of width, unlike the Dreamcast's
+	 * narrow battle content box, which uses a shared detail line instead). */
+	atkDetail(stat, power, speed) {
+		const statLabel = stat === "str" ? "STR" : "MAG";
+		return `${statLabel} PWR${Math.round(power * 10)} SPD${Math.round(speed * 10)}`;
 	}
 	attackMenu(p) {
 		const s = SPECIES[p.species];
@@ -2276,23 +2287,34 @@ export class CryMon {
 			}
 			const g = b.guard ?? "block";
 			const foeS = SPECIES[b.foe.species];
-			let useSpecial = false;
 			let moveName = foeS.basic;
-			let base;
-			if (foeS.spells?.length) {
+			let dmg = 0;
+			let moveSpeed = foeS.basicSpeed;
+			let inflictsPoison = false;
+			if (b.foe.shiny && !b.plPoisoned && randI(0, 99) < 30) {
+				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, TOXIC_BURST.stat);
+				dmg = Math.max(1, Math.round(atk * TOXIC_BURST.power));
+				moveSpeed = TOXIC_BURST.speed;
+				moveName = TOXIC_BURST.name;
+				inflictsPoison = true;
+			} else if (foeS.spells?.length) {
 				let spell = foeS.spells[randI(0, Math.min(2, foeS.spells.length - 1))];
 				if (this.selfDebuffed() && b.foe.specialPp > 0 && Math.random() < .55) {
 					spell = foeS.spells.find((sp) => sp.id === "manasurge") ?? spell;
 				}
 				const result = this.castSpell(spell.id, false) ?? { dmg: 1, label: spell.name };
-				base = result.dmg;
+				dmg = result.dmg;
 				moveName = result.label;
+				moveSpeed = spell.speed;
 			} else {
-				useSpecial = b.foe.specialPp > 0 && Math.random() < .28;
+				const useSpecial = b.foe.specialPp > 0 && Math.random() < .28;
 				if (useSpecial) b.foe.specialPp -= 1;
 				moveName = useSpecial ? foeS.special : foeS.basic;
-				const atkStat = useSpecial ? b.foe.spc + b.mods.foeSpc : b.foe.str + b.mods.foeStr;
-				base = useSpecial ? 10 + (b.foe.spc + b.mods.foeSpc) * .7 - (b.player.spc + b.mods.selfSpc) * .12 : 6 + (b.foe.str + b.mods.foeStr) * .6 - (b.player.str + b.mods.selfStr) * .15;
+				const stat = useSpecial ? foeS.specialStat : foeS.basicStat;
+				const power = useSpecial ? foeS.specialPower : foeS.basicPower;
+				moveSpeed = useSpecial ? foeS.specialSpeed : foeS.basicSpeed;
+				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, stat);
+				dmg = Math.max(1, Math.round(atk * power));
 			}
 			let atkStat = useSpecial ? b.foe.spc + b.mods.foeSpc : b.foe.str + b.mods.foeStr;
 			if (b.foe.shiny && !b.plPoisoned && randI(0, 99) < 30) {
@@ -2316,6 +2338,7 @@ export class CryMon {
 			}
 			let dmg = finalDmg;
 			let line = "";
+			let counterDmg = 0;
 			if (g === "dodge") {
 				const defScore = (b.player.agl + b.mods.selfAgl) * (0.75 + Math.random() * 0.5);
 				if (atkSpeed - defScore > 0) {
@@ -2354,10 +2377,11 @@ export class CryMon {
 					this.audio.hit();
 				}
 			}
-			// Only tag a hit that actually landed: a clean dodge zeroes dmg, and
-			// an effectiveness note on a blow that never connected reads as a
-			// contradiction.
+			// Only tag a hit that actually landed: a clean dodge/parry/absorb
+			// zeroes dmg, and an effectiveness note on a blow that never
+			// connected reads as a contradiction.
 			if (dmg > 0) line += natureTag(incoming.sign);
+			if (inflictsPoison) b.plPoisoned = true;
 			b.player.hp = Math.max(0, b.player.hp - dmg);
 			this.shake = dmg === 0 ? .05 : .28;
 			if (b.player.hp <= 0) {
@@ -2366,6 +2390,7 @@ export class CryMon {
 				if (next >= 0) {
 					this.partyIndex = next;
 					b.player = { ...this.party[next] };
+					b.plPoisoned = false;
 					b.enterT = 0;
 					b.faintT = 0;
 					b.msg = [line, `${b.player.name} jumps in.`];
@@ -2379,6 +2404,36 @@ export class CryMon {
 				b.phase = "msg";
 				b.afterMsg = "end_lose";
 				return;
+			}
+			// A Parry's counter-blow can itself finish the foe.
+			if (counterDmg > 0) {
+				b.foe.hp = Math.max(0, b.foe.hp - counterDmg);
+				if (b.foe.hp <= 0) {
+					const lines = [`${b.foe.name} uses ${moveName}.`, `Parried! ${b.foe.name} falls.`];
+					if (b.foeBench.length) {
+						this.party[this.partyIndex] = { ...b.player };
+						grantPartyXp(this.party, this.partyIndex, b.foe.level);
+						b.player = { ...this.party[this.partyIndex] };
+						const nxt = b.foeBench.shift();
+						b.foe = nxt;
+						b.mods.foeStr = 0;
+						b.mods.foeAgl = 0;
+						b.mods.foeSpc = 0;
+						b.foeEnterT = 0;
+						b.foeFaintT = 0;
+						b.foePoisoned = false;
+						b.msg = [...lines, `${b.foeName} sends ${nxt.name}.`];
+						b.msgI = 0;
+						b.phase = "msg";
+						b.afterMsg = "item";
+						return;
+					}
+					b.msg = lines;
+					b.msgI = 0;
+					b.phase = "msg";
+					b.afterMsg = "end_win";
+					return;
+				}
 			}
 			b.msg = [`${b.foe.name} uses ${moveName}.`, line];
 			b.msgI = 0;
@@ -2555,10 +2610,10 @@ export class CryMon {
 				return;
 			}
 			b.player.specialPp -= 1;
-			b.minigame = 8;
-			b.minigameDir = 1;
-			b.minigameHit = null;
-			b.phase = "minigame";
+			const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, s.specialStat);
+			b.pendingDmg = Math.max(1, Math.round(atk * s.specialPower));
+			b.pendingLabel = s.special;
+			b.phase = "resolve_hit";
 			this.audio.special();
 			return;
 		}
@@ -2579,20 +2634,22 @@ export class CryMon {
 		const s = SPECIES[caster.species];
 		let dmg = 0;
 		let label = "";
+		const spell = s.spells?.find((sp) => sp.id === id);
+		const power = spell?.power ?? 1;
 		if (id === "firebolt") {
 			if (fromPlayer) b.mods.foeStr -= 4;
 			else b.mods.selfStr -= 4;
-			dmg = Math.max(1, Math.round(5 + caster.spc * .35 + randI(0, 2)));
+			dmg = Math.max(1, Math.round(caster.spc * power));
 			label = "Fire Bolt  STR-4";
 		} else if (id === "icebeam") {
 			if (fromPlayer) b.mods.foeAgl -= 4;
 			else b.mods.selfAgl -= 4;
-			dmg = Math.max(1, Math.round(5 + caster.spc * .35 + randI(0, 2)));
+			dmg = Math.max(1, Math.round(caster.spc * power));
 			label = "Ice Beam  AGI-4";
 		} else if (id === "lightning") {
 			if (fromPlayer) b.mods.foeSpc -= 4;
 			else b.mods.selfSpc -= 4;
-			dmg = Math.max(1, Math.round(5 + caster.spc * .35 + randI(0, 2)));
+			dmg = Math.max(1, Math.round(caster.spc * power));
 			label = "Lightning Strike  MAG-4";
 		} else if (id === "manasurge") {
 			if (caster.specialPp <= 0) {
@@ -2607,9 +2664,7 @@ export class CryMon {
 			caster.specialPp -= 1;
 			const debuffed = fromPlayer ? this.foeDebuffed() : this.selfDebuffed();
 			const mul = debuffed ? 2 : 1;
-			const atk = caster.spc;
-			const def = fromPlayer ? b.foe.spc + b.mods.foeSpc : b.player.spc + b.mods.selfSpc;
-			dmg = Math.max(1, Math.round((11 + atk * .75 - def * .18) * mul + randI(0, 2)));
+			dmg = Math.max(1, Math.round(caster.spc * power * mul));
 			label = debuffed ? "Mana Surge  2x" : "Mana Surge";
 		}
 		if (fromPlayer) {

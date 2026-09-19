@@ -22,6 +22,13 @@
 #define SP_HEAVENFALL 19
 #define SPECIES_N 20
 
+static const SpellDef SPELLS[4] = {
+    { ATK_MAG, 0.6f, 1.2f },
+    { ATK_MAG, 0.6f, 1.2f },
+    { ATK_MAG, 0.6f, 1.2f },
+    { ATK_MAG, 1.0f, 0.8f },
+};
+
 static const Species SPECIES[SPECIES_N] = {
     { "QUILLPUP", "NIP", "QUILLBURST", 34, 15, 10, 7, 3, 0, {0,0,0,0}, 0.60f, 1.20f, 0, 1.00f, 0.80f, 0 },
     { "GLIMMOTH", "DUSTWING", "LAMPFLARE", 26, 7, 13, 16, 3, 0, {0,0,0,0}, 0.60f, 1.20f, 1, 1.00f, 0.80f, 1 },
