@@ -292,7 +292,11 @@ export function itemEffect(id: ItemId) {
 
 export function artManifest(): [string, string][] {
   const v = SPRITES.cache;
-  const q = (p: string) => `${p}?v=${v}`;
+  // Sprite paths are root-absolute ("/sprites/..."), but GitHub Pages serves
+  // this app under a subpath (base "/CryMon/"). import.meta.env.BASE_URL
+  // always has a trailing slash, so strip the leading slash off p before
+  // joining rather than string-replacing it in.
+  const q = (p: string) => `${import.meta.env.BASE_URL}${p.replace(/^\//, "")}?v=${v}`;
   const out: [string, string][] = [];
   const dirs = ["down", "up", "left", "right"] as const;
   // Title + battle sprites first; 1MB portraits last so the cart can paint.
