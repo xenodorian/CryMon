@@ -54,7 +54,7 @@
     "dust": {
       "id": "dust",
       "name": "Ash dust",
-      "desc": "Foe STR-3 AGI-2 SPC-2 this fight.",
+      "desc": "Foe STR-3 AGI-2 MAG-2 this fight.",
       "battle": true,
       "field": false,
       "buy": 8,

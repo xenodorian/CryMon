@@ -31,6 +31,9 @@ import {
   healAmount,
   mintMonster,
   natureOf,
+  speciesNature,
+  natureScaleDmg,
+  natureTag,
   rollShiny,
   solidTile,
   spawnOf,
@@ -2170,7 +2173,7 @@ export class CryMon {
 						b.menu = [
 							"Dodge  AGI",
 							"Block  STR",
-							"Barrier  SPC"
+							"Barrier  MAG"
 						];
 						b.cursor = 0;
 					}
@@ -2227,10 +2230,14 @@ export class CryMon {
 				b.foe.hp = Math.max(0, b.foe.hp - tick);
 				poisonLine = ` Psn-${tick}`;
 			}
-			b.foe.hp = Math.max(0, b.foe.hp - b.pendingDmg);
+			// Crystal matchup, applied once here rather than in each move
+			// branch that sets pendingDmg, so every player attack is scaled
+			// exactly once and by the same rule the foe's attacks get below.
+			const hit = natureScaleDmg(b.pendingDmg, b.player.species, b.foe.species);
+			b.foe.hp = Math.max(0, b.foe.hp - hit.dmg);
 			this.shake = .25;
 			this.audio.hit();
-			const lines = [`${b.pendingLabel}  ${b.pendingDmg} dmg.${poisonLine}`];
+			const lines = [`${b.pendingLabel}  ${hit.dmg} dmg.${natureTag(hit.sign)}${poisonLine}`];
 			if (b.foe.hp <= 0) {
 				const lines2 = [...lines, `${b.foe.name} falls.`];
 				if (b.foeBench.length) {
@@ -2347,6 +2354,10 @@ export class CryMon {
 					this.audio.hit();
 				}
 			}
+			// Only tag a hit that actually landed: a clean dodge zeroes dmg, and
+			// an effectiveness note on a blow that never connected reads as a
+			// contradiction.
+			if (dmg > 0) line += natureTag(incoming.sign);
 			b.player.hp = Math.max(0, b.player.hp - dmg);
 			this.shake = dmg === 0 ? .05 : .28;
 			if (b.player.hp <= 0) {
@@ -2582,7 +2593,7 @@ export class CryMon {
 			if (fromPlayer) b.mods.foeSpc -= 4;
 			else b.mods.selfSpc -= 4;
 			dmg = Math.max(1, Math.round(5 + caster.spc * .35 + randI(0, 2)));
-			label = "Lightning Strike  SPC-4";
+			label = "Lightning Strike  MAG-4";
 		} else if (id === "manasurge") {
 			if (caster.specialPp <= 0) {
 				if (fromPlayer) {
@@ -3406,13 +3417,13 @@ export class CryMon {
 			const s = SPECIES[m.species];
 			this.drawMonIcon(m, X(12), Y(24), X(88), Y(110));
 			this.text(m.name.toUpperCase(), X(108), Y(28), "#e8e4d8", FONT);
-			this.text(`Lv${m.level}  ${natureOf(m.nature ?? 0).name}`, X(108), Y(40), "#8a8678", FONT);
+			this.text(`Lv${m.level}  ${natureOf(speciesNature(m.species)).name}`, X(108), Y(40), "#8a8678", FONT);
 			if (this.partyView === "stats") {
 				this.text(`HP  ${m.hp}/${m.maxHp}`, X(108), Y(56), "#e8e4d8", FONT);
 				this.hpBar(X(108), Y(68), X(100), m.hp, m.maxHp);
 				this.text(`STR ${m.str}`, X(108), Y(80), "#c5cec6", FONT);
 				this.text(`AGL ${m.agl}`, X(108), Y(92), "#c5cec6", FONT);
-				this.text(`SPC ${m.spc}`, X(108), Y(104), "#c5cec6", FONT);
+				this.text(`MAG ${m.spc}`, X(108), Y(104), "#c5cec6", FONT);
 				this.text(`XP  ${m.xp}/${m.level * 10}`, X(108), Y(116), "#8a8678", FONT);
 			} else {
 				this.text("BASIC", X(108), Y(56), "#8a8678", FONT);

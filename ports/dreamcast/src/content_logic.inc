@@ -9,17 +9,26 @@
 static const int LOGIC_MASON2_MAPS[] = { MAP_VELD, MAP_FOREST, MAP_GROVE };
 #define LOGIC_MASON2_MAP_N 3
 
-typedef struct { const char *name; int str, agl, spc; } NatureDef;
+typedef struct { const char *name; int str, agl, spc; int ring; } NatureDef;
 #define NATURE_N 7
 static const NatureDef NATURES[NATURE_N] = {
-    { "HARDY", 0, 0, 0 },
-    { "LONELY", 2, -1, 0 },
-    { "ADAMANT", 2, 0, -1 },
-    { "BOLD", -1, 2, 0 },
-    { "TIMID", 0, 2, -1 },
-    { "MODEST", -1, 0, 2 },
-    { "CALM", 0, -1, 2 },
+    { "QUARTZ", 1, 1, 1, 2 },
+    { "HEMATITE", 3, 0, 0, 1 },
+    { "DIAMOND", 2, 0, 1, 0 },
+    { "OPAL", 0, 3, 0, 5 },
+    { "SPINEL", 1, 2, 0, 6 },
+    { "LAPIS LAZULI", 0, 0, 3, 4 },
+    { "AMETHYST", 0, 1, 2, 3 },
 };
+/* Crystal matchups: each crystal splits the next
+   NATURE_BEATS_AHEAD around the ring and is split by the
+   previous that many. Derived, not a stored matrix. */
+#define NATURE_RING_N 7
+#define NATURE_BEATS_AHEAD 2
+#define NATURE_STRONG_MUL 2.0f
+#define NATURE_WEAK_MUL 0.5f
+#define NATURE_STRONG_TEXT "WEAKNESS X2"
+#define NATURE_WEAK_TEXT "RESISTED X0.5"
 
 #define PARTY_MAX 6
 #define PARTY_RELEASE 1

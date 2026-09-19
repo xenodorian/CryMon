@@ -187,7 +187,13 @@ static void vram_clear(void) {
    fb_flip -- level is 0 (untouched) to FADE_STEPS (fully black).
    FADE_STEPS is a power of 2 so the per-channel scale is a multiply
    + shift, not a divide, cheap enough to run over all 76800 pixels
-   every frame a fade is in progress. */
+   every frame a fade is in progress.
+
+   This is the *resolution* of the darkening, not its duration. How long
+   each phase lasts comes from content/logic.json's screenFade, baked as
+   LOGIC_FADE_OUT/HOLD/IN_FRAMES; fade_level() below maps phase progress
+   onto this scale. The two were the same number for a while, which is
+   why the hold phase silently lasted one frame instead of its three. */
 #define FADE_STEPS 16
 static void apply_fade(int level) {
     u32 i, keep;
@@ -745,6 +751,33 @@ typedef struct {
 
 #include "content_maps.inc"
 #include "content_logic.inc"
+
+#define FADE_NONE 0
+#define FADE_OUT  1
+#define FADE_HOLD 2
+#define FADE_IN   3
+
+/* Brightness for the current phase, 0..FADE_STEPS. Mirrors the web's
+   fadeAlpha(): out ramps up across its own frame budget, hold sits fully
+   black, in ramps back down. Phase durations come from content/logic.json
+   (LOGIC_FADE_*_FRAMES) and are deliberately independent of FADE_STEPS, so
+   retiming a fade in JSON no longer silently does nothing here. */
+static int fade_level(int phase, int timer) {
+    int lvl;
+    if(phase == FADE_OUT) {
+        if(LOGIC_FADE_OUT_FRAMES <= 0) return FADE_STEPS;
+        lvl = timer * FADE_STEPS / LOGIC_FADE_OUT_FRAMES;
+        return lvl > FADE_STEPS ? FADE_STEPS : lvl;
+    }
+    if(phase == FADE_HOLD)
+        return FADE_STEPS;
+    if(phase == FADE_IN) {
+        if(LOGIC_FADE_IN_FRAMES <= 0) return 0;
+        lvl = FADE_STEPS - timer * FADE_STEPS / LOGIC_FADE_IN_FRAMES;
+        return lvl < 0 ? 0 : lvl;
+    }
+    return 0;
+}
 
 static int tile_is_solid(char ch) {
     const char *p;
@@ -1435,8 +1468,14 @@ typedef struct {
     int lv, xp;
     int maxHp, hp, str, agl, spc, spp, sppMax;
     int shiny; /* see mint_shiny() below */
-    int nature;
 } Monster;
+
+/* A crystal belongs to the species, so every CryMon of a species shares it.
+   Look it up rather than storing a copy on each monster. */
+static int species_nature(int species) {
+    if(species < 0 || species >= SPECIES_N) return 0;
+    return SPECIES[species].nature;
+}
 
 static unsigned char g_dex_seen[SAVE_DEX_BYTES];
 static unsigned char g_dex_caught[SAVE_DEX_BYTES];
@@ -1521,11 +1560,10 @@ static Monster mint_monster(int species, int lv) {
     m.sppMax = s->spp;
     m.hp = m.maxHp;
     m.shiny = 0;
-    m.nature = NATURE_N > 0 ? irand(0, NATURE_N - 1) : 0;
-    nat = &NATURES[m.nature];
-    m.str += nat->str; if(m.str < 1) m.str = 1;
-    m.agl += nat->agl; if(m.agl < 1) m.agl = 1;
-    m.spc += nat->spc; if(m.spc < 1) m.spc = 1;
+    nat = &NATURES[species_nature(species)];
+    m.str += nat->str;
+    m.agl += nat->agl;
+    m.spc += nat->spc;
     dex_note_seen(species);
     return m;
 }
@@ -1560,9 +1598,9 @@ static int grant_xp(Monster *m, int foe_lv, int pct) {
         m->maxHp += LEVEL_HP;
         m->hp += LEVEL_HP;
         if(m->hp > m->maxHp) m->hp = m->maxHp;
-        m->str++;
-        m->agl++;
-        m->spc++;
+        m->str += LEVEL_STAT;
+        m->agl += LEVEL_STAT;
+        m->spc += LEVEL_STAT;
         grew = 1;
     }
     return grew;
@@ -1803,7 +1841,7 @@ static void draw_party_detail(const Monster *party, int party_n, int idx) {
     n = s_cat(buf, 0, "LV");
     n = s_cat_uint(buf, n, m->lv);
     n = s_cat(buf, n, "  ");
-    n = s_cat(buf, n, NATURES[m->nature < NATURE_N ? m->nature : 0].name);
+    n = s_cat(buf, n, NATURES[species_nature(m->species)].name);
     n = s_cat(buf, n, "  HP ");
     n = s_cat_uint(buf, n, m->hp);
     n = s_cat(buf, n, "/");
@@ -1815,7 +1853,7 @@ static void draw_party_detail(const Monster *party, int party_n, int idx) {
     n = s_cat_uint(buf, n, m->str);
     n = s_cat(buf, n, "  AGL ");
     n = s_cat_uint(buf, n, m->agl);
-    n = s_cat(buf, n, "  SPC ");
+    n = s_cat(buf, n, "  MAG ");
     n = s_cat_uint(buf, n, m->spc);
     buf[n] = 0;
     draw_text_s(buf, MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE); y += MENU_ROW_H * 2;
@@ -2056,7 +2094,7 @@ static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_
         if(from_player) b->mods_foe_spc -= 4; else b->mods_self_spc -= 4;
         dmg = jground(5.0f + (float)caster->spc * 0.35f + (float)irand(0, 2));
         if(dmg < 1) dmg = 1;
-        n = s_cat(label, 0, "LIGHTNING STRIKE  SPC-4");
+        n = s_cat(label, 0, "LIGHTNING STRIKE  MAG-4");
     }
     else {
         int debuffed, atk, def;
@@ -2077,8 +2115,42 @@ static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_
     return 1;
 }
 
+/* Crystal matchup between two party/foe natures. Returns +1 when the
+   attacker's crystal splits the defender's, -1 when it is split by it, 0
+   for neutral. Ring position and the reach come from content/logic.json
+   via content_logic.inc, so the web port uses the same table. */
+static int nature_matchup(int atk_nat, int def_nat) {
+    int a, d, step;
+    if(atk_nat < 0 || atk_nat >= NATURE_N || def_nat < 0 || def_nat >= NATURE_N)
+        return 0;
+    a = NATURES[atk_nat].ring;
+    d = NATURES[def_nat].ring;
+    step = d - a;
+    if(step < 0) step += NATURE_RING_N;
+    if(step >= 1 && step <= NATURE_BEATS_AHEAD) return 1;
+    if(step >= NATURE_RING_N - NATURE_BEATS_AHEAD) return -1;
+    return 0;
+}
+
+static int nature_scale_dmg(int dmg, int atk_nat, int def_nat, int *out_sign) {
+    int sign = nature_matchup(atk_nat, def_nat);
+    if(out_sign) *out_sign = sign;
+    if(sign > 0)      dmg = jground((float)dmg * NATURE_STRONG_MUL);
+    else if(sign < 0) dmg = jground((float)dmg * NATURE_WEAK_MUL);
+    if(dmg < 1) dmg = 1;
+    return dmg;
+}
+
 static void battle_apply_hit(Battle *b) {
     int n, poison_tick = 0;
+    int nat_sign = 0;
+
+    /* Crystal matchup, applied once here rather than in each of the move
+       branches that feed this, so every player attack is scaled exactly
+       once and by the same rule the foe's attacks get in
+       battle_pick_guard(). */
+    b->dmg = nature_scale_dmg(b->dmg, species_nature(b->pl.species),
+                              species_nature(b->foe.species), &nat_sign);
 
     /* TOXIC BURST's ongoing chip damage: ticks whatever poison state
        the foe was ALREADY carrying into this turn, before this turn's
@@ -2099,6 +2171,8 @@ static void battle_apply_hit(Battle *b) {
     n = s_cat(b->msg[0], n, " ");
     n = s_cat_uint(b->msg[0], n, b->dmg);
     n = s_cat(b->msg[0], n, " DMG");
+    if(nat_sign > 0)      n = s_cat(b->msg[0], n, " " NATURE_STRONG_TEXT);
+    else if(nat_sign < 0) n = s_cat(b->msg[0], n, " " NATURE_WEAK_TEXT);
     if(poison_tick > 0) {
         n = s_cat(b->msg[0], n, " PSN-");
         n = s_cat_uint(b->msg[0], n, poison_tick);
@@ -2475,7 +2549,7 @@ static void battle_pick_item(Battle *b, Bag *bag, int kind,
         n = s_cat_uint(b->msg[0], n, fx->str < 0 ? -fx->str : fx->str);
         n = s_cat(b->msg[0], n, " AGI-");
         n = s_cat_uint(b->msg[0], n, fx->agl < 0 ? -fx->agl : fx->agl);
-        n = s_cat(b->msg[0], n, " SPC-");
+        n = s_cat(b->msg[0], n, " MAG-");
         n = s_cat_uint(b->msg[0], n, fx->spc < 0 ? -fx->spc : fx->spc);
     }
     else if(fx->kind == 5) { /* flee */
@@ -2976,7 +3050,7 @@ static void draw_battle_guard_menu(int cur) {
     int y = BCONTENT_Y + 8;
     draw_battle_menu_row("DODGE AGI", 0, cur, y); y += MENU_ROW_H;
     draw_battle_menu_row("BLOCK STR", 1, cur, y); y += MENU_ROW_H;
-    draw_battle_menu_row("BARRIER SPC", 2, cur, y);
+    draw_battle_menu_row("BARRIER MAG", 2, cur, y);
 }
 
 /* drawBattle()'s full-screen background, drawn before the status
@@ -3510,10 +3584,7 @@ void main(void) {
     int fade_state = 0;
     int fade_timer = 0;
     int fade_action = 0;
-#define FADE_NONE        0
-#define FADE_OUT         1
-#define FADE_HOLD        2
-#define FADE_IN          3
+/* FADE_NONE/OUT/HOLD/IN live up by apply_fade(), which fade_level() needs. */
 #define FADE_ACTION_BED  1
 #define FADE_ACTION_LOSS 2
 
@@ -3744,39 +3815,45 @@ void main(void) {
 
         /* Fade tick: runs every frame regardless of state/menu/battle
            (world movement and battle input are what gate on
-           fade_state == 0, not this). FADE_HOLD is exactly one frame
-           -- just long enough that apply_fade() below draws one fully
-           black frame with the teleport/heal already applied, so
-           neither the old nor the new scene is ever visible
-           mid-transition. */
+           fade_state == 0, not this). Each phase lasts its own budget
+           from content/logic.json, so this matches the web's
+           updateFade() beat for beat.
+
+           The teleport/heal fires on ENTERING the hold, exactly as the
+           web's applyFadeHold() does, so the whole hold renders fully
+           black with the new scene already in place and neither scene is
+           ever visible mid-transition. */
         if(fade_state == FADE_OUT) {
             fade_timer++;
-            if(fade_timer >= FADE_STEPS) {
+            if(fade_timer >= LOGIC_FADE_OUT_FRAMES) {
                 fade_state = FADE_HOLD;
                 fade_timer = 0;
+                if(fade_action == FADE_ACTION_BED) {
+                    heal_party(party, party_n);
+                }
+                else if(fade_action == FADE_ACTION_LOSS) {
+                    heal_party(party, party_n);
+                    map_id = MAP_HOUSE;
+                    find_mark(MAP_HOUSE, 'U', &col, &row);
+                    px = (col + 1) * TILE + TILE / 2;
+                    py = row * TILE + TILE / 2;
+                    pdir = 1; /* facing up, toward the bed */
+                    last_tx = -1;
+                    last_ty = -1;
+                    door_lock = 20;
+                }
             }
         }
         else if(fade_state == FADE_HOLD) {
-            if(fade_action == FADE_ACTION_BED) {
-                heal_party(party, party_n);
+            fade_timer++;
+            if(fade_timer >= LOGIC_FADE_HOLD_FRAMES) {
+                fade_state = FADE_IN;
+                fade_timer = 0;
             }
-            else if(fade_action == FADE_ACTION_LOSS) {
-                heal_party(party, party_n);
-                map_id = MAP_HOUSE;
-                find_mark(MAP_HOUSE, 'U', &col, &row);
-                px = (col + 1) * TILE + TILE / 2;
-                py = row * TILE + TILE / 2;
-                pdir = 1; /* facing up, toward the bed */
-                last_tx = -1;
-                last_ty = -1;
-                door_lock = 20;
-            }
-            fade_state = FADE_IN;
-            fade_timer = 0;
         }
         else if(fade_state == FADE_IN) {
             fade_timer++;
-            if(fade_timer >= FADE_STEPS) {
+            if(fade_timer >= LOGIC_FADE_IN_FRAMES) {
                 fade_state = FADE_NONE;
                 fade_timer = 0;
                 fade_action = 0;
@@ -3823,7 +3900,9 @@ void main(void) {
                             party[pi].sppMax = sl.party[pi].sppMax;
                             party[pi].shiny = sl.party[pi].shiny;
                             party[pi].xp = sl.party[pi].xp;
-                            party[pi].nature = sl.party[pi].nature;
+                            /* slot byte 12 (was a per-monster crystal) is
+                               reserved now -- the crystal comes from the
+                               species, so old saves need no migration. */
                             dex_note_caught(party[pi].species);
                         }
                         {
@@ -4001,7 +4080,7 @@ void main(void) {
                         sl.party[pi].sppMax = (unsigned char)party[pi].sppMax;
                         sl.party[pi].shiny = (unsigned char)party[pi].shiny;
                         sl.party[pi].xp = (unsigned short)party[pi].xp;
-                        sl.party[pi].nature = (unsigned char)party[pi].nature;
+                        sl.party[pi].nature = 0; /* reserved, see the reader */
                     }
                     {
                         int di;
@@ -5395,12 +5474,7 @@ void main(void) {
 
         /* Post-process over whatever was just drawn, whatever it was
            -- see the fade_state comment up at its declaration. */
-        if(fade_state == FADE_OUT)
-            apply_fade(fade_timer);
-        else if(fade_state == FADE_HOLD)
-            apply_fade(FADE_STEPS);
-        else if(fade_state == FADE_IN)
-            apply_fade(FADE_STEPS - fade_timer);
+        apply_fade(fade_level(fade_state, fade_timer));
 
         prev_start = start_now;
         prev_b = b_now;

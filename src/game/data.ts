@@ -95,9 +95,67 @@ export function natureOf(index: number): NatureDef {
   return NATURES[index] ?? NATURES[0] ?? { id: "hardy", name: "Hardy", str: 0, agl: 0, spc: 0 };
 }
 
-export function rollNature(): number {
-  if (!NATURES.length) return 0;
-  return Math.floor(Math.random() * NATURES.length);
+/* ------------------------------------------------------------------
+ * Crystal matchups. One crystal gives a CryMon both its stat bonuses
+ * (above) and its type. The ring, its reach and the multipliers all come
+ * from content/logic.json, so the Dreamcast port derives the same table
+ * from the same numbers instead of hardcoding a second one.
+ * ------------------------------------------------------------------ */
+export type NatureTypes = {
+  ring: string[];
+  beatsAhead: number;
+  strongMul: number;
+  weakMul: number;
+  strongText: string;
+  weakText: string;
+};
+export const NATURE_TYPES = (logicJson.natureTypes || {
+  ring: [], beatsAhead: 0, strongMul: 1, weakMul: 1, strongText: "", weakText: "",
+}) as NatureTypes;
+
+/** +1 if the attacker's crystal splits the defender's, -1 if split by it, 0 neutral. */
+export function natureMatchup(atkSpecies: SpeciesId, defSpecies: SpeciesId): number {
+  const atkIndex = speciesNature(atkSpecies);
+  const defIndex = speciesNature(defSpecies);
+  const ring = NATURE_TYPES.ring;
+  const n = ring.length;
+  if (!n) return 0;
+  const a = ring.indexOf(natureOf(atkIndex).id);
+  const d = ring.indexOf(natureOf(defIndex).id);
+  if (a < 0 || d < 0) return 0;
+  let step = (d - a) % n;
+  if (step < 0) step += n;
+  if (step >= 1 && step <= NATURE_TYPES.beatsAhead) return 1;
+  if (step >= n - NATURE_TYPES.beatsAhead) return -1;
+  return 0;
+}
+
+/** Scales a finished damage number by the matchup; `sign` says which way it went. */
+export function natureScaleDmg(
+  dmg: number,
+  atkSpecies: SpeciesId,
+  defSpecies: SpeciesId,
+): { dmg: number; sign: number } {
+  const sign = natureMatchup(atkSpecies, defSpecies);
+  if (sign > 0) dmg = Math.round(dmg * NATURE_TYPES.strongMul);
+  else if (sign < 0) dmg = Math.round(dmg * NATURE_TYPES.weakMul);
+  return { dmg: Math.max(1, dmg), sign };
+}
+
+/** " The crystal splits" / " The crystal holds" / "" for the battle log. */
+export function natureTag(sign: number): string {
+  if (sign > 0) return ` ${NATURE_TYPES.strongText}.`;
+  if (sign < 0) return ` ${NATURE_TYPES.weakText}.`;
+  return "";
+}
+
+/** Index into NATURES for a species' crystal. A crystal is a property of the
+ *  species, so every CryMon of that species shares it. */
+export function speciesNature(species: SpeciesId): number {
+  const nid = (SPECIES[species] as { nature?: string })?.nature;
+  if (!nid) return 0;
+  const i = NATURES.findIndex((n) => n.id === nid);
+  return i < 0 ? 0 : i;
 }
 
 export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature?: number): Monster {
@@ -107,7 +165,7 @@ export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature
   /* Grow per level = base strength / 100 (e.g. Quillpup str 15 → 0.15). */
   const grow = 1 + (lv - FORMULAS.mintBaseLevel) * (s.str / 100);
   const maxHp = Math.round(s.maxHp * grow);
-  const ni = nature ?? rollNature();
+  const ni = nature ?? speciesNature(species);
   const nat = natureOf(ni);
   return {
     id: `${species}-${Math.random().toString(36).slice(2, 7)}`,
@@ -115,9 +173,9 @@ export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature
     name: shiny ? `Shiny ${s.name}` : s.name,
     hp: maxHp,
     maxHp,
-    str: Math.max(1, Math.round(s.str * grow) + nat.str),
-    agl: Math.max(1, Math.round(s.agl * grow) + nat.agl),
-    spc: Math.max(1, Math.round(s.spc * grow) + nat.spc),
+    str: Math.round(s.str * grow) + nat.str,
+    agl: Math.round(s.agl * grow) + nat.agl,
+    spc: Math.round(s.spc * grow) + nat.spc,
     specialPp: s.specialPp,
     specialPpMax: s.specialPp,
     level: lv,

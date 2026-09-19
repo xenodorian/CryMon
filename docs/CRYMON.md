@@ -107,9 +107,41 @@ and the natures table from JSON. **Do not add a parallel C/TS table.**
 3. If the flag must persist: **append** it to `save.json` `flags`, add the boolean on both engines, and on DC point `ft[FLAG_*]` at the live int. Runtime-only flags (`hasParty2`, `hasCageKey`) stay in baker `FLAG_IDS` without a save bit.
 4. Never silently reuse another character’s sprite. Missing art → `PLACEHOLDER_ART`.
 
-### New nature
+### New nature (Crystal)
 
-Append to `logic.json` `natures` (`id`, `name`, `str`, `agl`, `spc`). Mint applies the bonuses once; party slot **byte 12** stores the index. Hardy (`0/0/0`) is index 0, so old saves look Hardy without a version bump.
+A nature is a **crystal**. A crystal belongs to the **species**, not to an
+individual, and several species share each one. One crystal gives a species
+both its stat bonus and its type. There is no separate typing field and no
+per-monster roll.
+
+To add one:
+
+1. Append to `logic.json` `natures` (`id`, `name`, `str`, `agl`, `spc`) **and**
+   to `natureTypes.ring`. The baker refuses to bake if the two disagree, or if
+   any species names a crystal that does not exist.
+2. Point species at it with `"nature": "<id>"` in `species.json`. Every species
+   needs one.
+
+Rules that hold:
+
+- **Stat bonuses are never negative.** A stat must never go down, at mint or on
+  level up. Each crystal currently totals `+3` spread across str/agl/spc, so
+  they stay balanced against each other. Level up is `+levelHp` HP and
+  `+levelStat` to each stat, always up.
+- **Never reorder `natures`.** Save slot byte 12 held a per-monster crystal
+  before this became per-species; it is **reserved** now and ignored on load,
+  so old saves need no migration, but the indices are still what the baker
+  emits per species.
+- `natureTypes.ring` is its own order and is what decides matchups, so it does
+  not have to match the array order above.
+- Matchups are **derived, not stored**: each crystal is weak to the next
+  `beatsAhead` around the ring and resists the previous `beatsAhead`. With 7
+  crystals and `beatsAhead: 2` that is exactly 2 weaknesses, 2 resistances and
+  2 neutral each, symmetric, with no blanket pick. Keep the count **odd** —
+  an even ring gives some pairs mirror matchups.
+- `strongMul` / `weakMul` are **2.0 / 0.5**. Neither engine hardcodes them:
+  web reads `NATURE_TYPES` in `data.ts`, DC reads the baked `NATURE_*` defines
+  plus the `ring` field on `NatureDef` and `nature` on `Species`.
 
 ### Bench XP / formulas
 
