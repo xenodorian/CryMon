@@ -355,7 +355,46 @@ def main() -> int:
     if set(union_members(types, "ItemId")) != set(items):
         errors.append("types.ts ItemId union != items.order")
 
-    talk_keys = list(data["dialogue"]["talk"].keys())
+    dialogue = data["dialogue"]
+    speakers_map = dialogue.get("speakers") or {}
+    talk = dialogue.get("talk") or {}
+    for key, beats in talk.items():
+        if not isinstance(beats, list) or not beats:
+            errors.append(f"dialogue.talk.{key} must be a nonempty beat list")
+            continue
+        for bi, beat in enumerate(beats):
+            if not isinstance(beat, dict):
+                errors.append(f"dialogue.talk.{key}[{bi}] must be an object")
+                continue
+            speaker = beat.get("speaker")
+            if speaker not in speakers_map:
+                errors.append(f"dialogue.talk.{key}[{bi}] references unknown speaker {speaker!r}")
+            if not isinstance(beat.get("text"), str) or not beat.get("text").strip():
+                errors.append(f"dialogue.talk.{key}[{bi}] must have nonempty text")
+
+    def check_talk_ref(value, where):
+        if isinstance(value, str) and value not in talk:
+            errors.append(f"{where} references missing dialogue key {value!r}")
+
+    for npc in data["world"].get("npcs") or []:
+        nid = npc.get("id", "?")
+        for field in ("talk", "talkDone"):
+            check_talk_ref(npc.get(field), f"npc {nid!r}.{field}")
+        for si, step in enumerate(npc.get("script") or []):
+            for field in ("talk", "talkElse"):
+                check_talk_ref(step.get(field), f"npc {nid!r} script[{si}].{field}")
+            # talkIf is a flag name, not a dialogue key.
+
+    for tid, trainer in (data["world"].get("trainers") or {}).items():
+        if isinstance(trainer, dict):
+            check_talk_ref(trainer.get("winTalk"), f"trainer {tid!r}.winTalk")
+
+    logic_mr = data["logic"].get("masonRematch") or {}
+    check_talk_ref(logic_mr.get("talk"), "logic.masonRematch.talk")
+    check_talk_ref((logic_mr.get("battle") or {}).get("winTalk"), "logic.masonRematch.battle.winTalk")
+    check_talk_ref((data["logic"].get("bed") or {}).get("talk"), "logic.bed.talk")
+
+    talk_keys = list(talk.keys())
     table_keys = [k for k, _ in talk_table(data)]
     if set(talk_keys) != set(table_keys):
         missing_t = [k for k in talk_keys if k not in table_keys]
