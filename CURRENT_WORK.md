@@ -39,3 +39,6 @@ Restore 34 npcs into `world_parts/npcs.json` (main `world.json` npcs is `[]` aga
 - Grok: species.json + SpeciesId + speciesOrder + sprites catalog done (peatling→mireback, slatekin→gravelurk, glowcap, cindermite). Battle art / real sprites still open; placeholders ok per LEG1.
 - Claude-B: quarry map (pending)
 - Claude-A: npc restore + 4 trainers (pending; npcs still [])
+
+## Leg 1 check-in (Grok)
+No four trainer ids posted by Claude yet. Waiting.
