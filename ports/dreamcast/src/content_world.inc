@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=861d68b311c91d4e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=644a58d7acb26033 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -146,7 +146,11 @@ static const ItemFx ITEM_FX[] = {
 #define FLAG_SOLDIER_BEATEN0 36
 #define FLAG_SOLDIER_BEATEN1 37
 #define FLAG_SOLDIER_BEATEN2 38
-#define FLAG_N 39
+#define FLAG_BEAT_FOREST_RANGER 39
+#define FLAG_BEAT_FOREST_SCOUT 40
+#define FLAG_BEAT_RUINS_KEEPER 41
+#define FLAG_BEAT_RUINS_WARDEN 42
+#define FLAG_N 43
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -238,6 +242,14 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 68, -1, -1, 0, -1, 0, 0, -1 },
     { -1, 28, -1, 28, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 76, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 77, -1, -1, 0, -1, 0, 0, -1 },
+    { 39, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 89, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 88, -1, -1, 7, -1, 0, 0, -1 },
+    { 40, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 91, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 90, -1, -1, 7, -1, 0, 0, -1 },
+    { 41, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 93, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 92, -1, -1, 7, -1, 0, 0, -1 },
+    { 42, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 95, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 94, -1, -1, 7, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 2, 30, 32 },
@@ -269,7 +281,11 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_RUINS, 'K', 57, 2, 30, 32 },
     { MAP_RUINS, 'A', 59, 2, 30, 32 },
     { MAP_REACH, 'Y', 61, 2, 30, 32 },
+    { MAP_FOREST, '4', 63, 2, 30, 32 },
+    { MAP_FOREST, '5', 65, 2, 30, 32 },
+    { MAP_RUINS, '6', 67, 2, 30, 32 },
+    { MAP_RUINS, '7', 69, 2, 30, 32 },
 };
-#define NPC_DEF_N 29
+#define NPC_DEF_N 33
 #define INTERACT_BUFFER 10
 

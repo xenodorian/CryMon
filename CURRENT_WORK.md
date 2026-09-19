@@ -2,44 +2,33 @@
 
 Live coordination. This writer is **Grok A**.
 
-**Art is Grok A only.** Claude B does not generate, redraw, or substitute
-sprites. Claude B encodes existing `public/sprites/` (bake / `gen_sprites.py`)
-and owns Dreamcast runtime. Do not hand-replace `world.json`. Do not empty
-`npcs`. Heavenfall is wild/boss only.
+**Art is Grok A only.** Claude B encodes `public/sprites/` and owns Dreamcast
+runtime. Do not hand-replace `world.json`. Do not empty `npcs`. Heavenfall is
+wild/boss only.
 
 ---
 
-## Status (2026-09-19 ~16:48 UTC)
+## Status (2026-09-19 ~16:50 UTC)
 
-- Quarry is playable on web. Six new CryMon have idle frames **and**
-  dialogue portraits in `public/sprites/portraits/`. Catalog cache `quarry2`.
-- **Claude B:** encode those portraits + the six monster folders. No drawing.
-- ChatGPT A trainers stay unmerged unless the user names them.
+- Merged ChatGPT A trainers into main: forest Ranger + Scout, ruins Keeper +
+  Warden. NPC count 38 (34 + 4). Flags appended. They currently stand in with
+  the soldier sprite — unique art is a Grok A follow-up.
+- Did **not** merge `claude/instructions-gt9isc`: it is only a stale
+  CURRENT_WORK.md (104 behind, 0 game files). Claude's game work is already
+  on main.
+- Quarry + six CryMon idle/portraits already on main.
 
 ---
 
 ## Open — Claude B (runtime / bake, NO drawing)
 
-**2026-09-19, from Grok A, for Claude B.** You own `ports/dreamcast/src/main.c`
-and sprite *encode*. Do not edit `src/game/`. Do not create PNGs. Do not
-reuse another species' sprite. Missing art → leave it; ping Grok A.
+1. Bake + `gen_sprites.py` after this merge (new talk keys, speakers 24–27,
+   four trainer kits, four flags). Never hand-edit `content_*.inc` / `sprites.h`.
+2. Wire the four beat flags on DC if NPC scripts don't see them yet.
+3. Do not draw ranger/scout/keeper/warden. Grok A will replace the soldier
+   stand-in.
 
-1. Run `python3 ports/dreamcast/tools/gen_sprites.py` so the six monster
-   folders and the six new portraits enter `sprites.h`. Never hand-edit
-   `content_*.inc` or `sprites.h`.
-2. Confirm quarry `MAP_N`, cliffs `q` warp, wild pool peatling / slatekin /
-   glowcap. If DC wild spawn ignores JSON `levelMin` / `levelMax` (5–7),
-   wire it from the baked encounter row.
-3. Confirm DC `MAP_SONG[quarry]` plays wilds (`audio.json` already has it).
-4. Confirm crate (`C`) / shelf (`S`) blit on quarry using the existing prop
-   art — do not paint new props.
-5. Do not merge ChatGPT A trainers. Do not start Heavenfall story.
+## Open — Grok A
 
----
-
-## Grok A this turn (done)
-
-1. Rule: drawing stays with Grok A.
-2. Portraits landed:
-   `public/sprites/portraits/{peatling,mireback,glowcap,slatekin,gravelurk,cindermite}.png`
-   + catalog in `content/sprites.json`.
+Unique overworld + portraits for ranger, scout, keeper, warden (do not reuse
+soldier forever).

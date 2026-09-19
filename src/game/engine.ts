@@ -352,6 +352,10 @@ export class CryMon {
 		this.beatConscript = false;
 		this.beatEnforcer = false;
 		this.beatSentry = false;
+		this.beatForestRanger = false;
+		this.beatForestScout = false;
+		this.beatRuinsKeeper = false;
+		this.beatRuinsWarden = false;
 		this.cageOpen = false;
 		this.mason2Map = null;
 		this.mason2Done = false;
@@ -1740,6 +1744,10 @@ export class CryMon {
 			cageOpen: this.cageOpen,
 			hasCageKey: (this.bag.cageKey ?? 0) > 0,
 			talkedReach: this.talkedReach,
+			beatForestRanger: this.beatForestRanger,
+			beatForestScout: this.beatForestScout,
+			beatRuinsKeeper: this.beatRuinsKeeper,
+			beatRuinsWarden: this.beatRuinsWarden,
 		};
 	}
 	setNpcFlag(name: string) {

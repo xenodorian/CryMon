@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=861d68b311c91d4e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=644a58d7acb26033 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -382,6 +382,34 @@ static const TalkBeat TALK_COTTAGE[] = {
 static const TalkBeat TALK_LOSE[] = {
     { "WE STILL BREATHE. CRAWL BACK.", 1 },
 };
+static const TalkBeat TALK_FOREST_RANGER_SPOT[] = {
+    { "THE FOREST PATH IS WATCHED. TURN AROUND, MAX.", 24 },
+    { "I AM NOT TURNING AROUND.", 1 },
+};
+static const TalkBeat TALK_FOREST_RANGER_WIN[] = {
+    { "YOU ARE TOUGHER THAN YOU LOOK. KEEP MOVING.", 24 },
+};
+static const TalkBeat TALK_FOREST_SCOUT_SPOT[] = {
+    { "THE TREES HIDE MORE THAN CRYMON. THEY HIDE SOLDIERS TOO.", 25 },
+    { "THEN I WILL KEEP MY EYES OPEN.", 1 },
+};
+static const TalkBeat TALK_FOREST_SCOUT_WIN[] = {
+    { "YOU MADE IT THROUGH. THE RUINS ARE WORSE.", 25 },
+};
+static const TalkBeat TALK_RUINS_KEEPER_SPOT[] = {
+    { "THESE STONES REMEMBER EVERY ARMY THAT PASSED THROUGH.", 26 },
+    { "I ONLY NEED THEM TO REMEMBER ME.", 1 },
+};
+static const TalkBeat TALK_RUINS_KEEPER_WIN[] = {
+    { "THEN LEAVE YOUR MARK SOMEWHERE WORTH REMEMBERING.", 26 },
+};
+static const TalkBeat TALK_RUINS_WARDEN_SPOT[] = {
+    { "NOTHING LEAVES THESE RUINS WITHOUT A FIGHT.", 27 },
+    { "THEN FIGHT.", 1 },
+};
+static const TalkBeat TALK_RUINS_WARDEN_WIN[] = {
+    { "GO. THE REACH IS BEYOND THE LOWER GATE.", 27 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -481,6 +509,14 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_ANNE_AGAIN,
     TALK_COTTAGE,
     TALK_LOSE,
+    TALK_FOREST_RANGER_SPOT,
+    TALK_FOREST_RANGER_WIN,
+    TALK_FOREST_SCOUT_SPOT,
+    TALK_FOREST_SCOUT_WIN,
+    TALK_RUINS_KEEPER_SPOT,
+    TALK_RUINS_KEEPER_WIN,
+    TALK_RUINS_WARDEN_SPOT,
+    TALK_RUINS_WARDEN_WIN,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -571,6 +607,14 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_ANNE_AGAIN),
     TALK_LEN(TALK_COTTAGE),
     TALK_LEN(TALK_LOSE),
+    TALK_LEN(TALK_FOREST_RANGER_SPOT),
+    TALK_LEN(TALK_FOREST_RANGER_WIN),
+    TALK_LEN(TALK_FOREST_SCOUT_SPOT),
+    TALK_LEN(TALK_FOREST_SCOUT_WIN),
+    TALK_LEN(TALK_RUINS_KEEPER_SPOT),
+    TALK_LEN(TALK_RUINS_KEEPER_WIN),
+    TALK_LEN(TALK_RUINS_WARDEN_SPOT),
+    TALK_LEN(TALK_RUINS_WARDEN_WIN),
 };
-#define TALK_TABLE_N 88
+#define TALK_TABLE_N 96
 
