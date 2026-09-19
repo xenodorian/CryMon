@@ -1,0 +1,39 @@
+name: Build Dreamcast CDI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bake content
+        run: python3 tools/bake_content.py --content content --out ports/dreamcast/src
+      - name: Install sprite generator dependency
+        run: python3 -m pip install --user Pillow
+      - name: Generate sprites
+        run: python3 ports/dreamcast/tools/gen_sprites.py public/sprites
+      - name: Build ELF
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/src" -w /src einsteinx2/dcdev-kos-toolchain:gcc-9 sh -lc 'export PATH=/opt/toolchains/dc/sh-elf/bin:/opt/toolchains/dc/bin:$PATH; make -C ports/dreamcast clean && make -C ports/dreamcast'
+      - name: Build CDI with mkdcdisc
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:/src" ubuntu:24.04 bash -lc 'set -e; apt-get update -qq; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq git meson ninja-build pkg-config build-essential libisofs-dev; git clone -q --depth 1 https://gitlab.com/simulant/mkdcdisc.git /tmp/mkdcdisc; meson setup /tmp/mkdcdisc/build /tmp/mkdcdisc >/dev/null; meson compile -C /tmp/mkdcdisc/build >/dev/null; /tmp/mkdcdisc/build/mkdcdisc -e /src/ports/dreamcast/crymon.elf -o /src/ports/dreamcast/crymon.cdi -n "CryMon" -a "xenodorian" -N --allow-overwrite'
+      - name: Verify outputs
+        run: |
+          file ports/dreamcast/crymon.elf
+          file ports/dreamcast/crymon.cdi
+          ls -lh ports/dreamcast/crymon.elf ports/dreamcast/crymon.cdi
+      - name: Commit CDI
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f ports/dreamcast/src/content_*.inc ports/dreamcast/src/sprites.h ports/dreamcast/crymon.elf ports/dreamcast/crymon.cdi
+          git diff --cached --quiet || git commit -m "Build Dreamcast CDI"
+          git push
