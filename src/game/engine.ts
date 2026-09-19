@@ -2106,11 +2106,18 @@ export class CryMon {
 	}
 	attackMenu(p) {
 		const s = SPECIES[p.species];
+		const disp = (power, speed) => ` P${Math.round((power ?? 0.6) * 10)} S${Math.round((speed ?? 1.2) * 10)}`;
 		if (s.spells?.length) {
-			return s.spells.map((sp) => sp.pp ? `${sp.name}  ${p.specialPp}/${p.specialPpMax}` : sp.name);
+			return s.spells.map((sp) => {
+				const base = sp.pp ? `${sp.name}  ${p.specialPp}/${p.specialPpMax}` : sp.name;
+				return base + disp(sp.power ?? (sp.pp ? 1.0 : 0.6), sp.speed ?? (sp.pp ? 0.8 : 1.2));
+			});
 		}
-		const rows = [`${s.basic}`, `${s.special}  ${p.specialPp}/${p.specialPpMax}`];
-		if (p.shiny) rows.push("Toxic Burst");
+		const rows = [
+			`${s.basic}${disp(s.basicPower, s.basicSpeed)}`,
+			`${s.special}${disp(s.specialPower, s.specialSpeed)}  ${p.specialPp}/${p.specialPpMax}`,
+		];
+		if (p.shiny) rows.push(`Toxic Burst${disp(0.5, 1.0)}`);
 		rows.push("Wait");
 		return rows;
 	}
@@ -2184,22 +2191,31 @@ export class CryMon {
 			if (this.input.confirm()) {
 				b.minigameHit = b.minigame;
 				const hit = b.minigame;
-				let mul = .7;
-				let label = "fizzled";
-				if (hit >= 46 && hit <= 54) {
-					mul = 2;
-					label = "perfect";
+				/* Zones: green 45–55 = 2x, yellow 30–70 = 1.5x, red rest = 1x */
+				let mul = 1.0;
+				let tag = "fizzled";
+				if (hit >= 45 && hit <= 55) {
+					mul = 2.0;
+					tag = "perfect";
 					this.audio.special();
-				} else if (hit >= 38 && hit <= 62) {
-					mul = 1.45;
-					label = "connected";
+				} else if (hit >= 30 && hit <= 70) {
+					mul = 1.5;
+					tag = "connected";
 					this.audio.ok();
-				} else this.audio.miss();
+				} else {
+					this.audio.miss();
+				}
 				const s = SPECIES[b.player.species];
-				const atk = b.player.spc + b.mods.selfStr * .2;
-				const def = b.foe.spc + b.mods.foeSpc;
-				b.pendingDmg = Math.max(1, Math.round((11 + atk * .75 - def * .18) * mul + randI(0, 2)));
-				b.pendingLabel = `${s.special} ${label}`;
+				const power = s.specialPower ?? 1.0;
+				const speed = s.specialSpeed ?? 0.8;
+				const statKind = s.specialStat ?? "spc";
+				const atkStat = statKind === "spc"
+					? b.player.spc + b.mods.selfSpc
+					: b.player.str + b.mods.selfStr;
+				const agl = b.player.agl + b.mods.selfAgl;
+				b.pendingDmg = Math.max(1, Math.round(atkStat * power * mul));
+				b.pendingSpeed = agl * speed;
+				b.pendingLabel = `${s.special} ${tag}`;
 				b.phase = "resolve_hit";
 			}
 			return;
@@ -2279,38 +2295,60 @@ export class CryMon {
 				atkStat = b.foe.str + b.mods.foeStr;
 				b.plPoisoned = true;
 			}
-			const defStat = g === "dodge" ? b.player.agl + b.mods.selfAgl : g === "block" ? b.player.str + b.mods.selfStr : b.player.spc + b.mods.selfSpc;
-			const chance = clamp(50 + (defStat - atkStat) * 5 + randI(-10, 10), 12, 88);
-			const success = randI(1, 100) <= chance;
-			let dmg = Math.max(1, Math.round(base + randI(0, 3)));
+			let finalDmg = Math.max(1, Math.round(base));
+			let atkSpeed = (b.foe.agl + b.mods.foeAgl) * (useSpecial ? (foeS.specialSpeed ?? 0.8) : (foeS.basicSpeed ?? 1.2));
+			if (!foeS.spells?.length && !(b.foe.shiny && moveName === "Toxic Burst")) {
+				const power = useSpecial ? (foeS.specialPower ?? 1.0) : (foeS.basicPower ?? 0.6);
+				const statKind = useSpecial ? (foeS.specialStat ?? "spc") : (foeS.basicStat ?? "str");
+				const atk = statKind === "spc" ? b.foe.spc + b.mods.foeSpc : b.foe.str + b.mods.foeStr;
+				finalDmg = Math.max(1, Math.round(atk * power));
+				atkSpeed = (b.foe.agl + b.mods.foeAgl) * (useSpecial ? (foeS.specialSpeed ?? 0.8) : (foeS.basicSpeed ?? 1.2));
+			} else if (moveName === "Toxic Burst") {
+				finalDmg = Math.max(1, Math.round((b.foe.str + b.mods.foeStr) * 0.5));
+				atkSpeed = (b.foe.agl + b.mods.foeAgl) * 1.0;
+			}
+			let dmg = finalDmg;
 			let line = "";
 			if (g === "dodge") {
-				if (success) {
+				const defScore = (b.player.agl + b.mods.selfAgl) * (0.75 + Math.random() * 0.5);
+				if (atkSpeed - defScore > 0) {
+					line = `The dodge fails. ${dmg} dmg.`;
+					this.audio.hit();
+				} else {
 					dmg = 0;
 					line = `${b.player.name} slips aside.`;
 					this.audio.ok();
-				} else {
-					line = `The dodge fails. ${dmg} dmg.`;
-					this.audio.hit();
 				}
 			} else if (g === "block") {
-				if (success) {
-					dmg = Math.max(1, Math.round(dmg * .5));
-					line = `Blocked. ${dmg} dmg leaks through.`;
+				const blockScore = (b.player.str + b.mods.selfStr) * (0.25 + Math.random() * 0.5);
+				const remain = finalDmg - blockScore;
+				if (remain <= 0) {
+					line = "Parried!";
+					b.foe.hp = Math.max(0, b.foe.hp - finalDmg);
+					dmg = 0;
+					this.audio.ok();
 				} else {
-					line = `The block breaks. ${dmg} dmg.`;
+					dmg = Math.max(1, Math.round(remain));
+					line = `Blocked. ${dmg} dmg leaks through.`;
 					this.audio.hit();
 				}
-			} else if (success) {
-				dmg = Math.max(1, Math.round(dmg * .4));
-				line = `A thin barrier holds. ${dmg} dmg.`;
-				this.audio.ok();
 			} else {
-				line = `The barrier shivers apart. ${dmg} dmg.`;
-				this.audio.hit();
+				const barrierScore = (b.player.spc + b.mods.selfSpc) * (0.25 + Math.random() * 0.5);
+				const remain = finalDmg - barrierScore;
+				if (remain <= 0) {
+					const heal = Math.max(1, Math.floor(finalDmg / 2));
+					b.player.hp = Math.min(b.player.maxHp, b.player.hp + heal);
+					line = `Absorbed! +${heal} HP`;
+					dmg = 0;
+					this.audio.ok();
+				} else {
+					dmg = Math.max(1, Math.round(remain));
+					line = `A thin barrier holds. ${dmg} dmg.`;
+					this.audio.hit();
+				}
 			}
 			b.player.hp = Math.max(0, b.player.hp - dmg);
-			this.shake = success && dmg === 0 ? .05 : .28;
+			this.shake = dmg === 0 ? .05 : .28;
 			if (b.player.hp <= 0) {
 				this.party[this.partyIndex] = { ...b.player };
 				const next = this.party.findIndex((m, i) => i !== this.partyIndex && m.hp > 0);
@@ -2481,13 +2519,19 @@ export class CryMon {
 			this.audio.ui();
 			return;
 		}
-		if (i === toxicI) {
-			const atk = b.player.str + b.mods.selfStr;
-			const def = b.foe.str + b.mods.foeStr;
-			b.pendingDmg = Math.max(1, Math.round(4 + atk * .5 - def * .16 + randI(0, 2)));
-			b.pendingLabel = "Toxic Burst";
-			b.foePoisoned = true;
+		const resolve = (name, power, speed, statKind, poison) => {
+			const atkStat = statKind === "spc"
+				? b.player.spc + b.mods.selfSpc
+				: b.player.str + b.mods.selfStr;
+			const agl = b.player.agl + b.mods.selfAgl;
+			b.pendingDmg = Math.max(1, Math.round(atkStat * power));
+			b.pendingSpeed = agl * speed;
+			b.pendingLabel = name;
+			if (poison) b.foePoisoned = true;
 			b.phase = "resolve_hit";
+		};
+		if (i === toxicI) {
+			resolve("Toxic Burst", 0.5, 1.0, "str", true);
 			this.audio.special();
 			return;
 		}
@@ -2507,11 +2551,8 @@ export class CryMon {
 			this.audio.special();
 			return;
 		}
-		const atk = b.player.str + b.mods.selfStr;
-		const def = b.foe.str + b.mods.foeStr;
-		b.pendingDmg = Math.max(1, Math.round(6 + atk * .62 - def * .16 + randI(0, 3)));
-		b.pendingLabel = s.basic;
-		b.phase = "resolve_hit";
+		resolve(s.basic, s.basicPower ?? 0.6, s.basicSpeed ?? 1.2, s.basicStat ?? "str", false);
+		this.audio.ok();
 	}
 	foeDebuffed() {
 		const m = this.battle.mods;
@@ -3481,12 +3522,19 @@ export class CryMon {
 		if (b.phase === "minigame") {
 			this.box(X(16), Y(110), X(208), Y(44));
 			this.text("SPECIAL  hit the mark", X(24), Y(114), "#c5cec6", FONT);
-			this.ctx.fillStyle = "#2a2620";
-			this.ctx.fillRect(X(24), Y(132), X(192), Y(10));
-			this.ctx.fillStyle = "#5a7a52";
-			this.ctx.fillRect(X(98), Y(132), X(44), Y(10));
+			const bx = X(24), by = Y(132), bw = X(192), bh = Y(10);
+			/* Red = fizzle 1x (full bar base) */
+			this.ctx.fillStyle = "#8b3030";
+			this.ctx.fillRect(bx, by, bw, bh);
+			/* Yellow = connected 1.5x (30–70) */
+			this.ctx.fillStyle = "#c9a227";
+			this.ctx.fillRect(bx + 0.30 * bw, by, 0.40 * bw, bh);
+			/* Green = perfect 2x (45–55) */
+			this.ctx.fillStyle = "#4a9a4a";
+			this.ctx.fillRect(bx + 0.45 * bw, by, 0.10 * bw, bh);
+			/* Needle */
 			this.ctx.fillStyle = "#e8e4d8";
-			this.ctx.fillRect(X(24) + b.minigame / 100 * X(192) - 2, Y(128), 6, Y(18));
+			this.ctx.fillRect(bx + b.minigame / 100 * bw - 2, Y(128), 6, Y(18));
 			return;
 		}
 		this.box(X(6), Y(110), X(228), Y(46));
