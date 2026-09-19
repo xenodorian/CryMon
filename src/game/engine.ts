@@ -3504,7 +3504,7 @@ export class CryMon {
 			this.drawActor(`sable-${wf}`, sable.x, sable.y);
 			this.hintZ(sable.x, sable.y);
 			const keeper = spawnOf(RUINS, "6");
-			this.drawActor(`soldier-down-${wf}`, keeper.x, keeper.y);
+			this.drawActor(`keeper-${wf}`, keeper.x, keeper.y);
 			this.hintZ(keeper.x, keeper.y);
 			const warden = spawnOf(RUINS, "7");
 			this.drawActor(`soldier-down-${wf}`, warden.x, warden.y);

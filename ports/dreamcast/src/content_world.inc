@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=dd8bbf5fbf6ae637 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=7f03a1a29850762c — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -252,6 +252,10 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 92, -1, -1, 7, -1, 0, 0, -1 },
     { 42, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 95, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 94, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, 43, -1, 43, { 7,-1,-1 }, { 1,0,0 }, 1, -1, 0, 96, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 97, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, 44, -1, 44, { 3,-1,-1 }, { 1,0,0 }, 1, -1, 0, 98, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 99, -1, -1, 0, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 2, 30, 32 },
@@ -287,7 +291,9 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_FOREST, '5', 65, 2, 30, 32 },
     { MAP_RUINS, '6', 67, 2, 30, 32 },
     { MAP_RUINS, '7', 69, 2, 30, 32 },
+    { MAP_QUARRY, 'C', 71, 2, 20, 20 },
+    { MAP_QUARRY, 'S', 73, 2, 25, 28 },
 };
-#define NPC_DEF_N 33
+#define NPC_DEF_N 35
 #define INTERACT_BUFFER 10
 

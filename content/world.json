@@ -1388,7 +1388,7 @@
       "mark": "6",
       "id": "ruinsKeeper",
       "role": "trainer",
-      "sprite": "npc/soldier",
+      "sprite": "npc/keeper",
       "talk": "ruinsKeeperSpot",
       "talkDone": "ruinsKeeperWin",
       "script": [
@@ -1420,6 +1420,66 @@
           "talk": "ruinsWardenSpot",
           "after": "wsoldier",
           "pending": "ruinsWarden"
+        }
+      ]
+    },
+    {
+      "map": "quarry",
+      "mark": "C",
+      "id": "quarryCrate",
+      "role": "loot",
+      "w": 32,
+      "h": 32,
+      "talk": "quarryCrate",
+      "talkDone": "quarryCrateEmpty",
+      "grantItem": [
+        "smokebomb",
+        1
+      ],
+      "script": [
+        {
+          "ifNot": "quarryCrateLooted",
+          "set": "quarryCrateLooted",
+          "grant": [
+            [
+              "smokebomb",
+              1
+            ]
+          ],
+          "talk": "quarryCrate"
+        },
+        {
+          "talk": "quarryCrateEmpty"
+        }
+      ]
+    },
+    {
+      "map": "quarry",
+      "mark": "S",
+      "id": "quarryShelf",
+      "role": "loot",
+      "w": 40,
+      "h": 44,
+      "talk": "quarryShelf",
+      "talkDone": "quarryShelfEmpty",
+      "grantItem": [
+        "dust",
+        1
+      ],
+      "script": [
+        {
+          "ifNot": "quarryShelfSearched",
+          "set": "quarryShelfSearched",
+          "grant": [
+            [
+              "dust",
+              1
+            ]
+          ],
+          "talk": "quarryShelf"
+        },
+        {
+          "talk": "quarryShelfEmpty"
         }
       ]
     }

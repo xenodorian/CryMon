@@ -8,22 +8,21 @@ ChatGPT A is out of image credits — **no PNG work.**
 
 ---
 
-## Status (2026-09-19 ~17:10 UTC)
+## Status (2026-09-19 ~17:15 UTC)
 
-- Ranger landed (Grok A).
-- **Scout landed** (Grok A): `npc/scout-1..4`, `portraits/scout.png`, forest
-  mark 5. Cap + short cloak, not a soldier, not the Ranger.
-- ChatGPT A already drew Keeper/Warden as soldier stand-ins.
+- Ranger, Scout, **Keeper** landed (Grok A). Keeper is dusty ochre cloak +
+  key ring, ruins mark 6, not a soldier.
+- Warden still soldier-down.
 
 ---
 
 ## Open — Grok A later
 
-Unique Keeper / Warden art (still soldier-down).
+Unique Warden art.
 
 ## Open — Claude B (parked)
 
-Encode. No drawing.
+Encode ranger/scout/keeper frames. No drawing.
 
 ## ChatGPT A
 
