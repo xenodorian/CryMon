@@ -1368,7 +1368,7 @@
       "mark": "5",
       "id": "forestScout",
       "role": "trainer",
-      "sprite": "npc/soldier",
+      "sprite": "npc/scout",
       "talk": "forestScoutSpot",
       "talkDone": "forestScoutWin",
       "script": [

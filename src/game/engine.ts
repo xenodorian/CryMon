@@ -3451,6 +3451,9 @@ export class CryMon {
 			const ranger = spawnOf(FOREST, "4");
 			this.drawActor(`ranger-${wf}`, ranger.x, ranger.y);
 			this.hintZ(ranger.x, ranger.y);
+			const scout = spawnOf(FOREST, "5");
+			this.drawActor(`scout-${wf}`, scout.x, scout.y);
+			this.hintZ(scout.x, scout.y);
 		}
 		if (this.world.mapId === "grove") {
 			const k = spawnOf(GROVE, "K");
