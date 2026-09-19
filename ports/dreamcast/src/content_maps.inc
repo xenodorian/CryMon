@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=c90ecd5d32666d57 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=9d7c1b104227c18f — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -9,7 +9,8 @@
 #define MAP_RUINS 6
 #define MAP_REACH 7
 #define MAP_MARSH 8
-#define MAP_N 9
+#define MAP_QUARRY 9
+#define MAP_N 10
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -122,7 +123,7 @@ static const char *const map_cliffs_rows[] = {
     "#.........%%k%%..#",
     "#................#",
     "#.TTT............#",
-    "#................#",
+    "#.q..............#",
     "##################",
 };
 
@@ -177,6 +178,22 @@ static const char *const map_marsh_rows[] = {
     "##################",
 };
 
+static const char *const map_quarry_rows[] = {
+    "################",
+    "#........D.....#",
+    "#..............#",
+    "#..^^^^........#",
+    "#..^^^^..TTT...#",
+    "#..^^^^..TTT...#",
+    "#........TTT...#",
+    "#...C.S........#",
+    "#..............#",
+    "#....^^^^......#",
+    "#....^^^^......#",
+    "#..............#",
+    "################",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
@@ -187,10 +204,11 @@ static const Map MAPS[MAP_N] = {
     { map_ruins_rows, 20, 13 },
     { map_reach_rows, 20, 16 },
     { map_marsh_rows, 18, 13 },
+    { map_quarry_rows, 16, 13 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE GROVE", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH",
+    "HOME", "CRYTOWN", "THE FOREST", "THE GROVE", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";

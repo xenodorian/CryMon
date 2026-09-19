@@ -7,6 +7,7 @@
     {"maps": ["cliffs"], "tile": "T", "rate": 0.18, "pool": ["stormwing", "sableclaw", "frostail", "thornhide", "boulderam", "glasswisp"], "levelMin": 5, "levelMax": 7},
     {"maps": ["veld"], "tile": "T", "rate": 0.18, "pool": ["glimmoth", "tortcask", "emberling", "briarfox"], "levelMin": 2, "levelMax": 4, "levelBonusIfTyGt": 14},
     {"maps": ["reach"], "tile": "T", "rate": 0.22, "pool": ["ashenmaw", "needleroot", "crymare", "stormwing", "glasswisp", "mossback"], "levelMin": 8, "levelMax": 11},
-    {"maps": ["marsh"], "tile": "T", "rate": 0.18, "pool": ["fenwisp", "quillpup", "mossback"], "levelMin": 4, "levelMax": 6}
+    {"maps": ["marsh"], "tile": "T", "rate": 0.18, "pool": ["fenwisp", "quillpup", "mossback"], "levelMin": 4, "levelMax": 6},
+    {"maps": ["quarry"], "tile": "T", "rate": 0.18, "pool": ["peatling", "slatekin", "glowcap"], "levelMin": 5, "levelMax": 7}
   ]
 }

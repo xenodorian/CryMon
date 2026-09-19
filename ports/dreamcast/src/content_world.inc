@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=c90ecd5d32666d57 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=9d7c1b104227c18f — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -46,6 +46,8 @@ static const WarpDef WARPS[] = {
     { MAP_REACH, MAP_RUINS, 'D', 'e', 0, 0, 0, -1 },
     { MAP_FOREST, MAP_MARSH, 'm', 'Y', 1, 0, 0, -1 },
     { MAP_MARSH, MAP_FOREST, 'Y', 'm', 0, 0, 0, -1 },
+    { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 1, 0, 0, -1 },
+    { MAP_QUARRY, MAP_CLIFFS, 'D', 'q', 0, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
 
@@ -67,8 +69,9 @@ static const EncDef ENCOUNTERS[] = {
     { MAP_VELD, 'T', 18, { 1,2,11,5,0,0,0,0 }, 4, 2, 4, 14 },
     { MAP_REACH, 'T', 22, { 18,8,10,14,17,4,0,0 }, 6, 8, 11, -1 },
     { MAP_MARSH, 'T', 18, { 6,0,4,0,0,0,0,0 }, 3, 4, 6, -1 },
+    { MAP_QUARRY, 'T', 18, { 20,23,22,0,0,0,0,0 }, 3, 5, 7, -1 },
 };
-#define ENC_N 8
+#define ENC_N 9
 
 typedef struct {
     int lead_sp, lead_lv;

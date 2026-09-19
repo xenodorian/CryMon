@@ -8,7 +8,8 @@
     "cliffs": "THE CLIFFS",
     "ruins": "THE RUINS",
     "reach": "THE REACH",
-    "marsh": "THE MARSH"
+    "marsh": "THE MARSH",
+    "quarry": "THE QUARRY"
   },
-  "mapIds": ["house", "veld", "forest", "grove", "camp", "cliffs", "ruins", "reach", "marsh"]
+  "mapIds": ["house", "veld", "forest", "grove", "camp", "cliffs", "ruins", "reach", "marsh", "quarry"]
 }

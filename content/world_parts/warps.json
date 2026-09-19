@@ -15,6 +15,8 @@
     {"from": "ruins", "tile": "e", "to": "reach", "spawn": "D", "dir": "down", "oy": 40, "need": "hasScroll", "failTalk": "reachLocked"},
     {"from": "reach", "tile": "D", "to": "ruins", "spawn": "e", "dir": "up", "oy": -32},
     {"from": "forest", "tile": "m", "to": "marsh", "spawn": "Y", "dir": "down", "oy": 40},
-    {"from": "marsh", "tile": "Y", "to": "forest", "spawn": "m", "dir": "up", "oy": -32}
+    {"from": "marsh", "tile": "Y", "to": "forest", "spawn": "m", "dir": "up", "oy": -32},
+    {"from": "cliffs", "tile": "q", "to": "quarry", "spawn": "D", "dir": "down", "oy": 40},
+    {"from": "quarry", "tile": "D", "to": "cliffs", "spawn": "q", "dir": "up", "oy": -32}
   ]
 }
