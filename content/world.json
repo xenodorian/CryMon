@@ -69,6 +69,30 @@
   },
   "encounters": [
     {
+      "maps": ["grove"],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": ["razorbat", "briarfox", "fenwisp"],
+      "levelMin": 5,
+      "levelMax": 8
+    },
+    {
+      "maps": ["camp"],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": ["duskhorn", "ashenmaw", "sableclaw"],
+      "levelMin": 6,
+      "levelMax": 9
+    },
+    {
+      "maps": ["ruins"],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": ["tortcask", "glasswisp", "mossback"],
+      "levelMin": 6,
+      "levelMax": 9
+    },
+    {
       "maps": ["forest"],
       "tile": "T",
       "rate": 0.18,

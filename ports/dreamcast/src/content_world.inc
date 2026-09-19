@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=d036963285999c22 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=72449b82e83beaff — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -57,12 +57,15 @@ typedef struct {
     int ty_bonus_gt; /* -1 none */
 } EncDef;
 static const EncDef ENCOUNTERS[] = {
+    { MAP_GROVE, 'T', 18, { 3,5,6,0,0,0,0,0 }, 3, 5, 8, -1 },
+    { MAP_CAMP, 'T', 18, { 7,18,15,0,0,0,0,0 }, 3, 6, 9, -1 },
+    { MAP_RUINS, 'T', 18, { 2,17,4,0,0,0,0,0 }, 3, 6, 9, -1 },
     { MAP_FOREST, 'T', 18, { 6,7,8,0,0,0,0,0 }, 3, 3, 5, -1 },
     { MAP_CLIFFS, 'T', 18, { 14,15,12,11,17,16,13,0 }, 7, 5, 7, -1 },
     { MAP_VELD, 'T', 18, { 1,2,11,18,0,0,0,0 }, 4, 2, 4, 14 },
     { MAP_REACH, 'T', 22, { 5,7,10,14,17,4,0,0 }, 6, 8, 11, -1 },
 };
-#define ENC_N 4
+#define ENC_N 7
 
 typedef struct {
     int lead_sp, lead_lv;
