@@ -47,4 +47,25 @@ in the battle sprite table.
 
 ## Parked (do not take)
 
-Quarry trainer, quarry warp `need: beatSentry`, quarry encode. Let that lie.
+~~Quarry trainer, quarry warp `need: beatSentry`, quarry encode. Let that lie.~~
+**Unparked by the user.** Broken into 5 small steps to avoid the one-pass
+token exhaustion that hit it before:
+
+1. Gate the warp (`need: beatSentry`) — DONE, live on `main`.
+2. Define `quarryDriller` trainer in JSON — DONE, this commit. Lead
+   slatekin 8, bench glowcap 9, marks 15, flag `beatQuarryDriller`,
+   mark `1` on the quarry map, `npc/driller` sprite (no art yet,
+   placeholder covers it). Same `wsoldier`+`pending` script pattern as
+   `forestRanger`/`marshBog`, not a bespoke dispatch.
+3. Wire into `engine.ts` (web) — open.
+4. Wire into `main.c` (Dreamcast) — open.
+5. Integration pass (rebake/check_sync/typecheck/CDI) — open.
+
+**Heads up for whoever does step 3/4/5, for both Driller and Opal
+together:** `tools/bake_content.py`'s `SPEAKER` dict doesn't have `opal`
+or `driller` yet — bake currently fails with `KeyError: 'opal'`
+(pre-existing, from whenever Opal's JSON landed without its baker/C
+counterpart, not something either of these tasks introduced). Same gap
+likely applies to `PENDING_IDS` and `src/game/types.ts`'s `SpeakerId`
+for both names. Worth fixing both trainers' baker/engine wiring in the
+same pass since they hit the identical gap.

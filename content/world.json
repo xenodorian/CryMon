@@ -677,6 +677,23 @@
       "marks": 17,
       "winTalk": "opalWin",
       "set": "badgeOpal"
+    },
+    "quarryDriller": {
+      "lead": [
+        "slatekin",
+        8
+      ],
+      "bench": [
+        [
+          "glowcap",
+          9
+        ]
+      ],
+      "title": "Driller sends Slatekin",
+      "name": "Driller",
+      "marks": 15,
+      "winTalk": "quarryDrillerWin",
+      "set": "beatQuarryDriller"
     }
   },
   "npcs": [
@@ -1628,6 +1645,26 @@
           "talk": "opalSpot",
           "after": "wsoldier",
           "pending": "opal"
+        }
+      ]
+    },
+    {
+      "map": "quarry",
+      "mark": "1",
+      "id": "quarryDriller",
+      "role": "trainer",
+      "sprite": "npc/driller",
+      "talk": "quarryDrillerSpot",
+      "talkDone": "quarryDrillerWin",
+      "script": [
+        {
+          "if": "beatQuarryDriller",
+          "talk": "quarryDrillerWin"
+        },
+        {
+          "talk": "quarryDrillerSpot",
+          "after": "wsoldier",
+          "pending": "quarryDriller"
         }
       ]
     }

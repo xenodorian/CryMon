@@ -109,7 +109,8 @@
     "beatMarshBog",
     "beatMarshReed",
     "badgeQuartz",
-    "badgeOpal"
+    "badgeOpal",
+    "beatQuarryDriller"
   ],
   "layout": {
     "magic": [0, 4],
