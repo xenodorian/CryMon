@@ -188,3 +188,42 @@ a new PLACEHOLDER_ART unless art wants a distinct "final" look).
   `choseHeavenfall` for which one main.c's ending screen shows.
   Draft text for both is in this session's task #28 notes if whoever
   picks up #30 wants a starting point rather than writing from scratch.
+
+### Step 2 — DONE (Claude A). Map + map-id plumbing landed; no literal
+"warp" entry, and here's why.
+
+**Correction to Step 1's framing:** there's no tile-walked warp to gate.
+Checked `main.c` -- the choice sequence isn't a warp at all. Defeating
+Shinigami fires `POST_OPEN_CHOICE` directly (a scripted state change,
+same spot Anne's father-death reveal already fired from), the choice
+screen closes into `POST_ENDING_FINAL`, which today jumps straight to
+`ending_mode=1` in place, no map change involved. So "gate the warp"
+doesn't apply here; entry onto `gauntlet` will be a scripted teleport
+(`POST_ENDING_FINAL` repointed to spawn the player on `gauntlet`'s mark
+`2` instead of firing the ending immediately) -- that's Step 4/5's job,
+not something expressible in `world.json`'s `warps[]` array.
+
+**What actually landed, JSON + the mechanical cross-file plumbing
+`check_sync --strict` requires for any new map (same category of edit
+as adding a species or a talk key -- not engine logic):**
+- `content/maps.json`: `gauntlet` map, 16x8, walls all around, spawn
+  mark `2` near the entrance, boss mark `1` at the far end. No tall
+  grass -- an encounter pool for a wild-tile is Step 3's call, not
+  this step's, so left it out to keep this step's JSON self-consistent
+  on its own without touching encounters.json.
+- `content/world.json`: `gauntlet` added to `mapIds` (end of list) and
+  `mapNames` ("THE GAUNTLET").
+- `content/save.json`: `gauntlet` appended to `mapOrder`, same position,
+  keeping it byte-identical to `mapIds` per `check_sync`'s rule.
+- `src/game/types.ts`: `gauntlet` added to the `MapId` union.
+- `src/game/data.ts`: `GAUNTLET` export + `MAPS.gauntlet` entry,
+  mechanical (`normalize(raw.gauntlet)`), same pattern as every other
+  map -- no rendering/gameplay logic touched.
+
+No `choseHeavenfall` flag, no boss trainer, no dialogue in this step --
+that's Step 3 (#30). `MAP_GAUNTLET`'s Dreamcast define bakes for free
+(index-driven off `mapIds`, not a hardcoded list like `kit_keys` was).
+
+Verified: rebake, `check_sync --strict` (clean but for the pre-existing
+15-file art-placeholder debt), `npm run typecheck`, `make -C ports/dreamcast`,
+`make -C ports/dreamcast cdi` all pass.

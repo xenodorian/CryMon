@@ -44,7 +44,7 @@ export type SpeciesId =
   | "peatling" | "mireback" | "glowcap" | "slatekin" | "gravelurk" | "cindermite"
   | "veilcap" | "kilnback";
 
-export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry";
+export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry" | "gauntlet";
 
 export type SpellId = "firebolt" | "icebeam" | "lightning" | "manasurge";
 

@@ -57,7 +57,8 @@
     "ruins": "THE RUINS",
     "reach": "THE REACH",
     "marsh": "THE MARSH",
-    "quarry": "THE QUARRY"
+    "quarry": "THE QUARRY",
+    "gauntlet": "THE GAUNTLET"
   },
   "mapIds": [
     "house",
@@ -69,7 +70,8 @@
     "ruins",
     "reach",
     "marsh",
-    "quarry"
+    "quarry",
+    "gauntlet"
   ],
   "encounters": [
     {

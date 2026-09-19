@@ -69,6 +69,7 @@ export const RUINS = normalize(raw.ruins);
 export const REACH = normalize(raw.reach);
 export const MARSH = normalize(raw.marsh);
 export const QUARRY = normalize(raw.quarry);
+export const GAUNTLET = normalize(raw.gauntlet);
 
 export const MAPS = {
   house: HOUSE,
@@ -81,6 +82,7 @@ export const MAPS = {
   reach: REACH,
   marsh: MARSH,
   quarry: QUARRY,
+  gauntlet: GAUNTLET,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

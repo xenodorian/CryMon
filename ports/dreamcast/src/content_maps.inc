@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=b718d3578a7b961b — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4948b4595f833a5b — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -10,7 +10,8 @@
 #define MAP_REACH 7
 #define MAP_MARSH 8
 #define MAP_QUARRY 9
-#define MAP_N 10
+#define MAP_GAUNTLET 10
+#define MAP_N 11
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -194,6 +195,17 @@ static const char *const map_quarry_rows[] = {
     "################",
 };
 
+static const char *const map_gauntlet_rows[] = {
+    "################",
+    "#2.............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#.............1#",
+    "################",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
@@ -205,10 +217,11 @@ static const Map MAPS[MAP_N] = {
     { map_reach_rows, 20, 16 },
     { map_marsh_rows, 18, 13 },
     { map_quarry_rows, 16, 13 },
+    { map_gauntlet_rows, 16, 8 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE GROVE", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY",
+    "HOME", "CRYTOWN", "THE FOREST", "THE GROVE", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "THE GAUNTLET",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";
