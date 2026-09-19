@@ -523,6 +523,79 @@ def main() -> int:
         if len(reciprocal) != 1:
             errors.append(f"warps[{i}]: missing or ambiguous reciprocal for {src}.{tile} -> {dst}.{spawn}")
 
+    # Spawn-point validation. Any data-driven NPC mark, warp endpoint, or
+    # party-wipe destination must resolve to exactly one map tile. spawnOf()
+    # falls back to (2,2) when a mark is missing, so a typo here silently
+    # teleports an actor instead of failing loudly.
+    def mark_count(map_id, mark):
+        if map_id not in rows or not isinstance(mark, str) or not mark:
+            return 0
+        return sum(row.count(mark) for row in rows[map_id])
+
+    npcs = data["world"].get("npcs") or []
+    for i, npc in enumerate(npcs):
+        map_id = npc.get("map")
+        mark = npc.get("mark")
+        if map_id not in rows:
+            errors.append(f"npcs[{i}]: map {map_id!r} does not exist")
+            continue
+        count = mark_count(map_id, mark)
+        if count != 1:
+            errors.append(f"npcs[{i}] {npc.get('id', '?')!r}: {map_id}.{mark} occurs {count} times; expected exactly 1")
+
+    starts = [n for n in npcs if n.get("role") == "playerStart"]
+    if len(starts) != 1:
+        errors.append(f"world.npcs must contain exactly one playerStart NPC, got {len(starts)}")
+    else:
+        if mark_count(starts[0].get("map"), starts[0].get("mark")) != 1:
+            errors.append("playerStart spawn marker is not unique")
+
+    wipe = data["logic"].get("partyWipe") or {}
+    wipe_map, wipe_mark = wipe.get("map"), wipe.get("mark")
+    if mark_count(wipe_map, wipe_mark) != 1:
+        errors.append(f"logic.partyWipe destination {wipe_map!r}.{wipe_mark!r} must occur exactly once")
+
+    # Save schema/default validation. The binary layout is shared by web and
+    # Dreamcast, so reject drift in offsets/sizes before a pack can silently
+    # produce incompatible saves.
+    save = data["save"]
+    layout = save.get("layout") or {}
+    expected_layout = {
+        "magic": [0, 4],
+        "version": [4, 1],
+        "mapId": [5, 1],
+        "dir": [6, 1],
+        "partyCount": [7, 1],
+        "x": [8, 2],
+        "y": [10, 2],
+        "marks": [12, 2],
+        "partyIndex": [14, 1],
+        "battlesDone": [15, 1],
+        "mason2Map": [16, 1],
+        "bag": [18, len(save.get("itemOrder") or [])],
+        "flags": [28, 8],
+        "party": [36, 6 * int(save.get("partySlot") or 0)],
+        "checksum": [132, 2],
+        "dexSeen": [134, 4],
+        "dexCaught": [138, 4],
+    }
+    for key, want in expected_layout.items():
+        if layout.get(key) != want:
+            errors.append(f"save.layout.{key} must be {want}, got {layout.get(key)!r}")
+    size = int(save.get("size") or 0)
+    if size < 142:
+        errors.append(f"save.size must cover dexCaught through byte 141, got {size}")
+    flag_n = len(save.get("flags") or [])
+    flag_bytes = (flag_n + 7) // 8
+    if flag_bytes > 8:
+        errors.append(f"save.flags requires {flag_bytes} bytes, but layout reserves 8")
+    if len(save.get("itemOrder") or []) != 10:
+        errors.append("save.itemOrder must occupy the 10-byte bag region")
+    if int(save.get("partySlot") or 0) != 16:
+        errors.append("save.partySlot must be 16 bytes")
+    if int(save.get("version") or 0) < 1:
+        errors.append("save.version must be a positive schema version")
+
     trainers = data["world"].get("trainers") or {}
     cath_lv = (trainers.get("cathleen") or {}).get("lead") or [None, 0]
     shin_lv = (trainers.get("shinigami") or {}).get("lead") or [None, 0]
