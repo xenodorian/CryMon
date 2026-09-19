@@ -31,7 +31,7 @@
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
-    "Max is eight. CryMon \u2014 Crystal Monsters \u2014 sleep inside Capture Crystals.",
+    "Max is eight. CryMon — Crystal Monsters — sleep inside Capture Crystals.",
     "Father is too sick to stand. His crystal sits on the shelf.",
     "Quillpup is inside it. She will take the CryMon. CryTown does not get to fall."
   ],
@@ -1088,6 +1088,46 @@
       {
         "speaker": "warden",
         "text": "Go. The Reach is beyond the lower gate."
+      }
+    ],
+    "quarryCrate": [
+      {
+        "speaker": "max",
+        "text": "A quarry crate. Something rattles under the dust."
+      },
+      {
+        "speaker": "none",
+        "text": "Max finds a Smoke Bomb tucked beneath the broken tools."
+      },
+      {
+        "speaker": "max",
+        "text": "That could get me out of a bad fight."
+      }
+    ],
+    "quarryCrateEmpty": [
+      {
+        "speaker": "max",
+        "text": "Only broken tools and dust. Empty."
+      }
+    ],
+    "quarryShelf": [
+      {
+        "speaker": "max",
+        "text": "Old quarry shelf. Someone left supplies behind."
+      },
+      {
+        "speaker": "none",
+        "text": "Max finds a pouch of ash dust wedged behind the stone ledgers."
+      },
+      {
+        "speaker": "max",
+        "text": "Still useful."
+      }
+    ],
+    "quarryShelfEmpty": [
+      {
+        "speaker": "max",
+        "text": "Nothing left but stone dust."
       }
     ]
   }
