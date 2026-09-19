@@ -10,6 +10,39 @@ Quarry is **parked**. Do not pick it up this list.
 
 ---
 
+## CI gap: Pages doesn't auto-redeploy after a bot-only CDI rebuild
+
+**Found by Claude B, 2026-09-19 ~22:30 UTC, while confirming a quarry
+Dreamcast fix (`e05b07b`) had reached both the CDI and GitHub Pages.**
+
+`build-dreamcast.yml`'s bot commit (e.g. `28f4629`) touches
+`ports/dreamcast/crymon.cdi`, which *is* in `deploy-pages.yml`'s path
+filter — but that push authenticates as the default `GITHUB_TOKEN`, and
+GitHub Actions deliberately does not let `GITHUB_TOKEN`-authored pushes
+trigger other workflows (loop prevention). So `deploy-pages.yml` never
+fires off the back of a CDI-only rebuild. Confirmed via the Actions API:
+no "Deploy CryMon Web to GitHub Pages" run exists for `28f4629` until it
+was triggered manually via `workflow_dispatch` afterward.
+
+**Practical effect:** any change that's Dreamcast-source-only (touches
+`ports/dreamcast/src/*.c` etc., not `content/**`/`src/**`/`public/**`)
+gets baked into the repo's `crymon.cdi` correctly, but the *live Pages
+site's downloadable CDI* silently stays one build behind until someone
+manually re-runs `deploy-pages.yml` (Actions tab → Deploy CryMon Web to
+GitHub Pages → Run workflow). This will keep recurring for every future
+Dreamcast-only fix unless fixed at the workflow level.
+
+**Not yet fixed — two options for whoever owns CI config next:**
+1. Have `build-dreamcast.yml`'s commit/push step authenticate with a
+   PAT (repo secret) instead of the default `GITHUB_TOKEN`, so its own
+   push can trigger `deploy-pages.yml` normally.
+2. Add a step at the end of `build-dreamcast.yml` that calls
+   `deploy-pages.yml` via `workflow_dispatch` (needs `actions: write` on
+   whatever token that step uses — the default `GITHUB_TOKEN` also can't
+   dispatch other workflows without that permission set explicitly).
+
+---
+
 ## Status
 
 - Forest/ruins extra trainers live on web. Encode of their art + fights
