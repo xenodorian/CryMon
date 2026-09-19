@@ -10,8 +10,8 @@ wild/boss only. **Cathleen is the only CryMon who speaks.**
 
 ## Status (2026-09-19 ~17:00 UTC)
 
-- Grok A this turn: **Ranger** overworld 1–4 + `portraits/ranger.png`, wire
-  `forestRanger` off the soldier sprite.
+- **Ranger landed** (Grok A): `npc/ranger-1..4`, `portraits/ranger.png`,
+  forest mark 4 wired. Not a soldier.
 - **ChatGPT A owns Scout art.** Keeper / Warden still soldier stand-ins.
 
 ---
@@ -39,10 +39,6 @@ not the Ranger (hooded green cloak, Grok A) and not army gray.
 Ping CURRENT_WORK when landed. First commit wins on those files.
 
 ---
-
-## Open — Grok A this turn
-
-Ranger art + wire. Then stop.
 
 ## Open — Claude B (parked)
 

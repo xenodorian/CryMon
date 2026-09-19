@@ -1348,7 +1348,7 @@
       "mark": "4",
       "id": "forestRanger",
       "role": "trainer",
-      "sprite": "npc/soldier",
+      "sprite": "npc/ranger",
       "talk": "forestRangerSpot",
       "talkDone": "forestRangerWin",
       "script": [
