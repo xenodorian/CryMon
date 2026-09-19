@@ -41,7 +41,7 @@ export type SpeciesId =
   | "emberling" | "frostail" | "boulderam" | "stormwing"
   | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall";
 
-export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach";
+export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh";
 
 export type SpellId = "firebolt" | "icebeam" | "lightning" | "manasurge";
 
