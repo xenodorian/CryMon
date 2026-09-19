@@ -166,6 +166,14 @@ export function saveExists(): boolean {
 	}
 }
 
+export function clearSave(): void {
+	try {
+		localStorage.removeItem(SAVE_KEY);
+	} catch {
+		/* ignore storage failures */
+	}
+}
+
 export function writeSaveBlob(buf: Uint8Array): boolean {
 	if (!buf || buf.length !== SAVE_SIZE) return false;
 	try {
