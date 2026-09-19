@@ -1,0 +1,111 @@
+name: task4-npc-draw
+on:
+  workflow_dispatch:
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace hardcoded NPC blit with NPCS loop
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          eng = Path("src/game/engine.ts").read_text()
+          start = eng.find("\t\tconst wf = Math.floor(this.clock * 4) % 4 + 1;")
+          end = eng.find("\t\tconst frame = this.world.moving ? this.world.frame % 4 + 1 : 1;")
+          if start < 0 or end < 0 or end <= start:
+              raise SystemExit(f"markers not found start={start} end={end}")
+          if "Task 4: draw map NPCs from JSON" in eng:
+              print("already patched")
+              raise SystemExit(0)
+          new_block = """\t\tconst wf = Math.floor(this.clock * 4) % 4 + 1;
+\t\tconst flags = this.npcFlags();
+\t\t// Task 4: draw map NPCs from JSON (NPCS / npc.sprite) instead of a
+\t\t// per-map hardcoded drawActor list. Props, rivals, soldiers, and
+\t\t// Cathleen's special overworld sprite stay special-cased.
+\t\tfor (const npc of NPCS) {
+\t\t\tif (npc.map !== this.world.mapId || !npc.sprite) continue;
+\t\t\t// Forest patrols are animated via this.soldiers (chase / beaten).
+\t\t\tif (npc.sprite === "npc/soldier" || String(npc.id || "").startsWith("soldier")) continue;
+\t\t\tif (npc.script?.some((s) => s.hideIf && flags[s.hideIf as string])) continue;
+\t\t\tfor (const mark of this.npcMarks(npc)) {
+\t\t\t\tconst s = spawnOf(this.map(), mark);
+\t\t\t\tconst base = String(npc.sprite).includes("/")
+\t\t\t\t\t? String(npc.sprite).split("/").pop()!
+\t\t\t\t\t: String(npc.sprite);
+\t\t\t\tconst walkers = (SPRITES as { walkers?: Record<string, string> }).walkers || {};
+\t\t\t\tif (base in walkers || npc.sprite === "shinigami") {
+\t\t\t\t\tconst sf = Math.floor(this.clock * 3) % 4 + 1;
+\t\t\t\t\tthis.drawActor(`${base}-down-${sf}`, s.x, s.y);
+\t\t\t\t} else {
+\t\t\t\t\tthis.drawActor(`${base}-${wf}`, s.x, s.y);
+\t\t\t\t}
+\t\t\t\tthis.hintZ(s.x, s.y);
+\t\t\t}
+\t\t}
+\t\tif (this.world.mapId === "veld" && this.rival.phase !== "off") {
+\t\t\tconst walking = this.rival.phase === "approach" || this.rival.phase === "leave";
+\t\t\tconst rf = walking ? this.rival.frame % 4 + 1 : 1;
+\t\t\tthis.drawActor(`mason-${this.rival.dir}-${rf}`, this.rival.x, this.rival.y);
+\t\t\tif (this.rival.phase === "done") this.hintZ(this.rival.x, this.rival.y);
+\t\t}
+\t\tif (this.anne.phase !== "off") {
+\t\t\tconst walking = this.anne.phase === "approach" || this.anne.phase === "approach2" || this.anne.phase === "leave";
+\t\t\tconst af = walking ? this.anne.frame % 4 + 1 : 1;
+\t\t\tthis.drawActor(`anne-${this.anne.dir}-${af}`, this.anne.x, this.anne.y);
+\t\t}
+\t\tif (this.world.mapId === "forest") {
+\t\t\tthis.ensureSoldiers();
+\t\t\tfor (const sol of this.soldiers) {
+\t\t\t\tconst sf = sol.beaten ? 1 : sol.frame % 4 + 1;
+\t\t\t\tthis.drawActor(`soldier-${sol.dir}-${sf}`, sol.x, sol.y);
+\t\t\t\tthis.hintZ(sol.x, sol.y);
+\t\t\t}
+\t\t}
+\t\tif (this.world.mapId === "grove" && !this.cathleenCaught) {
+\t\t\tconst { cx, cy } = this.cam();
+\t\t\tconst c = spawnOf(GROVE, "8");
+\t\t\tthis.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
+\t\t\tthis.hintZ(c.x, c.y);
+\t\t}
+\t\tif (this.world.mapId === "cliffs") {
+\t\t\tconst chest = spawnOf(CLIFFS, "C");
+\t\t\tthis.drawProp("prop-crate", chest.x, chest.y + 4, 32, 32);
+\t\t\tthis.hintZ(chest.x, chest.y);
+\t\t}
+"""
+          eng2 = eng[:start] + new_block + eng[end:]
+          assert "drawActor(`wren-" not in eng2
+          assert "Task 4: draw map NPCs from JSON" in eng2
+          Path("src/game/engine.ts").write_text(eng2)
+          print("patched", len(eng), "->", len(eng2))
+          PY
+      - name: Mark task 4 done in CURRENT_WORK.md
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          p = Path("CURRENT_WORK.md")
+          t = p.read_text()
+          t = t.replace("### 4. Draw NPCs from JSON — Grok A", "### 4. Draw NPCs from JSON — DONE (Grok C)")
+          t = t.replace(
+              "`engine.ts` overworld blit should iterate `NPCS` / `npc.sprite` instead of the\nper-map hardcoded `drawActor` list.",
+              "`engine.ts` overworld blit iterates `NPCS` / `npc.sprite`. Props, Mason/Anne,\nforest soldiers, and Cathleen-ow stay special-cased. Marsh/Quartz now draw from JSON.",
+          )
+          if "Crystal wardens not started" in t:
+              t = t.replace(
+                  "Crystal wardens not started. Overworld still uses a hardcoded blit list.",
+                  "Quartz warden art + JSON draw live. Opal still open. Overworld NPC blit is JSON-driven.",
+              )
+          p.write_text(t)
+          print("CURRENT_WORK updated")
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/engine.ts CURRENT_WORK.md
+          git diff --staged --quiet && echo no changes && exit 0
+          git commit -m "Task 4: draw overworld NPCs from NPCS/npc.sprite instead of hardcoded list"
+          git push
