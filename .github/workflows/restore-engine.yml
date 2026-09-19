@@ -8,48 +8,97 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Restore engine from pre-break commit and patch flags
+      - name: Task 4 - JSON NPC overworld blit
         run: |
-          git show b6724cff7db33a65ecc9fd92d2db24fc9f7d8fcc:src/game/engine.ts > src/game/engine.ts
           python3 << 'PY'
           from pathlib import Path
           eng = Path("src/game/engine.ts").read_text()
-          if "beatMarshBog" not in eng:
-              eng = eng.replace(
-                  "\tbeatRuinsWarden = false;\n\tquarryCrateLooted = false;",
-                  "\tbeatRuinsWarden = false;\n\tbeatMarshBog = false;\n\tbeatMarshReed = false;\n\tbadgeQuartz = false;\n\tquarryCrateLooted = false;",
-                  1,
-              )
-              eng = eng.replace(
-                  "\t\tthis.beatRuinsWarden = false;\n\t\tthis.quarryCrateLooted = false;",
-                  "\t\tthis.beatRuinsWarden = false;\n\t\tthis.beatMarshBog = false;\n\t\tthis.beatMarshReed = false;\n\t\tthis.badgeQuartz = false;\n\t\tthis.quarryCrateLooted = false;",
-              )
-              eng = eng.replace(
-                  '\t\t\t\telse if (who === "ruinsWarden") this.beatRuinsWarden = true;\n\t\t\t\tthis.marks += kit?.marks ?? 12;',
-                  '\t\t\t\telse if (who === "ruinsWarden") this.beatRuinsWarden = true;\n\t\t\t\telse if (who === "marshBog") this.beatMarshBog = true;\n\t\t\t\telse if (who === "marshReed") this.beatMarshReed = true;\n\t\t\t\telse if (who === "quartz") this.badgeQuartz = true;\n\t\t\t\tthis.marks += kit?.marks ?? 12;',
-                  1,
-              )
-              eng = eng.replace(
-                  "\t\t\tbeatRuinsWarden: this.beatRuinsWarden,\n\t\t};",
-                  "\t\t\tbeatRuinsWarden: this.beatRuinsWarden,\n\t\t\tbeatMarshBog: this.beatMarshBog,\n\t\t\tbeatMarshReed: this.beatMarshReed,\n\t\t\tbadgeQuartz: this.badgeQuartz,\n\t\t};",
-                  1,
-              )
-              old = "\t\t\t\tbeatRuinsWarden: this.beatRuinsWarden,\n\t\t\tquarryCrateLooted: this.quarryCrateLooted,"
-              new = "\t\t\t\tbeatRuinsWarden: this.beatRuinsWarden,\n\t\t\t\tbeatMarshBog: this.beatMarshBog,\n\t\t\t\tbeatMarshReed: this.beatMarshReed,\n\t\t\t\tbadgeQuartz: this.badgeQuartz,\n\t\t\tquarryCrateLooted: this.quarryCrateLooted,"
-              if old in eng:
-                  eng = eng.replace(old, new, 1)
-              Path("src/game/engine.ts").write_text(eng)
-              print("patched ok", eng.count("beatMarshBog"))
+          if "Task 4: draw map NPCs from JSON" in eng:
+              print("already patched")
           else:
-              print("already has flags")
+              start = eng.find("\t\tconst wf = Math.floor(this.clock * 4) % 4 + 1;")
+              end = eng.find("\t\tconst frame = this.world.moving ? this.world.frame % 4 + 1 : 1;")
+              if start < 0 or end <= start:
+                  raise SystemExit(f"markers missing {start} {end}")
+              new_block = (
+                  "\t\tconst wf = Math.floor(this.clock * 4) % 4 + 1;\n"
+                  "\t\tconst flags = this.npcFlags();\n"
+                  "\t\t// Task 4: draw map NPCs from JSON (NPCS / npc.sprite) instead of a\n"
+                  "\t\t// per-map hardcoded drawActor list. Props, rivals, soldiers, and\n"
+                  "\t\t// Cathleen's special overworld sprite stay special-cased.\n"
+                  "\t\tfor (const npc of NPCS) {\n"
+                  "\t\t\tif (npc.map !== this.world.mapId || !npc.sprite) continue;\n"
+                  "\t\t\tif (npc.sprite === \"npc/soldier\" || String(npc.id || \"\").startsWith(\"soldier\")) continue;\n"
+                  "\t\t\tif (npc.script?.some((s) => s.hideIf && flags[s.hideIf as string])) continue;\n"
+                  "\t\t\tfor (const mark of this.npcMarks(npc)) {\n"
+                  "\t\t\t\tconst s = spawnOf(this.map(), mark);\n"
+                  "\t\t\t\tconst base = String(npc.sprite).includes(\"/\")\n"
+                  "\t\t\t\t\t? String(npc.sprite).split(\"/\").pop()!\n"
+                  "\t\t\t\t\t: String(npc.sprite);\n"
+                  "\t\t\t\tconst walkers = (SPRITES as { walkers?: Record<string, string> }).walkers || {};\n"
+                  "\t\t\t\tif (base in walkers || npc.sprite === \"shinigami\") {\n"
+                  "\t\t\t\t\tconst sf = Math.floor(this.clock * 3) % 4 + 1;\n"
+                  "\t\t\t\t\tthis.drawActor(`${base}-down-${sf}`, s.x, s.y);\n"
+                  "\t\t\t\t} else {\n"
+                  "\t\t\t\t\tthis.drawActor(`${base}-${wf}`, s.x, s.y);\n"
+                  "\t\t\t\t}\n"
+                  "\t\t\t\tthis.hintZ(s.x, s.y);\n"
+                  "\t\t\t}\n"
+                  "\t\t}\n"
+                  "\t\tif (this.world.mapId === \"veld\" && this.rival.phase !== \"off\") {\n"
+                  "\t\t\tconst walking = this.rival.phase === \"approach\" || this.rival.phase === \"leave\";\n"
+                  "\t\t\tconst rf = walking ? this.rival.frame % 4 + 1 : 1;\n"
+                  "\t\t\tthis.drawActor(`mason-${this.rival.dir}-${rf}`, this.rival.x, this.rival.y);\n"
+                  "\t\t\tif (this.rival.phase === \"done\") this.hintZ(this.rival.x, this.rival.y);\n"
+                  "\t\t}\n"
+                  "\t\tif (this.anne.phase !== \"off\") {\n"
+                  "\t\t\tconst walking = this.anne.phase === \"approach\" || this.anne.phase === \"approach2\" || this.anne.phase === \"leave\";\n"
+                  "\t\t\tconst af = walking ? this.anne.frame % 4 + 1 : 1;\n"
+                  "\t\t\tthis.drawActor(`anne-${this.anne.dir}-${af}`, this.anne.x, this.anne.y);\n"
+                  "\t\t}\n"
+                  "\t\tif (this.world.mapId === \"forest\") {\n"
+                  "\t\t\tthis.ensureSoldiers();\n"
+                  "\t\t\tfor (const sol of this.soldiers) {\n"
+                  "\t\t\t\tconst sf = sol.beaten ? 1 : sol.frame % 4 + 1;\n"
+                  "\t\t\t\tthis.drawActor(`soldier-${sol.dir}-${sf}`, sol.x, sol.y);\n"
+                  "\t\t\t\tthis.hintZ(sol.x, sol.y);\n"
+                  "\t\t\t}\n"
+                  "\t\t}\n"
+                  "\t\tif (this.world.mapId === \"grove\" && !this.cathleenCaught) {\n"
+                  "\t\t\tconst { cx, cy } = this.cam();\n"
+                  "\t\t\tconst c = spawnOf(GROVE, \"8\");\n"
+                  "\t\t\tthis.drawSprite(\"cathleen-ow\", c.x - cx - 36, c.y - cy - 68, 72, 72, true);\n"
+                  "\t\t\tthis.hintZ(c.x, c.y);\n"
+                  "\t\t}\n"
+                  "\t\tif (this.world.mapId === \"cliffs\") {\n"
+                  "\t\t\tconst chest = spawnOf(CLIFFS, \"C\");\n"
+                  "\t\t\tthis.drawProp(\"prop-crate\", chest.x, chest.y + 4, 32, 32);\n"
+                  "\t\t\tthis.hintZ(chest.x, chest.y);\n"
+                  "\t\t}\n"
+              )
+              eng2 = eng[:start] + new_block + eng[end:]
+              assert "drawActor(`wren-" not in eng2
+              Path("src/game/engine.ts").write_text(eng2)
+              print("patched", len(eng), "->", len(eng2))
+          p = Path("CURRENT_WORK.md")
+          t = p.read_text()
+          t = t.replace("### 4. Draw NPCs from JSON — Grok A", "### 4. Draw NPCs from JSON — DONE (Grok C)")
+          t = t.replace(
+              "`engine.ts` overworld blit should iterate `NPCS` / `npc.sprite` instead of the\nper-map hardcoded `drawActor` list.",
+              "`engine.ts` overworld blit iterates `NPCS` / `npc.sprite`. Props, Mason/Anne,\nforest soldiers, and Cathleen-ow stay special-cased. Marsh/Quartz now draw from JSON.",
+          )
+          t = t.replace(
+              "Crystal wardens not started. Overworld still uses a hardcoded blit list.",
+              "Quartz warden art + JSON draw live. Opal still open. Overworld NPC blit is JSON-driven.",
+          )
+          p.write_text(t)
+          print("CURRENT_WORK updated")
           PY
       - name: Commit and push
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add src/game/engine.ts
+          git add src/game/engine.ts CURRENT_WORK.md
           git diff --staged --quiet && echo "no changes" && exit 0
-          git commit -m "Restore engine.ts with beatMarshBog, beatMarshReed, badgeQuartz"
+          git commit -m "Task 4: draw overworld NPCs from NPCS/npc.sprite instead of hardcoded list"
           git push
