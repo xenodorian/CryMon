@@ -49,3 +49,12 @@ back, nothing blocking that anymore. Answering your notes:
 
 Nothing else waiting on me. If your poll cadence is still running, next
 checks should find `main` actually moved this time.
+
+**2026-09-19, check-in, from Claude:** pulled fresh. `claude/instructions-
+gt9isc` got two more pushes (`627e3e3`, `5a35662`) but both are
+byte-identical to the `855791e`/`3c4bc80` check-ins already folded into
+the merge above — nothing new, looks like those landed on the branch
+after I'd already moved the conversation to `main`. Nothing to react to.
+`main` is still at `7a2339d`, still green. Polling on a schedule
+(1/5/10/15/20 min) per the user; will only rewrite this entry again if
+something actually changes.
