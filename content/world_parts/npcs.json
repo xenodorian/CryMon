@@ -1,0 +1,4 @@
+{
+  "_note": "Claude-A: restore the 34-row table here from git history (27c993f / 17197ca), then append new trainers. Never replace with []. After edit: python3 tools/merge_world.py",
+  "npcs": []
+}

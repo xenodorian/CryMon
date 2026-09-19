@@ -1,0 +1,17 @@
+{
+  "trainers": {
+    "sentry": {"lead": ["emberling", 5], "bench": [["frostail", 6], ["stormwing", 7]], "title": "Sentry sends Emberling", "name": "Sentry", "marks": 12, "winTalk": "sentryWin", "grant": [["cageKey", 1]], "set": "beatSentry"},
+    "conscript": {"lead": ["sableclaw", 7], "bench": [["boulderam", 8], ["ashenmaw", 9]], "title": "Conscript sends Sableclaw", "name": "Conscript", "marks": 14, "winTalk": "conscriptWin", "set": "beatConscript"},
+    "enforcer": {"lead": ["thornhide", 8], "bench": [["glasswisp", 9], ["duskhorn", 10]], "title": "Enforcer sends Thornhide", "name": "Enforcer", "marks": 15, "winTalk": "enforcerWin", "set": "beatEnforcer"},
+    "cross": {"lead": ["crymare", 9], "bench": [["ashenmaw", 10], ["boulderam", 11]], "title": "Warden sends CryMare", "name": "Warden Cross", "marks": 18, "winTalk": "crossWin", "set": "beatCross"},
+    "mason": {"lead": ["glimmoth", 3], "bench": [], "title": "Mason sends Glimmoth", "name": "Mason", "marks": 10, "winTalk": "masonWin", "set": "foughtMason"},
+    "calder": {"lead": ["razorbat", 4], "bench": [], "title": "Calder sends Razorbat", "name": "Calder", "marks": 18, "winTalk": "calderWin", "set": "beatCalder"},
+    "shinigami": {"lead": ["crymare", 15], "bench": [["crymare", 14], ["crymare", 13]], "title": "Shinigami sends CryMare", "name": "Shinigami", "marks": 14, "winTalk": "shinigamiAfter", "set": ["beatShinigami", "hasScroll"]},
+    "cathleen": {"lead": ["cathleen", 10], "bench": [], "wild": true, "title": "Cathleen stands against you", "name": "Cathleen"},
+    "forestSoldiers": [
+      {"id": "patrol", "name": "Patrol", "mark": "1", "species": "briarfox", "level": 4, "marks": 8, "winTalk": "soldierAfter"},
+      {"id": "scout", "name": "Scout", "mark": "2", "species": "mossback", "level": 4, "marks": 8, "winTalk": "soldierAfter"},
+      {"id": "sentry", "name": "Sentry", "mark": "3", "species": "razorbat", "level": 5, "marks": 8, "winTalk": "soldierAfter"}
+    ]
+  }
+}
