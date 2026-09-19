@@ -8,36 +8,15 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Restore dialogue and add Opal
+      - name: Merge world from parts
         run: |
-          python3 << 'PY'
-          import json, subprocess
-          from pathlib import Path
-          # last good full dialogue before truncate commit 184a9f83
-          raw = subprocess.check_output(
-              ["git", "show", "184a9f837ebec316515106488c7a45759e7754f5^:content/dialogue.json"],
-              text=True,
-          )
-          d = json.loads(raw)
-          assert len(d.get("talk", {})) > 50, len(d.get("talk", {}))
-          d["speakers"]["opal"] = "Opal"
-          d["talk"]["opalSpot"] = [
-              {"speaker": "opal", "text": "Another crystal answers the Reach. Stand, if you mean to pass."},
-              {"speaker": "max", "text": "I mean to. I will not turn back."},
-          ]
-          d["talk"]["opalWin"] = [
-              {"speaker": "opal", "text": "The stone keeps your name. Walk on."},
-          ]
-          Path("content/dialogue.json").write_text(json.dumps(d, separators=(",", ":"), ensure_ascii=False) + "\n")
-          print("talk", len(d["talk"]), "opal", "opalSpot" in d["talk"], "quarryLocked", "quarryLocked" in d["talk"])
-          PY
+          python3 tools/merge_world.py
+          python3 -c "import json; w=json.load(open('content/world.json')); assert 'opal' in w['trainers']; assert any(n.get('id')=='crystalOpal' for n in w['npcs']); print('ok', len(w['npcs']), len(w['trainers']))"
       - name: Commit and push
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add content/dialogue.json
+          git add content/world.json
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Task 3.5: restore full dialogue.json + Opal speaker/talk"
+          git commit -m "Task 3.6: merge world.json from parts (Opal + crystalOpal)"
           git push
