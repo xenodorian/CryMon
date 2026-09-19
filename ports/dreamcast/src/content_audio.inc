@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=24a9e081b91c8ef8 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=5ceed561aef4b9e7 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_AUDIO_INC
 #define CONTENT_AUDIO_INC
@@ -742,5 +742,6 @@ static const int MAP_SONG[MAP_SONG_N] = {
 #define VOL_MAX 2.0f
 #define VOL_DEFAULT 1.0f
 #define VOL_STEP 0.1f
+#define BATTLE_MUSIC_MUL 0.5f
 
 #endif

@@ -2439,11 +2439,11 @@ export class CryMon {
 			return;
 		}
 		if (b.phase === "item" || b.phase === "attack" || b.phase === "guard") {
-			if (this.input.pressed("ArrowUp") || this.input.pressed("KeyW")) {
+			if (this.input.up()) {
 				b.cursor = (b.cursor + b.menu.length - 1) % b.menu.length;
 				this.audio.ui();
 			}
-			if (this.input.pressed("ArrowDown") || this.input.pressed("KeyS")) {
+			if (this.input.down()) {
 				b.cursor = (b.cursor + 1) % b.menu.length;
 				this.audio.ui();
 			}

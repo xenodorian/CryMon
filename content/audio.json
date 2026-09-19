@@ -9,6 +9,9 @@
     "step": 0.1,
     "baseMaster": 0.9
   },
+  "musicBus": 0.22,
+  "sfxBus": 0.32,
+  "battleMusicMul": 0.5,
   "songs": {
     "title": {
       "loop": true,

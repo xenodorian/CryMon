@@ -983,6 +983,7 @@ def bake_audio(data: dict, out: Path) -> None:
     lines.append(f"#define VOL_MAX {float(vol.get('max') if vol.get('max') is not None else 2)}f")
     lines.append(f"#define VOL_DEFAULT {float(vol.get('default') if vol.get('default') is not None else 1)}f")
     lines.append(f"#define VOL_STEP {float(vol.get('step') if vol.get('step') is not None else 0.1)}f")
+    lines.append(f"#define BATTLE_MUSIC_MUL {float(audio.get('battleMusicMul') if audio.get('battleMusicMul') is not None else 0.5)}f")
     lines.append("")
     lines.append("#endif")
     out.write_text("\n".join(lines) + "\n")

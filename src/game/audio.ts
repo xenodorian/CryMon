@@ -88,6 +88,10 @@ const VOLUME_CFG = (audioJson as { volume?: { min: number; max: number; default:
 };
 export const VOLUME = VOLUME_CFG;
 const SETTINGS_KEY = "crymon.settings.v1";
+const aj = audioJson as { musicBus?: number; sfxBus?: number; battleMusicMul?: number };
+const MUSIC_BUS = aj.musicBus ?? 0.22;
+const SFX_BUS = aj.sfxBus ?? 0.32;
+const BATTLE_MUSIC_MUL = aj.battleMusicMul ?? 0.5;
 
 function midiHz(n: number) {
 	if (n <= 1) return 0;
@@ -201,8 +205,8 @@ export class Chip {
 		this.master = ctx.createGain();
 		this.musicBus = ctx.createGain();
 		this.sfxBus = ctx.createGain();
-		this.musicBus.gain.value = 0.22;
-		this.sfxBus.gain.value = 0.32;
+		this.musicBus.gain.value = this.musicGainFor(this.songId);
+		this.sfxBus.gain.value = SFX_BUS;
 		this.master.gain.value = this.muted ? 0 : VOLUME.baseMaster * this.volume;
 		this.musicBus.connect(this.master);
 		this.sfxBus.connect(this.master);
@@ -315,10 +319,19 @@ export class Chip {
 		this.gate(v, midiHz(ev.n), ev.v, tr.wave === "noise");
 	}
 
+	private musicGainFor(id: string | null) {
+		const battle = id === BATTLE_SONG || id === TRAINER_SONG;
+		return MUSIC_BUS * (battle ? BATTLE_MUSIC_MUL : 1);
+	}
+
 	setSong(id: string | null) {
-		if (id === this.songId) return;
+		if (id === this.songId) {
+			if (this.musicBus) this.musicBus.gain.value = this.musicGainFor(id);
+			return;
+		}
 		this.songId = id;
 		this.song = id ? SONGS[id] ?? null : null;
+		if (this.musicBus) this.musicBus.gain.value = this.musicGainFor(id);
 		for (let i = 0; i < 4; i++) {
 			this.music[i].song = this.song;
 			this.music[i].i = 0;
