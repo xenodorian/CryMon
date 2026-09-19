@@ -685,7 +685,7 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("    int bench_sp[2], bench_lv[2], bench_n;")
     lines.append("} TrainerKit;")
     kit_keys = ["sentry", "conscript", "enforcer", "cross",
-                "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden"]
+                "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "quartz"]
     lines.append(f"static const TrainerKit TRAINER_KITS[{len(kit_keys)}] = {{")
     for k in kit_keys:
         t = world["trainers"][k]
