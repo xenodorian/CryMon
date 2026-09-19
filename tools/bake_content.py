@@ -339,15 +339,12 @@ def bake_logic(data: dict, out: Path) -> None:
 
 NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4}
 ARRIVE = {"masonAmbush": 1, "ensureSoldiers": 2}
+ITEM_FX = {"heal": 1, "buff": 2, "debuff": 3, "capture": 4, "flee": 5}
 
-def talk_id(key: str) -> int:
-    try:
-        return TALK_KEYS_ORDER.index(key)
-    except ValueError:
-        return -1
 
 def bake_world(data: dict, out: Path) -> None:
     world = data["world"]
+    maps = data["maps"]
     items = data["items"]
     f = world["formulas"]
     lines = [HEADER]
@@ -379,10 +376,10 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("typedef struct {")
     lines.append("    int from_map, to_map;")
     lines.append("    char tile, spawn;")
-    lines.append("    int face_down;")
-    lines.append("    int need;")
-    lines.append("    int on_arrive;")
-    lines.append("    int fail_talk;")
+    lines.append("    int face_down; /* 1 = arrive facing down (from south) */")
+    lines.append("    int need;      /* 0 none, 1 tookStarter, 2 beatCalder, 3 beatShin, 4 hasScroll */")
+    lines.append("    int on_arrive; /* 0 none, 1 masonAmbush, 2 ensureSoldiers */")
+    lines.append("    int fail_talk; /* talk table index, -1 none */")
     lines.append("} WarpDef;")
     lines.append("static const WarpDef WARPS[] = {")
     for w in world["warps"]:
@@ -394,11 +391,319 @@ def bake_world(data: dict, out: Path) -> None:
         need = NEED.get(w.get("need") or "", 0)
         arr = ARRIVE.get(w.get("onArrive") or "", 0)
         fail = talk_id(w["failTalk"]) if w.get("failTalk") else -1
-        lines.append(f"    {{ {frm}, {to}, '{tile}', '{spawn}', {face}, {need}, {arr}, {fail} }},")
+        lines.append(
+            f"    {{ {frm}, {to}, '{tile}', '{spawn}', {face}, {need}, {arr}, {fail} }},"
+        )
     lines.append("};")
     lines.append(f"#define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))")
     lines.append("")
+    sp = {s: i for i, s in enumerate(species_order(data))}
+    lines.append("typedef struct {")
+    lines.append("    int map_id;")
+    lines.append("    char tile;")
+    lines.append("    int rate;")
+    lines.append("    int pool[8];")
+    lines.append("    int pool_n;")
+    lines.append("    int lv_min, lv_max;")
+    lines.append("    int ty_bonus_gt; /* -1 none */")
+    lines.append("} EncDef;")
+    lines.append("static const EncDef ENCOUNTERS[] = {")
+    enc_n = 0
+    for e in world["encounters"]:
+        pool = e["pool"]
+        ids = [sp[s] for s in pool]
+        while len(ids) < 8:
+            ids.append(0)
+        ty = e.get("levelBonusIfTyGt")
+        tyv = -1 if ty is None else int(ty)
+        rate = int(round(float(e.get("rate", 0.18)) * 100))
+        for mid in e["maps"]:
+            plist = ",".join(str(x) for x in ids)
+            lines.append(
+                f"    {{ {map_sym(mid)}, '{e['tile']}', {rate}, {{ {plist} }}, {len(pool)}, "
+                f"{int(e['levelMin'])}, {int(e['levelMax'])}, {tyv} }},"
+            )
+            enc_n += 1
+    lines.append("};")
+    lines.append(f"#define ENC_N {enc_n}")
+    lines.append("")
+    lines.append("typedef struct {")
+    lines.append("    int lead_sp, lead_lv;")
+    lines.append("    int bench_sp[2], bench_lv[2], bench_n;")
+    lines.append("} TrainerKit;")
+    kit_keys = ["sentry", "conscript", "enforcer", "cross"]
+    lines.append("static const TrainerKit TRAINER_KITS[4] = {")
+    for k in kit_keys:
+        t = world["trainers"][k]
+        lead_sp, lead_lv = t["lead"]
+        benches = t.get("bench") or []
+        b0 = benches[0] if len(benches) > 0 else ["quillpup", 1]
+        b1 = benches[1] if len(benches) > 1 else ["quillpup", 1]
+        lines.append(
+            f"    {{ {sp[lead_sp]}, {int(lead_lv)}, "
+            f"{{ {sp[b0[0]]}, {sp[b1[0]]} }}, {{ {int(b0[1])}, {int(b1[1])} }}, {len(benches)} }},"
+        )
+    lines.append("};")
+    lines.append("#define KIT_SENTRY 0")
+    lines.append("#define KIT_CONSCRIPT 1")
+    lines.append("#define KIT_ENFORCER 2")
+    lines.append("#define KIT_CROSS 3")
+    lines.append("")
+    # item effects in items.order
+    lines.append("typedef struct { int kind, amount, str, agl, spc, bonus; } ItemFx;")
+    lines.append("static const ItemFx ITEM_FX[] = {")
+    for iid in order:
+        e = items["defs"][iid].get("effect") or {}
+        kind = ITEM_FX.get(e.get("kind"), 0)
+        amount = int(e.get("amount") or 0)
+        st = int(e.get("str") or 0)
+        ag = int(e.get("agl") or 0)
+        sc = int(e.get("spc") or 0)
+        bonus = int(e.get("bonus") or 0)
+        lines.append(f"    {{ {kind}, {amount}, {st}, {ag}, {sc}, {bonus} }},")
+    lines.append("};")
+    lines.append("")
+    bake_npc_scripts(data, items, lines)
     out.write_text("\n".join(lines) + "\n")
+
+
+FLAG_IDS = [
+    "tookStarter",
+    "talkedFather",
+    "lootedCrate",
+    "talkedWren",
+    "beatCalder",
+    "readCart",
+    "talkedMae",
+    "talkedIvo",
+    "talkedNell",
+    "nellBonus",
+    "hasParty2",
+    "gotFieldGem",
+    "pikeHelped",
+    "talkedPike",
+    "gotHerb",
+    "gotStump",
+    "cathleenCaught",
+    "beatShinigami",
+    "beatCross",
+    "beatConscript",
+    "beatEnforcer",
+    "beatSentry",
+    "tessaGifted",
+    "chestLooted",
+    "birchGifted",
+    "sableGifted",
+    "cageOpen",
+    "hasCageKey",
+    "talkedReach",
+]
+FLAG_INDEX = {name: i for i, name in enumerate(FLAG_IDS)}
+
+AFTER_IDS = {
+    "bedHeal": 1,
+    "shop": 2,
+    "orenShop": 3,
+    "calder": 4,
+    "cathleen": 5,
+    "shinigami": 6,
+    "wsoldier": 7,
+}
+PENDING_IDS = {
+    "cross": 0,
+    "conscript": 1,
+    "enforcer": 2,
+    "sentry": 3,
+}
+
+
+def flag_id(name) -> int:
+    if not name:
+        return -1
+    if name not in FLAG_INDEX:
+        raise SystemExit(f"unknown NPC flag {name!r}")
+    return FLAG_INDEX[name]
+
+
+def talk_id(key) -> int:
+    if not key:
+        return -1
+    if key not in TALK_KEYS_ORDER:
+        raise SystemExit(f"unknown talk key {key!r}")
+    return TALK_KEYS_ORDER.index(key)
+
+
+def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
+    world = data["world"]
+    order = items["order"]
+    item_i = {iid: i for i, iid in enumerate(order)}
+    sp = {s: i for i, s in enumerate(species_order(data))}
+    lines.append("/* NPC first-match scripts from content/world.json. */")
+    flags = merged_flags(data)
+    for i, name in enumerate(flags):
+        lines.append(f"#define FLAG_{_c_ident(name)} {i}")
+    lines.append(f"#define FLAG_N {len(flags)}")
+    lines.append("#define NPC_AFTER_NONE 0")
+    lines.append("#define NPC_AFTER_BED_HEAL 1")
+    lines.append("#define NPC_AFTER_SHOP 2")
+    lines.append("#define NPC_AFTER_OREN_SHOP 3")
+    lines.append("#define NPC_AFTER_CALDER 4")
+    lines.append("#define NPC_AFTER_CATHLEEN 5")
+    lines.append("#define NPC_AFTER_SHINIGAMI 6")
+    lines.append("#define NPC_AFTER_WSOLDIER 7")
+    lines.append("#define NPC_PENDING_CROSS 0")
+    lines.append("#define NPC_PENDING_CONSCRIPT 1")
+    lines.append("#define NPC_PENDING_ENFORCER 2")
+    lines.append("#define NPC_PENDING_SENTRY 3")
+    lines.append("typedef struct {")
+    lines.append("    int if_flag, if_not, hide_if, set_flag;")
+    lines.append("    int g_item[3], g_qty[3], g_n;")
+    lines.append("    int g_sp, g_lv;")
+    lines.append("    int talk, talk_if, talk_else;")
+    lines.append("    int after, pending;")
+    lines.append("    int heal, marks;")
+    lines.append("    int take_item;")
+    lines.append("} NpcStep;")
+    lines.append("typedef struct {")
+    lines.append("    int map_id;")
+    lines.append("    char mark;")
+    lines.append("    int step0, stepn;")
+    lines.append("} NpcDef;")
+    steps: list[dict] = []
+    defs: list[tuple[str, str, int, int]] = []
+    for npc in world.get("npcs") or []:
+        script = npc.get("script") or []
+        if not script:
+            continue
+        start = len(steps)
+        for st in script:
+            grants = list(st.get("grant") or [])
+            g_item = [-1, -1, -1]
+            g_qty = [0, 0, 0]
+            for i, (iid, qty) in enumerate(grants[:3]):
+                if iid not in item_i:
+                    raise SystemExit(f"unknown grant item {iid!r}")
+                g_item[i] = item_i[iid]
+                g_qty[i] = int(qty)
+            gm = st.get("grantMonster")
+            g_sp, g_lv = (-1, 0)
+            if gm:
+                g_sp, g_lv = sp[gm[0]], int(gm[1])
+            steps.append(
+                {
+                    "if_flag": flag_id(st.get("if")),
+                    "if_not": flag_id(st.get("ifNot")),
+                    "hide_if": flag_id(st.get("hideIf")),
+                    "set_flag": flag_id(st.get("set")),
+                    "g_item": g_item,
+                    "g_qty": g_qty,
+                    "g_n": min(3, len(grants)),
+                    "g_sp": g_sp,
+                    "g_lv": g_lv,
+                    "talk": talk_id(st.get("talk")),
+                    "talk_if": flag_id(st.get("talkIf")),
+                    "talk_else": talk_id(st.get("talkElse")),
+                    "after": AFTER_IDS.get(st.get("after") or "", 0),
+                    "pending": PENDING_IDS.get(st.get("pending") or "", -1),
+                    "heal": 1 if st.get("heal") else 0,
+                    "marks": int(st.get("marks") or 0),
+                    "take_item": item_i[st["takeItem"]] if st.get("takeItem") else -1,
+                }
+            )
+        n = len(steps) - start
+        marks = npc.get("marks") or [npc["mark"]]
+        for mark in marks:
+            defs.append((npc["map"], mark, start, n))
+    lines.append("static const NpcStep NPC_STEPS[] = {")
+    for st in steps:
+        gi = ",".join(str(x) for x in st["g_item"])
+        gq = ",".join(str(x) for x in st["g_qty"])
+        lines.append(
+            f"    {{ {st['if_flag']}, {st['if_not']}, {st['hide_if']}, {st['set_flag']}, "
+            f"{{ {gi} }}, {{ {gq} }}, {st['g_n']}, {st['g_sp']}, {st['g_lv']}, "
+            f"{st['talk']}, {st['talk_if']}, {st['talk_else']}, {st['after']}, {st['pending']}, "
+            f"{st['heal']}, {st['marks']}, {st['take_item']} }},"
+        )
+    lines.append("};")
+    lines.append("static const NpcDef NPC_DEFS[] = {")
+    for mid, mark, start, n in defs:
+        lines.append(f"    {{ {map_sym(mid)}, '{mark}', {start}, {n} }},")
+    lines.append("};")
+    lines.append(f"#define NPC_DEF_N {len(defs)}")
+    lines.append("")
+
+
+def _c_ident(name: str) -> str:
+    out = []
+    for ch in name:
+        if ch.isupper() and out:
+            out.append("_")
+        out.append(ch.upper())
+    return "".join(out)
+
+
+NOTE_OFF = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
+
+
+def parse_pattern(pattern: str, default_vol: int):
+    events = []
+    for raw in pattern.split():
+        tok = raw
+        vol = default_vol
+        if "@" in tok:
+            tok, vs = tok.rsplit("@", 1)
+            vol = int(vs)
+        if ":" in tok:
+            name, fs = tok.split(":", 1)
+            frames = max(1, int(fs))
+        else:
+            name, frames = tok, 8
+        if name == "r":
+            events.append((0, frames, 0))
+            continue
+        if name == "n":
+            events.append((1, frames, vol))
+            continue
+        acc = 0
+        letter = name[0]
+        i = 1
+        if len(name) > 1 and name[1] == "#":
+            acc = 1
+            i = 2
+        elif len(name) > 1 and name[1] == "b":
+            acc = -1
+            i = 2
+        elif len(name) > 1 and name[1] == "s":
+            acc = 1
+            i = 2
+        octv = int(name[i:])
+        midi = 12 * (octv + 1) + NOTE_OFF[letter] + acc
+        events.append((midi, frames, vol))
+    return events
+
+
+WAVE_ID = {"pulse": 0, "tri": 1, "noise": 2}
+
+
+def bake_track_arrays(prefix: str, tracks: list, lines: list[str]) -> None:
+    for ti, tr in enumerate(tracks):
+        ev = parse_pattern(tr["pattern"], int(tr.get("vol") or 8))
+        lines.append(f"static const ChipEv {prefix}_t{ti}[] = {{")
+        for midi, frames, vol in ev:
+            lines.append(f"    {{ {midi}, {frames}, {vol} }},")
+        if not ev:
+            lines.append("    { 0, 1, 0 },")
+        lines.append("};")
+    lines.append(f"static const ChipTrack {prefix}_tr[] = {{")
+    for ti, tr in enumerate(tracks):
+        wave = WAVE_ID.get(tr.get("wave") or "pulse", 0)
+        duty = int(tr.get("duty") or 0)
+        vol = int(tr.get("vol") or 8)
+        ev = parse_pattern(tr["pattern"], vol)
+        n = max(1, len(ev))
+        lines.append(f"    {{ {wave}, {duty}, {vol}, {prefix}_t{ti}, {n} }},")
+    lines.append("};")
+
 
 def bake_audio(data: dict, out: Path) -> None:
     lines = [HEADER, "/* Audio tables from content/audio.json (stub if missing). */", ""]
