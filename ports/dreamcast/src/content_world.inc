@@ -1,10 +1,10 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=5ceed561aef4b9e7 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4533cc4a22dc2da3 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
 #define XP_PER_LEVEL 4
 #define LEVEL_XP_MUL 10
-#define LEVEL_CAP 12
+#define LEVEL_CAP 20
 #define LEVEL_HP 3
 #define LEVEL_STAT 1
 #define CAPTURE_AGL 5
@@ -78,6 +78,10 @@ static const TrainerKit TRAINER_KITS[4] = {
 #define KIT_CONSCRIPT 1
 #define KIT_ENFORCER 2
 #define KIT_CROSS 3
+#define KIT_CATHLEEN_LV 10
+#define KIT_SHINIGAMI_LEAD_LV 15
+#define KIT_SHINIGAMI_B0_LV 14
+#define KIT_SHINIGAMI_B1_LV 13
 
 typedef struct { int kind, amount, str, agl, spc, bonus; } ItemFx;
 static const ItemFx ITEM_FX[] = {

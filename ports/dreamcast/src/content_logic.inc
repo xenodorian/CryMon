@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=5ceed561aef4b9e7 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4533cc4a22dc2da3 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -62,4 +62,21 @@ static const NatureDef NATURES[NATURE_N] = {
 #define TOXIC_POWER 0.5f
 #define TOXIC_SPEED 1.0f
 #define TOXIC_POISON_DIVISOR 16
+
+/* Move unlocks + evolution -- logic.json growth. */
+#define LV_SECONDARY 5
+#define LV_SPECIAL 10
+#define LV_EVOLVE 10
+
+typedef struct { const char *name; int stat; float power, speed; int dstr, dagl, dspc; } NatureMove;
+#define NATURE_MOVE_N 7
+static const NatureMove NATURE_MOVES[NATURE_N] = {
+    { "FRACTURE", ATK_STR, 0.5f, 1.0f, -2, -2, -2 },
+    { "REND", ATK_STR, 0.5f, 0.9f, -4, 0, 0 },
+    { "CLEAVE", ATK_STR, 0.5f, 1.0f, -3, -1, 0 },
+    { "DAZZLE", ATK_MAG, 0.5f, 1.2f, 0, -4, 0 },
+    { "BIND", ATK_STR, 0.5f, 1.1f, -2, -2, 0 },
+    { "VEIL", ATK_MAG, 0.5f, 1.0f, 0, 0, -4 },
+    { "HEX", ATK_MAG, 0.5f, 1.0f, 0, -2, -2 },
+};
 

@@ -397,6 +397,10 @@ def bake_species(data: dict, out: Path) -> None:
         while len(ids) < 4:
             ids.append(0)
         nsp = len(spells)
+        evo = s.get("evolvesTo")
+        if evo and evo not in spec:
+            raise SystemExit(f"species {sid!r} evolvesTo {evo!r} is not a species")
+        evo_to = order.index(evo) if evo else -1
         name = dc_text(s["name"])
         basic = dc_text(s["basic"])
         special = dc_text(s["special"])
@@ -408,7 +412,7 @@ def bake_species(data: dict, out: Path) -> None:
             f"{float(s['basicPower'])}f, {float(s['basicSpeed'])}f, "
             f"{float(s['specialPower'])}f, {float(s['specialSpeed'])}f, "
             f"{nsp}, {{{ids[0]},{ids[1]},{ids[2]},{ids[3]}}}, "
-            f"{nature_index(data, s)} }},"
+            f"{nature_index(data, s)}, {evo_to} }},"
         )
     lines.append("};")
     lines.append("")
@@ -547,6 +551,33 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define TOXIC_SPEED {float(toxic.get('speed') or 1.0)}f")
     lines.append(f"#define TOXIC_POISON_DIVISOR {int(toxic.get('poisonDivisor') or 16)}")
     lines.append("")
+    growth = logic.get("growth") or {}
+    lines.append("/* Move unlocks + evolution -- logic.json growth. */")
+    lines.append(f"#define LV_SECONDARY {int(growth.get('secondaryAt') or 5)}")
+    lines.append(f"#define LV_SPECIAL {int(growth.get('specialAt') or 10)}")
+    lines.append(f"#define LV_EVOLVE {int(growth.get('evolveAt') or 10)}")
+    lines.append("")
+    nmoves = logic.get("natureMoves") or []
+    lines.append("typedef struct { const char *name; int stat; float power, speed; int dstr, dagl, dspc; } NatureMove;")
+    lines.append(f"#define NATURE_MOVE_N {len(nmoves)}")
+    lines.append("static const NatureMove NATURE_MOVES[NATURE_N] = {")
+    by_nat = {m.get("nature"): m for m in nmoves}
+    natures = logic.get("natures") or []
+    if len(nmoves) != len(natures):
+        raise SystemExit(f"logic.json natureMoves must have one entry per nature ({len(natures)}), got {len(nmoves)}")
+    for nat in natures:
+        m = by_nat.get(nat["id"])
+        if not m:
+            raise SystemExit(f"logic.json natureMoves missing nature {nat['id']!r}")
+        mods = m.get("mods") or {}
+        lines.append(
+            f'    {{ "{c_escape(dc_text(m.get("name") or "SECONDARY"))}", '
+            f"{atk_stat_sym(m.get('stat') or 'str', 'natureMoves.' + nat['id'])}, "
+            f"{float(m.get('power') or 0.5)}f, {float(m.get('speed') or 1)}f, "
+            f"{int(mods.get('str') or 0)}, {int(mods.get('agl') or 0)}, {int(mods.get('spc') or 0)} }},"
+        )
+    lines.append("};")
+    lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
 
@@ -661,6 +692,13 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("#define KIT_CONSCRIPT 1")
     lines.append("#define KIT_ENFORCER 2")
     lines.append("#define KIT_CROSS 3")
+    cath = world["trainers"]["cathleen"]["lead"]
+    shin = world["trainers"]["shinigami"]
+    shin_b = shin.get("bench") or []
+    lines.append(f"#define KIT_CATHLEEN_LV {int(cath[1])}")
+    lines.append(f"#define KIT_SHINIGAMI_LEAD_LV {int(shin['lead'][1])}")
+    lines.append(f"#define KIT_SHINIGAMI_B0_LV {int(shin_b[0][1]) if shin_b else 14}")
+    lines.append(f"#define KIT_SHINIGAMI_B1_LV {int(shin_b[1][1]) if len(shin_b) > 1 else 13}")
     lines.append("")
     # item effects in items.order
     lines.append("typedef struct { int kind, amount, str, agl, spc, bonus; } ItemFx;")

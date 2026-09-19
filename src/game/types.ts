@@ -75,6 +75,8 @@ export interface Species {
   specialPp: number;
   wild: boolean;
   spells?: Spell[];
+  nature?: string;
+  evolvesTo?: SpeciesId;
 }
 
 export interface Monster {
@@ -138,6 +140,7 @@ export interface BattleState {
   afterMsg: BattlePhase | "end_win" | "end_lose" | "end_catch" | "end_run";
   pendingDmg: number;
   pendingLabel: string;
+  pendingMods: { str: number; agl: number; spc: number };
   minigame: number;
   minigameDir: number;
   minigameHit: number | null;

@@ -17,7 +17,8 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": false
+    "wild": false,
+    "evolvesTo": "needleroot"
   },
   "glimmoth": {
     "id": "glimmoth",
@@ -37,7 +38,8 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "evolvesTo": "stormwing"
   },
   "tortcask": {
     "id": "tortcask",
@@ -77,7 +79,8 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": false
+    "wild": false,
+    "evolvesTo": "sableclaw"
   },
   "mossback": {
     "id": "mossback",
@@ -117,7 +120,8 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "evolvesTo": "thornhide"
   },
   "fenwisp": {
     "id": "fenwisp",
@@ -137,7 +141,8 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "evolvesTo": "glasswisp"
   },
   "duskhorn": {
     "id": "duskhorn",
@@ -157,7 +162,8 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "evolvesTo": "boulderam"
   },
   "needleroot": {
     "id": "needleroot",
@@ -271,7 +277,8 @@
     "specialPower": 1.0,
     "specialSpeed": 0.8,
     "specialPp": 3,
-    "wild": true
+    "wild": true,
+    "evolvesTo": "ashenmaw"
   },
   "frostail": {
     "id": "frostail",

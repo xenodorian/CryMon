@@ -170,11 +170,75 @@
     }
   },
   "toxicBurst": {
-    "note": "The shiny-exclusive move. Universal, not per-species -- every shiny CryMon can use it, and a shiny foe has a chance to reach for it instead of its usual moves. Poisons on hit.",
+    "note": "The shiny-exclusive move. Universal, not per-species -- every shiny CryMon can use it, and a shiny foe has a chance to reach for it instead of its usual moves. Poisons on hit. Shinies learn this at growth.secondaryAt INSTEAD of the shared crystal secondary.",
     "name": "Toxic Burst",
     "stat": "str",
     "power": 0.5,
     "speed": 1.0,
     "poisonDivisor": 16
-  }
+  },
+  "growth": {
+    "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn toxicBurst instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt.",
+    "secondaryAt": 5,
+    "specialAt": 10,
+    "evolveAt": 10
+  },
+  "natureMoves": [
+    {
+      "nature": "quartz",
+      "name": "Fracture",
+      "stat": "str",
+      "power": 0.5,
+      "speed": 1.0,
+      "mods": { "str": -2, "agl": -2, "spc": -2 }
+    },
+    {
+      "nature": "hematite",
+      "name": "Rend",
+      "stat": "str",
+      "power": 0.5,
+      "speed": 0.9,
+      "mods": { "str": -4, "agl": 0, "spc": 0 }
+    },
+    {
+      "nature": "diamond",
+      "name": "Cleave",
+      "stat": "str",
+      "power": 0.5,
+      "speed": 1.0,
+      "mods": { "str": -3, "agl": -1, "spc": 0 }
+    },
+    {
+      "nature": "opal",
+      "name": "Dazzle",
+      "stat": "mag",
+      "power": 0.5,
+      "speed": 1.2,
+      "mods": { "str": 0, "agl": -4, "spc": 0 }
+    },
+    {
+      "nature": "spinel",
+      "name": "Bind",
+      "stat": "str",
+      "power": 0.5,
+      "speed": 1.1,
+      "mods": { "str": -2, "agl": -2, "spc": 0 }
+    },
+    {
+      "nature": "lapis",
+      "name": "Veil",
+      "stat": "mag",
+      "power": 0.5,
+      "speed": 1.0,
+      "mods": { "str": 0, "agl": 0, "spc": -4 }
+    },
+    {
+      "nature": "amethyst",
+      "name": "Hex",
+      "stat": "mag",
+      "power": 0.5,
+      "speed": 1.0,
+      "mods": { "str": 0, "agl": -2, "spc": -2 }
+    }
+  ]
 }

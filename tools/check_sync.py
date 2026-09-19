@@ -60,7 +60,7 @@ FORBIDDEN_TEXT = [
 ]
 SKIP_NAME = {".git", "node_modules", ".vercel", "backups", "__pycache__", "placeholder_sprites"}
 REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross"]
-REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat"]
+REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat", "growth", "natureMoves", "toxicBurst", "natureTypes"]
 
 
 def union_members(text: str, name: str) -> list[str]:
@@ -313,6 +313,51 @@ def main() -> int:
     for k in ("perfectMin", "perfectMax", "perfectMul", "connectedMin", "connectedMax", "connectedMul", "fizzleMul", "needleSpeed"):
         if k not in mg:
             errors.append(f"logic.combat.minigame missing {k}")
+    growth = logic.get("growth") or {}
+    for k in ("secondaryAt", "specialAt", "evolveAt"):
+        if k not in growth:
+            errors.append(f"logic.growth missing {k}")
+    natures = logic.get("natures") or []
+    nmoves = logic.get("natureMoves") or []
+    nat_ids = [n.get("id") for n in natures]
+    if len(nmoves) != len(natures):
+        errors.append(f"logic.natureMoves must have one entry per nature ({len(natures)}), got {len(nmoves)}")
+    move_nats = [m.get("nature") for m in nmoves]
+    for nid in nat_ids:
+        if nid not in move_nats:
+            errors.append(f"logic.natureMoves missing nature {nid!r}")
+    for m in nmoves:
+        for k in ("nature", "name", "stat", "power", "speed", "mods"):
+            if k not in m:
+                errors.append(f"logic.natureMoves entry missing {k}")
+                break
+        else:
+            mods = m.get("mods") or {}
+            if not any(int(mods.get(stat) or 0) < 0 for stat in ("str", "agl", "spc")):
+                errors.append(f"logic.natureMoves {m.get('nature')!r} must lower at least one foe stat")
+    spec = data["species"]
+    for sid, s in spec.items():
+        evo = s.get("evolvesTo")
+        if evo:
+            if evo not in spec:
+                errors.append(f"species {sid!r} evolvesTo {evo!r} is not a species")
+            elif evo == sid:
+                errors.append(f"species {sid!r} evolvesTo itself")
+    if not any(s.get("evolvesTo") for s in spec.values()):
+        errors.append("at least one species must set evolvesTo")
+    formulas = data["world"].get("formulas") or {}
+    cap = int(formulas.get("levelCap") or 0)
+    if cap < int(growth.get("evolveAt") or 10):
+        errors.append("world.formulas.levelCap must be >= growth.evolveAt")
+    trainers = data["world"].get("trainers") or {}
+    cath_lv = (trainers.get("cathleen") or {}).get("lead") or [None, 0]
+    shin_lv = (trainers.get("shinigami") or {}).get("lead") or [None, 0]
+    if int(cath_lv[1] or 0) != 10:
+        errors.append("world.trainers.cathleen lead must be level 10")
+    if int(shin_lv[1] or 0) != 15:
+        errors.append("world.trainers.shinigami lead must be level 15")
+    if cap < 15:
+        errors.append("world.formulas.levelCap must be at least 15 (Shinigami)")
     vol = data["audio"].get("volume") or {}
     for k in ("min", "max", "default", "step", "baseMaster"):
         if k not in vol:
