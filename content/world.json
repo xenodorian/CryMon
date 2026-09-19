@@ -1408,7 +1408,7 @@
       "mark": "7",
       "id": "ruinsWarden",
       "role": "trainer",
-      "sprite": "npc/soldier",
+      "sprite": "npc/warden",
       "talk": "ruinsWardenSpot",
       "talkDone": "ruinsWardenWin",
       "script": [
