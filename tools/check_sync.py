@@ -277,6 +277,79 @@ def main() -> int:
         errors.append("types.ts SpeakerId union != dialogue.speakers")
 
     items = list(data["items"]["order"])
+    item_defs = data["items"].get("defs") or {}
+    item_set = set(items)
+    if set(item_defs) != item_set:
+        errors.append("items.defs keys must exactly match items.order")
+    if len(items) != len(item_set):
+        errors.append("items.order contains duplicate item IDs")
+    for iid in items:
+        d = item_defs.get(iid) or {}
+        if d.get("id") != iid:
+            errors.append(f"items.defs.{iid} id must match its key")
+        for k in ("battle", "field"):
+            if not isinstance(d.get(k), bool):
+                errors.append(f"items.defs.{iid}.{k} must be boolean")
+        for k in ("buy", "sell"):
+            if not isinstance(d.get(k), (int, float)) or d.get(k, -1) < 0:
+                errors.append(f"items.defs.{iid}.{k} must be a nonnegative number")
+        fx = d.get("effect")
+        if d.get("battle") and not fx:
+            errors.append(f"items.defs.{iid} is battle-usable but has no effect")
+        if fx and fx.get("kind") not in {"heal", "buff", "debuff", "capture", "flee"}:
+            errors.append(f"items.defs.{iid} has unknown effect kind {fx.get('kind')!r}")
+        if fx and fx.get("kind") == "heal" and (not isinstance(fx.get("amount"), (int, float)) or fx.get("amount", 0) <= 0):
+            errors.append(f"items.defs.{iid} heal effect must have a positive amount")
+    start_bag = data["world"].get("startBag") or {}
+    unknown_start = [iid for iid in start_bag if iid not in item_set]
+    if unknown_start:
+        errors.append(f"world.startBag references unknown items {unknown_start[:8]}")
+    if any(not isinstance(n, (int, float)) or n < 0 for n in start_bag.values()):
+        errors.append("world.startBag quantities must be nonnegative numbers")
+
+    def check_item_ref(iid, where):
+        if iid not in item_set:
+            errors.append(f"{where} references unknown item {iid!r}")
+
+    npcs = data["world"].get("npcs") or []
+    for npc in npcs:
+        nid = npc.get("id", "?")
+        gi = npc.get("grantItem")
+        if gi:
+            if not isinstance(gi, list) or len(gi) != 2:
+                errors.append(f"npc {nid!r} grantItem must be [item, qty]")
+            else:
+                check_item_ref(gi[0], f"npc {nid!r}.grantItem")
+                if not isinstance(gi[1], int) or gi[1] <= 0:
+                    errors.append(f"npc {nid!r}.grantItem quantity must be positive")
+        for si, step in enumerate(npc.get("script") or []):
+            for pair in step.get("grant") or []:
+                if not isinstance(pair, list) or len(pair) != 2:
+                    errors.append(f"npc {nid!r} script[{si}].grant must contain [item, qty]")
+                    continue
+                check_item_ref(pair[0], f"npc {nid!r} script[{si}].grant")
+                if not isinstance(pair[1], int) or pair[1] <= 0:
+                    errors.append(f"npc {nid!r} script[{si}].grant quantity must be positive")
+            if step.get("takeItem") is not None:
+                check_item_ref(step["takeItem"], f"npc {nid!r} script[{si}].takeItem")
+
+    for tid, trainer in (data["world"].get("trainers") or {}).items():
+        if not isinstance(trainer, dict):
+            continue
+        for gi, pair in enumerate(trainer.get("grant") or []):
+            if not isinstance(pair, list) or len(pair) != 2:
+                errors.append(f"trainer {tid!r} grant[{gi}] must contain [item, qty]")
+                continue
+            check_item_ref(pair[0], f"trainer {tid!r}.grant")
+            if not isinstance(pair[1], int) or pair[1] <= 0:
+                errors.append(f"trainer {tid!r}.grant quantity must be positive")
+
+    anne_gift = logic.get("anneGift") or {}
+    if anne_gift.get("item") is not None:
+        check_item_ref(anne_gift["item"], "logic.anneGift.item")
+    if anne_gift.get("qty") is not None and (not isinstance(anne_gift["qty"], int) or anne_gift["qty"] <= 0):
+        errors.append("logic.anneGift.qty must be positive")
+
     if items != list(data["save"]["itemOrder"]):
         errors.append("items.order must equal save.itemOrder")
     if set(union_members(types, "ItemId")) != set(items):
