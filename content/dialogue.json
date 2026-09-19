@@ -1,1 +1,49 @@
-PLACEHOLDER_WILL_FAIL
+{
+  "speakers": {
+    "max": "Max",
+    "anne": "Anne",
+    "mason": "Mason",
+    "wren": "Wren",
+    "mae": "Mae",
+    "ivo": "Ivo",
+    "nell": "Nell",
+    "pike": "Pike",
+    "calder": "Calder",
+    "bram": "Bram",
+    "cathleen": "Cathleen",
+    "shinigami": "Shinigami",
+    "oren": "Oren",
+    "tessa": "Tessa",
+    "birch": "Birch",
+    "sable": "Sable",
+    "cross": "Warden Cross",
+    "commander": "Commander",
+    "conscript": "Conscript",
+    "enforcer": "Enforcer",
+    "sentry": "Sentry",
+    "father": "Father",
+    "heavenfall": "Heavenfall",
+    "none": "",
+    "ranger": "Ranger",
+    "scout": "Scout",
+    "keeper": "Keeper",
+    "warden": "Warden",
+    "bogwalker": "Bogwalker",
+    "reedguard": "Reedguard"
+  },
+  "intro": [
+    "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
+    "Max is eight. CryMon — Crystal Monsters — sleep inside Capture Crystals.",
+    "Father is too sick to stand. His crystal sits on the shelf.",
+    "Quillpup is inside it. She will take the CryMon. CryTown does not get to fall."
+  ],
+  "endingWin": [
+    "Max stands at the edge of the Grove, the scroll empty in her hands.",
+    "The war isn't over. It isn't even close to over.",
+    "But for the first time since she left home, she isn't alone in it.",
+    "Thank you for playing the CryMon demo."
+  ],
+  "talk": {
+    "RESTORE": "incomplete - need full talk table"
+  }
+}
