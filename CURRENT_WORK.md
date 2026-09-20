@@ -4,6 +4,30 @@ Live coordination doc for every agent working this repo (Claude, Grok,
 ChatGPT, others). Read before starting anything; update before you stop.
 
 **Standing house rules:**
+- **Commit-and-push per step, always.** After finishing each individual
+  step/sub-step (not each large multi-part item — each *step*), commit
+  and push it to `main` (or to a branch if you're using one — merge
+  branches back periodically, don't let them sit open indefinitely).
+  Don't batch multiple steps into one commit. This is so a session that
+  gets cut off mid-work only loses the one step in progress, not
+  everything before it.
+- **"Ship it" / "ship the build" is a specific user trigger,** distinct
+  from the commit-per-step rule above. When the user says either
+  phrase, it means: run the *entire* remaining deployment pipeline right
+  now — `bake_content.py` → `gen_sprites.py` → `check_sync --strict` →
+  web typecheck → `make -C ports/dreamcast` → `make -C ports/dreamcast
+  cdi` → commit/push source → let (or trigger) the CI bot rebuild the
+  CDI → confirm the Pages deploy actually re-ran for that commit (see
+  the CI gap note below — it does **not** happen automatically off a
+  bot-only CDI commit, currently) → end state is a freshly baked,
+  playable CDI sitting in the GitHub Pages download slot, matching
+  whatever's on `main` at that moment.
+- **After finishing a large milestone that includes a bug fix,**
+  run that same full deployment pipeline on your own, without waiting
+  for the user to say "ship it." Routine feature-step commits don't
+  need this — just bug-fix milestones (e.g. the kind of thing that
+  changes whether the game actually works right, not just what content
+  is in it).
 - Do not hand-replace `world.json`. Do not empty `npcs`.
 - **Cathleen is the only CryMon who speaks** (unless/until a leg below
   changes that explicitly — see Leg 2/3, which do add named-CryMon
