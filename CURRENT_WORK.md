@@ -167,17 +167,12 @@ it's updated after every commit this run.
 (2.0 art debt isn't on this list — it's assigned to ChatGPT/Grok, not
 a coding task for me.)
 
-**Current position:** 2.1 and 2.3 DONE and pushed, both engines, both
-verified by build/typecheck only (**no Dreamcast emulator in this
-sandbox for either** — see each section's own caveat before assuming a
-"feels wrong" report means the fix itself is wrong rather than
-unverified). Started sizing 2.5, found it's bigger than filed (shared
-binary save-format shift + new item icons needed, see 2.5's rewritten
-sub-steps) — re-ordered the list above to reflect that before writing
-any code for it, per this run's own "commit between steps, don't rush
-a load-bearing shared format" rule. Next: 2.5 sub-step 1 (work out the
-shifted save `layout` table on paper before touching `save.ts`/
-`save.c`).
+**Current position:** 2.1, 2.3, and 2.5 DONE and pushed, both engines,
+verified by build/typecheck/check_sync only (**no Dreamcast emulator in
+this sandbox for any of them** — see each section's own caveat before
+assuming a "feels wrong" report means the fix itself is wrong rather
+than unverified). Next: 2.6 (more merchants), per the execution order
+above — it depends on 2.5's crystal items existing, which they now do.
 
 ---
 
@@ -354,6 +349,42 @@ the quarry/endgame breakdown shape that worked well all session:
 8. Integration pass + playtest.
 
 ### 2.5 — Replace the capture-rate mechanic + add crystal tiers
+
+**DONE (Claude A), pushed.** Implemented on both engines:
+`captureChance()`/`capture_chance()` rewritten to
+`base - level - str - hp` (+50 if debuffed/status-afflicted), clamped
+0-100. Added Mega (100 marks/base 160) and Ultimate (250/190) Capture
+Crystals; renamed `gem`→"Common Capture Crystal" (base 100) and
+`greatcrystal`→"Greater Capture Crystal" (base 130); added a
+non-purchasable Perfect Capture Crystal (base 1000 — guarantees
+capture without a special-case branch). Shared binary save format
+bumped to version 3 (bag grows 10→13 bytes, shifting every field after
+it — hand-updated in both `save.ts` and `save.c`; `check_sync.py`'s own
+independently-hardcoded golden layout was also fixed to derive offsets
+from `itemOrder` length instead of hardcoding them a third time, which
+would have gone stale). New items use synthesized placeholder icons
+(registered in `sprites.json`, now 18 files in `ART_NEEDED.md`, assigned
+to 2.0). Also fixed two Dreamcast UI overflow bugs found by inspection:
+`draw_bag_menu()` and `draw_shop()` both drew a fixed number of
+unconditional rows and would have drawn off the bottom of the menu box
+now that bag (13) and shop (11 buyable) item counts exceed what fits
+unscrolled — both now use the cursor-following scroll window already
+used by the attack-move menu.
+
+**Interpretation decision made (flag for correction if wrong):** the
+doc's formula is implemented literally in raw stat units, not
+normalized — a high-level/high-stat CryMon can go pre-clamp negative
+(clamped to 0%) unless nearly dead. This matches the simplest reading
+that doesn't invent normalization the doc never mentions.
+
+**Deferred (not part of this pass):** sub-step 8, wiring the Perfect
+Capture Crystal as an actual reward for defeating/capturing Heavenfall
+— depends on 2.4 (gauntlet redesign) landing first, don't force it in
+early.
+
+**Not hardware-verified** — no Dreamcast emulator in this sandbox;
+verified via `make`/`make cdi`/`check_sync --strict`/`npm run
+typecheck` only.
 
 - **Common Capture Crystal** (rename of today's base Capture Crystal):
   25 marks. Capture rate formula: `100% - CryMon's level - CryMon's
