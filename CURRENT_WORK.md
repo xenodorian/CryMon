@@ -22,11 +22,11 @@ ChatGPT, others). Read before starting anything; update before you stop.
   `make -C ports/dreamcast cdi`. Fetch + rebase immediately before
   every push; never trust a base you fetched more than a few minutes
   ago, this repo has multiple agents pushing straight to `main`.
-- **Magenta-keyed art:** generate on solid magenta (`#FF00FF`), then
-  **cut the magenta out to true transparency**. Do **not**
-  traditional-despill (it eats into the sprite). After the key, run
-  the **2-pixel-deep inner-border R→G clamp** in "Magenta keying"
-  below.
+- **Magenta-keyed art:** generate on solid magenta (`#FF00FF`). Edge
+  flood is **not** enough — enclosed cutouts stay magenta. Pipeline,
+  in order: (1) flood-from-edge key, (2) punch enclosed magenta
+  background holes, (3) 2px inner-border R→G clamp. Do **not**
+  traditional-despill. See "Magenta keying" below.
 
 ---
 
@@ -36,26 +36,33 @@ Applies to every new sprite, item icon, walker, and portrait generated
 against a chroma-key background. Ship files with a **transparent**
 background — never leftover magenta, never a solid-color plate.
 
-1. **Cut the key.** Flood-from-edge chroma-key the magenta (and
-   JPEG-fringed near-magenta) to alpha 0. Then punch **enclosed
-   magenta background holes** (filigree gaps, hanging-ring interiors,
-   cage cutouts) — leftover is_key blobs that are majority true
-   chroma-key magenta (high R, low G, high B). Actual gem / eye /
-   trim color that isn't chroma-key magenta stays. `tools/strip_magenta.py
-   key-clamp` does both.
-2. **Do not traditional-despill.** Do not delete a 1px/2px fringe of
+**Order matters.** The border clamp measures distance to already-
+transparent pixels, so it cannot color-correct filigree / ring /
+cage rims until those holes are actually punched. Do not skip
+ahead to step 4 after only an edge flood.
+
+1. **Flood-from-edge key.** Chroma-key magenta (and JPEG-fringed
+   near-magenta) connected to the image edge to alpha 0. This only
+   clears the *outer* background. Enclosed interiors (filigree gaps,
+   hanging-ring holes, cage cutouts) are not reachable from the
+   edge and **stay magenta** after this step alone.
+2. **Punch enclosed magenta holes.** Required second pass, not
+   optional. Walk leftover is_key blobs that are majority true
+   chroma-key magenta (high R, low G, high B) and set them to alpha
+   0. That is background showing through the art, same as the outer
+   plate. Gem / eye / trim color that isn't chroma-key magenta
+   stays. Skipping this is what left pink inside the crystal cages.
+3. **Do not traditional-despill.** Do not delete a 1px/2px fringe of
    "magenta-ish" pixels around the silhouette. That eats into the
    sprite (hair, outlines, gem cages). `strip_magenta.py`'s 1px
    `fringe` pass does exactly this — skip it / do not rely on it for
    new art.
-3. **2px inner-border clamp instead.** After the key, look at every
-   remaining opaque pixel that is within **2 pixels** of a transparent
-   (keyed) pixel — the inner border of the silhouette, 2 pixels deep.
-4. For each of those pixels: if the red channel is higher than the
-   green channel, lower red to equal the current green (`R = min(R, G)`).
-   Leave green, blue, and alpha unchanged. Magenta spill is R-heavy;
-   clamping R down to G kills the pink halo without punching a hole
-   in the art.
+4. **Then** the 2px inner-border clamp (color-correct, don't punch).
+   Only after steps 1 **and** 2: every remaining opaque pixel within
+   **2 pixels** of a transparent pixel (outer silhouette *and* inner
+   hole rims). If `R > G`, set `R = G`. Leave green, blue, and alpha
+   unchanged. Magenta spill is R-heavy; clamping R down to G kills
+   the pink halo without eating the art.
 
 Command (do not run bare `strip_magenta.py` — that still does the
 legacy 1px fringe-delete across the tree):
@@ -64,11 +71,10 @@ legacy 1px fringe-delete across the tree):
 python3 tools/strip_magenta.py key-clamp --size 128 --pad 24 -o DEST SRC
 ```
 
-`--size 0` keeps the source resolution. Enclosed magenta *background*
-holes (filigree, rings, cage cutouts) are punched; gem/eye/trim color
-that isn't chroma-key magenta is not. QC before commit: corners
-transparent, no leftover `#FF00FF` in the silhouette *or* in interior
-cutouts, no magentish halo, interior gem colors untouched.
+`--size 0` keeps the source resolution. `key-clamp` runs steps 1, 2,
+and 4 in that order. QC before commit: corners transparent, no
+leftover `#FF00FF` on the silhouette *or* in interior cutouts, no
+magentish halo, interior gem colors untouched.
 
 ---
 
@@ -258,8 +264,9 @@ Have ChatGPT or Grok produce real art for the remaining list in
 `ART_NEEDED.md` and push it to `public/sprites/` (source size is
 **48x64** world frames and **160x200** tall portraits, not the DC
 bake targets of 24x32 / 312x176 — those are downscaled). Transparent
-background (magenta-key + 2px inner-border R→G clamp — see "Magenta
-keying" above), matching the existing pixel-art style. Once real
+background (flood-from-edge **and** punch enclosed magenta holes,
+**then** 2px inner-border R→G clamp — see "Magenta keying" above),
+matching the existing pixel-art style. Once real
 files land, re-run `gen_sprites.py` and confirm `check_sync --strict`
 drops this FAIL.
 
