@@ -519,3 +519,26 @@ pass" turn into scope creep on it.
 "Extended endgame" task) completed too, and add a short "DONE" summary
 line to this section the same way Steps 1-5 above do. At that point the
 whole endgame breakdown (#28-33) and #18 are closed out.
+
+### Step 6 — DONE. Playtested for real, on an actual Dreamcast emulator
+(by the user, not an agent -- the real thing the handoff note above
+could only simulate/defer). Confirmed working end to end: the
+father/Heavenfall choice, the warp onto `gauntlet`, the `commanderFinal`
+boss fight, and the branched credits. Final from-scratch verification
+pass (Claude A) also came back clean: rebake, `check_sync --strict`
+(only the pre-existing 15-file art-placeholder debt, nothing else),
+`npm run typecheck`, `make -C ports/dreamcast`, `make -C ports/dreamcast
+cdi` -- no diff against what CI's bot had already built, so nothing new
+to push from that pass.
+
+**The playtest did surface real bugs.** Per the user: those are being
+tracked as their own next leg of work, not folded into this one, and
+haven't been detailed here yet. **Whoever picks up that leg: get the
+actual bug list from the user first** -- this file doesn't have it.
+Once it exists, give it its own section here (same pattern as quarry/
+endgame: a short breakdown if it's more than a one-pass fix), not a
+patch buried inside this closed-out section.
+
+**Endgame breakdown (#18, #28-33) is closed.** Quarry (#23-26) and
+Opal/BUG-004 (#27) were already closed earlier. Nothing else open on
+this doc as of this note except whatever the next leg turns out to be.
