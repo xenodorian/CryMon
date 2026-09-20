@@ -2,10 +2,9 @@ export type Dir = "down" | "left" | "right" | "up";
 
 export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop" | "choice" | "pause" | "crydex";
 
-export type PartyView = "list" | "act" | "stats" | "moves" | "target" | "release" | "catchSwap";
+export type PartyView = "list" | "act" | "stats" | "moves" | "target" | "release" | "catchSwap" | "settings";
 
 export type ShopTab = "buy" | "sell";
-export type BagTab = "items" | "settings";
 
 export type SpeakerId =
   | "max" | "anne" | "mason" | "wren" | "mae" | "ivo" | "nell" | "pike"

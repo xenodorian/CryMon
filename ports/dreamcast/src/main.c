@@ -2025,42 +2025,18 @@ static void draw_bag_row(const u16 *icon, const char *label, int count,
     draw_text_s(buf, MENU_X + 16 + ITEM_ICON_W + 4, y, color, MENU_SCALE);
 }
 
-static void draw_bag_menu(const Bag *bag, int marks, int cur, int tab) {
+static void draw_bag_menu(const Bag *bag, int marks, int cur) {
     int y = MENU_Y + 24;
     char marks_buf[16];
-    char line[40];
     int n;
 
-    draw_menu_frame("BAG", tab ? "UP/DOWN VOLUME  L/R TABS  B CLOSE" : "UP/DOWN A USE  L/R TABS  B CLOSE");
+    draw_menu_frame("BAG", "UP/DOWN A USE  B CLOSE");
 
     n = s_cat(marks_buf, 0, "MARKS ");
     n = s_cat_uint(marks_buf, n, marks);
     marks_buf[n] = 0;
     draw_text_s(marks_buf, MENU_X + MENU_W - 8 - text_width_s(marks_buf, MENU_SCALE),
                 MENU_Y + 8, rgb565(143, 74, 64), MENU_SCALE);
-
-    draw_text_s(tab ? " ITEMS   >SETTINGS" : ">ITEMS    SETTINGS",
-                MENU_X + 8, y, rgb565(232, 228, 216), MENU_SCALE);
-    y += MENU_ROW_H + 4;
-
-    if(tab) {
-        int pct = chip_volume_pct();
-        int bar_w = MENU_W - 24;
-        int fill = chip_volume_fill(bar_w);
-        n = s_cat(line, 0, "VOLUME ");
-        n = s_cat_uint(line, n, (unsigned)pct);
-        n = s_cat(line, n, "%");
-        line[n] = 0;
-        draw_text_s(line, MENU_X + 8, y, rgb565(197, 206, 198), MENU_SCALE);
-        y += MENU_ROW_H;
-        fill_rect(MENU_X + 8, y, bar_w, 8, rgb565(42, 38, 32));
-        fill_rect(MENU_X + 8, y, fill, 8, rgb565(90, 122, 82));
-        y += MENU_ROW_H;
-        draw_text_s("200% IS TWICE THE OLD MAX", MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE);
-        (void)bag;
-        (void)cur;
-        return;
-    }
 
     draw_bag_row(icon_salve, "MOSS SALVE", bag->salve, 0, cur, y);            y += MENU_ROW_H;
     draw_bag_row(icon_bandage, "LINEN WRAP", bag->bandage, 1, cur, y);        y += MENU_ROW_H;
@@ -2175,8 +2151,28 @@ static int party_release(Monster *party, int *party_n, int *lead, int idx) {
    applying the item to party_cur instead of setting the lead (see
    main()'s menu_mode==2 input handling). */
 static void draw_party_menu(const Monster *party, int party_n, int lead, int party_cur,
-                             int party_detail, int heal_item, int catch_swap) {
+                             int party_detail, int heal_item, int catch_swap, int party_settings) {
     int y = MENU_Y + 24;
+
+    if(party_settings) {
+        int pct = chip_volume_pct();
+        int bar_w = MENU_W - 24;
+        int fill = chip_volume_fill(bar_w);
+        char line[40];
+        int n;
+        draw_menu_frame("SETTINGS", "UP/DOWN VOLUME  L/R BACK  B CLOSE");
+        n = s_cat(line, 0, "VOLUME ");
+        n = s_cat_uint(line, n, (unsigned)pct);
+        n = s_cat(line, n, "%");
+        line[n] = 0;
+        draw_text_s(line, MENU_X + 8, y, rgb565(197, 206, 198), MENU_SCALE);
+        y += MENU_ROW_H;
+        fill_rect(MENU_X + 8, y, bar_w, 8, rgb565(42, 38, 32));
+        fill_rect(MENU_X + 8, y, fill, 8, rgb565(90, 122, 82));
+        y += MENU_ROW_H;
+        draw_text_s("200% IS TWICE THE OLD MAX", MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE);
+        return;
+    }
 
     if(party_detail && party_n > 0 && !catch_swap) {
         draw_party_detail(party, party_n, party_cur);
@@ -2192,7 +2188,7 @@ static void draw_party_menu(const Monster *party, int party_n, int lead, int par
         draw_menu_frame(title, "A HEAL  B CANCEL");
     }
     else
-        draw_menu_frame("CRYMON", "B CLOSE");
+        draw_menu_frame("CRYMON", "L/R SETTINGS  B CLOSE");
 
     if(party_n > 0) {
         int i;
@@ -3966,7 +3962,8 @@ void main(void) {
     int party_cur = 0; /* cursor row inside the party menu */
     int party_detail = 0; /* party menu: 0 list, 1 viewing party_cur's detail */
     int bag_cur = 0; /* cursor row inside the bag menu */
-    int bag_tab = 0; /* 0 items, 1 settings */
+    int party_settings = 0; /* Leg 2.3: moved out of the bag menu --
+                                0 party list, 1 volume settings */
     int heal_item = -1; /* -1 = not choosing a heal target, else bag_cur (0 salve, 1 wrap) */
 
     /* HUD toast, matching state.lua's G.hud/G.hudT/note(): a small
@@ -4501,12 +4498,12 @@ void main(void) {
                 if(pause_cur == 0) {
                     menu_mode = 2;
                     party_detail = 0;
+                    party_settings = 0;
                     heal_item = -1;
                     chip_sfx_ui();
                 } else if(pause_cur == 1) {
                     menu_mode = 1;
                     bag_cur = 0;
-                    bag_tab = 0;
                     heal_item = -1;
                     chip_sfx_ui();
                 } else if(pause_cur == 2) {
@@ -4666,21 +4663,6 @@ void main(void) {
                up/down keeps browsing live and B backs out of before
                closing the menu itself. */
             if(menu_mode == 1) {
-                if((left_now && !prev_left) || (right_now && !prev_right)) {
-                    bag_tab = 1 - bag_tab;
-                    chip_sfx_ui();
-                }
-                else if(bag_tab) {
-                    if(up_now && !prev_up) {
-                        chip_nudge_volume(1);
-                        chip_sfx_ui();
-                    }
-                    if(down_now && !prev_down) {
-                        chip_nudge_volume(-1);
-                        chip_sfx_ui();
-                    }
-                }
-                else {
                 if(up_now && !prev_up)
                     bag_cur = (bag_cur - 1 + ITEM_COUNT) % ITEM_COUNT;
                 if(down_now && !prev_down)
@@ -4715,9 +4697,31 @@ void main(void) {
                         hud_t = HUD_NOTE_FRAMES;
                     }
                 }
+            }
+            else if(menu_mode == 2 && party_settings) {
+                /* Leg 2.3: settings moved here from the bag menu. */
+                if((left_now && !prev_left) || (right_now && !prev_right)) {
+                    party_settings = 0;
+                    chip_sfx_ui();
+                }
+                if(up_now && !prev_up) {
+                    chip_nudge_volume(1);
+                    chip_sfx_ui();
+                }
+                if(down_now && !prev_down) {
+                    chip_nudge_volume(-1);
+                    chip_sfx_ui();
                 }
             }
-            else if(menu_mode == 2 && party_n > 0) {
+            else if(menu_mode == 2) {
+                if((left_now && !prev_left) || (right_now && !prev_right)) {
+                    party_settings = 1;
+                    chip_sfx_ui();
+                }
+                if(party_n <= 0) {
+                    /* nothing else to do with an empty party */
+                }
+                else {
                 if(up_now && !prev_up)
                     party_cur = (party_cur - 1 + party_n) % party_n;
                 if(down_now && !prev_down)
@@ -4781,6 +4785,7 @@ void main(void) {
                         if(party_cur >= party_n) party_cur = party_n - 1;
                     }
                 }
+                }
             }
             if(b_now && !prev_b) {
                 if(catch_swap) {
@@ -4791,6 +4796,8 @@ void main(void) {
                     catch_swap = 0;
                     menu_mode = 0;
                 }
+                else if(menu_mode == 2 && party_settings)
+                    party_settings = 0;
                 else if(menu_mode == 2 && heal_item >= 0) {
                     heal_item = -1;
                     menu_mode = 1;
@@ -4811,6 +4818,7 @@ void main(void) {
                 menu_mode = 0;
                 heal_item = -1;
                 party_detail = 0;
+                party_settings = 0;
             }
         }
         else if(in_battle) {
@@ -6276,7 +6284,6 @@ void main(void) {
                 if(y_now && !prev_y) {
                     menu_mode = 1;
                     bag_cur = 0;
-                    bag_tab = 0;
                     heal_item = -1;
                 }
                 else if(start_now && !prev_start) {
@@ -6324,9 +6331,9 @@ void main(void) {
                 draw_hud_toast(hud_flash);
             draw_map_title(map_id);
             if(menu_mode == 1)
-                draw_bag_menu(&bag, marks, bag_cur, bag_tab);
+                draw_bag_menu(&bag, marks, bag_cur);
             else if(menu_mode == 2)
-                draw_party_menu(party, party_n, lead, party_cur, party_detail, heal_item, catch_swap);
+                draw_party_menu(party, party_n, lead, party_cur, party_detail, heal_item, catch_swap, party_settings);
             else if(menu_mode == 3)
                 draw_pause_menu(pause_cur);
             else if(menu_mode == 4)

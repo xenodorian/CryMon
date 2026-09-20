@@ -161,15 +161,11 @@ it's updated after every commit this run.
 (2.0 art debt isn't on this list — it's assigned to ChatGPT/Grok, not
 a coding task for me.)
 
-**Current position:** 2.1 DONE and pushed. Fixed-point accumulator
-landed in `main.c` (see 2.1 below for the exact fix), compiles clean
-with no new warnings, `check_sync --strict`/typecheck/`make`/`make cdi`
-all pass. **Not verified on real hardware/emulator** — no Dreamcast
-emulator in this sandbox, so this is math-verified (re-derived the
-average-speed calculation) and build-verified, not playtested. If it
-still feels wrong after this, re-check against a real Dreamcast/
-emulator before assuming the fix is wrong — see the caveat in 2.1.
-Next: 2.3 (settings → start menu).
+**Current position:** 2.1 and 2.3 DONE and pushed, both engines, both
+verified by build/typecheck only (**no Dreamcast emulator in this
+sandbox for either** — see each section's own caveat before assuming a
+"feels wrong" report means the fix itself is wrong rather than
+unverified). Next: 2.5 (capture-rate overhaul + crystal tiers).
 
 ---
 
@@ -252,10 +248,37 @@ rule, compiles clean every time this session).
 here is exactly "compiles fine, silently produces no sound," which
 looks identical whether the bug is in `chip.c` or in the emulator.
 
-### 2.3 — Move settings into the start/title menu
+### 2.3 — Move settings into the start/title menu — DONE (Claude A)
 
-Currently wherever settings live today — relocate the entry point into
-the start menu.
+Settings used to be a tab inside the Bag menu (Select button, both
+engines). Moved to the party/CryMon menu instead (opened via Start on
+web, via the pause menu's CryMon entry on Dreamcast) since that's the
+"start menu" in this game's control scheme:
+
+- **Web (`engine.ts`):** retired `bagTab`/`BagTab` entirely (Bag is
+  items-only now, no tab UI). Added `"settings"` to the `PartyView`
+  union (`types.ts`). From the party list (`partyView === "list"`),
+  Left/Right now enters `partyView = "settings"` (was unused there
+  before); Up/Down nudges volume same as the old Bag tab did; Cancel/
+  Start returns to the list. `drawParty()` renders the volume bar in
+  the party window instead of `drawBag()`.
+- **Dreamcast (`main.c`):** same relocation. Renamed `bag_tab` →
+  `party_settings`, moved its toggle out of `menu_mode == 1` (bag) into
+  `menu_mode == 2` (party) via Left/Right; `draw_bag_menu()` lost its
+  `tab` parameter (items-only now); `draw_party_menu()` gained a
+  `party_settings` parameter and a settings-screen render branch.
+  Entering settings works even with an empty party (checked — the old
+  bag-tab toggle didn't have this restriction either, so kept parity).
+
+Verified: `check_sync --strict` clean but for the pre-existing art
+debt, `npm run typecheck` clean, `main.c` compiles with no new
+warnings, `make cdi` succeeds, dev server boots clean with no console
+errors. **Not played through on real hardware/an emulator** (same
+caveat as 2.1) — this is build/typecheck-verified navigation logic,
+not a confirmed working menu on screen. If the settings screen doesn't
+actually appear/respond right, re-check the Left/Right entry point in
+`updateParty()`'s base "list" case (web) or the `menu_mode==2` input
+block (Dreamcast) before assuming the whole approach is wrong.
 
 ### 2.4 — Redesign the gauntlet (replaces Leg-1's single-map/single-boss version)
 

@@ -68,7 +68,6 @@ import type {
   PartyView,
   RivalState,
   ShopTab,
-  BagTab,
   Soldier,
   SpeciesId,
   TalkBeat,
@@ -169,7 +168,6 @@ export class CryMon {
 	talkI = 0;
 	afterTalk = null;
 	bagCursor = 0;
-	bagTab: BagTab = "items";
 	partyCursor = 0;
 	partyView = "list";
 	actCursor = 0;
@@ -313,7 +311,6 @@ export class CryMon {
 		this.talkI = 0;
 		this.afterTalk = null;
 		this.bagCursor = 0;
-		this.bagTab = "items";
 		this.partyCursor = 0;
 		this.partyView = "list";
 		this.actCursor = 0;
@@ -1007,7 +1004,6 @@ export class CryMon {
 	openBag() {
 		this.mode = "bag";
 		this.bagCursor = 0;
-		this.bagTab = "items";
 		this.pendingItem = null;
 		this.audio.ui();
 	}
@@ -1249,22 +1245,6 @@ export class CryMon {
 			this.closeMenu();
 			return;
 		}
-		if (this.input.left() || this.input.right()) {
-			this.bagTab = this.bagTab === "items" ? "settings" : "items";
-			this.audio.ui();
-			return;
-		}
-		if (this.bagTab === "settings") {
-			if (this.input.up()) {
-				this.audio.nudgeVolume(1);
-				this.audio.ui();
-			}
-			if (this.input.down()) {
-				this.audio.nudgeVolume(-1);
-				this.audio.ui();
-			}
-			return;
-		}
 		if (items.length === 0) return;
 		if (this.input.up()) {
 			this.bagCursor = (this.bagCursor + items.length - 1) % items.length;
@@ -1314,6 +1294,22 @@ export class CryMon {
 						this.openBag();
 					}
 				}
+			}
+			return;
+		}
+		if (this.partyView === "settings") {
+			if (this.input.cancel() || this.input.start()) {
+				this.partyView = "list";
+				this.audio.ui();
+				return;
+			}
+			if (this.input.up()) {
+				this.audio.nudgeVolume(1);
+				this.audio.ui();
+			}
+			if (this.input.down()) {
+				this.audio.nudgeVolume(-1);
+				this.audio.ui();
 			}
 			return;
 		}
@@ -1440,6 +1436,11 @@ export class CryMon {
 		}
 		if (this.input.select()) {
 			this.openBag();
+			return;
+		}
+		if (this.input.left() || this.input.right()) {
+			this.partyView = "settings";
+			this.audio.ui();
 			return;
 		}
 		if (this.party.length === 0) return;
@@ -3567,23 +3568,6 @@ export class CryMon {
 		this.box(X(10), Y(8), X(220), Y(144));
 		this.text("BAG", X(18), Y(14), "#c5cec6", FONT);
 		this.text(`Marks ${this.marks}`, X(150), Y(14), "#8f4a40", FONT);
-		this.text(this.bagTab === "items" ? ">ITEMS   settings" : " items   >SETTINGS", X(18), Y(28), "#e8e4d8", FONT);
-		if (this.bagTab === "settings") {
-			const pct = this.audio.volumePct();
-			this.text("VOLUME", X(18), Y(52), "#c5cec6", FONT);
-			this.text(`${pct}%`, X(168), Y(52), "#e8e4d8", FONT);
-			const bx = X(18), by = Y(72), bw = X(184), bh = Y(10);
-			this.ctx.fillStyle = "#2a2620";
-			this.ctx.fillRect(bx, by, bw, bh);
-			const fill = Math.max(0, Math.min(1, this.audio.volume / VOLUME.max));
-			this.ctx.fillStyle = "#5a7a52";
-			this.ctx.fillRect(bx, by, Math.round(bw * fill), bh);
-			this.text("UP louder   DOWN quieter", X(18), Y(92), "#8a8678", FONT);
-			this.text("200% is twice the old max", X(18), Y(108), "#8a8678", FONT);
-			this.text("LEFT/RIGHT  tabs", X(18), Y(136), "#5a7a52", FONT);
-			if (this.hudT > 0) this.text(this.hudFlash.slice(0, 34), X(18), Y(148), "#e8e4d8", FONT);
-			return;
-		}
 		const items = this.ownedItems();
 		if (items.length === 0) this.text("The pouch is empty.", X(18), Y(48), "#8a8678", FONT);
 		else {
@@ -3627,8 +3611,25 @@ export class CryMon {
 			: this.partyView === "moves" ? "MOVES"
 			: this.partyView === "release" ? `RELEASE ${this.party[this.partyCursor]?.name.toUpperCase() ?? ""}?`
 			: this.partyView === "catchSwap" ? `KEEP ${this.pendingCatch?.name.toUpperCase() ?? "CRYMON"}`
+			: this.partyView === "settings" ? "SETTINGS"
 			: "CRYMON";
 		this.text(title, X(16), Y(10), "#c5cec6", FONT);
+		if (this.partyView === "settings") {
+			const pct = this.audio.volumePct();
+			this.text("VOLUME", X(16), Y(40), "#c5cec6", FONT);
+			this.text(`${pct}%`, X(180), Y(40), "#e8e4d8", FONT);
+			const bx = X(16), by = Y(58), bw = X(200), bh = Y(10);
+			this.ctx.fillStyle = "#2a2620";
+			this.ctx.fillRect(bx, by, bw, bh);
+			const fill = Math.max(0, Math.min(1, this.audio.volume / VOLUME.max));
+			this.ctx.fillStyle = "#5a7a52";
+			this.ctx.fillRect(bx, by, Math.round(bw * fill), bh);
+			this.text("UP louder   DOWN quieter", X(16), Y(80), "#8a8678", FONT);
+			this.text("200% is twice the old max", X(16), Y(96), "#8a8678", FONT);
+			this.text("LEFT/RIGHT from CRYMON list opens this", X(16), Y(112), "#5a7a52", FONT);
+			this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
+			return;
+		}
 		if (this.partyView === "stats" || this.partyView === "moves") {
 			const m = this.party[this.partyCursor] ?? this.lead();
 			this.drawMonIcon(m, X(12), Y(24), X(88), Y(110));
@@ -3700,7 +3701,7 @@ export class CryMon {
 			this.text("Z  release forever   X  back", X(16), Y(148), "#8f4a40", FONT);
 		} else if (this.partyView === "catchSwap") {
 			this.text("Z  release this one   X  let the new one go", X(16), Y(148), "#c5cec6", FONT);
-		} else this.text(this.partyView === "target" ? "Z  use   X  bag" : "Z  choose   Start  close", X(16), Y(148), "#5a7a52", FONT);
+		} else this.text(this.partyView === "target" ? "Z  use   X  bag" : "Z  choose   Left/Right settings   Start close", X(16), Y(148), "#5a7a52", FONT);
 		if (this.hudT > 0) this.text(this.hudFlash.slice(0, 34), X(16), Y(148), "#e8e4d8", FONT);
 	}
 	drawShop() {
