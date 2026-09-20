@@ -34,7 +34,7 @@ static u16 get_u16(const u8 *p) {
 static u16 checksum(const u8 *buf) {
     int i;
     u16 s = 0;
-    for(i = 0; i < 132; i++)
+    for(i = 0; i < 135; i++)
         s = (u16)((s + buf[i]) & 0xffff);
     return s;
 }
@@ -54,9 +54,9 @@ void save_pack(u8 *dst, const SaveLive *s) {
     dst[15] = s->battles;
     dst[16] = s->mason2_map;
     for(i = 0; i < SAVE_ITEM_N; i++) dst[18 + i] = s->bag[i];
-    for(i = 0; i < 8; i++) dst[28 + i] = s->flags[i];
+    for(i = 0; i < 8; i++) dst[31 + i] = s->flags[i];
     for(p = 0; p < dst[7]; p++) {
-        u8 *o = dst + 36 + p * SAVE_PARTY_SLOT;
+        u8 *o = dst + 39 + p * SAVE_PARTY_SLOT;
         o[0] = s->party[p].species;
         o[1] = s->party[p].lv;
         o[2] = s->party[p].hp;
@@ -70,7 +70,7 @@ void save_pack(u8 *dst, const SaveLive *s) {
         put_u16(o + 10, s->party[p].xp);
         o[SAVE_PARTY_NATURE] = s->party[p].nature;
     }
-    put_u16(dst + 132, checksum(dst));
+    put_u16(dst + 135, checksum(dst));
     for(i = 0; i < SAVE_DEX_BYTES; i++) {
         dst[SAVE_DEX_SEEN + i] = s->dex_seen[i];
         dst[SAVE_DEX_CAUGHT + i] = s->dex_caught[i];
@@ -92,7 +92,7 @@ int save_unpack(const u8 *src, SaveLive *s) {
     int i, p, n;
     if(src[0] != 'C' || src[1] != 'R' || src[2] != 'Y' || src[3] != 'M') return 0;
     if(src[4] != SAVE_VERSION) return 0;
-    if(get_u16(src + 132) != checksum(src)) return 0;
+    if(get_u16(src + 135) != checksum(src)) return 0;
     s->map_id = src[5];
     s->dir = src[6];
     n = src[7];
@@ -105,9 +105,9 @@ int save_unpack(const u8 *src, SaveLive *s) {
     s->battles = src[15];
     s->mason2_map = src[16];
     for(i = 0; i < SAVE_ITEM_N; i++) s->bag[i] = src[18 + i];
-    for(i = 0; i < 8; i++) s->flags[i] = src[28 + i];
+    for(i = 0; i < 8; i++) s->flags[i] = src[31 + i];
     for(p = 0; p < n; p++) {
-        const u8 *o = src + 36 + p * SAVE_PARTY_SLOT;
+        const u8 *o = src + 39 + p * SAVE_PARTY_SLOT;
         s->party[p].species = o[0];
         s->party[p].lv = o[1];
         s->party[p].hp = o[2];

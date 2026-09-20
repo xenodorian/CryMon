@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=96d660d56721f67f — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=79d1877c0f742658 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -19,7 +19,7 @@
 #define DUST_AGL -2
 #define DUST_SPC -2
 #define START_MARKS 16
-#define START_BAG_INIT { 2, 2, 1, 1, 0, 0, 0, 1, 0, 0 }
+#define START_BAG_INIT { 2, 2, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 }
 
 typedef struct {
     int from_map, to_map;
@@ -112,18 +112,21 @@ static const TrainerKit TRAINER_KITS[14] = {
 #define KIT_SHINIGAMI_B0_LV 14
 #define KIT_SHINIGAMI_B1_LV 13
 
-typedef struct { int kind, amount, str, agl, spc, bonus; } ItemFx;
+typedef struct { int kind, amount, str, agl, spc, base; } ItemFx;
 static const ItemFx ITEM_FX[] = {
-    { 1, 22, 0, 0, 0, 0 },
-    { 1, 12, 0, 0, 0, 0 },
-    { 2, 0, 4, 0, 0, 0 },
-    { 3, 0, -3, -2, -2, 0 },
-    { 4, 0, 0, 0, 0, 0 },
-    { 1, 40, 0, 0, 0, 0 },
-    { 2, 0, 0, 4, 0, 0 },
-    { 5, 0, 0, 0, 0, 0 },
-    { 4, 0, 0, 0, 0, 25 },
-    { 0, 0, 0, 0, 0, 0 },
+    { 1, 22, 0, 0, 0, 100 },
+    { 1, 12, 0, 0, 0, 100 },
+    { 2, 0, 4, 0, 0, 100 },
+    { 3, 0, -3, -2, -2, 100 },
+    { 4, 0, 0, 0, 0, 100 },
+    { 1, 40, 0, 0, 0, 100 },
+    { 2, 0, 0, 4, 0, 100 },
+    { 5, 0, 0, 0, 0, 100 },
+    { 4, 0, 0, 0, 0, 130 },
+    { 0, 0, 0, 0, 0, 100 },
+    { 4, 0, 0, 0, 0, 160 },
+    { 4, 0, 0, 0, 0, 190 },
+    { 4, 0, 0, 0, 0, 1000 },
 };
 
 /* NPC first-match scripts from content/world.json. */

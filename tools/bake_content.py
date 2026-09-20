@@ -717,7 +717,7 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append(f"#define KIT_SHINIGAMI_B1_LV {int(shin_b[1][1]) if len(shin_b) > 1 else 13}")
     lines.append("")
     # item effects in items.order
-    lines.append("typedef struct { int kind, amount, str, agl, spc, bonus; } ItemFx;")
+    lines.append("typedef struct { int kind, amount, str, agl, spc, base; } ItemFx;")
     lines.append("static const ItemFx ITEM_FX[] = {")
     for iid in order:
         e = items["defs"][iid].get("effect") or {}
@@ -726,8 +726,8 @@ def bake_world(data: dict, out: Path) -> None:
         st = int(e.get("str") or 0)
         ag = int(e.get("agl") or 0)
         sc = int(e.get("spc") or 0)
-        bonus = int(e.get("bonus") or 0)
-        lines.append(f"    {{ {kind}, {amount}, {st}, {ag}, {sc}, {bonus} }},")
+        base = int(e["base"]) if e.get("base") is not None else 100
+        lines.append(f"    {{ {kind}, {amount}, {st}, {ag}, {sc}, {base} }},")
     lines.append("};")
     lines.append("")
     bake_npc_scripts(data, items, lines)

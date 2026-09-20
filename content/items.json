@@ -9,20 +9,23 @@
     "warroot",
     "smokebomb",
     "greatcrystal",
-    "cageKey"
+    "cageKey",
+    "megacrystal",
+    "ultimatecrystal",
+    "perfectcrystal"
   ],
   "defs": {
     "gem": {
       "id": "gem",
-      "name": "Capture Crystal",
-      "desc": "Moonstone cage. 5% per agility. Each % of HP missing adds 1%. Status or a lowered stat holds +25%.",
+      "name": "Common Capture Crystal",
+      "desc": "Moonstone cage. Base 100% minus the CryMon's level, strength, and current HP. Status adds +50.",
       "battle": true,
       "field": false,
-      "buy": 20,
-      "sell": 10,
+      "buy": 25,
+      "sell": 12,
       "effect": {
         "kind": "capture",
-        "bonus": 0
+        "base": 100
       }
     },
     "salve": {
@@ -119,15 +122,15 @@
     },
     "greatcrystal": {
       "id": "greatcrystal",
-      "name": "Greater Crystal",
-      "desc": "Capture Crystal with +25 chance.",
+      "name": "Greater Capture Crystal",
+      "desc": "Capture Crystal with a 130% base instead of 100%.",
       "battle": true,
       "field": false,
-      "buy": 35,
-      "sell": 17,
+      "buy": 50,
+      "sell": 25,
       "effect": {
         "kind": "capture",
-        "bonus": 25
+        "base": 130
       }
     },
     "cageKey": {
@@ -138,6 +141,45 @@
       "field": false,
       "buy": 0,
       "sell": 0
+    },
+    "megacrystal": {
+      "id": "megacrystal",
+      "name": "Mega Capture Crystal",
+      "desc": "Capture Crystal with a 160% base instead of 100%.",
+      "battle": true,
+      "field": false,
+      "buy": 100,
+      "sell": 50,
+      "effect": {
+        "kind": "capture",
+        "base": 160
+      }
+    },
+    "ultimatecrystal": {
+      "id": "ultimatecrystal",
+      "name": "Ultimate Capture Crystal",
+      "desc": "Capture Crystal with a 190% base instead of 100%.",
+      "battle": true,
+      "field": false,
+      "buy": 250,
+      "sell": 125,
+      "effect": {
+        "kind": "capture",
+        "base": 190
+      }
+    },
+    "perfectcrystal": {
+      "id": "perfectcrystal",
+      "name": "Perfect Capture Crystal",
+      "desc": "Always captures. Not for sale -- awarded for defeating or capturing Heavenfall.",
+      "battle": true,
+      "field": false,
+      "buy": 0,
+      "sell": 0,
+      "effect": {
+        "kind": "capture",
+        "base": 1000
+      }
     }
   }
 }

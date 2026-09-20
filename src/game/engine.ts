@@ -2245,21 +2245,13 @@ export class CryMon {
 		if (id === "sunbalm") return `Sunbalm +40 HP x${n}`;
 		if (id === "warroot") return `Warroot +4 AGL x${n}`;
 		if (id === "smokebomb") return `Smoke Bomb flee x${n}`;
-		if (id === "gem") {
+		if (ITEMS[id].effect?.kind === "capture") {
 			const b = this.battle;
 			if (b?.wild) {
-				const chance = captureChance(b.foe.agl, b.foe.hp, b.foe.maxHp, this.foeDebuffed());
-				return `Capture Crystal ${chance}% x${n}`;
+				const chance = captureChance(b.foe.level, b.foe.str, b.foe.hp, this.foeDebuffed(), ITEMS[id].effect.base ?? 100);
+				return `${ITEMS[id].name} ${chance}% x${n}`;
 			}
-			return `Capture Crystal x${n}`;
-		}
-		if (id === "greatcrystal") {
-			const b = this.battle;
-			if (b?.wild) {
-				const chance = captureChance(b.foe.agl, b.foe.hp, b.foe.maxHp, this.foeDebuffed(), 25);
-				return `Greater Crystal ${chance}% x${n}`;
-			}
-			return `Greater Crystal x${n}`;
+			return `${ITEMS[id].name} x${n}`;
 		}
 		return `${ITEMS[id].name} x${n}`;
 	}
@@ -2689,7 +2681,7 @@ export class CryMon {
 				this.bag[id] += 1;
 				b.msg = ["Crystals will not take a tamer's CryMon."];
 			} else {
-				const chance = captureChance(b.foe.agl, b.foe.hp, b.foe.maxHp, this.foeDebuffed(), fx.bonus ?? 0);
+				const chance = captureChance(b.foe.level, b.foe.str, b.foe.hp, this.foeDebuffed(), fx.base ?? 100);
 				if (randI(1, 100) <= chance) {
 					const caught = {
 						...b.foe,

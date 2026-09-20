@@ -48,7 +48,7 @@ function ru32(buf: Uint8Array, i: number) {
 }
 function checksum(buf: Uint8Array) {
 	let s = 0;
-	for (let i = 0; i < 132; i++) s = (s + buf[i]) & 0xffff;
+	for (let i = 0; i < 135; i++) s = (s + buf[i]) & 0xffff;
 	return s;
 }
 
@@ -73,11 +73,11 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 		buf[18 + i] = Math.max(0, Math.min(255, snap.bag[SAVE_ITEMS[i]] ?? 0));
 	}
 	for (let i = 0; i < SAVE_FLAGS.length; i++) {
-		if (snap.flags[SAVE_FLAGS[i]]) buf[28 + (i >> 3)] |= 1 << (i & 7);
+		if (snap.flags[SAVE_FLAGS[i]]) buf[31 + (i >> 3)] |= 1 << (i & 7);
 	}
 	for (let p = 0; p < n; p++) {
 		const m = snap.party[p];
-		const o = 36 + p * SLOT;
+		const o = 39 + p * SLOT;
 		buf[o] = Math.max(0, SAVE_SPECIES.indexOf(m.species));
 		buf[o + 1] = Math.max(1, Math.min(99, m.level));
 		buf[o + 2] = Math.max(0, Math.min(255, m.hp));
@@ -91,9 +91,9 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 		u16(buf, o + 10, Math.max(0, m.xp) & 0xffff);
 		buf[o + 12] = Math.max(0, Math.min(255, m.nature ?? 0));
 	}
-	u16(buf, 132, checksum(buf));
-	u32(buf, 134, snap.dexSeen >>> 0);
-	u32(buf, 138, snap.dexCaught >>> 0);
+	u16(buf, 135, checksum(buf));
+	u32(buf, 137, snap.dexSeen >>> 0);
+	u32(buf, 141, snap.dexCaught >>> 0);
 	return buf;
 }
 
@@ -101,7 +101,7 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 	if (!buf || buf.length !== SAVE_SIZE) return null;
 	if (buf[0] !== 0x43 || buf[1] !== 0x52 || buf[2] !== 0x59 || buf[3] !== 0x4d) return null;
 	if (buf[4] !== SAVE_VERSION) return null;
-	if (ru16(buf, 132) !== checksum(buf)) return null;
+	if (ru16(buf, 135) !== checksum(buf)) return null;
 	const mapId = SAVE_MAPS[buf[5]] ?? "house";
 	const dir = SAVE_DIRS[buf[6]] ?? "down";
 	const n = Math.min(6, buf[7]);
@@ -109,11 +109,11 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 	for (let i = 0; i < SAVE_ITEMS.length; i++) bag[SAVE_ITEMS[i]] = buf[18 + i] ?? 0;
 	const flags: Record<string, boolean> = {};
 	for (let i = 0; i < SAVE_FLAGS.length; i++) {
-		flags[SAVE_FLAGS[i]] = !!(buf[28 + (i >> 3)] & (1 << (i & 7)));
+		flags[SAVE_FLAGS[i]] = !!(buf[31 + (i >> 3)] & (1 << (i & 7)));
 	}
 	const party: Monster[] = [];
 	for (let p = 0; p < n; p++) {
-		const o = 36 + p * SLOT;
+		const o = 39 + p * SLOT;
 		const species = SAVE_SPECIES[buf[o]] ?? "quillpup";
 		party.push({
 			id: `s${p}-${species}`,
@@ -145,8 +145,8 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 		bag,
 		flags,
 		party,
-		dexSeen: buf.length >= 138 ? ru32(buf, 134) : 0,
-		dexCaught: buf.length >= 142 ? ru32(buf, 138) : 0,
+		dexSeen: buf.length >= 141 ? ru32(buf, 137) : 0,
+		dexCaught: buf.length >= 145 ? ru32(buf, 141) : 0,
 	};
 }
 

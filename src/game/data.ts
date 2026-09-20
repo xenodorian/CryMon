@@ -89,10 +89,18 @@ export const MAPS = {
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;
 export const SOLID_TILES = mapsJson.solid;
 
-export function captureChance(agl: number, hp: number, maxHp: number, vulnerable: boolean, bonus = 0): number {
-  const missing = maxHp <= 0 ? 0 : Math.floor(((maxHp - hp) * 100) / maxHp);
-  let chance = FORMULAS.captureAgl * agl + missing + bonus;
-  if (vulnerable) chance += FORMULAS.captureVulnerable;
+/** Leg 2.5: base% (per crystal tier, default 100) minus the target's
+ * level, strength, and current HP, all in raw stat units -- a nearly
+ * full-health or high-level/high-STR CryMon reads well under 0% before
+ * the clamp, so landing a capture means bringing it down first. A
+ * status condition adds a flat +50 points. Replaces the old agl/
+ * missing-hp%-based formula (FORMULAS.captureAgl/captureVulnerable in
+ * logic.json are retired, kept only as historical baked constants no
+ * code reads anymore -- not deleted from logic.json to avoid a second
+ * bake-schema churn in the same leg). */
+export function captureChance(level: number, str: number, hp: number, vulnerable: boolean, base = 100): number {
+  let chance = base - level - str - hp;
+  if (vulnerable) chance += 50;
   if (chance < 0) return 0;
   if (chance > 100) return 100;
   return chance;

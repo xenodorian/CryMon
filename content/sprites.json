@@ -122,7 +122,10 @@
     "warroot",
     "smokebomb",
     "greatcrystal",
-    "cageKey"
+    "cageKey",
+    "megacrystal",
+    "ultimatecrystal",
+    "perfectcrystal"
   ],
   "props": {
     "bed-father": "props/bed-father.png",

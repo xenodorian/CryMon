@@ -617,24 +617,23 @@ def main() -> int:
         "battlesDone": [15, 1],
         "mason2Map": [16, 1],
         "bag": [18, len(save.get("itemOrder") or [])],
-        "flags": [28, 8],
-        "party": [36, 6 * int(save.get("partySlot") or 0)],
-        "checksum": [132, 2],
-        "dexSeen": [134, 4],
-        "dexCaught": [138, 4],
+        "flags": [18 + len(save.get("itemOrder") or []), 8],
+        "party": [18 + len(save.get("itemOrder") or []) + 8, 6 * int(save.get("partySlot") or 0)],
+        "checksum": [18 + len(save.get("itemOrder") or []) + 8 + 6 * int(save.get("partySlot") or 0), 2],
+        "dexSeen": [18 + len(save.get("itemOrder") or []) + 8 + 6 * int(save.get("partySlot") or 0) + 2, 4],
+        "dexCaught": [18 + len(save.get("itemOrder") or []) + 8 + 6 * int(save.get("partySlot") or 0) + 6, 4],
     }
     for key, want in expected_layout.items():
         if layout.get(key) != want:
             errors.append(f"save.layout.{key} must be {want}, got {layout.get(key)!r}")
+    dex_caught_end = expected_layout["dexCaught"][0] + expected_layout["dexCaught"][1]
     size = int(save.get("size") or 0)
-    if size < 142:
-        errors.append(f"save.size must cover dexCaught through byte 141, got {size}")
+    if size < dex_caught_end:
+        errors.append(f"save.size must cover dexCaught through byte {dex_caught_end - 1}, got {size}")
     flag_n = len(save.get("flags") or [])
     flag_bytes = (flag_n + 7) // 8
     if flag_bytes > 8:
         errors.append(f"save.flags requires {flag_bytes} bytes, but layout reserves 8")
-    if len(save.get("itemOrder") or []) != 10:
-        errors.append("save.itemOrder must occupy the 10-byte bag region")
     if int(save.get("partySlot") or 0) != 16:
         errors.append("save.partySlot must be 16 bytes")
     if int(save.get("version") or 0) < 1:

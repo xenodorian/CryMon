@@ -1831,12 +1831,15 @@ static void heal_party(Monster *party, int party_n) {
     }
 }
 
-/* data.captureChance: 5% per foe agility, +1% per % of foe HP
-   missing, +25% if any foe stat has been lowered this fight. */
-static int capture_chance(int agl, int hp, int max_hp, int vulnerable) {
-    int missing = max_hp > 0 ? (max_hp - hp) * 100 / max_hp : 0;
-    int chance = CAPTURE_AGL * agl + missing;
-    if(vulnerable) chance += CAPTURE_VULN;
+/* Leg 2.5: base% (per crystal tier, default 100) minus the foe's
+   level, strength, and current HP, all in raw stat units. A status
+   condition adds a flat +50. Mirrors src/game/data.ts's
+   captureChance() exactly -- see its comment for why. Replaces the
+   old agl/missing-hp%-based formula (CAPTURE_AGL/CAPTURE_VULN are
+   retired, still baked from logic.json but no longer read here). */
+static int capture_chance(int level, int str, int hp, int vulnerable, int base) {
+    int chance = base - level - str - hp;
+    if(vulnerable) chance += 50;
     return clampi(chance, 0, 100);
 }
 
@@ -1858,6 +1861,7 @@ static int capture_chance(int agl, int hp, int max_hp, int vulnerable) {
 typedef struct {
     int salve, bandage, bitterroot, dust, gem;
     int sunbalm, warroot, smokebomb, greatcrystal, cageKey;
+    int megacrystal, ultimatecrystal, perfectcrystal; /* Leg 2.5 */
 } Bag;
 
 typedef struct {
@@ -1877,7 +1881,10 @@ static int *bag_field(Bag *bag, int idx) {
         case 6: return &bag->warroot;
         case 7: return &bag->smokebomb;
         case 8: return &bag->greatcrystal;
-        default: return &bag->cageKey;
+        case 9: return &bag->cageKey;
+        case 10: return &bag->megacrystal;
+        case 11: return &bag->ultimatecrystal;
+        default: return &bag->perfectcrystal;
     }
 }
 
@@ -1992,7 +1999,8 @@ static void draw_crydex(int cur, int entry) {
    row has no matching icon). */
 static const u16 *const ITEM_ICONS[] = {
     icon_salve, icon_bandage, icon_bitterroot, icon_dust, icon_gem,
-    icon_sunbalm, icon_warroot, icon_smokebomb, icon_greatcrystal, icon_cageKey
+    icon_sunbalm, icon_warroot, icon_smokebomb, icon_greatcrystal, icon_cageKey,
+    icon_megacrystal, icon_ultimatecrystal, icon_perfectcrystal
 };
 
 /* Effect text is stripped out of the row's own title now (matching
@@ -2001,7 +2009,8 @@ static const u16 *const ITEM_ICONS[] = {
    until the player actually navigates onto one. */
 static const char *const ITEM_EFFECT_DESC[] = {
     "+22 HP", "+12 HP", "STR+4", "-3/-2/-2", "CATCH",
-    "+40 HP", "AGL+4", "FLEE", "CATCH+", "CAGE KEY"
+    "+40 HP", "AGL+4", "FLEE", "CATCH+", "CAGE KEY",
+    "CATCH++", "CATCH+++", "ALWAYS CATCH"
 };
 
 static void draw_bag_row(const u16 *icon, const char *label, int count,
@@ -2025,10 +2034,15 @@ static void draw_bag_row(const u16 *icon, const char *label, int count,
     draw_text_s(buf, MENU_X + 16 + ITEM_ICON_W + 4, y, color, MENU_SCALE);
 }
 
+/* Leg 2.5: item count grew past what fits in the fixed menu box in one
+   screen (13 rows * 16px > the ~200px box), so this is now a
+   cursor-following scroll window (matching the web bag's own
+   shown=4-with-scroll pattern) instead of 10 hardcoded rows. */
+#define BAG_ROWS_SHOWN 10
 static void draw_bag_menu(const Bag *bag, int marks, int cur) {
     int y = MENU_Y + 24;
     char marks_buf[16];
-    int n;
+    int n, i, start, max_start;
 
     draw_menu_frame("BAG", "UP/DOWN A USE  B CLOSE");
 
@@ -2038,16 +2052,15 @@ static void draw_bag_menu(const Bag *bag, int marks, int cur) {
     draw_text_s(marks_buf, MENU_X + MENU_W - 8 - text_width_s(marks_buf, MENU_SCALE),
                 MENU_Y + 8, rgb565(143, 74, 64), MENU_SCALE);
 
-    draw_bag_row(icon_salve, "MOSS SALVE", bag->salve, 0, cur, y);            y += MENU_ROW_H;
-    draw_bag_row(icon_bandage, "LINEN WRAP", bag->bandage, 1, cur, y);        y += MENU_ROW_H;
-    draw_bag_row(icon_bitterroot, "BITTERROOT", bag->bitterroot, 2, cur, y);  y += MENU_ROW_H;
-    draw_bag_row(icon_dust, "ASH DUST", bag->dust, 3, cur, y);                y += MENU_ROW_H;
-    draw_bag_row(icon_gem, "CAPTURE CRYSTAL", bag->gem, 4, cur, y);          y += MENU_ROW_H;
-    draw_bag_row(icon_sunbalm, "SUNBALM", bag->sunbalm, 5, cur, y);          y += MENU_ROW_H;
-    draw_bag_row(icon_warroot, "WARROOT", bag->warroot, 6, cur, y);          y += MENU_ROW_H;
-    draw_bag_row(icon_smokebomb, "SMOKE BOMB", bag->smokebomb, 7, cur, y);   y += MENU_ROW_H;
-    draw_bag_row(icon_greatcrystal, "GREATER CRYSTAL", bag->greatcrystal, 8, cur, y); y += MENU_ROW_H;
-    draw_bag_row(icon_cageKey, "CAGE KEY", bag->cageKey, 9, cur, y);
+    max_start = ITEM_COUNT - BAG_ROWS_SHOWN;
+    if(max_start < 0) max_start = 0;
+    start = cur - BAG_ROWS_SHOWN / 2;
+    if(start < 0) start = 0;
+    if(start > max_start) start = max_start;
+    for(i = start; i < start + BAG_ROWS_SHOWN && i < ITEM_COUNT; i++) {
+        draw_bag_row(ITEM_ICONS[i], ITEMS[i].name, *bag_field((Bag *)bag, i), i, cur, y);
+        y += MENU_ROW_H;
+    }
 }
 
 /* drawParty(): lists every party member (up to data.PARTY_MAX -- see
@@ -2335,8 +2348,8 @@ static int battle_foe_debuffed(const Battle *b) {
 static int battle_self_debuffed(const Battle *b) {
     return b->mods_self_str < 0 || b->mods_self_agl < 0 || b->mods_self_spc < 0;
 }
-static int battle_capture_chance(const Battle *b) {
-    return capture_chance(b->foe.agl, b->foe.hp, b->foe.maxHp, battle_foe_debuffed(b));
+static int battle_capture_chance(const Battle *b, int base) {
+    return capture_chance(b->foe.lv, b->foe.str, b->foe.hp, battle_foe_debuffed(b), base);
 }
 
 /* Cathleen's spell kit (castSpell()): the only species in data.ts with
@@ -2970,8 +2983,7 @@ static void battle_pick_item(Battle *b, Bag *bag, int kind,
             n = s_cat(b->msg[0], 0, "CRYSTALS WILL NOT TAKE A TAMERS CRYMON");
         }
         else {
-            int chance = battle_capture_chance(b) + fx->bonus;
-            if(chance > 100) chance = 100;
+            int chance = battle_capture_chance(b, fx->base);
             if(irand(1, 100) <= chance) {
                 Monster c = b->foe;
                 c.hp = c.maxHp * 2 / 5;
@@ -3773,6 +3785,7 @@ static int actor_blocks(int map_id, int cx, int cy,
    indices (0-4) in display order, for main()'s input handling and
    draw_shop() to stay in lockstep, same pattern as the battle item
    menu above. */
+#define SHOP_ROWS_SHOWN 9
 static int shop_rows(const Bag *bag, int sell_tab, int rows[ITEM_COUNT]) {
     int n = 0, i;
     for(i = 0; i < ITEM_COUNT; i++) {
@@ -3805,19 +3818,29 @@ static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur) {
                     MENU_Y + 24, rgb565(143, 74, 64), MENU_SCALE);
     }
 
-    for(i = 0; i < n; i++) {
-        int idx = rows[i];
-        int price = sell_tab ? ITEMS[idx].sell : ITEMS[idx].buy;
-        int owned = *bag_field((Bag *)bag, idx);
-        char row[40];
-        int rn = s_cat(row, 0, ITEMS[idx].name);
-        rn = s_cat(row, rn, " ");
-        rn = s_cat_uint(row, rn, price);
-        rn = s_cat(row, rn, "M X");
-        rn = s_cat_uint(row, rn, owned);
-        row[rn] = 0;
-        draw_menu_row_icon(ITEM_ICONS[idx], row, i, cur, y);
-        y += MENU_ROW_H;
+    /* Leg 2.5: more buyable items than fit in one screen now (n can
+       exceed what SHOP_ROWS_SHOWN rows of MENU_ROW_H leave room for),
+       so this scrolls around cur the same way draw_bag_menu does. */
+    {
+        int start = cur - SHOP_ROWS_SHOWN / 2;
+        int max_start = n - SHOP_ROWS_SHOWN;
+        if(max_start < 0) max_start = 0;
+        if(start < 0) start = 0;
+        if(start > max_start) start = max_start;
+        for(i = start; i < start + SHOP_ROWS_SHOWN && i < n; i++) {
+            int idx = rows[i];
+            int price = sell_tab ? ITEMS[idx].sell : ITEMS[idx].buy;
+            int owned = *bag_field((Bag *)bag, idx);
+            char row[40];
+            int rn = s_cat(row, 0, ITEMS[idx].name);
+            rn = s_cat(row, rn, " ");
+            rn = s_cat_uint(row, rn, price);
+            rn = s_cat(row, rn, "M X");
+            rn = s_cat_uint(row, rn, owned);
+            row[rn] = 0;
+            draw_menu_row_icon(ITEM_ICONS[idx], row, i, cur, y);
+            y += MENU_ROW_H;
+        }
     }
 }
 
@@ -4328,6 +4351,8 @@ void main(void) {
                         bag.gem = sl.bag[4]; bag.sunbalm = sl.bag[5];
                         bag.warroot = sl.bag[6]; bag.smokebomb = sl.bag[7];
                         bag.greatcrystal = sl.bag[8]; bag.cageKey = sl.bag[9];
+                        bag.megacrystal = sl.bag[10]; bag.ultimatecrystal = sl.bag[11];
+                        bag.perfectcrystal = sl.bag[12];
                         for(pi = 0; pi < party_n; pi++) {
                             party[pi].species = sl.party[pi].species;
                             party[pi].lv = sl.party[pi].lv;
@@ -4529,6 +4554,8 @@ void main(void) {
                     sl.bag[4] = (unsigned char)bag.gem; sl.bag[5] = (unsigned char)bag.sunbalm;
                     sl.bag[6] = (unsigned char)bag.warroot; sl.bag[7] = (unsigned char)bag.smokebomb;
                     sl.bag[8] = (unsigned char)bag.greatcrystal; sl.bag[9] = (unsigned char)bag.cageKey;
+                    sl.bag[10] = (unsigned char)bag.megacrystal; sl.bag[11] = (unsigned char)bag.ultimatecrystal;
+                    sl.bag[12] = (unsigned char)bag.perfectcrystal;
                     for(pi = 0; pi < party_n && pi < 6; pi++) {
                         sl.party[pi].species = (unsigned char)party[pi].species;
                         sl.party[pi].lv = (unsigned char)party[pi].lv;

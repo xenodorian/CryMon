@@ -98,7 +98,7 @@ export interface Monster {
   nature: number;
 }
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey";
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal";
 
 export interface ItemDef {
   id: ItemId;
@@ -114,7 +114,7 @@ export interface ItemDef {
     str?: number;
     agl?: number;
     spc?: number;
-    bonus?: number;
+    base?: number;
   };
 }
 
