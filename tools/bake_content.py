@@ -453,6 +453,8 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define LOGIC_REP_MIN {int(rep.get('min', -100))}")
     lines.append(f"#define LOGIC_REP_MAX {int(rep.get('max', 100))}")
     lines.append(f"#define LOGIC_REP_FATHER_REVIVE {int(rep.get('fatherRevive', 25))}")
+    kind = str(rep.get("kindName") or "Max")
+    lines.append(f'#define LOGIC_REP_KIND_NAME "{c_escape(dc_text(kind))}"')
     lines.append(f"#define LOGIC_MASON_AMBUSH_NEED_PARTY {1 if ambush.get('needParty') else 0}")
     lines.append(f"#define LOGIC_MASON_AMBUSH_UNLESS_BEAT {1 if ambush.get('unless') == 'foughtMason' else 0}")
     maps = ", ".join(map_sym(m) for m in rematch["maps"])

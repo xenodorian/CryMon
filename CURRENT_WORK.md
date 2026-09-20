@@ -172,12 +172,11 @@ fixed, see above, not hardware-verified) DONE and pushed. 2.9.1
 (dismissal dialogue pool) and 2.7 sub-step 1 (bare `reputation` save
 field) also DONE and pushed. **2.7 sub-step 2 (father-revival
 dialogue + teleport-back + reputation +25) DONE (Grok A), pushed.**
-Next: 2.7 sub-step 5 ("Max The Kind" display-name override) is a
-small follow-on to this revival branch; then 2.10 (reputation's
-economic effects). Remaining 2.9 sub-steps (post-battle
-mercy/threaten/execute menu) still open. 2.7 sub-steps 3+ (second
-controllable party), 2.4 (gauntlet redesign), 2.8 (blocked on 2.4),
-and Leg 3 stay out of scope until assigned.
+**2.7 sub-step 5 ("Max The Kind" display-name override) DONE (Grok A),
+pushed.** Next: 2.10 (reputation's economic effects). Remaining 2.9
+sub-steps (post-battle mercy/threaten/execute menu) still open. 2.7
+sub-steps 3+ (second controllable party), 2.4 (gauntlet redesign),
+2.8 (blocked on 2.4), and Leg 3 stay out of scope until assigned.
 
 ---
 
@@ -368,9 +367,9 @@ the quarry/endgame breakdown shape that worked well all session:
    the old auto-teleport in `POST_ENDING_FINAL`/`next === "ending"`).
 4. Heavenfall boss definition (JSON) + the gravestone interaction +
    scroll-gate check.
-5. The Slayer/Tamer rename mechanic — same "how deep does the rename
-   go" question as Max The Kind in 2.7, decide the approach once there
-   rather than solving it twice differently.
+5. The Slayer/Tamer rename mechanic — reuse 2.7.5's display-name
+   override (`playerDisplayName()` / `g_player_name`, sourced from
+   `logic.json`). Don't rewrite every `"Max"` string in dialogue.
 6. `docs/CRYMON.md` story-lock update (one line, reflecting this is
    the user's explicit ask to lift the Heavenfall-narrative-only lock).
 7. Wire into `engine.ts`, then `main.c` (same non-generic Dreamcast
@@ -578,11 +577,17 @@ party is a real systems feature, not a flag.** Sub-steps:
    that surface or generalizes it. Don't start coding this step until
    that shape is picked (ask the user if unclear).
 4. The swap-between-parties UI/input (web), then its Dreamcast mirror.
-5. The "Max The Kind" rename — figure out how deep "every
-   iteration/interaction" needs to go (dialogue speaker name display?
-   just the HUD? every `"max"` speaker line's displayed name?) before
-   implementing; this likely means a display-name override on the
-   `max`/player speaker rather than literally rewriting dialogue text.
+5. **DONE (Grok A), pushed.** The "Max The Kind" rename is a
+   display-name override, not a rewrite of every `"Max"` string in
+   `dialogue.json`. `logic.json` `reputation.kindName` is the source;
+   both engines call `playerDisplayName()` / `g_player_name` so later
+   titles (Heaven Slayer/Tamer, Kingslayer) can reuse the same hook.
+   Web: HUD, `max` speaker label in `drawTalk`, and engine-generated
+   notes ("holds", last-CryMon, catch-swap, smoke-bomb flee).
+   Dreamcast: HUD nameplate when renamed, `SPK_MAX` nameplate in the
+   dialogue box, "HOLDS" / "SLIPS AWAY" battle lines. Intro/ending
+   narration still says Max — those beats are pre-rename or baked
+   story. **Not hardware-verified.**
 6. Integration pass.
 
 ### 2.8 — Heavenfall-revival reputation effect

@@ -8,10 +8,11 @@
     }
   },
   "reputation": {
-    "comment": "Live range is signed. Save byte 17 stores value+100. Both engines clamp on every write.",
+    "comment": "Live range is signed. Save byte 17 stores value+100. Both engines clamp on every write. kindName is the display-name override after father revival (2.7.5); later titles (Slayer/Tamer) reuse the same hook.",
     "min": -100,
     "max": 100,
-    "fatherRevive": 25
+    "fatherRevive": 25,
+    "kindName": "Max The Kind"
   },
   "screenFade": {
     "outSec": 0.267,

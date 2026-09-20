@@ -764,6 +764,15 @@ typedef struct {
 #include "content_maps.inc"
 #include "content_logic.inc"
 
+/* Display-name override (Leg 2.7.5). Defaults to MAX; father revival
+   swaps in LOGIC_REP_KIND_NAME. Later titles (Slayer/Tamer) reuse this. */
+static const char *g_player_name = "MAX";
+static int g_player_renamed = 0;
+static void apply_player_name(int revived) {
+    g_player_renamed = revived ? 1 : 0;
+    g_player_name = revived ? LOGIC_REP_KIND_NAME : "MAX";
+}
+
 #define FADE_NONE 0
 #define FADE_OUT  1
 #define FADE_HOLD 2
@@ -1410,6 +1419,9 @@ static void draw_dialogue_box(const TalkBeat *beat) {
                      ? PORTRAIT_BOX_X
                      : PORTRAIT_BOX_X + PORTRAIT_BOX_W - p->w;
         blit_sprite(p->px, p->w, p->h, px, PORTRAIT_BOX_Y + (PORTRAIT_BOX_H - p->h) / 2);
+        if(beat->speaker == SPK_MAX && g_player_renamed)
+            draw_text_s(g_player_name, 8, DIALOGUE_TEXT_Y - DIALOGUE_LINE_H,
+                        rgb565(197, 206, 198), DIALOGUE_SCALE);
     }
     draw_wrapped(beat->text, 8, DIALOGUE_TEXT_Y + 8,
                  0xFFFF, DIALOGUE_SCALE,
@@ -1461,6 +1473,10 @@ static void draw_map_banner(int map_id, int timer) {
 static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_scroll) {
     int y = 2;
 
+    if(g_player_renamed) {
+        draw_text_s(g_player_name, 4, y, 0xFFFF, DIALOGUE_SCALE);
+        y += DIALOGUE_LINE_H;
+    }
     if(got_shelf) {
         const char *label = "QUILLPUP LV";
         draw_text_s(label, 4, y, 0xFFFF, DIALOGUE_SCALE);
@@ -2968,7 +2984,9 @@ static void battle_pick_item(Battle *b, Bag *bag, int kind,
         } else {
             (*slot)--;
             n = s_cat(b->msg[0], 0, ITEMS[idx].name);
-            n = s_cat(b->msg[0], n, " MAX SLIPS AWAY");
+            n = s_cat(b->msg[0], n, " ");
+            n = s_cat(b->msg[0], n, g_player_name);
+            n = s_cat(b->msg[0], n, " SLIPS AWAY");
             b->msg[0][n] = 0;
             b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_WORLD;
             party[lead] = b->pl;
@@ -4431,6 +4449,7 @@ void main(void) {
                         badge_opal = save_flag_get(&sl, SAVE_FLAG_BADGE_OPAL);
                         chose_heavenfall = save_flag_get(&sl, SAVE_FLAG_CHOSE_HEAVENFALL);
                         revived_father = save_flag_get(&sl, SAVE_FLAG_REVIVED_FATHER);
+                        apply_player_name(revived_father);
                         beat_commander = save_flag_get(&sl, SAVE_FLAG_BEAT_COMMANDER);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
@@ -4505,6 +4524,7 @@ void main(void) {
                 chose_heavenfall = 0; beat_commander = 0;
                 revived_father = 0;
                 reputation = 0;
+                apply_player_name(0);
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
@@ -5297,7 +5317,8 @@ void main(void) {
                         if(!mv) {
                             /* empty */
                         } else if(mv->kind == UMOVE_WAIT) {
-                            int n = s_cat(battle.msg[0], 0, "MAX HOLDS");
+                            int n = s_cat(battle.msg[0], 0, g_player_name);
+                            n = s_cat(battle.msg[0], n, " HOLDS");
                             battle.msg[0][n] = 0;
                             battle.msg_n = 1;
                             battle.msg_i = 0;
@@ -5400,6 +5421,7 @@ void main(void) {
                 chose_heavenfall = choice_cur;
                 if(choice_cur == 0) {
                     revived_father = 1;
+                    apply_player_name(1);
                     reputation += LOGIC_REP_FATHER_REVIVE;
                     if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
                     if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;

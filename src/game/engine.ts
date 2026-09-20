@@ -1052,7 +1052,7 @@ export class CryMon {
 	releaseMember(idx) {
 		const keepLast = LOGIC.party?.keepLast !== false;
 		if (keepLast && this.party.length <= 1) {
-			this.note("Max will not send her last CryMon away.");
+			this.note(`${this.playerDisplayName()} will not send her last CryMon away.`);
 			this.audio.miss();
 			return false;
 		}
@@ -1437,7 +1437,7 @@ export class CryMon {
 					this.audio.ui();
 				} else {
 					if (this.party.length <= 1) {
-						this.note("Max will not send her last CryMon away.");
+						this.note(`${this.playerDisplayName()} will not send her last CryMon away.`);
 						this.audio.miss();
 						this.partyView = "list";
 					} else {
@@ -2688,7 +2688,7 @@ export class CryMon {
 				this.bag[id] += 1;
 				b.msg = ["Cannot flee a tamer's fight."];
 			} else {
-				b.msg = [`${ITEMS[id].name}. Max slips away.`];
+				b.msg = [`${ITEMS[id].name}. ${this.playerDisplayName()} slips away.`];
 				b.msgI = 0;
 				b.phase = "msg";
 				b.afterMsg = "end_run";
@@ -2720,7 +2720,7 @@ export class CryMon {
 						this.pendingCatch = caught;
 						b.msg = [
 							`${ITEMS[id].name} takes. ${b.foe.name} is yours.`,
-							"Six already travel with Max. Release one to keep the new CryMon, or let it go."
+							`Six already travel with ${this.playerDisplayName()}. Release one to keep the new CryMon, or let it go.`
 						];
 						b.afterMsg = "catch_swap";
 					}
@@ -2743,7 +2743,7 @@ export class CryMon {
 		if (!mv) return;
 		b.pendingMods = { str: 0, agl: 0, spc: 0 };
 		if (mv.kind === "wait") {
-			b.msg = ["Max holds."];
+			b.msg = [`${this.playerDisplayName()} holds.`];
 			b.msgI = 0;
 			b.phase = "msg";
 			b.afterMsg = "guard";
@@ -2982,6 +2982,10 @@ export class CryMon {
 				this.say(TALK.choiceHeavenfall, "ending");
 			}
 		}
+	}
+	playerDisplayName() {
+		if (this.revivedFather) return LOGIC.reputation?.kindName || "Max The Kind";
+		return SPEAKER_NAME.max || "Max";
 	}
 	adjustReputation(delta) {
 		const min = LOGIC.reputation?.min ?? -100;
@@ -3409,12 +3413,18 @@ export class CryMon {
 	}
 	drawWorldHud() {
 		const lead = this.lead();
-		this.box(8, 8, 300, 40);
-		this.text("MAX", 16, 12, "#e8e4d8", FONT);
-		this.text(`Xtals ${this.bag.gem}`, 88, 12, "#c5cec6", FONT);
-		this.text(`M ${this.marks}`, 200, 12, "#8f4a40", FONT);
+		const name = this.playerDisplayName().toUpperCase();
+		this.ctx.font = `${FONT}px Silkscreen, ui-monospace, monospace`;
+		this.ctx.textAlign = "left";
+		const nameW = Math.ceil(this.ctx.measureText(name).width);
+		const statsX = Math.max(88, 16 + nameW + 12);
+		const boxW = Math.max(300, statsX + 168);
+		this.box(8, 8, boxW, 40);
+		this.text(name, 16, 12, "#e8e4d8", FONT);
+		this.text(`Xtals ${this.bag.gem}`, statsX, 12, "#c5cec6", FONT);
+		this.text(`M ${this.marks}`, statsX + 112, 12, "#8f4a40", FONT);
 		this.text(lead ? `${lead.name} Lv${lead.level}  ${lead.hp}/${lead.maxHp}` : "No CryMon yet", 16, 28, "#8a8678", FONT);
-		if (this.hasScroll) this.text("SCROLL", 200, 28, "#c5cec6", FONT);
+		if (this.hasScroll) this.text("SCROLL", statsX + 112, 28, "#c5cec6", FONT);
 	}
 	drawMapTitle() {
 		const name = MAP_NAME[this.world.mapId] ?? this.world.mapId.toUpperCase();
@@ -3558,7 +3568,7 @@ export class CryMon {
 			this.ctx.fillStyle = "rgba(18,17,14,0.45)";
 			this.ctx.fillRect(X(108), 0, VIEW_W - X(108), VIEW_H);
 			this.box(X(112), Y(6), X(122), Y(62));
-			const who = SPEAKER_NAME[beat.speaker];
+			const who = beat.speaker === "max" ? this.playerDisplayName() : SPEAKER_NAME[beat.speaker];
 			this.text(who.toUpperCase(), X(118), Y(10), "#c5cec6", FONT);
 			this.wrap(beat.text, 20).slice(0, 4).forEach((ln, i) => this.text(ln, X(118), Y(22 + i * 10), "#e8e4d8", FONT));
 			this.text("Z", X(216), Y(52), "#8a8678", FONT);

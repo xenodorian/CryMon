@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=085efd26b6eb7477 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=5b1073598912af7e — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -7,6 +7,7 @@
 #define LOGIC_REP_MIN -100
 #define LOGIC_REP_MAX 100
 #define LOGIC_REP_FATHER_REVIVE 25
+#define LOGIC_REP_KIND_NAME "MAX THE KIND"
 #define LOGIC_MASON_AMBUSH_NEED_PARTY 1
 #define LOGIC_MASON_AMBUSH_UNLESS_BEAT 1
 static const int LOGIC_MASON2_MAPS[] = { MAP_VELD, MAP_FOREST, MAP_GROVE };
