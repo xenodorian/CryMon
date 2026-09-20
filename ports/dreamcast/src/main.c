@@ -195,6 +195,10 @@ static void vram_clear(void) {
    onto this scale. The two were the same number for a while, which is
    why the hold phase silently lasted one frame instead of its three. */
 #define FADE_STEPS 16
+/* Leg 2.9 mercy state — must be before apply_fade uses red tint */
+static int g_mercy_red_fade = 0;
+static unsigned int g_executed_mask = 0;
+
 static void apply_fade(int level) {
     u32 i, keep;
     if(level <= 0) return;
@@ -782,8 +786,6 @@ static void apply_player_name(int revived) {
 #define FADE_OUT  1
 #define FADE_HOLD 2
 #define FADE_IN   3
-static int g_mercy_red_fade = 0;
-static unsigned int g_executed_mask = 0; /* Leg 2.9 permanent execute-delete */
 
 /* Brightness for the current phase, 0..FADE_STEPS. Mirrors the web's
    fadeAlpha(): out ramps up across its own frame budget, hold sits fully
@@ -5535,19 +5537,8 @@ void main(void) {
                 mercy_mode = 0;
                 if(mercy_cur == 0) {
                     /* Let them go: +1 rep + random dismiss line */
-                    static const char *dismiss[] = {
-                        "I can't believe I was beaten by a kid.",
-                        "Impossible! I've never lost a battle!",
-                        "Take it easy on the next one, will you?",
-                        "You're stronger than you look...",
-                        "I'll remember this."
-                    };
-                    int di;
                     reputation += 1;
                     if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
-                    di = (int)(frand(0.0f, 1.0f) * 5.0f);
-                    if(di < 0) di = 0;
-                    if(di > 4) di = 4;
                     {
                         int n = s_cat(hud_flash, 0, "LET THEM GO. +1 REP");
                         hud_flash[n] = 0; hud_t = 90;
