@@ -5479,7 +5479,7 @@ void main(void) {
         }
         
         else if(mercy_mode) {
-            /* Leg 2.9.2 UI: up/down among 4 rows, A confirms (effects in 2.9.3+). */
+            /* Leg 2.9 mercy: up/down among 4 rows, A resolves choice. */
             if(up_now && !prev_up) {
                 mercy_cur = (mercy_cur + 3) & 3;
                 chip_sfx_ui();
@@ -5489,11 +5489,54 @@ void main(void) {
                 chip_sfx_ui();
             }
             if(a_now && !prev_a) {
+                int levels = mercy_foe_levels > 0 ? mercy_foe_levels : 1;
                 chip_sfx_ok();
                 mercy_mode = 0;
-                {
-                    int n = s_cat(hud_flash, 0, "THE MOMENT PASSES.");
-                    hud_flash[n] = 0; hud_t = 90;
+                if(mercy_cur == 0) {
+                    /* Let them go: +1 rep */
+                    reputation += 1;
+                    if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
+                    {
+                        int n = s_cat(hud_flash, 0, "LET THEM GO. +1 REP");
+                        hud_flash[n] = 0; hud_t = 90;
+                    }
+                } else if(mercy_cur == 1) {
+                    reputation -= 1;
+                    if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                    marks += levels;
+                    {
+                        int n = s_cat(hud_flash, 0, "TOOK MARKS");
+                        hud_flash[n] = 0; hud_t = 90;
+                    }
+                } else if(mercy_cur == 2) {
+                    int idx = (int)(frand() * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int *slot;
+                    reputation -= 2;
+                    if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                    if(idx < 0) idx = 0;
+                    if(idx >= ITEM_COUNT) idx = 0;
+                    slot = bag_field(&bag, idx);
+                    if(slot) (*slot)++;
+                    {
+                        int n = s_cat(hud_flash, 0, "TOOK AN ITEM");
+                        hud_flash[n] = 0; hud_t = 90;
+                    }
+                } else {
+                    int a = (int)(frand() * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int b = (int)(frand() * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int *sa, *sb;
+                    reputation -= 10;
+                    if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                    marks += levels * 10;
+                    if(a < 0) a = 0; if(a >= ITEM_COUNT) a = 0;
+                    if(b < 0) b = 0; if(b >= ITEM_COUNT) b = 0;
+                    sa = bag_field(&bag, a); sb = bag_field(&bag, b);
+                    if(sa) (*sa)++;
+                    if(sb) (*sb)++;
+                    {
+                        int n = s_cat(hud_flash, 0, "NO SURVIVORS");
+                        hud_flash[n] = 0; hud_t = 90;
+                    }
                 }
             }
         }
@@ -6351,7 +6394,12 @@ void main(void) {
                                     /* Leg 2.9.2: open post-battle mercy menu. */
                                     mercy_mode = 1;
                                     mercy_cur = 0;
-                                    mercy_foe_levels = 0; /* filled in 2.9.3 */
+                                    {
+                                        int bi, lv = battle.foe.level;
+                                        for(bi = 0; bi < battle.bench_n && bi < 2; bi++)
+                                            lv += battle.bench[bi].level;
+                                        mercy_foe_levels = lv > 0 ? lv : 1;
+                                    }
                                     {
                                         const char *nm = "Trainer";
                                         if(battle.trainer_kind == TRAINER_CALDER) nm = "Calder";

@@ -23,6 +23,8 @@ export const ENDING_WIN = dialogueJson.endingWin as string[];
 export const ENDING_WIN_HEAVENFALL = dialogueJson.endingWinHeavenfall as string[];
 export const DEMO_END = ENDING_WIN;
 export const TALK = dialogueJson.talk as Record<string, TalkBeat[]>;
+export const MERCY_DISMISS = (dialogueJson as { mercyDismissLines?: string[] }).mercyDismissLines
+	?? ["I can't believe I was beaten by a kid."];
 
 export const START_BAG = worldJson.startBag as Record<ItemId, number>;
 export const START_MARKS = worldJson.startMarks;

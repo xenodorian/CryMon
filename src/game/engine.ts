@@ -54,6 +54,7 @@ import {
   frand,
   unlockedMoves,
   natureMatchNames,
+  MERCY_DISMISS
 } from "./data";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
@@ -3035,9 +3036,47 @@ export class CryMon {
 		}
 		if (this.input.confirm()) {
 			this.audio.ok();
-			// Sub-step 2.9.2: UI only — effects land in 2.9.3+.
-			this.mode = "world";
-			this.note("The moment passes.");
+			this.resolveMercy(this.mercyCur);
+		}
+	}
+	/** Random baggable item id (excludes quest-only cageKey). */
+	randomMercyItem() {
+		const pool = Object.keys(ITEMS).filter((id) => id !== "cageKey");
+		return pool[Math.floor(Math.random() * pool.length)] || "salve";
+	}
+	resolveMercy(choice) {
+		const levels = this.mercyFoeLevels || 1;
+		this.mode = "world";
+		if (choice === 0) {
+			// Let them go: +1 rep, random dismiss line
+			this.adjustReputation(1);
+			const lines = MERCY_DISMISS;
+			const line = lines[Math.floor(Math.random() * lines.length)] || lines[0];
+			this.say([{ speaker: "none", text: line }]);
+		} else if (choice === 1) {
+			// Threaten for marks: -1 rep, marks = combined levels
+			this.adjustReputation(-1);
+			this.marks += levels;
+			this.say(TALK.mercyThreaten || [{ speaker: "none", text: "Don't hurt me, just take it!" }]);
+			this.note(`Took ${levels} marks.`);
+		} else if (choice === 2) {
+			// Threaten for item: -2 rep, one random item
+			this.adjustReputation(-2);
+			const id = this.randomMercyItem();
+			this.bag[id] = (this.bag[id] ?? 0) + 1;
+			this.say(TALK.mercyThreaten || [{ speaker: "none", text: "Don't hurt me, just take it!" }]);
+			this.note(`Took ${ITEMS[id]?.name || id}.`);
+		} else {
+			// Execute: -10 rep, marks = levels*10, 2 items (delete/fade in later steps)
+			this.adjustReputation(-10);
+			const gain = levels * 10;
+			this.marks += gain;
+			const a = this.randomMercyItem();
+			const b = this.randomMercyItem();
+			this.bag[a] = (this.bag[a] ?? 0) + 1;
+			this.bag[b] = (this.bag[b] ?? 0) + 1;
+			this.say(TALK.mercyExecute || [{ speaker: "max", text: "No survivors, no witnesses." }]);
+			this.note(`Took ${gain} marks and loot.`);
 		}
 	}
 	drawMercy() {
