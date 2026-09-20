@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Flood-from-edge magenta/hot-pink chroma key + 1px fringe.
+"""Flood-from-edge magenta/hot-pink chroma key.
 
-Walkers, NPCs, CryMon, items, and props are always processed.
-Portraits are only keyed when the image border is already magenta —
-painted grey/studio portrait backgrounds stay intact.
+New art: `key-clamp` subcommand (transparent bg + 2px inner-border R→G clamp,
+no fringe-delete). Legacy `strip_one` still does the 1px fringe-delete; do not
+use it for new sprites.
 """
 from __future__ import annotations
 
+import argparse
 import math
 import sys
 from collections import deque
@@ -94,7 +95,8 @@ def edge_key_ratio(im: Image.Image) -> float:
     return n / len(pts)
 
 
-def strip_one(im: Image.Image) -> tuple[Image.Image, int]:
+def flood_key_mask(im: Image.Image) -> list[list[bool]]:
+    """Magenta connected to the image edge. Interior magenta is left alone."""
     im = im.convert("RGBA")
     w, h = im.size
     src = im.load()
@@ -121,7 +123,160 @@ def strip_one(im: Image.Image) -> tuple[Image.Image, int]:
             if is_key(r, g, b, a):
                 key[ny][nx] = True
                 q.append((nx, ny))
-    # 1px fringe on remaining opaque pixels that neighbor keyed/transparent
+    return key
+
+
+def add_upper_key_holes(im: Image.Image, key: list[list[bool]], top_frac: float = 0.28) -> int:
+    """Key enclosed magenta holes whose bbox sits in the top of the image.
+
+    Pendant-ring interiors are background but not edge-connected. Gem/eye
+    magenta lower in the frame is left alone.
+    """
+    im = im.convert("RGBA")
+    w, h = im.size
+    src = im.load()
+    y_lim = int(h * top_frac)
+    seen = [row[:] for row in key]
+    added = 0
+    for y in range(h):
+        for x in range(w):
+            if seen[y][x]:
+                continue
+            r, g, b, a = src[x, y]
+            if not is_key(r, g, b, a):
+                continue
+            q: deque[tuple[int, int]] = deque([(x, y)])
+            seen[y][x] = True
+            cells = [(x, y)]
+            max_y = y
+            while q:
+                cx, cy = q.popleft()
+                for nx, ny in ((cx - 1, cy), (cx + 1, cy), (cx, cy - 1), (cx, cy + 1)):
+                    if nx < 0 or ny < 0 or nx >= w or ny >= h or seen[ny][nx]:
+                        continue
+                    r2, g2, b2, a2 = src[nx, ny]
+                    if is_key(r2, g2, b2, a2):
+                        seen[ny][nx] = True
+                        q.append((nx, ny))
+                        cells.append((nx, ny))
+                        if ny > max_y:
+                            max_y = ny
+            if max_y < y_lim:
+                for cx, cy in cells:
+                    if not key[cy][cx]:
+                        key[cy][cx] = True
+                        added += 1
+    return added
+
+
+def apply_key_mask(im: Image.Image, key: list[list[bool]]) -> tuple[Image.Image, int]:
+    im = im.convert("RGBA")
+    w, h = im.size
+    src = im.load()
+    out = Image.new("RGBA", (w, h))
+    dst = out.load()
+    cleared = 0
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = src[x, y]
+            if key[y][x] or a < 8:
+                dst[x, y] = (0, 0, 0, 0)
+                if a >= 8:
+                    cleared += 1
+            else:
+                dst[x, y] = (r, g, b, a)
+    return out, cleared
+
+
+def key_flood_only(im: Image.Image, holes: bool = False) -> tuple[Image.Image, int]:
+    """Cut magenta to transparency. No fringe-delete."""
+    mask = flood_key_mask(im)
+    extra = add_upper_key_holes(im, mask) if holes else 0
+    out, n = apply_key_mask(im, mask)
+    return out, n + extra
+
+
+def inner_border_clamp(im: Image.Image, depth: int = 2) -> tuple[Image.Image, int]:
+    """If R > G on a `depth`-pixel inner border, set R = G. Does not punch holes."""
+    im = im.convert("RGBA")
+    w, h = im.size
+    src = im.load()
+    dist = [[-1] * w for _ in range(h)]
+    q: deque[tuple[int, int]] = deque()
+    for y in range(h):
+        for x in range(w):
+            if src[x, y][3] < 8:
+                dist[y][x] = 0
+                q.append((x, y))
+    while q:
+        x, y = q.popleft()
+        d = dist[y][x]
+        if d >= depth:
+            continue
+        for ny in (y - 1, y, y + 1):
+            for nx in (x - 1, x, x + 1):
+                if nx < 0 or ny < 0 or nx >= w or ny >= h:
+                    continue
+                if dist[ny][nx] != -1:
+                    continue
+                dist[ny][nx] = d + 1
+                q.append((nx, ny))
+    out = Image.new("RGBA", (w, h))
+    dst = out.load()
+    n = 0
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = src[x, y]
+            if a >= 8 and 0 < dist[y][x] <= depth and r > g:
+                dst[x, y] = (g, g, b, a)
+                n += 1
+            else:
+                dst[x, y] = (r, g, b, a)
+    return out, n
+
+
+def fit_square_icon(im: Image.Image, size: int, pad: int) -> Image.Image:
+    x0, y0, x1, y1 = bbox_opaque(im, pad=pad)
+    crop = im.crop((x0, y0, x1, y1))
+    side = max(crop.size)
+    canvas = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+    canvas.paste(crop, ((side - crop.size[0]) // 2, (side - crop.size[1]) // 2), crop)
+    return canvas.resize((size, size), Image.Resampling.LANCZOS)
+
+
+def key_clamp_file(
+    src: Path,
+    dest: Path,
+    size: int | None = 128,
+    pad: int = 24,
+    holes: bool = True,
+    depth: int = 2,
+) -> None:
+    im = Image.open(src).convert("RGBA")
+    keyed, n_key = key_flood_only(im, holes=holes)
+    if size:
+        # Scale pad with source so 24px-at-256 stays ~same fraction at 1408.
+        src_side = max(im.size)
+        use_pad = pad if src_side <= size * 2 else max(pad, int(src_side * 0.06))
+        icon = fit_square_icon(keyed, size, use_pad)
+        icon, n_rekey = key_flood_only(icon, holes=False)
+    else:
+        icon, n_rekey = keyed, 0
+    icon, n_clamp = inner_border_clamp(icon, depth=depth)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    icon.save(assert_write(dest))
+    print(
+        f"key-clamp {src.name} -> {dest} {icon.size} "
+        f"keyed={n_key} rekey={n_rekey} clamp={n_clamp}"
+    )
+
+
+def strip_one(im: Image.Image) -> tuple[Image.Image, int]:
+    """Legacy: flood-from-edge key + 1px fringe-delete. Prefer key_clamp_file for new art."""
+    im = im.convert("RGBA")
+    w, h = im.size
+    src = im.load()
+    key = flood_key_mask(im)
     fringe = [[False] * w for _ in range(h)]
     for y in range(h):
         for x in range(w):
@@ -222,7 +377,61 @@ def walk_targets() -> list[tuple[Path, bool]]:
     return out
 
 
+def cmd_key_clamp(argv: list[str]) -> None:
+    p = argparse.ArgumentParser(
+        prog="strip_magenta.py key-clamp",
+        description="Cut magenta to transparency, then 2px inner-border R→G clamp (no fringe-delete).",
+    )
+    p.add_argument("src", type=Path, help="source image (JPEG/PNG, magenta background)")
+    p.add_argument("-o", "--out", type=Path, required=True, help="destination PNG")
+    p.add_argument("--size", type=int, default=128, help="output square size; 0 = keep source size")
+    p.add_argument("--pad", type=int, default=24, help="opaque-bbox pad before square-fit")
+    p.add_argument("--depth", type=int, default=2, help="inner-border depth in pixels")
+    p.add_argument(
+        "--no-holes",
+        action="store_true",
+        help="do not punch enclosed magenta holes in the upper frame (pendant rings)",
+    )
+    args = p.parse_args(argv)
+    size = None if args.size == 0 else args.size
+    key_clamp_file(
+        args.src,
+        args.out,
+        size=size,
+        pad=args.pad,
+        holes=not args.no_holes,
+        depth=args.depth,
+    )
+
+
 def main() -> None:
+    argv = sys.argv[1:]
+    if argv and argv[0] == "key-clamp":
+        cmd_key_clamp(argv[1:])
+        return
+
+    key_src = Path("/workspace/artifacts/imagine_images/72348c7a-a736-4418-8a4f-35a076cb46f5.jpg")
+    if key_src.exists():
+        make_key_icon(key_src, SPRITES / "items" / "cageKey.png")
+    else:
+        print("key source missing", file=sys.stderr)
+
+    files = walk_targets()
+    changed = 0
+    pixels = 0
+    skipped_port = 0
+    for path, portraits in files:
+        if path.name == "cageKey.png" and not portraits:
+            # just written; still run strip in case LANCZOS reintroduced fringe
+            pass
+        ok, n = process_file(path, portraits)
+        if portraits and not ok and n == 0:
+            skipped_port += 1
+        if ok:
+            changed += 1
+            pixels += n
+            print(f"  {path.relative_to(SPRITES)}  -{n}")
+    print(f"done: {changed} files, {pixels} pixels keyed, portraits skipped={skipped_port}")
     key_src = Path("/workspace/artifacts/imagine_images/72348c7a-a736-4418-8a4f-35a076cb46f5.jpg")
     if key_src.exists():
         make_key_icon(key_src, SPRITES / "items" / "cageKey.png")

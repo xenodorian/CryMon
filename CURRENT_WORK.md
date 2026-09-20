@@ -55,9 +55,18 @@ background — never leftover magenta, never a solid-color plate.
    clamping R down to G kills the pink halo without punching a hole
    in the art.
 
-QC before commit: corners transparent, no leftover `#FF00FF`, no
-magentish halo on the silhouette, interior colors (including
-intentional pinks deeper than 2px from the edge) untouched.
+Command (do not run bare `strip_magenta.py` — that still does the
+legacy 1px fringe-delete across the tree):
+
+```
+python3 tools/strip_magenta.py key-clamp --size 128 --pad 24 -o DEST SRC
+```
+
+`--size 0` keeps the source resolution. Pendant-ring interiors (enclosed
+magenta not connected to the edge) are punched; gem/eye magenta lower
+in the frame is not. QC before commit: corners transparent, no leftover
+`#FF00FF`, no magentish halo on the silhouette, interior colors
+(including intentional pinks deeper than 2px from the edge) untouched.
 
 ---
 
@@ -158,7 +167,8 @@ stays one build behind until someone manually re-runs it
 **Shipped (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
 icons (`public/sprites/items/{mega,ultimate,perfect}crystal.png`,
 128x128 RGBA, same caged-stone silhouette as Common). Dropped
-ART_NEEDED 28→25.
+ART_NEEDED 28→25. Re-keyed with flood-from-edge + 2px inner-border
+R→G clamp (no fringe-delete).
 
 ---
 
