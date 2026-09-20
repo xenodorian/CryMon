@@ -12,8 +12,12 @@
       "id": "father",
       "role": "talk",
       "talk": "father",
-      "talkDone": "fatherAfter",
+      "talkDone": "fatherAlive",
       "script": [
+        {
+          "if": "revivedFather",
+          "talk": "fatherAlive"
+        },
         {
           "if": "tookStarter",
           "talk": "fatherAfter"
@@ -259,7 +263,7 @@
       "script": [
         {
           "talk": "bramOpen",
-          "after": "shop"
+          "after": "shop:bram"
         }
       ]
     },
@@ -651,7 +655,7 @@
       "script": [
         {
           "talk": "orenOpen",
-          "after": "orenShop"
+          "after": "shop:oren"
         }
       ]
     },
@@ -968,6 +972,60 @@
           "talk": "quarryDrillerSpot",
           "after": "wsoldier",
           "pending": "quarryDriller"
+        }
+      ]
+    },
+    {
+      "map": "gauntlet",
+      "mark": "1",
+      "id": "commanderFinal",
+      "role": "trainer",
+      "sprite": "npc/commander",
+      "talk": "commanderFinalSpotFather",
+      "talkDone": "commanderFinalWin",
+      "script": [
+        {
+          "if": "beatCommander",
+          "talk": "commanderFinalWin"
+        },
+        {
+          "if": "choseHeavenfall",
+          "talk": "commanderFinalSpotHeavenfall",
+          "after": "wsoldier",
+          "pending": "commanderFinal"
+        },
+        {
+          "talk": "commanderFinalSpotFather",
+          "after": "wsoldier",
+          "pending": "commanderFinal"
+        }
+      ]
+    },
+    {
+      "map": "marsh",
+      "mark": "F",
+      "id": "fenn",
+      "role": "shop",
+      "sprite": "npc/fenn",
+      "talk": "fennOpen",
+      "script": [
+        {
+          "talk": "fennOpen",
+          "after": "shop:fenn"
+        }
+      ]
+    },
+    {
+      "map": "camp",
+      "mark": "S",
+      "id": "dray",
+      "role": "shop",
+      "sprite": "npc/dray",
+      "talk": "drayOpen",
+      "script": [
+        {
+          "talk": "drayOpen",
+          "after": "shop:dray"
         }
       ]
     }

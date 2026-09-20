@@ -9,7 +9,20 @@
     "ruins": "THE RUINS",
     "reach": "THE REACH",
     "marsh": "THE MARSH",
-    "quarry": "THE QUARRY"
+    "quarry": "THE QUARRY",
+    "gauntlet": "THE GAUNTLET"
   },
-  "mapIds": ["house", "veld", "forest", "grove", "camp", "cliffs", "ruins", "reach", "marsh", "quarry"]
+  "mapIds": [
+    "house",
+    "veld",
+    "forest",
+    "grove",
+    "camp",
+    "cliffs",
+    "ruins",
+    "reach",
+    "marsh",
+    "quarry",
+    "gauntlet"
+  ]
 }

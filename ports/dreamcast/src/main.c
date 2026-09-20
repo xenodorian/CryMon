@@ -4090,6 +4090,7 @@ void main(void) {
     int beat_quarry_driller = 0;
     int beat_marsh_bog = 0, beat_marsh_reed = 0, badge_opal = 0;
     int chose_heavenfall = 0, beat_commander = 0;
+    int revived_father = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
     int talked_reach = 0;
@@ -4122,8 +4123,7 @@ void main(void) {
        and different dialogue) the moment they set foot on that map.
        mason2_map is rolled once, right when beat_calder flips to 1. */
     int mason2_map = -1;
-    /* -100..100, see Leg 2.7. Nothing reads/writes this yet beyond
-       save/load -- the father-revival/mercy-menu deltas land later. */
+    /* -100..100, see logic.json reputation. Clamped on every write. */
     int reputation = 0;
     int mason2_done = 0;
 
@@ -4205,6 +4205,7 @@ void main(void) {
         ft[FLAG_BEAT_MARSH_REED] = &beat_marsh_reed;
         ft[FLAG_BADGE_OPAL] = &badge_opal;
         ft[FLAG_CHOSE_HEAVENFALL] = &chose_heavenfall;
+        ft[FLAG_REVIVED_FATHER] = &revived_father;
         ft[FLAG_BEAT_COMMANDER] = &beat_commander;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
         ft[FLAG_CHEST_LOOTED] = &got_chest;
@@ -4365,6 +4366,8 @@ void main(void) {
                         battles = sl.battles;
                         mason2_map = sl.mason2_map == 0xff ? -1 : sl.mason2_map;
                         reputation = (int)sl.reputation - 100;
+                        if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
+                        if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
                         bag.salve = sl.bag[0]; bag.bandage = sl.bag[1];
                         bag.bitterroot = sl.bag[2]; bag.dust = sl.bag[3];
                         bag.gem = sl.bag[4]; bag.sunbalm = sl.bag[5];
@@ -4427,6 +4430,7 @@ void main(void) {
                         beat_marsh_reed = save_flag_get(&sl, SAVE_FLAG_BEAT_MARSH_REED);
                         badge_opal = save_flag_get(&sl, SAVE_FLAG_BADGE_OPAL);
                         chose_heavenfall = save_flag_get(&sl, SAVE_FLAG_CHOSE_HEAVENFALL);
+                        revived_father = save_flag_get(&sl, SAVE_FLAG_REVIVED_FATHER);
                         beat_commander = save_flag_get(&sl, SAVE_FLAG_BEAT_COMMANDER);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
@@ -4499,6 +4503,8 @@ void main(void) {
                 beat_quarry_driller = 0;
                 beat_marsh_bog = 0; beat_marsh_reed = 0; badge_opal = 0;
                 chose_heavenfall = 0; beat_commander = 0;
+                revived_father = 0;
+                reputation = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
@@ -4633,6 +4639,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_BEAT_MARSH_REED, beat_marsh_reed);
                     save_flag_put(&sl, SAVE_FLAG_BADGE_OPAL, badge_opal);
                     save_flag_put(&sl, SAVE_FLAG_CHOSE_HEAVENFALL, chose_heavenfall);
+                    save_flag_put(&sl, SAVE_FLAG_REVIVED_FATHER, revived_father);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_COMMANDER, beat_commander);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
@@ -5392,6 +5399,17 @@ void main(void) {
                 choice_mode = 0;
                 chose_heavenfall = choice_cur;
                 if(choice_cur == 0) {
+                    revived_father = 1;
+                    reputation += LOGIC_REP_FATHER_REVIVE;
+                    if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
+                    if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                    find_mark(MAP_HOUSE, 'P', &col, &row);
+                    map_id = MAP_HOUSE;
+                    px = col * TILE + TILE / 2;
+                    py = row * TILE + TILE / 2;
+                    pdir = 1; /* facing up, toward father */
+                    door_lock = 20;
+                    map_banner_timer = MAP_BANNER_TOTAL;
                     seq_lines = TALK_CHOICE_FATHER;
                     seq_len = TALK_LEN(TALK_CHOICE_FATHER);
                 }

@@ -220,6 +220,7 @@ export class CryMon {
 	badgeOpal = false;
 	beatQuarryDriller = false;
 	choseHeavenfall = false;
+	revivedFather = false;
 	beatCommander = false;
 	quarryCrateLooted = false;
 	quarryShelfSearched = false;
@@ -236,8 +237,7 @@ export class CryMon {
 	pendingWs = null;
 	choiceCur = 0;
 	shopKeep: string = "bram";
-	/** -100..100, see Leg 2.7. Nothing reads/writes this yet beyond
-	 *  save/load -- the father-revival/mercy-menu deltas land later. */
+	/** -100..100, see logic.json reputation. */
 	reputation = 0;
 	doorLock = 0;
 	hudFlash = "";
@@ -377,6 +377,7 @@ export class CryMon {
 		this.badgeOpal = false;
 		this.beatQuarryDriller = false;
 		this.choseHeavenfall = false;
+		this.revivedFather = false;
 		this.beatCommander = false;
 		this.quarryCrateLooted = false;
 		this.quarryShelfSearched = false;
@@ -393,6 +394,7 @@ export class CryMon {
 		this.pendingWs = null;
 		this.choiceCur = 0;
 		this.shopKeep = "bram";
+		this.reputation = 0;
 		this.rival = {
 			phase: "off",
 			x: 0,
@@ -467,6 +469,7 @@ export class CryMon {
 		this.battlesDone = snap.battlesDone;
 		this.mason2Map = snap.mason2Map;
 		this.reputation = snap.reputation ?? 0;
+		this.adjustReputation(0);
 		this.bag = { ...START_BAG, ...snap.bag };
 		this.dexSeen = snap.dexSeen >>> 0;
 		this.dexCaught = snap.dexCaught >>> 0;
@@ -760,6 +763,7 @@ export class CryMon {
 				badgeOpal: this.badgeOpal,
 				beatQuarryDriller: this.beatQuarryDriller,
 				choseHeavenfall: this.choseHeavenfall,
+				revivedFather: this.revivedFather,
 				beatCommander: this.beatCommander,
 			quarryCrateLooted: this.quarryCrateLooted,
 			quarryShelfSearched: this.quarryShelfSearched,
@@ -1804,6 +1808,7 @@ export class CryMon {
 				badgeOpal: this.badgeOpal,
 				beatQuarryDriller: this.beatQuarryDriller,
 				choseHeavenfall: this.choseHeavenfall,
+				revivedFather: this.revivedFather,
 				beatCommander: this.beatCommander,
 		};
 	}
@@ -2968,9 +2973,20 @@ export class CryMon {
 			this.audio.ok();
 			this.mode = "world";
 			this.choseHeavenfall = this.choiceCur === 1;
-			if (this.choiceCur === 0) this.say(TALK.choiceFather, "ending");
-			else this.say(TALK.choiceHeavenfall, "ending");
+			if (this.choiceCur === 0) {
+				this.revivedFather = true;
+				this.adjustReputation(LOGIC.reputation?.fatherRevive ?? 25);
+				this.warpTo("house", "P", "up");
+				this.say(TALK.choiceFather, "ending");
+			} else {
+				this.say(TALK.choiceHeavenfall, "ending");
+			}
 		}
+	}
+	adjustReputation(delta) {
+		const min = LOGIC.reputation?.min ?? -100;
+		const max = LOGIC.reputation?.max ?? 100;
+		this.reputation = Math.max(min, Math.min(max, this.reputation + delta));
 	}
 	draw() {
 		const ctx = this.ctx;

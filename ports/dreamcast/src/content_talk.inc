@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=30b2bbf29949e4d2 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=085efd26b6eb7477 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -15,6 +15,16 @@ static const TalkBeat TALK_FATHER[] = {
 static const TalkBeat TALK_FATHER_AFTER[] = {
     { "I ALREADY TOOK QUILLPUP. SLEEP. I'LL DO THE FIGHTING.", 1 },
     { "HIS BREATH IS THIN. HE DOES NOT ANSWER.", 22 },
+};
+static const TalkBeat TALK_FATHER_THANKS[] = {
+    { "MAX. I WAS ALREADY GONE. YOU PULLED ME BACK ANYWAY.", 22 },
+    { "I STILL NEED YOU.", 1 },
+    { "THEN YOU HAVE ME. THANK YOU FOR MY LIFE.", 22 },
+};
+static const TalkBeat TALK_FATHER_ALIVE[] = {
+    { "I'M STILL HERE. BECAUSE OF YOU.", 22 },
+    { "STAY HERE. I'LL COME BACK WHEN THIS IS DONE.", 1 },
+    { "I WILL. GO.", 22 },
 };
 static const TalkBeat TALK_BED[] = {
     { "JUST UNTIL THEY BREATHE AGAIN.", 1 },
@@ -330,6 +340,9 @@ static const TalkBeat TALK_CHOICE_FATHER[] = {
     { "MAX UNROLLS THE SCROLL OVER HER FATHER'S STILL CHEST.", 0 },
     { "HIS EYES OPEN. HE DOESN'T UNDERSTAND YET. NEITHER DOES SHE, NOT REALLY.", 22 },
     { "WHATEVER HAPPENS NOW, WE FACE IT TOGETHER.", 1 },
+    { "MAX. I WAS ALREADY GONE. YOU PULLED ME BACK ANYWAY.", 22 },
+    { "I STILL NEED YOU.", 1 },
+    { "THEN YOU HAVE ME. THANK YOU FOR MY LIFE.", 22 },
 };
 static const TalkBeat TALK_CHOICE_HEAVENFALL[] = {
     { "MAX UNROLLS THE SCROLL OVER GROUND NO ONE HAS DUG IN A THOUSAND YEARS.", 0 },
@@ -508,6 +521,8 @@ static const char *const DEMO_END_HEAVENFALL[] = {
 static const TalkBeat *const TALK_PTRS[] = {
     TALK_FATHER,
     TALK_FATHER_AFTER,
+    TALK_FATHER_THANKS,
+    TALK_FATHER_ALIVE,
     TALK_BED,
     TALK_SHELF,
     TALK_SHELF_EMPTY,
@@ -626,6 +641,8 @@ static const TalkBeat *const TALK_PTRS[] = {
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
     TALK_LEN(TALK_FATHER_AFTER),
+    TALK_LEN(TALK_FATHER_THANKS),
+    TALK_LEN(TALK_FATHER_ALIVE),
     TALK_LEN(TALK_BED),
     TALK_LEN(TALK_SHELF),
     TALK_LEN(TALK_SHELF_EMPTY),
@@ -741,5 +758,5 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FENN_OPEN),
     TALK_LEN(TALK_DRAY_OPEN),
 };
-#define TALK_TABLE_N 116
+#define TALK_TABLE_N 118
 

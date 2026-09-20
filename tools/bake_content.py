@@ -59,6 +59,8 @@ SPEAKER = {
 TALK_C = {
     "father": "TALK_FATHER",
     "fatherAfter": "TALK_FATHER_AFTER",
+    "fatherThanks": "TALK_FATHER_THANKS",
+    "fatherAlive": "TALK_FATHER_ALIVE",
     "bed": "TALK_BED",
     "shelf": "TALK_SHELF",
     "shelfEmpty": "TALK_SHELF_EMPTY",
@@ -447,6 +449,10 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define LOGIC_FADE_OUT_FRAMES {max(1, int(round(fade['outSec'] * 60)))}")
     lines.append(f"#define LOGIC_FADE_HOLD_FRAMES {max(1, int(round(fade['holdSec'] * 60)))}")
     lines.append(f"#define LOGIC_FADE_IN_FRAMES {max(1, int(round(fade['inSec'] * 60)))}")
+    rep = logic.get("reputation") or {}
+    lines.append(f"#define LOGIC_REP_MIN {int(rep.get('min', -100))}")
+    lines.append(f"#define LOGIC_REP_MAX {int(rep.get('max', 100))}")
+    lines.append(f"#define LOGIC_REP_FATHER_REVIVE {int(rep.get('fatherRevive', 25))}")
     lines.append(f"#define LOGIC_MASON_AMBUSH_NEED_PARTY {1 if ambush.get('needParty') else 0}")
     lines.append(f"#define LOGIC_MASON_AMBUSH_UNLESS_BEAT {1 if ambush.get('unless') == 'foughtMason' else 0}")
     maps = ", ".join(map_sym(m) for m in rematch["maps"])

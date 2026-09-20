@@ -170,14 +170,14 @@ a coding task for me.)
 **Current position:** 2.1, 2.3, 2.5, 2.6, and 2.2 (audio bug found +
 fixed, see above, not hardware-verified) DONE and pushed. 2.9.1
 (dismissal dialogue pool) and 2.7 sub-step 1 (bare `reputation` save
-field) also DONE and pushed. Next (Claude B, picking up the reputation
-thread specifically): 2.7 sub-step 2 (father-revival dialogue +
-teleport-back + reputation +25), then the remaining 2.9 sub-steps
-(post-battle mercy/threaten/execute menu + effects), then 2.10
-(reputation's economic effects), then 2.8 (Heavenfall-revival
-reputation effect, likely blocked on the not-yet-redesigned gauntlet).
-2.7 sub-steps 3+ (second controllable party), 2.4 (gauntlet redesign),
-and Leg 3 are explicitly out of scope for this run.
+field) also DONE and pushed. **2.7 sub-step 2 (father-revival
+dialogue + teleport-back + reputation +25) DONE (Grok A), pushed.**
+Next: 2.7 sub-step 5 ("Max The Kind" display-name override) is a
+small follow-on to this revival branch; then 2.10 (reputation's
+economic effects). Remaining 2.9 sub-steps (post-battle
+mercy/threaten/execute menu) still open. 2.7 sub-steps 3+ (second
+controllable party), 2.4 (gauntlet redesign), 2.8 (blocked on 2.4),
+and Leg 3 stay out of scope until assigned.
 
 ---
 
@@ -551,9 +551,25 @@ party is a real systems feature, not a flag.** Sub-steps:
    build/typecheck/check_sync only, **not hardware-verified**.
    Sub-steps 2+ below (father-revival dialogue, second party, mercy
    menu wiring) are still open and unblocked by this landing.
-2. The father-revival dialogue + teleport-back + reputation +25, using
-   the existing `choiceFather` hook as the trigger point. No second
-   party yet in this step — just the narrative/flag piece.
+2. **DONE (Grok A), pushed.** The father-revival dialogue + teleport-back
+   + reputation +25, using the existing `choiceFather` hook. Picking
+   "Resurrect Father" now: sets new save flag `revivedFather` (appended
+   at index 50, no version bump), clamps `reputation += 25` via
+   `logic.json`'s new `reputation` block (`min`/`max`/`fatherRevive`),
+   warps the player to house spawn `P` facing up (father's bedside),
+   and plays the extended `choiceFather` scene (original 3 revival
+   beats plus 3 thanks beats). After the talk, the existing `"ending"`
+   afterTalk still warps onto the gauntlet so Commander/credits keep
+   working until 2.4 replaces that warp. Subsequent talks with the
+   house father NPC use new `fatherAlive` (first-match, gated on
+   `revivedFather`) instead of the sleeping `fatherAfter` line. Also
+   fixed 2.7.1's New Game leak: `reset()` / DC new-game now zero
+   `reputation`. Also caught `world_parts/{npcs,trainers,map_meta}.json`
+   up to live `world.json` (parts had been missing Fenn/Dray/
+   commanderFinal/gauntlet — merge was unsafe) and surgically patched
+   the father script in `world.json` itself (did **not** run
+   `merge_world.py`, which would have rewritten the whole file).
+   Verified via bake/check_sync/typecheck; **not hardware-verified**.
 3. Design the second-party data model: is it a fully independent
    6-slot party array (`party2`?) with its own save layout, or some
    other shape? This needs a decision before writing code — the

@@ -7,6 +7,12 @@
       "default": ["greatcrystal", "megacrystal", "ultimatecrystal"]
     }
   },
+  "reputation": {
+    "comment": "Live range is signed. Save byte 17 stores value+100. Both engines clamp on every write.",
+    "min": -100,
+    "max": 100,
+    "fatherRevive": 25
+  },
   "screenFade": {
     "outSec": 0.267,
     "holdSec": 0.05,

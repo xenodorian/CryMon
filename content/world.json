@@ -732,8 +732,12 @@
       "id": "father",
       "role": "talk",
       "talk": "father",
-      "talkDone": "fatherAfter",
+      "talkDone": "fatherAlive",
       "script": [
+        {
+          "if": "revivedFather",
+          "talk": "fatherAlive"
+        },
         {
           "if": "tookStarter",
           "talk": "fatherAfter"
