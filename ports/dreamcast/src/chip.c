@@ -160,8 +160,22 @@ static void aica_ch_vol_pitch(int ch, int hz, int vol) {
     g2_w32(base + 0x24, (atten << 8) | 0x80);
 }
 
-static void aica_keyex(void) {
-    g2_w32(0xa0702800u, 1);
+/* There is no separate "key-on execute" register on AICA -- KYONEX
+ * (bit 15) lives inside each channel's own control register (offset
+ * +0x00), which aica_ch_setup() already sets together with KYONB
+ * (bit 14) in its final write below. This function used to write to
+ * 0xa0702800 believing that was a global key-execute strobe; per the
+ * official AICA register map (Yamaha AICA Sound-block User's Manual,
+ * "Common data" table), 0xa0702800 is actually the MONO/MVOL/DAC18B/
+ * MEM8MB/VER register -- MVOL is the master volume, occupying bits
+ * [3:0]. Writing plain `1` there set the master volume to 1 out of a
+ * max of 15 (and zeroed everything else in that register) every time
+ * chip_init() ran, which would produce audio so quiet it's
+ * effectively silent regardless of how correctly every channel is
+ * configured. Repurposed to what this address should actually be
+ * used for: setting master volume to its maximum once at startup. */
+static void aica_set_master_vol(void) {
+    g2_w32(0xa0702800u, 0x0f);
 }
 
 typedef struct {
@@ -262,7 +276,7 @@ void chip_init(void) {
     /* sfx overlay voices 4-5 */
     aica_ch_setup(4, ADDR_PULSE + 2 * WAVE_LEN * 2, WAVE_LEN);
     aica_ch_setup(5, ADDR_NOISE, NOISE_LEN);
-    aica_keyex();
+    aica_set_master_vol();
     play_reset(&music, 0);
     play_reset(&sfx, 0);
     cur_song = -1;

@@ -167,19 +167,17 @@ it's updated after every commit this run.
 (2.0 art debt isn't on this list — it's assigned to ChatGPT/Grok, not
 a coding task for me.)
 
-**Current position:** 2.1, 2.3, 2.5, and 2.6 DONE and pushed, both
-engines, verified by build/typecheck/check_sync only (**no Dreamcast
-emulator in this sandbox for any of them** — see each section's own
-caveat before assuming a "feels wrong" report means the fix itself is
-wrong rather than unverified). 2.9.1 (dismissal dialogue pool) and 2.7
-sub-step 1 (bare `reputation` save field, both engines reading/writing
-it as 0, nothing else wired to it yet) also DONE and pushed. Next:
-2.7 sub-step 2 (father-revival dialogue + teleport-back + reputation
-+25 via the existing `choiceFather` hook — no second party yet) is the
-smallest remaining piece of 2.7; after that everything left is a big
-item (2.7 sub-steps 3+, 2.9 sub-steps 2-6, 2.4, 2.10, 2.8, 2.2) — pick
-per the execution order above and keep breaking into documented
-sub-steps, committing between each, per this run's own instructions.
+**Current position:** 2.1, 2.3, 2.5, 2.6, and 2.2 (audio bug found +
+fixed, see above, not hardware-verified) DONE and pushed. 2.9.1
+(dismissal dialogue pool) and 2.7 sub-step 1 (bare `reputation` save
+field) also DONE and pushed. Next (Claude B, picking up the reputation
+thread specifically): 2.7 sub-step 2 (father-revival dialogue +
+teleport-back + reputation +25), then the remaining 2.9 sub-steps
+(post-battle mercy/threaten/execute menu + effects), then 2.10
+(reputation's economic effects), then 2.8 (Heavenfall-revival
+reputation effect, likely blocked on the not-yet-redesigned gauntlet).
+2.7 sub-steps 3+ (second controllable party), 2.4 (gauntlet redesign),
+and Leg 3 are explicitly out of scope for this run.
 
 ---
 
@@ -231,32 +229,56 @@ screen. If it still feels off after this, check whether
 at 50Hz and would need the constant `60` above adjusted to whatever
 the real vblank rate is) before assuming the accumulator math is wrong.
 
-### 2.2 — Dreamcast has no audio (web does) — investigation notes, not fixed
+### 2.2 — Dreamcast has no audio (web does) — likely root cause found + fixed (Claude B)
 
-Deliberately scheduled last (see execution order above): `chip.c` is a
-**raw AICA register-poke implementation** (writes directly to
-`0xa0700000`+ channel registers over the G2 bus, no KOS/libronin sound
-API), which is inherently easy to get subtly wrong in ways that only
-show up as silence, and I have **no Dreamcast emulator in this sandbox**
-to verify any fix actually produces sound. Confirmed already (per the
-user): `chip.c` is genuinely in the build (`OBJS`, explicit Makefile
-rule, compiles clean every time this session).
+**Found and fixed a real bug**, verified against the official AICA
+register map (Yamaha "AICA Sound-block User's Manual", via
+Kochise/dreamcast-docs on GitHub — channel/common register tables),
+cross-checked against Linux's `sound/sh/aica.h` (`ARM_RESET_REGISTER
+0xA0702C00` matches `chip.c` exactly, confirming the address-mapping
+derivation used below is correct):
 
-**What to check, if you pick this up with a way to actually test it:**
-- `aica_ch_setup()`/`aica_ch_wave()`/`aica_ch_vol_pitch()`/`aica_keyex()`
-  in `chip.c` — verify the key-on/key-off bit and register offsets
-  against AICA docs; a single wrong bit here silently produces no
-  sound with no error.
-- `G2_FIFO` busy-wait (`g2_w32`, ~line 28) — if G2 bus writes are
-  issued before the FIFO is actually ready, they can silently drop.
-- Whether `chip_init()` is actually called before the first
-  `chip_set_song`/`chip_sfx_*` call in `main()`'s startup sequence.
-- Compare against `src/game/audio.ts` (the reference this mirrors) for
-  anything AICA-equivalent that's missing entirely, not just wrong.
-- Rule out the emulator first if possible: does the *exact same* CDI
-  play audio in a different Dreamcast emulator, or on real hardware?
-  If not even the emulator's own BIOS/menu sounds play, it's likely an
-  emulator config issue, not this codebase.
+- `chip.c` had a function `aica_keyex()` called once in `chip_init()`,
+  writing `1` to `0xa0702800`, under the belief that AICA has a global
+  "key-on execute" register that needs a separate strobe after
+  configuring channels.
+- **That register doesn't exist.** KYONEX (the actual key-on-execute
+  bit) is bit 15 of each channel's *own* control register (offset
+  +0x00), and `aica_ch_setup()` already sets it correctly, together
+  with KYONB, in its own final write (`0x4000 | 0x8000`) — so every
+  channel already keys itself on correctly without any extra step.
+- `0xa0702800` (per the official register map's "Common data" table)
+  is actually the **MONO/MVOL/DAC18B/MEM8MB/VER register** — MVOL
+  (master volume) occupies bits [3:0]. Writing plain `1` there set
+  **master volume to 1 out of a max of 15**, and zeroed every other
+  field in that register, on every single `chip_init()` call. That's
+  audio quiet enough to be effectively silent regardless of how
+  correctly every channel is configured — a very plausible match for
+  "no audio at all."
+- **Fix:** renamed the function to `aica_set_master_vol()`, dropped
+  the incorrect key-execute write, made it set MVOL to its max (`0xf`)
+  once at startup instead. Full clean rebuild (`make -C
+  ports/dreamcast`) succeeds, no new warnings; `check_sync --strict`
+  unaffected (still only the standing art-debt FAIL).
+
+**Still not hardware-verified** — no Dreamcast emulator or real
+hardware available in this sandbox either. This is a code-level fix
+backed by the official register spec, not a "confirmed fixed by
+listening to it" claim. If it's picked up by someone who can actually
+test:
+- If still silent: check whether the emulator being used even
+  emulates direct AICA register writes without an ARM7 driver binary
+  present (some emulators expect games to load ARM code into sound
+  RAM rather than have the SH4 poke channel registers directly) —
+  rule the emulator out by trying a different one or real hardware
+  before assuming there's a second code bug.
+- If still silent on real hardware too: double-check `G2_FIFO` busy-
+  wait timing (`g2_w32`, ~line 28) isn't returning too early and
+  dropping later writes, and re-verify the channel offset table above
+  bit-for-bit against the linked spec doc directly (I worked from the
+  register map table, not a full page-by-page reading of the whole
+  100+-page spec).
+
 
 **Do not mark this "fixed" from a code read alone** — the failure mode
 here is exactly "compiles fine, silently produces no sound," which
