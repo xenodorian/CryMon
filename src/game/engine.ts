@@ -76,8 +76,9 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | "shop" | "orenShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal";
+type TalkAfter = null | `shop:${string}` | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal";
 
+const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL" };
 const STEP = 1 / 60;
 function loadImg(src, ms = 8000) {
 	return new Promise((res, rej) => {
@@ -234,7 +235,7 @@ export class CryMon {
 	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" };
 	pendingWs = null;
 	choiceCur = 0;
-	shopKeep = "bram";
+	shopKeep: string = "bram";
 	doorLock = 0;
 	hudFlash = "";
 	hudT = 0;
@@ -856,8 +857,7 @@ export class CryMon {
 			this.talkI = 0;
 			const next = this.afterTalk;
 			this.afterTalk = null;
-			if (next === "shop") this.openShop("bram");
-			else if (next === "orenShop") this.openShop("oren");
+			if (next && next.startsWith("shop:")) this.openShop(next.slice("shop:".length));
 			else if (next === "mason") {
 				const kit = TRAINERS.mason;
 				this.foughtMason = true;
@@ -1014,7 +1014,16 @@ export class CryMon {
 		this.actCursor = 0;
 		this.audio.ui();
 	}
-	openShop(keep = "bram") {
+	shopBuyRows() {
+		const stock = LOGIC.shops?.crystalStock ?? {};
+		const allowed: string[] = stock[this.shopKeep] ?? stock.default ?? [];
+		return ITEM_ORDER.filter((id) => {
+			if (ITEMS[id].buy <= 0) return false;
+			if (ITEMS[id].effect?.kind === "capture") return allowed.includes(id);
+			return true;
+		});
+	}
+	openShop(keep: string = "bram") {
 		this.mode = "shop";
 		this.shopKeep = keep;
 		this.shopTab = "buy";
@@ -1474,7 +1483,7 @@ export class CryMon {
 			this.shopCursor = 0;
 			this.audio.ui();
 		}
-		const rows = this.shopTab === "buy" ? ITEM_ORDER.filter((id) => ITEMS[id].buy > 0) : this.ownedItems().filter((id) => ITEMS[id].sell > 0);
+		const rows = this.shopTab === "buy" ? this.shopBuyRows() : this.ownedItems().filter((id) => ITEMS[id].sell > 0);
 		if (rows.length === 0) return;
 		if (this.input.up()) {
 			this.shopCursor = (this.shopCursor + rows.length - 1) % rows.length;
@@ -3701,10 +3710,10 @@ export class CryMon {
 		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 		this.box(X(10), Y(8), X(220), Y(144));
-		this.text(this.shopKeep === "oren" ? "OREN'S STALL" : "BRAM'S STALL", X(18), Y(14), "#c5cec6", FONT);
+		this.text(SHOP_NAMES[this.shopKeep] ?? "TRADER'S STALL", X(18), Y(14), "#c5cec6", FONT);
 		this.text(`Marks ${this.marks}`, X(150), Y(14), "#8f4a40", FONT);
 		this.text(this.shopTab === "buy" ? ">BUY   sell" : " buy   >SELL", X(18), Y(28), "#e8e4d8", FONT);
-		const rows = this.shopTab === "buy" ? ITEM_ORDER.filter((id) => ITEMS[id].buy > 0) : this.ownedItems().filter((id) => ITEMS[id].sell > 0);
+		const rows = this.shopTab === "buy" ? this.shopBuyRows() : this.ownedItems().filter((id) => ITEMS[id].sell > 0);
 		if (rows.length === 0) this.text("Nothing to sell.", X(18), Y(48), "#8a8678", FONT);
 		else {
 			const shown = 6;

@@ -1,5 +1,12 @@
 {
   "source": "Shared rules both engines interpret. Extend this file instead of forking engine.ts or main.c.",
+  "shops": {
+    "comment": "Which capture-crystal tiers each shopkeeper id sells (non-crystal items are unaffected by this list, every shop still sells the general goods). 'default' covers any shopkeeper id not listed by name, so new merchants restock the higher tiers automatically. perfectcrystal is never sold anywhere.",
+    "crystalStock": {
+      "bram": ["gem"],
+      "default": ["greatcrystal", "megacrystal", "ultimatecrystal"]
+    }
+  },
   "screenFade": {
     "outSec": 0.267,
     "holdSec": 0.05,

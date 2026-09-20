@@ -51,6 +51,8 @@ SPEAKER = {
     "reedguard": 30,
     "opal": 31,
     "driller": 32,
+    "fenn": 33,
+    "dray": 34,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -730,6 +732,30 @@ def bake_world(data: dict, out: Path) -> None:
         lines.append(f"    {{ {kind}, {amount}, {st}, {ag}, {sc}, {base} }},")
     lines.append("};")
     lines.append("")
+    # Leg 2.6: which capture-crystal tiers each shopkeeper sells, as a
+    # bitmask over item indices (bit i set means ITEMS[i] is in stock).
+    # SHOP_CRYSTAL_MASK is indexed by SHOP_IDS (see bake_npc_scripts,
+    # which stashes that same index in each shop NpcStep's `pending`).
+    item_i = {iid: i for i, iid in enumerate(order)}
+    shops_cfg = (data["logic"].get("shops") or {}).get("crystalStock") or {}
+    default_stock = shops_cfg.get("default") or []
+
+    def _stock_mask(ids):
+        mask = 0
+        for iid in ids:
+            if iid not in item_i:
+                raise SystemExit(f"logic.json shops.crystalStock has unknown item {iid!r}")
+            mask |= 1 << item_i[iid]
+        return mask
+
+    lines.append(f"#define SHOP_CRYSTAL_DEFAULT_MASK {_stock_mask(default_stock)}")
+    lines.append("static const int SHOP_CRYSTAL_MASK[] = {")
+    for name, idx in sorted(SHOP_IDS.items(), key=lambda kv: kv[1]):
+        stock = shops_cfg.get(name, default_stock)
+        lines.append(f"    {_stock_mask(stock)}, /* {idx}: {name} */")
+    lines.append("};")
+    lines.append(f"#define SHOP_CRYSTAL_MASK_N {len(SHOP_IDS)}")
+    lines.append("")
     bake_npc_scripts(data, items, lines)
     out.write_text("\n".join(lines) + "\n")
 
@@ -770,11 +796,20 @@ FLAG_INDEX = {name: i for i, name in enumerate(FLAG_IDS)}
 AFTER_IDS = {
     "bedHeal": 1,
     "shop": 2,
-    "orenShop": 3,
     "calder": 4,
     "cathleen": 5,
     "shinigami": 6,
     "wsoldier": 7,
+}
+# Shopkeeper ids referenced by world.json's "after": "shop:<id>" -- reuses
+# the NpcStep.pending slot the same way NPC_AFTER_WSOLDIER reuses it for
+# trainer identity, just under a different `after` code so the two
+# namespaces never collide.
+SHOP_IDS = {
+    "bram": 0,
+    "oren": 1,
+    "fenn": 2,
+    "dray": 3,
 }
 PENDING_IDS = {
     "cross": 0,
@@ -810,6 +845,22 @@ def talk_id(key) -> int:
     return TALK_KEYS_ORDER.index(key)
 
 
+def _after_and_pending(after_raw, pending_raw) -> dict:
+    after_raw = after_raw or ""
+    if after_raw.startswith("shop:"):
+        shop_name = after_raw[len("shop:"):]
+        if shop_name not in SHOP_IDS:
+            raise SystemExit(
+                f"unknown shop id {shop_name!r} in 'after' -- add it to "
+                f"tools/bake_content.py's SHOP_IDS"
+            )
+        return {"after": AFTER_IDS["shop"], "pending": SHOP_IDS[shop_name]}
+    return {
+        "after": AFTER_IDS.get(after_raw, 0),
+        "pending": PENDING_IDS.get(pending_raw or "", -1),
+    }
+
+
 def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     world = data["world"]
     order = items["order"]
@@ -823,7 +874,6 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("#define NPC_AFTER_NONE 0")
     lines.append("#define NPC_AFTER_BED_HEAL 1")
     lines.append("#define NPC_AFTER_SHOP 2")
-    lines.append("#define NPC_AFTER_OREN_SHOP 3")
     lines.append("#define NPC_AFTER_CALDER 4")
     lines.append("#define NPC_AFTER_CATHLEEN 5")
     lines.append("#define NPC_AFTER_SHINIGAMI 6")
@@ -903,8 +953,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
                     "talk": talk_id(st.get("talk")),
                     "talk_if": flag_id(st.get("talkIf")),
                     "talk_else": talk_id(st.get("talkElse")),
-                    "after": AFTER_IDS.get(st.get("after") or "", 0),
-                    "pending": PENDING_IDS.get(st.get("pending") or "", -1),
+                    **_after_and_pending(st.get("after"), st.get("pending")),
                     "heal": 1 if st.get("heal") else 0,
                     "marks": int(st.get("marks") or 0),
                     "take_item": item_i[st["takeItem"]] if st.get("takeItem") else -1,

@@ -979,7 +979,7 @@
       "script": [
         {
           "talk": "bramOpen",
-          "after": "shop"
+          "after": "shop:bram"
         }
       ]
     },
@@ -1371,7 +1371,7 @@
       "script": [
         {
           "talk": "orenOpen",
-          "after": "orenShop"
+          "after": "shop:oren"
         }
       ]
     },
@@ -1714,6 +1714,34 @@
           "talk": "commanderFinalSpotFather",
           "after": "wsoldier",
           "pending": "commanderFinal"
+        }
+      ]
+    },
+    {
+      "map": "marsh",
+      "mark": "F",
+      "id": "fenn",
+      "role": "shop",
+      "sprite": "npc/fenn",
+      "talk": "fennOpen",
+      "script": [
+        {
+          "talk": "fennOpen",
+          "after": "shop:fenn"
+        }
+      ]
+    },
+    {
+      "map": "camp",
+      "mark": "S",
+      "id": "dray",
+      "role": "shop",
+      "sprite": "npc/dray",
+      "talk": "drayOpen",
+      "script": [
+        {
+          "talk": "drayOpen",
+          "after": "shop:dray"
         }
       ]
     }

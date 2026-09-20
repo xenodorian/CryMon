@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=79d1877c0f742658 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=93e763b859fd5735 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -129,6 +129,15 @@ static const ItemFx ITEM_FX[] = {
     { 4, 0, 0, 0, 0, 1000 },
 };
 
+#define SHOP_CRYSTAL_DEFAULT_MASK 3328
+static const int SHOP_CRYSTAL_MASK[] = {
+    16, /* 0: bram */
+    3328, /* 1: oren */
+    3328, /* 2: fenn */
+    3328, /* 3: dray */
+};
+#define SHOP_CRYSTAL_MASK_N 4
+
 /* NPC first-match scripts from content/world.json. */
 #define FLAG_TOOK_STARTER 0
 #define FLAG_TALKED_FATHER 1
@@ -186,7 +195,6 @@ static const ItemFx ITEM_FX[] = {
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
-#define NPC_AFTER_OREN_SHOP 3
 #define NPC_AFTER_CALDER 4
 #define NPC_AFTER_CATHLEEN 5
 #define NPC_AFTER_SHINIGAMI 6
@@ -243,7 +251,7 @@ static const NpcStep NPC_STEPS[] = {
     { -1, 13, -1, 13, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 28, -1, -1, 0, -1, 0, 0, -1 },
     { 12, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 30, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 31, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 53, -1, -1, 2, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 53, -1, -1, 2, 0, 0, 0, -1 },
     { 4, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 40, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 41, -1, -1, 4, -1, 0, 0, -1 },
     { -1, 14, -1, 14, { 2,-1,-1 }, { 1,0,0 }, 1, -1, 0, 32, -1, -1, 0, -1, 0, 0, -1 },
@@ -277,7 +285,7 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, 26, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
     { 27, -1, -1, 26, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 11, -1, -1, 0, -1, 0, 0, 9 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 10, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 62, -1, -1, 3, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 62, -1, -1, 2, 1, 0, 0, -1 },
     { -1, 24, -1, 24, { 5,-1,-1 }, { 1,0,0 }, 1, -1, 0, 65, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 66, -1, -1, 0, -1, 0, 0, -1 },
     { -1, 25, -1, 25, { 6,-1,-1 }, { 1,0,0 }, 1, -1, 0, 67, -1, -1, 0, -1, 0, 0, -1 },
@@ -309,6 +317,8 @@ static const NpcStep NPC_STEPS[] = {
     { 51, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 113, -1, -1, 0, -1, 0, 0, -1 },
     { 50, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 112, -1, -1, 7, 13, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 111, -1, -1, 7, 13, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 114, -1, -1, 2, 2, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 115, -1, -1, 2, 3, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 2, 30, 32 },
@@ -352,7 +362,9 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_REACH, 'O', 81, 2, 30, 32 },
     { MAP_QUARRY, '1', 83, 2, 30, 32 },
     { MAP_GAUNTLET, '1', 85, 3, 30, 32 },
+    { MAP_MARSH, 'F', 88, 1, 30, 32 },
+    { MAP_CAMP, 'S', 89, 1, 30, 32 },
 };
-#define NPC_DEF_N 41
+#define NPC_DEF_N 43
 #define INTERACT_BUFFER 10
 

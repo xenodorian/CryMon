@@ -33,7 +33,9 @@
     "reedguard",
     "quartz",
     "opal",
-    "driller"
+    "driller",
+    "fenn",
+    "dray"
   ],
   "monsters": [
     "quillpup",
@@ -110,7 +112,9 @@
     "keeper",
     "warden",
     "bogwalker",
-    "reedguard"
+    "reedguard",
+    "fenn",
+    "dray"
   ],
   "items": [
     "salve",

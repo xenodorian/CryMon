@@ -3786,12 +3786,20 @@ static int actor_blocks(int map_id, int cx, int cy,
    draw_shop() to stay in lockstep, same pattern as the battle item
    menu above. */
 #define SHOP_ROWS_SHOWN 9
-static int shop_rows(const Bag *bag, int sell_tab, int rows[ITEM_COUNT]) {
+/* Leg 2.6: capture crystals are the only items a shopkeeper's stock
+   restricts (see SHOP_CRYSTAL_MASK) -- every other purchasable item is
+   sold everywhere, same as before. Selling isn't restricted either,
+   matching the web engine. */
+static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int rows[ITEM_COUNT]) {
     int n = 0, i;
+    int mask = (shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N)
+        ? SHOP_CRYSTAL_MASK[shop_keep_id] : SHOP_CRYSTAL_DEFAULT_MASK;
     for(i = 0; i < ITEM_COUNT; i++) {
         int owned = *bag_field((Bag *)bag, i);
         if(!sell_tab) {
-            if(ITEMS[i].buy > 0) rows[n++] = i;
+            if(ITEMS[i].buy <= 0) continue;
+            if(ITEM_FX[i].kind == 4 && !((mask >> i) & 1)) continue;
+            rows[n++] = i;
         } else if(owned > 0 && ITEMS[i].sell > 0) {
             rows[n++] = i;
         }
@@ -3799,14 +3807,20 @@ static int shop_rows(const Bag *bag, int sell_tab, int rows[ITEM_COUNT]) {
     return n;
 }
 
-static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur) {
+static const char *const SHOP_TITLES[SHOP_CRYSTAL_MASK_N] = {
+    "BRAMS STALL", "ORENS STALL", "FENNS STALL", "DRAYS STALL",
+};
+
+static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop_keep_id) {
     int rows[ITEM_COUNT];
-    int n = shop_rows(bag, sell_tab, rows);
+    int n = shop_rows(bag, sell_tab, shop_keep_id, rows);
     int y = MENU_Y + 40;
     int i;
     char buf[16];
+    const char *title = (shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N)
+        ? SHOP_TITLES[shop_keep_id] : "TRADERS STALL";
 
-    draw_menu_frame("BRAMS STALL", "B CLOSE");
+    draw_menu_frame(title, "B CLOSE");
 
     draw_text_s(sell_tab ? "BUY  >SELL" : ">BUY  SELL", MENU_X + 8, MENU_Y + 24,
                 rgb565(197, 206, 198), MENU_SCALE);
@@ -4057,8 +4071,9 @@ void main(void) {
 #define POST_WSOLDIER_MARSH_REED 26
 #define POST_WSOLDIER_COMMANDER_FINAL 27
 #define POST_CREDITS_FINAL 28
-/* Oren's stall reuses POST_SHOP directly -- same draw_shop()/ITEMS
-   table Bram's does, no separate post_action needed. */
+/* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
+   from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
+   title and crystal-tier stock, no separate post_action per merchant. */
 
     /* World NPC/pickup flags, matching state.lua's G.talkedWren etc.
        (see the world-NPC section comment above for what's ported vs
@@ -4129,7 +4144,7 @@ void main(void) {
     int soldiers_init = 0;
 
     /* Shop (Bram) and ending screens. */
-    int shop_open = 0, shop_sell_tab = 0, shop_cur = 0;
+    int shop_open = 0, shop_sell_tab = 0, shop_cur = 0, shop_keep_id = 0;
     int ending_mode = 0; /* 0 none, 1 showing DEMO_END (the single ending) */
     int ending_i = 0;
 
@@ -5317,7 +5332,7 @@ void main(void) {
                close (B stands in for select here, same as the bag/
                party menus). */
             int rows[ITEM_COUNT];
-            int n_rows = shop_rows(&bag, shop_sell_tab, rows);
+            int n_rows = shop_rows(&bag, shop_sell_tab, shop_keep_id, rows);
 
             if((b_now && !prev_b) || (start_now && !prev_start)) {
                 shop_open = 0;
@@ -6242,7 +6257,7 @@ void main(void) {
                                 post_action = POST_BED_HEAL;
                                 break;
                             case NPC_AFTER_SHOP:
-                            case NPC_AFTER_OREN_SHOP:
+                                shop_keep_id = npc_pending;
                                 post_action = POST_SHOP;
                                 break;
                             case NPC_AFTER_CALDER:
@@ -6370,7 +6385,7 @@ void main(void) {
                             battle_foe_enter_t, battle_foe_faint_t,
                             battle_pl_enter_t, battle_pl_faint_t);
             if(shop_open)
-                draw_shop(&bag, marks, shop_sell_tab, shop_cur);
+                draw_shop(&bag, marks, shop_sell_tab, shop_cur, shop_keep_id);
             if(choice_mode)
                 draw_choice(choice_cur);
         }

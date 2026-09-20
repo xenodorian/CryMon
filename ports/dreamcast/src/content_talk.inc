@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=79d1877c0f742658 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=93e763b859fd5735 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -481,6 +481,14 @@ static const TalkBeat TALK_COMMANDER_FINAL_WIN[] = {
     { "THIS ISN'T FINISHED.", 18 },
     { "IT IS FOR YOU.", 1 },
 };
+static const TalkBeat TALK_FENN_OPEN[] = {
+    { "MARSH TRADE. BETTER CRYSTALS THAN THE COMMON STUFF . FOR A PRICE.", 33 },
+    { "SHOW ME.", 1 },
+};
+static const TalkBeat TALK_DRAY_OPEN[] = {
+    { "CAMP SUPPLY RUN. I CARRY THE STRONGER CAPTURE CRYSTALS, NOTHING COMMON.", 34 },
+    { "GOOD. I NEED THOSE.", 1 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -612,6 +620,8 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_COMMANDER_FINAL_SPOT_FATHER,
     TALK_COMMANDER_FINAL_SPOT_HEAVENFALL,
     TALK_COMMANDER_FINAL_WIN,
+    TALK_FENN_OPEN,
+    TALK_DRAY_OPEN,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -728,6 +738,8 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_COMMANDER_FINAL_SPOT_FATHER),
     TALK_LEN(TALK_COMMANDER_FINAL_SPOT_HEAVENFALL),
     TALK_LEN(TALK_COMMANDER_FINAL_WIN),
+    TALK_LEN(TALK_FENN_OPEN),
+    TALK_LEN(TALK_DRAY_OPEN),
 };
-#define TALK_TABLE_N 114
+#define TALK_TABLE_N 116
 
