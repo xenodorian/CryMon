@@ -199,7 +199,12 @@ static void apply_fade(int level) {
     u32 i, keep;
     if(level <= 0) return;
     if(level >= FADE_STEPS) {
-        vram_clear();
+        if(g_mercy_red_fade) {
+            u32 j;
+            for(j = 0; j < (u32)SCREEN_W * SCREEN_H; j++) draw_fb[j] = rgb565(80, 8, 8);
+        } else {
+            vram_clear();
+        }
         return;
     }
     keep = (u32)(FADE_STEPS - level);
@@ -777,6 +782,7 @@ static void apply_player_name(int revived) {
 #define FADE_OUT  1
 #define FADE_HOLD 2
 #define FADE_IN   3
+static int g_mercy_red_fade = 0;
 
 /* Brightness for the current phase, 0..FADE_STEPS. Mirrors the web's
    fadeAlpha(): out ramps up across its own frame budget, hold sits fully
@@ -4172,7 +4178,7 @@ void main(void) {
     int mercy_mode = 0, mercy_cur = 0; /* Leg 2.9 post-battle mercy menu */
     int mercy_foe_levels = 0;
     unsigned int executed_mask = 0; /* Leg 2.9.4 permanent execute-delete */
-    char mercy_foe_name[32];
+        char mercy_foe_name[32];
     int soldier_beaten[3] = { 0, 0, 0 };
     int talked_father = 0;
     int *ft[FLAG_N];
@@ -4417,6 +4423,7 @@ void main(void) {
             if(fade_timer >= LOGIC_FADE_IN_FRAMES) {
                 fade_state = FADE_NONE;
                 fade_timer = 0;
+                g_mercy_red_fade = 0;
                 fade_action = 0;
             }
         }
@@ -5540,6 +5547,10 @@ void main(void) {
                     else if(battle.trainer_kind >= 10) ebit = battle.trainer_kind; /* coarse */
                     else ebit = battle.trainer_kind;
                     if(ebit >= 0 && ebit < 31) executed_mask |= (1u << ebit);
+                    g_mercy_red_fade = 1;
+                    fade_state = FADE_OUT;
+                    fade_timer = 0;
+                    chip_sfx_faint();
                     {
                         int n = s_cat(hud_flash, 0, "NO SURVIVORS");
                         hud_flash[n] = 0; hud_t = 90;

@@ -235,7 +235,7 @@ export class CryMon {
 	dexCaught = 0;
 	dexCursor = 0;
 	dexView = "list";
-	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" };
+	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" };
 	pendingWs = null;
 	choiceCur = 0;
 	shopKeep: string = "bram";
@@ -1980,7 +1980,7 @@ export class CryMon {
 		const spec = LOGIC.arrivals[name];
 		if (spec && "spawn" in spec && spec.spawn.actor === "mason") this.spawnMasonApproach(false);
 	}
-	startFade(action: "bed" | "loss") {
+	startFade(action: "bed" | "loss" | "execute") {
 		this.fade = { phase: "out", t: 0, action };
 	}
 	applyFadeHold() {
@@ -3138,6 +3138,8 @@ export class CryMon {
 			this.bag[a] = (this.bag[a] ?? 0) + 1;
 			this.bag[b] = (this.bag[b] ?? 0) + 1;
 			this.markExecuted(this.mercyTrainer, this.mercySoldierId);
+			this.audio.faint();
+			this.startFade("execute");
 			this.say(TALK.mercyExecute || [{ speaker: "max", text: "No survivors, no witnesses." }]);
 			this.note(`Took ${gain} marks and loot.`);
 		}
@@ -3216,7 +3218,7 @@ export class CryMon {
 		if (a <= 0) return;
 		this.ctx.save();
 		this.ctx.globalAlpha = a;
-		this.ctx.fillStyle = "#000";
+		this.ctx.fillStyle = this.fade.action === "execute" ? "#8b1010" : "#000";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 		this.ctx.restore();
 	}
