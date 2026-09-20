@@ -1482,8 +1482,25 @@ static void draw_map_banner(int map_id, int timer) {
    -- there's no inventory/party HUD overlay in the reference, but
    there's also no way to see this port's bag/party menus without
    opening them, so this stays as a quick-glance confirmation. */
-static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_scroll) {
+static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_scroll, int reputation) {
     int y = 2;
+    {
+        char rep_buf[20];
+        int n = 0;
+        int v = reputation;
+        n = s_cat(rep_buf, 0, "REP ");
+        if(v < 0) { n = s_cat(rep_buf, n, "-"); v = -v; }
+        else if(v > 0) { n = s_cat(rep_buf, n, "+"); }
+        n = s_cat_uint(rep_buf, n, (unsigned)v);
+        rep_buf[n] = 0;
+        {
+            u16 col = 0xFFFF;
+            if(reputation > 0) col = rgb565(80, 180, 80);
+            else if(reputation < 0) col = rgb565(200, 60, 60);
+            draw_text_s(rep_buf, 4, y, col, DIALOGUE_SCALE);
+        }
+        y += DIALOGUE_LINE_H;
+    }
 
     if(g_player_renamed) {
         draw_text_s(g_player_name, 4, y, 0xFFFF, DIALOGUE_SCALE);
@@ -6635,7 +6652,7 @@ void main(void) {
                         MAX_SPRITE_W, MAX_SPRITE_H, px, py);
                 ws_sort_and_draw(ws_list, ws_n, cam_x, cam_y);
             }
-            draw_hud(got_shelf, looted_crate, bag.bandage, has_scroll);
+            draw_hud(got_shelf, looted_crate, bag.bandage, has_scroll, reputation);
             if(seq_lines)
                 draw_dialogue_box(&seq_lines[seq_beat]);
             else if(hud_t > 0)

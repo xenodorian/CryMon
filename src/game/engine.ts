@@ -3633,11 +3633,17 @@ export class CryMon {
 		this.ctx.textAlign = "left";
 		const nameW = Math.ceil(this.ctx.measureText(name).width);
 		const statsX = Math.max(88, 16 + nameW + 12);
-		const boxW = Math.max(300, statsX + 168);
+		const boxW = Math.max(340, statsX + 230);
 		this.box(8, 8, boxW, 40);
 		this.text(name, 16, 12, "#e8e4d8", FONT);
 		this.text(`Xtals ${this.bag.gem}`, statsX, 12, "#c5cec6", FONT);
 		this.text(`M ${this.marks}`, statsX + 112, 12, "#8f4a40", FONT);
+		{
+			const r = this.reputation | 0;
+			const repStr = r > 0 ? `Rep +${r}` : r < 0 ? `Rep ${r}` : "Rep 0";
+			const repCol = r > 0 ? "#6a9e6a" : r < 0 ? "#c05050" : "#8a8678";
+			this.text(repStr, statsX + 168, 12, repCol, FONT);
+		}
 		this.text(lead ? `${lead.name} Lv${lead.level}  ${lead.hp}/${lead.maxHp}` : "No CryMon yet", 16, 28, "#8a8678", FONT);
 		if (this.hasScroll) this.text("SCROLL", statsX + 112, 28, "#c5cec6", FONT);
 	}
