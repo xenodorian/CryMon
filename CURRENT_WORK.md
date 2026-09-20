@@ -133,12 +133,18 @@ it's updated after every commit this run.
    single-spot `main.c` fix, no cross-file plumbing. Fastest item.
 2. **2.3 settings→start menu** — mechanical relocation, touches both
    engines' menu state machines but no new systems.
-3. **2.5 capture-rate overhaul + crystal tiers** — JSON-first, numbers
-   fully specified in the doc, broken into 5 sub-steps below.
+3. **2.5 capture-rate overhaul + crystal tiers** — **re-sized up after
+   digging in**, see 2.5 below: it needs a shared binary-save-format
+   byte-layout shift (both engines, real corruption risk if rushed)
+   plus new item icon art, not just JSON. Still doing it next since
+   it's the actual blocker for 2.6, but budget the same care as 2.7,
+   not the "medium" pace this was filed at originally.
 4. **2.6 more merchants** — depends on 2.5's items existing; same
    NPC/shop pattern used all session.
 5. **2.9 mercy/threaten/execute menu** — new UI mode + dialogue pools +
-   a permanent-NPC-deletion mechanic; broken into sub-steps below.
+   a permanent-NPC-deletion mechanic; broken into sub-steps below. Its
+   dialogue-pool sub-step (2.9.1) has zero dependencies and could be
+   picked up standalone by anyone if 2.5/2.6/2.7 are all mid-flight.
 6. **2.7 reputation stat + father becomes a 2nd party member** — large
    systems feature (second controllable party, new persisted stat);
    broken into sub-steps below, same shape as quarry/endgame.
@@ -165,7 +171,13 @@ a coding task for me.)
 verified by build/typecheck only (**no Dreamcast emulator in this
 sandbox for either** — see each section's own caveat before assuming a
 "feels wrong" report means the fix itself is wrong rather than
-unverified). Next: 2.5 (capture-rate overhaul + crystal tiers).
+unverified). Started sizing 2.5, found it's bigger than filed (shared
+binary save-format shift + new item icons needed, see 2.5's rewritten
+sub-steps) — re-ordered the list above to reflect that before writing
+any code for it, per this run's own "commit between steps, don't rush
+a load-bearing shared format" rule. Next: 2.5 sub-step 1 (work out the
+shifted save `layout` table on paper before touching `save.ts`/
+`save.c`).
 
 ---
 
@@ -357,28 +369,65 @@ the quarry/endgame breakdown shape that worked well all session:
 - **Perfect Capture Crystal** (new item): always captures. **Not
   purchasable** — awarded only after defeating or capturing Heavenfall.
 
-**Sub-steps (do in order, commit after each):**
-1. Rename `gem`/Capture Crystal → Common Capture Crystal in
-   `items.json` (25 marks — check current price first, this may
-   already be close), add the 3 new items (Mega/Ultimate/Perfect) to
-   `items.json` + `save.json`'s `itemOrder` (append-only) + whatever
-   `types.ts`/`data.ts` lists mirror item ids. **Perfect isn't
-   purchasable — give it no shop price or exclude it from the buy
-   list, same way any other non-buyable item is handled today if one
-   exists, otherwise it needs a new "not for sale" item flag.**
-2. New capture-chance formula: find `captureChance()` in
-   `src/game/data.ts` and its Dreamcast mirror (search `main.c` for the
-   capture-roll code) — replace with the doc's formula, gated by which
-   crystal item was used (base rate per tier) plus the level/str/hp
-   subtraction and the +50% status bonus. Confirm with the user how the
-   old formula's constants (`FORMULAS.captureAgl` etc. in `logic.json`)
-   should be retired/coexist — don't silently strand dead config.
-3. Mirror the same formula in `main.c`'s capture roll.
-4. Wire "Perfect Capture Crystal" as a reward item granted on
-   defeating/capturing Heavenfall (depends on 2.4 existing — may need
-   to land this step after 2.4 instead of before it; note the
-   dependency rather than force an ordering that doesn't fit).
-5. Integration pass (rebake, check_sync, typecheck, build, cdi).
+**Re-sized after digging in (Claude A): this is bigger than "medium."**
+Found two real dependencies my original estimate missed, both now
+confirmed by reading the actual code rather than guessing:
+
+- **The save format needs a byte-layout shift, not just an append.**
+  `content/save.json`'s `layout.bag` is `[18, 10]` — 10 fixed byte
+  offsets, one per `itemOrder` entry, no padding after it (`flags`
+  starts immediately at byte 28). Adding 3 new items means `bag` grows
+  to 13 bytes, which pushes `flags`/`party`/`checksum`/`dexSeen`/
+  `dexCaught` all +3 bytes each. This is a real binary-format change
+  on **both** engines' save pack/unpack code (`src/game/save.ts` and
+  `ports/dreamcast/src/save.c`), not a JSON-only edit — get this wrong
+  and old saves (or saves written by one engine, read by the other
+  mid-transition) silently corrupt. Don't rush it.
+- **New items need new icons** (`icon_megacrystal` etc. on the
+  Dreamcast side, `item-<id>` sprites on web) — same category of
+  problem as the NPC art debt, just for items instead of NPCs. Either
+  get real art the same way as 2.0 (ChatGPT/Grok), or use a plain
+  placeholder icon deliberately and say so, but don't skip silently.
+
+**Sub-steps (do in order, commit after each — this now genuinely
+belongs closer to 2.7/2.9 in size, moved down the execution order
+accordingly, see the top of this section):**
+1. Pick the 3 new items' final byte offsets and write out the full
+   shifted `layout` table by hand before touching any code — get the
+   arithmetic right on paper first (bag 18→13 bytes ends at 31; flags
+   31,8; party 39,96; checksum 135,2; dexSeen 137,4; dexCaught 141,4;
+   double-check `size` still covers it, currently 256, plenty of room).
+2. Update `save.ts` (web) and `save.c` (Dreamcast)'s pack/unpack to the
+   new offsets, **together in the same commit** — one engine ahead of
+   the other here is exactly the corruption risk above.
+3. Rename `gem` → "Common Capture Crystal" in `items.json` (25 marks),
+   add Mega/Ultimate/Perfect to `items.json` + `save.json`'s
+   `itemOrder` (matching the new layout from step 1). Perfect: no `buy`
+   price / excluded from shop buy lists (check how any existing
+   non-purchasable item — if one exists — signals that; otherwise this
+   needs a new convention, don't invent one silently).
+4. Icons for the 3 new items (see the art note above — flag it, get
+   real art or an explicit placeholder, don't skip).
+5. New capture-chance formula: `captureChance()` in `src/game/data.ts`
+   (currently `agl`/`missing-hp%`/`bonus`/`vulnerable` based) needs to
+   become `level`/`str`/`hp`/tier-base based, per the doc's literal
+   formula. **Interpretation decision needed if not already obvious
+   from the doc when you reread it:** is `100% - level - str - HP` in
+   raw stat units (a level-20 STR-20 HP-80 CryMon then has a *negative*
+   pre-clamp rate, i.e. you must nearly kill it first) or some
+   normalized version? I'd implement it literally (raw units, clamp
+   0-100, tier's "base capture rate" replaces the leading 100) unless
+   you have reason to think otherwise — that's the simplest reading
+   that doesn't require inventing new normalization the doc doesn't
+   mention. Status affliction: +50 percentage points, additive (same
+   style as the existing `+25` bonus on Greater Crystal today).
+6. Mirror the same formula in `main.c`'s capture roll.
+7. Retire or repurpose the old formula's `FORMULAS.captureAgl` etc. in
+   `logic.json` — don't leave dead config nobody reads.
+8. Wire "Perfect Capture Crystal" as a reward on defeating/capturing
+   Heavenfall (depends on 2.4 existing — this step likely lands after
+   2.4, not before; don't force an ordering that doesn't fit).
+9. Integration pass (rebake, check_sync, typecheck, build, cdi).
 
 ### 2.6 — Populate the world with more merchants
 
