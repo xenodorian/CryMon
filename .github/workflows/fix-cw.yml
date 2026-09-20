@@ -8,12 +8,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/patch_mercy_compile.py
+      - run: python3 tools/patch_mercy_globals.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
           git add ports/dreamcast/src/main.c
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Fix DC mercy compile: frand(lo,hi), foe.lv, drop talk()"
+          git commit -m "Fix: declare g_mercy_red_fade before apply_fade"
           git push
