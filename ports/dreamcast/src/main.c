@@ -5545,10 +5545,9 @@ void main(void) {
                     int di;
                     reputation += 1;
                     if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
-                    di = (int)(frand() * 5.0f);
+                    di = (int)(frand(0.0f, 1.0f) * 5.0f);
                     if(di < 0) di = 0;
                     if(di > 4) di = 4;
-                    talk(dismiss[di]);
                     {
                         int n = s_cat(hud_flash, 0, "LET THEM GO. +1 REP");
                         hud_flash[n] = 0; hud_t = 90;
@@ -5562,7 +5561,7 @@ void main(void) {
                         hud_flash[n] = 0; hud_t = 90;
                     }
                 } else if(mercy_cur == 2) {
-                    int idx = (int)(frand() * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int idx = (int)(frand(0.0f, 1.0f) * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
                     int *slot;
                     reputation -= 2;
                     if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
@@ -5575,8 +5574,8 @@ void main(void) {
                         hud_flash[n] = 0; hud_t = 90;
                     }
                 } else {
-                    int a = (int)(frand() * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
-                    int b = (int)(frand() * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int a = (int)(frand(0.0f, 1.0f) * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int b = (int)(frand(0.0f, 1.0f) * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
                     int *sa, *sb;
                     int ebit = -1;
                     reputation -= 10;
@@ -6459,9 +6458,9 @@ void main(void) {
                                     mercy_mode = 1;
                                     mercy_cur = 0;
                                     {
-                                        int bi, lv = battle.foe.level;
+                                        int bi, lv = battle.foe.lv;
                                         for(bi = 0; bi < battle.bench_n && bi < 2; bi++)
-                                            lv += battle.bench[bi].level;
+                                            lv += battle.bench[bi].lv;
                                         mercy_foe_levels = lv > 0 ? lv : 1;
                                     }
                                     {
