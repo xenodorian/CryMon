@@ -171,10 +171,15 @@ a coding task for me.)
 engines, verified by build/typecheck/check_sync only (**no Dreamcast
 emulator in this sandbox for any of them** — see each section's own
 caveat before assuming a "feels wrong" report means the fix itself is
-wrong rather than unverified). 2.9.1 (dismissal dialogue pool) also
-DONE and pushed. Next: everything left is a big item (2.7, 2.9 sub-steps
-2-6, 2.4, 2.10, 2.8, 2.2) — pick per the execution order above and
-break into documented sub-steps as this run's instructions ask.
+wrong rather than unverified). 2.9.1 (dismissal dialogue pool) and 2.7
+sub-step 1 (bare `reputation` save field, both engines reading/writing
+it as 0, nothing else wired to it yet) also DONE and pushed. Next:
+2.7 sub-step 2 (father-revival dialogue + teleport-back + reputation
++25 via the existing `choiceFather` hook — no second party yet) is the
+smallest remaining piece of 2.7; after that everything left is a big
+item (2.7 sub-steps 3+, 2.9 sub-steps 2-6, 2.4, 2.10, 2.8, 2.2) — pick
+per the execution order above and keep breaking into documented
+sub-steps, committing between each, per this run's own instructions.
 
 ---
 
@@ -511,13 +516,19 @@ above for what shipped)
 
 **This is the biggest single item in Leg 2 — a second controllable
 party is a real systems feature, not a flag.** Sub-steps:
-1. `reputation` field: needs a numeric byte in the save layout (not a
-   bit flag — check `save.json`'s `layout` map for free space, it's a
-   fixed byte-offset binary format shared by web+Dreamcast, adding a
-   field means extending `layout`/`size` deliberately, not just
-   appending to `flags[]` like every other addition this session).
-   Land this alone first, both engines reading/writing it as 0, before
-   touching anything else here.
+1. **DONE (Claude A), pushed.** `reputation` field added at save byte
+   17 (`save.json` `version` 3→4) — that byte was unused padding
+   between `mason2Map` (16) and `bag` (18), so **nothing else in the
+   layout shifted**, unlike every other save-format change this
+   session. Stored as `value + 100` (0..200 unsigned) since the byte
+   format has no signed-byte convention elsewhere; both engines
+   convert to/from the signed -100..100 range at the read/write site
+   (`save.ts`, `save.c`, plus `main.c`'s two `SaveLive` glue blocks
+   and `engine.ts`'s `snapshot()`/`applySave()`). Both engines default
+   it to 0 and nothing else reads or writes it yet — verified via
+   build/typecheck/check_sync only, **not hardware-verified**.
+   Sub-steps 2+ below (father-revival dialogue, second party, mercy
+   menu wiring) are still open and unblocked by this landing.
 2. The father-revival dialogue + teleport-back + reputation +25, using
    the existing `choiceFather` hook as the trigger point. No second
    party yet in this step — just the narrative/flag piece.

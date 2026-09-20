@@ -9,7 +9,7 @@ typedef struct {
 } SaveMon;
 
 typedef struct {
-    unsigned char map_id, dir, party_n, lead, battles, mason2_map;
+    unsigned char map_id, dir, party_n, lead, battles, mason2_map, reputation;
     unsigned short x, y, marks;
     unsigned char bag[SAVE_ITEM_N];
     unsigned char flags[8];

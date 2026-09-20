@@ -4122,6 +4122,9 @@ void main(void) {
        and different dialogue) the moment they set foot on that map.
        mason2_map is rolled once, right when beat_calder flips to 1. */
     int mason2_map = -1;
+    /* -100..100, see Leg 2.7. Nothing reads/writes this yet beyond
+       save/load -- the father-revival/mercy-menu deltas land later. */
+    int reputation = 0;
     int mason2_done = 0;
 
     /* Anne: engine.ts's maybeStartAnne() gate is battlesDone>=1 while
@@ -4361,6 +4364,7 @@ void main(void) {
                         if(party_n > 6) party_n = 6;
                         battles = sl.battles;
                         mason2_map = sl.mason2_map == 0xff ? -1 : sl.mason2_map;
+                        reputation = (int)sl.reputation - 100;
                         bag.salve = sl.bag[0]; bag.bandage = sl.bag[1];
                         bag.bitterroot = sl.bag[2]; bag.dust = sl.bag[3];
                         bag.gem = sl.bag[4]; bag.sunbalm = sl.bag[5];
@@ -4561,6 +4565,12 @@ void main(void) {
                     sl.lead = (unsigned char)lead;
                     sl.battles = (unsigned char)battles;
                     sl.mason2_map = (unsigned char)(mason2_map < 0 ? 0xff : mason2_map);
+                    {
+                        int rep = reputation + 100;
+                        if(rep < 0) rep = 0;
+                        if(rep > 200) rep = 200;
+                        sl.reputation = (unsigned char)rep;
+                    }
                     sl.x = (unsigned short)px;
                     sl.y = (unsigned short)py;
                     sl.marks = (unsigned short)marks;

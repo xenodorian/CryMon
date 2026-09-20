@@ -21,6 +21,7 @@ export interface SaveSnapshot {
 	partyIndex: number;
 	battlesDone: number;
 	mason2Map: MapId | null;
+	reputation: number;
 	bag: Record<string, number>;
 	flags: Record<string, boolean>;
 	party: Monster[];
@@ -69,6 +70,7 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 	buf[14] = Math.max(0, Math.min(n ? n - 1 : 0, snap.partyIndex));
 	buf[15] = Math.max(0, Math.min(255, snap.battlesDone));
 	buf[16] = snap.mason2Map ? Math.max(0, SAVE_MAPS.indexOf(snap.mason2Map)) : 0xff;
+	buf[17] = Math.max(0, Math.min(200, Math.round(snap.reputation) + 100));
 	for (let i = 0; i < SAVE_ITEMS.length; i++) {
 		buf[18 + i] = Math.max(0, Math.min(255, snap.bag[SAVE_ITEMS[i]] ?? 0));
 	}
@@ -142,6 +144,7 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 		partyIndex: Math.min(Math.max(0, buf[14]), Math.max(0, n - 1)),
 		battlesDone: buf[15],
 		mason2Map: m2 === 0xff ? null : (SAVE_MAPS[m2] ?? null),
+		reputation: buf[17] - 100,
 		bag,
 		flags,
 		party,

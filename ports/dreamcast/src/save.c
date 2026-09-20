@@ -53,6 +53,7 @@ void save_pack(u8 *dst, const SaveLive *s) {
     dst[14] = s->lead;
     dst[15] = s->battles;
     dst[16] = s->mason2_map;
+    dst[17] = s->reputation;
     for(i = 0; i < SAVE_ITEM_N; i++) dst[18 + i] = s->bag[i];
     for(i = 0; i < 8; i++) dst[31 + i] = s->flags[i];
     for(p = 0; p < dst[7]; p++) {
@@ -104,6 +105,7 @@ int save_unpack(const u8 *src, SaveLive *s) {
     s->lead = src[14];
     s->battles = src[15];
     s->mason2_map = src[16];
+    s->reputation = src[17];
     for(i = 0; i < SAVE_ITEM_N; i++) s->bag[i] = src[18 + i];
     for(i = 0; i < 8; i++) s->flags[i] = src[31 + i];
     for(p = 0; p < n; p++) {

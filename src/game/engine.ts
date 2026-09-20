@@ -236,6 +236,9 @@ export class CryMon {
 	pendingWs = null;
 	choiceCur = 0;
 	shopKeep: string = "bram";
+	/** -100..100, see Leg 2.7. Nothing reads/writes this yet beyond
+	 *  save/load -- the father-revival/mercy-menu deltas land later. */
+	reputation = 0;
 	doorLock = 0;
 	hudFlash = "";
 	hudT = 0;
@@ -438,6 +441,7 @@ export class CryMon {
 			partyIndex: this.partyIndex,
 			battlesDone: this.battlesDone,
 			mason2Map: this.mason2Map,
+			reputation: this.reputation,
 			bag: { ...this.bag },
 			flags,
 			party: this.party.map((m) => ({ ...m })),
@@ -462,6 +466,7 @@ export class CryMon {
 		this.partyIndex = Math.min(snap.partyIndex, Math.max(0, this.party.length - 1));
 		this.battlesDone = snap.battlesDone;
 		this.mason2Map = snap.mason2Map;
+		this.reputation = snap.reputation ?? 0;
 		this.bag = { ...START_BAG, ...snap.bag };
 		this.dexSeen = snap.dexSeen >>> 0;
 		this.dexCaught = snap.dexCaught >>> 0;
