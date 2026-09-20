@@ -16,6 +16,10 @@ typedef struct {
     SaveMon party[SAVE_PARTY_MAX];
     unsigned char dex_seen[SAVE_DEX_BYTES];
     unsigned char dex_caught[SAVE_DEX_BYTES];
+    /* Leg 2.7.3: father's party + active selector (save bytes 149+). */
+    unsigned char party2_n, active_party;
+    SaveMon party2[SAVE_PARTY_MAX];
+    unsigned int executed_mask;
 } SaveLive;
 
 void save_pack(unsigned char *dst, const SaveLive *s);

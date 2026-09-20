@@ -71,7 +71,30 @@ void save_pack(u8 *dst, const SaveLive *s) {
         put_u16(o + 10, s->party[p].xp);
         o[SAVE_PARTY_NATURE] = s->party[p].nature;
     }
-    put_u16(dst + 135, checksum(dst));
+    /* party2 @149, active_party @245, party2_n @246, executed_mask @145 */
+    {
+        int n2 = s->party2_n > SAVE_PARTY_MAX ? SAVE_PARTY_MAX : s->party2_n;
+        dst[245] = s->active_party ? 1 : 0;
+        dst[246] = (u8)n2;
+        put_u16(dst + 145, (u16)(s->executed_mask & 0xffff));
+        put_u16(dst + 147, (u16)((s->executed_mask >> 16) & 0xffff));
+        for(p = 0; p < n2; p++) {
+            u8 *o = dst + 149 + p * SAVE_PARTY_SLOT;
+            o[0] = s->party2[p].species;
+            o[1] = s->party2[p].lv;
+            o[2] = s->party2[p].hp;
+            o[3] = s->party2[p].maxHp;
+            o[4] = s->party2[p].str;
+            o[5] = s->party2[p].agl;
+            o[6] = s->party2[p].spc;
+            o[7] = s->party2[p].spp;
+            o[8] = s->party2[p].sppMax;
+            o[9] = s->party2[p].shiny;
+            put_u16(o + 10, s->party2[p].xp);
+            o[SAVE_PARTY_NATURE] = s->party2[p].nature;
+        }
+    }
+        put_u16(dst + 135, checksum(dst));
     for(i = 0; i < SAVE_DEX_BYTES; i++) {
         dst[SAVE_DEX_SEEN + i] = s->dex_seen[i];
         dst[SAVE_DEX_CAUGHT + i] = s->dex_caught[i];
@@ -126,6 +149,24 @@ int save_unpack(const u8 *src, SaveLive *s) {
     for(i = 0; i < SAVE_DEX_BYTES; i++) {
         s->dex_seen[i] = src[SAVE_DEX_SEEN + i];
         s->dex_caught[i] = src[SAVE_DEX_CAUGHT + i];
+    }
+    s->active_party = src[245] ? 1 : 0;
+    s->party2_n = src[246] > SAVE_PARTY_MAX ? SAVE_PARTY_MAX : src[246];
+    s->executed_mask = (unsigned int)get_u16(src + 145) | ((unsigned int)get_u16(src + 147) << 16);
+    for(p = 0; p < (int)s->party2_n; p++) {
+        const u8 *o = src + 149 + p * SAVE_PARTY_SLOT;
+        s->party2[p].species = o[0];
+        s->party2[p].lv = o[1];
+        s->party2[p].hp = o[2];
+        s->party2[p].maxHp = o[3];
+        s->party2[p].str = o[4];
+        s->party2[p].agl = o[5];
+        s->party2[p].spc = o[6];
+        s->party2[p].spp = o[7];
+        s->party2[p].sppMax = o[8];
+        s->party2[p].shiny = o[9];
+        s->party2[p].xp = get_u16(o + 10);
+        s->party2[p].nature = o[SAVE_PARTY_NATURE];
     }
     return 1;
 }

@@ -147,6 +147,10 @@ export class CryMon {
 	};
 	party: Monster[] = [];
 	partyIndex = 0;
+	/** Father's 6-slot party (Leg 2.7.3). */
+	party2 = [];
+	/** 0 = Max, 1 = Father. */
+	activeParty = 0;
 	bag: Record<ItemId, number> = { ...START_BAG };
 	battle = null;
 	talkedFather = false;
@@ -323,6 +327,8 @@ export class CryMon {
 		this.endI = 0;
 		this.party = [];
 		this.partyIndex = 0;
+		this.party2 = [];
+		this.activeParty = 0;
 		this.bag = { ...START_BAG };
 		this.marks = START_MARKS;
 		this.talkQ = [];
@@ -467,6 +473,8 @@ export class CryMon {
 			bag: { ...this.bag },
 			flags,
 			party: this.party.map((m) => ({ ...m })),
+			party2: this.party2.map((m) => ({ ...m })),
+			activeParty: this.activeParty,
 			dexSeen: this.dexSeen >>> 0,
 			dexCaught: this.dexCaught >>> 0,
 		};
@@ -485,6 +493,12 @@ export class CryMon {
 			name: SPECIES[m.species]?.name ?? m.name,
 			nature: m.nature ?? 0,
 		}));
+		this.party2 = (snap.party2 || []).map((m) => ({
+			...m,
+			name: SPECIES[m.species]?.name ?? m.name,
+			nature: m.nature ?? 0,
+		}));
+		this.activeParty = snap.activeParty ? 1 : 0;
 		this.partyIndex = Math.min(snap.partyIndex, Math.max(0, this.party.length - 1));
 		this.battlesDone = snap.battlesDone;
 		this.mason2Map = snap.mason2Map;

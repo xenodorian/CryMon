@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "magic": "CRYM",
   "size": 256,
   "itemOrder": [
@@ -124,26 +124,82 @@
     "shopFreeDray"
   ],
   "layout": {
-    "magic": [0, 4],
-    "version": [4, 1],
-    "mapId": [5, 1],
-    "dir": [6, 1],
-    "partyCount": [7, 1],
-    "x": [8, 2],
-    "y": [10, 2],
-    "marks": [12, 2],
-    "partyIndex": [14, 1],
-    "battlesDone": [15, 1],
-    "mason2Map": [16, 1],
-    "reputation": [17, 1],
-    "bag": [18, 13],
-    "flags": [31, 8],
-    "party": [39, 96],
-    "checksum": [135, 2],
-    "dexSeen": [137, 4],
-    "dexCaught": [141, 4],
+    "magic": [
+      0,
+      4
+    ],
+    "version": [
+      4,
+      1
+    ],
+    "mapId": [
+      5,
+      1
+    ],
+    "dir": [
+      6,
+      1
+    ],
+    "partyCount": [
+      7,
+      1
+    ],
+    "x": [
+      8,
+      2
+    ],
+    "y": [
+      10,
+      2
+    ],
+    "marks": [
+      12,
+      2
+    ],
+    "partyIndex": [
+      14,
+      1
+    ],
+    "battlesDone": [
+      15,
+      1
+    ],
+    "mason2Map": [
+      16,
+      1
+    ],
+    "reputation": [
+      17,
+      1
+    ],
+    "bag": [
+      18,
+      13
+    ],
+    "flags": [
+      31,
+      8
+    ],
+    "party": [
+      39,
+      96
+    ],
+    "checksum": [
+      135,
+      2
+    ],
+    "dexSeen": [
+      137,
+      4
+    ],
+    "dexCaught": [
+      141,
+      4
+    ],
     "partyNature": 12
   },
   "partySlot": 16,
-  "comment": "Little-endian blob shared by web localStorage and Dreamcast VMU. Do not fork this layout in engine.ts or main.c. version bumped 1 -> 2 for the per-species crystal schema, then 2 -> 3 (Leg 2.5) when bag grew from 10 to 13 items (megacrystal/ultimatecrystal/perfectcrystal appended), shifting flags/party/checksum/dexSeen/dexCaught all +3 bytes, then 3 -> 4 (Leg 2.7 step 1) when reputation was added at byte 17 -- that byte was unused padding between mason2Map (16) and bag (18), so nothing else shifted. reputation is stored as (value + 100), 0..200, to fit an unsigned byte over its -100..100 range. Both engines reject a save whose byte 4 does not match SAVE_VERSION (save_unpack() on Dreamcast, unpackSave() on web), so an old-layout save is treated as absent rather than partially/incorrectly loaded. Checksum covers bytes 0..134; dex bits live at 137/141. Party slot+12 (partyNature) is reserved and ignored on load -- the crystal comes from the species, not the save."
+  "comment": "Little-endian blob shared by web localStorage and Dreamcast VMU. Do not fork this layout in engine.ts or main.c. version bumped 1 -> 2 for the per-species crystal schema, then 2 -> 3 (Leg 2.5) when bag grew from 10 to 13 items (megacrystal/ultimatecrystal/perfectcrystal appended), shifting flags/party/checksum/dexSeen/dexCaught all +3 bytes, then 3 -> 4 (Leg 2.7 step 1) when reputation was added at byte 17 -- that byte was unused padding between mason2Map (16) and bag (18), so nothing else shifted. reputation is stored as (value + 100), 0..200, to fit an unsigned byte over its -100..100 range. Both engines reject a save whose byte 4 does not match SAVE_VERSION (save_unpack() on Dreamcast, unpackSave() on web), so an old-layout save is treated as absent rather than partially/incorrectly loaded. Checksum covers bytes 0..134; dex bits live at 137/141. Party slot+12 (partyNature) is reserved and ignored on load -- the crystal comes from the species, not the save.",
+  "party2Offset": 149,
+  "activePartyOffset": 245
 }

@@ -843,3 +843,16 @@ Regardless of the trial/execute choice above, if the father is alive:
     remembered as the one who let Heavenfall loose to rampage across
     the world.
 - Whichever branch fires, **the game ends once it resolves.**
+
+### 2.7.3 data model (Grok, decided + landed save layout)
+
+**Shape:** independent `party2[6]` + `activeParty` (0=Max, 1=Father).
+Not a generalized multi-party array — keeps existing `party` call sites
+working; swap UI (2.7.4) toggles which array battles/menus use.
+
+**Save v5 layout (256-byte blob, no shift of party1):**
+- `party2` slots @ byte 149 (6 × 16)
+- `activeParty` @ 245, `party2_n` @ 246
+- `executedMask` remains @ 145
+
+Next: 2.7.4 swap UI (web then DC).

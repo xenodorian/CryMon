@@ -26,6 +26,10 @@ export interface SaveSnapshot {
 	bag: Record<string, number>;
 	flags: Record<string, boolean>;
 	party: Monster[];
+	/** Father's independent 6-slot party (Leg 2.7.3). */
+	party2?: Monster[];
+	/** 0 = Max, 1 = Father. */
+	activeParty?: number;
 	dexSeen: number;
 	dexCaught: number;
 }
@@ -98,6 +102,27 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 	u32(buf, 137, snap.dexSeen >>> 0);
 	u32(buf, 141, snap.dexCaught >>> 0);
 	u32(buf, 145, (snap.executedMask ?? 0) >>> 0);
+	// party2 at 149 (6 * partySlot), activeParty at 245
+	const p2 = snap.party2 ?? [];
+	const n2 = Math.min(6, p2.length);
+	buf[245] = Math.max(0, Math.min(1, snap.activeParty ?? 0));
+	buf[246] = n2;
+	for (let p = 0; p < n2; p++) {
+		const m = p2[p];
+		const o = 149 + p * SLOT;
+		buf[o] = Math.max(0, SAVE_SPECIES.indexOf(m.species));
+		buf[o + 1] = Math.max(1, Math.min(99, m.level));
+		buf[o + 2] = Math.max(0, Math.min(255, m.hp));
+		buf[o + 3] = Math.max(1, Math.min(255, m.maxHp));
+		buf[o + 4] = Math.max(0, Math.min(255, m.str));
+		buf[o + 5] = Math.max(0, Math.min(255, m.agl));
+		buf[o + 6] = Math.max(0, Math.min(255, m.spc));
+		buf[o + 7] = Math.max(0, Math.min(255, m.specialPp));
+		buf[o + 8] = Math.max(0, Math.min(255, m.specialPpMax));
+		buf[o + 9] = m.shiny ? 1 : 0;
+		u16(buf, o + 10, Math.max(0, m.xp) & 0xffff);
+		buf[o + 12] = Math.max(0, Math.min(255, m.nature ?? 0));
+	}
 	return buf;
 }
 
@@ -152,6 +177,34 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 		party,
 		dexSeen: buf.length >= 141 ? ru32(buf, 137) : 0,
 		dexCaught: buf.length >= 145 ? ru32(buf, 141) : 0,
+		executedMask: buf.length >= 149 ? ru32(buf, 145) : 0,
+		party2: (() => {
+			if (buf.length < 247) return [];
+			const n2 = Math.min(6, buf[246] ?? 0);
+			const out: Monster[] = [];
+			for (let p = 0; p < n2; p++) {
+				const o = 149 + p * SLOT;
+				const species = SAVE_SPECIES[buf[o]] ?? "quillpup";
+				out.push({
+					id: `p2-${p}-${species}`,
+					species,
+					name: species[0].toUpperCase() + species.slice(1),
+					level: Math.max(1, buf[o + 1]),
+					hp: buf[o + 2],
+					maxHp: Math.max(1, buf[o + 3]),
+					str: buf[o + 4],
+					agl: buf[o + 5],
+					spc: buf[o + 6],
+					specialPp: buf[o + 7],
+					specialPpMax: buf[o + 8],
+					shiny: buf[o + 9] === 1,
+					xp: ru16(buf, o + 10),
+					nature: buf[o + 12] ?? 0,
+				});
+			}
+			return out;
+		})(),
+		activeParty: buf.length >= 246 && buf[245] ? 1 : 0,
 	};
 }
 
