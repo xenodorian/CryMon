@@ -205,7 +205,7 @@ static void apply_fade(int level) {
     if(level >= FADE_STEPS) {
         if(g_mercy_red_fade) {
             u32 j;
-            for(j = 0; j < (u32)SCREEN_W * SCREEN_H; j++) draw_fb[j] = rgb565(80, 8, 8);
+            for(j = 0; j < (u32)SCREEN_W * SCREEN_H; j++) draw_fb[j] = ((u16)(((80 >> 3) << 11) | ((8 >> 2) << 5) | (8 >> 3)));
         } else {
             vram_clear();
         }
