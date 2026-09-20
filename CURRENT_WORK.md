@@ -162,14 +162,13 @@ stays one build behind until someone manually re-runs it
 
 ### Known pre-existing art debt (placeholder-covered, not blocking)
 
-`check_sync --strict`'s one standing FAIL, **21 files** (regenerate via
+`check_sync --strict`'s one standing FAIL, **16 files** (regenerate via
 `python3 ports/dreamcast/tools/gen_sprites.py`, see
 `ports/dreamcast/ART_NEEDED.md` for exact specs):
 - `npc/bogwalker-1..4.png` + `portraits/bogwalker.png`
 - `npc/reedguard-1..4.png` + `portraits/reedguard.png`
 - `npc/quartz-2.png` (frame 2 only, the corrupted-file casualty)
 - `npc/fenn-1..4.png` + `portraits/fenn.png`
-- `npc/dray-1..4.png` + `portraits/dray.png`
 
 **Shipped (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
 icons (`public/sprites/items/{mega,ultimate,perfect}crystal.png`,
@@ -181,13 +180,9 @@ R→G clamp (no fringe-delete).
 (`npc/driller-1..4.png`, 48x64 RGBA, yellow hard-hat miner with
 pickaxe idle). Dropped ART_NEEDED 25→21. No Driller portrait in
 the debt list.
-
-**Shipped (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
-icons (`public/sprites/items/{mega,ultimate,perfect}crystal.png`,
-128x128 RGBA, same caged-stone silhouette as Common). Dropped
-ART_NEEDED 28→25. Re-keyed with flood-from-edge + enclosed
-magenta background holes (filigree/rings) + 2px inner-border
-R→G clamp (no fringe-delete).
+**Shipped (Grok A):** Dray camp-merchant world frames + portrait
+(`npc/dray-1..4.png` 48x64, `portraits/dray.png` 160x200). Rust
+vest, backpack, lantern. Dropped ART_NEEDED 21→16.
 
 ---
 
@@ -246,8 +241,8 @@ field) also DONE and pushed. **2.7 sub-step 2 (father-revival
 dialogue + teleport-back + reputation +25) DONE (Grok A), pushed.**
 **2.7 sub-step 5 ("Max The Kind" display-name override) DONE (Grok A),
 pushed.** **2.10 (reputation's economic effects) DONE (Grok A), pushed.**
-**2.0 partial (Grok A): Mega/Ultimate/Perfect crystal item icons
-and Driller world frames shipped; 21 files remain.** Remaining 2.9 sub-steps (post-battle
+**2.0 partial (Grok A): crystals, Driller world frames, and Dray
+world+portrait shipped; 16 files remain.** Remaining 2.9 sub-steps (post-battle
 mercy/threaten/execute menu) still open. 2.7 sub-steps 3+ (second
 controllable party), 2.4 (gauntlet redesign), 2.8 (blocked on 2.4),
 and Leg 3 stay out of scope until assigned.
@@ -265,11 +260,11 @@ merge conflicts get worse the bigger a single commit gets).
 ### 2.0 — Art debt cleanup (assign to ChatGPT or Grok, not a coding task)
 
 **Partial (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
-icons pushed (`items/megacrystal.png`, `ultimatecrystal.png`,
-`perfectcrystal.png`). Driller world frames pushed
-(`npc/driller-1..4.png`). `check_sync --strict` FAIL is now 21 files
-(was 28). Remaining: marsh NPC world frames + Fenn/Dray/
-Bogwalker/Reedguard portraits, plus `quartz-2.png`.
+icons pushed. Driller world frames pushed (`npc/driller-1..4.png`).
+Dray world frames + portrait pushed (`npc/dray-1..4.png`,
+`portraits/dray.png`). `check_sync --strict` FAIL is now 16 files
+(was 28). Remaining: marsh NPC world frames (Bogwalker, Reedguard,
+Fenn) + their portraits, plus `quartz-2.png`.
 
 Have ChatGPT or Grok produce real art for the remaining list in
 `ART_NEEDED.md` and push it to `public/sprites/` (source size is

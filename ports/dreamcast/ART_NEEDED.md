@@ -29,7 +29,7 @@ whatever is actually still missing, never hand-edited.
    to be pixel-identical at first (no animation) -- a real idle cycle can
    follow later.
 
-## Missing (21 files)
+## Missing (16 files)
 
 | Expected path (under `public/sprites/`) | Size | Entity | Note |
 |---|---|---|---|
@@ -46,12 +46,7 @@ whatever is actually still missing, never hand-edited.
 | `npc/fenn-2.png` | 24x32 | fenn | world sprite, idle frame 2/4 |
 | `npc/fenn-3.png` | 24x32 | fenn | world sprite, idle frame 3/4 |
 | `npc/fenn-4.png` | 24x32 | fenn | world sprite, idle frame 4/4 |
-| `npc/dray-1.png` | 24x32 | dray | world sprite, idle frame 1/4 |
-| `npc/dray-2.png` | 24x32 | dray | world sprite, idle frame 2/4 |
-| `npc/dray-3.png` | 24x32 | dray | world sprite, idle frame 3/4 |
-| `npc/dray-4.png` | 24x32 | dray | world sprite, idle frame 4/4 |
 | `portraits/bogwalker.png` | 312x176 | bogwalker | dialogue-box portrait |
 | `portraits/reedguard.png` | 312x176 | reedguard | dialogue-box portrait |
 | `portraits/fenn.png` | 312x176 | fenn | dialogue-box portrait |
-| `portraits/dray.png` | 312x176 | dray | dialogue-box portrait |
 
