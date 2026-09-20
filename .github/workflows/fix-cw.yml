@@ -8,13 +8,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Apply web mercy scream SFX
-        run: python3 tools/patch_mercy_sfx_web.py
+      - name: Apply DC mercy executed_mask + interact skip
+        run: python3 tools/patch_mercy_dc.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add content/audio.json src/game/audio.ts src/game/engine.ts
+          git add ports/dreamcast/src/save.h ports/dreamcast/src/save.c ports/dreamcast/src/main.c
+          git status
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Mercy 2.9.5: web scream SFX on Execute"
+          git commit -m "Mercy 2.9.5: DC persist executed_mask, skip executed NPC interact, faint-as-scream"
           git push
