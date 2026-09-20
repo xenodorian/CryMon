@@ -261,9 +261,9 @@
     }
   ],
   "interact": {
-    "note": "World interact/talk proximity is a box test, not a radius: the target's own footprint (world.json npcs[].w/h, default 48x32 human size when absent) expanded by this buffer on every side, feet-anchored the same way it's drawn (box bottom = mark.y, box top = mark.y - h). Both engines interpret this the same way; the Dreamcast port scales w/h/buffer down by its own tile size (20px vs this pack's 32px).",
+    "note": "World interact/talk proximity is a box test, not a radius: the target's own footprint (world.json npcs[].w/h, default 48x32 human size when absent) expanded by this buffer on every side, feet-anchored the same way it's drawn (box bottom = mark.y, box top = mark.y - h). Both engines interpret this the same way; the Dreamcast port scales w/h/buffer down by its own tile size (20px vs this pack's 32px). buffer must be at least one tile (32 in this pack's coordinate space) -- at the old value of 16 (half a tile), standing one full tile directly below an NPC (the single most common way a player approaches someone: walk up, stand in front, press A) fell outside the box on the south side, even though north/west/east happened to pass because of the box's height-driven asymmetry. Bumped to 32 so every one-tile-adjacent position on all four sides, plus diagonals, is inside the box.",
     "defaultW": 48,
     "defaultH": 52,
-    "buffer": 16
+    "buffer": 32
   }
 }

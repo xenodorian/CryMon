@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=e9d6050621694f98 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=3439b0960605439e — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -372,5 +372,5 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_CAMP, 'S', 90, 1, 30, 32 },
 };
 #define NPC_DEF_N 43
-#define INTERACT_BUFFER 10
+#define INTERACT_BUFFER 20
 
