@@ -107,15 +107,22 @@ stays one build behind until someone manually re-runs it
   rebake → rebuild → verify → fetch again right before pushing → push
   → verify the push landed by diffing against `origin/main` directly.
 
-### Known pre-existing art debt (placeholder-covered, not blocking, not this leg's fault)
+### Known pre-existing art debt (placeholder-covered, not blocking)
 
-`check_sync --strict`'s one standing FAIL, 15 files (regenerate via
+`check_sync --strict`'s one standing FAIL, **25 files** (regenerate via
 `python3 ports/dreamcast/tools/gen_sprites.py`, see
 `ports/dreamcast/ART_NEEDED.md` for exact specs):
 - `npc/bogwalker-1..4.png` + `portraits/bogwalker.png`
 - `npc/reedguard-1..4.png` + `portraits/reedguard.png`
 - `npc/quartz-2.png` (frame 2 only, the corrupted-file casualty)
 - `npc/driller-1..4.png`
+- `npc/fenn-1..4.png` + `portraits/fenn.png`
+- `npc/dray-1..4.png` + `portraits/dray.png`
+
+**Shipped (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
+icons (`public/sprites/items/{mega,ultimate,perfect}crystal.png`,
+128x128 RGBA, same caged-stone silhouette as Common). Dropped
+ART_NEEDED 28→25.
 
 ---
 
@@ -174,10 +181,11 @@ field) also DONE and pushed. **2.7 sub-step 2 (father-revival
 dialogue + teleport-back + reputation +25) DONE (Grok A), pushed.**
 **2.7 sub-step 5 ("Max The Kind" display-name override) DONE (Grok A),
 pushed.** **2.10 (reputation's economic effects) DONE (Grok A), pushed.**
-Remaining 2.9 sub-steps (post-battle mercy/threaten/execute menu) still
-open. 2.7 sub-steps 3+ (second controllable party), 2.4 (gauntlet
-redesign), 2.8 (blocked on 2.4), and Leg 3 stay out of scope until
-assigned.
+**2.0 partial (Grok A): Mega/Ultimate/Perfect crystal item icons
+shipped; 25 files remain.** Remaining 2.9 sub-steps (post-battle
+mercy/threaten/execute menu) still open. 2.7 sub-steps 3+ (second
+controllable party), 2.4 (gauntlet redesign), 2.8 (blocked on 2.4),
+and Leg 3 stay out of scope until assigned.
 
 ---
 
@@ -191,13 +199,19 @@ merge conflicts get worse the bigger a single commit gets).
 
 ### 2.0 — Art debt cleanup (assign to ChatGPT or Grok, not a coding task)
 
-Have ChatGPT or Grok produce real art for the 15-file debt list above
-and push it to `public/sprites/` at the exact paths `ART_NEEDED.md`
-specifies (24x32 world-sprite frames, 312x176 portraits, transparent
-background, matching the existing pixel-art style already in
-`public/sprites/`). This supersedes the old "ChatGPT A: no PNG work"
-rule for this task specifically. Once real files land, re-run
-`gen_sprites.py` and confirm `check_sync --strict` drops this FAIL.
+**Partial (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
+icons pushed (`items/megacrystal.png`, `ultimatecrystal.png`,
+`perfectcrystal.png`). `check_sync --strict` FAIL is now 25 files
+(was 28). Remaining: marsh/quarry NPC world frames + Fenn/Dray/
+Bogwalker/Reedguard portraits, plus `quartz-2.png`.
+
+Have ChatGPT or Grok produce real art for the remaining list in
+`ART_NEEDED.md` and push it to `public/sprites/` (source size is
+**48x64** world frames and **160x200** tall portraits, not the DC
+bake targets of 24x32 / 312x176 — those are downscaled). Transparent
+background, matching the existing pixel-art style. Once real files
+land, re-run `gen_sprites.py` and confirm `check_sync --strict`
+drops this FAIL.
 
 ### 2.1 — Dreamcast walking speed bug — DONE (Claude A)
 
@@ -509,8 +523,9 @@ and `main.c`'s `SHOP_CRYSTAL_MASK[]`/`shop_keep_id` (full detail in the
 commit message, `git log --grep "Leg 2.6"`).
 
 Placeholder walk-cycle + portrait art registered for Fenn/Dray via
-`sprites.json` (10 more files in `ART_NEEDED.md`, now 28 total — still
-assigned to ChatGPT/Grok per 2.0, not drawn here).
+`sprites.json` (still in `ART_NEEDED.md`; crystal item icons from 2.5
+later shipped, remaining debt is 25 files — assigned to ChatGPT/Grok
+per 2.0).
 
 **Not hardware-verified** — no Dreamcast emulator in this sandbox;
 verified via `make`/`make cdi`/`check_sync --strict`/`npm run
