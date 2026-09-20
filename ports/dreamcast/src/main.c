@@ -783,6 +783,7 @@ static void apply_player_name(int revived) {
 #define FADE_HOLD 2
 #define FADE_IN   3
 static int g_mercy_red_fade = 0;
+static unsigned int g_executed_mask = 0; /* Leg 2.9 permanent execute-delete */
 
 /* Brightness for the current phase, 0..FADE_STEPS. Mirrors the web's
    fadeAlpha(): out ramps up across its own frame budget, hold sits fully
@@ -1112,8 +1113,11 @@ static void ws_push(WorldSprite *list, int *n, const u16 *px, int w, int h, int 
     (*n)++;
 }
 
+static int npc_exec_bit(int map_id, char mark);
 static void ws_push_mark(WorldSprite *list, int *n, int map_id, char mark, const u16 *px, int w, int h) {
-    int cx, cy;
+    int cx, cy, ebit;
+    ebit = npc_exec_bit(map_id, mark);
+    if(ebit >= 0 && (g_executed_mask & (1u << ebit))) return; /* executed: gone from world */
     mark_center(map_id, mark, &cx, &cy);
     ws_push(list, n, px, w, h, cx, cy);
 }
@@ -3631,7 +3635,7 @@ typedef struct {
 } NpcRun;
 
 
-/* Map overworld NPC mark → executed_mask bit (mirrors engine.ts mercyExecBit). */
+/* Map overworld NPC mark → g_executed_mask bit (mirrors engine.ts mercyExecBit). */
 static int npc_exec_bit(int map_id, char mark) {
     if(map_id == MAP_VELD && mark == 'E') return 0; /* Calder */
     if(map_id == MAP_FOREST && mark == '1') return 1;
@@ -3666,7 +3670,7 @@ static int try_npc_script(NpcRun *R) {
             if(used[i] || NPC_DEFS[i].map_id != R->map_id) continue;
             {
                 int ebit = npc_exec_bit(NPC_DEFS[i].map_id, NPC_DEFS[i].mark);
-                if(ebit >= 0 && (executed_mask & (1u << ebit))) continue;
+                if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;
             }
             mark_center(R->map_id, NPC_DEFS[i].mark, &mx, &my);
             /* Box test against the target's own footprint (NPC_DEFS[i].w/h,
@@ -4203,7 +4207,7 @@ void main(void) {
     int choice_mode = 0, choice_cur = 0; /* father-vs-Heavenfall resurrection choice screen */
     int mercy_mode = 0, mercy_cur = 0; /* Leg 2.9 post-battle mercy menu */
     int mercy_foe_levels = 0;
-    unsigned int executed_mask = 0; /* Leg 2.9.4 permanent execute-delete */
+    /* g_executed_mask is g_executed_mask (file-static) */
         char mercy_foe_name[32];
     int soldier_beaten[3] = { 0, 0, 0 };
     int talked_father = 0;
@@ -4472,7 +4476,7 @@ void main(void) {
                         pdir = sl.dir;
                         if(pdir < 0 || pdir > 3) pdir = 0;
                         marks = sl.marks;
-                        executed_mask = sl.executed_mask;
+                        g_executed_mask = sl.executed_mask;
                         lead = sl.lead;
                         party_n = sl.party_n;
                         if(party_n > 6) party_n = 6;
@@ -4631,7 +4635,7 @@ void main(void) {
                 talked_reach = 0;
                 dex_clear();
                 choice_mode = 0; choice_cur = 0;
-                mercy_mode = 0; mercy_cur = 0; mercy_foe_levels = 0; mercy_foe_name[0] = 0; executed_mask = 0;
+                mercy_mode = 0; mercy_cur = 0; mercy_foe_levels = 0; mercy_foe_name[0] = 0; g_executed_mask = 0;
                 soldier_beaten[0] = soldier_beaten[1] = soldier_beaten[2] = 0;
                 mason_state = 0; mason_x = mason_y = 0.0f; mason_dir = 0; mason_anim = 0.0f;
                 mason_rematch = 0; mason2_map = -1; mason2_done = 0;
@@ -4783,7 +4787,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN2, soldier_beaten[2]);
                     save_flag_put(&sl, SAVE_FLAG_QUARRY_CRATE_LOOTED, quarry_crate_looted);
                     save_flag_put(&sl, SAVE_FLAG_QUARRY_SHELF_SEARCHED, quarry_shelf_searched);
-                    sl.executed_mask = executed_mask;
+                    sl.executed_mask = g_executed_mask;
                     if(save_store(&sl)) {
                         int n = s_cat(hud_flash, 0, "SAVED");
                         hud_flash[n] = 0;
@@ -5530,9 +5534,21 @@ void main(void) {
                 chip_sfx_ok();
                 mercy_mode = 0;
                 if(mercy_cur == 0) {
-                    /* Let them go: +1 rep */
+                    /* Let them go: +1 rep + random dismiss line */
+                    static const char *dismiss[] = {
+                        "I can't believe I was beaten by a kid.",
+                        "Impossible! I've never lost a battle!",
+                        "Take it easy on the next one, will you?",
+                        "You're stronger than you look...",
+                        "I'll remember this."
+                    };
+                    int di;
                     reputation += 1;
                     if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
+                    di = (int)(frand() * 5.0f);
+                    if(di < 0) di = 0;
+                    if(di > 4) di = 4;
+                    talk(dismiss[di]);
                     {
                         int n = s_cat(hud_flash, 0, "LET THEM GO. +1 REP");
                         hud_flash[n] = 0; hud_t = 90;
@@ -5575,7 +5591,7 @@ void main(void) {
                     if(battle.trainer_kind == TRAINER_CALDER) ebit = 0;
                     else if(battle.trainer_kind >= 10) ebit = battle.trainer_kind; /* coarse */
                     else ebit = battle.trainer_kind;
-                    if(ebit >= 0 && ebit < 31) executed_mask |= (1u << ebit);
+                    if(ebit >= 0 && ebit < 31) g_executed_mask |= (1u << ebit);
                     chip_sfx_faint(); /* stand-in scream until dedicated SFX exists */
                     g_mercy_red_fade = 1;
                     fade_state = FADE_OUT;
