@@ -240,6 +240,12 @@ export class CryMon {
 	shopKeep: string = "bram";
 	/** -100..100, see logic.json reputation. */
 	reputation = 0;
+	/** Post-battle mercy menu (Leg 2.9). */
+	mercyCur = 0;
+	mercyTrainer = null;
+	mercySoldierId = null;
+	mercyFoeLevels = 0;
+	mercyFoeName = "";
 	shopFreeBram = false;
 	shopFreeOren = false;
 	shopFreeFenn = false;
@@ -1251,6 +1257,10 @@ export class CryMon {
 		}
 		if (this.mode === "choice") {
 			this.updateChoice();
+			return;
+		}
+		if (this.mode === "mercy") {
+			this.updateMercy();
 			return;
 		}
 		if (this.mode === "bag") {
@@ -2902,24 +2912,16 @@ export class CryMon {
 				this.beatCalder = true;
 				if (!this.mason2Done && !this.mason2Map) this.mason2Map = pickMason2Map(Math.random());
 				this.marks += kit.marks ?? 18;
-				this.mode = "world";
-				this.battle = null;
-				this.world.encounterLock = 3;
-				this.onBattleOver();
-				this.say(TALK[kit.winTalk] || TALK.calderWin);
 				this.audio.ok();
+				this.openMercy(b);
 				return;
 			}
 			if (b.trainer === "soldier") {
 				const sol = this.soldiers.find((s) => s.id === b.soldierId);
 				if (sol) sol.beaten = true;
 				this.marks += sol?.marks ?? 8;
-				this.mode = "world";
-				this.battle = null;
-				this.world.encounterLock = 3;
-				this.onBattleOver();
-				this.say(TALK[sol?.winTalk] || TALK.soldierAfter);
 				this.audio.ok();
+				this.openMercy(b);
 				return;
 			}
 			if (b.trainer === "wsoldier") {
@@ -2949,8 +2951,9 @@ export class CryMon {
 				else if (who === "quarryDriller") this.beatQuarryDriller = true;
 				else if (who === "commanderFinal") this.beatCommander = true;
 				this.marks += kit?.marks ?? 12;
-				this.say(TALK[kit?.winTalk] || TALK.sentryWin, who === "commanderFinal" ? "creditsFinal" : null);
+				// Win talk deferred; mercy menu first (not mason/shinigami).
 				this.audio.ok();
+				this.openMercy(b);
 				return;
 			}
 			if (b.trainer === "shinigami") {
@@ -3002,6 +3005,61 @@ export class CryMon {
 		}
 		this.note(notes[0] || (grew ? `${m.name} grew to lv ${m.level}.` : `${m.name} stands over the grass.`));
 	}
+
+	/** Combined level of the defeated trainer's CryMon (lead + bench). */
+	foePartyLevels(b) {
+		if (!b) return 0;
+		let n = b.foe?.level ?? 0;
+		for (const m of b.foeBench || []) n += m.level || 0;
+		return n;
+	}
+	/** Open Leg 2.9 mercy menu after a human trainer win (not Mason/Shinigami). */
+	openMercy(b) {
+		this.mercyCur = 0;
+		this.mercyTrainer = b.trainer;
+		this.mercySoldierId = b.soldierId;
+		this.mercyFoeLevels = this.foePartyLevels(b);
+		this.mercyFoeName = b.foeName || "Trainer";
+		this.mode = "mercy";
+		this.battle = null;
+		this.world.encounterLock = 3;
+		this.onBattleOver();
+	}
+	updateMercy() {
+		if (this.input.up()) {
+			this.mercyCur = (this.mercyCur + 3) % 4;
+			this.audio.ui();
+		} else if (this.input.down()) {
+			this.mercyCur = (this.mercyCur + 1) % 4;
+			this.audio.ui();
+		}
+		if (this.input.confirm()) {
+			this.audio.ok();
+			// Sub-step 2.9.2: UI only — effects land in 2.9.3+.
+			this.mode = "world";
+			this.note("The moment passes.");
+		}
+	}
+	drawMercy() {
+		this.drawWorld();
+		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.box(X(16), Y(16), X(208), Y(128));
+		this.text("AFTER THE FIGHT", X(120), Y(22), "#c5cec6", FONT, "center");
+		this.text(`${this.mercyFoeName} is beaten.`, X(28), Y(38), "#8a8678", FONT);
+		const rows = [
+			"Let Them Go",
+			"Threaten For Marks",
+			"Threaten For An Item",
+			"Execute"
+		];
+		rows.forEach((row, i) => {
+			const on = i === this.mercyCur;
+			this.text(on ? `> ${row}` : `  ${row}`, X(28), Y(56 + i * 14), on ? "#e8e4d8" : "#8a8678", FONT);
+		});
+		this.text("Z  choose", X(28), Y(128), "#5a7a52", FONT);
+	}
+
 	updateChoice() {
 		if (this.input.up() || this.input.down()) {
 			this.choiceCur = 1 - this.choiceCur;
@@ -3044,6 +3102,7 @@ export class CryMon {
 		else if (this.mode === "party") this.drawParty();
 		else if (this.mode === "shop") this.drawShop();
 		else if (this.mode === "choice") this.drawChoice();
+		else if (this.mode === "mercy") this.drawMercy();
 		else if (this.mode === "pause") this.drawPause();
 		else if (this.mode === "crydex") this.drawCryDex();
 		else this.drawWorld();

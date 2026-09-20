@@ -2282,6 +2282,26 @@ static void draw_choice(int cur) {
                  (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
 }
 
+static void draw_mercy(int cur, const char *foe_name)
+{
+    int y = MENU_Y + 20;
+    char sub[48];
+    draw_menu_frame("AFTER THE FIGHT", "A CHOOSE");
+    if(foe_name && foe_name[0]) {
+        int i = 0;
+        while(i < 40 && foe_name[i]) { sub[i] = foe_name[i]; i++; }
+        sub[i] = 0;
+        draw_wrapped(sub, MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE,
+                     (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
+        y += 18;
+    }
+    draw_choice_row("LET THEM GO", 0, cur, y); y += MENU_ROW_H;
+    draw_choice_row("THREATEN FOR MARKS", 1, cur, y); y += MENU_ROW_H;
+    draw_choice_row("THREATEN FOR AN ITEM", 2, cur, y); y += MENU_ROW_H;
+    draw_choice_row("EXECUTE", 3, cur, y);
+}
+
+
 /* ----------------------------------------------------------------------
  * Battle system, ported from state.lua's updateBattle()/pickAtk()/
  * pickGuard()/pickItem()/applyHit()/finishWin() and captureChanceNow().
@@ -4120,6 +4140,7 @@ void main(void) {
 #define POST_WSOLDIER_MARSH_REED 26
 #define POST_WSOLDIER_COMMANDER_FINAL 27
 #define POST_CREDITS_FINAL 28
+#define POST_OPEN_MERCY 29
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
    from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
    title and crystal-tier stock, no separate post_action per merchant. */
@@ -4148,6 +4169,9 @@ void main(void) {
     int has_scroll = 0; /* Legendary Reanimation, granted once Shinigami's win dialogue closes */
     int anne2_told = 0; /* gates Anne's second (father-died/choice) approach to firing once */
     int choice_mode = 0, choice_cur = 0; /* father-vs-Heavenfall resurrection choice screen */
+    int mercy_mode = 0, mercy_cur = 0; /* Leg 2.9 post-battle mercy menu */
+    int mercy_foe_levels = 0;
+    char mercy_foe_name[32];
     int soldier_beaten[3] = { 0, 0, 0 };
     int talked_father = 0;
     int *ft[FLAG_N];
@@ -4572,6 +4596,7 @@ void main(void) {
                 talked_reach = 0;
                 dex_clear();
                 choice_mode = 0; choice_cur = 0;
+                mercy_mode = 0; mercy_cur = 0; mercy_foe_levels = 0; mercy_foe_name[0] = 0;
                 soldier_beaten[0] = soldier_beaten[1] = soldier_beaten[2] = 0;
                 mason_state = 0; mason_x = mason_y = 0.0f; mason_dir = 0; mason_anim = 0.0f;
                 mason_rematch = 0; mason2_map = -1; mason2_done = 0;
@@ -5014,7 +5039,7 @@ void main(void) {
                                     seq_lines = TALK_WSOLDIER_CLIFFS_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_CLIFFS_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_CAMP1) {
                                     beat_wsoldier_camp1 = 1;
@@ -5025,7 +5050,7 @@ void main(void) {
                                     seq_lines = TALK_WSOLDIER_CAMP1_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_CAMP1_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_CAMP2) {
                                     beat_wsoldier_camp2 = 1;
@@ -5036,7 +5061,7 @@ void main(void) {
                                     seq_lines = TALK_WSOLDIER_CAMP2_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_CAMP2_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_GROVE) {
                                     beat_wsoldier_grove = 1;
@@ -5047,7 +5072,7 @@ void main(void) {
                                     seq_lines = TALK_WSOLDIER_GROVE_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_GROVE_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_RANGER) {
                                     beat_forest_ranger = 1;
@@ -5058,7 +5083,7 @@ void main(void) {
                                     seq_lines = TALK_FOREST_RANGER_WIN;
                                     seq_len = TALK_LEN(TALK_FOREST_RANGER_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_SCOUT) {
                                     beat_forest_scout = 1;
@@ -5069,7 +5094,7 @@ void main(void) {
                                     seq_lines = TALK_FOREST_SCOUT_WIN;
                                     seq_len = TALK_LEN(TALK_FOREST_SCOUT_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_KEEPER) {
                                     beat_ruins_keeper = 1;
@@ -5080,7 +5105,7 @@ void main(void) {
                                     seq_lines = TALK_RUINS_KEEPER_WIN;
                                     seq_len = TALK_LEN(TALK_RUINS_KEEPER_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_WARDEN) {
                                     beat_ruins_warden = 1;
@@ -5091,7 +5116,7 @@ void main(void) {
                                     seq_lines = TALK_RUINS_WARDEN_WIN;
                                     seq_len = TALK_LEN(TALK_RUINS_WARDEN_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_QUARTZ) {
                                     badge_quartz = 1;
@@ -5102,7 +5127,7 @@ void main(void) {
                                     seq_lines = TALK_QUARTZ_WIN;
                                     seq_len = TALK_LEN(TALK_QUARTZ_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_QUARRY_DRILLER) {
                                     beat_quarry_driller = 1;
@@ -5113,7 +5138,7 @@ void main(void) {
                                     seq_lines = TALK_QUARRY_DRILLER_WIN;
                                     seq_len = TALK_LEN(TALK_QUARRY_DRILLER_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_OPAL) {
                                     badge_opal = 1;
@@ -5124,7 +5149,7 @@ void main(void) {
                                     seq_lines = TALK_OPAL_WIN;
                                     seq_len = TALK_LEN(TALK_OPAL_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_MARSH_BOG) {
                                     beat_marsh_bog = 1;
@@ -5135,7 +5160,7 @@ void main(void) {
                                     seq_lines = TALK_MARSH_BOG_WIN;
                                     seq_len = TALK_LEN(TALK_MARSH_BOG_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_MARSH_REED) {
                                     beat_marsh_reed = 1;
@@ -5146,7 +5171,7 @@ void main(void) {
                                     seq_lines = TALK_MARSH_REED_WIN;
                                     seq_len = TALK_LEN(TALK_MARSH_REED_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_NONE;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_COMMANDER_FINAL) {
                                     beat_commander = 1;
@@ -5244,7 +5269,7 @@ void main(void) {
                                            (its own !cath_caught guard
                                            doesn't stop a beaten-not-
                                            captured Cathleen). */
-                                        post_action = POST_NONE;
+                                        post_action = POST_OPEN_MERCY;
                                     }
                                     else {
                                         /* note(): a HUD toast, not a
@@ -5452,6 +5477,27 @@ void main(void) {
                 }
             }
         }
+        
+        else if(mercy_mode) {
+            /* Leg 2.9.2 UI: up/down among 4 rows, A confirms (effects in 2.9.3+). */
+            if(up_now && !prev_up) {
+                mercy_cur = (mercy_cur + 3) & 3;
+                chip_sfx_ui();
+            }
+            if(down_now && !prev_down) {
+                mercy_cur = (mercy_cur + 1) & 3;
+                chip_sfx_ui();
+            }
+            if(a_now && !prev_a) {
+                chip_sfx_ok();
+                mercy_mode = 0;
+                {
+                    int n = s_cat(hud_flash, 0, "THE MOMENT PASSES.");
+                    hud_flash[n] = 0; hud_t = 90;
+                }
+            }
+        }
+
         else if(choice_mode) {
             /* draw_choice()'s input: up/down between the 2 rows, A
                locks it in -- no B, this choice doesn't have a "never
@@ -6300,6 +6346,22 @@ void main(void) {
                                     anne_dir = 0;
                                     anne_anim = 0.0f;
                                     break;
+                                
+                                case POST_OPEN_MERCY:
+                                    /* Leg 2.9.2: open post-battle mercy menu. */
+                                    mercy_mode = 1;
+                                    mercy_cur = 0;
+                                    mercy_foe_levels = 0; /* filled in 2.9.3 */
+                                    {
+                                        const char *nm = "Trainer";
+                                        if(battle.trainer_kind == TRAINER_CALDER) nm = "Calder";
+                                        else if(battle.trainer_kind == TRAINER_SHINIGAMI) nm = "Shinigami";
+                                        else nm = "Trainer";
+                                        int i; for(i = 0; i < 31 && nm[i]; i++) mercy_foe_name[i] = nm[i];
+                                        mercy_foe_name[i] = 0;
+                                    }
+                                    break;
+
                                 case POST_OPEN_CHOICE:
                                     /* Opens draw_choice() once
                                        TALK_SHINIGAMI_WIN closes -- Anne
@@ -6494,6 +6556,8 @@ void main(void) {
                           reputation, shop_free);
             if(choice_mode)
                 draw_choice(choice_cur);
+            if(mercy_mode)
+                draw_mercy(mercy_cur, mercy_foe_name);
         }
 
         /* Post-process over whatever was just drawn, whatever it was

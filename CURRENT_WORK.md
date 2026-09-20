@@ -266,8 +266,7 @@ dialogue + teleport-back + reputation +25) DONE (Grok A), pushed.**
 **2.7 sub-step 5 ("Max The Kind" display-name override) DONE (Grok A),
 pushed.** **2.10 (reputation's economic effects) DONE (Grok A), pushed.**
 **2.0 partial (Grok A): crystals, Driller world frames, and Dray
-world+portrait shipped; 16 files remain.** Remaining 2.9 sub-steps (post-battle
-mercy/threaten/execute menu) still open. 2.7 sub-steps 3+ (second
+world+portrait shipped; 16 files remain.** **2.9.2 (post-battle mercy menu UI) DONE (Grok), pushed.** Remaining 2.9 sub-steps 3–6 (effects, execute-delete, red fade, integration) still open. 2.7 sub-steps 3+ (second
 controllable party), 2.4 (gauntlet redesign), 2.8 (blocked on 2.4),
 and Leg 3 stay out of scope until assigned.
 
@@ -733,7 +732,7 @@ before the rest of 2.7.
    whichever line gets picked, so it isn't keyed under `talk` like a
    scripted beat). Not yet wired into any code — nothing picks from
    this pool at random yet, that's sub-step 2+ below, still open.
-2. The post-battle prompt UI itself — likely a new `mode`/menu state
+2. **DONE (Grok), pushed.** The post-battle prompt UI itself — new `mercy` mode / menu state
    the same way the father/Heavenfall `choice` screen works
    (`updateChoice`/`draw_choice` pattern), but 4 options instead of 2,
    and only reachable from a trainer-win instead of the one scripted
