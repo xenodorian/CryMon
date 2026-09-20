@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3439b0960605439e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=723f08fd46539b6f — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_AUDIO_INC
 #define CONTENT_AUDIO_INC
@@ -29,7 +29,8 @@ typedef struct { const ChipTrack *tr; int ntr; int loop; } ChipSong;
 #define SFX_SAVE 6
 #define SFX_HEAL 7
 #define SFX_FAINT 8
-#define SFX_N 9
+#define SFX_SCREAM 9
+#define SFX_N 10
 
 static const ChipEv song_title_t0[] = {
     { 64, 20, 11 },
@@ -700,6 +701,28 @@ static const ChipTrack sfx_faint_tr[] = {
     { 0, 1, 8, sfx_faint_t0, 4 },
 };
 
+static const ChipEv sfx_scream_t0[] = {
+    { 69, 4, 12 },
+    { 65, 4, 12 },
+    { 62, 4, 12 },
+    { 59, 4, 12 },
+    { 55, 6, 12 },
+    { 52, 6, 12 },
+    { 48, 8, 12 },
+    { 45, 10, 12 },
+};
+static const ChipEv sfx_scream_t1[] = {
+    { 1, 6, 10 },
+    { 1, 6, 10 },
+    { 1, 8, 10 },
+    { 1, 10, 10 },
+    { 0, 4, 0 },
+};
+static const ChipTrack sfx_scream_tr[] = {
+    { 0, 1, 12, sfx_scream_t0, 8 },
+    { 2, 0, 10, sfx_scream_t1, 5 },
+};
+
 static const ChipSong CHIP_SONGS[SONG_N] = {
     { song_title_tr, 4, 1 },
     { song_home_tr, 4, 1 },
@@ -719,6 +742,7 @@ static const ChipSong CHIP_SFX[SFX_N] = {
     { sfx_save_tr, 1, 0 },
     { sfx_heal_tr, 1, 0 },
     { sfx_faint_tr, 1, 0 },
+    { sfx_scream_tr, 2, 0 },
 };
 
 #define MAP_SONG_N 11
