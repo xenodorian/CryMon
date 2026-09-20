@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3439b0960605439e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=723f08fd46539b6f — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -506,6 +506,12 @@ static const TalkBeat TALK_SHOP_REFUSE[] = {
     { "THEY LOOK AT YOU AND WILL NOT TRADE.", 0 },
     { "NOT AFTER WHAT YOU HAVE DONE.", 0 },
 };
+static const TalkBeat TALK_MERCY_THREATEN[] = {
+    { "DON'T HURT ME, JUST TAKE IT!", 0 },
+};
+static const TalkBeat TALK_MERCY_EXECUTE[] = {
+    { "NO SURVIVORS, NO WITNESSES.", 1 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -642,6 +648,8 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_FENN_OPEN,
     TALK_DRAY_OPEN,
     TALK_SHOP_REFUSE,
+    TALK_MERCY_THREATEN,
+    TALK_MERCY_EXECUTE,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -763,6 +771,8 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FENN_OPEN),
     TALK_LEN(TALK_DRAY_OPEN),
     TALK_LEN(TALK_SHOP_REFUSE),
+    TALK_LEN(TALK_MERCY_THREATEN),
+    TALK_LEN(TALK_MERCY_EXECUTE),
 };
-#define TALK_TABLE_N 119
+#define TALK_TABLE_N 121
 
