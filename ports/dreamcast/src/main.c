@@ -4171,6 +4171,7 @@ void main(void) {
     int choice_mode = 0, choice_cur = 0; /* father-vs-Heavenfall resurrection choice screen */
     int mercy_mode = 0, mercy_cur = 0; /* Leg 2.9 post-battle mercy menu */
     int mercy_foe_levels = 0;
+    unsigned int executed_mask = 0; /* Leg 2.9.4 permanent execute-delete */
     char mercy_foe_name[32];
     int soldier_beaten[3] = { 0, 0, 0 };
     int talked_father = 0;
@@ -4596,7 +4597,7 @@ void main(void) {
                 talked_reach = 0;
                 dex_clear();
                 choice_mode = 0; choice_cur = 0;
-                mercy_mode = 0; mercy_cur = 0; mercy_foe_levels = 0; mercy_foe_name[0] = 0;
+                mercy_mode = 0; mercy_cur = 0; mercy_foe_levels = 0; mercy_foe_name[0] = 0; executed_mask = 0;
                 soldier_beaten[0] = soldier_beaten[1] = soldier_beaten[2] = 0;
                 mason_state = 0; mason_x = mason_y = 0.0f; mason_dir = 0; mason_anim = 0.0f;
                 mason_rematch = 0; mason2_map = -1; mason2_done = 0;
@@ -5525,6 +5526,7 @@ void main(void) {
                     int a = (int)(frand() * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
                     int b = (int)(frand() * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
                     int *sa, *sb;
+                    int ebit = -1;
                     reputation -= 10;
                     if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
                     marks += levels * 10;
@@ -5533,6 +5535,11 @@ void main(void) {
                     sa = bag_field(&bag, a); sb = bag_field(&bag, b);
                     if(sa) (*sa)++;
                     if(sb) (*sb)++;
+                    /* Permanent delete bit from last trainer_kind. */
+                    if(battle.trainer_kind == TRAINER_CALDER) ebit = 0;
+                    else if(battle.trainer_kind >= 10) ebit = battle.trainer_kind; /* coarse */
+                    else ebit = battle.trainer_kind;
+                    if(ebit >= 0 && ebit < 31) executed_mask |= (1u << ebit);
                     {
                         int n = s_cat(hud_flash, 0, "NO SURVIVORS");
                         hud_flash[n] = 0; hud_t = 90;

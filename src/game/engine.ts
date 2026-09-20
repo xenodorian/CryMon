@@ -247,6 +247,8 @@ export class CryMon {
 	mercySoldierId = null;
 	mercyFoeLevels = 0;
 	mercyFoeName = "";
+	/** Bitmask of permanently executed trainers (Leg 2.9.4). */
+	executedMask = 0;
 	shopFreeBram = false;
 	shopFreeOren = false;
 	shopFreeFenn = false;
@@ -407,6 +409,7 @@ export class CryMon {
 		this.choiceCur = 0;
 		this.shopKeep = "bram";
 		this.reputation = 0;
+		this.executedMask = 0;
 		this.shopFreeBram = false;
 		this.shopFreeOren = false;
 		this.shopFreeFenn = false;
@@ -460,6 +463,7 @@ export class CryMon {
 			battlesDone: this.battlesDone,
 			mason2Map: this.mason2Map,
 			reputation: this.reputation,
+			executedMask: this.executedMask,
 			bag: { ...this.bag },
 			flags,
 			party: this.party.map((m) => ({ ...m })),
@@ -485,6 +489,7 @@ export class CryMon {
 		this.battlesDone = snap.battlesDone;
 		this.mason2Map = snap.mason2Map;
 		this.reputation = snap.reputation ?? 0;
+		this.executedMask = snap.executedMask ?? 0;
 		this.adjustReputation(0);
 		this.bag = { ...START_BAG, ...snap.bag };
 		this.dexSeen = snap.dexSeen >>> 0;
@@ -1910,6 +1915,7 @@ export class CryMon {
 		let bestD = Infinity;
 		for (const npc of NPCS) {
 			if (npc.map !== this.world.mapId || !npc.script?.length) continue;
+			if (this.npcIsExecuted(npc.id)) continue;
 			if (!matchNpcScript(npc.script, flags)) continue;
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(map, mark);
@@ -3008,6 +3014,62 @@ export class CryMon {
 	}
 
 	/** Combined level of the defeated trainer's CryMon (lead + bench). */
+
+	/** Bit index for permanent execute-delete (Leg 2.9.4). */
+
+	npcIsExecuted(npcId) {
+		const map = {
+			calder: ["calder", null],
+			cross: ["wsoldier", "cross"],
+			conscript: ["wsoldier", "conscript"],
+			enforcer: ["wsoldier", "enforcer"],
+			sentry: ["wsoldier", "sentry"],
+			forestRanger: ["wsoldier", "forestRanger"],
+			forestScout: ["wsoldier", "forestScout"],
+			ruinsKeeper: ["wsoldier", "ruinsKeeper"],
+			ruinsWarden: ["wsoldier", "ruinsWarden"],
+			marshBog: ["wsoldier", "marshBog"],
+			marshReed: ["wsoldier", "marshReed"],
+			quartz: ["wsoldier", "quartz"],
+			opal: ["wsoldier", "opal"],
+			quarryDriller: ["wsoldier", "quarryDriller"],
+			commanderFinal: ["wsoldier", "commanderFinal"],
+			soldier1: ["soldier", "soldier1"],
+			soldier2: ["soldier", "soldier2"],
+			soldier3: ["soldier", "soldier3"]
+		};
+		const pair = map[npcId];
+		if (!pair) return false;
+		return this.isExecuted(pair[0], pair[1]);
+	}
+
+	mercyExecBit(trainer, soldierId) {
+		if (trainer === "calder") return 0;
+		if (trainer === "soldier") {
+			const id = soldierId || "";
+			if (id.includes("1") || id === "soldier1") return 1;
+			if (id.includes("2") || id === "soldier2") return 2;
+			return 3;
+		}
+		const map = {
+			sentry: 4, conscript: 5, enforcer: 6, cross: 7,
+			forestRanger: 8, forestScout: 9, ruinsKeeper: 10, ruinsWarden: 11,
+			marshBog: 12, marshReed: 13, quartz: 14, opal: 15,
+			quarryDriller: 16, commanderFinal: 17
+		};
+		if (trainer === "wsoldier") return map[soldierId] ?? 18;
+		return map[trainer] ?? -1;
+	}
+	isExecuted(trainer, soldierId) {
+		const bit = this.mercyExecBit(trainer, soldierId);
+		if (bit < 0) return false;
+		return (this.executedMask & (1 << bit)) !== 0;
+	}
+	markExecuted(trainer, soldierId) {
+		const bit = this.mercyExecBit(trainer, soldierId);
+		if (bit >= 0) this.executedMask |= 1 << bit;
+	}
+
 	foePartyLevels(b) {
 		if (!b) return 0;
 		let n = b.foe?.level ?? 0;
@@ -3067,7 +3129,7 @@ export class CryMon {
 			this.say(TALK.mercyThreaten || [{ speaker: "none", text: "Don't hurt me, just take it!" }]);
 			this.note(`Took ${ITEMS[id]?.name || id}.`);
 		} else {
-			// Execute: -10 rep, marks = levels*10, 2 items (delete/fade in later steps)
+			// Execute: -10 rep, marks = levels*10, 2 items, permanent delete
 			this.adjustReputation(-10);
 			const gain = levels * 10;
 			this.marks += gain;
@@ -3075,6 +3137,7 @@ export class CryMon {
 			const b = this.randomMercyItem();
 			this.bag[a] = (this.bag[a] ?? 0) + 1;
 			this.bag[b] = (this.bag[b] ?? 0) + 1;
+			this.markExecuted(this.mercyTrainer, this.mercySoldierId);
 			this.say(TALK.mercyExecute || [{ speaker: "max", text: "No survivors, no witnesses." }]);
 			this.note(`Took ${gain} marks and loot.`);
 		}
@@ -3636,6 +3699,7 @@ export class CryMon {
 			if (npc.map !== this.world.mapId || !npc.sprite) continue;
 			if (npc.sprite === "npc/soldier" || String(npc.id || "").startsWith("soldier")) continue;
 			if (npc.script?.some((s) => s.hideIf && flags[s.hideIf as string])) continue;
+			if (this.npcIsExecuted(npc.id)) continue;
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(this.map(), mark);
 				const base = String(npc.sprite).includes("/")

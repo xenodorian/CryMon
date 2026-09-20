@@ -266,7 +266,7 @@ dialogue + teleport-back + reputation +25) DONE (Grok A), pushed.**
 **2.7 sub-step 5 ("Max The Kind" display-name override) DONE (Grok A),
 pushed.** **2.10 (reputation's economic effects) DONE (Grok A), pushed.**
 **2.0 partial (Grok A): crystals, Driller world frames, and Dray
-world+portrait shipped; 16 files remain.** **2.9.2 UI and 2.9.3 effects (rep/marks/items) DONE (Grok), pushed.** Remaining 2.9 sub-steps 4–6 (execute-delete, red fade, integration) still open. 2.7 sub-steps 3+ (second
+world+portrait shipped; 16 files remain.** **2.9.2–2.9.4 DONE (Grok), pushed** (UI, effects, permanent execute-delete mask). Remaining 2.9.5–6 (red fade/scream, integration). 2.7 sub-steps 3+ (second
 controllable party), 2.4 (gauntlet redesign), 2.8 (blocked on 2.4),
 and Leg 3 stay out of scope until assigned.
 
@@ -743,7 +743,7 @@ before the rest of 2.7.
    prompt or just future ones, since retrofitting every existing
    win-handler is a bigger diff than adding it to new content only.
 3. **DONE (Grok), pushed.** The 4 branches' effects (marks math, item RNG, reputation deltas).
-4. "Permanently deleted from the world" for Execute — needs a new
+4. **DONE (Grok), pushed.** "Permanently deleted from the world" for Execute — needs a new
    per-NPC persisted flag (`beat<Name>` flags already exist for "don't
    refight," but "deleted as an entity" implies also hidden from any
    future non-combat interaction/dialogue too — check whether the

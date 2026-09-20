@@ -22,6 +22,7 @@ export interface SaveSnapshot {
 	battlesDone: number;
 	mason2Map: MapId | null;
 	reputation: number;
+	executedMask?: number;
 	bag: Record<string, number>;
 	flags: Record<string, boolean>;
 	party: Monster[];
@@ -96,6 +97,7 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 	u16(buf, 135, checksum(buf));
 	u32(buf, 137, snap.dexSeen >>> 0);
 	u32(buf, 141, snap.dexCaught >>> 0);
+	u32(buf, 145, (snap.executedMask ?? 0) >>> 0);
 	return buf;
 }
 
