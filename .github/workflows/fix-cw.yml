@@ -8,12 +8,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/patch_mercy_cw.py
+      - run: python3 tools/patch_scream_pattern.py
+      - name: Verify bake accepts scream
+        run: python3 tools/bake_content.py --content content --out ports/dreamcast/src
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add CURRENT_WORK.md
+          git add content/audio.json ports/dreamcast/src/content_audio.inc
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "CURRENT_WORK: mark Mercy 2.9 fully DONE"
+          git commit -m "Fix scream SFX pattern (NOTE:frames) so bake succeeds"
           git push
