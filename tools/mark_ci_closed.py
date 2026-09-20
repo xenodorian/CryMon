@@ -1,42 +1,31 @@
 #!/usr/bin/env python3
 """Replace the open CI gap section in CURRENT_WORK.md with CLOSED."""
 from pathlib import Path
+import re
 
 path = Path("CURRENT_WORK.md")
 t = path.read_text()
-old = """## CI gap (still open): Pages doesn't auto-redeploy after a bot-only CDI rebuild
+if "## CI gap — CLOSED" in t or "## CI gap - CLOSED" in t:
+    print("already closed")
+    raise SystemExit(0)
 
-Found by Claude B: `build-dreamcast.yml`'s bot commit touches
-`ports/dreamcast/crymon.cdi` (in `deploy-pages.yml`'s path filter), but
-that push authenticates as the default `GITHUB_TOKEN`, and GitHub
-Actions blocks `GITHUB_TOKEN`-authored pushes from triggering other
-workflows (loop prevention). So `deploy-pages.yml` never fires off a
-CDI-only rebuild — the live Pages site's downloadable CDI silently
-stays one build behind until someone manually re-runs it
-(Actions tab → Deploy CryMon Web to GitHub Pages → Run workflow).
+new = (
+    "## CI gap — CLOSED (Grok C)\n\n"
+    "`GITHUB_TOKEN` pushes still cannot re-trigger other workflows (GitHub\n"
+    "loop guard). Closed by option 2: after a successful CDI commit+push in\n"
+    "`build-dreamcast.yml`, a step runs `gh workflow run deploy-pages.yml`\n"
+    "with `permissions: actions: write`. Pages re-packages\n"
+    "`ports/dreamcast/crymon.cdi` into the download slot without a PAT or\n"
+    "manual re-run.\n\n"
+    "If deploy-pages ever fails to start, check the Build Dreamcast CDI job\n"
+    "log for the \"Trigger Pages deploy\" step and the Actions tab for a\n"
+    "queued Deploy CryMon Web run.\n"
+)
 
-**Fix options, still not done, whoever owns CI next:**
-1. Give `build-dreamcast.yml`'s push step a PAT instead of the default
-   token, so its push can trigger `deploy-pages.yml` normally.
-2. Add a step at the end of `build-dreamcast.yml` that calls
-   `deploy-pages.yml` via `workflow_dispatch` (needs `actions: write`).
-"""
-new = """## CI gap — CLOSED (Grok C)
-
-`GITHUB_TOKEN` pushes still cannot re-trigger other workflows (GitHub
-loop guard). Closed by option 2: after a successful CDI commit+push in
-`build-dreamcast.yml`, a step runs `gh workflow run deploy-pages.yml`
-with `permissions: actions: write`. Pages re-packages
-`ports/dreamcast/crymon.cdi` into the download slot without a PAT or
-manual re-run.
-
-If deploy-pages ever fails to start, check the Build Dreamcast CDI job
-log for the "Trigger Pages deploy" step and the Actions tab for a
-queued Deploy CryMon Web run.
-"""
-if old not in t:
+m = re.search(r"## CI gap \(still open\):.*?(?=\n---\n)", t, flags=re.S)
+if not m:
     raise SystemExit("CI gap open section not found")
-t = t.replace(old, new)
+t = t[: m.start()] + new + t[m.end() :]
 t = t.replace(
     "confirm the Pages deploy actually re-ran for that commit (see\n  the CI gap note below — it does **not** happen automatically off a\n  bot-only CDI commit, currently)",
     "confirm the Pages deploy actually re-ran for that commit (bot CDI\n  pushes now `workflow_dispatch` deploy-pages — see CI gap CLOSED note)",
