@@ -3893,6 +3893,11 @@ void main(void) {
     int map_id = MAP_HOUSE;
     int px, py, pdir = 0; /* dir: 0=down,1=up,2=left,3=right */
     int anim_counter = 0; /* see draw_player's comment */
+    int player_speed_frac = 0; /* Leg 2.1: sub-pixel accumulator so the
+                                   player's average speed matches web's
+                                   84 px/sec despite only ever moving a
+                                   whole number of pixels per frame --
+                                   see the movement block below */
     int col, row;
     int cam_x, cam_y;
     u16 raw;
@@ -5599,10 +5604,19 @@ void main(void) {
                        along walls instead of stopping dead on a
                        diagonal. Half the collision box (6px) is
                        checked at the candidate feet position. */
-                    int speed = 1; /* px/frame; ~60px/sec at 60fps,
-                                       scaled down from the original's
-                                       110px/sec at 32px tiles for our
-                                       smaller tiles */
+                    /* Leg 2.1 fix: was a flat `int speed = 1` (exactly
+                       60px/sec at our fixed 60fps vblank), 29% slower
+                       than web's delta-time `const sp = 84` in
+                       engine.ts. A plain integer per-frame step can
+                       never hit 84 exactly (84/60 = 1.4px/frame), so
+                       accumulate the fractional remainder in 1/256ths
+                       of a pixel and only spend whole pixels once
+                       they've accrued -- averages ~83.9px/sec over
+                       time instead of a hard 60. */
+                    int speed;
+                    player_speed_frac += 358; /* 84 * 256 / 60 ~= 358.4 */
+                    speed = player_speed_frac >> 8;
+                    player_speed_frac &= 255;
                     int nx = px + dx * speed;
                     int ny = py + dy * speed;
 

@@ -161,8 +161,15 @@ it's updated after every commit this run.
 (2.0 art debt isn't on this list — it's assigned to ChatGPT/Grok, not
 a coding task for me.)
 
-**Current position:** not started yet — this plan was just written.
-Next: 2.1.
+**Current position:** 2.1 DONE and pushed. Fixed-point accumulator
+landed in `main.c` (see 2.1 below for the exact fix), compiles clean
+with no new warnings, `check_sync --strict`/typecheck/`make`/`make cdi`
+all pass. **Not verified on real hardware/emulator** — no Dreamcast
+emulator in this sandbox, so this is math-verified (re-derived the
+average-speed calculation) and build-verified, not playtested. If it
+still feels wrong after this, re-check against a real Dreamcast/
+emulator before assuming the fix is wrong — see the caveat in 2.1.
+Next: 2.3 (settings → start menu).
 
 ---
 
@@ -184,7 +191,7 @@ background, matching the existing pixel-art style already in
 rule for this task specifically. Once real files land, re-run
 `gen_sprites.py` and confirm `check_sync --strict` drops this FAIL.
 
-### 2.1 — Dreamcast walking speed bug
+### 2.1 — Dreamcast walking speed bug — DONE (Claude A)
 
 **Root cause found:** `engine.ts` moves the player at `84 px/sec`
 (delta-time based, `src/game/engine.ts` ~line 1609: `const sp = 84;`).
