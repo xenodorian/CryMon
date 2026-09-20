@@ -5201,6 +5201,7 @@ void main(void) {
                                     seq_lines = TALK_SOLDIER_AFTER;
                                     seq_len = TALK_LEN(TALK_SOLDIER_AFTER);
                                     seq_beat = 0;
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_MASON) {
                                     /* He leaves the instant this
