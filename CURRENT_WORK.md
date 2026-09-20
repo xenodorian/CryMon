@@ -37,10 +37,12 @@ against a chroma-key background. Ship files with a **transparent**
 background — never leftover magenta, never a solid-color plate.
 
 1. **Cut the key.** Flood-from-edge chroma-key the magenta (and
-   JPEG-fringed near-magenta) to alpha 0. Isolated interior magenta
-   (eyes, gems, trim) is *not* keyed — only background connected to
-   the image edge. `tools/strip_magenta.py`'s flood-from-edge pass is
-   this step.
+   JPEG-fringed near-magenta) to alpha 0. Then punch **enclosed
+   magenta background holes** (filigree gaps, hanging-ring interiors,
+   cage cutouts) — leftover is_key blobs that are majority true
+   chroma-key magenta (high R, low G, high B). Actual gem / eye /
+   trim color that isn't chroma-key magenta stays. `tools/strip_magenta.py
+   key-clamp` does both.
 2. **Do not traditional-despill.** Do not delete a 1px/2px fringe of
    "magenta-ish" pixels around the silhouette. That eats into the
    sprite (hair, outlines, gem cages). `strip_magenta.py`'s 1px
@@ -62,11 +64,11 @@ legacy 1px fringe-delete across the tree):
 python3 tools/strip_magenta.py key-clamp --size 128 --pad 24 -o DEST SRC
 ```
 
-`--size 0` keeps the source resolution. Pendant-ring interiors (enclosed
-magenta not connected to the edge) are punched; gem/eye magenta lower
-in the frame is not. QC before commit: corners transparent, no leftover
-`#FF00FF`, no magentish halo on the silhouette, interior colors
-(including intentional pinks deeper than 2px from the edge) untouched.
+`--size 0` keeps the source resolution. Enclosed magenta *background*
+holes (filigree, rings, cage cutouts) are punched; gem/eye/trim color
+that isn't chroma-key magenta is not. QC before commit: corners
+transparent, no leftover `#FF00FF` in the silhouette *or* in interior
+cutouts, no magentish halo, interior gem colors untouched.
 
 ---
 
@@ -167,7 +169,8 @@ stays one build behind until someone manually re-runs it
 **Shipped (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
 icons (`public/sprites/items/{mega,ultimate,perfect}crystal.png`,
 128x128 RGBA, same caged-stone silhouette as Common). Dropped
-ART_NEEDED 28→25. Re-keyed with flood-from-edge + 2px inner-border
+ART_NEEDED 28→25. Re-keyed with flood-from-edge + enclosed
+magenta background holes (filigree/rings) + 2px inner-border
 R→G clamp (no fringe-delete).
 
 ---

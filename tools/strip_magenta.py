@@ -126,16 +126,29 @@ def flood_key_mask(im: Image.Image) -> list[list[bool]]:
     return key
 
 
-def add_upper_key_holes(im: Image.Image, key: list[list[bool]], top_frac: float = 0.28) -> int:
-    """Key enclosed magenta holes whose bbox sits in the top of the image.
+def is_true_magenta(r: int, g: int, b: int, a: int) -> bool:
+    """Chroma-key magenta (high R, low G, high B), not gold/cream/violet gem."""
+    if a < 8:
+        return True
+    if g >= 70:
+        return False
+    if r < 120 or b < 80:
+        return False
+    if r + b - 2 * g < 160:
+        return False
+    return True
 
-    Pendant-ring interiors are background but not edge-connected. Gem/eye
-    magenta lower in the frame is left alone.
+
+def add_interior_key_holes(im: Image.Image, key: list[list[bool]], min_px: int = 8) -> int:
+    """Key enclosed magenta *background* holes (filigree, rings, cage cutouts).
+
+    Leftover is_key components whose pixels are majority true chroma-key
+    magenta get punched. Gem/eye/trim color that only barely matches the
+    broad is_key hue test is left alone.
     """
     im = im.convert("RGBA")
     w, h = im.size
     src = im.load()
-    y_lim = int(h * top_frac)
     seen = [row[:] for row in key]
     added = 0
     for y in range(h):
@@ -148,9 +161,14 @@ def add_upper_key_holes(im: Image.Image, key: list[list[bool]], top_frac: float 
             q: deque[tuple[int, int]] = deque([(x, y)])
             seen[y][x] = True
             cells = [(x, y)]
-            max_y = y
+            mag = 0
+            gsum = 0
             while q:
                 cx, cy = q.popleft()
+                rr, gg, bb, aa = src[cx, cy]
+                gsum += gg
+                if is_true_magenta(rr, gg, bb, aa):
+                    mag += 1
                 for nx, ny in ((cx - 1, cy), (cx + 1, cy), (cx, cy - 1), (cx, cy + 1)):
                     if nx < 0 or ny < 0 or nx >= w or ny >= h or seen[ny][nx]:
                         continue
@@ -159,9 +177,8 @@ def add_upper_key_holes(im: Image.Image, key: list[list[bool]], top_frac: float 
                         seen[ny][nx] = True
                         q.append((nx, ny))
                         cells.append((nx, ny))
-                        if ny > max_y:
-                            max_y = ny
-            if max_y < y_lim:
+            n = len(cells)
+            if n >= min_px and mag / n >= 0.5 and gsum / n < 70:
                 for cx, cy in cells:
                     if not key[cy][cx]:
                         key[cy][cx] = True
@@ -188,10 +205,10 @@ def apply_key_mask(im: Image.Image, key: list[list[bool]]) -> tuple[Image.Image,
     return out, cleared
 
 
-def key_flood_only(im: Image.Image, holes: bool = False) -> tuple[Image.Image, int]:
+def key_flood_only(im: Image.Image, holes: bool = False, min_px: int = 8) -> tuple[Image.Image, int]:
     """Cut magenta to transparency. No fringe-delete."""
     mask = flood_key_mask(im)
-    extra = add_upper_key_holes(im, mask) if holes else 0
+    extra = add_interior_key_holes(im, mask, min_px=min_px) if holes else 0
     out, n = apply_key_mask(im, mask)
     return out, n + extra
 
@@ -259,7 +276,7 @@ def key_clamp_file(
         src_side = max(im.size)
         use_pad = pad if src_side <= size * 2 else max(pad, int(src_side * 0.06))
         icon = fit_square_icon(keyed, size, use_pad)
-        icon, n_rekey = key_flood_only(icon, holes=False)
+        icon, n_rekey = key_flood_only(icon, holes=holes, min_px=3)
     else:
         icon, n_rekey = keyed, 0
     icon, n_clamp = inner_border_clamp(icon, depth=depth)
@@ -390,7 +407,7 @@ def cmd_key_clamp(argv: list[str]) -> None:
     p.add_argument(
         "--no-holes",
         action="store_true",
-        help="do not punch enclosed magenta holes in the upper frame (pendant rings)",
+        help="do not punch enclosed magenta background holes (filigree/rings)",
     )
     args = p.parse_args(argv)
     size = None if args.size == 0 else args.size
