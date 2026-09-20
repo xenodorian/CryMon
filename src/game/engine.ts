@@ -3138,7 +3138,7 @@ export class CryMon {
 			this.bag[a] = (this.bag[a] ?? 0) + 1;
 			this.bag[b] = (this.bag[b] ?? 0) + 1;
 			this.markExecuted(this.mercyTrainer, this.mercySoldierId);
-			this.audio.faint();
+			this.audio.scream();
 			this.startFade("execute");
 			this.say(TALK.mercyExecute || [{ speaker: "max", text: "No survivors, no witnesses." }]);
 			this.note(`Took ${gain} marks and loot.`);

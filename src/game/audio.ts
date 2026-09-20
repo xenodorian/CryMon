@@ -397,6 +397,9 @@ export class Chip {
 	faint() {
 		this.playSfx("faint");
 	}
+	scream() {
+		this.playSfx("scream");
+	}
 	step() {
 		/* footsteps stay silent — GBA overworlds rarely tick every tile */
 	}
