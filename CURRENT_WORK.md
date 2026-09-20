@@ -119,6 +119,53 @@ stays one build behind until someone manually re-runs it
 
 ---
 
+## Leg 2 execution order (Claude A, 2026-09-20 overnight run)
+
+User is offline for a while and asked me to work through Leg 2
+autonomously: fastest/smallest items first, large items broken into
+documented sub-steps, committing between every step so nothing's lost
+if I run out of budget mid-task. This is that plan. **Check this
+section's "Current position" line before claiming any item below** —
+it's updated after every commit this run.
+
+**Order (fastest/most-diagnosed first):**
+1. **2.1 walk speed** — root cause already found (see 2.1 below),
+   single-spot `main.c` fix, no cross-file plumbing. Fastest item.
+2. **2.3 settings→start menu** — mechanical relocation, touches both
+   engines' menu state machines but no new systems.
+3. **2.5 capture-rate overhaul + crystal tiers** — JSON-first, numbers
+   fully specified in the doc, broken into 5 sub-steps below.
+4. **2.6 more merchants** — depends on 2.5's items existing; same
+   NPC/shop pattern used all session.
+5. **2.9 mercy/threaten/execute menu** — new UI mode + dialogue pools +
+   a permanent-NPC-deletion mechanic; broken into sub-steps below.
+6. **2.7 reputation stat + father becomes a 2nd party member** — large
+   systems feature (second controllable party, new persisted stat);
+   broken into sub-steps below, same shape as quarry/endgame.
+7. **2.10 reputation's economic effects** — small, but needs 2.7's
+   `reputation` field to exist first.
+8. **2.8 Heavenfall-revival reputation effect** — small, but needs
+   2.4's redesigned gauntlet to exist first (it fires on gauntlet
+   completion).
+9. **2.4 gauntlet redesign** — largest and most ambiguous (open design
+   question already flagged below it); broken into sub-steps below,
+   saved for once the smaller wins are banked.
+10. **2.2 Dreamcast audio** — investigation only, deliberately last.
+    Raw AICA register-poke code (`chip.c`), no emulator in this sandbox
+    to verify any fix actually produces sound, and the user's own note
+    says it might be an emulator issue rather than a code bug. I will
+    audit for obvious register/init bugs and document findings, but
+    won't claim "fixed" without someone verifying on real hardware/a
+    real emulator. See 2.2 below for what's already been checked.
+
+(2.0 art debt isn't on this list — it's assigned to ChatGPT/Grok, not
+a coding task for me.)
+
+**Current position:** not started yet — this plan was just written.
+Next: 2.1.
+
+---
+
 ## Leg 2 (open — from the user's "CryMon edits Leg 2" doc, 2026-09-20)
 
 Playtesting the endgame build on a real Dreamcast emulator surfaced
@@ -139,23 +186,64 @@ rule for this task specifically. Once real files land, re-run
 
 ### 2.1 — Dreamcast walking speed bug
 
-Web movement is fine; the Dreamcast CDI walks noticeably slower.
-Investigate why (frame-rate-dependent movement math in `main.c` vs.
-`engine.ts`'s delta-time-based movement is the prime suspect — compare
-how each side scales player speed per frame) and fix it.
+**Root cause found:** `engine.ts` moves the player at `84 px/sec`
+(delta-time based, `src/game/engine.ts` ~line 1609: `const sp = 84;`).
+`main.c`'s equivalent (~line 5602) is `int speed = 1; /* px/frame;
+~60px/sec at 60fps... */` — an **integer** pixels-per-frame step, fixed
+at 60fps via `wait_vblank()`. `int speed = 1` can only ever be an exact
+integer number of pixels per frame, so it's hard-locked to exactly
+60px/sec — **29% slower than web's 84px/sec**, and there's no way to
+hit 84 exactly with a plain integer step at 60fps (84/60 = 1.4 px/frame).
 
-### 2.2 — Dreamcast has no audio (web does)
+**Fix:** replace the flat `int speed = 1` with a fixed-point
+sub-pixel accumulator so the *average* speed matches 84px/sec despite
+only ever moving whole pixels in a frame. Pattern: keep a persistent
+`int speed_frac` (accumulates `84 * 256 / 60` ≈ 358 per frame, i.e.
+almost 1.4<<8), move by `speed_frac >> 8` pixels, then
+`speed_frac &= 255` to keep the remainder for next frame. This is the
+standard fixed-point way to get a non-integer average speed from
+integer per-frame steps — same idea as a Bresenham accumulator.
+Apply it identically to both the dx and dy branches (currently
+`nx = px + dx*speed`/`ny = py + dy*speed`).
 
-`chip.c` is confirmed in the build (`OBJS`, has a Makefile rule,
-builds clean). Unclear yet whether this is an emulator limitation or a
-real code bug — user is running the `.cdi` in a real (non-embedded)
-Dreamcast emulator, not the pre-installed sandbox browser one. Start
-by comparing against the reference web audio implementation
-(`src/game/audio.ts` / `chip`'s JS counterpart) this port is supposed
-to mirror, and troubleshoot `chip.c`'s actual sound-output path from
-there (AICA driver setup, buffer submission, whether `chip_set_song`/
-`chip_sfx_*` calls are actually reaching hardware output vs. just
-updating internal state).
+**Caveat:** I can't run a Dreamcast emulator in this sandbox, so this
+is verified by re-deriving the math and by the build compiling clean,
+not by watching the character actually move at the right speed on
+screen. If it still feels off after this, check whether
+`wait_vblank()` is actually pacing at a true 60Hz (PAL Dreamcasts run
+at 50Hz and would need the constant `60` above adjusted to whatever
+the real vblank rate is) before assuming the accumulator math is wrong.
+
+### 2.2 — Dreamcast has no audio (web does) — investigation notes, not fixed
+
+Deliberately scheduled last (see execution order above): `chip.c` is a
+**raw AICA register-poke implementation** (writes directly to
+`0xa0700000`+ channel registers over the G2 bus, no KOS/libronin sound
+API), which is inherently easy to get subtly wrong in ways that only
+show up as silence, and I have **no Dreamcast emulator in this sandbox**
+to verify any fix actually produces sound. Confirmed already (per the
+user): `chip.c` is genuinely in the build (`OBJS`, explicit Makefile
+rule, compiles clean every time this session).
+
+**What to check, if you pick this up with a way to actually test it:**
+- `aica_ch_setup()`/`aica_ch_wave()`/`aica_ch_vol_pitch()`/`aica_keyex()`
+  in `chip.c` — verify the key-on/key-off bit and register offsets
+  against AICA docs; a single wrong bit here silently produces no
+  sound with no error.
+- `G2_FIFO` busy-wait (`g2_w32`, ~line 28) — if G2 bus writes are
+  issued before the FIFO is actually ready, they can silently drop.
+- Whether `chip_init()` is actually called before the first
+  `chip_set_song`/`chip_sfx_*` call in `main()`'s startup sequence.
+- Compare against `src/game/audio.ts` (the reference this mirrors) for
+  anything AICA-equivalent that's missing entirely, not just wrong.
+- Rule out the emulator first if possible: does the *exact same* CDI
+  play audio in a different Dreamcast emulator, or on real hardware?
+  If not even the emulator's own BIOS/menu sounds play, it's likely an
+  emulator config issue, not this codebase.
+
+**Do not mark this "fixed" from a code read alone** — the failure mode
+here is exactly "compiles fine, silently produces no sound," which
+looks identical whether the bug is in `chip.c` or in the emulator.
 
 ### 2.3 — Move settings into the start/title menu
 
@@ -197,6 +285,32 @@ after the father/Heavenfall choice. **New spec:**
   earlier beat, folded into one of the 5 grass maps, or removed;
   don't unilaterally delete a working boss fight without asking.
 
+**Largest item in Leg 2, most open design questions. Do not start
+implementing until the two open questions above (choice-screen timing,
+`commanderFinal`'s fate) are answered by the user** — this is the one
+place in Leg 2 where guessing wrong means throwing away real work,
+unlike the smaller items. Proposed sub-steps once answered, mirroring
+the quarry/endgame breakdown shape that worked well all session:
+1. Design pass: exact tile layouts for the 5 grass maps + the 6th
+   gravestone map, the level curve across the 5 (what "increasingly
+   higher level" means numerically), and the full encounter-pool list
+   for map 5 (every non-one-off species — enumerate it explicitly from
+   `species.json` so nothing's missed or wrongly included).
+2. Add the 6 maps + encounter tables in JSON (mirrors quarry/gauntlet-v1
+   map-adding checklist in "Patterns worth knowing" above).
+3. The path-behind-Shinigami unlock mechanic (new warp/gate, replacing
+   the old auto-teleport in `POST_ENDING_FINAL`/`next === "ending"`).
+4. Heavenfall boss definition (JSON) + the gravestone interaction +
+   scroll-gate check.
+5. The Slayer/Tamer rename mechanic — same "how deep does the rename
+   go" question as Max The Kind in 2.7, decide the approach once there
+   rather than solving it twice differently.
+6. `docs/CRYMON.md` story-lock update (one line, reflecting this is
+   the user's explicit ask to lift the Heavenfall-narrative-only lock).
+7. Wire into `engine.ts`, then `main.c` (same non-generic Dreamcast
+   wiring every boss/map addition has needed all session).
+8. Integration pass + playtest.
+
 ### 2.5 — Replace the capture-rate mechanic + add crystal tiers
 
 - **Common Capture Crystal** (rename of today's base Capture Crystal):
@@ -213,7 +327,36 @@ after the father/Heavenfall choice. **New spec:**
 - **Perfect Capture Crystal** (new item): always captures. **Not
   purchasable** — awarded only after defeating or capturing Heavenfall.
 
+**Sub-steps (do in order, commit after each):**
+1. Rename `gem`/Capture Crystal → Common Capture Crystal in
+   `items.json` (25 marks — check current price first, this may
+   already be close), add the 3 new items (Mega/Ultimate/Perfect) to
+   `items.json` + `save.json`'s `itemOrder` (append-only) + whatever
+   `types.ts`/`data.ts` lists mirror item ids. **Perfect isn't
+   purchasable — give it no shop price or exclude it from the buy
+   list, same way any other non-buyable item is handled today if one
+   exists, otherwise it needs a new "not for sale" item flag.**
+2. New capture-chance formula: find `captureChance()` in
+   `src/game/data.ts` and its Dreamcast mirror (search `main.c` for the
+   capture-roll code) — replace with the doc's formula, gated by which
+   crystal item was used (base rate per tier) plus the level/str/hp
+   subtraction and the +50% status bonus. Confirm with the user how the
+   old formula's constants (`FORMULAS.captureAgl` etc. in `logic.json`)
+   should be retired/coexist — don't silently strand dead config.
+3. Mirror the same formula in `main.c`'s capture roll.
+4. Wire "Perfect Capture Crystal" as a reward item granted on
+   defeating/capturing Heavenfall (depends on 2.4 existing — may need
+   to land this step after 2.4 instead of before it; note the
+   dependency rather than force an ordering that doesn't fit).
+5. Integration pass (rebake, check_sync, typecheck, build, cdi).
+
 ### 2.6 — Populate the world with more merchants
+
+**Sub-steps:** (1) design how many/where — pick map spots not already
+used; (2) add merchant NPC rows in `world.json` (role/dialogue/shop
+inventory, same pattern as Bram/Oren) restricted to Greater/Mega/
+Ultimate stock; (3) dialogue entries; (4) integration pass. Small
+relative to the others — mostly repeating an established pattern.
 
 Add additional merchant NPCs across the maps. The first/existing
 merchant sells **Common Capture Crystals only**. Every other merchant
@@ -233,6 +376,33 @@ not Perfect — that one's never sold).
     second 6-slot party the player switches between).
   - Permanently renames the player **"Max The Kind"** in every
     iteration/interaction.
+
+**This is the biggest single item in Leg 2 — a second controllable
+party is a real systems feature, not a flag.** Sub-steps:
+1. `reputation` field: needs a numeric byte in the save layout (not a
+   bit flag — check `save.json`'s `layout` map for free space, it's a
+   fixed byte-offset binary format shared by web+Dreamcast, adding a
+   field means extending `layout`/`size` deliberately, not just
+   appending to `flags[]` like every other addition this session).
+   Land this alone first, both engines reading/writing it as 0, before
+   touching anything else here.
+2. The father-revival dialogue + teleport-back + reputation +25, using
+   the existing `choiceFather` hook as the trigger point. No second
+   party yet in this step — just the narrative/flag piece.
+3. Design the second-party data model: is it a fully independent
+   6-slot party array (`party2`?) with its own save layout, or some
+   other shape? This needs a decision before writing code — the
+   existing `party` array/UI (`PARTY_MAX`, `partyView`, etc.) is
+   pervasive through `engine.ts`, and a second one either duplicates
+   that surface or generalizes it. Don't start coding this step until
+   that shape is picked (ask the user if unclear).
+4. The swap-between-parties UI/input (web), then its Dreamcast mirror.
+5. The "Max The Kind" rename — figure out how deep "every
+   iteration/interaction" needs to go (dialogue speaker name display?
+   just the HUD? every `"max"` speaker line's displayed name?) before
+   implementing; this likely means a display-name override on the
+   `max`/player speaker rather than literally rewriting dialogue text.
+6. Integration pass.
 
 ### 2.8 — Heavenfall-revival reputation effect
 
@@ -261,6 +431,33 @@ prompt the player with 4 options:
   marks equal to **combined CryMon level × 10** plus **2 random items**,
   the NPC is **permanently deleted from the world as an entity**, then
   the screen fades back in from red to normal.
+
+**Dependency note:** this needs the bare `reputation` numeric field to
+exist (2.7 sub-step 1 only — not the second-party system, that part of
+2.7 is unrelated to this). Land 2.7 step 1 first if this gets picked up
+before the rest of 2.7.
+
+**Sub-steps:**
+1. A small pool of "let them go" dismissal lines in `dialogue.json`
+   (needs at least 3-4 for variety, doc gives 2 examples).
+2. The post-battle prompt UI itself — likely a new `mode`/menu state
+   the same way the father/Heavenfall `choice` screen works
+   (`updateChoice`/`draw_choice` pattern), but 4 options instead of 2,
+   and only reachable from a trainer-win instead of the one scripted
+   spot. Scope check: "any human trainer other than Mason or
+   Shinigami" is a lot of existing trainers (Cross, Conscript,
+   Enforcer, Sentry, Ranger/Scout/Keeper/Warden, Bog/Reed, Quartz/Opal,
+   Driller, commanderFinal...) — confirm whether ALL of them get this
+   prompt or just future ones, since retrofitting every existing
+   win-handler is a bigger diff than adding it to new content only.
+3. The 4 branches' effects (marks math, item RNG, reputation deltas).
+4. "Permanently deleted from the world" for Execute — needs a new
+   per-NPC persisted flag (`beat<Name>` flags already exist for "don't
+   refight," but "deleted as an entity" implies also hidden from any
+   future non-combat interaction/dialogue too — check whether the
+   existing win-flag already achieves that or a new flag is needed).
+5. Screen fade-to-red + scream SFX on both engines.
+6. Integration pass.
 
 ### 2.10 — Reputation's economic effects
 
