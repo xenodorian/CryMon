@@ -208,3 +208,23 @@ vest, backpack, lantern. Dropped ART_NEEDED 21→16.
 ## SEE_GIT_HISTORY_FOR_REMAINDER
 
 (Full Leg 2/3 body restored in follow-up if truncated — critical CI section above is closed.)
+
+
+---
+
+## Leg 2.9 status (2026-09-20, Grok)
+
+**Fully DONE and pushed** — post-battle mercy/threaten/execute for human
+trainers (not Mason / Shinigami):
+
+| Sub-step | Commit (approx) | Status |
+|----------|-----------------|--------|
+| 2.9.1 dismissal lines | prior | DONE |
+| 2.9.2 UI (`mercy` mode, 4 options) | b9f3864 | DONE |
+| 2.9.3 effects (rep / marks / items) | ae9e549 | DONE |
+| 2.9.4 permanent execute-delete | eb004d2 | DONE |
+| 2.9.5 red fade + scream SFX | ed75419 | DONE |
+| 2.9.6 integration (soldiers → menu) | 522f039 | DONE |
+
+**Still open (not 2.9):** 2.7 sub-steps 3+ (second party), 2.4 gauntlet,
+2.8 (blocked on 2.4), Leg 3, art debt.
