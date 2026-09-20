@@ -22,6 +22,42 @@ ChatGPT, others). Read before starting anything; update before you stop.
   `make -C ports/dreamcast cdi`. Fetch + rebase immediately before
   every push; never trust a base you fetched more than a few minutes
   ago, this repo has multiple agents pushing straight to `main`.
+- **Magenta-keyed art:** generate on solid magenta (`#FF00FF`), then
+  **cut the magenta out to true transparency**. Do **not**
+  traditional-despill (it eats into the sprite). After the key, run
+  the **2-pixel-deep inner-border R→G clamp** in "Magenta keying"
+  below.
+
+---
+
+### Magenta keying (when generating art)
+
+Applies to every new sprite, item icon, walker, and portrait generated
+against a chroma-key background. Ship files with a **transparent**
+background — never leftover magenta, never a solid-color plate.
+
+1. **Cut the key.** Flood-from-edge chroma-key the magenta (and
+   JPEG-fringed near-magenta) to alpha 0. Isolated interior magenta
+   (eyes, gems, trim) is *not* keyed — only background connected to
+   the image edge. `tools/strip_magenta.py`'s flood-from-edge pass is
+   this step.
+2. **Do not traditional-despill.** Do not delete a 1px/2px fringe of
+   "magenta-ish" pixels around the silhouette. That eats into the
+   sprite (hair, outlines, gem cages). `strip_magenta.py`'s 1px
+   `fringe` pass does exactly this — skip it / do not rely on it for
+   new art.
+3. **2px inner-border clamp instead.** After the key, look at every
+   remaining opaque pixel that is within **2 pixels** of a transparent
+   (keyed) pixel — the inner border of the silhouette, 2 pixels deep.
+4. For each of those pixels: if the red channel is higher than the
+   green channel, lower red to equal the current green (`R = min(R, G)`).
+   Leave green, blue, and alpha unchanged. Magenta spill is R-heavy;
+   clamping R down to G kills the pink halo without punching a hole
+   in the art.
+
+QC before commit: corners transparent, no leftover `#FF00FF`, no
+magentish halo on the silhouette, interior colors (including
+intentional pinks deeper than 2px from the edge) untouched.
 
 ---
 
@@ -209,8 +245,9 @@ Have ChatGPT or Grok produce real art for the remaining list in
 `ART_NEEDED.md` and push it to `public/sprites/` (source size is
 **48x64** world frames and **160x200** tall portraits, not the DC
 bake targets of 24x32 / 312x176 — those are downscaled). Transparent
-background, matching the existing pixel-art style. Once real files
-land, re-run `gen_sprites.py` and confirm `check_sync --strict`
+background (magenta-key + 2px inner-border R→G clamp — see "Magenta
+keying" above), matching the existing pixel-art style. Once real
+files land, re-run `gen_sprites.py` and confirm `check_sync --strict`
 drops this FAIL.
 
 ### 2.1 — Dreamcast walking speed bug — DONE (Claude A)
