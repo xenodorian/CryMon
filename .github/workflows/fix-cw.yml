@@ -8,14 +8,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Wrap up Mercy 2.9
-        run: python3 tools/patch_mercy_wrap.py
+      - run: python3 tools/patch_mercy_cw.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add ports/dreamcast/src/main.c CURRENT_WORK.md
-          git status
+          git add CURRENT_WORK.md
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Mercy 2.9 complete: DC hide executed on draw, dismiss lines, CURRENT_WORK"
+          git commit -m "CURRENT_WORK: mark Mercy 2.9 fully DONE"
           git push
