@@ -167,12 +167,14 @@ it's updated after every commit this run.
 (2.0 art debt isn't on this list — it's assigned to ChatGPT/Grok, not
 a coding task for me.)
 
-**Current position:** 2.1, 2.3, and 2.5 DONE and pushed, both engines,
-verified by build/typecheck/check_sync only (**no Dreamcast emulator in
-this sandbox for any of them** — see each section's own caveat before
-assuming a "feels wrong" report means the fix itself is wrong rather
-than unverified). Next: 2.6 (more merchants), per the execution order
-above — it depends on 2.5's crystal items existing, which they now do.
+**Current position:** 2.1, 2.3, 2.5, and 2.6 DONE and pushed, both
+engines, verified by build/typecheck/check_sync only (**no Dreamcast
+emulator in this sandbox for any of them** — see each section's own
+caveat before assuming a "feels wrong" report means the fix itself is
+wrong rather than unverified). Next: per the execution order above,
+2.9.1 (mercy/threaten/execute dialogue pool) is flagged as a
+zero-dependency standalone pickup if budget allows before the bigger
+items (2.7, 2.4, 2.10, 2.8, 2.2).
 
 ---
 
@@ -462,16 +464,36 @@ accordingly, see the top of this section):**
 
 ### 2.6 — Populate the world with more merchants
 
-**Sub-steps:** (1) design how many/where — pick map spots not already
-used; (2) add merchant NPC rows in `world.json` (role/dialogue/shop
-inventory, same pattern as Bram/Oren) restricted to Greater/Mega/
-Ultimate stock; (3) dialogue entries; (4) integration pass. Small
-relative to the others — mostly repeating an established pattern.
+**DONE (Claude A), pushed.** Added two new merchants — Fenn (marsh,
+mark `F`) and Dray (camp, mark `S`) — placed on unused floor tiles in
+`maps.json`'s ASCII layout, no existing marks/solid tiles touched.
+Bram (existing merchant) still sells Common Capture Crystals only;
+Oren, Fenn, and Dray all sell Greater/Mega/Ultimate (not Common, not
+Perfect — Perfect is never purchasable anywhere). Non-crystal goods are
+unaffected by this restriction on every shop.
 
-Add additional merchant NPCs across the maps. The first/existing
+The stock list is data-driven, not hardcoded per NPC: `logic.json` gained
+a `shops.crystalStock` map (named overrides + a `default` fallback), so
+a 5th/6th/etc. merchant added later automatically gets the
+Greater/Mega/Ultimate default without touching code. Both engines
+generalized their shopkeeper handling in the process instead of adding a
+third bram/oren-style special case — see `engine.ts`'s `shopBuyRows()`
+and `main.c`'s `SHOP_CRYSTAL_MASK[]`/`shop_keep_id` (full detail in the
+commit message, `git log --grep "Leg 2.6"`).
+
+Placeholder walk-cycle + portrait art registered for Fenn/Dray via
+`sprites.json` (10 more files in `ART_NEEDED.md`, now 28 total — still
+assigned to ChatGPT/Grok per 2.0, not drawn here).
+
+**Not hardware-verified** — no Dreamcast emulator in this sandbox;
+verified via `make`/`make cdi`/`check_sync --strict`/`npm run
+typecheck`/`npm run build` only.
+
+~~Add additional merchant NPCs across the maps. The first/existing
 merchant sells **Common Capture Crystals only**. Every other merchant
 sells **Greater, Mega, and Ultimate** Capture Crystals (not Common,
-not Perfect — that one's never sold).
+not Perfect — that one's never sold).~~ (original brief, see DONE note
+above for what shipped)
 
 ### 2.7 — New `reputation` stat + father-revival branch
 
