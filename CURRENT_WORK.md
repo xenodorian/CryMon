@@ -1,544 +1,348 @@
 # CURRENT_WORK.md
 
-Live coordination. This writer is **Grok C**.
+Live coordination doc for every agent working this repo (Claude, Grok,
+ChatGPT, others). Read before starting anything; update before you stop.
 
-Do not hand-replace `world.json`. Do not empty `npcs`. Heavenfall is wild/boss
-only. **Cathleen is the only CryMon who speaks.** ChatGPT A: **no PNG work.**
-Claude B: encode, no drawing.
-
-Quarry is **parked**. Do not pick it up this list.
+**Standing house rules:**
+- Do not hand-replace `world.json`. Do not empty `npcs`.
+- **Cathleen is the only CryMon who speaks** (unless/until a leg below
+  changes that explicitly — see Leg 2/3, which do add named-CryMon
+  interactions for Heavenfall).
+- Art assignment: **superseded for the art-debt task below.** The old
+  rule was "ChatGPT A: no PNG work, Claude B: encode only." Leg 2 now
+  explicitly asks ChatGPT or Grok to produce and push the missing art
+  (see Leg 2.0). That's a deliberate override for that one task, not a
+  blanket lift of the old division — don't take it as license to redo
+  other agents' art lanes without asking.
+- Verification bar for every push, no exceptions: `python3
+  tools/bake_content.py --content content --out ports/dreamcast/src` →
+  `python3 ports/dreamcast/tools/gen_sprites.py` → `python3
+  tools/check_sync.py --strict` (expect only the art-debt FAIL below,
+  nothing else) → `npm run typecheck` → `make -C ports/dreamcast` →
+  `make -C ports/dreamcast cdi`. Fetch + rebase immediately before
+  every push; never trust a base you fetched more than a few minutes
+  ago, this repo has multiple agents pushing straight to `main`.
 
 ---
 
-## CI gap: Pages doesn't auto-redeploy after a bot-only CDI rebuild
+## CI gap (still open): Pages doesn't auto-redeploy after a bot-only CDI rebuild
 
-**Found by Claude B, 2026-09-19 ~22:30 UTC, while confirming a quarry
-Dreamcast fix (`e05b07b`) had reached both the CDI and GitHub Pages.**
+Found by Claude B: `build-dreamcast.yml`'s bot commit touches
+`ports/dreamcast/crymon.cdi` (in `deploy-pages.yml`'s path filter), but
+that push authenticates as the default `GITHUB_TOKEN`, and GitHub
+Actions blocks `GITHUB_TOKEN`-authored pushes from triggering other
+workflows (loop prevention). So `deploy-pages.yml` never fires off a
+CDI-only rebuild — the live Pages site's downloadable CDI silently
+stays one build behind until someone manually re-runs it
+(Actions tab → Deploy CryMon Web to GitHub Pages → Run workflow).
 
-`build-dreamcast.yml`'s bot commit (e.g. `28f4629`) touches
-`ports/dreamcast/crymon.cdi`, which *is* in `deploy-pages.yml`'s path
-filter — but that push authenticates as the default `GITHUB_TOKEN`, and
-GitHub Actions deliberately does not let `GITHUB_TOKEN`-authored pushes
-trigger other workflows (loop prevention). So `deploy-pages.yml` never
-fires off the back of a CDI-only rebuild. Confirmed via the Actions API:
-no "Deploy CryMon Web to GitHub Pages" run exists for `28f4629` until it
-was triggered manually via `workflow_dispatch` afterward.
-
-**Practical effect:** any change that's Dreamcast-source-only (touches
-`ports/dreamcast/src/*.c` etc., not `content/**`/`src/**`/`public/**`)
-gets baked into the repo's `crymon.cdi` correctly, but the *live Pages
-site's downloadable CDI* silently stays one build behind until someone
-manually re-runs `deploy-pages.yml` (Actions tab → Deploy CryMon Web to
-GitHub Pages → Run workflow). This will keep recurring for every future
-Dreamcast-only fix unless fixed at the workflow level.
-
-**Not yet fixed — two options for whoever owns CI config next:**
-1. Have `build-dreamcast.yml`'s commit/push step authenticate with a
-   PAT (repo secret) instead of the default `GITHUB_TOKEN`, so its own
-   push can trigger `deploy-pages.yml` normally.
+**Fix options, still not done, whoever owns CI next:**
+1. Give `build-dreamcast.yml`'s push step a PAT instead of the default
+   token, so its push can trigger `deploy-pages.yml` normally.
 2. Add a step at the end of `build-dreamcast.yml` that calls
-   `deploy-pages.yml` via `workflow_dispatch` (needs `actions: write` on
-   whatever token that step uses — the default `GITHUB_TOKEN` also can't
-   dispatch other workflows without that permission set explicitly).
+   `deploy-pages.yml` via `workflow_dispatch` (needs `actions: write`).
 
 ---
 
-## Status
+## Completed work (condensed — see git log for full detail on any of these)
 
-- Forest/ruins extra trainers live on web. Encode of their art + fights
-  landed (task 5). New species battle sprites indexed through Kilnback.
-- Marsh + quarry maps exist. Marsh trainers (Bogwalker, Reedguard) live. Quarry parked.
-- +6 species lines done (28 total). Soldier right-walk mirrored.
-- Quartz + Opal + marsh trainers live on web and Dreamcast PENDING. Quarry Driller by Claude A.
+- **Marsh trainers (Bogwalker, Reedguard), crystal wardens Quartz and
+  Opal, forest/ruins trainers (Ranger/Scout/Keeper/Warden):** all live
+  on web and Dreamcast, JSON-defined, full `wsoldier`/`pending` battle
+  wiring on both engines. NPC art is still placeholder for several of
+  these — see the art-debt list below.
+- **Quarry (`#23-26`, closed):** warp gated on `beatSentry`, `quarryDriller`
+  trainer defined and fully wired web + Dreamcast, integration pass
+  green.
+- **Endgame v1 — father/Heavenfall choice → gauntlet → commanderFinal
+  boss → branched credits (`#18`, `#28-33`, closed):** the choice now
+  warps the player onto a `gauntlet` map, capped by a single
+  `commanderFinal` boss fight (lead `boulderam` 12, bench
+  `duskhorn`/`sableclaw` 11), win sets `beatCommander` and fires
+  branched credits (`endingWin` / `endingWinHeavenfall` per
+  `choseHeavenfall`). Wired end-to-end on web and Dreamcast, and
+  **playtested for real by the user on an actual Dreamcast emulator** —
+  confirmed working. **This design is substantially reworked by Leg 2
+  below** (auto-teleport → unlockable path, single boss → 5 tall-grass
+  maps + a Heavenfall finale). Don't treat "closed" as "final" — read
+  Leg 2.4 before touching the gauntlet again.
 
----
+### Patterns worth knowing before starting Leg 2 or 3 (recurring gotchas)
 
-## Open tasks
+- **The Dreamcast `wsoldier`/`pending` trainer-battle path is NOT
+  generic.** Every new trainer needs, by hand, in `main.c`:
+  `TRAINER_WSOLDIER_*` and `POST_WSOLDIER_*` `#define`s, an
+  `NPC_PENDING_*` dispatch case, a battle-setup `case`, and the usual
+  5 save-flag touch points (var decl, `ft[]` table, load, reset, store).
+  The web side (`engine.ts`) *is* generic off `TRAINERS`/`worldJson`.
+- `tools/bake_content.py` keeps **three separate hand-maintained lists**
+  that must agree by name/number for any new trainer: `kit_keys`,
+  `PENDING_IDS` (Python dict), and the hand-written
+  `#define NPC_PENDING_*` lines. Forgetting one of the three either
+  crashes bake or silently no-ops the battle dispatch.
+- New map checklist (`check_sync --strict` enforces all of this):
+  `content/maps.json` rows, `content/world.json` `mapIds`+`mapNames`,
+  `content/save.json` `mapOrder` (byte-identical order to `mapIds`),
+  `src/game/types.ts` `MapId` union, `src/game/data.ts` map export +
+  `MAPS` entry. `MAP_*`'s Dreamcast define bakes for free (index-driven).
+- `save.json`'s `flags` array is **append-only** — never reorder, it's
+  byte-position indexed in the binary save. Currently at 50 flags
+  (64-bit capacity). Leg 2's reputation stat will need a new numeric
+  field, not a flag — check `save.json`'s `layout` byte map before
+  picking where it goes.
+- **Corrupted PNG signature to watch for:** valid PNG header + `IEND`
+  trailer, but broken IDAT stream — PIL raises `OSError: broken data
+  stream`, crashes `gen_sprites.py` for everyone until the bad file is
+  removed. Happened twice already (`quartz-2.png`, `opal-2.png`), both
+  from GitHub's file-API silently truncating large binary pushes.
+  Verify any new art commit's PNGs actually open cleanly before relying
+  on it.
+- `dialogue.json`'s `endingWin` is a **hardcoded single key** in
+  `bake_content.py` (`data["dialogue"]["endingWin"]`, not the generic
+  talk table) — don't rename/delete it without updating the baker in
+  the same commit, or bake crashes for everyone.
+- Race-safe push protocol (used successfully every step so far):
+  fetch → rebase onto `origin/main` → resolve any generated-file
+  (`.inc`/`.cdi`/`.elf`) conflicts via `--ours`/`--theirs` + full
+  rebake → rebuild → verify → fetch again right before pushing → push
+  → verify the push landed by diffing against `origin/main` directly.
 
-### 1. Marsh trainers (2) — DONE (Grok C)
-JSON kits + NPC rows + talk on `marsh`. Unique sprites (do not reuse soldier).
-Bogwalker + Reedguard live on marks 1/2. Placeholder frames (birch/sable copies);
-Grok A may replace with proper marsh art. Flags beatMarshBog / beatMarshReed appended.
+### Known pre-existing art debt (placeholder-covered, not blocking, not this leg's fault)
 
-### 2. Crystal warden Quartz — DONE (Grok C art)
-JSON trainer + persist flag `badgeQuartz` **appended** to `save.json` flags.
-Optional side content, not a story fork. Not named "gym".
-Quartz NPC art (quartz-1..4.png) + sprites.json entry by Grok C (took Grok A art slot).
-
-### 3. Crystal warden Opal — DONE (Grok C)
-JSON + badgeOpal + Reach mark O + dialogue + engine flags + opal-1..4 art.
-Dreamcast PENDING dispatch for marshBog/marshReed/opal wired (Grok C).
-
-### 4. Draw NPCs from JSON — DONE (Grok C)
-`engine.ts` overworld blit iterates `NPCS` / `npc.sprite`. Props, Mason/Anne,
-forest soldiers, and Cathleen-ow stay special-cased. Marsh/Quartz now draw from JSON.
-
-### 5. Encode new art — DONE
-Ranger/Scout/Keeper/Warden draw + fights. Veilcap/Kilnback (+ peatling line)
-in the battle sprite table.
-
----
-
-## Parked (do not take)
-
-~~Quarry trainer, quarry warp `need: beatSentry`, quarry encode. Let that lie.~~
-**Unparked by the user.** Broken into 5 small steps to avoid the one-pass
-token exhaustion that hit it before:
-
-1. Gate the warp (`need: beatSentry`) — DONE, live on `main`.
-2. Define `quarryDriller` trainer in JSON — DONE.
-3. Wire into `engine.ts` (web) — **DONE, this commit** (Claude A). Five
-   touch points, matching the `badgeOpal` template exactly: property
-   decl, reset-state, both save-serialize spots, win-handler `else if`,
-   `wsName` display-name entry. `npm run typecheck` clean.
-4. Wire into `main.c` (Dreamcast) — **DONE, this commit** (Claude A).
-   Confirmed the `wsoldier`/`pending` win path is **not** fully generic
-   on Dreamcast — it needs explicit per-trainer C: `TRAINER_WSOLDIER_*`
-   / `POST_WSOLDIER_*` defines, an `NPC_PENDING_QUARRY_DRILLER` id, a
-   dispatch `else if` in the `NPC_AFTER_WSOLDIER` chain, a battle-setup
-   `case` (mirrors `POST_WSOLDIER_QUARTZ`), and the usual 5 save-flag
-   touch points (`beat_quarry_driller` var, `ft[]` table, load, reset,
-   store). Also added `quarryDriller` to `bake_content.py`'s `kit_keys`
-   (was hardcoded, quarry wasn't in it) so `TRAINER_KITS`/`KIT_QUARRY_DRILLER`
-   bake at all.
-5. Integration pass — **DONE, this commit** (Claude A). Rebake,
-   `gen_sprites.py`, `check_sync.py --strict`, `npm run typecheck`, full
-   `make -C ports/dreamcast` + `make -C ports/dreamcast cdi` all pass.
-
-**Fixed the pre-existing `SPEAKER`/`PENDING_IDS`/`SpeakerId` gap flagged
-above, for real this time:** added `opal`/`driller` to `bake_content.py`'s
-`SPEAKER` dict, added `marshBog`/`marshReed`/`opal`/`quarryDriller` to
-`PENDING_IDS` (only `quarryDriller` got a matching Dreamcast dispatch —
-see below), and added `opal`/`driller` to `types.ts`'s `SpeakerId` union.
-Bake no longer throws `KeyError: 'opal'`.
-
-**Found and quarantined a second corrupted PNG:** `public/sprites/npc/opal-2.png`
-(from commit `ca4b53e`) had the same failure signature as the
-`quartz-2.png` corruption earlier this session — valid PNG header/IEND,
-broken IDAT stream, crashes `gen_sprites.py` with `OSError: broken data
-stream`. Deleted it (git-tracked, fully recoverable from history) rather
-than fabricate replacement art; the placeholder-synthesis pipeline covers
-it now. Added `"driller"` to `content/sprites.json`'s `npcs` list too —
-it wasn't registered there at all, so `gen_sprites.py` didn't even know
-to placeholder it.
-
-~~Still open... marshBog/marshReed/opal Dreamcast wiring~~ **DONE (Grok C)**,
-commit `2209c25`: `NPC_PENDING_*` defines, dispatch, `kit_keys` entries,
-win-handler branches all landed for all three. Verified (Claude A):
-rebake/`gen_sprites`/`check_sync --strict`/typecheck/`make`+`make cdi`
-all pass. Quarry is fully closed out — all 5 steps done, Opal (BUG-004)
-done end to end on both web and Dreamcast.
+`check_sync --strict`'s one standing FAIL, 15 files (regenerate via
+`python3 ports/dreamcast/tools/gen_sprites.py`, see
+`ports/dreamcast/ART_NEEDED.md` for exact specs):
+- `npc/bogwalker-1..4.png` + `portraits/bogwalker.png`
+- `npc/reedguard-1..4.png` + `portraits/reedguard.png`
+- `npc/quartz-2.png` (frame 2 only, the corrupted-file casualty)
+- `npc/driller-1..4.png`
 
 ---
 
-## Endgame: Heavenfall + gauntlet map (was #18, unparked by the user)
+## Leg 2 (open — from the user's "CryMon edits Leg 2" doc, 2026-09-20)
 
-**Unparked.** Same reason as quarry: too big for one pass, broken into
-6 small independently-verifiable steps. **Story-lock boundary that does
-NOT move with this unparking** (per `docs/CRYMON.md`): Heavenfall and
-father resurrection stay **narrative-only** — no party member, no
-capture, no battle-usable Heavenfall — until the user explicitly asks
-for that separately. This breakdown only extends what happens *after*
-the existing father/Heavenfall choice dialogue, before the credits.
+Playtesting the endgame build on a real Dreamcast emulator surfaced
+bugs and a pile of new feature work. This is a big leg — claim
+individual numbered items, don't try to do it all in one pass (same
+lesson quarry and the endgame both taught: token exhaustion and
+merge conflicts get worse the bigger a single commit gets).
 
-Today: `POST_ENDING_FINAL` (main.c) fires `ending_mode=1` immediately
-after `TALK_CHOICE_FATHER`/`TALK_CHOICE_HEAVENFALL` closes, straight to
-the `endingWin` credits text. The "gauntlet map" is a new final-stretch
-map inserted in that gap, capped by a boss fight (likely the existing
-`commander` NPC on the camp map — dialogue-only today, no trainer kit
-yet) before the (rewritten) credits roll.
+### 2.0 — Art debt cleanup (assign to ChatGPT or Grok, not a coding task)
 
-1. Design the outline (JSON-first, no code) — open, task #28. Branching
-   climax dialogue (flavor only, not mechanics, by which choice was
-   made), pick/define the boss, sketch the gauntlet map layout.
-2. Add the `gauntlet` map + warp gating in JSON — open, task #29,
-   blocked on #28. Mirrors quarry Task 1's warp-gate precedent.
-3. Define the boss trainer + branching win dialogue in JSON — open,
-   task #30, blocked on #29. Append-only save flag, PLACEHOLDER_ART if
-   no boss art exists. Mirrors quarry Task 2.
-4. Wire into `engine.ts` (web) — open, task #31, blocked on #30.
-   Mirrors quarry Task 3's 5-touch-point template; relocates the ending
-   trigger to fire after the boss falls.
-5. Wire into `main.c` (Dreamcast) — open, task #32, blocked on #31.
-   Expect the same non-generic `TRAINER_*`/`POST_*`/dispatch/kit_keys
-   wiring quarry Task 4 needed, since the `wsoldier`/`pending` win path
-   isn't generic there.
-6. Integration pass — open, task #33, blocked on #32. Rebake,
-   `gen_sprites`, `check_sync --strict`, typecheck, `make` + `make cdi`,
-   playtest both branches if feasible.
+Have ChatGPT or Grok produce real art for the 15-file debt list above
+and push it to `public/sprites/` at the exact paths `ART_NEEDED.md`
+specifies (24x32 world-sprite frames, 312x176 portraits, transparent
+background, matching the existing pixel-art style already in
+`public/sprites/`). This supersedes the old "ChatGPT A: no PNG work"
+rule for this task specifically. Once real files land, re-run
+`gen_sprites.py` and confirm `check_sync --strict` drops this FAIL.
 
-Claiming any of these: check task #28-33's status/owner in the task
-tool first (or this file, whichever's freshest) before starting, so we
-don't duplicate quarry's early friction.
+### 2.1 — Dreamcast walking speed bug
 
-### Step 1 outline — DONE (Claude A), design only, nothing applied yet
+Web movement is fine; the Dreamcast CDI walks noticeably slower.
+Investigate why (frame-rate-dependent movement math in `main.c` vs.
+`engine.ts`'s delta-time-based movement is the prime suspect — compare
+how each side scales player speed per frame) and fix it.
 
-No `content/*.json` edits in this step. Plan for whoever picks up #29:
+### 2.2 — Dreamcast has no audio (web does)
 
-**Boss: the returning `commander`.** He's dialogue-only today (camp
-map, mark `I`, `role: "talk"`) and already met Max once mid-game — she
-brushed him off ("I'm already going there"). Reusing him as the final
-boss gives a payoff without inventing a new named character or new
-mid-game continuity. Give him a second NPC row (new id, e.g.
-`commanderFinal`) on the new `gauntlet` map rather than upgrading the
-camp one, so the camp scene stays exactly as it is.
+`chip.c` is confirmed in the build (`OBJS`, has a Makefile rule,
+builds clean). Unclear yet whether this is an emulator limitation or a
+real code bug — user is running the `.cdi` in a real (non-embedded)
+Dreamcast emulator, not the pre-installed sandbox browser one. Start
+by comparing against the reference web audio implementation
+(`src/game/audio.ts` / `chip`'s JS counterpart) this port is supposed
+to mirror, and troubleshoot `chip.c`'s actual sound-output path from
+there (AICA driver setup, buffer submission, whether `chip_set_song`/
+`chip_sfx_*` calls are actually reaching hardware output vs. just
+updating internal state).
 
-**Persisted choice flag (new, append to `save.json`):**
-`choseHeavenfall` (bool, default false = father branch). Nothing
-persists this today — `choice_cur` in `main.c` is transient, picks
-which of `TALK_CHOICE_FATHER`/`TALK_CHOICE_HEAVENFALL` plays, then both
-paths converge straight into `POST_ENDING_FINAL`. Step 2/3 needs to set
-this flag when the choice is made and read it back after the gauntlet
-boss falls, to pick the ending variant.
+### 2.3 — Move settings into the start/title menu
 
-**Map sketch — `gauntlet`:** short, linear, ~14x8, not an exploration
-hub. A last corridor back through the Weeping Army's ground: fenced-in
-push (reuse `%`/`H` solids for the corridor walls), one or two tall-grass
-tiles near the entrance for a last optional wild encounter, opens onto
-a small clearing at the far end where `commanderFinal` blocks the exit.
-Single warp in, no warp out — beating the boss is what ends the run.
+Currently wherever settings live today — relocate the entry point into
+the start menu.
 
-**Where the warp fires:** today `POST_OPEN_CHOICE` -> choice screen ->
-`POST_ENDING_FINAL` fires the credits immediately once the chosen
-`TALK_CHOICE_*` dialogue closes. Step 2 should redirect that same spot
-to warp onto `gauntlet`'s entrance tile instead (setting `choseHeavenfall`
-first); `POST_ENDING_FINAL` moves to fire only after `commanderFinal`'s
-win-handler, same as every other `wsoldier`-style boss.
+### 2.4 — Redesign the gauntlet (replaces Leg-1's single-map/single-boss version)
 
-**Boss trainer proposal (finalize in Step 3):** lead `duskhorn` lvl 12,
-bench `[["boulderam", 11], ["sableclaw", 11]]` (2-bench, matching
-Shinigami's the only other 2-bench kit — this should read as the
-hardest fight in the demo). `marks: 25` (current max is Quartz's 16).
-Flag `beatGauntlet`. Sprite `npc/commander` already exists (reuse, not
-a new PLACEHOLDER_ART unless art wants a distinct "final" look).
+Current behavior (from the endgame leg just closed): the gauntlet map
+is empty and the player is unconditionally teleported there right
+after the father/Heavenfall choice. **New spec:**
 
-**Branching dialogue (flavor only, mechanics identical either way):**
-- `commanderFinalSpotFather` / `commanderFinalSpotHeavenfall` — two
-  short spot-talk variants referencing which choice was made.
-- One shared `commanderFinalWin` (no need to branch the win line itself).
-- Two ending variants replacing the single `endingWin`: `endingWinFather`
-  / `endingWinHeavenfall`, same length/tone as today's, gated on
-  `choseHeavenfall` for which one main.c's ending screen shows.
-  Draft text for both is in this session's task #28 notes if whoever
-  picks up #30 wants a starting point rather than writing from scratch.
+- The gauntlet becomes an **unlockable location reached via a path
+  behind Shinigami** (in the Grove) — not an automatic teleport after
+  the choice. (Open question for whoever implements this: does the
+  father/Heavenfall choice still happen at the same point in the story,
+  or does it move to gate/follow the gauntlet instead? The doc doesn't
+  say explicitly — check with the user before assuming either way.)
+- It's **5 maps of tall grass**, back to back, each with
+  increasingly higher-level wild CryMon than the last.
+- The **5th map's encounter pool includes every CryMon species in the
+  game** that isn't a one-off named character (Cathleen and Heavenfall
+  excluded), all catchable there.
+- After clearing all 5, the player reaches a **6th map with no tall
+  grass**, containing a gravestone.
+- **Interacting with the gravestone while holding the scroll
+  (`hasScroll`) resurrects Heavenfall.** The player then battles it.
+  - Dropping Heavenfall to 0 HP (defeating, not catching) renames the
+    player to **"Heaven Slayer"** in every iteration/interaction.
+  - Capturing Heavenfall in a Capture Crystal renames the player to
+    **"Heaven Tamer"** in every iteration/interaction.
+- This is where Leg 2's design and the old story lock intersect: the
+  old lock said Heavenfall stays narrative-only, no capture, until the
+  user asked for that explicitly — **this doc is that explicit ask.**
+  `docs/CRYMON.md`'s story-lock section should get a one-line update
+  reflecting that, in whichever commit actually implements this.
+- `commanderFinal` (the old single gauntlet boss) isn't mentioned in
+  this redesign at all — decide with the user whether it's kept as an
+  earlier beat, folded into one of the 5 grass maps, or removed;
+  don't unilaterally delete a working boss fight without asking.
 
-### Step 2 — DONE (Claude A). Map + map-id plumbing landed; no literal
-"warp" entry, and here's why.
+### 2.5 — Replace the capture-rate mechanic + add crystal tiers
 
-**Correction to Step 1's framing:** there's no tile-walked warp to gate.
-Checked `main.c` -- the choice sequence isn't a warp at all. Defeating
-Shinigami fires `POST_OPEN_CHOICE` directly (a scripted state change,
-same spot Anne's father-death reveal already fired from), the choice
-screen closes into `POST_ENDING_FINAL`, which today jumps straight to
-`ending_mode=1` in place, no map change involved. So "gate the warp"
-doesn't apply here; entry onto `gauntlet` will be a scripted teleport
-(`POST_ENDING_FINAL` repointed to spawn the player on `gauntlet`'s mark
-`2` instead of firing the ending immediately) -- that's Step 4/5's job,
-not something expressible in `world.json`'s `warps[]` array.
+- **Common Capture Crystal** (rename of today's base Capture Crystal):
+  25 marks. Capture rate formula: `100% - CryMon's level - CryMon's
+  strength stat - CryMon's current HP` (as percentages/points — the
+  doc doesn't spell out units beyond this, clarify with the user before
+  implementing if the current capture-rate formula in `logic.json`/
+  `data.ts`'s `captureChance()` doesn't already use comparable units).
+  A status condition (poison, etc.) affecting the target CryMon
+  increases the capture rate by +50%.
+- **Greater Capture Crystal:** 50 marks, base capture rate 130%.
+- **Mega Capture Crystal** (new item): 100 marks, base capture rate 160%.
+- **Ultimate Capture Crystal** (new item): 250 marks, base capture rate 190%.
+- **Perfect Capture Crystal** (new item): always captures. **Not
+  purchasable** — awarded only after defeating or capturing Heavenfall.
 
-**What actually landed, JSON + the mechanical cross-file plumbing
-`check_sync --strict` requires for any new map (same category of edit
-as adding a species or a talk key -- not engine logic):**
-- `content/maps.json`: `gauntlet` map, 16x8, walls all around, spawn
-  mark `2` near the entrance, boss mark `1` at the far end. No tall
-  grass -- an encounter pool for a wild-tile is Step 3's call, not
-  this step's, so left it out to keep this step's JSON self-consistent
-  on its own without touching encounters.json.
-- `content/world.json`: `gauntlet` added to `mapIds` (end of list) and
-  `mapNames` ("THE GAUNTLET").
-- `content/save.json`: `gauntlet` appended to `mapOrder`, same position,
-  keeping it byte-identical to `mapIds` per `check_sync`'s rule.
-- `src/game/types.ts`: `gauntlet` added to the `MapId` union.
-- `src/game/data.ts`: `GAUNTLET` export + `MAPS.gauntlet` entry,
-  mechanical (`normalize(raw.gauntlet)`), same pattern as every other
-  map -- no rendering/gameplay logic touched.
+### 2.6 — Populate the world with more merchants
 
-No `choseHeavenfall` flag, no boss trainer, no dialogue in this step --
-that's Step 3 (#30). `MAP_GAUNTLET`'s Dreamcast define bakes for free
-(index-driven off `mapIds`, not a hardcoded list like `kit_keys` was).
+Add additional merchant NPCs across the maps. The first/existing
+merchant sells **Common Capture Crystals only**. Every other merchant
+sells **Greater, Mega, and Ultimate** Capture Crystals (not Common,
+not Perfect — that one's never sold).
 
-Verified: rebake, `check_sync --strict` (clean but for the pre-existing
-15-file art-placeholder debt), `npm run typecheck`, `make -C ports/dreamcast`,
-`make -C ports/dreamcast cdi` all pass.
+### 2.7 — New `reputation` stat + father-revival branch
 
-### Step 3 — DONE (Claude A). Boss trainer + branching dialogue, JSON only.
+- New persisted numeric stat, `reputation`, starts at 0. Range **-100
+  to +100** (see 2.10 for the price-scaling effects at each end).
+- Choosing to revive the father (the existing choice-screen option):
+  - `+25` reputation immediately.
+  - Teleports the player back to the father's side for a short
+    dialogue where he thanks the player for saving his life.
+  - **He joins the party as a second player-controlled character** the
+    player can swap to, who can carry an additional 6 CryMon (i.e., a
+    second 6-slot party the player switches between).
+  - Permanently renames the player **"Max The Kind"** in every
+    iteration/interaction.
 
-Landed with two deltas from Step 1's proposal, both to keep every step
-independently green (this session's hard-earned rule -- never leave a
-`KeyError`/bake crash for the next step to discover):
+### 2.8 — Heavenfall-revival reputation effect
 
-- **Boss stat swap:** lead is `boulderam` lvl 12 (not `duskhorn`) --
-  reads better as a final boss leading with the evolved/tankier form;
-  bench is `[["duskhorn", 11], ["sableclaw", 11]]`. Still 2-bench,
-  still `marks: 25`, still the hardest kit in the demo on paper.
-- **`endingWin` is untouched, not renamed.** Step 1 proposed replacing
-  it with `endingWinFather`/`endingWinHeavenfall`, but `bake_content.py`
-  hardcodes `data["dialogue"]["endingWin"]` (a single `DEMO_END[]` C
-  array, not the generic talk table) -- deleting/renaming that key now
-  would crash bake for everyone until Step 4/5 lands. Instead:
-  `endingWin` stays as-is (reads as the father-branch/default ending),
-  and a new `endingWinHeavenfall` array was added alongside it, purely
-  additive. Step 4/5 needs to teach `bake_content.py` to emit both as
-  separate C arrays and `main.c`/`engine.ts` to pick between them on
-  `choseHeavenfall` -- may as well rename `endingWin`→`endingWinFather`
-  in that same commit for clarity, since the code and the rename would
-  land atomically then.
+Choosing to revive Heavenfall (at the original choice screen) has **no
+immediate reputation effect**. Only after going through the (redesigned)
+gauntlet and successfully reviving Heavenfall there does reputation
+drop by `-25`, and **every merchant's first interaction with the player
+after that point** says "You revived Heavenfall, who knows what other
+horrors you are capable of."
 
-**What actually landed:**
-- `content/world.json` `trainers.commanderFinal`: lead `boulderam` 12,
-  bench `duskhorn`/`sableclaw` 11, `marks: 25`, `winTalk:
-  "commanderFinalWin"`, `set: "beatCommander"`.
-- `content/world.json` `npcs[]`: new row, map `gauntlet`, mark `1`,
-  `sprite: "npc/commander"` (reused, no new art needed), 3-branch
-  script mirroring the quarryDriller/opal pattern exactly: `if
-  beatCommander → win text`, `if choseHeavenfall → Heavenfall-flavor
-  spot text`, else → father-flavor spot text (both spot branches go
-  `after: "wsoldier", pending: "commanderFinal"`).
-- `content/dialogue.json`: `commanderFinalSpotFather`,
-  `commanderFinalSpotHeavenfall`, `commanderFinalWin` (shared), and the
-  new `endingWinHeavenfall` array.
-- `content/save.json` flags: appended `choseHeavenfall` and
-  `beatCommander` (50/64-bit capacity now). Neither is set by any code
-  yet -- that's Step 4/5. `choseHeavenfall` defaults false, so today
-  the gauntlet NPC (once Step 4/5 makes it reachable) always shows the
-  father-branch text; that's expected until the choice sets the flag.
+### 2.9 — Post-battle mercy/threaten/execute menu (human opponents)
 
-Confirmed non-crashing: `commanderFinal` isn't yet in
-`bake_content.py`'s `kit_keys`/`PENDING_IDS`/Dreamcast `NPC_PENDING_*`
-defines (that's Step 5), so its `pending` field bakes to `-1` via the
-existing `PENDING_IDS.get(..., -1)` fallback -- same as quarryDriller
-sat between Task 2 and Task 4. No dispatch yet, nothing crashes.
+After defeating any human trainer **other than Mason or Shinigami**,
+prompt the player with 4 options:
+- **"Let Them Go"** — triggers a random dismissal line from the NPC
+  ("I can't believe I was beaten by a kid", "Impossible! I've never
+  lost a battle!", or similar — need a small pool of these). `+1`
+  reputation.
+- **"Threaten Them For Money"** — NPC says "Don't hurt me, just take
+  it!", `-1` reputation, player receives marks equal to the **combined
+  level of all their CryMon**.
+- **"Threaten Them For An Item"** — same dialogue line, `-2`
+  reputation, player receives **one fully random item**.
+- **"Execute"** — Max says "No survivors, no witnesses.", screen fades
+  to red with a scream sound effect, `-10` reputation, player receives
+  marks equal to **combined CryMon level × 10** plus **2 random items**,
+  the NPC is **permanently deleted from the world as an entity**, then
+  the screen fades back in from red to normal.
 
-Verified: rebake (`PACK_HASH=96d660d5...`), `check_sync --strict`
-(clean but for the same 15-file art debt), `npm run typecheck`,
-`make -C ports/dreamcast`, `make -C ports/dreamcast cdi` all pass.
+### 2.10 — Reputation's economic effects
 
-### Step 4 — DONE (Claude A). engine.ts wiring, web side.
+- Range: **-100 to +100** (hard clamp).
+- Each **positive** reputation point reduces shop item prices by 1%
+  (floor of 1 mark per item — never free from this alone).
+- Each **negative** reputation point increases shop item prices by 5%.
+- At **exactly +100** reputation: interacting with a merchant gives a
+  free item — **once per merchant, for the whole playthrough** (track
+  per-merchant, not just a global once-ever flag).
+- At **-100** reputation: merchants refuse to do business with the
+  player at all.
 
-5-touch-point wiring for `choseHeavenfall`/`beatCommander`, matching
-the `quarryDriller`/`badgeOpal` template exactly: property decl (both
-new flags), reset-state, both save-serialize spots, win-handler branch,
-`wsName` display entry (`commanderFinal: "Commander"`). `TRAINERS`
-reads generically off `worldJson.trainers`, so `commanderFinal` needed
-no separate registration to become winnable in a battle.
+---
 
-**The actual endgame-flow rewire, beyond the standard template:**
-- `updateChoice()` now sets `this.choseHeavenfall = this.choiceCur ===
-  1` right when the player confirms, before the `TALK.choiceFather`/
-  `choiceHeavenfall` text plays (still tagged `"ending"` as its
-  `TalkAfter`, unchanged key name to keep the diff small).
-- The `next === "ending"` handler in the talk-advance switch — the spot
-  that used to jump straight into `mode = "ending"` (credits) — now
-  calls `this.warpTo("gauntlet", "2", "down")` instead. Beating
-  `Shinigami` still leads into the choice exactly as before; only what
-  happens after the choice text closes changed.
-- A new `TalkAfter` value, `"creditsFinal"`, is the actual ending
-  trigger now (`mode = "ending"; endI = 0`). Only `commanderFinal`'s
-  win-handler passes it: `this.say(TALK[kit.winTalk] ..., who ===
-  "commanderFinal" ? "creditsFinal" : null)` inside the shared
-  `wsoldier` win branch — every other `wsoldier` trainer keeps passing
-  `null` (no after-tag), unchanged.
-- Added `endingText()` (`choseHeavenfall ? ENDING_WIN_HEAVENFALL :
-  ENDING_WIN`), used at both spots that used to read `ENDING_WIN`
-  directly (the `endI` length check and the credits draw call).
-  `ENDING_WIN_HEAVENFALL` is a new `data.ts` export off
-  `dialogueJson.endingWinHeavenfall` (the key Step 3 added).
+## Leg 3 (open — also from the same doc)
 
-**Not done, deliberately (Step 5's job):** no Dreamcast changes.
-`commanderFinal` still isn't in `bake_content.py`'s
-`kit_keys`/`PENDING_IDS`/Dreamcast defines, so `main.c` can't reach the
-gauntlet or fight the boss yet — only the web build can walk this path
-today.
+**Do not start before Leg 2's gauntlet/reputation work lands** — Leg 3
+depends on `reputation` existing and behaving per Leg 2.7-2.10.
 
-**Playtest note:** tried to smoke-test the full choice→gauntlet→boss
-flow in a headless browser by reaching into the running `CryMon`
-instance directly (temporary `window.__cm` hook, reverted before
-committing — not in this diff). Poking engine state mid-title didn't
-stick since the per-frame loop's own title-mode update overwrites it
-before a mode set from outside takes effect; getting a reliable
-console-driven playthrough working would need actually clicking
-through intro/title first, which felt like more machinery than this
-step warranted. Deferred to Step 6, which already owns "playtest both
-branches if feasible" -- do that one for real there, ideally by
-driving real input through intro → new game → (localStorage save
-injection or a very long real playthrough) rather than reaching into
-the instance mid-frame.
+New content: liberating cities from occupying Weeping Army soldiers,
+building to a final confrontation with their king.
 
-Verified instead via: `npm run typecheck` clean (note: `engine.ts` is
-`// @ts-nocheck`, so this mostly checks the files that import from it,
-not deep type-correctness inside `engine.ts` itself -- pre-existing,
-not something this step changed), `check_sync --strict` clean but for
-the pre-existing art debt, dev server boots and serves 200 with no
-console errors on load.
+### 3.1 — Shackles item + Weeping Generals
 
-### Step 5 — DONE (Claude A). main.c wiring, Dreamcast side.
+- New item, **Shackles**, sold at every merchant **except the first
+  one**. Required to challenge Weeping Generals (see below).
+- Populate the newly-added liberation cities (new maps/NPCs — not yet
+  designed, needs its own design pass same as the gauntlet did) with
+  one **Weeping General** each, individually named (e.g. "Weeping
+  General Gideon", "Weeping General Arthur" — the doc gives these as
+  examples, not a fixed roster; needs an actual name list sized to
+  however many cities get added).
 
-Same non-generic wiring quarryDriller's Task 4 needed, now for
-`commanderFinal`, plus the warp-relocation piece that's unique to this
-trainer (nobody else's win fires the ending).
+### 3.2 — Arrest or execute each Weeping General
 
-**Baker (`tools/bake_content.py`):**
-- Added `commanderFinal` to `kit_keys` (its 2-entry bench fits the
-  existing `bench_sp[2]`/`bench_lv[2]` struct fine, same shape as
-  Shinigami's bespoke kit).
-- Added `commanderFinal: 13` to `PENDING_IDS`, and the matching
-  `#define NPC_PENDING_COMMANDER_FINAL 13` hand-written line (this
-  file's `NPC_PENDING_*` defines and `PENDING_IDS` dict are two
-  separate hand-maintained lists that have to agree by number -- same
-  gap format as quarry Task 4 hit).
+After defeating a Weeping General, the player chooses:
+- **Arrest** (requires Shackles): `+10` reputation.
+- **Execute:** `-25` reputation.
 
-**`main.c`, mirroring quartz/opal/quarryDriller's shape exactly:**
-- `TRAINER_WSOLDIER_COMMANDER_FINAL 19`, `POST_WSOLDIER_COMMANDER_FINAL
-  27` defines.
-- `NPC_PENDING_COMMANDER_FINAL` dispatch in the `NPC_AFTER_WSOLDIER`
-  chain.
-- `case POST_WSOLDIER_COMMANDER_FINAL:` battle-setup block (message
-  "COMMANDER SENDS BOULDERAM", matching the lead species from Step 3).
-- The 5 save-flag touch points, x2 (one pair for `chose_heavenfall`,
-  one for `beat_commander`): var decl, `ft[]` table, load, reset,
-  store.
-- Win-handler branch sets `beat_commander = 1`, `marks += 25`, plays
-  `TALK_COMMANDER_FINAL_WIN` -- **and, unlike every other `wsoldier`
-  trainer, sets `post_action = POST_CREDITS_FINAL` instead of
-  `POST_NONE`.** This is the Dreamcast mirror of engine.ts's `who ===
-  "commanderFinal" ? "creditsFinal" : null` from Step 4.
+### 3.3 — Golden Shackles + Weeping King Nero
 
-**The actual warp relocation (`POST_ENDING_FINAL`'s case body):**
-used to be `ending_mode = 1; ending_i = 0;` directly. Now it does the
-same "place exactly at a mark, no door-offset math" teleport the
-title-screen new-game code already uses (`find_mark` + `col*TILE+TILE/2`
-placement, `door_lock = 20`, `map_banner_timer = MAP_BANNER_TOTAL`),
-landing on `gauntlet`'s mark `2`. `choice_mode`'s confirm handler now
-sets `chose_heavenfall = choice_cur` right before firing
-`POST_ENDING_FINAL`, mirroring engine.ts's `updateChoice()`.
+Defeating **all** Weeping Generals unlocks the **Golden Shackles**,
+which lets the player confront **Weeping King Nero**.
 
-**New `POST_CREDITS_FINAL 28`** does what `POST_ENDING_FINAL` used to
-do (`ending_mode = 1; ending_i = 0;`) -- it's the real ending trigger
-now, reached only from `commanderFinal`'s win.
+### 3.4 — King Nero's fate branches the ending
 
-**Also closed the ending-text-branching gap flagged in Step 3, rather
-than deferring it again:** `bake_content.py`'s `bake_talk()` now emits
-both `DEMO_END[]` (from `endingWin`) and a new `DEMO_END_HEAVENFALL[]`
-(from `endingWinHeavenfall`, falling back to `endingWin`'s content if
-that key were ever missing -- it isn't, Step 3 added it, this is just
-defensive). Both of `main.c`'s `ending_mode` read sites (the `a_now`
-length-check in the input handler, and the `draw_ending()` call in the
-draw pass) now branch on `chose_heavenfall` to pick the right array.
-Dreamcast's ending text matches web's now -- this step didn't leave
-that half-done.
+- **"Bring Him To Trial"** (arrest via Golden Shackles): `+50`
+  reputation, plays a cutscene of his war-crimes trial and life
+  sentence.
+- **Execute:** `-50` reputation, fade to red, a new scream audio plays
+  **3 times in a row**, then a **red tint stays on screen for the rest
+  of the playthrough** (persistent visual state, not a temporary fade).
+  Player is renamed **"Kingslayer"** in every iteration/interaction. A
+  cutscene plays where the player is crowned the new Queen.
 
-Verified: rebake (`PACK_HASH=96d660d5...` -- unchanged from Step 3
-despite this ending-text addition, since `content/*.json` itself didn't
-change, only the baker's Python and `main.c`), symbol-checked every new
-`#define`/`KIT_`/`TALK_`/`SAVE_FLAG_`/`FLAG_`/`MAP_` name against the
-freshly baked `.inc` files before building, `check_sync --strict` clean
-but for the pre-existing art debt, `npm run typecheck` clean, `make -C
-ports/dreamcast` clean (only pre-existing warnings, no new ones),
-`make -C ports/dreamcast cdi` succeeds.
+### 3.5 — Father's reaction (only if the father is alive, i.e. was revived per 2.7)
 
-### Step 6 handoff (task #33) -- I'm out of context, writing this up so
-whoever picks it up doesn't have to re-derive any of it.
+Regardless of the trial/execute choice above, if the father is alive:
+- **Positive reputation + arrested the king:** cutscene, father
+  congratulates the player for being merciful.
+- **Negative reputation + brought the king to trial anyway:** cutscene,
+  father talks about "necessary sacrifice."
+- **Executed the king:** father calls the player a monster and
+  abandons them.
 
-**State: Steps 1-5 are all DONE and pushed (`main` @ `ac70a1f` as of
-this note).** Every rebake/`check_sync --strict`/typecheck/`make`/
-`make cdi` I ran after Step 5 landed clean. Step 6 is the one thing
-nobody has done yet: **an actual playthrough of both branches**, plus a
-final from-scratch verification pass and closing the loop on this doc.
+### 3.6 — Heavenfall's final resolution ends the game
 
-**Commands, in order (same race-safe protocol every step this session
-used -- fetch/rebase immediately before any push, never trust a stale
-base):**
-```
-git fetch origin main && git reset --hard origin/main   # or rebase if you have local work
-python3 tools/bake_content.py --content content --out ports/dreamcast/src
-python3 ports/dreamcast/tools/gen_sprites.py
-python3 tools/check_sync.py --strict   # expect exactly 1 FAIL: the 15-file art-placeholder debt, nothing else
-npm run typecheck
-make -C ports/dreamcast
-make -C ports/dreamcast cdi
-```
-If `check_sync --strict` reports anything other than the 15 missing
-sprite files, something regressed -- don't push until it's back to
-just that one line.
-
-**Playtest -- what to verify, and how to reach it fast:**
-The real path is: new game -> take Quillpup -> beat enough of the
-story to reach Shinigami in the Grove (needs `hasScroll`-gating content
-cleared: Calder, the camp, forest/ruins) -> beat Shinigami -> the
-father/Heavenfall choice screen -> confirm either option -> should warp
-onto the `gauntlet` map (not straight to credits) -> walk to mark `1` ->
-fight `commanderFinal` (lead `boulderam` 12, bench `duskhorn`/
-`sableclaw` 11 -- the hardest fight in the game, bring a real party) ->
-win should set `beatCommander`, fire the credits, and show
-`endingWin` (father branch) or `endingWinHeavenfall` (Heavenfall
-branch) depending on which choice was made.
-
-Playing all the way there for real is the most reliable check but
-slow. **If you try a dev-console shortcut instead, here's the mistake I
-made so you don't repeat it:** I reached into the running `CryMon`
-instance (`window.__cm`, wired up temporarily in
-`src/components/crymon-app.tsx`'s `new CryMon(canvas)` line, reverted
-before committing -- it's not in the tree now, you'd re-add it
-yourself) and called `g.updateChoice()` directly after setting
-`g.choiceCur`/`g.hasScroll`/`g.beatShinigami`. It appeared to do
-nothing (`mode` stayed `"title"`). **That wasn't a state-persistence
-bug -- I never actually set `g.mode` into `"choice"` or `"world"` in
-the first place, and `updateChoice()` gates on `this.input.confirm()`,
-which I never simulated, so its `if` body never ran.** A working
-version of that same shortcut: get the game off the title screen and
-into `mode === "world"` with a real party first (either play the very
-start for real, or set `g.mode = "world"`, `g.party = [/* a minted
-CryMon */]` directly), *then* set `g.hasScroll = true; g.beatShinigami
-= true; g.mode = "choice"; g.choiceCur = 0` (or `1`), then either
-monkey-patch `g.input.confirm = () => true` for one frame and call
-`g.updateChoice()`, or just replicate `updateChoice()`'s body by hand
-(`g.choseHeavenfall = g.choiceCur === 1; g.mode = "world"; g.say(...)`).
-The talk-advance logic that turns `TalkAfter: "ending"` into the
-gauntlet warp lives inline inside the big `if/else` chain in `update()`
-around where `next === "wsoldier"` etc. are handled (search
-`next === "ending"` in `engine.ts`) -- same story, it only fires on a
-simulated confirm press, not by itself.
-
-Dreamcast-side playtest (`make -C ports/dreamcast cdi` -> run the
-`.cdi` in an emulator) wasn't attempted at all this session -- no
-Dreamcast emulator in this sandbox. If one isn't available to you
-either, that's fine: the C-side logic was written to mirror the
-already-verified web logic field-for-field (documented above, Step 5),
-and both sides passed their respective build/typecheck gates. Note it
-as untested-on-real/emulated-hardware rather than claiming it's been
-played.
-
-**Not in scope for Step 6, leave alone:** the 15-file sprite art debt
-(bogwalker/reedguard/quartz-frame2/driller -- pre-existing, placeholder
--covered, not this feature's problem). The story-lock boundary from
-Step 1 still holds: Heavenfall stays narrative-only, no party member,
-no capture -- nothing in Steps 1-5 touched that, don't let "integration
-pass" turn into scope creep on it.
-
-**When Step 6 is done:** mark task #33 completed, mark #18 (the parent
-"Extended endgame" task) completed too, and add a short "DONE" summary
-line to this section the same way Steps 1-5 above do. At that point the
-whole endgame breakdown (#28-33) and #18 are closed out.
-
-### Step 6 — DONE. Playtested for real, on an actual Dreamcast emulator
-(by the user, not an agent -- the real thing the handoff note above
-could only simulate/defer). Confirmed working end to end: the
-father/Heavenfall choice, the warp onto `gauntlet`, the `commanderFinal`
-boss fight, and the branched credits. Final from-scratch verification
-pass (Claude A) also came back clean: rebake, `check_sync --strict`
-(only the pre-existing 15-file art-placeholder debt, nothing else),
-`npm run typecheck`, `make -C ports/dreamcast`, `make -C ports/dreamcast
-cdi` -- no diff against what CI's bot had already built, so nothing new
-to push from that pass.
-
-**The playtest did surface real bugs.** Per the user: those are being
-tracked as their own next leg of work, not folded into this one, and
-haven't been detailed here yet. **Whoever picks up that leg: get the
-actual bug list from the user first** -- this file doesn't have it.
-Once it exists, give it its own section here (same pattern as quarry/
-endgame: a short breakdown if it's more than a one-pass fix), not a
-patch buried inside this closed-out section.
-
-**Endgame breakdown (#18, #28-33) is closed.** Quarry (#23-26) and
-Opal/BUG-004 (#27) were already closed earlier. Nothing else open on
-this doc as of this note except whatever the next leg turns out to be.
+- If the player **does not** have Heavenfall in their party at this
+  point: the game ends here, full stop.
+- If the player **has Heavenfall** and **positive reputation**:
+  cutscene where Heavenfall is "tamed by the player's good nature,"
+  plus an epilogue about Heavenfall staying by their side.
+- If the player **has Heavenfall** and **negative reputation**:
+  Heavenfall is "poisoned by the player's evil," turns hostile, and
+  **attacks immediately** with no rest opportunity after the previous
+  battle.
+  - If the player **defeats** hostile Heavenfall: epilogue, player
+    renamed **"Godslayer"**, feared as a merciless murderer for the
+    rest of history.
+  - If hostile Heavenfall **wipes the player's whole party**: epilogue,
+    the player **dies**, renamed **"Max The Bloody"** posthumously,
+    remembered as the one who let Heavenfall loose to rampage across
+    the world.
+- Whichever branch fires, **the game ends once it resolves.**
