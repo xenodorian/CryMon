@@ -3630,6 +3630,28 @@ typedef struct {
     int *after, *pending;
 } NpcRun;
 
+
+/* Map overworld NPC mark → executed_mask bit (mirrors engine.ts mercyExecBit). */
+static int npc_exec_bit(int map_id, char mark) {
+    if(map_id == MAP_VELD && mark == 'E') return 0; /* Calder */
+    if(map_id == MAP_FOREST && mark == '1') return 1;
+    if(map_id == MAP_FOREST && mark == '2') return 2;
+    if(map_id == MAP_FOREST && mark == '3') return 3;
+    if(map_id == MAP_CLIFFS && mark == 'V') return 4; /* Sentry */
+    if(map_id == MAP_CAMP && mark == 'K') return 5; /* Conscript */
+    if(map_id == MAP_CAMP && mark == 'A') return 6; /* Enforcer */
+    if(map_id == MAP_GROVE && mark == 'K') return 7; /* Cross */
+    if(map_id == MAP_FOREST && mark == '4') return 8; /* Ranger */
+    if(map_id == MAP_FOREST && mark == '5') return 9; /* Scout */
+    if(map_id == MAP_RUINS && mark == '6') return 10;
+    if(map_id == MAP_RUINS && mark == '7') return 11;
+    if(map_id == MAP_MARSH && mark == '1') return 12;
+    if(map_id == MAP_MARSH && mark == '2') return 13;
+    if(map_id == MAP_REACH && mark == 'Q') return 14;
+    if(map_id == MAP_REACH && mark == 'O') return 15;
+    if(map_id == MAP_QUARRY && mark == '1') return 16;
+    return -1;
+}
 static int try_npc_script(NpcRun *R) {
     unsigned char used[64];
     int i, guard;
@@ -3642,6 +3664,10 @@ static int try_npc_script(NpcRun *R) {
             int mx, my, dx, dy, d;
             int half_w, left, right, top, bottom;
             if(used[i] || NPC_DEFS[i].map_id != R->map_id) continue;
+            {
+                int ebit = npc_exec_bit(NPC_DEFS[i].map_id, NPC_DEFS[i].mark);
+                if(ebit >= 0 && (executed_mask & (1u << ebit))) continue;
+            }
             mark_center(R->map_id, NPC_DEFS[i].mark, &mx, &my);
             /* Box test against the target's own footprint (NPC_DEFS[i].w/h,
                already scaled to this port's tile size by the baker) plus
@@ -4446,6 +4472,7 @@ void main(void) {
                         pdir = sl.dir;
                         if(pdir < 0 || pdir > 3) pdir = 0;
                         marks = sl.marks;
+                        executed_mask = sl.executed_mask;
                         lead = sl.lead;
                         party_n = sl.party_n;
                         if(party_n > 6) party_n = 6;
@@ -4756,6 +4783,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN2, soldier_beaten[2]);
                     save_flag_put(&sl, SAVE_FLAG_QUARRY_CRATE_LOOTED, quarry_crate_looted);
                     save_flag_put(&sl, SAVE_FLAG_QUARRY_SHELF_SEARCHED, quarry_shelf_searched);
+                    sl.executed_mask = executed_mask;
                     if(save_store(&sl)) {
                         int n = s_cat(hud_flash, 0, "SAVED");
                         hud_flash[n] = 0;
@@ -5548,6 +5576,7 @@ void main(void) {
                     else if(battle.trainer_kind >= 10) ebit = battle.trainer_kind; /* coarse */
                     else ebit = battle.trainer_kind;
                     if(ebit >= 0 && ebit < 31) executed_mask |= (1u << ebit);
+                    chip_sfx_faint(); /* stand-in scream until dedicated SFX exists */
                     g_mercy_red_fade = 1;
                     fade_state = FADE_OUT;
                     fade_timer = 0;
