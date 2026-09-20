@@ -171,10 +171,10 @@ a coding task for me.)
 engines, verified by build/typecheck/check_sync only (**no Dreamcast
 emulator in this sandbox for any of them** — see each section's own
 caveat before assuming a "feels wrong" report means the fix itself is
-wrong rather than unverified). Next: per the execution order above,
-2.9.1 (mercy/threaten/execute dialogue pool) is flagged as a
-zero-dependency standalone pickup if budget allows before the bigger
-items (2.7, 2.4, 2.10, 2.8, 2.2).
+wrong rather than unverified). 2.9.1 (dismissal dialogue pool) also
+DONE and pushed. Next: everything left is a big item (2.7, 2.9 sub-steps
+2-6, 2.4, 2.10, 2.8, 2.2) — pick per the execution order above and
+break into documented sub-steps as this run's instructions ask.
 
 ---
 
@@ -570,8 +570,12 @@ exist (2.7 sub-step 1 only — not the second-party system, that part of
 before the rest of 2.7.
 
 **Sub-steps:**
-1. A small pool of "let them go" dismissal lines in `dialogue.json`
-   (needs at least 3-4 for variety, doc gives 2 examples).
+1. **DONE (Claude A), pushed.** 5 "let them go" dismissal lines added
+   as `dialogue.json`'s new top-level `mercyDismissLines` array (plain
+   text pool, not tied to a speaker — the defeated trainer says
+   whichever line gets picked, so it isn't keyed under `talk` like a
+   scripted beat). Not yet wired into any code — nothing picks from
+   this pool at random yet, that's sub-step 2+ below, still open.
 2. The post-battle prompt UI itself — likely a new `mode`/menu state
    the same way the father/Heavenfall `choice` screen works
    (`updateChoice`/`draw_choice` pattern), but 4 options instead of 2,
