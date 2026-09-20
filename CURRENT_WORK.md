@@ -173,10 +173,11 @@ fixed, see above, not hardware-verified) DONE and pushed. 2.9.1
 field) also DONE and pushed. **2.7 sub-step 2 (father-revival
 dialogue + teleport-back + reputation +25) DONE (Grok A), pushed.**
 **2.7 sub-step 5 ("Max The Kind" display-name override) DONE (Grok A),
-pushed.** Next: 2.10 (reputation's economic effects). Remaining 2.9
-sub-steps (post-battle mercy/threaten/execute menu) still open. 2.7
-sub-steps 3+ (second controllable party), 2.4 (gauntlet redesign),
-2.8 (blocked on 2.4), and Leg 3 stay out of scope until assigned.
+pushed.** **2.10 (reputation's economic effects) DONE (Grok A), pushed.**
+Remaining 2.9 sub-steps (post-battle mercy/threaten/execute menu) still
+open. 2.7 sub-steps 3+ (second controllable party), 2.4 (gauntlet
+redesign), 2.8 (blocked on 2.4), and Leg 3 stay out of scope until
+assigned.
 
 ---
 
@@ -651,7 +652,20 @@ before the rest of 2.7.
 
 ### 2.10 — Reputation's economic effects
 
-- Range: **-100 to +100** (hard clamp).
+**DONE (Grok A), pushed.** Both engines, JSON-driven from `logic.json`
+`reputation` (`pricePosPct` 1, `priceNegPct` 5, `minPrice` 1,
+`refuseAt` -100, `freeAt` 100):
+
+- Buy prices scale: each +rep point is 1% off (floor 1 mark, never
+  free from scaling alone); each -rep point is 5% up. Sell unchanged.
+- At exactly +100: the next buy from that merchant is free, once per
+  merchant for the playthrough (`shopFreeBram`/`Oren`/`Fenn`/`Dray`
+  appended to `save.json` flags at 51-54, no version bump). Player
+  picks the item; shop rows show FREE until they take it.
+- At -100: shop `afterTalk` plays `shopRefuse` and does not open.
+  Verified via bake/check_sync/typecheck; **not hardware-verified**.
+
+~~- Range: **-100 to +100** (hard clamp).
 - Each **positive** reputation point reduces shop item prices by 1%
   (floor of 1 mark per item — never free from this alone).
 - Each **negative** reputation point increases shop item prices by 5%.
@@ -659,7 +673,7 @@ before the rest of 2.7.
   free item — **once per merchant, for the whole playthrough** (track
   per-merchant, not just a global once-ever flag).
 - At **-100** reputation: merchants refuse to do business with the
-  player at all.
+  player at all.~~
 
 ---
 

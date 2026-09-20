@@ -79,6 +79,7 @@ type ImgMap = Record<string, HTMLImageElement>;
 type TalkAfter = null | `shop:${string}` | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL" };
+const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray" };
 const STEP = 1 / 60;
 function loadImg(src, ms = 8000) {
 	return new Promise((res, rej) => {
@@ -239,6 +240,10 @@ export class CryMon {
 	shopKeep: string = "bram";
 	/** -100..100, see logic.json reputation. */
 	reputation = 0;
+	shopFreeBram = false;
+	shopFreeOren = false;
+	shopFreeFenn = false;
+	shopFreeDray = false;
 	doorLock = 0;
 	hudFlash = "";
 	hudT = 0;
@@ -395,6 +400,10 @@ export class CryMon {
 		this.choiceCur = 0;
 		this.shopKeep = "bram";
 		this.reputation = 0;
+		this.shopFreeBram = false;
+		this.shopFreeOren = false;
+		this.shopFreeFenn = false;
+		this.shopFreeDray = false;
 		this.rival = {
 			phase: "off",
 			x: 0,
@@ -866,7 +875,12 @@ export class CryMon {
 			this.talkI = 0;
 			const next = this.afterTalk;
 			this.afterTalk = null;
-			if (next && next.startsWith("shop:")) this.openShop(next.slice("shop:".length));
+			if (next && next.startsWith("shop:")) {
+				const keep = next.slice("shop:".length);
+				const refuseAt = LOGIC.reputation?.refuseAt ?? -100;
+				if (this.reputation <= refuseAt) this.say(TALK.shopRefuse);
+				else this.openShop(keep);
+			}
 			else if (next === "mason") {
 				const kit = TRAINERS.mason;
 				this.foughtMason = true;
@@ -1031,6 +1045,26 @@ export class CryMon {
 			if (ITEMS[id].effect?.kind === "capture") return allowed.includes(id);
 			return true;
 		});
+	}
+	shopBuyPrice(id) {
+		const base = ITEMS[id].buy;
+		const r = LOGIC.reputation || {};
+		const pos = r.pricePosPct ?? 1;
+		const neg = r.priceNegPct ?? 5;
+		const minP = r.minPrice ?? 1;
+		if (this.reputation > 0) return Math.max(minP, Math.floor(base * (100 - this.reputation * pos) / 100));
+		if (this.reputation < 0) return Math.max(minP, Math.floor(base * (100 + (-this.reputation) * neg) / 100));
+		return base;
+	}
+	shopGiftPending() {
+		const need = LOGIC.reputation?.freeAt ?? 100;
+		if (this.reputation < need) return false;
+		const flag = SHOP_FREE_FLAG[this.shopKeep];
+		return flag ? !this[flag] : false;
+	}
+	markShopGiftTaken() {
+		const flag = SHOP_FREE_FLAG[this.shopKeep];
+		if (flag) this[flag] = true;
 	}
 	openShop(keep: string = "bram") {
 		this.mode = "shop";
@@ -1506,7 +1540,8 @@ export class CryMon {
 			const id = rows[this.shopCursor];
 			if (!id) return;
 			if (this.shopTab === "buy") {
-				const cost = ITEMS[id].buy;
+				const gift = this.shopGiftPending();
+				const cost = gift ? 0 : this.shopBuyPrice(id);
 				if (this.marks < cost) {
 					this.audio.miss();
 					this.note("Not enough marks.");
@@ -1515,7 +1550,10 @@ export class CryMon {
 				this.marks -= cost;
 				this.bag[id] += 1;
 				this.audio.ok();
-				this.note(`Bought ${ITEMS[id].name}.`);
+				if (gift) {
+					this.markShopGiftTaken();
+					this.note(`A gift. ${ITEMS[id].name}.`);
+				} else this.note(`Bought ${ITEMS[id].name}.`);
 			} else {
 				if (this.bag[id] <= 0) return;
 				this.bag[id] -= 1;
@@ -3755,8 +3793,10 @@ export class CryMon {
 				if (!id) break;
 				const y = Y(44 + i * 14);
 				const on = idx === this.shopCursor;
-				const price = this.shopTab === "buy" ? ITEMS[id].buy : ITEMS[id].sell;
-				this.text(`${on ? ">" : " "}${ITEMS[id].name}  ${price}m  x${this.bag[id]}`, X(18), y, on ? "#e8e4d8" : "#8a8678", FONT);
+				const price = this.shopTab === "buy"
+					? (this.shopGiftPending() ? "FREE" : `${this.shopBuyPrice(id)}m`)
+					: `${ITEMS[id].sell}m`;
+				this.text(`${on ? ">" : " "}${ITEMS[id].name}  ${price}  x${this.bag[id]}`, X(18), y, on ? "#e8e4d8" : "#8a8678", FONT);
 			}
 		}
 		this.text("A/D tab   Z trade   X leave", X(18), Y(140), "#5a7a52", FONT);

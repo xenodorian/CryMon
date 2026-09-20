@@ -8,11 +8,16 @@
     }
   },
   "reputation": {
-    "comment": "Live range is signed. Save byte 17 stores value+100. Both engines clamp on every write. kindName is the display-name override after father revival (2.7.5); later titles (Slayer/Tamer) reuse the same hook.",
+    "comment": "Live range is signed. Save byte 17 stores value+100. Both engines clamp on every write. kindName is the display-name override after father revival (2.7.5); later titles (Slayer/Tamer) reuse the same hook. pricePosPct is 1% off per +rep (never free from this alone); priceNegPct is 5% up per -rep. refuseAt/freeAt are the shop extremes (2.10).",
     "min": -100,
     "max": 100,
     "fatherRevive": 25,
-    "kindName": "Max The Kind"
+    "kindName": "Max The Kind",
+    "pricePosPct": 1,
+    "priceNegPct": 5,
+    "minPrice": 1,
+    "refuseAt": -100,
+    "freeAt": 100
   },
   "screenFade": {
     "outSec": 0.267,

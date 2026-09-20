@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=5b1073598912af7e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=e9d6050621694f98 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -502,6 +502,10 @@ static const TalkBeat TALK_DRAY_OPEN[] = {
     { "CAMP SUPPLY RUN. I CARRY THE STRONGER CAPTURE CRYSTALS, NOTHING COMMON.", 34 },
     { "GOOD. I NEED THOSE.", 1 },
 };
+static const TalkBeat TALK_SHOP_REFUSE[] = {
+    { "THEY LOOK AT YOU AND WILL NOT TRADE.", 0 },
+    { "NOT AFTER WHAT YOU HAVE DONE.", 0 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -637,6 +641,7 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_COMMANDER_FINAL_WIN,
     TALK_FENN_OPEN,
     TALK_DRAY_OPEN,
+    TALK_SHOP_REFUSE,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -757,6 +762,7 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_COMMANDER_FINAL_WIN),
     TALK_LEN(TALK_FENN_OPEN),
     TALK_LEN(TALK_DRAY_OPEN),
+    TALK_LEN(TALK_SHOP_REFUSE),
 };
-#define TALK_TABLE_N 118
+#define TALK_TABLE_N 119
 

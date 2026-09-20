@@ -3829,7 +3829,33 @@ static const char *const SHOP_TITLES[SHOP_CRYSTAL_MASK_N] = {
     "BRAMS STALL", "ORENS STALL", "FENNS STALL", "DRAYS STALL",
 };
 
-static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop_keep_id) {
+/* Leg 2.10: buy prices scale with reputation. Positive: -1% per point
+   (floor LOGIC_REP_MIN_PRICE, never free from this alone). Negative:
+   +5% per point. Sell prices are unchanged. At +100 the next purchase
+   from this merchant is free once (shop_free[]). */
+static int shop_buy_price(int base, int reputation) {
+    int p;
+    if(reputation > 0) {
+        p = base * (100 - reputation * LOGIC_REP_PRICE_POS_PCT) / 100;
+        if(p < LOGIC_REP_MIN_PRICE) p = LOGIC_REP_MIN_PRICE;
+        return p;
+    }
+    if(reputation < 0) {
+        p = base * (100 + (-reputation) * LOGIC_REP_PRICE_NEG_PCT) / 100;
+        if(p < LOGIC_REP_MIN_PRICE) p = LOGIC_REP_MIN_PRICE;
+        return p;
+    }
+    return base;
+}
+
+static int shop_gift_open(int reputation, int shop_keep_id, const int *shop_free) {
+    if(reputation < LOGIC_REP_FREE_AT) return 0;
+    if(shop_keep_id < 0 || shop_keep_id >= SHOP_CRYSTAL_MASK_N) return 0;
+    return !shop_free[shop_keep_id];
+}
+
+static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop_keep_id,
+                      int reputation, const int *shop_free) {
     int rows[ITEM_COUNT];
     int n = shop_rows(bag, sell_tab, shop_keep_id, rows);
     int y = MENU_Y + 40;
@@ -3861,13 +3887,18 @@ static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop
         if(start > max_start) start = max_start;
         for(i = start; i < start + SHOP_ROWS_SHOWN && i < n; i++) {
             int idx = rows[i];
-            int price = sell_tab ? ITEMS[idx].sell : ITEMS[idx].buy;
+            int price = sell_tab ? ITEMS[idx].sell : shop_buy_price(ITEMS[idx].buy, reputation);
             int owned = *bag_field((Bag *)bag, idx);
+            int gift = !sell_tab && shop_gift_open(reputation, shop_keep_id, shop_free);
             char row[40];
             int rn = s_cat(row, 0, ITEMS[idx].name);
-            rn = s_cat(row, rn, " ");
-            rn = s_cat_uint(row, rn, price);
-            rn = s_cat(row, rn, "M X");
+            if(gift) {
+                rn = s_cat(row, rn, " FREE X");
+            } else {
+                rn = s_cat(row, rn, " ");
+                rn = s_cat_uint(row, rn, price);
+                rn = s_cat(row, rn, "M X");
+            }
             rn = s_cat_uint(row, rn, owned);
             row[rn] = 0;
             draw_menu_row_icon(ITEM_ICONS[idx], row, i, cur, y);
@@ -4144,6 +4175,7 @@ void main(void) {
     /* -100..100, see logic.json reputation. Clamped on every write. */
     int reputation = 0;
     int mason2_done = 0;
+    int shop_free[4] = { 0, 0, 0, 0 };
 
     /* Anne: engine.ts's maybeStartAnne() gate is battlesDone>=1 while
        on VELD (onBattleOver()/battlesDone++ fires on soldier, Mason,
@@ -4224,6 +4256,10 @@ void main(void) {
         ft[FLAG_BADGE_OPAL] = &badge_opal;
         ft[FLAG_CHOSE_HEAVENFALL] = &chose_heavenfall;
         ft[FLAG_REVIVED_FATHER] = &revived_father;
+        ft[FLAG_SHOP_FREE_BRAM] = &shop_free[0];
+        ft[FLAG_SHOP_FREE_OREN] = &shop_free[1];
+        ft[FLAG_SHOP_FREE_FENN] = &shop_free[2];
+        ft[FLAG_SHOP_FREE_DRAY] = &shop_free[3];
         ft[FLAG_BEAT_COMMANDER] = &beat_commander;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
         ft[FLAG_CHEST_LOOTED] = &got_chest;
@@ -4450,6 +4486,10 @@ void main(void) {
                         chose_heavenfall = save_flag_get(&sl, SAVE_FLAG_CHOSE_HEAVENFALL);
                         revived_father = save_flag_get(&sl, SAVE_FLAG_REVIVED_FATHER);
                         apply_player_name(revived_father);
+                        shop_free[0] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_BRAM);
+                        shop_free[1] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_OREN);
+                        shop_free[2] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_FENN);
+                        shop_free[3] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_DRAY);
                         beat_commander = save_flag_get(&sl, SAVE_FLAG_BEAT_COMMANDER);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
@@ -4525,6 +4565,7 @@ void main(void) {
                 revived_father = 0;
                 reputation = 0;
                 apply_player_name(0);
+                shop_free[0] = shop_free[1] = shop_free[2] = shop_free[3] = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
@@ -4660,6 +4701,10 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_BADGE_OPAL, badge_opal);
                     save_flag_put(&sl, SAVE_FLAG_CHOSE_HEAVENFALL, chose_heavenfall);
                     save_flag_put(&sl, SAVE_FLAG_REVIVED_FATHER, revived_father);
+                    save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_BRAM, shop_free[0]);
+                    save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_OREN, shop_free[1]);
+                    save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_FENN, shop_free[2]);
+                    save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_DRAY, shop_free[3]);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_COMMANDER, beat_commander);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
@@ -5387,10 +5432,13 @@ void main(void) {
                 if(a_now && !prev_a && n_rows > 0) {
                     int idx = rows[shop_cur];
                     if(!shop_sell_tab) {
-                        int cost = ITEMS[idx].buy;
+                        int gift = shop_gift_open(reputation, shop_keep_id, shop_free);
+                        int cost = gift ? 0 : shop_buy_price(ITEMS[idx].buy, reputation);
                         if(marks >= cost) {
                             marks -= cost;
                             (*bag_field(&bag, idx))++;
+                            if(gift && shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N)
+                                shop_free[shop_keep_id] = 1;
                         }
                     }
                     else {
@@ -6225,9 +6273,16 @@ void main(void) {
                                     }
                                     break;
                                 case POST_SHOP:
-                                    shop_open = 1;
-                                    shop_sell_tab = 0;
-                                    shop_cur = 0;
+                                    if(reputation <= LOGIC_REP_REFUSE_AT) {
+                                        seq_lines = TALK_SHOP_REFUSE;
+                                        seq_len = TALK_LEN(TALK_SHOP_REFUSE);
+                                        seq_beat = 0;
+                                        post_action = POST_NONE;
+                                    } else {
+                                        shop_open = 1;
+                                        shop_sell_tab = 0;
+                                        shop_cur = 0;
+                                    }
                                     break;
                                 case POST_MASON_LEAVE:
                                     /* startRivalLeave(). */
@@ -6435,7 +6490,8 @@ void main(void) {
                             battle_foe_enter_t, battle_foe_faint_t,
                             battle_pl_enter_t, battle_pl_faint_t);
             if(shop_open)
-                draw_shop(&bag, marks, shop_sell_tab, shop_cur, shop_keep_id);
+                draw_shop(&bag, marks, shop_sell_tab, shop_cur, shop_keep_id,
+                          reputation, shop_free);
             if(choice_mode)
                 draw_choice(choice_cur);
         }

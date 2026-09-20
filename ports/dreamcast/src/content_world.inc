@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=5b1073598912af7e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=e9d6050621694f98 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -192,7 +192,11 @@ static const int SHOP_CRYSTAL_MASK[] = {
 #define FLAG_CHOSE_HEAVENFALL 50
 #define FLAG_BEAT_COMMANDER 51
 #define FLAG_REVIVED_FATHER 52
-#define FLAG_N 53
+#define FLAG_SHOP_FREE_BRAM 53
+#define FLAG_SHOP_FREE_OREN 54
+#define FLAG_SHOP_FREE_FENN 55
+#define FLAG_SHOP_FREE_DRAY 56
+#define FLAG_N 57
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
