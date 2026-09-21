@@ -12,7 +12,13 @@
     "cageKey",
     "megacrystal",
     "ultimatecrystal",
-    "perfectcrystal"
+    "perfectcrystal",
+    "calmdraft",
+    "burnsalve",
+    "antidote",
+    "clearmind",
+    "numbroot",
+    "panacea"
   ],
   "defs": {
     "gem": {
@@ -179,6 +185,83 @@
       "effect": {
         "kind": "capture",
         "base": 1000
+      }
+    },
+    "calmdraft": {
+      "id": "calmdraft",
+      "name": "Calm Draft",
+      "desc": "Resets your CryMon's temporary stat changes (stages, Hype Up) this battle. Does not cure a status condition.",
+      "battle": true,
+      "field": false,
+      "buy": 15,
+      "sell": 7,
+      "effect": {
+        "kind": "cleanse"
+      }
+    },
+    "burnsalve": {
+      "id": "burnsalve",
+      "name": "Burn Salve",
+      "desc": "Cures Burned.",
+      "battle": true,
+      "field": true,
+      "buy": 20,
+      "sell": 10,
+      "effect": {
+        "kind": "cure",
+        "status": "burned"
+      }
+    },
+    "antidote": {
+      "id": "antidote",
+      "name": "Antidote",
+      "desc": "Cures Poisoned.",
+      "battle": true,
+      "field": true,
+      "buy": 20,
+      "sell": 10,
+      "effect": {
+        "kind": "cure",
+        "status": "poisoned"
+      }
+    },
+    "clearmind": {
+      "id": "clearmind",
+      "name": "Clear Mind",
+      "desc": "Cures Confused.",
+      "battle": true,
+      "field": true,
+      "buy": 20,
+      "sell": 10,
+      "effect": {
+        "kind": "cure",
+        "status": "confused"
+      }
+    },
+    "numbroot": {
+      "id": "numbroot",
+      "name": "Numbroot Tonic",
+      "desc": "Cures Paralyzed.",
+      "battle": true,
+      "field": true,
+      "buy": 20,
+      "sell": 10,
+      "effect": {
+        "kind": "cure",
+        "status": "paralyzed"
+      }
+    },
+    "panacea": {
+      "id": "panacea",
+      "name": "Panacea",
+      "desc": "Cures any status condition.",
+      "battle": true,
+      "field": true,
+      "buy": 70,
+      "sell": 35,
+      "effect": {
+        "kind": "cure",
+        "status": "all"
       }
     }
   }

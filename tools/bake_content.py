@@ -681,7 +681,7 @@ def bake_logic(data: dict, out: Path) -> None:
 
 NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4, "beatSentry": 5}
 ARRIVE = {"masonAmbush": 1, "ensureSoldiers": 2}
-ITEM_FX = {"heal": 1, "buff": 2, "debuff": 3, "capture": 4, "flee": 5}
+ITEM_FX = {"heal": 1, "buff": 2, "debuff": 3, "capture": 4, "flee": 5, "cleanse": 6, "cure": 7}
 
 
 def bake_world(data: dict, out: Path) -> None:
@@ -806,7 +806,14 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append(f"#define KIT_SHINIGAMI_B1_LV {int(shin_b[1][1]) if len(shin_b) > 1 else 13}")
     lines.append("")
     # item effects in items.order
-    lines.append("typedef struct { int kind, amount, str, agl, spc, base; } ItemFx;")
+    # Leg 2.11 sub-step 4: "cure" items carry a status target too (an id
+    # matching STATUS_* from content_logic.inc, plus ITEM_STATUS_ALL for
+    # a cure-everything item like Panacea -- content_logic.inc is
+    # #included before this file in main.c, so those symbols already
+    # exist by the time ITEM_FX references them).
+    item_status_ids = {"burned": 1, "poisoned": 2, "confused": 3, "paralyzed": 4, "exhausted": 5, "all": 6}
+    lines.append("#define ITEM_STATUS_ALL 6")
+    lines.append("typedef struct { int kind, amount, str, agl, spc, base, status; } ItemFx;")
     lines.append("static const ItemFx ITEM_FX[] = {")
     for iid in order:
         e = items["defs"][iid].get("effect") or {}
@@ -816,7 +823,11 @@ def bake_world(data: dict, out: Path) -> None:
         ag = int(e.get("agl") or 0)
         sc = int(e.get("spc") or 0)
         base = int(e["base"]) if e.get("base") is not None else 100
-        lines.append(f"    {{ {kind}, {amount}, {st}, {ag}, {sc}, {base} }},")
+        status_raw = e.get("status")
+        if status_raw is not None and status_raw not in item_status_ids:
+            raise SystemExit(f"items.{iid}.effect.status {status_raw!r} is not a known status")
+        status = item_status_ids.get(status_raw, 0)
+        lines.append(f"    {{ {kind}, {amount}, {st}, {ag}, {sc}, {base}, {status} }},")
     lines.append("};")
     lines.append("")
     # Leg 2.6: which capture-crystal tiers each shopkeeper sells, as a

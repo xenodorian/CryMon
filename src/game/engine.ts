@@ -1163,12 +1163,28 @@ export class CryMon {
 	applyFieldItem(id, idx) {
 		const m = this.party[idx];
 		if (!m) return false;
+		if (this.bag[id] <= 0) return false;
+		const fx = itemEffect(id);
+		if (fx?.kind === "cure") {
+			if (!m.status || m.status === "none") {
+				this.note(`${m.name} has nothing to cure.`);
+				return false;
+			}
+			if (fx.status !== "all" && m.status !== fx.status) {
+				this.note(`${m.name} isn't affected by that.`);
+				return false;
+			}
+			this.clearStatus(m);
+			this.bag[id] -= 1;
+			this.note(`${ITEMS[id].name}. ${m.name} is cured.`);
+			this.audio.ok();
+			return true;
+		}
 		const amt = healAmount(id);
 		if (amt <= 0) {
 			this.note("Use that in battle.");
 			return false;
 		}
-		if (this.bag[id] <= 0) return false;
 		if (m.hp >= m.maxHp) {
 			this.note(`${m.name} is already whole.`);
 			return false;
@@ -2923,6 +2939,23 @@ export class CryMon {
 			b.mods.foeAgl += fx.agl ?? 0;
 			b.mods.foeSpc += fx.spc ?? 0;
 			b.msg = [ITEMS[id].desc];
+		} else if (fx.kind === "cleanse") {
+			b.mods.selfStr = 0;
+			b.mods.selfAgl = 0;
+			b.mods.selfSpc = 0;
+			b.stage.selfStr = 0;
+			b.stage.selfAgl = 0;
+			b.stage.selfSpc = 0;
+			b.hypeActive.self = false;
+			b.msg = [`${ITEMS[id].name}. Temporary changes cleared.`];
+		} else if (fx.kind === "cure") {
+			const had = b.player.status;
+			if ((!had || had === "none") || (fx.status !== "all" && had !== fx.status)) {
+				b.msg = [`${ITEMS[id].name} has no effect.`];
+			} else {
+				this.clearStatus(b.player);
+				b.msg = [`${ITEMS[id].name}. Cured.`];
+			}
 		} else if (fx.kind === "flee") {
 			if (!b.wild) {
 				this.bag[id] += 1;

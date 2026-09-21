@@ -1954,6 +1954,7 @@ typedef struct {
     int salve, bandage, bitterroot, dust, gem;
     int sunbalm, warroot, smokebomb, greatcrystal, cageKey;
     int megacrystal, ultimatecrystal, perfectcrystal; /* Leg 2.5 */
+    int calmdraft, burnsalve, antidote, clearmind, numbroot, panacea; /* Leg 2.11 */
 } Bag;
 
 typedef struct {
@@ -1976,7 +1977,13 @@ static int *bag_field(Bag *bag, int idx) {
         case 9: return &bag->cageKey;
         case 10: return &bag->megacrystal;
         case 11: return &bag->ultimatecrystal;
-        default: return &bag->perfectcrystal;
+        case 12: return &bag->perfectcrystal;
+        case 13: return &bag->calmdraft;
+        case 14: return &bag->burnsalve;
+        case 15: return &bag->antidote;
+        case 16: return &bag->clearmind;
+        case 17: return &bag->numbroot;
+        default: return &bag->panacea;
     }
 }
 
@@ -2092,7 +2099,8 @@ static void draw_crydex(int cur, int entry) {
 static const u16 *const ITEM_ICONS[] = {
     icon_salve, icon_bandage, icon_bitterroot, icon_dust, icon_gem,
     icon_sunbalm, icon_warroot, icon_smokebomb, icon_greatcrystal, icon_cageKey,
-    icon_megacrystal, icon_ultimatecrystal, icon_perfectcrystal
+    icon_megacrystal, icon_ultimatecrystal, icon_perfectcrystal,
+    icon_calmdraft, icon_burnsalve, icon_antidote, icon_clearmind, icon_numbroot, icon_panacea
 };
 
 /* Effect text is stripped out of the row's own title now (matching
@@ -2102,7 +2110,9 @@ static const u16 *const ITEM_ICONS[] = {
 static const char *const ITEM_EFFECT_DESC[] = {
     "+22 HP", "+12 HP", "STR+4", "-3/-2/-2", "CATCH",
     "+40 HP", "AGL+4", "FLEE", "CATCH+", "CAGE KEY",
-    "CATCH++", "CATCH+++", "ALWAYS CATCH"
+    "CATCH++", "CATCH+++", "ALWAYS CATCH",
+    "RESET STAGES", "CURE BURN", "CURE POISON", "CURE CONFUSE",
+    "CURE PARALYZE", "CURE ANY"
 };
 
 static void draw_bag_row(const u16 *icon, const char *label, int count,
@@ -3372,6 +3382,26 @@ static void battle_pick_item(Battle *b, Bag *bag, int kind,
         n = s_cat_uint(b->msg[0], n, fx->agl < 0 ? -fx->agl : fx->agl);
         n = s_cat(b->msg[0], n, " MAG-");
         n = s_cat_uint(b->msg[0], n, fx->spc < 0 ? -fx->spc : fx->spc);
+    }
+    else if(fx->kind == 6) { /* cleanse: reset temporary stat changes */
+        (*slot)--;
+        b->mods_self_str = b->mods_self_agl = b->mods_self_spc = 0;
+        b->stage_self_str = b->stage_self_agl = b->stage_self_spc = 0;
+        b->hype_self = 0;
+        n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+        n = s_cat(b->msg[0], n, " TEMPORARY CHANGES CLEARED");
+    }
+    else if(fx->kind == 7) { /* cure */
+        if(b->pl.status == STATUS_NONE ||
+           (fx->status != ITEM_STATUS_ALL && b->pl.status != fx->status)) {
+            n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+            n = s_cat(b->msg[0], n, " HAS NO EFFECT");
+        } else {
+            (*slot)--;
+            clear_status(&b->pl);
+            n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+            n = s_cat(b->msg[0], n, " CURED");
+        }
     }
     else if(fx->kind == 5) { /* flee */
         if(!b->wild) {
@@ -4893,6 +4923,9 @@ void main(void) {
                         bag.greatcrystal = sl.bag[8]; bag.cageKey = sl.bag[9];
                         bag.megacrystal = sl.bag[10]; bag.ultimatecrystal = sl.bag[11];
                         bag.perfectcrystal = sl.bag[12];
+                        bag.calmdraft = sl.bag[13]; bag.burnsalve = sl.bag[14];
+                        bag.antidote = sl.bag[15]; bag.clearmind = sl.bag[16];
+                        bag.numbroot = sl.bag[17]; bag.panacea = sl.bag[18];
                         for(pi = 0; pi < party_n; pi++) {
                             party[pi].species = sl.party[pi].species;
                             party[pi].lv = sl.party[pi].lv;
@@ -5116,6 +5149,9 @@ void main(void) {
                     sl.bag[8] = (unsigned char)bag.greatcrystal; sl.bag[9] = (unsigned char)bag.cageKey;
                     sl.bag[10] = (unsigned char)bag.megacrystal; sl.bag[11] = (unsigned char)bag.ultimatecrystal;
                     sl.bag[12] = (unsigned char)bag.perfectcrystal;
+                    sl.bag[13] = (unsigned char)bag.calmdraft; sl.bag[14] = (unsigned char)bag.burnsalve;
+                    sl.bag[15] = (unsigned char)bag.antidote; sl.bag[16] = (unsigned char)bag.clearmind;
+                    sl.bag[17] = (unsigned char)bag.numbroot; sl.bag[18] = (unsigned char)bag.panacea;
                     for(pi = 0; pi < party_n && pi < 6; pi++) {
                         sl.party[pi].species = (unsigned char)party[pi].species;
                         sl.party[pi].lv = (unsigned char)party[pi].lv;

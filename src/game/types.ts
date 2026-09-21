@@ -108,7 +108,7 @@ export interface Monster {
 
 export type StatusId = "none" | "burned" | "poisoned" | "confused" | "paralyzed" | "exhausted";
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal";
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea";
 
 export interface ItemDef {
   id: ItemId;
@@ -119,12 +119,14 @@ export interface ItemDef {
   buy: number;
   sell: number;
   effect?: {
-    kind: "heal" | "buff" | "debuff" | "capture" | "flee";
+    kind: "heal" | "buff" | "debuff" | "capture" | "flee" | "cleanse" | "cure";
     amount?: number;
     str?: number;
     agl?: number;
     spc?: number;
     base?: number;
+    /** kind === "cure" only: a specific StatusId, or "all". */
+    status?: StatusId | "all";
   };
 }
 

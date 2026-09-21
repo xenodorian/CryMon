@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=7b5dd168810cf33a — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=af11b0bb8f256dc2 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -20,7 +20,7 @@
 #define DUST_AGL -2
 #define DUST_SPC -2
 #define START_MARKS 16
-#define START_BAG_INIT { 2, 2, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 }
+#define START_BAG_INIT { 2, 2, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 typedef struct {
     int from_map, to_map;
@@ -130,21 +130,28 @@ static const TrainerKit TRAINER_KITS[14] = {
 #define KIT_SHINIGAMI_B0_LV 14
 #define KIT_SHINIGAMI_B1_LV 13
 
-typedef struct { int kind, amount, str, agl, spc, base; } ItemFx;
+#define ITEM_STATUS_ALL 6
+typedef struct { int kind, amount, str, agl, spc, base, status; } ItemFx;
 static const ItemFx ITEM_FX[] = {
-    { 1, 22, 0, 0, 0, 100 },
-    { 1, 12, 0, 0, 0, 100 },
-    { 2, 0, 4, 0, 0, 100 },
-    { 3, 0, -3, -2, -2, 100 },
-    { 4, 0, 0, 0, 0, 100 },
-    { 1, 40, 0, 0, 0, 100 },
-    { 2, 0, 0, 4, 0, 100 },
-    { 5, 0, 0, 0, 0, 100 },
-    { 4, 0, 0, 0, 0, 150 },
-    { 0, 0, 0, 0, 0, 100 },
-    { 4, 0, 0, 0, 0, 200 },
-    { 4, 0, 0, 0, 0, 300 },
-    { 4, 0, 0, 0, 0, 1000 },
+    { 1, 22, 0, 0, 0, 100, 0 },
+    { 1, 12, 0, 0, 0, 100, 0 },
+    { 2, 0, 4, 0, 0, 100, 0 },
+    { 3, 0, -3, -2, -2, 100, 0 },
+    { 4, 0, 0, 0, 0, 100, 0 },
+    { 1, 40, 0, 0, 0, 100, 0 },
+    { 2, 0, 0, 4, 0, 100, 0 },
+    { 5, 0, 0, 0, 0, 100, 0 },
+    { 4, 0, 0, 0, 0, 150, 0 },
+    { 0, 0, 0, 0, 0, 100, 0 },
+    { 4, 0, 0, 0, 0, 200, 0 },
+    { 4, 0, 0, 0, 0, 300, 0 },
+    { 4, 0, 0, 0, 0, 1000, 0 },
+    { 6, 0, 0, 0, 0, 100, 0 },
+    { 7, 0, 0, 0, 0, 100, 1 },
+    { 7, 0, 0, 0, 0, 100, 2 },
+    { 7, 0, 0, 0, 0, 100, 3 },
+    { 7, 0, 0, 0, 0, 100, 4 },
+    { 7, 0, 0, 0, 0, 100, 6 },
 };
 
 #define SHOP_CRYSTAL_DEFAULT_MASK 3328

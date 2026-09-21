@@ -808,7 +808,7 @@ before the rest of 2.7.
 
 ---
 
-### 2.11 — Secondary-move overhaul: stat stages + real status conditions (Claude, in progress)
+### 2.11 — Secondary-move overhaul: stat stages + real status conditions (Claude, done)
 
 **User's request (2026-09-21), verbatim intent:** the crystal-type
 "secondary" moves every CryMon learns at `growth.secondaryAt` currently
@@ -1006,20 +1006,66 @@ everything else.
      **No `cdi` built** and **not hardware-verified**, per the user's
      standing instruction and this sandbox's lack of an emulator.
 4. The 6 shop items + `bag` growth (careful, isolated, fetch-fresh-
-   first per the save-format note above). **Not started.**
-5. Integration pass (check_sync, typecheck, both-engine compile). Ship
-   the full pipeline only if every sub-step above lands and budget
-   remains, per the user's own instruction for this task.
+   first per the save-format note above). **Done.**
+   - Fixed, first: a pre-existing bug flagged during the sub-step-1-3
+     verification pass, `EncDef.pool[8]` in `bake_content.py` was a
+     hardcoded array size that silently truncated gauntlet5's
+     26-species encounter pool to 8 (a C "excess elements in array
+     initializer" warning, not an error, so it built clean while
+     dropping 18 species with zero runtime signal). Now sized from
+     `max(len(pool) for all encounters)`. Unrelated to this sub-step,
+     fixed on its own before touching the save format.
+   - 6 new items in `items.json`: `calmdraft` (cleanse — resets stat
+     stages/Hype Up this battle only, does not cure a status),
+     `burnsalve`/`antidote`/`clearmind`/`numbroot` (cure one status
+     each — Burned/Poisoned/Confused/Paralyzed), `panacea` (cures
+     any status, pricier). New `ItemFx.status` field + `cleanse`/
+     `cure` `ITEM_FX` kinds (6/7) added to `bake_content.py`, with a
+     `raise SystemExit` guard against an unknown status string.
+     `types.ts`/`engine.ts` (`applyFieldItem`, `pickItem`) and
+     `main.c` (`battle_pick_item`, in-battle only — this port has no
+     field-item-use path outside battle, matching its existing
+     bag/party menus being read-only info views) both got matching
+     `cleanse`/`cure` branches, reusing the already-existing
+     `clearStatus`/`clear_status` helpers from sub-steps 2-3.
+   - `bag` grew 13 → 19 items, so `SAVE_VERSION` bumped 5 → 6 and
+     every offset after `bag` shifted +6 bytes (`flags` 31→37,
+     `party` 39→45, `checksum` 135→141 — including the checksum
+     loop's own bound — `dexSeen` 137→143, `dexCaught` 141→147,
+     `executedMask` 145→151, `party2` 149→155, `activeParty` 245→251,
+     `party2Count` 246→252), applied identically to `content/save.json`,
+     `src/game/save.ts`, and `ports/dreamcast/src/save.c`. Per explicit
+     instruction this is a testing environment and no save is precious,
+     so no back-compat shim was added — the existing `SAVE_VERSION`
+     mismatch-rejects-old-save path (already in both engines) is relied
+     on as-is to treat any pre-bump save as absent.
+   - `Bag` struct/`bag_field()`/both save-glue blocks/`ITEM_ICONS[]`/
+     `ITEM_EFFECT_DESC[]` in `main.c` extended for the 6 new items;
+     `content/sprites.json` extended so `gen_sprites.py` generates
+     their (placeholder) icons.
+   - `tools/check_sync.py`'s effect-kind allowlist updated to know
+     about `cleanse`/`cure` (was rejecting them as unknown, which is
+     the validator being stale, not a content bug).
+5. Integration pass (check_sync, typecheck, both-engine compile). **Done.**
+   - `check_sync.py --strict`: same FAILs as before this sub-step
+     (10 art placeholders — now includes the 6 new items' icons,
+     1 stray PNG, `data.ts`/`types.ts` map/species drift, the
+     pre-existing `gauntlet` legacy-map-key encounter FAIL, and the
+     pre-existing `veld.D`/`veld.L`/`lieutenantLead` warp FAILs) — all
+     predate this sub-step and are out of scope (other owners'
+     content). No new FAILs.
+   - `npm run typecheck`: clean.
+   - `npm run build`: clean.
+   - `make -C ports/dreamcast`: compiles clean, same pre-existing
+     warning set as always, no new ones — `crymon.elf` built. No
+     `cdi` yet (see below).
 
-**Current position:** sub-steps 1-3 done (JSON + web engine + Dreamcast
-port, both engines compile/build clean) and about to be pushed. Next:
-sub-step 4, the 6 shop items (reset-temp-effects, 4 single-status
-cures, 1 cure-all) + the `bag` growth they need — this is the one
-remaining sub-step with real save-format risk (touches `flags`/`party`/
-`checksum`/`dexSeen`/`dexCaught` offsets, close to the just-landed
-`party2`/`executedMask`/`activeParty` region), so fetch fresh
-immediately before starting it, don't assume this push's base is still
-current.
+**Current position:** Leg 2.11 is fully landed across both engines
+(sub-steps 1-5 all done). Per the user's own instruction for this task
+("if you manage to get through all of these changes before running out
+of tokens, ship the build all the way through to the end of the
+pipeline"), the full ship pipeline (`make -C ports/dreamcast cdi`,
+commit, push) runs next.
 
 ---
 

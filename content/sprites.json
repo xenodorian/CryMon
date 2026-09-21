@@ -132,7 +132,13 @@
     "cageKey",
     "megacrystal",
     "ultimatecrystal",
-    "perfectcrystal"
+    "perfectcrystal",
+    "calmdraft",
+    "burnsalve",
+    "antidote",
+    "clearmind",
+    "numbroot",
+    "panacea"
   ],
   "props": {
     "bed-father": "props/bed-father.png",

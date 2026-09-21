@@ -68,7 +68,7 @@ function byteToStatus(b: number): import("./types").StatusId {
 
 function checksum(buf: Uint8Array) {
 	let s = 0;
-	for (let i = 0; i < 135; i++) s = (s + buf[i]) & 0xffff;
+	for (let i = 0; i < 141; i++) s = (s + buf[i]) & 0xffff;
 	return s;
 }
 
@@ -94,11 +94,11 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 		buf[18 + i] = Math.max(0, Math.min(255, snap.bag[SAVE_ITEMS[i]] ?? 0));
 	}
 	for (let i = 0; i < SAVE_FLAGS.length; i++) {
-		if (snap.flags[SAVE_FLAGS[i]]) buf[31 + (i >> 3)] |= 1 << (i & 7);
+		if (snap.flags[SAVE_FLAGS[i]]) buf[37 + (i >> 3)] |= 1 << (i & 7);
 	}
 	for (let p = 0; p < n; p++) {
 		const m = snap.party[p];
-		const o = 39 + p * SLOT;
+		const o = 45 + p * SLOT;
 		buf[o] = Math.max(0, SAVE_SPECIES.indexOf(m.species));
 		buf[o + 1] = Math.max(1, Math.min(99, m.level));
 		buf[o + 2] = Math.max(0, Math.min(255, m.hp));
@@ -115,18 +115,18 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 		buf[o + 14] = Math.max(0, Math.min(255, m.statusTurns ?? 0));
 		buf[o + 15] = Math.max(0, Math.min(255, m.poisonStack ?? 0));
 	}
-	u16(buf, 135, checksum(buf));
-	u32(buf, 137, snap.dexSeen >>> 0);
-	u32(buf, 141, snap.dexCaught >>> 0);
-	u32(buf, 145, (snap.executedMask ?? 0) >>> 0);
-	// party2 at 149 (6 * partySlot), activeParty at 245
+	u16(buf, 141, checksum(buf));
+	u32(buf, 143, snap.dexSeen >>> 0);
+	u32(buf, 147, snap.dexCaught >>> 0);
+	u32(buf, 151, (snap.executedMask ?? 0) >>> 0);
+	// party2 at 155 (6 * partySlot), activeParty at 251
 	const p2 = snap.party2 ?? [];
 	const n2 = Math.min(6, p2.length);
-	buf[245] = Math.max(0, Math.min(1, snap.activeParty ?? 0));
-	buf[246] = n2;
+	buf[251] = Math.max(0, Math.min(1, snap.activeParty ?? 0));
+	buf[252] = n2;
 	for (let p = 0; p < n2; p++) {
 		const m = p2[p];
-		const o = 149 + p * SLOT;
+		const o = 155 + p * SLOT;
 		buf[o] = Math.max(0, SAVE_SPECIES.indexOf(m.species));
 		buf[o + 1] = Math.max(1, Math.min(99, m.level));
 		buf[o + 2] = Math.max(0, Math.min(255, m.hp));
@@ -150,7 +150,7 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 	if (!buf || buf.length !== SAVE_SIZE) return null;
 	if (buf[0] !== 0x43 || buf[1] !== 0x52 || buf[2] !== 0x59 || buf[3] !== 0x4d) return null;
 	if (buf[4] !== SAVE_VERSION) return null;
-	if (ru16(buf, 135) !== checksum(buf)) return null;
+	if (ru16(buf, 141) !== checksum(buf)) return null;
 	const mapId = SAVE_MAPS[buf[5]] ?? "house";
 	const dir = SAVE_DIRS[buf[6]] ?? "down";
 	const n = Math.min(6, buf[7]);
@@ -158,11 +158,11 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 	for (let i = 0; i < SAVE_ITEMS.length; i++) bag[SAVE_ITEMS[i]] = buf[18 + i] ?? 0;
 	const flags: Record<string, boolean> = {};
 	for (let i = 0; i < SAVE_FLAGS.length; i++) {
-		flags[SAVE_FLAGS[i]] = !!(buf[31 + (i >> 3)] & (1 << (i & 7)));
+		flags[SAVE_FLAGS[i]] = !!(buf[37 + (i >> 3)] & (1 << (i & 7)));
 	}
 	const party: Monster[] = [];
 	for (let p = 0; p < n; p++) {
-		const o = 39 + p * SLOT;
+		const o = 45 + p * SLOT;
 		const species = SAVE_SPECIES[buf[o]] ?? "quillpup";
 		party.push({
 			id: `s${p}-${species}`,
@@ -198,15 +198,15 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 		bag,
 		flags,
 		party,
-		dexSeen: buf.length >= 141 ? ru32(buf, 137) : 0,
-		dexCaught: buf.length >= 145 ? ru32(buf, 141) : 0,
-		executedMask: buf.length >= 149 ? ru32(buf, 145) : 0,
+		dexSeen: buf.length >= 147 ? ru32(buf, 143) : 0,
+		dexCaught: buf.length >= 151 ? ru32(buf, 147) : 0,
+		executedMask: buf.length >= 155 ? ru32(buf, 151) : 0,
 		party2: (() => {
-			if (buf.length < 247) return [];
-			const n2 = Math.min(6, buf[246] ?? 0);
+			if (buf.length < 253) return [];
+			const n2 = Math.min(6, buf[252] ?? 0);
 			const out: Monster[] = [];
 			for (let p = 0; p < n2; p++) {
-				const o = 149 + p * SLOT;
+				const o = 155 + p * SLOT;
 				const species = SAVE_SPECIES[buf[o]] ?? "quillpup";
 				out.push({
 					id: `p2-${p}-${species}`,
@@ -230,7 +230,7 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 			}
 			return out;
 		})(),
-		activeParty: buf.length >= 246 && buf[245] ? 1 : 0,
+		activeParty: buf.length >= 252 && buf[251] ? 1 : 0,
 	};
 }
 

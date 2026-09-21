@@ -298,8 +298,10 @@ def main() -> int:
         fx = d.get("effect")
         if d.get("battle") and not fx:
             errors.append(f"items.defs.{iid} is battle-usable but has no effect")
-        if fx and fx.get("kind") not in {"heal", "buff", "debuff", "capture", "flee"}:
+        if fx and fx.get("kind") not in {"heal", "buff", "debuff", "capture", "flee", "cleanse", "cure"}:
             errors.append(f"items.defs.{iid} has unknown effect kind {fx.get('kind')!r}")
+        if fx and fx.get("kind") == "cure" and fx.get("status") not in {"burned", "poisoned", "confused", "paralyzed", "exhausted", "all"}:
+            errors.append(f"items.defs.{iid} cure effect must have a known status")
         if fx and fx.get("kind") == "heal" and (not isinstance(fx.get("amount"), (int, float)) or fx.get("amount", 0) <= 0):
             errors.append(f"items.defs.{iid} heal effect must have a positive amount")
     start_bag = data["world"].get("startBag") or {}
