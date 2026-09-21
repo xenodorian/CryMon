@@ -114,8 +114,13 @@ def main():
     for i in range(4):
         lead_frame(i).save(NPC / f"lead-{i + 1}.png", "PNG")
     portrait().save(POR / "lead.png", "PNG")
-    # battle uses same standing frame
-    lead_frame(0).save(MON / "lead.png", "PNG")
+    # battle: same 4-frame-directory convention every other species uses
+    # (monsters/{id}/1.png..4.png), not a single flat monsters/{id}.png --
+    # gen_sprites.py and check_sync both expect the directory form.
+    mon_dir = MON / "lead"
+    mon_dir.mkdir(parents=True, exist_ok=True)
+    for i in range(4):
+        lead_frame(i).save(mon_dir / f"{i + 1}.png", "PNG")
     print("wrote lead art")
 
 

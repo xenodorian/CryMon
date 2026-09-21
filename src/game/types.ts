@@ -41,7 +41,7 @@ export type SpeciesId =
   | "emberling" | "frostail" | "boulderam" | "stormwing"
   | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall"
   | "peatling" | "mireback" | "glowcap" | "slatekin" | "gravelurk" | "cindermite"
-  | "veilcap" | "kilnback";
+  | "veilcap" | "kilnback" | "lead";
 
 export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry" | "gauntlet" | "gauntlet1" | "gauntlet2" | "gauntlet3" | "gauntlet4" | "gauntlet5" | "gauntlet6";
 

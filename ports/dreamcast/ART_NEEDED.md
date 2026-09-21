@@ -29,14 +29,10 @@ whatever is actually still missing, never hand-edited.
    to be pixel-identical at first (no animation) -- a real idle cycle can
    follow later.
 
-## Missing (10 files)
+## Missing (6 files)
 
 | Expected path (under `public/sprites/`) | Size | Entity | Note |
 |---|---|---|---|
-| `monsters/lead/1.png` | 92x92 | lead | battle sprite, frame 1/4 (all 4 may be identical) |
-| `monsters/lead/2.png` | 92x92 | lead | battle sprite, frame 2/4 (all 4 may be identical) |
-| `monsters/lead/3.png` | 92x92 | lead | battle sprite, frame 3/4 (all 4 may be identical) |
-| `monsters/lead/4.png` | 92x92 | lead | battle sprite, frame 4/4 (all 4 may be identical) |
 | `items/calmdraft.png` | 14x14 | calmdraft | bag/shop/battle item icon |
 | `items/burnsalve.png` | 14x14 | burnsalve | bag/shop/battle item icon |
 | `items/antidote.png` | 14x14 | antidote | bag/shop/battle item icon |
