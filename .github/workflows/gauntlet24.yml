@@ -8,14 +8,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Apply patch
-        run: python3 tools/patch_gauntlet_24.py
+      - run: python3 tools/patch_gauntlet_24b.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add content src/game/types.ts src/game/engine.ts tools/patch_gauntlet_24.py
-          git status
+          git add src/game/engine.ts content/dialogue.json
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Leg 2.4: gauntlet mazes, unlock via Shinigami, wipe regret, grave; no auto-Commander"
+          git commit -m "Leg 2.4: choseHeavenfall gate, Heavenfall grave battle wiring"
           git push
