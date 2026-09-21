@@ -1082,6 +1082,13 @@ export class CryMon {
 		if (this.reputation < 0) return Math.max(minP, Math.floor(base * (100 + (-this.reputation) * neg) / 100));
 		return base;
 	}
+	/** Half of list buy price, then +1% per +rep / -1% per -rep. Never below 1 mark. */
+	shopSellPrice(id) {
+		const base = Math.floor((ITEMS[id].buy || 0) / 2);
+		const minP = LOGIC.reputation?.minPrice ?? 1;
+		const r = this.reputation | 0;
+		return Math.max(minP, Math.floor(base * (100 + r) / 100));
+	}
 	shopGiftPending() {
 		const need = LOGIC.reputation?.freeAt ?? 100;
 		if (this.reputation < need) return false;
@@ -1587,7 +1594,7 @@ export class CryMon {
 			} else {
 				if (this.bag[id] <= 0) return;
 				this.bag[id] -= 1;
-				this.marks += ITEMS[id].sell;
+				this.marks += this.shopSellPrice(id);
 				this.audio.ok();
 				this.note(`Sold ${ITEMS[id].name}.`);
 				if (this.bag[id] <= 0) this.shopCursor = 0;
@@ -3979,7 +3986,7 @@ export class CryMon {
 				const on = idx === this.shopCursor;
 				const price = this.shopTab === "buy"
 					? (this.shopGiftPending() ? "FREE" : `${this.shopBuyPrice(id)}m`)
-					: `${ITEMS[id].sell}m`;
+					: `${this.shopSellPrice(id)}m`;
 				this.text(`${on ? ">" : " "}${ITEMS[id].name}  ${price}  x${this.bag[id]}`, X(18), y, on ? "#e8e4d8" : "#8a8678", FONT);
 			}
 		}

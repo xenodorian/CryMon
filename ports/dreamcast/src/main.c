@@ -3923,6 +3923,14 @@ static int shop_buy_price(int base, int reputation) {
     return base;
 }
 
+/* Half of list buy price, then +1% per +rep / -1% per -rep. Floor 1 mark. */
+static int shop_sell_price(int buy, int reputation) {
+    int base = buy / 2;
+    int p = base * (100 + reputation) / 100;
+    if(p < LOGIC_REP_MIN_PRICE) p = LOGIC_REP_MIN_PRICE;
+    return p;
+}
+
 static int shop_gift_open(int reputation, int shop_keep_id, const int *shop_free) {
     if(reputation < LOGIC_REP_FREE_AT) return 0;
     if(shop_keep_id < 0 || shop_keep_id >= SHOP_CRYSTAL_MASK_N) return 0;
@@ -3962,7 +3970,7 @@ static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop
         if(start > max_start) start = max_start;
         for(i = start; i < start + SHOP_ROWS_SHOWN && i < n; i++) {
             int idx = rows[i];
-            int price = sell_tab ? ITEMS[idx].sell : shop_buy_price(ITEMS[idx].buy, reputation);
+            int price = sell_tab ? shop_sell_price(ITEMS[idx].buy, reputation) : shop_buy_price(ITEMS[idx].buy, reputation);
             int owned = *bag_field((Bag *)bag, idx);
             int gift = !sell_tab && shop_gift_open(reputation, shop_keep_id, shop_free);
             char row[40];
@@ -5530,7 +5538,7 @@ void main(void) {
                         int *owned = bag_field(&bag, idx);
                         if(*owned > 0) {
                             (*owned)--;
-                            marks += ITEMS[idx].sell;
+                            marks += shop_sell_price(ITEMS[idx].buy, reputation);
                             if(*owned == 0) shop_cur = 0;
                         }
                     }
