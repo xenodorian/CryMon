@@ -277,7 +277,7 @@ merge conflicts get worse the bigger a single commit gets).
 
 ### 2.0 — Art debt cleanup (assign to ChatGPT or Grok, not a coding task)
 
-**Partial (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
+**DONE (Grok C) — marsh frames/portraits + quartz-2 shipped; prior:** Mega / Ultimate / Perfect Capture Crystal item
 icons pushed. Driller world frames pushed (`npc/driller-1..4.png`).
 Dray world frames + portrait pushed (`npc/dray-1..4.png`,
 `portraits/dray.png`). `check_sync --strict` FAIL is now 16 files
