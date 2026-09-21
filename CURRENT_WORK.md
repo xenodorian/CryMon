@@ -418,11 +418,20 @@ is empty and the player is unconditionally teleported there right
 after the father/Heavenfall choice. **New spec:**
 
 - The gauntlet becomes an **unlockable location reached via a path
-  behind Shinigami** (in the Grove) — not an automatic teleport after
-  the choice. (Open question for whoever implements this: does the
-  father/Heavenfall choice still happen at the same point in the story,
-  or does it move to gate/follow the gauntlet instead? The doc doesn't
-  say explicitly — check with the user before assuming either way.)
+  behind Shinigami** (in the Grove) — **not** an automatic teleport after
+  the choice.
+- **Choice-screen timing — DECIDED (user 2026-09-21):** keep the
+  father / Heavenfall choice **where it is now** in the story.
+  - **Revive Father:** teleport to the existing cutscene (bedside
+    revive + brief thanks conversation); Father joins as the second
+    party (already largely 2.7). Do **not** auto-send the player into
+    the gauntlet after this path.
+  - **Revive Heavenfall / proceed that path:** does **not** fight
+    Heavenfall at the choice. It **unlocks access** to the gauntlet
+    (path behind Shinigami). The player reaches Heavenfall later at the
+    gravestone after the 5 grass maps (2.4 maps). Strip the old
+    post-choice auto-warp onto the empty gauntlet / `commanderFinal`
+    when implementing this.
 - It's **5 maps of tall grass**, back to back, each with
   increasingly higher-level wild CryMon than the last.
 - The **5th map's encounter pool includes every CryMon species in the
@@ -449,8 +458,9 @@ after the father/Heavenfall choice. **New spec:**
   `commanderFinal` fight in place so the current endgame still works.
 
 **Largest item in Leg 2, most open design questions. Do not start
-implementing until the remaining open question above (choice-screen timing)
-is answered by the user (`commanderFinal` is decided: **remove**)** — this is the one
+implementing once assigned — **both design questions are decided**
+(choice stays put; Father path = cutscene+party; Heavenfall path = unlock
+gauntlet; `commanderFinal` **remove**)** — this is the one
 place in Leg 2 where guessing wrong means throwing away real work,
 unlike the smaller items. Proposed sub-steps once answered, mirroring
 the quarry/endgame breakdown shape that worked well all session:
