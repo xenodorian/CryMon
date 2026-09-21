@@ -196,7 +196,8 @@ function PadBtn({
   return (
     <button
       type="button"
-      className="grid size-11 place-items-center rounded-md border border-border bg-raised text-sm text-fg active:bg-fg active:text-bg"
+      style={{ touchAction: "manipulation" }}
+      className="grid size-11 place-items-center rounded-md border border-border bg-raised text-sm text-fg active:bg-fg active:text-bg select-none"
       {...rest}
     >
       {children}
@@ -216,9 +217,18 @@ function Face({
   return (
     <button
       type="button"
-      onClick={onClick}
+      style={{ touchAction: "manipulation" }}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+        onClick();
+      }}
+      onClick={(e) => {
+        // Keyboard / accessibility activation only; touch already fired on pointerdown.
+        if (e.detail === 0) onClick();
+      }}
       className={cn(
-        "min-h-11 min-w-12 rounded-md border px-3 py-2 text-xs font-medium",
+        "min-h-11 min-w-12 rounded-md border px-3 py-2 text-xs font-medium select-none",
         primary ? "border-fg bg-fg text-bg" : "border-border bg-raised text-fg",
       )}
     >

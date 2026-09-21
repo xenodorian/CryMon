@@ -41,10 +41,10 @@ export class Input {
   private dirHeldAt: Record<string, number | null> = { up: null, down: null, left: null, right: null };
   private dirLastFire: Record<string, number> = { up: 0, down: 0, left: 0, right: 0 };
 
-  private tapAQueued = false;
-  private tapBQueued = false;
-  private tapStartQueued = false;
-  private tapSelectQueued = false;
+  private tapAQueued = 0;
+  private tapBQueued = 0;
+  private tapStartQueued = 0;
+  private tapSelectQueued = 0;
   private used = new Set<string>();
 
   attach(el: HTMLElement) {
@@ -70,21 +70,21 @@ export class Input {
 
   beginFrame() {
     this.used.clear();
-    if (this.tapAQueued) {
+    if (this.tapAQueued > 0) {
       this.tapA = true;
-      this.tapAQueued = false;
+      this.tapAQueued -= 1;
     } else this.tapA = false;
-    if (this.tapBQueued) {
+    if (this.tapBQueued > 0) {
       this.tapB = true;
-      this.tapBQueued = false;
+      this.tapBQueued -= 1;
     } else this.tapB = false;
-    if (this.tapStartQueued) {
+    if (this.tapStartQueued > 0) {
       this.tapStart = true;
-      this.tapStartQueued = false;
+      this.tapStartQueued -= 1;
     } else this.tapStart = false;
-    if (this.tapSelectQueued) {
+    if (this.tapSelectQueued > 0) {
       this.tapSelect = true;
-      this.tapSelectQueued = false;
+      this.tapSelectQueued -= 1;
     } else this.tapSelect = false;
   }
 
@@ -172,7 +172,7 @@ export class Input {
     } else if (this.dirHeldAt[name] != null) {
       const held = now - (this.dirHeldAt[name] as number);
       const since = now - this.dirLastFire[name];
-      if (held > 280 && since > 110) {
+      if (held > 140 && since > 50) {
         this.dirLastFire[name] = now;
         v = true;
       }
@@ -198,16 +198,16 @@ export class Input {
   }
 
   queueA() {
-    this.tapAQueued = true;
+    this.tapAQueued += 1;
   }
   queueB() {
-    this.tapBQueued = true;
+    this.tapBQueued += 1;
   }
   queueStart() {
-    this.tapStartQueued = true;
+    this.tapStartQueued += 1;
   }
   queueSelect() {
-    this.tapSelectQueued = true;
+    this.tapSelectQueued += 1;
   }
 
   setPad(x: number, y: number) {
@@ -238,10 +238,10 @@ export class Input {
       const bBtn = Boolean(p.buttons[1]?.pressed);
       const startBtn = Boolean(p.buttons[9]?.pressed);
       const selectBtn = Boolean(p.buttons[8]?.pressed);
-      if (aBtn && !this.padA) this.tapAQueued = true;
-      if (bBtn && !this.padB) this.tapBQueued = true;
-      if (startBtn && !this.padStart) this.tapStartQueued = true;
-      if (selectBtn && !this.padSelect) this.tapSelectQueued = true;
+      if (aBtn && !this.padA) this.tapAQueued += 1;
+      if (bBtn && !this.padB) this.tapBQueued += 1;
+      if (startBtn && !this.padStart) this.tapStartQueued += 1;
+      if (selectBtn && !this.padSelect) this.tapSelectQueued += 1;
       this.padA = aBtn;
       this.padB = bBtn;
       this.padStart = startBtn;
