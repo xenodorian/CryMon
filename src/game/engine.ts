@@ -3016,6 +3016,16 @@ export class CryMon {
 				else if (who === "opal") this.badgeOpal = true;
 				else if (who === "quarryDriller") this.beatQuarryDriller = true;
 				else if (who === "commanderFinal") this.beatCommander = true;
+				else if (who === "heavenfallGrave") {
+					this.beatHeavenfall = true;
+					this.titleSlayer = true;
+					this.titleTamer = false;
+					this.marks += kit?.marks ?? 12;
+					this.audio.ok();
+					this.note("The world will know you as Heaven Slayer.");
+					this.say(TALK.gauntletGraveWin || [{ speaker: "max", text: "Heavenfall falls." }], "creditsFinal");
+					return;
+				}
 				this.marks += kit?.marks ?? 12;
 				// Win talk deferred; mercy menu first (not mason/shinigami).
 				this.audio.ok();
