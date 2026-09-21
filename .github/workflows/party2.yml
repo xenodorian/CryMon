@@ -8,18 +8,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Apply party2 patch
-        run: python3 tools/patch_party2.py
-      - name: Typecheck
-        run: |
-          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts 2>/dev/null || true
-          npx tsc --noEmit -p tsconfig.json 2>&1 | tail -40 || true
+      - run: python3 tools/patch_party2_tab.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add content/save.json src/game/save.ts src/game/engine.ts src/components/crymon-app.tsx tools/patch_party2.py
-          git status
+          git add src/game/engine.ts
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Leg 2.7: Father second party (6 slots) + Tab/Q swap, save party2"
+          git commit -m "Leg 2.7: Tab/Q swaps Max/Father party on overworld"
           git push
