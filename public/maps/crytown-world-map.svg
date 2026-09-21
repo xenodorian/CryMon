@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+<rect width="1400" height="900" fill="#b0ca91"/>
+<path d="M520 120 L520 250 L360 430 M520 250 L600 430 L600 600 L600 750 L600 845 M520 250 L850 430 L1030 580 M600 430 L760 580 M600 600 L380 680 L300 770 L220 850 L90 850 L90 730 L90 610" fill="none" stroke="#806039" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M520 120 L520 250 L360 430 M520 250 L600 430 L600 600 L600 750 L600 845 M520 250 L850 430 L1030 580 M600 430 L760 580 M600 600 L380 680 L300 770 L220 850 L90 850 L90 730 L90 610" fill="none" stroke="#c4a866" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+<g fill="#3f7e48" stroke="#2e6038" stroke-width="3">
+ <circle cx="470" cy="330" r="28"/><circle cx="520" cy="350" r="28"/><circle cx="560" cy="320" r="28"/>
+ <circle cx="810" cy="330" r="28"/><circle cx="860" cy="350" r="28"/><circle cx="920" cy="390" r="28"/>
+ <circle cx="470" cy="520" r="28"/><circle cx="690" cy="540" r="28"/><circle cx="730" cy="650" r="28"/>
+</g>
+<g fill="#72aec7" stroke="#558ca5" stroke-width="4">
+ <ellipse cx="1080" cy="690" rx="110" ry="55"/><ellipse cx="1210" cy="610" rx="75" ry="42"/><ellipse cx="250" cy="690" rx="95" ry="48"/>
+</g>
+<g font-family="DejaVu Sans, sans-serif" font-weight="bold" text-anchor="middle" fill="#30382b">
+ <g><rect x="450" y="92" width="140" height="56" rx="10" fill="#d99055" stroke="#70482e" stroke-width="4"/><text x="520" y="127" font-size="22">HOME</text></g>
+ <g><rect x="445" y="210" width="150" height="80" rx="12" fill="#e2a15d" stroke="#70482e" stroke-width="4"/><text x="520" y="258" font-size="28">CRYTOWN</text></g>
+ <g><rect x="295" y="397" width="130" height="58" rx="10" fill="#c69b62" stroke="#70482e" stroke-width="4"/><text x="360" y="433" font-size="20">CAMP</text></g>
+ <g><ellipse cx="600" cy="430" rx="68" ry="34" fill="#d2bb6a" stroke="#70482e" stroke-width="4"/><text x="600" y="437" font-size="19">FOREST</text></g>
+ <g><ellipse cx="850" cy="430" rx="68" ry="34" fill="#d2bb6a" stroke="#70482e" stroke-width="4"/><text x="850" y="437" font-size="19">CLIFFS</text></g>
+ <g><ellipse cx="760" cy="580" rx="65" ry="32" fill="#9fc27b" stroke="#70482e" stroke-width="4"/><text x="760" y="587" font-size="18">MARSH</text></g>
+ <g><ellipse cx="600" cy="600" rx="65" ry="32" fill="#9fc27b" stroke="#70482e" stroke-width="4"/><text x="600" y="607" font-size="18">GROVE</text></g>
+ <g><ellipse cx="1030" cy="580" rx="70" ry="34" fill="#a99a77" stroke="#70482e" stroke-width="4"/><text x="1030" y="587" font-size="18">QUARRY</text></g>
+ <g><ellipse cx="600" cy="750" rx="65" ry="32" fill="#9b8a72" stroke="#70482e" stroke-width="4"/><text x="600" y="757" font-size="18">RUINS</text></g>
+ <g><ellipse cx="600" cy="845" rx="65" ry="32" fill="#9fc27b" stroke="#70482e" stroke-width="4"/><text x="600" y="852" font-size="18">REACH</text></g>
+ <g><ellipse cx="380" cy="680" rx="78" ry="30" fill="#9fc27b" stroke="#70482e" stroke-width="4"/><text x="380" y="687" font-size="17">GAUNTLET 1</text></g>
+ <g><ellipse cx="300" cy="770" rx="78" ry="30" fill="#9fc27b" stroke="#70482e" stroke-width="4"/><text x="300" y="777" font-size="17">GAUNTLET 2</text></g>
+ <g><ellipse cx="220" cy="850" rx="78" ry="30" fill="#9fc27b" stroke="#70482e" stroke-width="4"/><text x="220" y="857" font-size="17">GAUNTLET 3</text></g>
+ <g><ellipse cx="90" cy="850" rx="78" ry="30" fill="#9fc27b" stroke="#70482e" stroke-width="4"/><text x="90" y="857" font-size="17">GAUNTLET 4</text></g>
+ <g><ellipse cx="90" cy="730" rx="78" ry="30" fill="#9fc27b" stroke="#70482e" stroke-width="4"/><text x="90" y="737" font-size="17">GAUNTLET 5</text></g>
+ <g><ellipse cx="90" cy="610" rx="72" ry="30" fill="#8e7966" stroke="#70482e" stroke-width="4"/><text x="90" y="617" font-size="17">THE GRAVE</text></g>
+</g>
+<g>
+ <circle cx="520" cy="250" r="12" fill="#e33c3c" stroke="#fff1bd" stroke-width="5"/>
+ <path d="M520 232 L520 198" stroke="#e33c3c" stroke-width="5"/>
+ <path d="M520 196 l-10 18 h20 z" fill="#e33c3c"/>
+ <text x="548" y="207" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#9a3030">PLAYER</text>
+</g>
+<g font-family="DejaVu Sans, sans-serif" fill="#30382b">
+ <text x="50" y="55" font-size="32" font-weight="bold">CRYTOWN WORLD MAP</text>
+ <text x="50" y="82" font-size="17">Code-derived overworld layout • routes and locations reconstructed from map warps</text>
+ <text x="1290" y="95" font-size="24" font-weight="bold">N</text>
+ <path d="M1298 110 V155" stroke="#30382b" stroke-width="4"/><path d="M1298 100 l-10 20 h20 z" fill="#30382b"/>
+</g>
+<g font-family="DejaVu Sans, sans-serif" font-size="15" fill="#30382b">
+ <rect x="50" y="730" width="250" height="125" fill="#e3d9b1" stroke="#6e6044" stroke-width="2"/>
+ <text x="70" y="758" font-weight="bold" font-size="19">LEGEND</text>
+ <line x1="70" y1="790" x2="125" y2="790" stroke="#806039" stroke-width="16"/><text x="140" y="796">ROUTE</text>
+ <circle cx="80" cy="825" r="7" fill="#e33c3c" stroke="#fff1bd" stroke-width="3"/><text x="100" y="831">PLAYER LOCATION</text>
+</g>
+</svg>
