@@ -1,10 +1,11 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=5be0f8e743ed8002 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=dc1755d049d06b22 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
 #define XP_PER_LEVEL 4
 #define LEVEL_XP_MUL 10
-#define LEVEL_CAP 20
+#define LEVEL_CAP 100
+#define WILD_LEVEL_CAP 50
 #define LEVEL_HP 3
 #define LEVEL_STAT 1
 #define CAPTURE_AGL 5
@@ -19,7 +20,7 @@
 #define DUST_AGL -2
 #define DUST_SPC -2
 #define START_MARKS 16
-#define START_BAG_INIT { 2, 2, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 }
+#define START_BAG_INIT { 2, 2, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 typedef struct {
     int from_map, to_map;
@@ -48,7 +49,7 @@ static const WarpDef WARPS[] = {
     { MAP_MARSH, MAP_FOREST, 'Y', 'm', 0, 0, 0, -1 },
     { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 1, 0, 0, -1 },
     { MAP_QUARRY, MAP_CLIFFS, 'D', 'q', 0, 0, 0, -1 },
-    { MAP_GROVE, MAP_GAUNTLET1, 'G', '2', 1, 0, 0, 121 },
+    { MAP_GROVE, MAP_GAUNTLET1, 'G', '2', 1, 0, 0, 122 },
     { MAP_GAUNTLET1, MAP_GROVE, '2', 'G', 0, 0, 0, -1 },
     { MAP_GAUNTLET1, MAP_GAUNTLET2, '1', '2', 1, 0, 0, -1 },
     { MAP_GAUNTLET2, MAP_GAUNTLET1, '2', '1', 0, 0, 0, -1 },
@@ -67,25 +68,25 @@ typedef struct {
     int map_id;
     char tile;
     int rate;
-    int pool[8];
+    int pool[26];
     int pool_n;
     int lv_min, lv_max;
     int ty_bonus_gt; /* -1 none */
 } EncDef;
 static const EncDef ENCOUNTERS[] = {
-    { MAP_GROVE, 'T', 18, { 3,5,6,0,0,0,0,0 }, 3, 5, 8, -1 },
-    { MAP_CAMP, 'T', 18, { 7,18,15,0,0,0,0,0 }, 3, 6, 9, -1 },
-    { MAP_RUINS, 'T', 18, { 2,17,4,0,0,0,0,0 }, 3, 6, 9, -1 },
-    { MAP_FOREST, 'T', 18, { 6,7,0,3,0,0,0,0 }, 4, 3, 5, -1 },
-    { MAP_CLIFFS, 'T', 18, { 14,15,12,16,13,17,0,0 }, 6, 5, 7, -1 },
-    { MAP_VELD, 'T', 18, { 1,2,11,5,0,0,0,0 }, 4, 2, 4, 14 },
-    { MAP_REACH, 'T', 22, { 18,8,10,14,17,4,0,0 }, 6, 8, 11, -1 },
-    { MAP_MARSH, 'T', 18, { 6,0,4,0,0,0,0,0 }, 3, 4, 6, -1 },
-    { MAP_QUARRY, 'T', 18, { 20,23,22,0,0,0,0,0 }, 3, 5, 7, -1 },
-    { MAP_GAUNTLET1, 'T', 22, { 0,1,20,11,0,0,0,0 }, 4, 8, 11, -1 },
-    { MAP_GAUNTLET2, 'T', 22, { 3,5,6,22,0,0,0,0 }, 4, 10, 13, -1 },
-    { MAP_GAUNTLET3, 'T', 22, { 7,4,16,25,0,0,0,0 }, 4, 12, 15, -1 },
-    { MAP_GAUNTLET4, 'T', 22, { 15,14,18,24,0,0,0,0 }, 4, 14, 17, -1 },
+    { MAP_GROVE, 'T', 18, { 3,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 3, 5, 8, -1 },
+    { MAP_CAMP, 'T', 18, { 7,18,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 3, 6, 9, -1 },
+    { MAP_RUINS, 'T', 18, { 2,17,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 3, 6, 9, -1 },
+    { MAP_FOREST, 'T', 18, { 6,7,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 4, 3, 5, -1 },
+    { MAP_CLIFFS, 'T', 18, { 14,15,12,16,13,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 6, 5, 7, -1 },
+    { MAP_VELD, 'T', 18, { 1,2,11,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 4, 2, 4, 14 },
+    { MAP_REACH, 'T', 22, { 18,8,10,14,17,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 6, 8, 11, -1 },
+    { MAP_MARSH, 'T', 18, { 6,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 3, 4, 6, -1 },
+    { MAP_QUARRY, 'T', 18, { 20,23,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 3, 5, 7, -1 },
+    { MAP_GAUNTLET1, 'T', 22, { 0,1,20,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 4, 8, 11, -1 },
+    { MAP_GAUNTLET2, 'T', 22, { 3,5,6,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 4, 10, 13, -1 },
+    { MAP_GAUNTLET3, 'T', 22, { 7,4,16,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 4, 12, 15, -1 },
+    { MAP_GAUNTLET4, 'T', 22, { 15,14,18,24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 4, 14, 17, -1 },
     { MAP_GAUNTLET5, 'T', 25, { 0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,27 }, 26, 16, 20, -1 },
 };
 #define ENC_N 14
@@ -94,7 +95,7 @@ typedef struct {
     int lead_sp, lead_lv;
     int bench_sp[2], bench_lv[2], bench_n;
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[14] = {
+static const TrainerKit TRAINER_KITS[15] = {
     { 11, 5, { 12, 14 }, { 6, 7 }, 2 },
     { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
     { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
@@ -109,6 +110,7 @@ static const TrainerKit TRAINER_KITS[14] = {
     { 6, 6, { 22, 0 }, { 7, 1 }, 1 },
     { 17, 10, { 14, 0 }, { 11, 1 }, 1 },
     { 13, 12, { 7, 15 }, { 11, 11 }, 2 },
+    { 28, 20, { 0, 0 }, { 1, 1 }, 0 },
 };
 #define KIT_SENTRY 0
 #define KIT_CONSCRIPT 1
@@ -124,26 +126,34 @@ static const TrainerKit TRAINER_KITS[14] = {
 #define KIT_MARSH_REED 11
 #define KIT_OPAL 12
 #define KIT_COMMANDER_FINAL 13
+#define KIT_LIEUTENANT_LEAD 14
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
 #define KIT_SHINIGAMI_B1_LV 13
 
-typedef struct { int kind, amount, str, agl, spc, base; } ItemFx;
+#define ITEM_STATUS_ALL 6
+typedef struct { int kind, amount, str, agl, spc, base, status; } ItemFx;
 static const ItemFx ITEM_FX[] = {
-    { 1, 22, 0, 0, 0, 100 },
-    { 1, 12, 0, 0, 0, 100 },
-    { 2, 0, 4, 0, 0, 100 },
-    { 3, 0, -3, -2, -2, 100 },
-    { 4, 0, 0, 0, 0, 100 },
-    { 1, 40, 0, 0, 0, 100 },
-    { 2, 0, 0, 4, 0, 100 },
-    { 5, 0, 0, 0, 0, 100 },
-    { 4, 0, 0, 0, 0, 130 },
-    { 0, 0, 0, 0, 0, 100 },
-    { 4, 0, 0, 0, 0, 160 },
-    { 4, 0, 0, 0, 0, 190 },
-    { 4, 0, 0, 0, 0, 1000 },
+    { 1, 22, 0, 0, 0, 100, 0 },
+    { 1, 12, 0, 0, 0, 100, 0 },
+    { 2, 0, 4, 0, 0, 100, 0 },
+    { 3, 0, -3, -2, -2, 100, 0 },
+    { 4, 0, 0, 0, 0, 100, 0 },
+    { 1, 40, 0, 0, 0, 100, 0 },
+    { 2, 0, 0, 4, 0, 100, 0 },
+    { 5, 0, 0, 0, 0, 100, 0 },
+    { 4, 0, 0, 0, 0, 150, 0 },
+    { 0, 0, 0, 0, 0, 100, 0 },
+    { 4, 0, 0, 0, 0, 200, 0 },
+    { 4, 0, 0, 0, 0, 300, 0 },
+    { 4, 0, 0, 0, 0, 1000, 0 },
+    { 6, 0, 0, 0, 0, 100, 0 },
+    { 7, 0, 0, 0, 0, 100, 1 },
+    { 7, 0, 0, 0, 0, 100, 2 },
+    { 7, 0, 0, 0, 0, 100, 3 },
+    { 7, 0, 0, 0, 0, 100, 4 },
+    { 7, 0, 0, 0, 0, 100, 6 },
 };
 
 #define SHOP_CRYSTAL_DEFAULT_MASK 3328
@@ -218,7 +228,9 @@ static const int SHOP_CRYSTAL_MASK[] = {
 #define FLAG_TITLE_SLAYER 59
 #define FLAG_TITLE_TAMER 60
 #define FLAG_BEAT_HEAVENFALL 61
-#define FLAG_N 62
+#define FLAG_BEAT_LIEUTENANT_LEAD 62
+#define FLAG_HEAVENFALL_REP_WARNED 63
+#define FLAG_N 64
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -240,6 +252,7 @@ static const int SHOP_CRYSTAL_MASK[] = {
 #define NPC_PENDING_MARSH_REED 10
 #define NPC_PENDING_OPAL 11
 #define NPC_PENDING_COMMANDER_FINAL 13
+#define NPC_PENDING_LEAD 14
 typedef struct {
     int if_flag, if_not, hide_if, set_flag;
     int g_item[3], g_qty[3], g_n;
@@ -344,8 +357,10 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 111, -1, -1, 7, 12, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 116, -1, -1, 2, 2, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 117, -1, -1, 2, 3, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 123, -1, -1, 0, -1, 0, 0, -1 },
-    { 33, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 124, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 124, -1, -1, 0, -1, 0, 0, -1 },
+    { 33, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 125, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, 62, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 127, -1, -1, 7, 14, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -391,7 +406,8 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_MARSH, 'F', 86, 1, 30, 32 },
     { MAP_CAMP, 'S', 87, 1, 30, 32 },
     { MAP_GAUNTLET6, 'G', 88, 2, 30, 32 },
+    { MAP_VELD, 'S', 90, 2, 30, 32 },
 };
-#define NPC_DEF_N 43
+#define NPC_DEF_N 44
 #define INTERACT_BUFFER 20
 

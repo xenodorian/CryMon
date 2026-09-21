@@ -1569,6 +1569,10 @@ typedef struct {
     int lv, xp;
     int maxHp, hp, str, agl, spc, spp, sppMax;
     int shiny; /* see mint_shiny() below */
+    /* Leg 2.11: persists across battles for the player's own party (saved
+       at SaveMon bytes 13-15); battle-scoped only for foes/trainer mons,
+       which are freshly minted each fight anyway. */
+    int status, status_turns, poison_stack;
 } Monster;
 
 /* A crystal belongs to the species, so every CryMon of a species shares it.
@@ -1585,20 +1589,29 @@ static int nature_index_by_ring(int ring) {
 }
 
 #define UMOVE_BASIC 0
-#define UMOVE_SECONDARY 1
-#define UMOVE_TOXIC 2
-#define UMOVE_SPECIAL 3
-#define UMOVE_SPELL 4
+#define UMOVE_NMOVE 1
+#define UMOVE_SPECIAL 2
+#define UMOVE_SPELL 3
+#define UMOVE_HYPE 4
 #define UMOVE_WAIT 5
 #define UMOVE_MAX 8
 
+/* Leg 2.11: UMOVE_NMOVE replaces the old UMOVE_SECONDARY/UMOVE_TOXIC
+   split -- both crystal secondaries and the shiny-exclusive move now
+   carry the same shape (move_kind: stage or status), they just source
+   from NATURE_MOVES[] vs SHINY_MOVE_*. Damage-dealing fields (stat/
+   power/speed) stay for basic/special/spell; nmove/hype never deal
+   damage, power is always 0. */
 typedef struct {
     int kind;
     const char *name;
     int stat;
     float power, speed;
     int spell_id;
-    int dstr, dagl, dspc;
+    int move_kind;     /* NMOVE_KIND_STAGE/STATUS, kind==UMOVE_NMOVE only */
+    int stat_target;    /* STAT_STR/AGL/SPC, move_kind==stage only */
+    int status_target;  /* STATUS_*, move_kind==status (or UMOVE_HYPE n/a) */
+    int max_pp;          /* kind==UMOVE_NMOVE or UMOVE_HYPE only */
 } UMove;
 
 static const char *const SPELL_MENU_NAME[4] = {
@@ -1614,6 +1627,15 @@ static int str_same(const char *a, const char *b) {
     }
 }
 
+/* Leg 2.11: any species that is some other species' evolves_to target has
+   evolved into its current form, and Hype Up is learned on evolving --
+   deliberately not a persisted flag, just derived from SPECIES here. */
+static int knows_hype_up(int species) {
+    int i;
+    for(i = 0; i < SPECIES_N; i++) if(SPECIES[i].evolves_to == species) return 1;
+    return 0;
+}
+
 static int unlocked_moves(const Monster *m, int include_wait, UMove *out, int cap) {
     const Species *s;
     int n = 0;
@@ -1626,31 +1648,46 @@ static int unlocked_moves(const Monster *m, int include_wait, UMove *out, int ca
     out[n].power = s->basic_power;
     out[n].speed = s->basic_speed;
     out[n].spell_id = -1;
-    out[n].dstr = out[n].dagl = out[n].dspc = 0;
+    out[n].move_kind = out[n].stat_target = out[n].status_target = out[n].max_pp = 0;
     n++;
     if(m->lv >= LV_SECONDARY && n < cap) {
         if(m->shiny) {
-            out[n].kind = UMOVE_TOXIC;
-            out[n].name = TOXIC_NAME;
-            out[n].stat = TOXIC_STAT;
-            out[n].power = TOXIC_POWER;
-            out[n].speed = TOXIC_SPEED;
+            out[n].kind = UMOVE_NMOVE;
+            out[n].name = SHINY_MOVE_NAME;
+            out[n].stat = ATK_STR;
+            out[n].power = 0.0f;
+            out[n].speed = 1.0f;
             out[n].spell_id = -1;
-            out[n].dstr = out[n].dagl = out[n].dspc = 0;
+            out[n].move_kind = NMOVE_KIND_STATUS;
+            out[n].stat_target = 0;
+            out[n].status_target = SHINY_MOVE_STATUS;
+            out[n].max_pp = SHINY_MOVE_MAX_PP;
             n++;
         } else {
             const NatureMove *nm = &NATURE_MOVES[species_nature(m->species)];
-            out[n].kind = UMOVE_SECONDARY;
+            out[n].kind = UMOVE_NMOVE;
             out[n].name = nm->name;
-            out[n].stat = nm->stat;
-            out[n].power = nm->power;
-            out[n].speed = nm->speed;
+            out[n].stat = ATK_STR;
+            out[n].power = 0.0f;
+            out[n].speed = 1.0f;
             out[n].spell_id = -1;
-            out[n].dstr = nm->dstr;
-            out[n].dagl = nm->dagl;
-            out[n].dspc = nm->dspc;
+            out[n].move_kind = nm->kind;
+            out[n].stat_target = nm->stat;
+            out[n].status_target = nm->status;
+            out[n].max_pp = nm->max_pp;
             n++;
         }
+    }
+    if(knows_hype_up(m->species) && n < cap) {
+        out[n].kind = UMOVE_HYPE;
+        out[n].name = HYPE_UP_NAME;
+        out[n].stat = ATK_STR;
+        out[n].power = 0.0f;
+        out[n].speed = 1.0f;
+        out[n].spell_id = -1;
+        out[n].move_kind = out[n].stat_target = out[n].status_target = 0;
+        out[n].max_pp = HYPE_UP_MAX_PP;
+        n++;
     }
     if(m->lv >= LV_SPECIAL) {
         if(s->spells_n > 0) {
@@ -1666,7 +1703,7 @@ static int unlocked_moves(const Monster *m, int include_wait, UMove *out, int ca
                 out[n].power = sp->power;
                 out[n].speed = sp->speed;
                 out[n].spell_id = sid;
-                out[n].dstr = out[n].dagl = out[n].dspc = 0;
+                out[n].move_kind = out[n].stat_target = out[n].status_target = out[n].max_pp = 0;
                 n++;
             }
         } else if(n < cap) {
@@ -1676,7 +1713,7 @@ static int unlocked_moves(const Monster *m, int include_wait, UMove *out, int ca
             out[n].power = s->special_power;
             out[n].speed = s->special_speed;
             out[n].spell_id = -1;
-            out[n].dstr = out[n].dagl = out[n].dspc = 0;
+            out[n].move_kind = out[n].stat_target = out[n].status_target = out[n].max_pp = 0;
             n++;
         }
     }
@@ -1687,7 +1724,7 @@ static int unlocked_moves(const Monster *m, int include_wait, UMove *out, int ca
         out[n].power = 0;
         out[n].speed = 0;
         out[n].spell_id = -1;
-        out[n].dstr = out[n].dagl = out[n].dspc = 0;
+        out[n].move_kind = out[n].stat_target = out[n].status_target = out[n].max_pp = 0;
         n++;
     }
     return n;
@@ -1778,6 +1815,9 @@ static Monster mint_monster(int species, int lv) {
     m.str += nat->str;
     m.agl += nat->agl;
     m.spc += nat->spc;
+    m.status = STATUS_NONE;
+    m.status_turns = 0;
+    m.poison_stack = 0;
     dex_note_seen(species);
     return m;
 }
@@ -1821,6 +1861,13 @@ static int try_evolve(Monster *m) {
     next = mint_monster(to, m->lv);
     next.shiny = shiny;
     next.xp = xp;
+    /* Leg 2.11: status persists through evolution, same as web's tryEvolve
+       (which never touches it since it copies fields onto the existing
+       object instead of overwriting -- this path does overwrite, so it
+       has to be carried across explicitly). */
+    next.status = m->status;
+    next.status_turns = m->status_turns;
+    next.poison_stack = m->poison_stack;
     if(old_max > 0) {
         hp = old_hp * next.maxHp / old_max;
         if(hp < 1) hp = 1;
@@ -1907,6 +1954,7 @@ typedef struct {
     int salve, bandage, bitterroot, dust, gem;
     int sunbalm, warroot, smokebomb, greatcrystal, cageKey;
     int megacrystal, ultimatecrystal, perfectcrystal; /* Leg 2.5 */
+    int calmdraft, burnsalve, antidote, clearmind, numbroot, panacea; /* Leg 2.11 */
 } Bag;
 
 typedef struct {
@@ -1929,7 +1977,13 @@ static int *bag_field(Bag *bag, int idx) {
         case 9: return &bag->cageKey;
         case 10: return &bag->megacrystal;
         case 11: return &bag->ultimatecrystal;
-        default: return &bag->perfectcrystal;
+        case 12: return &bag->perfectcrystal;
+        case 13: return &bag->calmdraft;
+        case 14: return &bag->burnsalve;
+        case 15: return &bag->antidote;
+        case 16: return &bag->clearmind;
+        case 17: return &bag->numbroot;
+        default: return &bag->panacea;
     }
 }
 
@@ -2045,7 +2099,8 @@ static void draw_crydex(int cur, int entry) {
 static const u16 *const ITEM_ICONS[] = {
     icon_salve, icon_bandage, icon_bitterroot, icon_dust, icon_gem,
     icon_sunbalm, icon_warroot, icon_smokebomb, icon_greatcrystal, icon_cageKey,
-    icon_megacrystal, icon_ultimatecrystal, icon_perfectcrystal
+    icon_megacrystal, icon_ultimatecrystal, icon_perfectcrystal,
+    icon_calmdraft, icon_burnsalve, icon_antidote, icon_clearmind, icon_numbroot, icon_panacea
 };
 
 /* Effect text is stripped out of the row's own title now (matching
@@ -2055,7 +2110,9 @@ static const u16 *const ITEM_ICONS[] = {
 static const char *const ITEM_EFFECT_DESC[] = {
     "+22 HP", "+12 HP", "STR+4", "-3/-2/-2", "CATCH",
     "+40 HP", "AGL+4", "FLEE", "CATCH+", "CAGE KEY",
-    "CATCH++", "CATCH+++", "ALWAYS CATCH"
+    "CATCH++", "CATCH+++", "ALWAYS CATCH",
+    "RESET STAGES", "CURE BURN", "CURE POISON", "CURE CONFUSE",
+    "CURE PARALYZE", "CURE ANY"
 };
 
 static void draw_bag_row(const u16 *icon, const char *label, int count,
@@ -2361,7 +2418,19 @@ typedef struct {
     int mods_self_str, mods_self_agl, mods_self_spc;
     int mods_foe_str, mods_foe_agl, mods_foe_spc;
     int pend_str, pend_agl, pend_spc; /* crystal secondary, applied on hit */
-    int pl_poisoned, foe_poisoned; /* TOXIC BURST, shiny-exclusive move */
+    int pl_poisoned, foe_poisoned; /* retired by Leg 2.11 -- pl/foe.status
+                                       replaces these; the fields stay to
+                                       avoid touching every struct literal,
+                                       but nothing sets or reads them now */
+    /* Leg 2.11: stage-based stat drops (Proud Roar etc.), battle-scoped,
+       mirrors the mods_self_ / mods_foe_ fields above in shape. Real
+       status conditions (burned/poisoned/confused/paralyzed/exhausted)
+       live on pl.status/foe.status instead -- see Monster below. */
+    int stage_self_str, stage_self_agl, stage_self_spc;
+    int stage_foe_str, stage_foe_agl, stage_foe_spc;
+    int hype_self, hype_foe; /* Hype Up active this battle, non-stacking */
+    int nmove_pl_used, hype_pl_used, nmove_foe_used, hype_foe_used; /* PP */
+    char pend_effect[24]; /* nmove/hype's effect text, staged for battle_apply_hit */
     int dmg;
     float mg;           /* special timing needle 0-100 */
     int mg_dir;
@@ -2394,6 +2463,7 @@ typedef struct {
 #define TRAINER_WSOLDIER_MARSH_BOG 17
 #define TRAINER_WSOLDIER_MARSH_REED 18
 #define TRAINER_WSOLDIER_COMMANDER_FINAL 19
+#define TRAINER_WSOLDIER_LEAD 20
 
 #define BAFTER_ITEM      1
 #define BAFTER_ATK       2
@@ -2404,14 +2474,16 @@ typedef struct {
 #define BAFTER_WIN_NOTE  9
 
 static int battle_foe_debuffed(const Battle *b) {
-    return b->mods_foe_str < 0 || b->mods_foe_agl < 0 || b->mods_foe_spc < 0;
+    return b->mods_foe_str < 0 || b->mods_foe_agl < 0 || b->mods_foe_spc < 0 ||
+           b->stage_foe_str > 0 || b->stage_foe_agl > 0 || b->stage_foe_spc > 0;
 }
 /* selfDebuffed(): mirror of the above, checked from the foe's side of
    castSpell's Mana Surge branch (whether the *player* is debuffed
    decides the foe's 2x multiplier and their 55% chance to prioritize
    casting it -- see battle_pick_guard's Cathleen branch below). */
 static int battle_self_debuffed(const Battle *b) {
-    return b->mods_self_str < 0 || b->mods_self_agl < 0 || b->mods_self_spc < 0;
+    return b->mods_self_str < 0 || b->mods_self_agl < 0 || b->mods_self_spc < 0 ||
+           b->stage_self_str > 0 || b->stage_self_agl > 0 || b->stage_self_spc > 0;
 }
 static int battle_capture_chance(const Battle *b, int base) {
     return capture_chance(b->foe.lv, b->foe.str, b->foe.hp, battle_foe_debuffed(b), base);
@@ -2543,6 +2615,9 @@ static int battle_foe_maybe_fall(Battle *b, const char *fallen_prefix) {
         b->mods_foe_str = b->mods_foe_agl = b->mods_foe_spc = 0;
         b->pend_str = b->pend_agl = b->pend_spc = 0;
         b->foe_poisoned = 0; /* fresh bench monster, not the fallen one */
+        b->stage_foe_str = b->stage_foe_agl = b->stage_foe_spc = 0;
+        b->hype_foe = 0;
+        b->nmove_foe_used = b->hype_foe_used = 0;
 
         n = s_cat(b->msg[1], 0, fallen_prefix);
         n = s_cat(b->msg[1], n, fallen);
@@ -2565,46 +2640,150 @@ static int battle_foe_maybe_fall(Battle *b, const char *fallen_prefix) {
     return 1;
 }
 
+/* Leg 2.11: stage-based stat drops + real status conditions, replacing
+ * the old flat mods-only secondary moves and TOXIC BURST's hardcoded
+ * poison. Mirrors src/game/engine.ts's effStat()/tickStatus()/
+ * inflictStatus()/confusionOutcome() -- keep the two in sync. */
+static int eff_stat(int base, int stage, int hyped) {
+    int v;
+    if(stage >= STAT_STAGE_MAX) v = STAT_STAGE_FLOOR;
+    else v = jground((float)base * STAT_STAGE_MULT[stage]);
+    if(hyped) v += jground((float)base * (float)HYPE_UP_PCT / 100.0f);
+    return v;
+}
+static int dmg_stat_pl(const Battle *b, int stat) {
+    if(stat == ATK_STR) return eff_stat(b->pl.str, b->stage_self_str, b->hype_self) + b->mods_self_str;
+    return eff_stat(b->pl.spc, b->stage_self_spc, b->hype_self) + b->mods_self_spc;
+}
+static int dmg_stat_foe(const Battle *b, int stat) {
+    if(stat == ATK_STR) return eff_stat(b->foe.str, b->stage_foe_str, b->hype_foe) + b->mods_foe_str;
+    return eff_stat(b->foe.spc, b->stage_foe_spc, b->hype_foe) + b->mods_foe_spc;
+}
+static int eff_agl_pl(const Battle *b) {
+    return eff_stat(b->pl.agl, b->stage_self_agl, b->hype_self) + b->mods_self_agl;
+}
+static int eff_agl_foe(const Battle *b) {
+    return eff_stat(b->foe.agl, b->stage_foe_agl, b->hype_foe) + b->mods_foe_agl;
+}
+static void clear_status(Monster *m) {
+    m->status = STATUS_NONE;
+    m->status_turns = 0;
+    m->poison_stack = 0;
+}
+static void inflict_status(Monster *m, int status) {
+    m->status = status;
+    m->poison_stack = 0;
+    if(status == STATUS_BURNED) m->status_turns = irand(STATUS_BURN_TURNS_MIN, STATUS_BURN_TURNS_MAX);
+    else if(status == STATUS_PARALYZED) m->status_turns = irand(STATUS_PARALYZE_TURNS_MIN, STATUS_PARALYZE_TURNS_MAX);
+    else m->status_turns = 0;
+}
+/* One status tick (HP drain + turn countdown), once per side per round --
+   called from battle_apply_hit() (foe's status, player's turn) and
+   battle_pick_guard() (player's status, foe's turn), same placement as
+   the old poison-only tick this replaces. Appends " BURN-N"/" PSN-N" to
+   buf at n, returns the new n (unchanged if nothing happened). */
+static int tick_status(Monster *m, char *buf, int n) {
+    if(m->status == STATUS_NONE || m->hp <= 0) return n;
+    if(m->status == STATUS_BURNED) {
+        int tick = m->maxHp * STATUS_BURN_PCT / 100;
+        if(tick < 1) tick = 1;
+        m->hp -= tick;
+        if(m->hp < 0) m->hp = 0;
+        m->status_turns--;
+        if(m->status_turns <= 0) clear_status(m);
+        n = s_cat(buf, n, " BURN-");
+        n = s_cat_uint(buf, n, tick);
+        return n;
+    }
+    if(m->status == STATUS_POISONED) {
+        int pct, tick;
+        m->poison_stack++;
+        pct = STATUS_POISON_START_PCT + (m->poison_stack - 1) * STATUS_POISON_STEP_PCT;
+        tick = m->maxHp * pct / 100;
+        if(tick < 1) tick = 1;
+        m->hp -= tick;
+        if(m->hp < 0) m->hp = 0;
+        n = s_cat(buf, n, " PSN-");
+        n = s_cat_uint(buf, n, tick);
+        return n;
+    }
+    if(m->status == STATUS_PARALYZED) {
+        m->status_turns--;
+        if(m->status_turns <= 0) clear_status(m);
+        return n;
+    }
+    return n;
+}
+/* Confusion's 4-way roll (0 normal / 1 none / 2 self / 3 ally), mirroring
+   confusionOutcome() in engine.ts. self_dmg is the confused CryMon's own
+   basic-power self-hit; ally_idx/has_ally describe the bench-hit case
+   (self=1: player's own party bench via g_xp_party; self=0: b->bench[]) --
+   caller resolves ally_idx into an actual HP change, this just rolls. */
+typedef struct { int kind; int dmg; int ally_idx; } ConfuseRoll;
+#define CONFUSE_NORMAL 0
+#define CONFUSE_NONE 1
+#define CONFUSE_SELF 2
+#define CONFUSE_ALLY 3
+static ConfuseRoll confusion_roll(const Monster *m, int has_ally, int ally_n, const int *ally_hp, int ally_cap) {
+    ConfuseRoll r;
+    int roll;
+    (void)ally_cap;
+    r.kind = CONFUSE_NORMAL;
+    r.dmg = 0;
+    r.ally_idx = -1;
+    if(m->status != STATUS_CONFUSED) return r;
+    roll = irand(0, 3);
+    if(roll == 0) return r;
+    if(roll == 1) { r.kind = CONFUSE_NONE; return r; }
+    r.dmg = jground((float)m->str * SPECIES[m->species].basic_power);
+    if(r.dmg < 1) r.dmg = 1;
+    if(roll == 2 || !has_ally) { r.kind = CONFUSE_SELF; return r; }
+    {
+        int i, n = 0, choices[6];
+        for(i = 0; i < ally_n; i++) if(ally_hp[i] > 0) choices[n++] = i;
+        if(!n) { r.kind = CONFUSE_SELF; return r; }
+        r.kind = CONFUSE_ALLY;
+        r.ally_idx = choices[irand(0, n - 1)];
+        return r;
+    }
+}
+
 static void battle_apply_hit(Battle *b) {
-    int n, poison_tick = 0;
+    int n = 0;
     int nat_sign = 0;
+    char tick_buf[24];
+    int tick_n;
 
-    /* Crystal matchup, applied once here rather than in each of the move
-       branches that feed this, so every player attack is scaled exactly
-       once and by the same rule the foe's attacks get in
-       battle_pick_guard(). */
-    b->dmg = nature_scale_dmg(b->dmg, species_nature(b->pl.species),
-                              species_nature(b->foe.species), &nat_sign);
+    tick_n = tick_status(&b->foe, tick_buf, 0);
+    tick_buf[tick_n] = 0;
 
-    /* TOXIC BURST's ongoing chip damage: ticks whatever poison state
-       the foe was ALREADY carrying into this turn, before this turn's
-       own attack lands -- battle_pick_toxic() only marks foe_poisoned
-       afterward, so a freshly-inflicted poison doesn't also tick the
-       same turn it's applied. */
-    if(b->foe_poisoned) {
-        poison_tick = b->foe.maxHp / 16;
-        if(poison_tick < 1) poison_tick = 1;
-        b->foe.hp -= poison_tick;
+    if(b->dmg > 0) {
+        /* Crystal matchup, applied once here rather than in each of the
+           move branches that feed this, so every player attack is scaled
+           exactly once and by the same rule the foe's attacks get in
+           battle_pick_guard(). */
+        b->dmg = nature_scale_dmg(b->dmg, species_nature(b->pl.species),
+                                  species_nature(b->foe.species), &nat_sign);
+        b->foe.hp -= b->dmg;
         if(b->foe.hp < 0) b->foe.hp = 0;
+        n = s_cat(b->msg[0], 0, b->label);
+        n = s_cat(b->msg[0], n, " ");
+        n = s_cat_uint(b->msg[0], n, b->dmg);
+        n = s_cat(b->msg[0], n, " DMG");
+        if(nat_sign > 0)      n = s_cat(b->msg[0], n, " " NATURE_STRONG_TEXT);
+        else if(nat_sign < 0) n = s_cat(b->msg[0], n, " " NATURE_WEAK_TEXT);
+    } else {
+        /* Leg 2.11: a stage/status/hype move -- no damage, just the
+           effect text battle_pick_nmove()/battle_pick_hype() staged in
+           b->pend_effect before calling here. */
+        n = s_cat(b->msg[0], 0, b->label);
+        if(b->pend_effect[0]) {
+            n = s_cat(b->msg[0], n, " ");
+            n = s_cat(b->msg[0], n, b->pend_effect);
+        }
     }
-
-    b->foe.hp -= b->dmg;
-    if(b->foe.hp < 0) b->foe.hp = 0;
-    b->mods_foe_str += b->pend_str;
-    b->mods_foe_agl += b->pend_agl;
-    b->mods_foe_spc += b->pend_spc;
-    b->pend_str = b->pend_agl = b->pend_spc = 0;
-
-    n = s_cat(b->msg[0], 0, b->label);
-    n = s_cat(b->msg[0], n, " ");
-    n = s_cat_uint(b->msg[0], n, b->dmg);
-    n = s_cat(b->msg[0], n, " DMG");
-    if(nat_sign > 0)      n = s_cat(b->msg[0], n, " " NATURE_STRONG_TEXT);
-    else if(nat_sign < 0) n = s_cat(b->msg[0], n, " " NATURE_WEAK_TEXT);
-    if(poison_tick > 0) {
-        n = s_cat(b->msg[0], n, " PSN-");
-        n = s_cat_uint(b->msg[0], n, poison_tick);
-    }
+    n = s_cat(b->msg[0], n, tick_buf);
+    b->pend_effect[0] = 0;
     b->msg[0][n] = 0;
 
     if(battle_foe_maybe_fall(b, "")) return;
@@ -2615,12 +2794,18 @@ static void battle_apply_hit(Battle *b) {
 }
 
 /* Raw stat a move draws on (str or mag), mods included -- the one shared
-   lookup every attacker-side move (basic/special/spell/Toxic Burst) and
-   every guard-side foe move go through. */
+   lookup every attacker-side move (basic/special/spell) and every
+   guard-side foe move go through. Leg 2.11: nmove/hype moves bypass this
+   entirely (they deal no damage), and basic/special now fold in stage/
+   hype via dmg_stat_pl()/dmg_stat_foe() instead of calling this directly
+   with raw mods -- kept for the two guard-defense reads (block/barrier
+   scores) that still want the player's own raw-ish stat. */
 static int atk_stat_value(const Monster *m, int mods_str, int mods_agl, int mods_spc, int stat) {
     (void)mods_agl;
     return stat == ATK_STR ? m->str + mods_str : m->spc + mods_spc;
 }
+
+static const char *const STATUS_NAME[6] = { "", "BURNED", "POISONED", "CONFUSED", "PARALYZED", "EXHAUSTED" };
 
 /* pickAtk's basic-move branch. Only reached for a non-spellcaster
    lead -- see battle_pick_spell() further down for Cathleen's own
@@ -2630,10 +2815,7 @@ static int atk_stat_value(const Monster *m, int mods_str, int mods_agl, int mods
    guard step (Dodge/Block/Barrier), not baked into the attack. */
 static void battle_pick_umove(Battle *b, const UMove *mv) {
     int atk, n = 0;
-    b->pend_str = mv->dstr;
-    b->pend_agl = mv->dagl;
-    b->pend_spc = mv->dspc;
-    atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, mv->stat);
+    atk = dmg_stat_pl(b, mv->stat);
     b->dmg = jground((float)atk * mv->power);
     if(b->dmg < 1) b->dmg = 1;
     n = s_cat(b->label, n, mv->name);
@@ -2641,30 +2823,87 @@ static void battle_pick_umove(Battle *b, const UMove *mv) {
     battle_apply_hit(b);
 }
 
-/* TOXIC BURST: the shiny-exclusive move (see mint_shiny()). Universal --
-   not per-species, see content/logic.json's toxicBurst block -- and
-   weaker than a plain basic move, but poisons the foe for ongoing chip
-   damage every subsequent turn (see the poison_tick handling in
-   battle_apply_hit()/battle_pick_guard()). Only offered to a shiny
-   player lead (draw_battle_atk_menu/main()'s phase-2 dispatch add the
-   extra row); no PP cost, always available, matching the "rare but not
-   fussy" spirit of a shiny encounter. */
-static void battle_pick_toxic(Battle *b) {
-    int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, TOXIC_STAT);
+/* Leg 2.11: the crystal secondary (or Overload for a shiny lead) -- a
+   stage drop on one foe stat, or a status condition, never damage.
+   PP is battle-scoped (see Battle.nmove_pl_used), gated by the caller
+   (main()'s phase-2 dispatch) before this ever runs. */
+static void battle_pick_nmove(Battle *b, const UMove *mv) {
     int n = 0;
-
-    b->pend_str = b->pend_agl = b->pend_spc = 0;
-    b->dmg = jground((float)atk * TOXIC_POWER);
-    if(b->dmg < 1) b->dmg = 1;
-    n = s_cat(b->label, n, TOXIC_NAME);
+    b->nmove_pl_used++;
+    b->dmg = 0;
+    n = s_cat(b->label, 0, mv->name);
     b->label[n] = 0;
+    if(mv->move_kind == NMOVE_KIND_STAGE) {
+        int *stage = mv->stat_target == STAT_STR ? &b->stage_foe_str
+                    : mv->stat_target == STAT_AGL ? &b->stage_foe_agl : &b->stage_foe_spc;
+        if(*stage < STAT_STAGE_MAX) (*stage)++;
+        n = s_cat(b->pend_effect, 0, mv->stat_target == STAT_STR ? "STR FALLS"
+                                     : mv->stat_target == STAT_AGL ? "AGL FALLS" : "MAG FALLS");
+        b->pend_effect[n] = 0;
+    } else {
+        inflict_status(&b->foe, mv->status_target);
+        n = s_cat(b->pend_effect, 0, STATUS_NAME[mv->status_target]);
+        b->pend_effect[n] = 0;
+    }
     battle_apply_hit(b);
-    b->foe_poisoned = 1;
 }
 
-/* pickAtk's special-move branch: timing bar (phase 4). Needle 0-100;
-   landing in SPEC_PERFECT_* is 2x, SPEC_CONN_* is 1.5x, else fizzle 1x.
-   Damage is still atkStat * special_power * mul -- same formula as web. */
+/* Leg 2.11: Hype Up -- self-buff, all 3 stats, lasts until battle end. */
+static void battle_pick_hype(Battle *b, const UMove *mv) {
+    int n = 0;
+    b->hype_pl_used++;
+    b->hype_self = 1;
+    b->dmg = 0;
+    n = s_cat(b->label, 0, mv->name);
+    b->label[n] = 0;
+    n = s_cat(b->pend_effect, 0, "STATS UP");
+    b->pend_effect[n] = 0;
+    battle_apply_hit(b);
+}
+
+/* Leg 2.11: paralysis/confusion intercept for the player's own turn,
+   called from main()'s phase-2 input dispatch before it looks at
+   battle.cur/mv at all. Returns 1 if it took over battle.msg/phase/after
+   (caller must not dispatch the chosen move), 0 if the player's turn
+   proceeds normally. The turn-countdown/HP-tick itself happens once per
+   round in battle_pick_guard(), not here -- this only checks and
+   bypasses, mirroring pickAttack()'s intercept in engine.ts. */
+static int battle_pl_status_intercept(Battle *b, Monster *party, int party_n, int lead) {
+    if(b->pl.status == STATUS_PARALYZED) {
+        int n = s_cat(b->msg[0], 0, g_player_name);
+        n = s_cat(b->msg[0], n, " IS PARALYZED AND CANT MOVE");
+        b->msg[0][n] = 0;
+        b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
+        return 1;
+    }
+    if(b->pl.status == STATUS_CONFUSED) {
+        int party_hp[6], pi, n;
+        ConfuseRoll cr;
+        for(pi = 0; pi < party_n && pi < 6; pi++) party_hp[pi] = (pi == lead) ? 0 : party[pi].hp;
+        cr = confusion_roll(&b->pl, party_n > 1, party_n < 6 ? party_n : 6, party_hp, 6);
+        if(cr.kind == CONFUSE_NORMAL) return 0;
+        n = s_cat(b->msg[0], 0, g_player_name);
+        if(cr.kind == CONFUSE_NONE) {
+            n = s_cat(b->msg[0], n, " IS TOO CONFUSED TO ACT");
+        } else if(cr.kind == CONFUSE_SELF) {
+            int d = cr.dmg;
+            if(d > b->pl.hp - 1) d = b->pl.hp - 1;
+            if(d < 0) d = 0;
+            b->pl.hp -= d;
+            if(b->pl.hp < 1) b->pl.hp = 1;
+            n = s_cat(b->msg[0], n, " IS CONFUSED AND HITS ITSELF");
+        } else {
+            party[cr.ally_idx].hp -= cr.dmg;
+            if(party[cr.ally_idx].hp < 0) party[cr.ally_idx].hp = 0;
+            n = s_cat(b->msg[0], n, " IS CONFUSED AND HITS AN ALLY");
+        }
+        b->msg[0][n] = 0;
+        b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
+        return 1;
+    }
+    return 0;
+}
+
 static void battle_pick_special(Battle *b) {
     const Species *s = &SPECIES[b->pl.species];
     int atk = atk_stat_value(&b->pl, b->mods_self_str, b->mods_self_agl, b->mods_self_spc, s->special_stat);
@@ -2732,25 +2971,99 @@ static int battle_pick_spell(Battle *b, int spell_id) {
 static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, int *lead) {
     const Species *foe_sp = &SPECIES[b->foe.species];
     char move_name_buf[40];
-    const char *move_name;
-    int atk_stat_raw = 0, dmg, counter_dmg = 0;
+    const char *move_name = "";
+    int atk_stat_raw = 0, dmg = 0, counter_dmg = 0;
     float move_power = 1.0f, move_speed = 1.0f;
     char line[96];
+    char effect_text[24];
+    char self_tick[24];
+    int self_tick_n;
     int n = 0;
-    int poison_tick = 0;
-    int inflicts_poison = 0;
     int nat_sign = 0;
+    int landed = 1;
     UMove umoves[UMOVE_MAX];
     int un, ui, pick_i = 0;
-    int n_special = 0, n_sec = 0, n_basic = 0;
-    int specials[UMOVE_MAX], secs[UMOVE_MAX], basics[UMOVE_MAX];
+    int n_special = 0, n_nmove = 0, n_hype = 0, n_basic = 0;
+    int specials[UMOVE_MAX], nmoves_idx[UMOVE_MAX], hypes_idx[UMOVE_MAX], basics[UMOVE_MAX];
     const UMove *pick;
 
-    if(b->pl_poisoned) {
-        poison_tick = b->pl.maxHp / 16;
-        if(poison_tick < 1) poison_tick = 1;
-        b->pl.hp -= poison_tick;
-        if(b->pl.hp < 0) b->pl.hp = 0;
+    effect_text[0] = 0;
+    line[0] = 0;
+    self_tick_n = tick_status(&b->pl, self_tick, 0);
+    self_tick[self_tick_n] = 0;
+
+    if(b->pl.hp <= 0) {
+        /* The status tick itself (burn/poison) just finished the player
+           off before the foe even got to act -- same swap-or-lose branch
+           the foe's attack uses further down, just reached earlier. */
+        int i, nxt = -1;
+        for(i = 0; i < party_n; i++)
+            if(i != *lead && party[i].hp > 0) { nxt = i; break; }
+
+        n = s_cat(b->msg[0], 0, SPECIES[b->pl.species].name);
+        n = s_cat(b->msg[0], n, self_tick);
+        b->msg[0][n] = 0;
+
+        if(nxt >= 0) {
+            *lead = nxt;
+            b->pl = party[nxt];
+            b->mods_self_str = b->mods_self_agl = b->mods_self_spc = 0;
+            b->stage_self_str = b->stage_self_agl = b->stage_self_spc = 0;
+            b->hype_self = 0;
+            b->nmove_pl_used = b->hype_pl_used = 0;
+            n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
+            n = s_cat(b->msg[1], n, " JUMPS IN");
+            b->msg[1][n] = 0;
+            b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
+        }
+        else {
+            n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
+            n = s_cat(b->msg[1], n, " CANNOT STAND");
+            b->msg[1][n] = 0;
+            b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_LOSS;
+        }
+        return;
+    }
+
+    if(b->foe.status == STATUS_PARALYZED) {
+        b->foe.status_turns--;
+        if(b->foe.status_turns <= 0) clear_status(&b->foe);
+        n = s_cat(b->msg[0], 0, SPECIES[b->foe.species].name);
+        n = s_cat(b->msg[0], n, " IS PARALYZED");
+        n = s_cat(b->msg[0], n, self_tick);
+        b->msg[0][n] = 0;
+        b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
+        return;
+    }
+    {
+        int ally_hp[2];
+        int ai;
+        ConfuseRoll cr;
+        for(ai = 0; ai < b->bench_n && ai < 2; ai++) ally_hp[ai] = b->bench[ai].hp;
+        cr = confusion_roll(&b->foe, b->bench_n > 0, b->bench_n, ally_hp, 2);
+        if(cr.kind != CONFUSE_NORMAL) {
+            if(cr.kind == CONFUSE_NONE) {
+                n = s_cat(b->msg[0], 0, SPECIES[b->foe.species].name);
+                n = s_cat(b->msg[0], n, " IS TOO CONFUSED TO ACT");
+            } else if(cr.kind == CONFUSE_SELF) {
+                int d = cr.dmg;
+                if(d > b->foe.hp - 1) d = b->foe.hp - 1;
+                if(d < 0) d = 0;
+                b->foe.hp -= d;
+                if(b->foe.hp < 1) b->foe.hp = 1;
+                n = s_cat(b->msg[0], 0, SPECIES[b->foe.species].name);
+                n = s_cat(b->msg[0], n, " IS CONFUSED AND HITS ITSELF");
+            } else {
+                b->bench[cr.ally_idx].hp -= cr.dmg;
+                if(b->bench[cr.ally_idx].hp < 0) b->bench[cr.ally_idx].hp = 0;
+                n = s_cat(b->msg[0], 0, SPECIES[b->foe.species].name);
+                n = s_cat(b->msg[0], n, " IS CONFUSED AND HITS AN ALLY");
+            }
+            n = s_cat(b->msg[0], n, self_tick);
+            b->msg[0][n] = 0;
+            b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
+            return;
+        }
     }
 
     un = unlocked_moves(&b->foe, 0, umoves, UMOVE_MAX);
@@ -2758,19 +3071,20 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
         if(umoves[ui].kind == UMOVE_SPECIAL ||
            (umoves[ui].kind == UMOVE_SPELL && umoves[ui].spell_id == SPELL_MANASURGE))
             specials[n_special++] = ui;
-        else if(umoves[ui].kind == UMOVE_SECONDARY || umoves[ui].kind == UMOVE_TOXIC)
-            secs[n_sec++] = ui;
-        else
+        else if(umoves[ui].kind == UMOVE_NMOVE && b->nmove_foe_used < umoves[ui].max_pp)
+            nmoves_idx[n_nmove++] = ui;
+        else if(umoves[ui].kind == UMOVE_HYPE && b->hype_foe_used < umoves[ui].max_pp)
+            hypes_idx[n_hype++] = ui;
+        else if(umoves[ui].kind != UMOVE_NMOVE && umoves[ui].kind != UMOVE_HYPE)
             basics[n_basic++] = ui;
     }
     if(n_basic) pick_i = basics[irand(0, n_basic - 1)];
-    if(b->foe.shiny && n_sec && !b->pl_poisoned && irand(0, 99) < 30) {
-        for(ui = 0; ui < n_sec; ui++)
-            if(umoves[secs[ui]].kind == UMOVE_TOXIC) { pick_i = secs[ui]; break; }
-    } else if(n_special && b->foe.spp > 0 && irand(0, 99) < 28) {
+    if(n_special && b->foe.spp > 0 && irand(0, 99) < 28) {
         pick_i = specials[irand(0, n_special - 1)];
-    } else if(n_sec && irand(0, 99) < 35) {
-        pick_i = secs[irand(0, n_sec - 1)];
+    } else if(n_hype && !b->hype_foe && irand(0, 99) < 15) {
+        pick_i = hypes_idx[0];
+    } else if(n_nmove && irand(0, 99) < 35) {
+        pick_i = nmoves_idx[irand(0, n_nmove - 1)];
     } else if(n_basic) {
         pick_i = basics[irand(0, n_basic - 1)];
     }
@@ -2792,25 +3106,49 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
         move_speed = SPELLS[spell_id].speed;
         goto guard_resolve;
     }
-    if(pick->kind == UMOVE_SPECIAL) b->foe.spp--;
-    if(pick->kind == UMOVE_TOXIC) inflicts_poison = 1;
-    if(pick->kind == UMOVE_SECONDARY) {
-        b->mods_self_str += pick->dstr;
-        b->mods_self_agl += pick->dagl;
-        b->mods_self_spc += pick->dspc;
+    if(pick->kind == UMOVE_SPECIAL) {
+        b->foe.spp--;
+        atk_stat_raw = dmg_stat_foe(b, pick->stat);
+        move_power = pick->power;
+        move_speed = pick->speed;
+        move_name = pick->name;
+        dmg = jground((float)atk_stat_raw * move_power);
+        if(dmg < 1) dmg = 1;
+    } else if(pick->kind == UMOVE_NMOVE) {
+        b->nmove_foe_used++;
+        move_name = pick->name;
+        move_speed = pick->speed;
+        dmg = 0;
+        if(pick->move_kind == NMOVE_KIND_STAGE) {
+            n = s_cat(effect_text, 0, pick->stat_target == STAT_STR ? "STR FALLS"
+                                     : pick->stat_target == STAT_AGL ? "AGL FALLS" : "MAG FALLS");
+        } else {
+            n = s_cat(effect_text, 0, STATUS_NAME[pick->status_target]);
+        }
+        effect_text[n] = 0;
+    } else if(pick->kind == UMOVE_HYPE) {
+        /* Self-buff -- always applies regardless of the player's guard
+           choice, unlike an nmove aimed at the player (landed, below). */
+        b->hype_foe_used++;
+        b->hype_foe = 1;
+        move_name = pick->name;
+        move_speed = pick->speed;
+        dmg = 0;
+        n = s_cat(effect_text, 0, "STATS UP");
+        effect_text[n] = 0;
+    } else {
+        atk_stat_raw = dmg_stat_foe(b, pick->stat);
+        move_power = pick->power;
+        move_speed = pick->speed;
+        move_name = pick->name;
+        dmg = jground((float)atk_stat_raw * move_power);
+        if(dmg < 1) dmg = 1;
     }
-    move_name = pick->name;
-    atk_stat_raw = atk_stat_value(&b->foe, b->mods_foe_str, b->mods_foe_agl, b->mods_foe_spc, pick->stat);
-    move_power = pick->power;
-    move_speed = pick->speed;
-
-    dmg = jground((float)atk_stat_raw * move_power);
-    if(dmg < 1) dmg = 1;
 
 guard_resolve:
     /* Crystal matchup on the incoming hit, before the guard reduces it: the
        matchup decides how hard the blow lands, the guard decides how much of
-       it the player eats. */
+       it the player eats. Zero-damage nmove/hype moves scale to 0 harmlessly. */
     dmg = nature_scale_dmg(dmg, species_nature(b->foe.species),
                            species_nature(b->pl.species), &nat_sign);
 
@@ -2818,22 +3156,27 @@ guard_resolve:
         /* Dodge: a speed contest, not a percentage roll. The move's own
            speed rating only matters for the attacker's side; the
            defender's is a flat random reaction roll off raw agility. */
-        float atk_speed = (float)(b->foe.agl + b->mods_foe_agl) * move_speed;
-        float def_speed = (float)(b->pl.agl + b->mods_self_agl)
+        float atk_speed = (float)eff_agl_foe(b) * move_speed;
+        float def_speed = (float)eff_agl_pl(b)
                            * frand(DODGE_DEF_RAND_MIN, DODGE_DEF_RAND_MAX);
         if(atk_speed - def_speed > 0.0f) {
-            n = s_cat(line, 0, "THE DODGE FAILS ");
-            n = s_cat_uint(line, n, dmg);
-            n = s_cat(line, n, " DMG");
+            if(dmg > 0) {
+                n = s_cat(line, 0, "THE DODGE FAILS ");
+                n = s_cat_uint(line, n, dmg);
+                n = s_cat(line, n, " DMG");
+            } else {
+                n = s_cat(line, 0, "THE DODGE FAILS");
+            }
         }
         else {
             dmg = 0;
+            landed = 0;
             n = s_cat(line, 0, SPECIES[b->pl.species].name);
             n = s_cat(line, n, " SLIPS ASIDE");
         }
     }
     else if(kind == 1) {
-        int block_score = jground((float)(b->pl.str + b->mods_self_str) * frand(GUARD_RAND_MIN, GUARD_RAND_MAX));
+        int block_score = jground((float)dmg_stat_pl(b, ATK_STR) * frand(GUARD_RAND_MIN, GUARD_RAND_MAX));
         int reduced = dmg - block_score;
         if(reduced <= 0) {
             /* Parried: the player takes nothing, and the full blow that
@@ -2841,10 +3184,12 @@ guard_resolve:
                the fight right here, handled after this if-chain. */
             counter_dmg = dmg;
             dmg = 0;
-            n = s_cat(line, 0, GUARD_PARRIED_TEXT);
-            n = s_cat(line, n, " FOE TAKES ");
-            n = s_cat_uint(line, n, counter_dmg);
-            n = s_cat(line, n, " DMG");
+            if(counter_dmg > 0) {
+                n = s_cat(line, 0, GUARD_PARRIED_TEXT);
+                n = s_cat(line, n, " FOE TAKES ");
+                n = s_cat_uint(line, n, counter_dmg);
+                n = s_cat(line, n, " DMG");
+            }
         }
         else {
             dmg = reduced;
@@ -2854,7 +3199,7 @@ guard_resolve:
         }
     }
     else {
-        int barrier_score = jground((float)(b->pl.spc + b->mods_self_spc) * frand(GUARD_RAND_MIN, GUARD_RAND_MAX));
+        int barrier_score = jground((float)dmg_stat_pl(b, ATK_MAG) * frand(GUARD_RAND_MIN, GUARD_RAND_MAX));
         int reduced = dmg - barrier_score;
         if(reduced <= 0) {
             /* Absorbed: the player takes nothing and heals half of what
@@ -2863,10 +3208,12 @@ guard_resolve:
             dmg = 0;
             b->pl.hp += heal;
             if(b->pl.hp > b->pl.maxHp) b->pl.hp = b->pl.maxHp;
-            n = s_cat(line, 0, GUARD_ABSORBED_TEXT);
-            n = s_cat(line, n, " +");
-            n = s_cat_uint(line, n, heal);
-            n = s_cat(line, n, " HP");
+            if(heal > 0) {
+                n = s_cat(line, 0, GUARD_ABSORBED_TEXT);
+                n = s_cat(line, n, " +");
+                n = s_cat_uint(line, n, heal);
+                n = s_cat(line, n, " HP");
+            }
         }
         else {
             dmg = reduced;
@@ -2882,18 +3229,23 @@ guard_resolve:
         if(nat_sign > 0)      n = s_cat(line, n, " " NATURE_STRONG_TEXT);
         else if(nat_sign < 0) n = s_cat(line, n, " " NATURE_WEAK_TEXT);
     }
-    if(poison_tick > 0) {
-        n = s_cat(line, n, " PSN-");
-        n = s_cat_uint(line, n, poison_tick);
-    }
-    else if(inflicts_poison) {
-        n = s_cat(line, n, " PSN");
+    if(pick->kind == UMOVE_HYPE || (landed && pick->kind == UMOVE_NMOVE)) {
+        if(pick->kind == UMOVE_NMOVE) {
+            if(pick->move_kind == NMOVE_KIND_STAGE) {
+                int *stage = pick->stat_target == STAT_STR ? &b->stage_self_str
+                            : pick->stat_target == STAT_AGL ? &b->stage_self_agl : &b->stage_self_spc;
+                if(*stage < STAT_STAGE_MAX) (*stage)++;
+            } else {
+                inflict_status(&b->pl, pick->status_target);
+            }
+        }
+        if(n > 0) n = s_cat(line, n, " ");
+        n = s_cat(line, n, effect_text);
     }
     line[n] = 0;
 
     b->pl.hp -= dmg;
     if(b->pl.hp < 0) b->pl.hp = 0;
-    if(inflicts_poison) b->pl_poisoned = 1;
     party[*lead] = b->pl;
 
     if(b->pl.hp <= 0) {
@@ -2902,12 +3254,16 @@ guard_resolve:
             if(i != *lead && party[i].hp > 0) { nxt = i; break; }
 
         n = s_cat(b->msg[0], 0, line);
+        n = s_cat(b->msg[0], n, self_tick);
         b->msg[0][n] = 0;
 
         if(nxt >= 0) {
             *lead = nxt;
             b->pl = party[nxt];
-            b->pl_poisoned = 0; /* fresh monster, not the fallen one */
+            b->mods_self_str = b->mods_self_agl = b->mods_self_spc = 0;
+            b->stage_self_str = b->stage_self_agl = b->stage_self_spc = 0;
+            b->hype_self = 0;
+            b->nmove_pl_used = b->hype_pl_used = 0;
             n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
             n = s_cat(b->msg[1], n, " JUMPS IN");
             b->msg[1][n] = 0;
@@ -2937,6 +3293,7 @@ guard_resolve:
     }
 
     n = s_cat(b->msg[1], 0, line);
+    n = s_cat(b->msg[1], n, self_tick);
     b->msg[1][n] = 0;
     b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
 }
@@ -3026,6 +3383,26 @@ static void battle_pick_item(Battle *b, Bag *bag, int kind,
         n = s_cat_uint(b->msg[0], n, fx->agl < 0 ? -fx->agl : fx->agl);
         n = s_cat(b->msg[0], n, " MAG-");
         n = s_cat_uint(b->msg[0], n, fx->spc < 0 ? -fx->spc : fx->spc);
+    }
+    else if(fx->kind == 6) { /* cleanse: reset temporary stat changes */
+        (*slot)--;
+        b->mods_self_str = b->mods_self_agl = b->mods_self_spc = 0;
+        b->stage_self_str = b->stage_self_agl = b->stage_self_spc = 0;
+        b->hype_self = 0;
+        n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+        n = s_cat(b->msg[0], n, " TEMPORARY CHANGES CLEARED");
+    }
+    else if(fx->kind == 7) { /* cure */
+        if(b->pl.status == STATUS_NONE ||
+           (fx->status != ITEM_STATUS_ALL && b->pl.status != fx->status)) {
+            n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+            n = s_cat(b->msg[0], n, " HAS NO EFFECT");
+        } else {
+            (*slot)--;
+            clear_status(&b->pl);
+            n = s_cat(b->msg[0], 0, ITEMS[idx].name);
+            n = s_cat(b->msg[0], n, " CURED");
+        }
     }
     else if(fx->kind == 5) { /* flee */
         if(!b->wild) {
@@ -3125,7 +3502,7 @@ static int try_encounter(int map_id, int px, int py, int party_n,
                           int *enc_lock, int *last_tx, int *last_ty,
                           Battle *out) {
     int tx = px / TILE, ty = py / TILE;
-    int id, lv, n, i;
+    int id, lv, n, i, shiny;
     const EncDef *e = 0;
 
     if(tx == *last_tx && ty == *last_ty) return 0;
@@ -3149,7 +3526,16 @@ static int try_encounter(int map_id, int px, int py, int party_n,
     lv = e->lv_min + irand(0, e->lv_max - e->lv_min);
     if(e->ty_bonus_gt >= 0 && ty > e->ty_bonus_gt) lv += 1;
 
-    out->foe = roll_shiny() ? mint_shiny(id, lv) : mint_monster(id, lv);
+    /* mint_shiny() doubles whatever level it's given, so the pre-mint
+       cap must already account for that doubling -- halve
+       WILD_LEVEL_CAP going in, not after, or a shiny roll could still
+       land above the cap. */
+    shiny = roll_shiny();
+    {
+        int cap = shiny ? WILD_LEVEL_CAP / 2 : WILD_LEVEL_CAP;
+        if(lv > cap) lv = cap;
+    }
+    out->foe = shiny ? mint_shiny(id, lv) : mint_monster(id, lv);
     out->wild = 1;
     out->trainer_kind = TRAINER_WILD;
     out->soldier_id = 0;
@@ -3167,6 +3553,10 @@ static int try_encounter(int map_id, int px, int py, int party_n,
     out->mods_foe_str = out->mods_foe_agl = out->mods_foe_spc = 0;
     out->pend_str = out->pend_agl = out->pend_spc = 0;
     out->pl_poisoned = out->foe_poisoned = 0;
+    out->stage_self_str = out->stage_self_agl = out->stage_self_spc = 0;
+    out->stage_foe_str = out->stage_foe_agl = out->stage_foe_spc = 0;
+    out->hype_self = out->hype_foe = 0;
+    out->nmove_pl_used = out->hype_pl_used = out->nmove_foe_used = out->hype_foe_used = 0;
     out->grew = 0;
     return 1;
 }
@@ -3338,6 +3728,10 @@ static void draw_battle_status(const Battle *b) {
     n = s_cat_uint(buf, n, b->foe.hp);
     n = s_cat(buf, n, "/");
     n = s_cat_uint(buf, n, b->foe.maxHp);
+    if(b->foe.status != STATUS_NONE) {
+        n = s_cat(buf, n, " ");
+        n = s_cat(buf, n, STATUS_NAME[b->foe.status]);
+    }
     buf[n] = 0;
     draw_text_s(buf, BFOE_BOX_X + 4, BFOE_BOX_Y + 4, 0xFFFF, MENU_SCALE);
 
@@ -3349,6 +3743,10 @@ static void draw_battle_status(const Battle *b) {
     n = s_cat_uint(buf, n, b->pl.hp);
     n = s_cat(buf, n, "/");
     n = s_cat_uint(buf, n, b->pl.maxHp);
+    if(b->pl.status != STATUS_NONE) {
+        n = s_cat(buf, n, " ");
+        n = s_cat(buf, n, STATUS_NAME[b->pl.status]);
+    }
     buf[n] = 0;
     draw_text_s(buf, BPL_BOX_X + 4, BPL_BOX_Y + 4, 0xFFFF, MENU_SCALE);
 }
@@ -4193,6 +4591,7 @@ void main(void) {
 /* FADE_NONE/OUT/HOLD/IN live up by apply_fade(), which fade_level() needs. */
 #define FADE_ACTION_BED  1
 #define FADE_ACTION_LOSS 2
+#define FADE_ACTION_HFGAMEOVER 3
 
     /* Active dialogue sequence: seq_lines/seq_len name the current
        TALK_* array, seq_beat indexes into it. seq_lines == 0 means no
@@ -4231,6 +4630,9 @@ void main(void) {
 #define POST_WSOLDIER_COMMANDER_FINAL 27
 #define POST_CREDITS_FINAL 28
 #define POST_OPEN_MERCY 29
+#define POST_WSOLDIER_LEAD 30
+#define POST_LEAD_GAMEOVER 31
+#define POST_HFGAMEOVER_SCREAM 32
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
    from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
    title and crystal-tier stock, no separate post_action per merchant. */
@@ -4249,7 +4651,8 @@ void main(void) {
     int beat_ruins_keeper = 0, beat_ruins_warden = 0, badge_quartz = 0;
     int beat_quarry_driller = 0;
     int beat_marsh_bog = 0, beat_marsh_reed = 0, badge_opal = 0;
-    int chose_heavenfall = 0, beat_commander = 0;
+    int chose_heavenfall, beat_commander = 0;
+    int beat_lieutenant_lead = 0;
     int revived_father = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
@@ -4376,6 +4779,7 @@ void main(void) {
         ft[FLAG_SHOP_FREE_FENN] = &shop_free[2];
         ft[FLAG_SHOP_FREE_DRAY] = &shop_free[3];
         ft[FLAG_BEAT_COMMANDER] = &beat_commander;
+        ft[FLAG_BEAT_LIEUTENANT_LEAD] = &beat_lieutenant_lead;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
         ft[FLAG_CHEST_LOOTED] = &got_chest;
         ft[FLAG_BIRCH_GIFTED] = &talked_birch;
@@ -4483,6 +4887,12 @@ void main(void) {
                     heal_party(party, party_n);
                 }
                 else if(fade_action == FADE_ACTION_LOSS) {
+                    /* Only reached when !chose_heavenfall -- see
+                       BAFTER_LOSS, which routes the Heavenfall-path
+                       wipe through the heavenfallDevour dialogue +
+                       FADE_ACTION_HFGAMEOVER instead (Leg 2 wrap gate:
+                       "not a soft trip home") -- the old soft-regret
+                       stub that used to live here is gone. */
                     heal_party(party, party_n);
                     map_id = MAP_HOUSE;
                     find_mark(MAP_HOUSE, 'U', &col, &row);
@@ -4492,6 +4902,21 @@ void main(void) {
                     last_tx = -1;
                     last_ty = -1;
                     door_lock = 20;
+                }
+                else if(fade_action == FADE_ACTION_HFGAMEOVER) {
+                    /* Shared by both Heavenfall-path wipes (BAFTER_LOSS)
+                       and beating Lead (POST_LEAD_GAMEOVER): reload the
+                       last save if one exists, else drop to the title
+                       screen -- matches web's reloadLastSaveOrTitle(),
+                       adapted to this port's title-screen state machine
+                       instead of a silent in-place reload. */
+                    SaveLive probe;
+                    have_save = save_restore(&probe);
+                    state = 0;
+                    title_cur = have_save ? 0 : 1;
+                    in_battle = 0;
+                    choice_mode = 0;
+                    mercy_mode = 0;
                 }
             }
         }
@@ -4546,6 +4971,9 @@ void main(void) {
                         bag.greatcrystal = sl.bag[8]; bag.cageKey = sl.bag[9];
                         bag.megacrystal = sl.bag[10]; bag.ultimatecrystal = sl.bag[11];
                         bag.perfectcrystal = sl.bag[12];
+                        bag.calmdraft = sl.bag[13]; bag.burnsalve = sl.bag[14];
+                        bag.antidote = sl.bag[15]; bag.clearmind = sl.bag[16];
+                        bag.numbroot = sl.bag[17]; bag.panacea = sl.bag[18];
                         for(pi = 0; pi < party_n; pi++) {
                             party[pi].species = sl.party[pi].species;
                             party[pi].lv = sl.party[pi].lv;
@@ -4561,6 +4989,9 @@ void main(void) {
                             /* slot byte 12 (was a per-monster crystal) is
                                reserved now -- the crystal comes from the
                                species, so old saves need no migration. */
+                            party[pi].status = sl.party[pi].status;
+                            party[pi].status_turns = sl.party[pi].status_turns;
+                            party[pi].poison_stack = sl.party[pi].poison_stack;
                             dex_note_caught(party[pi].species);
                         }
                         {
@@ -4608,6 +5039,7 @@ void main(void) {
                         shop_free[2] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_FENN);
                         shop_free[3] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_DRAY);
                         beat_commander = save_flag_get(&sl, SAVE_FLAG_BEAT_COMMANDER);
+                        beat_lieutenant_lead = save_flag_get(&sl, SAVE_FLAG_BEAT_LIEUTENANT_LEAD);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
                         talked_birch = save_flag_get(&sl, SAVE_FLAG_BIRCH_GIFTED);
@@ -4679,6 +5111,7 @@ void main(void) {
                 beat_quarry_driller = 0;
                 beat_marsh_bog = 0; beat_marsh_reed = 0; badge_opal = 0;
                 chose_heavenfall = 0; beat_commander = 0;
+                beat_lieutenant_lead = 0;
                 revived_father = 0;
                 reputation = 0;
                 apply_player_name(0);
@@ -4766,6 +5199,9 @@ void main(void) {
                     sl.bag[8] = (unsigned char)bag.greatcrystal; sl.bag[9] = (unsigned char)bag.cageKey;
                     sl.bag[10] = (unsigned char)bag.megacrystal; sl.bag[11] = (unsigned char)bag.ultimatecrystal;
                     sl.bag[12] = (unsigned char)bag.perfectcrystal;
+                    sl.bag[13] = (unsigned char)bag.calmdraft; sl.bag[14] = (unsigned char)bag.burnsalve;
+                    sl.bag[15] = (unsigned char)bag.antidote; sl.bag[16] = (unsigned char)bag.clearmind;
+                    sl.bag[17] = (unsigned char)bag.numbroot; sl.bag[18] = (unsigned char)bag.panacea;
                     for(pi = 0; pi < party_n && pi < 6; pi++) {
                         sl.party[pi].species = (unsigned char)party[pi].species;
                         sl.party[pi].lv = (unsigned char)party[pi].lv;
@@ -4779,6 +5215,9 @@ void main(void) {
                         sl.party[pi].shiny = (unsigned char)party[pi].shiny;
                         sl.party[pi].xp = (unsigned short)party[pi].xp;
                         sl.party[pi].nature = 0; /* reserved, see the reader */
+                        sl.party[pi].status = (unsigned char)party[pi].status;
+                        sl.party[pi].status_turns = (unsigned char)party[pi].status_turns;
+                        sl.party[pi].poison_stack = (unsigned char)party[pi].poison_stack;
                     }
                     {
                         int di;
@@ -4824,6 +5263,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_FENN, shop_free[2]);
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_DRAY, shop_free[3]);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_COMMANDER, beat_commander);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_LIEUTENANT_LEAD, beat_lieutenant_lead);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
                     save_flag_put(&sl, SAVE_FLAG_BIRCH_GIFTED, talked_birch);
@@ -5278,6 +5718,26 @@ void main(void) {
                                     seq_beat = 0;
                                     post_action = POST_CREDITS_FINAL;
                                 }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_LEAD) {
+                                    /* Placeholder ending (Leg 2 wrap
+                                       gate): no mercy menu, straight to
+                                       "Thank you for playing" then a
+                                       plain (non-red, no scream) fade
+                                       that reloads the last save --
+                                       matches web's leadThanksGO ->
+                                       startFade("hfGameOver") exactly.
+                                       Beating him never opens the north
+                                       road; that's Leg 3's job. */
+                                    beat_lieutenant_lead = 1;
+                                    marks += 20;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_LEAD_WIN_PLACEHOLDER;
+                                    seq_len = TALK_LEN(TALK_LEAD_WIN_PLACEHOLDER);
+                                    seq_beat = 0;
+                                    post_action = POST_LEAD_GAMEOVER;
+                                }
                                 else if(battle.trainer_kind == TRAINER_SOLDIER) {
                                     soldier_beaten[battle.soldier_id] = 1;
                                     marks += 8;
@@ -5427,16 +5887,28 @@ void main(void) {
                                 /* Every party CryMon is at 0 HP (the
                                    only way battle_pick_guard ever
                                    reaches BAFTER_LOSS -- no living
-                                   member left to jump in). Fades to
-                                   black, teleports home next to the
-                                   bed, fully heals the whole party,
-                                   fades back in -- see FADE_ACTION_LOSS
+                                   member left to jump in). On the
+                                   Heavenfall path (Leg 2 wrap gate:
+                                   "not a soft trip home") this is a
+                                   real Game Over -- heavenfallDevour
+                                   plays, then POST_HFGAMEOVER_SCREAM's
+                                   scream + red fade reload/title.
+                                   Otherwise: fade to black, teleport
+                                   home next to the bed, fully heal,
+                                   fade back in -- see FADE_ACTION_LOSS
                                    in the draw dispatch below. */
                                 in_battle = 0;
                                 enc_lock = 3;
-                                fade_state = FADE_OUT;
-                                fade_timer = 0;
-                                fade_action = FADE_ACTION_LOSS;
+                                if(chose_heavenfall) {
+                                    seq_lines = TALK_HEAVENFALL_DEVOUR;
+                                    seq_len = TALK_LEN(TALK_HEAVENFALL_DEVOUR);
+                                    seq_beat = 0;
+                                    post_action = POST_HFGAMEOVER_SCREAM;
+                                } else {
+                                    fade_state = FADE_OUT;
+                                    fade_timer = 0;
+                                    fade_action = FADE_ACTION_LOSS;
+                                }
                                 break;
                             default:
                                 break;
@@ -5479,7 +5951,9 @@ void main(void) {
                         UMove moves[UMOVE_MAX];
                         int mn = unlocked_moves(&battle.pl, 1, moves, UMOVE_MAX);
                         const UMove *mv = (battle.cur >= 0 && battle.cur < mn) ? &moves[battle.cur] : 0;
-                        if(!mv) {
+                        if(battle_pl_status_intercept(&battle, party, party_n, lead)) {
+                            /* paralyzed/confused -- handled inside, turn used */
+                        } else if(!mv) {
                             /* empty */
                         } else if(mv->kind == UMOVE_WAIT) {
                             int n = s_cat(battle.msg[0], 0, g_player_name);
@@ -5500,9 +5974,32 @@ void main(void) {
                                 battle.phase = 0;
                                 battle.after = BAFTER_ATK;
                             }
-                        } else if(mv->kind == UMOVE_TOXIC) {
-                            battle_pick_toxic(&battle);
-                            party[lead] = battle.pl;
+                        } else if(mv->kind == UMOVE_NMOVE) {
+                            if(battle.nmove_pl_used >= mv->max_pp) {
+                                int n = s_cat(battle.msg[0], 0, mv->name);
+                                n = s_cat(battle.msg[0], n, " IS SPENT");
+                                battle.msg[0][n] = 0;
+                                battle.msg_n = 1;
+                                battle.msg_i = 0;
+                                battle.phase = 0;
+                                battle.after = BAFTER_ATK;
+                            } else {
+                                battle_pick_nmove(&battle, mv);
+                                party[lead] = battle.pl;
+                            }
+                        } else if(mv->kind == UMOVE_HYPE) {
+                            if(battle.hype_pl_used >= mv->max_pp) {
+                                int n = s_cat(battle.msg[0], 0, mv->name);
+                                n = s_cat(battle.msg[0], n, " IS SPENT");
+                                battle.msg[0][n] = 0;
+                                battle.msg_n = 1;
+                                battle.msg_i = 0;
+                                battle.phase = 0;
+                                battle.after = BAFTER_ATK;
+                            } else {
+                                battle_pick_hype(&battle, mv);
+                                party[lead] = battle.pl;
+                            }
                         } else if(mv->kind == UMOVE_SPECIAL) {
                             if(battle.pl.spp <= 0) {
                                 int n = s_cat(battle.msg[0], 0, mv->name);
@@ -6074,6 +6571,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench_n = 0;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
@@ -6092,6 +6593,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench_n = 0;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
@@ -6115,6 +6620,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(SP_BRIARFOX, 7);
                                     battle.bench[1] = mint_monster(SP_DUSKHORN, 8);
                                     battle.bench_n = 2;
@@ -6135,6 +6644,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_SENTRY].bench_sp[0], TRAINER_KITS[KIT_SENTRY].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_SENTRY].bench_sp[1], TRAINER_KITS[KIT_SENTRY].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_SENTRY].bench_n;
@@ -6155,6 +6668,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_CONSCRIPT].bench_sp[0], TRAINER_KITS[KIT_CONSCRIPT].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_CONSCRIPT].bench_sp[1], TRAINER_KITS[KIT_CONSCRIPT].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_CONSCRIPT].bench_n;
@@ -6175,6 +6692,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_ENFORCER].bench_sp[0], TRAINER_KITS[KIT_ENFORCER].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_ENFORCER].bench_sp[1], TRAINER_KITS[KIT_ENFORCER].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_ENFORCER].bench_n;
@@ -6195,6 +6716,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_CROSS].bench_sp[0], TRAINER_KITS[KIT_CROSS].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_CROSS].bench_sp[1], TRAINER_KITS[KIT_CROSS].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_CROSS].bench_n;
@@ -6215,6 +6740,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_FOREST_RANGER].bench_sp[0], TRAINER_KITS[KIT_FOREST_RANGER].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_FOREST_RANGER].bench_sp[1], TRAINER_KITS[KIT_FOREST_RANGER].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_FOREST_RANGER].bench_n;
@@ -6235,6 +6764,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_FOREST_SCOUT].bench_sp[0], TRAINER_KITS[KIT_FOREST_SCOUT].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_FOREST_SCOUT].bench_sp[1], TRAINER_KITS[KIT_FOREST_SCOUT].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_FOREST_SCOUT].bench_n;
@@ -6255,6 +6788,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_RUINS_KEEPER].bench_sp[0], TRAINER_KITS[KIT_RUINS_KEEPER].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_RUINS_KEEPER].bench_sp[1], TRAINER_KITS[KIT_RUINS_KEEPER].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_RUINS_KEEPER].bench_n;
@@ -6275,6 +6812,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_QUARTZ].bench_sp[0], TRAINER_KITS[KIT_QUARTZ].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_QUARTZ].bench_sp[1], TRAINER_KITS[KIT_QUARTZ].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_QUARTZ].bench_n;
@@ -6295,6 +6836,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_QUARRY_DRILLER].bench_sp[0], TRAINER_KITS[KIT_QUARRY_DRILLER].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_QUARRY_DRILLER].bench_sp[1], TRAINER_KITS[KIT_QUARRY_DRILLER].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_QUARRY_DRILLER].bench_n;
@@ -6315,6 +6860,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_OPAL].bench_sp[0], TRAINER_KITS[KIT_OPAL].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_OPAL].bench_sp[1], TRAINER_KITS[KIT_OPAL].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_OPAL].bench_n;
@@ -6335,6 +6884,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_MARSH_BOG].bench_sp[0], TRAINER_KITS[KIT_MARSH_BOG].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_MARSH_BOG].bench_sp[1], TRAINER_KITS[KIT_MARSH_BOG].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_MARSH_BOG].bench_n;
@@ -6355,6 +6908,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_MARSH_REED].bench_sp[0], TRAINER_KITS[KIT_MARSH_REED].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_MARSH_REED].bench_sp[1], TRAINER_KITS[KIT_MARSH_REED].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_MARSH_REED].bench_n;
@@ -6375,9 +6932,39 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_COMMANDER_FINAL].bench_sp[0], TRAINER_KITS[KIT_COMMANDER_FINAL].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_COMMANDER_FINAL].bench_sp[1], TRAINER_KITS[KIT_COMMANDER_FINAL].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_COMMANDER_FINAL].bench_n;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
+                                case POST_WSOLDIER_LEAD:
+                                    /* Lead fights as himself -- a
+                                       single pseudo-species foe, no
+                                       bench (KIT_LIEUTENANT_LEAD.
+                                       bench_n is baked 0). */
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_LIEUTENANT_LEAD].lead_sp, TRAINER_KITS[KIT_LIEUTENANT_LEAD].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_LEAD;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "LIEUTENANT LEAD BLOCKS THE WAY");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
+                                    battle.bench_n = 0;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
                                     in_battle = 1;
@@ -6395,6 +6982,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].bench_sp[0], TRAINER_KITS[KIT_RUINS_WARDEN].bench_lv[0]);
                                     battle.bench[1] = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].bench_sp[1], TRAINER_KITS[KIT_RUINS_WARDEN].bench_lv[1]);
                                     battle.bench_n = TRAINER_KITS[KIT_RUINS_WARDEN].bench_n;
@@ -6415,6 +7006,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench[0] = mint_monster(SP_CRYMARE, KIT_SHINIGAMI_B0_LV);
                                     battle.bench[1] = mint_monster(SP_CRYMARE, KIT_SHINIGAMI_B1_LV);
                                     battle.bench_n = 2;
@@ -6440,6 +7035,10 @@ void main(void) {
                                     battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench_n = 0;
                                     battle.grew = 0;
                                     battle.pl = party[lead];
@@ -6461,6 +7060,10 @@ void main(void) {
                                         battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
                                     battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
                                     battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                         battle.bench_n = 0;
                                         battle.grew = 0;
                                         battle.pl = party[lead];
@@ -6527,14 +7130,11 @@ void main(void) {
                                     choice_cur = 0;
                                     break;
                                 case POST_ENDING_FINAL:
-                                    find_mark(MAP_GAUNTLET, '2', &col, &row);
-                                    map_id = MAP_GAUNTLET;
-                                    px = col * TILE + TILE / 2;
-                                    py = row * TILE + TILE / 2;
-                                    pdir = 0;
-                                    door_lock = 20;
-                                    map_banner_timer = MAP_BANNER_TOTAL;
-                                    break;
+                                /* 2.4: no auto-gauntlet. Heavenfall path unlocks grove entrance. */
+                                if (chose_heavenfall) {
+                                    /* flag already set; player uses grove G when maps rebaked */
+                                }
+                                break;
                                 case POST_CREDITS_FINAL:
                                     ending_mode = 1;
                                     ending_i = 0;
@@ -6543,6 +7143,28 @@ void main(void) {
                                     fade_state = FADE_OUT;
                                     fade_timer = 0;
                                     fade_action = FADE_ACTION_BED;
+                                    break;
+                                case POST_LEAD_GAMEOVER:
+                                    /* Plain black fade (no scream, no
+                                       red tint -- that's the genuine
+                                       party-wipe path, POST_HFGAMEOVER_
+                                       SCREAM below). Matches web's
+                                       leadThanksGO -> startFade(
+                                       "hfGameOver"). */
+                                    fade_state = FADE_OUT;
+                                    fade_timer = 0;
+                                    fade_action = FADE_ACTION_HFGAMEOVER;
+                                    break;
+                                case POST_HFGAMEOVER_SCREAM:
+                                    /* Matches web's runHeavenfallGameOverFx():
+                                       scream + red fade, same stand-in
+                                       SFX and red-tint flag the mercy
+                                       execute path uses (Leg 2.9). */
+                                    chip_sfx_faint();
+                                    g_mercy_red_fade = 1;
+                                    fade_state = FADE_OUT;
+                                    fade_timer = 0;
+                                    fade_action = FADE_ACTION_HFGAMEOVER;
                                     break;
                                 default:
                                     break;
@@ -6619,6 +7241,8 @@ void main(void) {
                                     post_action = POST_WSOLDIER_MARSH_REED;
                                 else if(npc_pending == NPC_PENDING_COMMANDER_FINAL)
                                     post_action = POST_WSOLDIER_COMMANDER_FINAL;
+                                else if(npc_pending == NPC_PENDING_LEAD)
+                                    post_action = POST_WSOLDIER_LEAD;
                                 break;
                             default:
                                 post_action = POST_NONE;

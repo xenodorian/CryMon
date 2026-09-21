@@ -20,14 +20,16 @@
       "mintGrow": "1 + (level - mintBaseLevel) * (species.str / 100)",
       "shiny": "1/shinyDenom",
       "benchXp": "lead full XP; other living party members floor(xp * benchXpShare)",
-      "nature": "on mint: +str/+agl/+spc from logic.json natures[i]; hardy is 0; stored in party slot byte 12"
+      "nature": "on mint: +str/+agl/+spc from logic.json natures[i]; hardy is 0; stored in party slot byte 12",
+      "wildLevelCap": "hard ceiling on any wild-encounter mint, applied after levelBonusIfTyGt and shiny doubling -- no encounter table currently rolls anywhere near it, this is a safety clamp"
     },
     "captureAgl": 5,
     "captureVulnerable": 25,
     "xpBase": 6,
     "xpPerLevel": 4,
     "levelXpMul": 10,
-    "levelCap": 20,
+    "levelCap": 100,
+  "wildLevelCap": 50,
     "levelHp": 3,
     "levelStat": 1,
     "mintGrowPerLevel": 0.12,
@@ -936,6 +938,15 @@
           "level": 20
         }
       ]
+    },
+    "lieutenantLead": {
+      "title": "Lieutenant Lead bars the north road",
+      "name": "Lieutenant Lead",
+      "winTalk": "leadWinPlaceholder",
+      "set": "beatLieutenantLead",
+      "marks": 20,
+      "lead": ["lead", 20],
+      "bench": []
     }
   },
   "npcs": [
@@ -1957,6 +1968,25 @@
           "talk": "gauntletGraveRise",
           "if": "hasScroll",
           "pending": "heavenfallGrave"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "S",
+      "id": "lieutenantLead",
+      "role": "trainer",
+      "sprite": "npc/lead",
+      "talk": "leadSpot",
+      "talkDone": "leadWinPlaceholder",
+      "script": [
+        {
+          "hideIf": "beatLieutenantLead"
+        },
+        {
+          "talk": "leadSpot",
+          "after": "wsoldier",
+          "pending": "lieutenantLead"
         }
       ]
     }

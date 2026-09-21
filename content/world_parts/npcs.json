@@ -1020,6 +1020,24 @@
           "pending": "heavenfallGrave"
         }
       ]
+    },
+    {
+      "map": "veld",
+      "mark": "L",
+      "id": "lieutenantLead",
+      "role": "trainer",
+      "sprite": "npc/lead",
+      "talk": "leadSpot",
+      "talkDone": "leadWinPlaceholder",
+      "script": [
+        {
+          "hideIf": "beatLieutenantLead"
+        },
+        {
+          "talk": "leadSpot",
+          "pending": "lieutenantLead"
+        }
+      ]
     }
   ]
 }

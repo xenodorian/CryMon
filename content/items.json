@@ -12,7 +12,13 @@
     "cageKey",
     "megacrystal",
     "ultimatecrystal",
-    "perfectcrystal"
+    "perfectcrystal",
+    "calmdraft",
+    "burnsalve",
+    "antidote",
+    "clearmind",
+    "numbroot",
+    "panacea"
   ],
   "defs": {
     "gem": {
@@ -123,14 +129,14 @@
     "greatcrystal": {
       "id": "greatcrystal",
       "name": "Greater Capture Crystal",
-      "desc": "Capture Crystal with a 130% base instead of 100%.",
+      "desc": "Capture Crystal with a 150% base instead of 100%.",
       "battle": true,
       "field": false,
-      "buy": 50,
-      "sell": 25,
+      "buy": 58,
+      "sell": 29,
       "effect": {
         "kind": "capture",
-        "base": 130
+        "base": 150
       }
     },
     "cageKey": {
@@ -145,27 +151,27 @@
     "megacrystal": {
       "id": "megacrystal",
       "name": "Mega Capture Crystal",
-      "desc": "Capture Crystal with a 160% base instead of 100%.",
+      "desc": "Capture Crystal with a 200% base instead of 100%.",
       "battle": true,
       "field": false,
-      "buy": 100,
-      "sell": 50,
+      "buy": 125,
+      "sell": 63,
       "effect": {
         "kind": "capture",
-        "base": 160
+        "base": 200
       }
     },
     "ultimatecrystal": {
       "id": "ultimatecrystal",
       "name": "Ultimate Capture Crystal",
-      "desc": "Capture Crystal with a 190% base instead of 100%.",
+      "desc": "Capture Crystal with a 300% base instead of 100%.",
       "battle": true,
       "field": false,
-      "buy": 250,
-      "sell": 125,
+      "buy": 395,
+      "sell": 197,
       "effect": {
         "kind": "capture",
-        "base": 190
+        "base": 300
       }
     },
     "perfectcrystal": {
@@ -179,6 +185,83 @@
       "effect": {
         "kind": "capture",
         "base": 1000
+      }
+    },
+    "calmdraft": {
+      "id": "calmdraft",
+      "name": "Calm Draft",
+      "desc": "Resets your CryMon's temporary stat changes (stages, Hype Up) this battle. Does not cure a status condition.",
+      "battle": true,
+      "field": false,
+      "buy": 15,
+      "sell": 7,
+      "effect": {
+        "kind": "cleanse"
+      }
+    },
+    "burnsalve": {
+      "id": "burnsalve",
+      "name": "Burn Salve",
+      "desc": "Cures Burned.",
+      "battle": true,
+      "field": true,
+      "buy": 20,
+      "sell": 10,
+      "effect": {
+        "kind": "cure",
+        "status": "burned"
+      }
+    },
+    "antidote": {
+      "id": "antidote",
+      "name": "Antidote",
+      "desc": "Cures Poisoned.",
+      "battle": true,
+      "field": true,
+      "buy": 20,
+      "sell": 10,
+      "effect": {
+        "kind": "cure",
+        "status": "poisoned"
+      }
+    },
+    "clearmind": {
+      "id": "clearmind",
+      "name": "Clear Mind",
+      "desc": "Cures Confused.",
+      "battle": true,
+      "field": true,
+      "buy": 20,
+      "sell": 10,
+      "effect": {
+        "kind": "cure",
+        "status": "confused"
+      }
+    },
+    "numbroot": {
+      "id": "numbroot",
+      "name": "Numbroot Tonic",
+      "desc": "Cures Paralyzed.",
+      "battle": true,
+      "field": true,
+      "buy": 20,
+      "sell": 10,
+      "effect": {
+        "kind": "cure",
+        "status": "paralyzed"
+      }
+    },
+    "panacea": {
+      "id": "panacea",
+      "name": "Panacea",
+      "desc": "Cures any status condition.",
+      "battle": true,
+      "field": true,
+      "buy": 70,
+      "sell": 35,
+      "effect": {
+        "kind": "cure",
+        "status": "all"
       }
     }
   }

@@ -12,7 +12,7 @@ export type SpeakerId =
   | "oren" | "tessa" | "birch" | "sable"
   | "cross" | "commander" | "conscript" | "enforcer" | "sentry"
   | "father" | "heavenfall" | "ranger" | "scout" | "keeper" | "warden"
-  | "bogwalker" | "reedguard" | "quartz" | "opal" | "driller" | "fenn" | "dray" | "system" | "none";
+  | "bogwalker" | "reedguard" | "quartz" | "opal" | "driller" | "fenn" | "dray" | "lead" | "system" | "none";
 
 export interface TalkBeat {
   speaker: SpeakerId;
@@ -96,9 +96,19 @@ export interface Monster {
   xp: number;
   shiny: boolean;
   nature: number;
+  /** Leg 2.11: persists on the player's own CryMon until their next rest
+   *  (sleepHeal clears it). "none" if unset. Wild/trainer foes never save,
+   *  so this is battle-scoped for them regardless. */
+  status?: StatusId;
+  /** Burned/Paralyzed countdown; unused by Poisoned/Confused. */
+  statusTurns?: number;
+  /** Poisoned's linear stack (tick = poisonStack% of maxHp, +1/turn). */
+  poisonStack?: number;
 }
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal";
+export type StatusId = "none" | "burned" | "poisoned" | "confused" | "paralyzed" | "exhausted";
+
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea";
 
 export interface ItemDef {
   id: ItemId;
@@ -109,12 +119,14 @@ export interface ItemDef {
   buy: number;
   sell: number;
   effect?: {
-    kind: "heal" | "buff" | "debuff" | "capture" | "flee";
+    kind: "heal" | "buff" | "debuff" | "capture" | "flee" | "cleanse" | "cure";
     amount?: number;
     str?: number;
     agl?: number;
     spc?: number;
     base?: number;
+    /** kind === "cure" only: a specific StatusId, or "all". */
+    status?: StatusId | "all";
   };
 }
 
@@ -143,6 +155,10 @@ export interface BattleState {
   pendingDmg: number;
   pendingLabel: string;
   pendingMods: { str: number; agl: number; spc: number };
+  /** Leg 2.11: short suffix describing an nmove/hypeUp's effect, shown by
+   *  resolve_hit/resolve_guard in place of a damage number when pendingDmg
+   *  is 0 (these moves deal no damage). */
+  pendingEffectText: string;
   minigame: number;
   minigameDir: number;
   minigameHit: number | null;
@@ -155,8 +171,18 @@ export interface BattleState {
   faintT: number;
   foeEnterT: number;
   foeFaintT: number;
-  plPoisoned: boolean;
-  foePoisoned: boolean;
+  /** Leg 2.11: 0-4 stage counters for Proud Roar/Magebane/Slow Powder/
+   *  Overload, battle-scoped (reset every new battle, never saved). Status
+   *  conditions themselves live on player/foe.status instead -- see
+   *  Monster.status. */
+  stage: BattleMods;
+  /** Whether each side has used Hype Up this battle (non-stacking, lasts
+   *  until battle end -- see CURRENT_WORK.md 2.11). */
+  hypeActive: { self: boolean; foe: boolean };
+  /** Battle-scoped PP for nmove/hypeUp, keyed by `${monster.id}:nmove` /
+   *  `${monster.id}:hype` so a fainted-out-and-swapped-back monster still
+   *  has its own count, and a fresh foe/party member starts full. */
+  movePpUsed: Record<string, number>;
 }
 
 export interface WorldState {

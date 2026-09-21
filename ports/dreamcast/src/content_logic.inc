@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=5be0f8e743ed8002 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=dc1755d049d06b22 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -7,6 +7,7 @@
 #define LOGIC_REP_MIN -100
 #define LOGIC_REP_MAX 100
 #define LOGIC_REP_FATHER_REVIVE 25
+#define LOGIC_REP_HEAVENFALL_REVIVE -25
 #define LOGIC_REP_KIND_NAME "MAX THE KIND"
 #define LOGIC_REP_PRICE_POS_PCT 1
 #define LOGIC_REP_PRICE_NEG_PCT 5
@@ -65,27 +66,57 @@ static const NatureDef NATURES[NATURE_N] = {
 #define SPEC_MUL_FIZZ 1.0f
 #define SPEC_NEEDLE_SPEED 110.0f
 
-/* Toxic Burst -- universal shiny-exclusive move, not per-species. */
-#define TOXIC_NAME "TOXIC BURST"
-#define TOXIC_STAT ATK_STR
-#define TOXIC_POWER 0.5f
-#define TOXIC_SPEED 1.0f
-#define TOXIC_POISON_DIVISOR 16
-
 /* Move unlocks + evolution -- logic.json growth. */
 #define LV_SECONDARY 5
 #define LV_SPECIAL 10
 #define LV_EVOLVE 12
 
-typedef struct { const char *name; int stat; float power, speed; int dstr, dagl, dspc; } NatureMove;
+#define STAT_STR 0
+#define STAT_AGL 1
+#define STAT_SPC 2
+#define STATUS_NONE 0
+#define STATUS_BURNED 1
+#define STATUS_POISONED 2
+#define STATUS_CONFUSED 3
+#define STATUS_PARALYZED 4
+#define STATUS_EXHAUSTED 5
+#define STAT_STAGE_MAX 4
+#define STAT_STAGE_FLOOR 1
+#define STAT_STAGE_N 5
+static const float STAT_STAGE_MULT[5] = { 1.0f, 0.7f, 0.4f, 0.1f, 0.0f };
+
+#define STATUS_BURN_PCT 5
+#define STATUS_BURN_TURNS_MIN 2
+#define STATUS_BURN_TURNS_MAX 5
+#define STATUS_POISON_START_PCT 1
+#define STATUS_POISON_STEP_PCT 1
+#define STATUS_PARALYZE_TURNS_MIN 1
+#define STATUS_PARALYZE_TURNS_MAX 5
+
+/* Overload -- universal shiny-exclusive move, not per-species. */
+#define SHINY_MOVE_NAME "OVERLOAD"
+#define SHINY_MOVE_STATUS 5
+#define SHINY_MOVE_MAX_PP 10
+
+/* Hype Up -- learned on evolving, see bake_npc note / CURRENT_WORK 2.11. */
+#define HYPE_UP_NAME "HYPE UP"
+#define HYPE_UP_PCT 35
+#define HYPE_UP_MAX_PP 10
+
+#define STAT_MOVE_CAP 10
+#define STATUS_MOVE_CAP 5
+
+typedef struct { const char *name; int kind; int stat; int status; int max_pp; } NatureMove;
+#define NMOVE_KIND_STAGE 0
+#define NMOVE_KIND_STATUS 1
 #define NATURE_MOVE_N 7
 static const NatureMove NATURE_MOVES[NATURE_N] = {
-    { "FRACTURE", ATK_STR, 0.5f, 1.0f, -2, -2, -2 },
-    { "REND", ATK_STR, 0.5f, 0.9f, -4, 0, 0 },
-    { "CLEAVE", ATK_STR, 0.5f, 1.0f, -3, -1, 0 },
-    { "DAZZLE", ATK_MAG, 0.5f, 1.2f, 0, -4, 0 },
-    { "BIND", ATK_STR, 0.5f, 1.1f, -2, -2, 0 },
-    { "VEIL", ATK_MAG, 0.5f, 1.0f, 0, 0, -4 },
-    { "HEX", ATK_MAG, 0.5f, 1.0f, 0, -2, -2 },
+    { "PROUD ROAR", NMOVE_KIND_STAGE, 0, 0, 10 },
+    { "SCORCH", NMOVE_KIND_STATUS, 0, 1, 5 },
+    { "BLIGHT", NMOVE_KIND_STATUS, 0, 2, 5 },
+    { "SLOW POWDER", NMOVE_KIND_STAGE, 1, 0, 10 },
+    { "BIND", NMOVE_KIND_STATUS, 0, 4, 5 },
+    { "VEIL", NMOVE_KIND_STATUS, 0, 3, 5 },
+    { "MAGEBANE", NMOVE_KIND_STAGE, 2, 0, 10 },
 };
 

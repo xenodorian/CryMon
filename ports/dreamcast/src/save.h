@@ -6,6 +6,8 @@
 typedef struct {
     unsigned char species, lv, hp, maxHp, str, agl, spc, spp, sppMax, shiny, nature;
     unsigned short xp;
+    /* Leg 2.11: bytes 13-15 of the 16-byte slot, previously unused padding. */
+    unsigned char status, status_turns, poison_stack;
 } SaveMon;
 
 typedef struct {

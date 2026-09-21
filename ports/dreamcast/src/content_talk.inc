@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=5be0f8e743ed8002 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=dc1755d049d06b22 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -506,6 +506,9 @@ static const TalkBeat TALK_SHOP_REFUSE[] = {
     { "THEY LOOK AT YOU AND WILL NOT TRADE.", 0 },
     { "NOT AFTER WHAT YOU HAVE DONE.", 0 },
 };
+static const TalkBeat TALK_HEAVENFALL_SHOP_WARN[] = {
+    { "YOU REVIVED HEAVENFALL, WHO KNOWS WHAT OTHER HORRORS YOU ARE CAPABLE OF.", 0 },
+};
 static const TalkBeat TALK_MERCY_THREATEN[] = {
     { "DON'T HURT ME, JUST TAKE IT!", 0 },
 };
@@ -513,8 +516,8 @@ static const TalkBeat TALK_MERCY_EXECUTE[] = {
     { "NO SURVIVORS, NO WITNESSES.", 1 },
 };
 static const TalkBeat TALK_GAUNTLET_LOCKED[] = {
-    { "THE PATH BEHIND SHINIGAMI IS SEALED.", 35 },
-    { "ONLY THOSE WHO SOUGHT HEAVENFALL MAY PASS.", 35 },
+    { "THE PATH BEHIND SHINIGAMI IS SEALED.", 36 },
+    { "ONLY THOSE WHO SOUGHT HEAVENFALL MAY PASS.", 36 },
 };
 static const TalkBeat TALK_GAUNTLET_WIPE_REGRET[] = {
     { "I CHOSE POWER OVER FATHER'S LIFE.", 1 },
@@ -523,14 +526,29 @@ static const TalkBeat TALK_GAUNTLET_WIPE_REGRET[] = {
     { "FATHER... I WISH YOU WERE STILL HERE.", 1 },
 };
 static const TalkBeat TALK_GAUNTLET_GRAVE_NEED_SCROLL[] = {
-    { "A COLD GRAVESTONE. THE RUNES ITCH FOR THE SCROLL.", 35 },
+    { "A COLD GRAVESTONE. THE RUNES ITCH FOR THE SCROLL.", 36 },
 };
 static const TalkBeat TALK_GAUNTLET_GRAVE_RISE[] = {
-    { "THE SCROLL BURNS. THE EARTH ANSWERS.", 35 },
-    { "HEAVENFALL RISES.", 35 },
+    { "THE SCROLL BURNS. THE EARTH ANSWERS.", 36 },
+    { "HEAVENFALL RISES.", 36 },
 };
 static const TalkBeat TALK_GAUNTLET_GRAVE_WIN[] = {
     { "HEAVENFALL FALLS. THE PATH OF POWER IS PAID IN FULL.", 1 },
+};
+static const TalkBeat TALK_LEAD_SPOT[] = {
+    { "HALT. LIEUTENANT LEAD, WEEPING ARMY.", 35 },
+    { "NO ONE LEAVES CRYTOWN BY THE NORTH ROAD.", 35 },
+    { "TURN BACK, OR FACE ME.", 35 },
+};
+static const TalkBeat TALK_LEAD_WIN_PLACEHOLDER[] = {
+    { "...", 36 },
+    { "THANK YOU FOR PLAYING.", 36 },
+    { "MORE OF THE WORLD OPENS IN LEG 3.", 36 },
+};
+static const TalkBeat TALK_HEAVENFALL_DEVOUR[] = {
+    { "THE AIR TEARS OPEN.", 36 },
+    { "HEAVENFALL DESCENDS ON MAX WITH A HUNGER THAT HAS NO BOTTOM.", 36 },
+    { "THERE IS NO PATH HOME FROM THIS.", 36 },
 };
 
 static const char *const DEMO_END[] = {
@@ -668,6 +686,7 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_FENN_OPEN,
     TALK_DRAY_OPEN,
     TALK_SHOP_REFUSE,
+    TALK_HEAVENFALL_SHOP_WARN,
     TALK_MERCY_THREATEN,
     TALK_MERCY_EXECUTE,
     TALK_GAUNTLET_LOCKED,
@@ -675,6 +694,9 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_GAUNTLET_GRAVE_NEED_SCROLL,
     TALK_GAUNTLET_GRAVE_RISE,
     TALK_GAUNTLET_GRAVE_WIN,
+    TALK_LEAD_SPOT,
+    TALK_LEAD_WIN_PLACEHOLDER,
+    TALK_HEAVENFALL_DEVOUR,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -796,6 +818,7 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FENN_OPEN),
     TALK_LEN(TALK_DRAY_OPEN),
     TALK_LEN(TALK_SHOP_REFUSE),
+    TALK_LEN(TALK_HEAVENFALL_SHOP_WARN),
     TALK_LEN(TALK_MERCY_THREATEN),
     TALK_LEN(TALK_MERCY_EXECUTE),
     TALK_LEN(TALK_GAUNTLET_LOCKED),
@@ -803,6 +826,9 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_GAUNTLET_GRAVE_NEED_SCROLL),
     TALK_LEN(TALK_GAUNTLET_GRAVE_RISE),
     TALK_LEN(TALK_GAUNTLET_GRAVE_WIN),
+    TALK_LEN(TALK_LEAD_SPOT),
+    TALK_LEN(TALK_LEAD_WIN_PLACEHOLDER),
+    TALK_LEN(TALK_HEAVENFALL_DEVOUR),
 };
-#define TALK_TABLE_N 126
+#define TALK_TABLE_N 130
 

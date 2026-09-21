@@ -8,12 +8,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/patch_gauntlet_24b.py
+      - run: python3 tools/patch_gauntlet_24c.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add src/game/engine.ts content/dialogue.json
+          git add src/game/engine.ts
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Leg 2.4: choseHeavenfall gate, Heavenfall grave battle wiring"
+          git commit -m "Leg 2.4: Heavenfall grave win skips mercy, Slayer title, credits"
           git push
