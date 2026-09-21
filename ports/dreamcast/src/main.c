@@ -2463,6 +2463,7 @@ typedef struct {
 #define TRAINER_WSOLDIER_MARSH_BOG 17
 #define TRAINER_WSOLDIER_MARSH_REED 18
 #define TRAINER_WSOLDIER_COMMANDER_FINAL 19
+#define TRAINER_WSOLDIER_LEAD 20
 
 #define BAFTER_ITEM      1
 #define BAFTER_ATK       2
@@ -4563,6 +4564,7 @@ void main(void) {
 /* FADE_NONE/OUT/HOLD/IN live up by apply_fade(), which fade_level() needs. */
 #define FADE_ACTION_BED  1
 #define FADE_ACTION_LOSS 2
+#define FADE_ACTION_HFGAMEOVER 3
 
     /* Active dialogue sequence: seq_lines/seq_len name the current
        TALK_* array, seq_beat indexes into it. seq_lines == 0 means no
@@ -4601,6 +4603,9 @@ void main(void) {
 #define POST_WSOLDIER_COMMANDER_FINAL 27
 #define POST_CREDITS_FINAL 28
 #define POST_OPEN_MERCY 29
+#define POST_WSOLDIER_LEAD 30
+#define POST_LEAD_GAMEOVER 31
+#define POST_HFGAMEOVER_SCREAM 32
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
    from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
    title and crystal-tier stock, no separate post_action per merchant. */
@@ -4619,7 +4624,8 @@ void main(void) {
     int beat_ruins_keeper = 0, beat_ruins_warden = 0, badge_quartz = 0;
     int beat_quarry_driller = 0;
     int beat_marsh_bog = 0, beat_marsh_reed = 0, badge_opal = 0;
-    int chose_heavenfall, gauntlet_wipe_regret = 0, beat_commander = 0;
+    int chose_heavenfall, beat_commander = 0;
+    int beat_lieutenant_lead = 0;
     int revived_father = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
@@ -4746,6 +4752,7 @@ void main(void) {
         ft[FLAG_SHOP_FREE_FENN] = &shop_free[2];
         ft[FLAG_SHOP_FREE_DRAY] = &shop_free[3];
         ft[FLAG_BEAT_COMMANDER] = &beat_commander;
+        ft[FLAG_BEAT_LIEUTENANT_LEAD] = &beat_lieutenant_lead;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
         ft[FLAG_CHEST_LOOTED] = &got_chest;
         ft[FLAG_BIRCH_GIFTED] = &talked_birch;
@@ -4853,13 +4860,12 @@ void main(void) {
                     heal_party(party, party_n);
                 }
                 else if(fade_action == FADE_ACTION_LOSS) {
-                    {
-                        int from_g = (map_id >= MAP_GAUNTLET);
-                        if (from_g && chose_heavenfall && !gauntlet_wipe_regret) {
-                            gauntlet_wipe_regret = 1;
-                            /* talk lines need rebake; use short note via talk if available */
-                        }
-                    }
+                    /* Only reached when !chose_heavenfall -- see
+                       BAFTER_LOSS, which routes the Heavenfall-path
+                       wipe through the heavenfallDevour dialogue +
+                       FADE_ACTION_HFGAMEOVER instead (Leg 2 wrap gate:
+                       "not a soft trip home") -- the old soft-regret
+                       stub that used to live here is gone. */
                     heal_party(party, party_n);
                     map_id = MAP_HOUSE;
                     find_mark(MAP_HOUSE, 'U', &col, &row);
@@ -4869,6 +4875,21 @@ void main(void) {
                     last_tx = -1;
                     last_ty = -1;
                     door_lock = 20;
+                }
+                else if(fade_action == FADE_ACTION_HFGAMEOVER) {
+                    /* Shared by both Heavenfall-path wipes (BAFTER_LOSS)
+                       and beating Lead (POST_LEAD_GAMEOVER): reload the
+                       last save if one exists, else drop to the title
+                       screen -- matches web's reloadLastSaveOrTitle(),
+                       adapted to this port's title-screen state machine
+                       instead of a silent in-place reload. */
+                    SaveLive probe;
+                    have_save = save_restore(&probe);
+                    state = 0;
+                    title_cur = have_save ? 0 : 1;
+                    in_battle = 0;
+                    choice_mode = 0;
+                    mercy_mode = 0;
                 }
             }
         }
@@ -4991,6 +5012,7 @@ void main(void) {
                         shop_free[2] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_FENN);
                         shop_free[3] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_DRAY);
                         beat_commander = save_flag_get(&sl, SAVE_FLAG_BEAT_COMMANDER);
+                        beat_lieutenant_lead = save_flag_get(&sl, SAVE_FLAG_BEAT_LIEUTENANT_LEAD);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
                         talked_birch = save_flag_get(&sl, SAVE_FLAG_BIRCH_GIFTED);
@@ -5062,6 +5084,7 @@ void main(void) {
                 beat_quarry_driller = 0;
                 beat_marsh_bog = 0; beat_marsh_reed = 0; badge_opal = 0;
                 chose_heavenfall = 0; beat_commander = 0;
+                beat_lieutenant_lead = 0;
                 revived_father = 0;
                 reputation = 0;
                 apply_player_name(0);
@@ -5213,6 +5236,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_FENN, shop_free[2]);
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_DRAY, shop_free[3]);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_COMMANDER, beat_commander);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_LIEUTENANT_LEAD, beat_lieutenant_lead);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
                     save_flag_put(&sl, SAVE_FLAG_BIRCH_GIFTED, talked_birch);
@@ -5667,6 +5691,26 @@ void main(void) {
                                     seq_beat = 0;
                                     post_action = POST_CREDITS_FINAL;
                                 }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_LEAD) {
+                                    /* Placeholder ending (Leg 2 wrap
+                                       gate): no mercy menu, straight to
+                                       "Thank you for playing" then a
+                                       plain (non-red, no scream) fade
+                                       that reloads the last save --
+                                       matches web's leadThanksGO ->
+                                       startFade("hfGameOver") exactly.
+                                       Beating him never opens the north
+                                       road; that's Leg 3's job. */
+                                    beat_lieutenant_lead = 1;
+                                    marks += 20;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_LEAD_WIN_PLACEHOLDER;
+                                    seq_len = TALK_LEN(TALK_LEAD_WIN_PLACEHOLDER);
+                                    seq_beat = 0;
+                                    post_action = POST_LEAD_GAMEOVER;
+                                }
                                 else if(battle.trainer_kind == TRAINER_SOLDIER) {
                                     soldier_beaten[battle.soldier_id] = 1;
                                     marks += 8;
@@ -5816,16 +5860,28 @@ void main(void) {
                                 /* Every party CryMon is at 0 HP (the
                                    only way battle_pick_guard ever
                                    reaches BAFTER_LOSS -- no living
-                                   member left to jump in). Fades to
-                                   black, teleports home next to the
-                                   bed, fully heals the whole party,
-                                   fades back in -- see FADE_ACTION_LOSS
+                                   member left to jump in). On the
+                                   Heavenfall path (Leg 2 wrap gate:
+                                   "not a soft trip home") this is a
+                                   real Game Over -- heavenfallDevour
+                                   plays, then POST_HFGAMEOVER_SCREAM's
+                                   scream + red fade reload/title.
+                                   Otherwise: fade to black, teleport
+                                   home next to the bed, fully heal,
+                                   fade back in -- see FADE_ACTION_LOSS
                                    in the draw dispatch below. */
                                 in_battle = 0;
                                 enc_lock = 3;
-                                fade_state = FADE_OUT;
-                                fade_timer = 0;
-                                fade_action = FADE_ACTION_LOSS;
+                                if(chose_heavenfall) {
+                                    seq_lines = TALK_HEAVENFALL_DEVOUR;
+                                    seq_len = TALK_LEN(TALK_HEAVENFALL_DEVOUR);
+                                    seq_beat = 0;
+                                    post_action = POST_HFGAMEOVER_SCREAM;
+                                } else {
+                                    fade_state = FADE_OUT;
+                                    fade_timer = 0;
+                                    fade_action = FADE_ACTION_LOSS;
+                                }
                                 break;
                             default:
                                 break;
@@ -6860,6 +6916,32 @@ void main(void) {
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
+                                case POST_WSOLDIER_LEAD:
+                                    /* Lead fights as himself -- a
+                                       single pseudo-species foe, no
+                                       bench (KIT_LIEUTENANT_LEAD.
+                                       bench_n is baked 0). */
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_LIEUTENANT_LEAD].lead_sp, TRAINER_KITS[KIT_LIEUTENANT_LEAD].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_LEAD;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "LIEUTENANT LEAD BLOCKS THE WAY");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
+                                    battle.bench_n = 0;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
                                 case POST_WSOLDIER_WARDEN:
                                     battle.foe = mint_monster(TRAINER_KITS[KIT_RUINS_WARDEN].lead_sp, TRAINER_KITS[KIT_RUINS_WARDEN].lead_lv);
                                     battle.wild = 0;
@@ -7035,6 +7117,28 @@ void main(void) {
                                     fade_timer = 0;
                                     fade_action = FADE_ACTION_BED;
                                     break;
+                                case POST_LEAD_GAMEOVER:
+                                    /* Plain black fade (no scream, no
+                                       red tint -- that's the genuine
+                                       party-wipe path, POST_HFGAMEOVER_
+                                       SCREAM below). Matches web's
+                                       leadThanksGO -> startFade(
+                                       "hfGameOver"). */
+                                    fade_state = FADE_OUT;
+                                    fade_timer = 0;
+                                    fade_action = FADE_ACTION_HFGAMEOVER;
+                                    break;
+                                case POST_HFGAMEOVER_SCREAM:
+                                    /* Matches web's runHeavenfallGameOverFx():
+                                       scream + red fade, same stand-in
+                                       SFX and red-tint flag the mercy
+                                       execute path uses (Leg 2.9). */
+                                    chip_sfx_faint();
+                                    g_mercy_red_fade = 1;
+                                    fade_state = FADE_OUT;
+                                    fade_timer = 0;
+                                    fade_action = FADE_ACTION_HFGAMEOVER;
+                                    break;
                                 default:
                                     break;
                             }
@@ -7110,6 +7214,8 @@ void main(void) {
                                     post_action = POST_WSOLDIER_MARSH_REED;
                                 else if(npc_pending == NPC_PENDING_COMMANDER_FINAL)
                                     post_action = POST_WSOLDIER_COMMANDER_FINAL;
+                                else if(npc_pending == NPC_PENDING_LEAD)
+                                    post_action = POST_WSOLDIER_LEAD;
                                 break;
                             default:
                                 post_action = POST_NONE;

@@ -718,7 +718,7 @@ party is a real systems feature, not a flag.** Sub-steps:
    story. **Not hardware-verified.**
 6. Integration pass.
 
-### 2.8 — Heavenfall-revival reputation effect
+### 2.8 — Heavenfall-revival reputation effect — DONE for the hook itself (Claude), blocked on 2.4's Dreamcast gauntlet for the trigger
 
 Choosing to revive Heavenfall (at the original choice screen) has **no
 immediate reputation effect**. Only after going through the (redesigned)
@@ -726,6 +726,28 @@ gauntlet and successfully reviving Heavenfall there does reputation
 drop by `-25`, and **every merchant's first interaction with the player
 after that point** says "You revived Heavenfall, who knows what other
 horrors you are capable of."
+
+**Landed:** `reputation.heavenfallRevive` (-25) in `logic.json`, baked
+as `LOGIC_REP_HEAVENFALL_REVIVE`. New save flag `heavenfallRepWarned`
+(bit 61 of the existing 64-bit flags field — no version bump). New
+`heavenfallShopWarn` dialogue line. **Interpretation call:** "every
+merchant's first interaction" is implemented as one global one-time
+warning (whichever merchant is talked to first), not 4 independent
+per-merchant flags — only 3 free bits were left in the flags field and
+4 more would have forced another save-version bump for flavor text.
+
+**Not yet wired into web's `engine.ts` or `main.c`'s actual
+`beatHeavenfall`-flip sites** — while investigating I found the
+gauntlet-grave Heavenfall battle (`heavenfallGrave` in `world.json`)
+itself doesn't fully trigger yet on either engine (same missing
+`"after": "wsoldier"` class of bug fixed for Lieutenant Lead below,
+plus it's the redesigned-gauntlet content another agent is actively
+iterating on — **left alone, do not fix without coordinating**). The
+-25/warn hook is data-ready; wiring it to the actual `beatHeavenfall`
+transition in `engine.ts` (web-owned) is a short follow-up once that
+gauntlet work lands -- deliberately not touched here, per the
+CLAUDE.md ownership split (Claude owns the Dreamcast runtime, not
+`src/game/engine.ts`).
 
 ### 2.9 — Post-battle mercy/threaten/execute menu (human opponents)
 
@@ -1091,6 +1113,59 @@ commit, push) runs next.
 
 **Leg 3 still requires** reputation + gauntlet decisions already landed;
 Lead is the narrative door into that leg.
+
+**Status update (Claude, 2026-09-21):** items 1 and 3-4 were already
+content-complete on web (Grok's earlier commits: `levelCap: 100` in
+world.json, Lead's trainer/dialogue JSON, the win-handler branch in
+engine.ts) but had two real gaps, both now fixed:
+- **Lead's battle could not actually start on either engine.** His
+  `world.json` npc script was missing `"after": "wsoldier"` (present on
+  every other `pending`-driven trainer, e.g. forestRanger), and his
+  `trainers.lieutenantLead` entry used the newer `{party:[...]}` shape
+  instead of the `{lead, bench}` shape `startWsBattle()`/`TRAINER_KITS`
+  actually read — so even with `after` fixed it would have thrown on
+  `kit.lead[0]`. Both fixed in `world.json`. Also moved his map mark
+  from `L` to `S` on veld — `L` collided with the pre-existing `stump`
+  loot NPC (this was the "veld.L occurs 2 times" `check_sync` FAIL
+  flagged and left alone during Leg 2.11's item work; now actually
+  fixed since it blocked this).
+- **Dreamcast (`main.c`) had none of items 2-4 wired at all** —
+  `chose_heavenfall`/`gauntlet_wipe_regret` existed but only fed a dead
+  soft-regret stub inside the gauntlet maze (superseded, unreachable
+  now that item 2 lands); Lieutenant Lead wasn't referenced anywhere.
+  Landed: `TRAINER_WSOLDIER_LEAD`/`KIT_LIEUTENANT_LEAD` (bake_content.py
+  gained `lieutenantLead` in `kit_keys`/`PENDING_IDS`), his win-handler
+  (`beat_lieutenant_lead` flag + full save load/reset/save glue,
+  `TALK_LEAD_WIN_PLACEHOLDER`), and a new `FADE_ACTION_HFGAMEOVER` fade
+  action shared by both the Lead-defeat path (plain fade, no scream —
+  matches web's `leadThanksGO`) and the real party-wipe path
+  (`BAFTER_LOSS` now branches on `chose_heavenfall`: plays
+  `TALK_HEAVENFALL_DEVOUR`, then screams + red-tints via the same
+  `g_mercy_red_fade`/`chip_sfx_faint()` the 2.9 execute path already
+  uses). The old dead `gauntlet_wipe_regret` local was removed (it had
+  no ft[]/save wiring on Dreamcast to begin with — never actually
+  connected to anything).
+  - **Deliberate simplification vs. web:** web's game-over silently
+    auto-reloads the last save in place (`reloadLastSaveOrTitle()`).
+    Dreamcast instead drops to the title screen with Continue enabled
+    if a save exists (`state = 0`), reusing the existing, well-tested
+    Continue flow rather than duplicating its large load-into-live-state
+    block inline in the fade handler. Flagging this as an interpretation
+    call, not a bug — a Dreamcast game returning to title on a Game
+    Over is the more natural platform convention anyway.
+  - **North-path blocking:** row 0 of the veld map is already a solid
+    wall border with no gap near Lead's position, so there is currently
+    nowhere to walk "past" him — the spec's blocking requirement is
+    satisfied trivially until Leg 3 actually opens a route north. No
+    new collision code was needed or added.
+  - `check_sync --strict`, `npm run typecheck`, `npm run build`, and
+    `make -C ports/dreamcast` are all clean (no new FAILs/warnings; the
+    two `veld.L` FAILs are gone).
+  - **Not done, explicitly out of scope:** 2.8's `beatHeavenfall`
+    reputation hook isn't wired to a live trigger on either engine yet
+    (see 2.8 above) — the gauntlet-grave Heavenfall battle itself
+    doesn't fully trigger on either engine currently, and that content
+    is another agent's active work. Left alone.
 
 ## Leg 3 (open — also from the same doc)
 
