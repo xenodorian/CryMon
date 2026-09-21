@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=723f08fd46539b6f — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=51ba62db27cf3270 — do not edit. python3 tools/bake_content.py */
 
 #define SP_QUILLPUP 0
 #define SP_GLIMMOTH 1
@@ -28,7 +28,8 @@
 #define SP_CINDERMITE 25
 #define SP_VEILCAP 26
 #define SP_KILNBACK 27
-#define SPECIES_N 28
+#define SP_LEAD 28
+#define SPECIES_N 29
 
 static const SpellDef SPELLS[4] = {
     { ATK_MAG, 0.6f, 1.2f },
@@ -57,7 +58,7 @@ static const Species SPECIES[SPECIES_N] = {
     { "THORNHIDE", "BARB", "THORNWALL", 40, 11, 6, 10, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 2, -1 },
     { "GLASSWISP", "CHIME", "PRISMFLARE", 22, 6, 14, 18, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 5, -1 },
     { "ASHENMAW", "BITE", "ASHENROAR", 34, 18, 12, 11, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 1, -1 },
-    { "HEAVENFALL", "METEOR", "STARFALL", 58, 20, 10, 22, 4, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 2, -1 },
+    { "HEAVENFALL", "METEOR", "STARFALL", 58, 20, 10, 22, 4, ATK_STR, ATK_MAG, 1.5f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 2, -1 },
     { "PEATLING", "SOP", "PEATSPIT", 30, 11, 12, 10, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 0.8f, 1.1f, 0, {0,0,0,0}, 0, 21 },
     { "MIREBACK", "WALLOP", "SINKHOLE", 44, 16, 7, 12, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 1.25f, 0.55f, 0, {0,0,0,0}, 0, -1 },
     { "GLOWCAP", "SPORE", "CAPFLARE", 28, 8, 11, 17, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.15f, 0.7f, 0, {0,0,0,0}, 6, 26 },
@@ -66,5 +67,6 @@ static const Species SPECIES[SPECIES_N] = {
     { "CINDERMITE", "NIBBLE", "KILNSPARK", 26, 13, 15, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.1f, 1.15f, 0, {0,0,0,0}, 4, 27 },
     { "VEILCAP", "SPORE", "VEILBURST", 36, 9, 12, 22, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.25f, 0.65f, 0, {0,0,0,0}, 6, -1 },
     { "KILNBACK", "NIBBLE", "SLAGBURST", 38, 17, 13, 16, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.2f, 0.9f, 0, {0,0,0,0}, 4, -1 },
+    { "LIEUTENANT LEAD", "BURST FIRE", "SUPPRESSING FIRE", 20, 7, 7, 3, 3, ATK_STR, ATK_STR, 1.5f, 1.0f, 1.2f, 0.9f, 0, {0,0,0,0}, 0, -1 },
 };
 
