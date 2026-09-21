@@ -14,10 +14,11 @@ jobs:
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add content/dialogue.json src/game/types.ts ports/dreamcast/src tools/patch_lead_speaker.py
+          git add content/dialogue.json src/game/types.ts ports/dreamcast/src \
+            tools/bake_content.py tools/patch_lead_speaker.py
           git status
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Speaker map: lead = Lieutenant Lead; rebake content"
+          git commit -m "Speaker map: lead/system in dialogue + bake SPEAKER; rebake"
           git push
       - name: Ship Pages + CDI
         run: |
