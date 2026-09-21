@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=87c253833750999b — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=931f1412579f6ca2 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -35,9 +35,9 @@ static const char *const map_house_rows[] = {
 
 static const char *const map_veld_rows[] = {
     "##############################",
-    "####..........RRRR..........##",
-    "##.Q.^^.......rrrr......WWW.##",
-    "##............HDHH.....WWA..##",
+    "####.............R..........##",
+    "##.Q.^^......L...r......WWW.##",
+    "##...............H.....WWA..##",
     "##..K.........===...I...W....#",
     "##...TTT.....=====.....TTT..G#",
     "##...TTT....===,===....TTT...#",
