@@ -441,14 +441,16 @@ after the father/Heavenfall choice. **New spec:**
   user asked for that explicitly — **this doc is that explicit ask.**
   `docs/CRYMON.md`'s story-lock section should get a one-line update
   reflecting that, in whichever commit actually implements this.
-- `commanderFinal` (the old single gauntlet boss) isn't mentioned in
-  this redesign at all — decide with the user whether it's kept as an
-  earlier beat, folded into one of the 5 grass maps, or removed;
-  don't unilaterally delete a working boss fight without asking.
+- **`commanderFinal` — REMOVED (user decision 2026-09-21).** Do not
+  keep as an earlier beat and do not fold into the grass maps. When
+  2.4 is implemented, strip the old gauntlet Commander trainer/NPC/
+  `beatCommander` endgame beat; the only climax is Heavenfall at the
+  gravestone (Slayer/Tamer). Until 2.4 lands, leave the live
+  `commanderFinal` fight in place so the current endgame still works.
 
 **Largest item in Leg 2, most open design questions. Do not start
-implementing until the two open questions above (choice-screen timing,
-`commanderFinal`'s fate) are answered by the user** — this is the one
+implementing until the remaining open question above (choice-screen timing)
+is answered by the user (`commanderFinal` is decided: **remove**)** — this is the one
 place in Leg 2 where guessing wrong means throwing away real work,
 unlike the smaller items. Proposed sub-steps once answered, mirroring
 the quarry/endgame breakdown shape that worked well all session:
