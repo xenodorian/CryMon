@@ -741,11 +741,17 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append(f"#define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))")
     lines.append("")
     sp = {s: i for i, s in enumerate(species_order(data))}
+    # Sized from the data, not a guessed constant: gauntlet5's finale pool
+    # (26 of 29 species) already blew past a hardcoded 8 once, silently
+    # truncated by the C compiler's "excess elements in array initializer"
+    # (a warning, not an error) with zero runtime signal that most of the
+    # pool was gone. Never hardcode this again.
+    pool_cap = max((len(e["pool"]) for e in world["encounters"]), default=1)
     lines.append("typedef struct {")
     lines.append("    int map_id;")
     lines.append("    char tile;")
     lines.append("    int rate;")
-    lines.append("    int pool[8];")
+    lines.append(f"    int pool[{pool_cap}];")
     lines.append("    int pool_n;")
     lines.append("    int lv_min, lv_max;")
     lines.append("    int ty_bonus_gt; /* -1 none */")
@@ -755,7 +761,7 @@ def bake_world(data: dict, out: Path) -> None:
     for e in world["encounters"]:
         pool = e["pool"]
         ids = [sp[s] for s in pool]
-        while len(ids) < 8:
+        while len(ids) < pool_cap:
             ids.append(0)
         ty = e.get("levelBonusIfTyGt")
         tyv = -1 if ty is None else int(ty)
