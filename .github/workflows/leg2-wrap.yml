@@ -1,0 +1,24 @@
+name: Leg 2 wrap
+on:
+  workflow_dispatch:
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m pip install --user Pillow
+      - name: Content + engine
+        run: python3 tools/patch_leg2_wrap.py
+      - name: Lead art
+        run: python3 tools/gen_lead_art.py
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add -A
+          git status
+          git diff --staged --quiet && echo no changes && exit 0
+          git commit -m "Leg 2 wrap: levelCap 100, Heavenfall wipe Game Over, Lieutenant Lead + art"
+          git push
