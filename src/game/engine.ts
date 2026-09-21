@@ -2820,6 +2820,12 @@ export class CryMon {
 						this.cathleenCaught = true;
 						this.beatCathleen = true;
 					}
+					if (b.foe.species === "heavenfall") {
+						this.titleTamer = true;
+						this.titleSlayer = false;
+						this.beatHeavenfall = true;
+						this.note("The world will know you as Heaven Tamer.");
+					}
 					if (this.party.length < PARTY_MAX) {
 						this.party.push(caught);
 						b.msg = [`${ITEMS[id].name} takes. ${b.foe.name} is yours.`];
@@ -3268,6 +3274,8 @@ export class CryMon {
 	playerDisplayName() {
 		if (this.titleSlayer) return "Heaven Slayer";
 		if (this.titleTamer) return "Heaven Tamer";
+		if (this.titleTamer) return "Heaven Tamer";
+		if (this.titleSlayer) return "Heaven Slayer";
 		if (this.revivedFather) return LOGIC.reputation?.kindName || "Max The Kind";
 		return SPEAKER_NAME.max || "Max";
 	}

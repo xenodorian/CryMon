@@ -4222,7 +4222,7 @@ void main(void) {
     int beat_ruins_keeper = 0, beat_ruins_warden = 0, badge_quartz = 0;
     int beat_quarry_driller = 0;
     int beat_marsh_bog = 0, beat_marsh_reed = 0, badge_opal = 0;
-    int chose_heavenfall = 0, beat_commander = 0;
+    int chose_heavenfall, gauntlet_wipe_regret = 0, beat_commander = 0;
     int revived_father = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
@@ -4456,6 +4456,13 @@ void main(void) {
                     heal_party(party, party_n);
                 }
                 else if(fade_action == FADE_ACTION_LOSS) {
+                    {
+                        int from_g = (map_id >= MAP_GAUNTLET);
+                        if (from_g && chose_heavenfall && !gauntlet_wipe_regret) {
+                            gauntlet_wipe_regret = 1;
+                            /* talk lines need rebake; use short note via talk if available */
+                        }
+                    }
                     heal_party(party, party_n);
                     map_id = MAP_HOUSE;
                     find_mark(MAP_HOUSE, 'U', &col, &row);
@@ -6500,8 +6507,12 @@ void main(void) {
                                     choice_cur = 0;
                                     break;
                                 case POST_ENDING_FINAL:
-                                    find_mark(MAP_GAUNTLET, '2', &col, &row);
-                                    map_id = MAP_GAUNTLET;
+                                /* 2.4: no auto-gauntlet. Heavenfall path unlocks grove entrance. */
+                                if (chose_heavenfall) {
+                                    /* flag already set; player uses grove G when maps rebaked */
+                                }
+                                break;
+                            case POST_ENDING_FINAL_UNUSED:
                                     px = col * TILE + TILE / 2;
                                     py = row * TILE + TILE / 2;
                                     pdir = 0;
