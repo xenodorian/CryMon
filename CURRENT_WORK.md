@@ -1099,6 +1099,17 @@ commit, push) runs next.
 ---
 
 
+
+### Soft-spot pass (Grok C, 2026-09-21)
+
+Fixed:
+- **Lead mark collision:** `lieutenantLead` NPC mark **S** (stump stays **L** on veld).
+- **Flag persistence:** `beatLieutenantLead`, `beatHeavenfall`, `heavenfallRepWarned` in save snapshot + class fields.
+- **2.8:** `applyHeavenfallReviveRep()` applies `reputation.heavenfallRevive` (-25) when
+  Heavenfall is first beaten/caught; first shop after that plays `heavenfallShopWarn`.
+- Trainer kit for Lead uses `{ lead, bench }` shape expected by the web engine.
+- CDI is green on recent main builds; these were the remaining web weak links.
+
 ## Leg 2 wrap → Leg 3 gate (user 2026-09-21, Grok C)
 
 **Before Leg 3 cities/generals, lock these wrap items:**

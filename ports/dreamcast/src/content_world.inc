@@ -1,11 +1,11 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3aca74c56d61ff22 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=fb5f7962f5be77e5 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
 #define XP_PER_LEVEL 4
 #define LEVEL_XP_MUL 10
 #define LEVEL_CAP 100
-#define WILD_LEVEL_CAP 50
+#define WILD_LEVEL_CAP 100
 #define LEVEL_HP 3
 #define LEVEL_STAT 1
 #define CAPTURE_AGL 5
@@ -360,7 +360,7 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 124, -1, -1, 0, -1, 0, 0, -1 },
     { 33, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 125, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, 62, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 127, -1, -1, 7, 14, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 127, -1, -1, 0, 14, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },

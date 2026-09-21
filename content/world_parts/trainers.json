@@ -369,12 +369,11 @@
       "winTalk": "leadWinPlaceholder",
       "set": "beatLieutenantLead",
       "marks": 20,
-      "party": [
-        {
-          "species": "lead",
-          "level": 20
-        }
-      ]
+      "lead": [
+        "lead",
+        20
+      ],
+      "bench": []
     }
   }
 }

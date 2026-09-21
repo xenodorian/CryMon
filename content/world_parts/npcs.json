@@ -1023,7 +1023,7 @@
     },
     {
       "map": "veld",
-      "mark": "L",
+      "mark": "S",
       "id": "lieutenantLead",
       "role": "trainer",
       "sprite": "npc/lead",

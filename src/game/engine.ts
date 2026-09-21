@@ -235,6 +235,8 @@ export class CryMon {
 	beatHeavenfall = false;
 	revivedFather = false;
 	beatCommander = false;
+	beatLieutenantLead = false;
+	heavenfallRepWarned = false;
 	quarryCrateLooted = false;
 	quarryShelfSearched = false;
 	cageOpen = false;
@@ -246,7 +248,7 @@ export class CryMon {
 	dexCaught = 0;
 	dexCursor = 0;
 	dexView = "list";
-	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" };
+	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" };
 	pendingWs = null;
 	choiceCur = 0;
 	shopKeep: string = "bram";
@@ -407,6 +409,8 @@ export class CryMon {
 		this.choseHeavenfall = false;
 		this.revivedFather = false;
 		this.beatCommander = false;
+		this.beatLieutenantLead = false;
+		this.heavenfallRepWarned = false;
 		this.quarryCrateLooted = false;
 		this.quarryShelfSearched = false;
 		this.cageOpen = false;
@@ -819,6 +823,9 @@ export class CryMon {
 				titleTamer: this.titleTamer,
 				revivedFather: this.revivedFather,
 				beatCommander: this.beatCommander,
+				beatLieutenantLead: this.beatLieutenantLead,
+				beatHeavenfall: this.beatHeavenfall,
+				heavenfallRepWarned: this.heavenfallRepWarned,
 			quarryCrateLooted: this.quarryCrateLooted,
 			quarryShelfSearched: this.quarryShelfSearched,
 				beatConscript: this.beatConscript,
@@ -1127,6 +1134,10 @@ export class CryMon {
 		if (flag) this[flag] = true;
 	}
 	openShop(keep: string = "bram") {
+		if (this.beatHeavenfall && !this.heavenfallRepWarned) {
+			this.heavenfallRepWarned = true;
+			this.say(TALK.heavenfallShopWarn || [{ speaker: "none", text: "You revived Heavenfall, who knows what other horrors you are capable of." }]);
+		}
 		this.mode = "shop";
 		this.shopKeep = keep;
 		this.shopTab = "buy";
@@ -2989,6 +3000,7 @@ export class CryMon {
 						this.titleTamer = true;
 						this.titleSlayer = false;
 						this.beatHeavenfall = true;
+						this.applyHeavenfallReviveRep();
 						this.note("The world will know you as Heaven Tamer.");
 					}
 					if (this.party.length < PARTY_MAX) {
@@ -3342,6 +3354,7 @@ export class CryMon {
 				}
 				else if (who === "heavenfallGrave") {
 					this.beatHeavenfall = true;
+						this.applyHeavenfallReviveRep();
 					this.titleSlayer = true;
 					this.titleTamer = false;
 					this.marks += kit?.marks ?? 12;
@@ -3625,6 +3638,18 @@ export class CryMon {
 		}
 		this.reset();
 		this.mode = "title";
+	}
+
+	applyHeavenfallReviveRep() {
+		if (!this.beatHeavenfall) return;
+		// 2.8: apply once when Heavenfall is first beaten/caught at the grave.
+		// Merchant warning uses heavenfallRepWarned separately.
+		const already = (this as { _hfRepApplied?: boolean })._hfRepApplied;
+		if (already) return;
+		(this as { _hfRepApplied?: boolean })._hfRepApplied = true;
+		const delta =
+			(LOGIC as { reputation?: { heavenfallRevive?: number } }).reputation?.heavenfallRevive ?? -25;
+		this.adjustReputation(delta);
 	}
 	playerDisplayName() {
 		if (this.titleSlayer) return "Heaven Slayer";
