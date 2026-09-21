@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=51ba62db27cf3270 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=a81211a43cee9185 — do not edit. python3 tools/bake_content.py */
 
 #define ITEM_COUNT 13
 static const ItemDef ITEMS[ITEM_COUNT] = {
@@ -10,10 +10,10 @@ static const ItemDef ITEMS[ITEM_COUNT] = {
     { "SUNBALM", 18, 9 },
     { "WARROOT", 8, 4 },
     { "SMOKE BOMB", 12, 6 },
-    { "GREATER CAPTURE CRYSTAL", 50, 25 },
+    { "GREATER CAPTURE CRYSTAL", 58, 29 },
     { "CAGE KEY", 0, 0 },
-    { "MEGA CAPTURE CRYSTAL", 100, 50 },
-    { "ULTIMATE CAPTURE CRYSTAL", 250, 125 },
+    { "MEGA CAPTURE CRYSTAL", 125, 63 },
+    { "ULTIMATE CAPTURE CRYSTAL", 395, 197 },
     { "PERFECT CAPTURE CRYSTAL", 0, 0 },
 };
 

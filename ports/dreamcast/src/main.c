@@ -3125,7 +3125,7 @@ static int try_encounter(int map_id, int px, int py, int party_n,
                           int *enc_lock, int *last_tx, int *last_ty,
                           Battle *out) {
     int tx = px / TILE, ty = py / TILE;
-    int id, lv, n, i;
+    int id, lv, n, i, shiny;
     const EncDef *e = 0;
 
     if(tx == *last_tx && ty == *last_ty) return 0;
@@ -3149,7 +3149,16 @@ static int try_encounter(int map_id, int px, int py, int party_n,
     lv = e->lv_min + irand(0, e->lv_max - e->lv_min);
     if(e->ty_bonus_gt >= 0 && ty > e->ty_bonus_gt) lv += 1;
 
-    out->foe = roll_shiny() ? mint_shiny(id, lv) : mint_monster(id, lv);
+    /* mint_shiny() doubles whatever level it's given, so the pre-mint
+       cap must already account for that doubling -- halve
+       WILD_LEVEL_CAP going in, not after, or a shiny roll could still
+       land above the cap. */
+    shiny = roll_shiny();
+    {
+        int cap = shiny ? WILD_LEVEL_CAP / 2 : WILD_LEVEL_CAP;
+        if(lv > cap) lv = cap;
+    }
+    out->foe = shiny ? mint_shiny(id, lv) : mint_monster(id, lv);
     out->wild = 1;
     out->trainer_kind = TRAINER_WILD;
     out->soldier_id = 0;
@@ -6512,13 +6521,6 @@ void main(void) {
                                     /* flag already set; player uses grove G when maps rebaked */
                                 }
                                 break;
-                            case POST_ENDING_FINAL_UNUSED:
-                                    px = col * TILE + TILE / 2;
-                                    py = row * TILE + TILE / 2;
-                                    pdir = 0;
-                                    door_lock = 20;
-                                    map_banner_timer = MAP_BANNER_TOTAL;
-                                    break;
                                 case POST_CREDITS_FINAL:
                                     ending_mode = 1;
                                     ending_i = 0;

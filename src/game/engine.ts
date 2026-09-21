@@ -54,7 +54,8 @@ import {
   frand,
   unlockedMoves,
   natureMatchNames,
-  MERCY_DISMISS
+  MERCY_DISMISS,
+  FORMULAS
 } from "./data";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
@@ -1813,6 +1814,12 @@ export class CryMon {
 		let lv = rule.levelMin + randI(0, Math.max(0, rule.levelMax - rule.levelMin));
 		if (rule.levelBonusIfTyGt && ty > rule.levelBonusIfTyGt) lv += 1;
 		const shiny = rollShiny();
+		/* mintMonster doubles the level it's given when shiny=true (see its
+		   own body), so the pre-mint cap must already account for that
+		   doubling -- halve WILD_LEVEL_CAP going in, not after, or a shiny
+		   roll could still come out above the cap. */
+		const cap = shiny ? Math.floor(FORMULAS.wildLevelCap / 2) : FORMULAS.wildLevelCap;
+		lv = Math.min(lv, cap);
 		this.startBattle(mintMonster(id, lv, shiny), true, `A ${shiny ? "shiny " : "wild "}${SPECIES[id].name}`);
 	}
 	nearMark(map, mark, radius = 52) {

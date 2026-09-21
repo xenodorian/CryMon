@@ -20,7 +20,8 @@
       "mintGrow": "1 + (level - mintBaseLevel) * (species.str / 100)",
       "shiny": "1/shinyDenom",
       "benchXp": "lead full XP; other living party members floor(xp * benchXpShare)",
-      "nature": "on mint: +str/+agl/+spc from logic.json natures[i]; hardy is 0; stored in party slot byte 12"
+      "nature": "on mint: +str/+agl/+spc from logic.json natures[i]; hardy is 0; stored in party slot byte 12",
+      "wildLevelCap": "hard ceiling on any wild-encounter mint, applied after levelBonusIfTyGt and shiny doubling -- no encounter table currently rolls anywhere near it, this is a safety clamp"
     },
     "captureAgl": 5,
     "captureVulnerable": 25,
@@ -28,6 +29,7 @@
     "xpPerLevel": 4,
     "levelXpMul": 10,
     "levelCap": 100,
+  "wildLevelCap": 50,
     "levelHp": 3,
     "levelStat": 1,
     "mintGrowPerLevel": 0.12,

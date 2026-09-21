@@ -40,6 +40,7 @@ export const FORMULAS = worldJson.formulas as typeof worldJson.formulas & {
   xpPerLevel: number;
   levelXpMul: number;
   levelCap: number;
+  wildLevelCap: number;
   levelHp: number;
   levelStat: number;
   mintGrowPerLevel: number;

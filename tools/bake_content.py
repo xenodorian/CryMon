@@ -630,6 +630,7 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append(f"#define XP_PER_LEVEL {int(f['xpPerLevel'])}")
     lines.append(f"#define LEVEL_XP_MUL {int(f['levelXpMul'])}")
     lines.append(f"#define LEVEL_CAP {int(f['levelCap'])}")
+    lines.append(f"#define WILD_LEVEL_CAP {int(f.get('wildLevelCap') or f['levelCap'])}")
     lines.append(f"#define LEVEL_HP {int(f['levelHp'])}")
     lines.append(f"#define LEVEL_STAT {int(f['levelStat'])}")
     lines.append(f"#define CAPTURE_AGL {int(f['captureAgl'])}")

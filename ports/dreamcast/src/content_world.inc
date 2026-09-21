@@ -1,10 +1,11 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=51ba62db27cf3270 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=a81211a43cee9185 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
 #define XP_PER_LEVEL 4
 #define LEVEL_XP_MUL 10
 #define LEVEL_CAP 100
+#define WILD_LEVEL_CAP 50
 #define LEVEL_HP 3
 #define LEVEL_STAT 1
 #define CAPTURE_AGL 5
@@ -139,10 +140,10 @@ static const ItemFx ITEM_FX[] = {
     { 1, 40, 0, 0, 0, 100 },
     { 2, 0, 0, 4, 0, 100 },
     { 5, 0, 0, 0, 0, 100 },
-    { 4, 0, 0, 0, 0, 130 },
+    { 4, 0, 0, 0, 0, 150 },
     { 0, 0, 0, 0, 0, 100 },
-    { 4, 0, 0, 0, 0, 160 },
-    { 4, 0, 0, 0, 0, 190 },
+    { 4, 0, 0, 0, 0, 200 },
+    { 4, 0, 0, 0, 0, 300 },
     { 4, 0, 0, 0, 0, 1000 },
 };
 
