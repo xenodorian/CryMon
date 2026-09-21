@@ -945,12 +945,8 @@
       "winTalk": "leadWinPlaceholder",
       "set": "beatLieutenantLead",
       "marks": 20,
-      "party": [
-        {
-          "species": "lead",
-          "level": 20
-        }
-      ]
+      "lead": ["lead", 20],
+      "bench": []
     }
   },
   "npcs": [
@@ -1977,7 +1973,7 @@
     },
     {
       "map": "veld",
-      "mark": "L",
+      "mark": "S",
       "id": "lieutenantLead",
       "role": "trainer",
       "sprite": "npc/lead",
@@ -1989,6 +1985,7 @@
         },
         {
           "talk": "leadSpot",
+          "after": "wsoldier",
           "pending": "lieutenantLead"
         }
       ]

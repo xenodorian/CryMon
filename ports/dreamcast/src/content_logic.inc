@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=af11b0bb8f256dc2 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=dc1755d049d06b22 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -7,6 +7,7 @@
 #define LOGIC_REP_MIN -100
 #define LOGIC_REP_MAX 100
 #define LOGIC_REP_FATHER_REVIVE 25
+#define LOGIC_REP_HEAVENFALL_REVIVE -25
 #define LOGIC_REP_KIND_NAME "MAX THE KIND"
 #define LOGIC_REP_PRICE_POS_PCT 1
 #define LOGIC_REP_PRICE_NEG_PCT 5

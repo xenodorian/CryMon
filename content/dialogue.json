@@ -1345,6 +1345,12 @@
         "text": "Not after what you have done."
       }
     ],
+    "heavenfallShopWarn": [
+      {
+        "speaker": "none",
+        "text": "You revived Heavenfall, who knows what other horrors you are capable of."
+      }
+    ],
     "mercyThreaten": [
       {
         "speaker": "none",
