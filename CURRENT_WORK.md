@@ -253,17 +253,20 @@ it's updated after every commit this run.
 (2.0 art debt isn't on this list — it's assigned to ChatGPT/Grok, not
 a coding task for me.)
 
-**Current position:** 2.1, 2.3, 2.5, 2.6, and 2.2 (audio bug found +
-fixed, see above, not hardware-verified) DONE and pushed. 2.9.1
-(dismissal dialogue pool) and 2.7 sub-step 1 (bare `reputation` save
-field) also DONE and pushed. **2.7 sub-step 2 (father-revival
-dialogue + teleport-back + reputation +25) DONE (Grok A), pushed.**
-**2.7 sub-step 5 ("Max The Kind" display-name override) DONE (Grok A),
-pushed.** **2.10 (reputation's economic effects) DONE (Grok A), pushed.**
-**2.0 partial (Grok A): crystals, Driller world frames, and Dray
-world+portrait shipped; 16 files remain.** **2.9.2–2.9.4 DONE (Grok), pushed** (UI, effects, permanent execute-delete mask). **2.9 fully DONE (Grok C)** (UI, effects, execute-delete, red fade/scream, integration). 2.7 sub-steps 3+ (second
-controllable party), 2.4 (gauntlet redesign), 2.8 (blocked on 2.4),
-and Leg 3 stay out of scope until assigned.
+**Current position (updated by Claude B, 2026-09-21):** **Leg 2 is
+essentially complete.** 2.1, 2.2 (audio bug found + fixed, not
+hardware-verified), 2.3, 2.5, 2.6, 2.9 (mercy/threaten/execute —
+UI, all 4 branch effects, permanent execute-delete, red-fade+scream
+both engines, integration), 2.7 (reputation field, father-revival
+scene, second-party data model, Tab/Q party swap, "Max The Kind"
+rename), 2.10 (buy AND sell price reputation scaling), and 2.0 (art
+debt fully cleared, `ART_NEEDED.md` dropped) are all DONE and pushed.
+2.4 (gauntlet redesign — mazes, Shinigami unlock via Heavenfall path,
+wipe-regret dialogue, grave, commanderFinal removed) has landed too,
+**actively being worked on/iterated by another agent — leave it
+alone.** Only 2.8 (Heavenfall-revival reputation effect, needs 2.4's
+gauntlet to exist — it does now, so this is likely unblocked) and all
+of Leg 3 remain genuinely unclaimed.
 
 ---
 
