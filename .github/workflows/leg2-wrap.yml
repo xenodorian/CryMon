@@ -9,16 +9,15 @@ jobs:
       actions: write
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/patch_lead_speaker.py
+      - run: python3 tools/patch_soft_spots.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add content/dialogue.json src/game/types.ts ports/dreamcast/src \
-            tools/bake_content.py tools/patch_lead_speaker.py
+          git add -A
           git status
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Speaker map: lead/system in dialogue + bake SPEAKER; rebake"
+          git commit -m "Soft-spot pass: Lead mark S, flag save, 2.8 rep+shop warn"
           git push
       - name: Ship Pages + CDI
         run: |
