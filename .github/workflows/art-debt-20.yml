@@ -1,0 +1,41 @@
+name: Art debt 2.0
+on:
+  workflow_dispatch:
+jobs:
+  art:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Pillow
+        run: python3 -m pip install --user Pillow
+      - name: Generate sprites
+        run: python3 tools/gen_art_debt_2_0.py
+      - name: Update CURRENT_WORK
+        run: |
+          python3 -c "
+          from pathlib import Path
+          p = Path('CURRENT_WORK.md')
+          t = p.read_text()
+          needle = 'Remaining: marsh NPC world frames'
+          if needle in t:
+              t = t.replace(
+                  '**Partial (Grok A):**',
+                  '**DONE (Grok C) — marsh frames/portraits + quartz-2 shipped; prior:**',
+                  1,
+              )
+              p.write_text(t)
+              print('updated')
+          else:
+              print('no anchor')
+          "
+      - name: Commit and push
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add -A public/sprites/npc public/sprites/portraits CURRENT_WORK.md
+          git status
+          git diff --staged --quiet && echo no changes && exit 0
+          git commit -m "Art 2.0: bogwalker/reedguard/fenn frames+portraits, quartz-2"
+          git push
