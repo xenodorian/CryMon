@@ -8,13 +8,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/patch_cw_commander.py || true
-      - run: python3 tools/patch_cw_choice.py
+      - run: python3 tools/patch_cw_gauntlet_design.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
           git add CURRENT_WORK.md
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Leg 2.4 decisions: choice stays; Father=cutscene+party; Heavenfall=unlock gauntlet; no Commander"
+          git commit -m "Leg 2.4 design: long thin maze maps; first wipe Max regrets Father path"
           git push
