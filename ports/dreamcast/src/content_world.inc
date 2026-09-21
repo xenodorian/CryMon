@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=723f08fd46539b6f — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=5be0f8e743ed8002 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -48,6 +48,18 @@ static const WarpDef WARPS[] = {
     { MAP_MARSH, MAP_FOREST, 'Y', 'm', 0, 0, 0, -1 },
     { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 1, 0, 0, -1 },
     { MAP_QUARRY, MAP_CLIFFS, 'D', 'q', 0, 0, 0, -1 },
+    { MAP_GROVE, MAP_GAUNTLET1, 'G', '2', 1, 0, 0, 121 },
+    { MAP_GAUNTLET1, MAP_GROVE, '2', 'G', 0, 0, 0, -1 },
+    { MAP_GAUNTLET1, MAP_GAUNTLET2, '1', '2', 1, 0, 0, -1 },
+    { MAP_GAUNTLET2, MAP_GAUNTLET1, '2', '1', 0, 0, 0, -1 },
+    { MAP_GAUNTLET2, MAP_GAUNTLET3, '1', '2', 1, 0, 0, -1 },
+    { MAP_GAUNTLET3, MAP_GAUNTLET2, '2', '1', 0, 0, 0, -1 },
+    { MAP_GAUNTLET3, MAP_GAUNTLET4, '1', '2', 1, 0, 0, -1 },
+    { MAP_GAUNTLET4, MAP_GAUNTLET3, '2', '1', 0, 0, 0, -1 },
+    { MAP_GAUNTLET4, MAP_GAUNTLET5, '1', '2', 1, 0, 0, -1 },
+    { MAP_GAUNTLET5, MAP_GAUNTLET4, '2', '1', 0, 0, 0, -1 },
+    { MAP_GAUNTLET5, MAP_GAUNTLET6, '1', '2', 1, 0, 0, -1 },
+    { MAP_GAUNTLET6, MAP_GAUNTLET5, '2', '1', 0, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
 
@@ -70,8 +82,13 @@ static const EncDef ENCOUNTERS[] = {
     { MAP_REACH, 'T', 22, { 18,8,10,14,17,4,0,0 }, 6, 8, 11, -1 },
     { MAP_MARSH, 'T', 18, { 6,0,4,0,0,0,0,0 }, 3, 4, 6, -1 },
     { MAP_QUARRY, 'T', 18, { 20,23,22,0,0,0,0,0 }, 3, 5, 7, -1 },
+    { MAP_GAUNTLET1, 'T', 22, { 0,1,20,11,0,0,0,0 }, 4, 8, 11, -1 },
+    { MAP_GAUNTLET2, 'T', 22, { 3,5,6,22,0,0,0,0 }, 4, 10, 13, -1 },
+    { MAP_GAUNTLET3, 'T', 22, { 7,4,16,25,0,0,0,0 }, 4, 12, 15, -1 },
+    { MAP_GAUNTLET4, 'T', 22, { 15,14,18,24,0,0,0,0 }, 4, 14, 17, -1 },
+    { MAP_GAUNTLET5, 'T', 25, { 0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,27 }, 26, 16, 20, -1 },
 };
-#define ENC_N 9
+#define ENC_N 14
 
 typedef struct {
     int lead_sp, lead_lv;
@@ -196,7 +213,12 @@ static const int SHOP_CRYSTAL_MASK[] = {
 #define FLAG_SHOP_FREE_OREN 54
 #define FLAG_SHOP_FREE_FENN 55
 #define FLAG_SHOP_FREE_DRAY 56
-#define FLAG_N 57
+#define FLAG_GAUNTLET_UNLOCKED 57
+#define FLAG_GAUNTLET_WIPE_REGRET 58
+#define FLAG_TITLE_SLAYER 59
+#define FLAG_TITLE_TAMER 60
+#define FLAG_BEAT_HEAVENFALL 61
+#define FLAG_N 62
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -320,11 +342,10 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 109, -1, -1, 7, 11, 0, 0, -1 },
     { 49, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 112, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 111, -1, -1, 7, 12, 0, 0, -1 },
-    { 51, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 115, -1, -1, 0, -1, 0, 0, -1 },
-    { 50, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 114, -1, -1, 7, 13, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 113, -1, -1, 7, 13, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 116, -1, -1, 2, 2, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 117, -1, -1, 2, 3, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 123, -1, -1, 0, -1, 0, 0, -1 },
+    { 33, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 124, -1, -1, 0, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -367,9 +388,9 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_REACH, 'Q', 80, 2, 30, 32 },
     { MAP_REACH, 'O', 82, 2, 30, 32 },
     { MAP_QUARRY, '1', 84, 2, 30, 32 },
-    { MAP_GAUNTLET, '1', 86, 3, 30, 32 },
-    { MAP_MARSH, 'F', 89, 1, 30, 32 },
-    { MAP_CAMP, 'S', 90, 1, 30, 32 },
+    { MAP_MARSH, 'F', 86, 1, 30, 32 },
+    { MAP_CAMP, 'S', 87, 1, 30, 32 },
+    { MAP_GAUNTLET6, 'G', 88, 2, 30, 32 },
 };
 #define NPC_DEF_N 43
 #define INTERACT_BUFFER 20

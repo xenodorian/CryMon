@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=723f08fd46539b6f — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=5be0f8e743ed8002 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -512,6 +512,26 @@ static const TalkBeat TALK_MERCY_THREATEN[] = {
 static const TalkBeat TALK_MERCY_EXECUTE[] = {
     { "NO SURVIVORS, NO WITNESSES.", 1 },
 };
+static const TalkBeat TALK_GAUNTLET_LOCKED[] = {
+    { "THE PATH BEHIND SHINIGAMI IS SEALED.", 35 },
+    { "ONLY THOSE WHO SOUGHT HEAVENFALL MAY PASS.", 35 },
+};
+static const TalkBeat TALK_GAUNTLET_WIPE_REGRET[] = {
+    { "I CHOSE POWER OVER FATHER'S LIFE.", 1 },
+    { "I THOUGHT HEAVENFALL WAS WORTH ANY PRICE.", 1 },
+    { "NOW I WALK THIS PATH ALONE.", 1 },
+    { "FATHER... I WISH YOU WERE STILL HERE.", 1 },
+};
+static const TalkBeat TALK_GAUNTLET_GRAVE_NEED_SCROLL[] = {
+    { "A COLD GRAVESTONE. THE RUNES ITCH FOR THE SCROLL.", 35 },
+};
+static const TalkBeat TALK_GAUNTLET_GRAVE_RISE[] = {
+    { "THE SCROLL BURNS. THE EARTH ANSWERS.", 35 },
+    { "HEAVENFALL RISES.", 35 },
+};
+static const TalkBeat TALK_GAUNTLET_GRAVE_WIN[] = {
+    { "HEAVENFALL FALLS. THE PATH OF POWER IS PAID IN FULL.", 1 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE GROVE, THE SCROLL EMPTY IN HER HANDS.",
@@ -650,6 +670,11 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_SHOP_REFUSE,
     TALK_MERCY_THREATEN,
     TALK_MERCY_EXECUTE,
+    TALK_GAUNTLET_LOCKED,
+    TALK_GAUNTLET_WIPE_REGRET,
+    TALK_GAUNTLET_GRAVE_NEED_SCROLL,
+    TALK_GAUNTLET_GRAVE_RISE,
+    TALK_GAUNTLET_GRAVE_WIN,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -773,6 +798,11 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_SHOP_REFUSE),
     TALK_LEN(TALK_MERCY_THREATEN),
     TALK_LEN(TALK_MERCY_EXECUTE),
+    TALK_LEN(TALK_GAUNTLET_LOCKED),
+    TALK_LEN(TALK_GAUNTLET_WIPE_REGRET),
+    TALK_LEN(TALK_GAUNTLET_GRAVE_NEED_SCROLL),
+    TALK_LEN(TALK_GAUNTLET_GRAVE_RISE),
+    TALK_LEN(TALK_GAUNTLET_GRAVE_WIN),
 };
-#define TALK_TABLE_N 121
+#define TALK_TABLE_N 126
 

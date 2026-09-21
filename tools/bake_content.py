@@ -53,6 +53,7 @@ SPEAKER = {
     "driller": 32,
     "fenn": 33,
     "dray": 34,
+    "system": 35,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
