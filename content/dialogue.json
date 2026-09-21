@@ -1398,6 +1398,12 @@
         "speaker": "system",
         "text": "Heavenfall rises."
       }
+    ],
+    "gauntletGraveWin": [
+      {
+        "speaker": "max",
+        "text": "Heavenfall falls. The path of power is paid in full."
+      }
     ]
   },
   "endingWinHeavenfall": [

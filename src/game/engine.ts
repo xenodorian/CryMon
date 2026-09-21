@@ -227,6 +227,7 @@ export class CryMon {
 	badgeOpal = false;
 	beatQuarryDriller = false;
 	choseHeavenfall = false;
+	beatHeavenfall = false;
 	revivedFather = false;
 	beatCommander = false;
 	quarryCrateLooted = false;
@@ -1863,6 +1864,7 @@ export class CryMon {
 		if (need === "beatCalder") return this.beatCalder;
 		if (need === "beatShin") return this.beatShinigami;
 		if (need === "hasScroll") return this.hasScroll;
+		if (need === "choseHeavenfall") return this.choseHeavenfall || this.gauntletUnlocked;
 		if (need === "foughtMason") return this.foughtMason;
 		if (need === "hasParty") return this.party.length >= 1;
 		return true;
@@ -3085,6 +3087,7 @@ export class CryMon {
 			opal: ["wsoldier", "opal"],
 			quarryDriller: ["wsoldier", "quarryDriller"],
 			commanderFinal: ["wsoldier", "commanderFinal"],
+			heavenfallGrave: ["wsoldier", "heavenfallGrave"],
 			soldier1: ["soldier", "soldier1"],
 			soldier2: ["soldier", "soldier2"],
 			soldier3: ["soldier", "soldier3"]
