@@ -3675,6 +3675,33 @@ static int npc_exec_bit(int map_id, char mark) {
     if(map_id == MAP_QUARRY && mark == '1') return 16;
     return -1;
 }
+/* Map trainer_kind (+ soldier_id for the generic TRAINER_SOLDIER case)
+ * to the same g_executed_mask bit npc_exec_bit() assigns that NPC on
+ * the map, so executing a trainer in battle actually hides them
+ * afterward. Needed because trainer_kind alone doesn't distinguish
+ * which of the 3 forest patrol soldiers it was -- soldier_id (their
+ * index in soldiers[], 0-2) does, and lines up directly with
+ * npc_exec_bit()'s forest marks '1'/'2'/'3' -> bits 1/2/3. */
+static int mercy_exec_bit(int trainer_kind, int soldier_id) {
+    switch(trainer_kind) {
+        case TRAINER_CALDER: return 0;
+        case TRAINER_SOLDIER: return (soldier_id >= 0 && soldier_id <= 2) ? soldier_id + 1 : -1;
+        case TRAINER_WSOLDIER_CLIFFS: return 4;
+        case TRAINER_WSOLDIER_CAMP1: return 5;
+        case TRAINER_WSOLDIER_CAMP2: return 6;
+        case TRAINER_WSOLDIER_GROVE: return 7;
+        case TRAINER_WSOLDIER_RANGER: return 8;
+        case TRAINER_WSOLDIER_SCOUT: return 9;
+        case TRAINER_WSOLDIER_KEEPER: return 10;
+        case TRAINER_WSOLDIER_WARDEN: return 11;
+        case TRAINER_WSOLDIER_MARSH_BOG: return 12;
+        case TRAINER_WSOLDIER_MARSH_REED: return 13;
+        case TRAINER_WSOLDIER_QUARTZ: return 14;
+        case TRAINER_WSOLDIER_OPAL: return 15;
+        case TRAINER_WSOLDIER_QUARRY_DRILLER: return 16;
+        default: return -1; /* wild/Mason/Mason2/Shinigami/commanderFinal: no exec bit */
+    }
+}
 static int try_npc_script(NpcRun *R) {
     unsigned char used[64];
     int i, guard;
@@ -5602,10 +5629,10 @@ void main(void) {
                     sa = bag_field(&bag, a); sb = bag_field(&bag, b);
                     if(sa) (*sa)++;
                     if(sb) (*sb)++;
-                    /* Permanent delete bit from last trainer_kind. */
-                    if(battle.trainer_kind == TRAINER_CALDER) ebit = 0;
-                    else if(battle.trainer_kind >= 10) ebit = battle.trainer_kind; /* coarse */
-                    else ebit = battle.trainer_kind;
+                    /* Permanent delete bit from last trainer_kind -- must
+                       match npc_exec_bit()'s scheme or the executed NPC
+                       never actually gets hidden on the map. */
+                    ebit = mercy_exec_bit(battle.trainer_kind, battle.soldier_id);
                     if(ebit >= 0 && ebit < 31) g_executed_mask |= (1u << ebit);
                     chip_sfx_faint(); /* stand-in scream until dedicated SFX exists */
                     g_mercy_red_fade = 1;
