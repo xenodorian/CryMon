@@ -8,12 +8,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/patch_rep_hud.py
+      - run: python3 tools/patch_touch_input.py
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add src/game/engine.ts ports/dreamcast/src/main.c
+          git add src/game/input.ts src/components/crymon-app.tsx
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "HUD: show reputation (Rep +/-N) on web + Dreamcast"
+          git commit -m "Input: snappier touch virtual buttons (pointerdown, faster d-pad repeat)"
           git push
