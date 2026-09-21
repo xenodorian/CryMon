@@ -10,7 +10,13 @@
     "reach": "THE REACH",
     "marsh": "THE MARSH",
     "quarry": "THE QUARRY",
-    "gauntlet": "THE GAUNTLET"
+    "gauntlet": "GAUNTLET 1",
+    "gauntlet1": "GAUNTLET 1",
+    "gauntlet2": "GAUNTLET 2",
+    "gauntlet3": "GAUNTLET 3",
+    "gauntlet4": "GAUNTLET 4",
+    "gauntlet5": "GAUNTLET 5",
+    "gauntlet6": "THE GRAVE"
   },
   "mapIds": [
     "house",
@@ -23,6 +29,12 @@
     "reach",
     "marsh",
     "quarry",
-    "gauntlet"
+    "gauntlet",
+    "gauntlet1",
+    "gauntlet2",
+    "gauntlet3",
+    "gauntlet4",
+    "gauntlet5",
+    "gauntlet6"
   ]
 }

@@ -58,7 +58,13 @@
     "reach": "THE REACH",
     "marsh": "THE MARSH",
     "quarry": "THE QUARRY",
-    "gauntlet": "THE GAUNTLET"
+    "gauntlet": "GAUNTLET 1",
+    "gauntlet1": "GAUNTLET 1",
+    "gauntlet2": "GAUNTLET 2",
+    "gauntlet3": "GAUNTLET 3",
+    "gauntlet4": "GAUNTLET 4",
+    "gauntlet5": "GAUNTLET 5",
+    "gauntlet6": "THE GRAVE"
   },
   "mapIds": [
     "house",
@@ -71,7 +77,13 @@
     "reach",
     "marsh",
     "quarry",
-    "gauntlet"
+    "gauntlet",
+    "gauntlet1",
+    "gauntlet2",
+    "gauntlet3",
+    "gauntlet4",
+    "gauntlet5",
+    "gauntlet6"
   ],
   "encounters": [
     {
@@ -208,6 +220,103 @@
       ],
       "levelMin": 5,
       "levelMax": 7
+    },
+    {
+      "maps": [
+        "gauntlet1"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "quillpup",
+        "glimmoth",
+        "peatling",
+        "emberling"
+      ],
+      "levelMin": 8,
+      "levelMax": 11
+    },
+    {
+      "maps": [
+        "gauntlet2"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "razorbat",
+        "briarfox",
+        "fenwisp",
+        "glowcap"
+      ],
+      "levelMin": 10,
+      "levelMax": 13
+    },
+    {
+      "maps": [
+        "gauntlet3"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "duskhorn",
+        "mossback",
+        "thornhide",
+        "cindermite"
+      ],
+      "levelMin": 12,
+      "levelMax": 15
+    },
+    {
+      "maps": [
+        "gauntlet4"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "sableclaw",
+        "stormwing",
+        "ashenmaw",
+        "gravelurk"
+      ],
+      "levelMin": 14,
+      "levelMax": 17
+    },
+    {
+      "maps": [
+        "gauntlet5"
+      ],
+      "tile": "T",
+      "rate": 0.25,
+      "pool": [
+        "quillpup",
+        "glimmoth",
+        "tortcask",
+        "razorbat",
+        "mossback",
+        "briarfox",
+        "fenwisp",
+        "duskhorn",
+        "needleroot",
+        "crymare",
+        "emberling",
+        "frostail",
+        "boulderam",
+        "stormwing",
+        "sableclaw",
+        "thornhide",
+        "glasswisp",
+        "ashenmaw",
+        "peatling",
+        "mireback",
+        "glowcap",
+        "slatekin",
+        "gravelurk",
+        "cindermite",
+        "veilcap",
+        "kilnback"
+      ],
+      "levelMin": 16,
+      "levelMax": 20
     }
   ],
   "warps": [
@@ -362,6 +471,104 @@
       "tile": "D",
       "to": "cliffs",
       "spawn": "q",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "grove",
+      "tile": "G",
+      "to": "gauntlet1",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40,
+      "need": "choseHeavenfall",
+      "failTalk": "gauntletLocked"
+    },
+    {
+      "from": "gauntlet1",
+      "tile": "2",
+      "to": "grove",
+      "spawn": "G",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet1",
+      "tile": "1",
+      "to": "gauntlet2",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet2",
+      "tile": "2",
+      "to": "gauntlet1",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet2",
+      "tile": "1",
+      "to": "gauntlet3",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet3",
+      "tile": "2",
+      "to": "gauntlet2",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet3",
+      "tile": "1",
+      "to": "gauntlet4",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet4",
+      "tile": "2",
+      "to": "gauntlet3",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet4",
+      "tile": "1",
+      "to": "gauntlet5",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet5",
+      "tile": "2",
+      "to": "gauntlet4",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet5",
+      "tile": "1",
+      "to": "gauntlet6",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet6",
+      "tile": "2",
+      "to": "gauntlet5",
+      "spawn": "1",
       "dir": "up",
       "oy": -32
     }
@@ -717,6 +924,18 @@
       "marks": 25,
       "winTalk": "commanderFinalWin",
       "set": "beatCommander"
+    },
+    "heavenfallGrave": {
+      "title": "Heavenfall answers the scroll",
+      "name": "Heavenfall",
+      "winTalk": "gauntletGraveWin",
+      "set": "beatHeavenfall",
+      "party": [
+        {
+          "species": "heavenfall",
+          "level": 20
+        }
+      ]
     }
   },
   "npcs": [
@@ -1696,32 +1915,6 @@
       ]
     },
     {
-      "map": "gauntlet",
-      "mark": "1",
-      "id": "commanderFinal",
-      "role": "trainer",
-      "sprite": "npc/commander",
-      "talk": "commanderFinalSpotFather",
-      "talkDone": "commanderFinalWin",
-      "script": [
-        {
-          "if": "beatCommander",
-          "talk": "commanderFinalWin"
-        },
-        {
-          "if": "choseHeavenfall",
-          "talk": "commanderFinalSpotHeavenfall",
-          "after": "wsoldier",
-          "pending": "commanderFinal"
-        },
-        {
-          "talk": "commanderFinalSpotFather",
-          "after": "wsoldier",
-          "pending": "commanderFinal"
-        }
-      ]
-    },
-    {
       "map": "marsh",
       "mark": "F",
       "id": "fenn",
@@ -1746,6 +1939,24 @@
         {
           "talk": "drayOpen",
           "after": "shop:dray"
+        }
+      ]
+    },
+    {
+      "map": "gauntlet6",
+      "mark": "G",
+      "id": "gravestone",
+      "sprite": "",
+      "talk": "gauntletGraveNeedScroll",
+      "script": [
+        {
+          "talk": "gauntletGraveNeedScroll",
+          "unless": "hasScroll"
+        },
+        {
+          "talk": "gauntletGraveRise",
+          "if": "hasScroll",
+          "pending": "heavenfallGrave"
         }
       ]
     }

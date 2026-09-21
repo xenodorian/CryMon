@@ -350,6 +350,18 @@
       "marks": 25,
       "winTalk": "commanderFinalWin",
       "set": "beatCommander"
+    },
+    "heavenfallGrave": {
+      "title": "Heavenfall answers the scroll",
+      "name": "Heavenfall",
+      "winTalk": "gauntletGraveWin",
+      "set": "beatHeavenfall",
+      "party": [
+        {
+          "species": "heavenfall",
+          "level": 20
+        }
+      ]
     }
   }
 }

@@ -1,22 +1,256 @@
 {
   "warps": [
-    {"from": "house", "tile": "D", "to": "veld", "spawn": "D", "dir": "down", "oy": 44, "need": "tookStarter", "failTalk": "doorLocked", "onArrive": "masonAmbush"},
-    {"from": "veld", "tile": "D", "to": "house", "spawn": "D", "dir": "up", "oy": -32},
-    {"from": "veld", "tile": "Z", "to": "forest", "spawn": "Y", "dir": "down", "oy": 40, "onArrive": "ensureSoldiers"},
-    {"from": "forest", "tile": "Y", "to": "veld", "spawn": "Z", "dir": "up", "oy": -32},
-    {"from": "forest", "tile": "O", "to": "grove", "spawn": "O", "dir": "down", "oy": 40},
-    {"from": "grove", "tile": "O", "to": "forest", "spawn": "O", "dir": "up", "oy": -32},
-    {"from": "veld", "tile": "F", "to": "camp", "spawn": "D", "dir": "down", "oy": 40, "need": "beatCalder", "failTalk": "campLocked"},
-    {"from": "camp", "tile": "D", "to": "veld", "spawn": "F", "dir": "up", "oy": -32},
-    {"from": "veld", "tile": "c", "to": "cliffs", "spawn": "D", "dir": "down", "oy": 40},
-    {"from": "cliffs", "tile": "D", "to": "veld", "spawn": "c", "dir": "up", "oy": -32},
-    {"from": "grove", "tile": "g", "to": "ruins", "spawn": "D", "dir": "down", "oy": 40, "need": "beatShin", "failTalk": "groveLocked"},
-    {"from": "ruins", "tile": "D", "to": "grove", "spawn": "g", "dir": "up", "oy": -32},
-    {"from": "ruins", "tile": "e", "to": "reach", "spawn": "D", "dir": "down", "oy": 40, "need": "hasScroll", "failTalk": "reachLocked"},
-    {"from": "reach", "tile": "D", "to": "ruins", "spawn": "e", "dir": "up", "oy": -32},
-    {"from": "forest", "tile": "m", "to": "marsh", "spawn": "Y", "dir": "down", "oy": 40},
-    {"from": "marsh", "tile": "Y", "to": "forest", "spawn": "m", "dir": "up", "oy": -32},
-    {"from": "cliffs", "tile": "q", "to": "quarry", "spawn": "D", "dir": "down", "oy": 40},
-    {"from": "quarry", "tile": "D", "to": "cliffs", "spawn": "q", "dir": "up", "oy": -32}
+    {
+      "from": "house",
+      "tile": "D",
+      "to": "veld",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 44,
+      "need": "tookStarter",
+      "failTalk": "doorLocked",
+      "onArrive": "masonAmbush"
+    },
+    {
+      "from": "veld",
+      "tile": "D",
+      "to": "house",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "veld",
+      "tile": "Z",
+      "to": "forest",
+      "spawn": "Y",
+      "dir": "down",
+      "oy": 40,
+      "onArrive": "ensureSoldiers"
+    },
+    {
+      "from": "forest",
+      "tile": "Y",
+      "to": "veld",
+      "spawn": "Z",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "forest",
+      "tile": "O",
+      "to": "grove",
+      "spawn": "O",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "grove",
+      "tile": "O",
+      "to": "forest",
+      "spawn": "O",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "veld",
+      "tile": "F",
+      "to": "camp",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40,
+      "need": "beatCalder",
+      "failTalk": "campLocked"
+    },
+    {
+      "from": "camp",
+      "tile": "D",
+      "to": "veld",
+      "spawn": "F",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "veld",
+      "tile": "c",
+      "to": "cliffs",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "cliffs",
+      "tile": "D",
+      "to": "veld",
+      "spawn": "c",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "grove",
+      "tile": "g",
+      "to": "ruins",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40,
+      "need": "beatShin",
+      "failTalk": "groveLocked"
+    },
+    {
+      "from": "ruins",
+      "tile": "D",
+      "to": "grove",
+      "spawn": "g",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "ruins",
+      "tile": "e",
+      "to": "reach",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40,
+      "need": "hasScroll",
+      "failTalk": "reachLocked"
+    },
+    {
+      "from": "reach",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": "e",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "forest",
+      "tile": "m",
+      "to": "marsh",
+      "spawn": "Y",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "marsh",
+      "tile": "Y",
+      "to": "forest",
+      "spawn": "m",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "cliffs",
+      "tile": "q",
+      "to": "quarry",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "quarry",
+      "tile": "D",
+      "to": "cliffs",
+      "spawn": "q",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "grove",
+      "tile": "G",
+      "to": "gauntlet1",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40,
+      "need": "choseHeavenfall",
+      "failTalk": "gauntletLocked"
+    },
+    {
+      "from": "gauntlet1",
+      "tile": "2",
+      "to": "grove",
+      "spawn": "G",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet1",
+      "tile": "1",
+      "to": "gauntlet2",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet2",
+      "tile": "2",
+      "to": "gauntlet1",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet2",
+      "tile": "1",
+      "to": "gauntlet3",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet3",
+      "tile": "2",
+      "to": "gauntlet2",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet3",
+      "tile": "1",
+      "to": "gauntlet4",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet4",
+      "tile": "2",
+      "to": "gauntlet3",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet4",
+      "tile": "1",
+      "to": "gauntlet5",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet5",
+      "tile": "2",
+      "to": "gauntlet4",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gauntlet5",
+      "tile": "1",
+      "to": "gauntlet6",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gauntlet6",
+      "tile": "2",
+      "to": "gauntlet5",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    }
   ]
 }

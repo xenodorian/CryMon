@@ -807,6 +807,10 @@ export class CryMon {
 				badgeOpal: this.badgeOpal,
 				beatQuarryDriller: this.beatQuarryDriller,
 				choseHeavenfall: this.choseHeavenfall,
+				gauntletUnlocked: this.gauntletUnlocked,
+				gauntletWipeRegret: this.gauntletWipeRegret,
+				titleSlayer: this.titleSlayer,
+				titleTamer: this.titleTamer,
 				revivedFather: this.revivedFather,
 				beatCommander: this.beatCommander,
 			quarryCrateLooted: this.quarryCrateLooted,
@@ -966,7 +970,11 @@ export class CryMon {
 			} else if (next === "wsoldier") {
 				this.startWsBattle(this.pendingWs);
 			} else if (next === "ending") {
-				this.warpTo("gauntlet", "2", "down");
+				/* 2.4: Father stays in world; Heavenfall path only unlocks gauntlet (choseHeavenfall). */
+				if (this.choseHeavenfall) {
+					this.gauntletUnlocked = true;
+					this.note("A path opened behind Shinigami.");
+				}
 			} else if (next === "creditsFinal") {
 				this.mode = "ending";
 				this.endI = 0;
@@ -2024,7 +2032,12 @@ export class CryMon {
 	applyFadeHold() {
 		if (this.fade.action === "bed" && LOGIC.bed.healParty) this.sleepHeal();
 		if (this.fade.action === "loss") {
+			const fromGauntlet = String(this.world.mapId).startsWith("gauntlet");
 			if (LOGIC.partyWipe.healParty) this.sleepHeal();
+			if (fromGauntlet && this.choseHeavenfall && !this.gauntletWipeRegret) {
+				this.gauntletWipeRegret = true;
+				this.say(TALK.gauntletWipeRegret);
+			}
 			const mark = spawnOf(HOUSE, LOGIC.partyWipe.mark);
 			this.world.mapId = LOGIC.partyWipe.map;
 			this.world.x = mark.x + TILE;
@@ -3250,6 +3263,8 @@ export class CryMon {
 		for (const m of this.party2) this.markCaught(m.species);
 	}
 	playerDisplayName() {
+		if (this.titleSlayer) return "Heaven Slayer";
+		if (this.titleTamer) return "Heaven Tamer";
 		if (this.revivedFather) return LOGIC.reputation?.kindName || "Max The Kind";
 		return SPEAKER_NAME.max || "Max";
 	}

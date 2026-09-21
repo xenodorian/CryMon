@@ -1354,6 +1354,50 @@
         "speaker": "max",
         "text": "No survivors, no witnesses."
       }
+    ],
+    "gauntletLocked": [
+      {
+        "speaker": "system",
+        "text": "The path behind Shinigami is sealed."
+      },
+      {
+        "speaker": "system",
+        "text": "Only those who sought Heavenfall may pass."
+      }
+    ],
+    "gauntletWipeRegret": [
+      {
+        "speaker": "max",
+        "text": "I chose power over Father's life."
+      },
+      {
+        "speaker": "max",
+        "text": "I thought Heavenfall was worth any price."
+      },
+      {
+        "speaker": "max",
+        "text": "Now I walk this path alone."
+      },
+      {
+        "speaker": "max",
+        "text": "Father... I wish you were still here."
+      }
+    ],
+    "gauntletGraveNeedScroll": [
+      {
+        "speaker": "system",
+        "text": "A cold gravestone. The runes itch for the scroll."
+      }
+    ],
+    "gauntletGraveRise": [
+      {
+        "speaker": "system",
+        "text": "The scroll burns. The earth answers."
+      },
+      {
+        "speaker": "system",
+        "text": "Heavenfall rises."
+      }
     ]
   },
   "endingWinHeavenfall": [

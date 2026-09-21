@@ -976,32 +976,6 @@
       ]
     },
     {
-      "map": "gauntlet",
-      "mark": "1",
-      "id": "commanderFinal",
-      "role": "trainer",
-      "sprite": "npc/commander",
-      "talk": "commanderFinalSpotFather",
-      "talkDone": "commanderFinalWin",
-      "script": [
-        {
-          "if": "beatCommander",
-          "talk": "commanderFinalWin"
-        },
-        {
-          "if": "choseHeavenfall",
-          "talk": "commanderFinalSpotHeavenfall",
-          "after": "wsoldier",
-          "pending": "commanderFinal"
-        },
-        {
-          "talk": "commanderFinalSpotFather",
-          "after": "wsoldier",
-          "pending": "commanderFinal"
-        }
-      ]
-    },
-    {
       "map": "marsh",
       "mark": "F",
       "id": "fenn",
@@ -1026,6 +1000,24 @@
         {
           "talk": "drayOpen",
           "after": "shop:dray"
+        }
+      ]
+    },
+    {
+      "map": "gauntlet6",
+      "mark": "G",
+      "id": "gravestone",
+      "sprite": "",
+      "talk": "gauntletGraveNeedScroll",
+      "script": [
+        {
+          "talk": "gauntletGraveNeedScroll",
+          "unless": "hasScroll"
+        },
+        {
+          "talk": "gauntletGraveRise",
+          "if": "hasScroll",
+          "pending": "heavenfallGrave"
         }
       ]
     }

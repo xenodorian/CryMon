@@ -1,13 +1,236 @@
 {
   "encounters": [
-    {"maps": ["grove"], "tile": "T", "rate": 0.18, "pool": ["razorbat", "briarfox", "fenwisp"], "levelMin": 5, "levelMax": 8},
-    {"maps": ["camp"], "tile": "T", "rate": 0.18, "pool": ["duskhorn", "ashenmaw", "sableclaw"], "levelMin": 6, "levelMax": 9},
-    {"maps": ["ruins"], "tile": "T", "rate": 0.18, "pool": ["tortcask", "glasswisp", "mossback"], "levelMin": 6, "levelMax": 9},
-    {"maps": ["forest"], "tile": "T", "rate": 0.18, "pool": ["fenwisp", "duskhorn", "quillpup", "razorbat"], "levelMin": 3, "levelMax": 5},
-    {"maps": ["cliffs"], "tile": "T", "rate": 0.18, "pool": ["stormwing", "sableclaw", "frostail", "thornhide", "boulderam", "glasswisp"], "levelMin": 5, "levelMax": 7},
-    {"maps": ["veld"], "tile": "T", "rate": 0.18, "pool": ["glimmoth", "tortcask", "emberling", "briarfox"], "levelMin": 2, "levelMax": 4, "levelBonusIfTyGt": 14},
-    {"maps": ["reach"], "tile": "T", "rate": 0.22, "pool": ["ashenmaw", "needleroot", "crymare", "stormwing", "glasswisp", "mossback"], "levelMin": 8, "levelMax": 11},
-    {"maps": ["marsh"], "tile": "T", "rate": 0.18, "pool": ["fenwisp", "quillpup", "mossback"], "levelMin": 4, "levelMax": 6},
-    {"maps": ["quarry"], "tile": "T", "rate": 0.18, "pool": ["peatling", "slatekin", "glowcap"], "levelMin": 5, "levelMax": 7}
+    {
+      "maps": [
+        "grove"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "razorbat",
+        "briarfox",
+        "fenwisp"
+      ],
+      "levelMin": 5,
+      "levelMax": 8
+    },
+    {
+      "maps": [
+        "camp"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "duskhorn",
+        "ashenmaw",
+        "sableclaw"
+      ],
+      "levelMin": 6,
+      "levelMax": 9
+    },
+    {
+      "maps": [
+        "ruins"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "tortcask",
+        "glasswisp",
+        "mossback"
+      ],
+      "levelMin": 6,
+      "levelMax": 9
+    },
+    {
+      "maps": [
+        "forest"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "fenwisp",
+        "duskhorn",
+        "quillpup",
+        "razorbat"
+      ],
+      "levelMin": 3,
+      "levelMax": 5
+    },
+    {
+      "maps": [
+        "cliffs"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "stormwing",
+        "sableclaw",
+        "frostail",
+        "thornhide",
+        "boulderam",
+        "glasswisp"
+      ],
+      "levelMin": 5,
+      "levelMax": 7
+    },
+    {
+      "maps": [
+        "veld"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "glimmoth",
+        "tortcask",
+        "emberling",
+        "briarfox"
+      ],
+      "levelMin": 2,
+      "levelMax": 4,
+      "levelBonusIfTyGt": 14
+    },
+    {
+      "maps": [
+        "reach"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "ashenmaw",
+        "needleroot",
+        "crymare",
+        "stormwing",
+        "glasswisp",
+        "mossback"
+      ],
+      "levelMin": 8,
+      "levelMax": 11
+    },
+    {
+      "maps": [
+        "marsh"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "fenwisp",
+        "quillpup",
+        "mossback"
+      ],
+      "levelMin": 4,
+      "levelMax": 6
+    },
+    {
+      "maps": [
+        "quarry"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "peatling",
+        "slatekin",
+        "glowcap"
+      ],
+      "levelMin": 5,
+      "levelMax": 7
+    },
+    {
+      "maps": [
+        "gauntlet1"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "quillpup",
+        "glimmoth",
+        "peatling",
+        "emberling"
+      ],
+      "levelMin": 8,
+      "levelMax": 11
+    },
+    {
+      "maps": [
+        "gauntlet2"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "razorbat",
+        "briarfox",
+        "fenwisp",
+        "glowcap"
+      ],
+      "levelMin": 10,
+      "levelMax": 13
+    },
+    {
+      "maps": [
+        "gauntlet3"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "duskhorn",
+        "mossback",
+        "thornhide",
+        "cindermite"
+      ],
+      "levelMin": 12,
+      "levelMax": 15
+    },
+    {
+      "maps": [
+        "gauntlet4"
+      ],
+      "tile": "T",
+      "rate": 0.22,
+      "pool": [
+        "sableclaw",
+        "stormwing",
+        "ashenmaw",
+        "gravelurk"
+      ],
+      "levelMin": 14,
+      "levelMax": 17
+    },
+    {
+      "maps": [
+        "gauntlet5"
+      ],
+      "tile": "T",
+      "rate": 0.25,
+      "pool": [
+        "quillpup",
+        "glimmoth",
+        "tortcask",
+        "razorbat",
+        "mossback",
+        "briarfox",
+        "fenwisp",
+        "duskhorn",
+        "needleroot",
+        "crymare",
+        "emberling",
+        "frostail",
+        "boulderam",
+        "stormwing",
+        "sableclaw",
+        "thornhide",
+        "glasswisp",
+        "ashenmaw",
+        "peatling",
+        "mireback",
+        "glowcap",
+        "slatekin",
+        "gravelurk",
+        "cindermite",
+        "veilcap",
+        "kilnback"
+      ],
+      "levelMin": 16,
+      "levelMax": 20
+    }
   ]
 }
