@@ -576,22 +576,81 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define SPEC_NEEDLE_SPEED {float(mg.get('needleSpeed') or 110)}f")
     lines.append("")
 
-    toxic = logic.get("toxicBurst") or {}
-    lines.append("/* Toxic Burst -- universal shiny-exclusive move, not per-species. */")
-    lines.append(f'#define TOXIC_NAME "{c_escape(dc_text(toxic.get("name") or "TOXIC BURST"))}"')
-    lines.append(f"#define TOXIC_STAT {atk_stat_sym(toxic.get('stat') or 'str', 'toxicBurst.stat')}")
-    lines.append(f"#define TOXIC_POWER {float(toxic.get('power') or 1.0)}f")
-    lines.append(f"#define TOXIC_SPEED {float(toxic.get('speed') or 1.0)}f")
-    lines.append(f"#define TOXIC_POISON_DIVISOR {int(toxic.get('poisonDivisor') or 16)}")
-    lines.append("")
     growth = logic.get("growth") or {}
     lines.append("/* Move unlocks + evolution -- logic.json growth. */")
     lines.append(f"#define LV_SECONDARY {int(growth.get('secondaryAt') or 5)}")
     lines.append(f"#define LV_SPECIAL {int(growth.get('specialAt') or 10)}")
     lines.append(f"#define LV_EVOLVE {int(growth.get('evolveAt') or 10)}")
     lines.append("")
+
+    # Leg 2.11: stage-based stat drops (Proud Roar/Magebane/Slow Powder/
+    # Overload) + real status conditions (Scorch/Blight/Bind/Veil, plus
+    # Overload's Exhausted), replacing the old damage-dealing secondaries.
+    lines.append("#define STAT_STR 0")
+    lines.append("#define STAT_AGL 1")
+    lines.append("#define STAT_SPC 2")
+    lines.append("#define STATUS_NONE 0")
+    lines.append("#define STATUS_BURNED 1")
+    lines.append("#define STATUS_POISONED 2")
+    lines.append("#define STATUS_CONFUSED 3")
+    lines.append("#define STATUS_PARALYZED 4")
+    lines.append("#define STATUS_EXHAUSTED 5")
+    STAGE_STAT = {"str": 0, "agl": 1, "spc": 2}
+    STATUS_ID = {"burned": 1, "poisoned": 2, "confused": 3, "paralyzed": 4, "exhausted": 5}
+
+    def stage_stat_sym(s: str, where: str) -> int:
+        if s not in STAGE_STAT:
+            raise SystemExit(f"{where}: stat must be one of str/agl/spc, got {s!r}")
+        return STAGE_STAT[s]
+
+    def status_sym(s: str, where: str) -> int:
+        if s not in STATUS_ID:
+            raise SystemExit(f"{where}: status must be one of {sorted(STATUS_ID)}, got {s!r}")
+        return STATUS_ID[s]
+
+    stages = logic.get("statStages") or {}
+    mult = stages.get("mult") or [1.0, 0.7, 0.4, 0.1, 0.0]
+    lines.append(f"#define STAT_STAGE_MAX {int(stages.get('maxStage') or 4)}")
+    lines.append(f"#define STAT_STAGE_FLOOR {int(stages.get('floorAtMaxStage') or 1)}")
+    lines.append(f"#define STAT_STAGE_N {len(mult)}")
+    lines.append(f"static const float STAT_STAGE_MULT[{len(mult)}] = {{ {', '.join(f'{float(x)}f' for x in mult)} }};")
+    lines.append("")
+
+    se = logic.get("statusEffects") or {}
+    burned = se.get("burned") or {}
+    poisoned = se.get("poisoned") or {}
+    paralyzed = se.get("paralyzed") or {}
+    lines.append(f"#define STATUS_BURN_PCT {int(burned.get('hpPercent') or 5)}")
+    lines.append(f"#define STATUS_BURN_TURNS_MIN {int(burned.get('turnsMin') or 2)}")
+    lines.append(f"#define STATUS_BURN_TURNS_MAX {int(burned.get('turnsMax') or 5)}")
+    lines.append(f"#define STATUS_POISON_START_PCT {int(poisoned.get('startPercent') or 1)}")
+    lines.append(f"#define STATUS_POISON_STEP_PCT {int(poisoned.get('stepPercent') or 1)}")
+    lines.append(f"#define STATUS_PARALYZE_TURNS_MIN {int(paralyzed.get('turnsMin') or 1)}")
+    lines.append(f"#define STATUS_PARALYZE_TURNS_MAX {int(paralyzed.get('turnsMax') or 5)}")
+    lines.append("")
+
+    shiny_move = logic.get("shinyMove") or {}
+    lines.append("/* Overload -- universal shiny-exclusive move, not per-species. */")
+    lines.append(f'#define SHINY_MOVE_NAME "{c_escape(dc_text(shiny_move.get("name") or "OVERLOAD"))}"')
+    lines.append(
+        f"#define SHINY_MOVE_STATUS {status_sym(shiny_move.get('status') or 'exhausted', 'shinyMove.status')}")
+    lines.append(f"#define SHINY_MOVE_MAX_PP {int(shiny_move.get('maxPp') or 10)}")
+    lines.append("")
+
+    hype = logic.get("hypeUp") or {}
+    lines.append("/* Hype Up -- learned on evolving, see bake_npc note / CURRENT_WORK 2.11. */")
+    lines.append(f'#define HYPE_UP_NAME "{c_escape(dc_text(hype.get("name") or "HYPE UP"))}"')
+    lines.append(f"#define HYPE_UP_PCT {int(hype.get('hypePercent') or 35)}")
+    lines.append(f"#define HYPE_UP_MAX_PP {int(hype.get('maxPp') or 10)}")
+    lines.append("")
+    lines.append(f"#define STAT_MOVE_CAP {int(logic.get('statMoveCap') or 10)}")
+    lines.append(f"#define STATUS_MOVE_CAP {int(logic.get('statusMoveCap') or 5)}")
+    lines.append("")
+
     nmoves = logic.get("natureMoves") or []
-    lines.append("typedef struct { const char *name; int stat; float power, speed; int dstr, dagl, dspc; } NatureMove;")
+    lines.append("typedef struct { const char *name; int kind; int stat; int status; int max_pp; } NatureMove;")
+    lines.append("#define NMOVE_KIND_STAGE 0")
+    lines.append("#define NMOVE_KIND_STATUS 1")
     lines.append(f"#define NATURE_MOVE_N {len(nmoves)}")
     lines.append("static const NatureMove NATURE_MOVES[NATURE_N] = {")
     by_nat = {m.get("nature"): m for m in nmoves}
@@ -602,12 +661,18 @@ def bake_logic(data: dict, out: Path) -> None:
         m = by_nat.get(nat["id"])
         if not m:
             raise SystemExit(f"logic.json natureMoves missing nature {nat['id']!r}")
-        mods = m.get("mods") or {}
+        where = "natureMoves." + nat["id"]
+        kind = m.get("kind")
+        if kind == "stage":
+            kind_sym, stat, status = "NMOVE_KIND_STAGE", stage_stat_sym(m.get("stat") or "", where), 0
+        elif kind == "status":
+            kind_sym, stat, status = "NMOVE_KIND_STATUS", 0, status_sym(m.get("status") or "", where)
+        else:
+            raise SystemExit(f"{where}: kind must be 'stage' or 'status', got {kind!r}")
+        max_pp = int(m.get("maxPp") or 0)
         lines.append(
             f'    {{ "{c_escape(dc_text(m.get("name") or "SECONDARY"))}", '
-            f"{atk_stat_sym(m.get('stat') or 'str', 'natureMoves.' + nat['id'])}, "
-            f"{float(m.get('power') or 0.5)}f, {float(m.get('speed') or 1)}f, "
-            f"{int(mods.get('str') or 0)}, {int(mods.get('agl') or 0)}, {int(mods.get('spc') or 0)} }},"
+            f"{kind_sym}, {stat}, {status}, {max_pp} }},"
         )
     lines.append("};")
     lines.append("")

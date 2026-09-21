@@ -808,6 +808,221 @@ before the rest of 2.7.
 
 ---
 
+### 2.11 — Secondary-move overhaul: stat stages + real status conditions (Claude, in progress)
+
+**User's request (2026-09-21), verbatim intent:** the crystal-type
+"secondary" moves every CryMon learns at `growth.secondaryAt` currently
+just deal weak damage plus a small flat stat mod — not what was wanted.
+Redesign:
+
+- **Quartz → Proud Roar:** knocks the foe's STR down a *stage* (not
+  flat points). Stages 0-4: 100% / 70% / 40% / 10% / **flat 1** of
+  base. Each use of the move advances the target's STR stage by 1
+  (capped at 4) — it does not instantly jump to a fixed stage.
+- **Amethyst → Magebane:** same stage table, SPC instead of STR.
+- **Opal → Slow Powder:** same stage table, AGL instead of STR.
+- **The other 4 crystals (Hematite, Diamond, Spinel, Lapis)** each get
+  a move that inflicts one of the 4 *status conditions* instead —
+  Burned, Poisoned, Confused, Paralyzed (one condition per crystal,
+  4-for-4, no crystal shares one). **Which crystal gets which
+  condition was not specified by the user — my own thematic call,
+  flag for correction:** Hematite→Burned, Diamond→Poisoned,
+  Spinel→Paralyzed (reusing its current move name "Bind" — binding
+  fits paralysis), Lapis→Confused (reusing its current move name
+  "Veil" — obscured vision fits confusion). Hematite/Diamond's current
+  names ("Rend"/"Cleave") don't fit their new effects, renamed to
+  **Scorch** (Hematite/Burned) and **Blight** (Diamond/Poisoned) —
+  also my own call, not user-specified.
+- **Shiny CryMon's move** (was Toxic Burst, poison-on-hit) becomes
+  **Overload**, inflicting a 5th status, **Exhausted**: drops STR, AGL,
+  *and* SPC one stage each per use (same stage table/pool as Proud
+  Roar etc. — reuses the same per-stat stage counter, so a target hit
+  by both Proud Roar and Overload has its STR stage advance from
+  either).
+- **Status mechanics:**
+  - **Burned:** -5% max HP per turn, for a random 2-5 turns (rolled
+    once on inflict), then auto-clears.
+  - **Poisoned:** -1% max HP turn 1, -2% turn 2, -3% turn 3, ... no
+    cap, no auto-clear — lasts until cured or the CryMon faints.
+  - **Confused:** on the confused CryMon's own turn, equal odds of:
+    attacks normally / does nothing / hits itself for full damage /
+    hits a random ally on its own side's bench (only meaningful with a
+    bench present — a solo wild foe or a player with no bench falls
+    back to "hits itself" for that outcome).
+  - **Paralyzed:** cannot attack for a random 1-5 turns (rolled once),
+    then auto-clears.
+  - Only one status active at a time; inflicting a new one while one
+    is active **replaces** it (no stacking two conditions).
+- **Interpretation call (flag for correction):** "Exhausted" is
+  explicitly called a status condition in the request, but its
+  effect (stage-based stat drops) is mechanically identical to
+  Proud Roar/Magebane/Slow Powder, which the request separately says
+  "should reset at the end of battle." Burned/Poisoned/Confused/
+  Paralyzed are the ones with genuine standalone persistence value
+  (ongoing HP drain / turn skip / RNG), so I'm treating **Exhausted as
+  battle-scoped like the 3 stage moves** (resets at battle end, not
+  persisted), and only Burned/Poisoned/Confused/Paralyzed persist on
+  the player's own CryMon until the next rest, per "All status
+  conditions should persist... until the next time they rest."
+- **Hype Up:** any species that is the *evolved* form of something
+  (i.e. some other species has `evolvesTo` pointing at it) knows Hype
+  Up once it evolves into that form. +35% of base STR/AGL/SPC (not
+  current, not stacking on top of prior Hype Up uses within the same
+  battle — recomputed from base each use), lasts until end of battle.
+  No new persisted "knows Hype Up" flag needed — derived purely from
+  `species.evolvesTo` reverse lookup against `m.species`.
+- **Use caps:** stat-stage moves (Proud Roar/Magebane/Slow
+  Powder/Overload/Hype Up) max 10 uses; status-inflicting moves
+  (Scorch/Blight/Bind/Veil) max 5 uses. **Interpretation call:** these
+  counters are **battle-scoped** (refill every new fight), not saved —
+  consistent with the "temporary effects reset at end of battle"
+  framing elsewhere in the request, and avoids a save-format change
+  for PP (the existing `specialPp` field is the one precedent for
+  persisted-and-rest-refilled PP; I'm deliberately *not* following
+  that precedent here since these new moves are the "temporary" ones).
+- **Shop items (deferred to last sub-step, see below):** one item that
+  resets all of the *player's own* temporary stat-stage/Hype-Up state
+  (does not touch status conditions), 4 items that cure one status
+  condition each, 1 pricier item that cures all 4 at once. 6 new
+  items total.
+
+**Save-format note (important for whoever touches `save.json` next):**
+status persistence (condition id / turn counter / poison stack) needs
+3 bytes per party monster. `SAVE_PARTY_SLOT` is 16 bytes but a monster
+only actually uses 13 (`SAVE_PARTY_NATURE` at offset 12 is the last
+used byte) — **bytes 13-15 of every monster slot are unused padding**,
+already zeroed in every existing save. Landing status there needs **no
+version bump and no shift of anything else** (`party`/`party2`/
+`executedMask`/etc. all keep their current offsets) — old saves just
+read status=0/turns=0/stack=0 for those 3 bytes, which is exactly the
+"no status" default. Do NOT reuse this trick for the 6 shop items
+below — those go in `bag`, which has no spare bytes, so growing it
+*will* shift `flags`/`party`/`checksum`/`dexSeen`/`dexCaught` (and
+possibly collide with the just-landed `party2`/`executedMask`/
+`activeParty` region another agent is still actively working in per
+2.7.3/2.7.4 above) — that sub-step needs its own careful pass, fetched
+fresh immediately before touching `save.json`, not bundled in with
+everything else.
+
+**Sub-steps (commit after each, not smaller):**
+1. **DONE.** JSON design: rewrote `logic.json`'s `natureMoves` (7
+   crystals, stage vs. status kind), retired `toxicBurst` for a
+   `shinyMove` block (Overload/Exhausted), added `statStages` (the
+   100/70/40/10/floor-1 table), `statusEffects` (burn/poison/paralyze
+   timing), `hypeUp` (35%, 10 uses), `statMoveCap`/`statusMoveCap` (10/
+   5). Baked into `content_logic.inc` (`STAT_STR/AGL/SPC`,
+   `STATUS_NONE..EXHAUSTED`, `STAT_STAGE_*`, `NATURE_MOVES[]` now
+   `{name,kind,stat,status,max_pp}`, `SHINY_MOVE_*`, `HYPE_UP_*`).
+   `check_sync.py`'s `natureMoves` validator updated for the new shape.
+2. **DONE.** Web engine (`data.ts`/`engine.ts`/`types.ts`/`save.ts`):
+   - `Monster` gained `status`/`statusTurns`/`poisonStack`, persisted
+     at party-slot bytes 13-15 (both `party` and `party2`) — **no save
+     version bump**, those bytes were already-zeroed padding (see the
+     save-format note above; `SAVE_VERSION` stays 5).
+   - `BattleState` gained `stage` (6 counters, mirrors `mods`'
+     self/foe × str/agl/spc shape), `hypeActive: {self,foe}`,
+     `movePpUsed` (battle-scoped PP, keyed by monster id, never saved),
+     `pendingEffectText`. All reset naturally since `BattleState` is
+     discarded at battle end (except `status` itself, which lives on
+     the `Monster` and is explicitly cleared by `sleepHeal()` instead).
+   - Rewrote `pickAttack`/`resolve_hit`/`resolve_guard` for both
+     player- and foe-cast nmove/hypeUp moves, paralysis/confusion
+     interception (checked once per turn, not re-rolled by the status
+     tick — the tick itself stays once-per-round in resolve_hit/
+     resolve_guard, matching the pre-existing poison-tick placement),
+     and stage/hype reset on every foe-swap and player-faint-swap site
+     (4 sites total — the pre-existing code didn't reset flat `mods`
+     on player swap-in either; extended that reset to also cover the
+     new `stage`/`hypeActive` state since a leftover stage-4 debuff is
+     a much bigger inherited penalty than the old flat -2/-3 mods
+     ever were, worth the small fix while touching this code).
+   - Fixed one bug caught in review before commit: Hype Up is a
+     self-buff and was incorrectly gated behind the dodge-success
+     check (`landed`) meant for effects the foe casts *on the player*;
+     it now always applies when picked, independent of the player's
+     guard choice.
+   - Party/battle UI shows the active status (stats screen, live
+     battle HUD, moves-detail screen now shows nmove/hypeUp's effect +
+     use count instead of a nonsensical Damage/Power/mods readout).
+   - Verified: `npm run typecheck` and `npm run build` both clean.
+     **Not hardware-verified, and not manually playtested in a
+     browser either** (no browser available in this sandbox) — this
+     is compile/build-clean confidence only, not confirmed working
+     gameplay. Treat with real caution until someone plays a few
+     battles.
+3. **DONE.** Dreamcast port of step 2 (`main.c`/`save.c`/`save.h`).
+   - `SaveMon` gained `status`/`status_turns`/`poison_stack` at bytes
+     13-15 (mirrors web, no version bump); `save_pack`/`save_unpack`
+     updated for both `party` and `party2` loops (Dreamcast's own
+     runtime doesn't actually use `party2` yet — 2.7.4 swap UI isn't
+     landed on this engine — so that half is currently inert, just
+     keeps the save-format code symmetric for whenever it does).
+   - `Monster` gained the same 3 fields plus (battle-scoped, unsaved)
+     nothing extra — PP tracking lives on `Battle` instead (4 counters:
+     `nmove_pl_used`/`hype_pl_used`/`nmove_foe_used`/`hype_foe_used`,
+     since Dreamcast has no per-monster id to key a dictionary by the
+     way web does; a fresh monster swapping in just gets its counters
+     explicitly zeroed at each of the ~4 swap sites instead).
+   - `mint_monster()` initializes the new fields (C doesn't zero-init
+     locals); `try_evolve()` fixed to carry status across evolution --
+     it builds a **fresh** `Monster` via `mint_monster()` then does
+     `*m = next`, which would have silently wiped status on every
+     evolution if not copied across explicitly (web's `tryEvolve()`
+     doesn't have this problem, it mutates the existing object's
+     fields instead of overwriting the whole struct).
+   - `UMove`/`unlocked_moves()` rewritten for the new schema (mirrors
+     `UnlockedMove` in data.ts); `battle_apply_hit`/`battle_pick_umove`/
+     new `battle_pick_nmove`/`battle_pick_hype` replace the old
+     `battle_pick_toxic` + flat-mods secondary path; `battle_pick_guard`
+     (the foe's turn) fully rewritten for stage/status/hype on the foe
+     side, plus a new `battle_pl_status_intercept()` helper for the
+     player's own paralysis/confusion (called from `main()`'s phase-2
+     input dispatch, mirrors `pickAttack`'s intercept in engine.ts).
+   - Battle-init: `pl_poisoned`/`foe_poisoned` are retired (unused, kept
+     declared to avoid touching every old struct literal) in favor of
+     `pl.status`/`foe.status`; the 21 separate inline per-trainer
+     battle-setup sites (Dreamcast has no single shared `startBattle()`
+     the way web does) all got the new stage/hype/PP-counter zeroing
+     bulk-added via a scripted find-replace rather than by hand.
+   - Two real bugs caught and fixed *during* this port, before
+     committing: (1) a comment I'd written in the `Battle` struct
+     contained a literal `*/` substring inside prose (`mods_self_*/
+     mods_foe_*`), which prematurely closed the C comment and silently
+     ate the next several struct fields until the next real `*/` --
+     compiled with garbage errors pointing at unrelated lines further
+     down until traced back; (2) the "player's own status tick just
+     killed them" case in `battle_pick_guard` initially just did
+     `return;` on `pl.hp <= 0` instead of running the swap-or-lose
+     cascade, which would have soft-locked the battle the first time
+     burn/poison finished someone off on the foe's turn.
+   - `draw_battle_status()` shows the active status next to each
+     side's HP, matching web's HUD tag.
+   - Verified: `make -C ports/dreamcast` compiles clean (no new
+     warnings — the pre-existing `EncDef.pool[8]` overflow on
+     `ENCOUNTERS[13]`/gauntlet5's 26-species pool, and the "gauntlet
+     has 43 T tiles but 0 T encounter rules" `check_sync` FAIL, both
+     predate this work and are unrelated -- **flagging for whoever
+     owns the gauntlet content next**, not fixed here, out of scope).
+     **No `cdi` built** and **not hardware-verified**, per the user's
+     standing instruction and this sandbox's lack of an emulator.
+4. The 6 shop items + `bag` growth (careful, isolated, fetch-fresh-
+   first per the save-format note above). **Not started.**
+5. Integration pass (check_sync, typecheck, both-engine compile). Ship
+   the full pipeline only if every sub-step above lands and budget
+   remains, per the user's own instruction for this task.
+
+**Current position:** sub-steps 1-3 done (JSON + web engine + Dreamcast
+port, both engines compile/build clean) and about to be pushed. Next:
+sub-step 4, the 6 shop items (reset-temp-effects, 4 single-status
+cures, 1 cure-all) + the `bag` growth they need — this is the one
+remaining sub-step with real save-format risk (touches `flags`/`party`/
+`checksum`/`dexSeen`/`dexCaught` offsets, close to the just-landed
+`party2`/`executedMask`/`activeParty` region), so fetch fresh
+immediately before starting it, don't assume this push's base is still
+current.
+
+---
+
 
 ## Leg 2 wrap → Leg 3 gate (user 2026-09-21, Grok C)
 

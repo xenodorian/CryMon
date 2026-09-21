@@ -52,6 +52,20 @@ function ru16(buf: Uint8Array, i: number) {
 function ru32(buf: Uint8Array, i: number) {
 	return (buf[i] | (buf[i + 1] << 8) | (buf[i + 2] << 16) | (buf[i + 3] << 24)) >>> 0;
 }
+/* Leg 2.11: status persists at party-slot bytes 13-15, previously unused
+ * padding (SAVE_PARTY_NATURE at 12 was the last used byte) -- no version
+ * bump needed, see content/save.json's comment. Must match main.c's
+ * STATUS_* ids exactly (bake_content.py), even though exhausted (5) is
+ * never actually written since it's battle-scoped, never persisted. */
+const STATUS_ORDER: import("./types").StatusId[] = ["none", "burned", "poisoned", "confused", "paralyzed", "exhausted"];
+function statusToByte(s?: import("./types").StatusId): number {
+	const i = STATUS_ORDER.indexOf(s ?? "none");
+	return i < 0 ? 0 : i;
+}
+function byteToStatus(b: number): import("./types").StatusId {
+	return STATUS_ORDER[b] ?? "none";
+}
+
 function checksum(buf: Uint8Array) {
 	let s = 0;
 	for (let i = 0; i < 135; i++) s = (s + buf[i]) & 0xffff;
@@ -97,6 +111,9 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 		buf[o + 9] = m.shiny ? 1 : 0;
 		u16(buf, o + 10, Math.max(0, m.xp) & 0xffff);
 		buf[o + 12] = Math.max(0, Math.min(255, m.nature ?? 0));
+		buf[o + 13] = statusToByte(m.status);
+		buf[o + 14] = Math.max(0, Math.min(255, m.statusTurns ?? 0));
+		buf[o + 15] = Math.max(0, Math.min(255, m.poisonStack ?? 0));
 	}
 	u16(buf, 135, checksum(buf));
 	u32(buf, 137, snap.dexSeen >>> 0);
@@ -122,6 +139,9 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 		buf[o + 9] = m.shiny ? 1 : 0;
 		u16(buf, o + 10, Math.max(0, m.xp) & 0xffff);
 		buf[o + 12] = Math.max(0, Math.min(255, m.nature ?? 0));
+		buf[o + 13] = statusToByte(m.status);
+		buf[o + 14] = Math.max(0, Math.min(255, m.statusTurns ?? 0));
+		buf[o + 15] = Math.max(0, Math.min(255, m.poisonStack ?? 0));
 	}
 	return buf;
 }
@@ -159,6 +179,9 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 			shiny: buf[o + 9] === 1,
 			xp: ru16(buf, o + 10),
 			nature: buf[o + 12] ?? 0,
+			status: byteToStatus(buf[o + 13]),
+			statusTurns: buf[o + 14] ?? 0,
+			poisonStack: buf[o + 15] ?? 0,
 		});
 	}
 	const m2 = buf[16];
@@ -200,6 +223,9 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 					shiny: buf[o + 9] === 1,
 					xp: ru16(buf, o + 10),
 					nature: buf[o + 12] ?? 0,
+					status: byteToStatus(buf[o + 13]),
+					statusTurns: buf[o + 14] ?? 0,
+					poisonStack: buf[o + 15] ?? 0,
 				});
 			}
 			return out;

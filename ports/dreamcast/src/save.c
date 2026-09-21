@@ -70,6 +70,9 @@ void save_pack(u8 *dst, const SaveLive *s) {
         o[9] = s->party[p].shiny;
         put_u16(o + 10, s->party[p].xp);
         o[SAVE_PARTY_NATURE] = s->party[p].nature;
+        o[13] = s->party[p].status;
+        o[14] = s->party[p].status_turns;
+        o[15] = s->party[p].poison_stack;
     }
     /* party2 @149, active_party @245, party2_n @246, executed_mask @145 */
     {
@@ -92,6 +95,9 @@ void save_pack(u8 *dst, const SaveLive *s) {
             o[9] = s->party2[p].shiny;
             put_u16(o + 10, s->party2[p].xp);
             o[SAVE_PARTY_NATURE] = s->party2[p].nature;
+            o[13] = s->party2[p].status;
+            o[14] = s->party2[p].status_turns;
+            o[15] = s->party2[p].poison_stack;
         }
     }
         put_u16(dst + 135, checksum(dst));
@@ -145,6 +151,9 @@ int save_unpack(const u8 *src, SaveLive *s) {
         s->party[p].shiny = o[9];
         s->party[p].xp = get_u16(o + 10);
         s->party[p].nature = o[SAVE_PARTY_NATURE];
+        s->party[p].status = o[13];
+        s->party[p].status_turns = o[14];
+        s->party[p].poison_stack = o[15];
     }
     for(i = 0; i < SAVE_DEX_BYTES; i++) {
         s->dex_seen[i] = src[SAVE_DEX_SEEN + i];
@@ -167,6 +176,9 @@ int save_unpack(const u8 *src, SaveLive *s) {
         s->party2[p].shiny = o[9];
         s->party2[p].xp = get_u16(o + 10);
         s->party2[p].nature = o[SAVE_PARTY_NATURE];
+        s->party2[p].status = o[13];
+        s->party2[p].status_turns = o[14];
+        s->party2[p].poison_stack = o[15];
     }
     return 1;
 }

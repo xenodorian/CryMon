@@ -188,78 +188,92 @@
       "needleSpeed": 110
     }
   },
-  "toxicBurst": {
-    "note": "The shiny-exclusive move. Universal, not per-species -- every shiny CryMon can use it, and a shiny foe has a chance to reach for it instead of its usual moves. Poisons on hit. Shinies learn this at growth.secondaryAt INSTEAD of the shared crystal secondary.",
-    "name": "Toxic Burst",
-    "stat": "str",
-    "power": 0.5,
-    "speed": 1.0,
-    "poisonDivisor": 16
-  },
   "growth": {
-    "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn toxicBurst instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt.",
+    "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn shinyMove instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt, and the evolved form also learns hypeUp then.",
     "secondaryAt": 5,
     "specialAt": 10,
     "evolveAt": 12
   },
+  "natureMovesNote": "Leg 2.11 redesign: these no longer deal damage. 'stage' moves knock one stat (or all 3, for shinyMove below) down a statStages step on the foe each use; 'status' moves inflict one of statusEffects on the foe each use. maxPp is battle-scoped (refills every new fight, not saved) -- see statMoveCap/statusMoveCap below for the two allowed values.",
   "natureMoves": [
     {
       "nature": "quartz",
-      "name": "Fracture",
+      "name": "Proud Roar",
+      "kind": "stage",
       "stat": "str",
-      "power": 0.5,
-      "speed": 1.0,
-      "mods": { "str": -2, "agl": -2, "spc": -2 }
+      "maxPp": 10
     },
     {
       "nature": "hematite",
-      "name": "Rend",
-      "stat": "str",
-      "power": 0.5,
-      "speed": 0.9,
-      "mods": { "str": -4, "agl": 0, "spc": 0 }
+      "name": "Scorch",
+      "kind": "status",
+      "status": "burned",
+      "maxPp": 5
     },
     {
       "nature": "diamond",
-      "name": "Cleave",
-      "stat": "str",
-      "power": 0.5,
-      "speed": 1.0,
-      "mods": { "str": -3, "agl": -1, "spc": 0 }
+      "name": "Blight",
+      "kind": "status",
+      "status": "poisoned",
+      "maxPp": 5
     },
     {
       "nature": "opal",
-      "name": "Dazzle",
-      "stat": "mag",
-      "power": 0.5,
-      "speed": 1.2,
-      "mods": { "str": 0, "agl": -4, "spc": 0 }
+      "name": "Slow Powder",
+      "kind": "stage",
+      "stat": "agl",
+      "maxPp": 10
     },
     {
       "nature": "spinel",
       "name": "Bind",
-      "stat": "str",
-      "power": 0.5,
-      "speed": 1.1,
-      "mods": { "str": -2, "agl": -2, "spc": 0 }
+      "kind": "status",
+      "status": "paralyzed",
+      "maxPp": 5
     },
     {
       "nature": "lapis",
       "name": "Veil",
-      "stat": "mag",
-      "power": 0.5,
-      "speed": 1.0,
-      "mods": { "str": 0, "agl": 0, "spc": -4 }
+      "kind": "status",
+      "status": "confused",
+      "maxPp": 5
     },
     {
       "nature": "amethyst",
-      "name": "Hex",
-      "stat": "mag",
-      "power": 0.5,
-      "speed": 1.0,
-      "mods": { "str": 0, "agl": -2, "spc": -2 }
+      "name": "Magebane",
+      "kind": "stage",
+      "stat": "spc",
+      "maxPp": 10
     }
   ],
+  "statStages": {
+    "note": "Index = stage 0..4 (0 = no effect). Effective stat = round(base * mult[stage]); stage 4 instead sets the stat to a flat 1, ignoring mult[4]. A stage move advances the target's stage for its one stat (or, for shinyMove, all 3) by 1 per use, capped at 4 -- it never jumps straight to a higher stage.",
+    "mult": [1.0, 0.7, 0.4, 0.1, 0.0],
+    "maxStage": 4,
+    "floorAtMaxStage": 1
+  },
+  "statusEffects": {
+    "note": "Only one status active at a time; inflicting a new one replaces the old one. Burned/Poisoned/Confused/Paralyzed persist on the player's own CryMon until their next rest (sleepHeal); Exhausted (shinyMove only) is battle-scoped instead, like the stage moves -- see 2.11 in CURRENT_WORK.md for why.",
+    "burned": { "hpPercent": 5, "turnsMin": 2, "turnsMax": 5 },
+    "poisoned": { "startPercent": 1, "stepPercent": 1 },
+    "paralyzed": { "turnsMin": 1, "turnsMax": 5 },
+    "confused": {},
+    "exhausted": {}
+  },
+  "shinyMove": {
+    "note": "Replaces the old universal toxicBurst. Every shiny CryMon can use this at growth.secondaryAt INSTEAD of its crystal's usual secondary move.",
+    "name": "Overload",
+    "status": "exhausted",
+    "maxPp": 10
+  },
+  "hypeUp": {
+    "note": "Learned on evolving (see 2.11): any species that is some other species' evolvesTo target knows this. Self-buff, all 3 stats, +hypePercent% of BASE (not current) each use, non-stacking (recomputed from base, not cumulative), lasts until end of battle.",
+    "name": "Hype Up",
+    "hypePercent": 35,
+    "maxPp": 10
+  },
+  "statMoveCap": 10,
+  "statusMoveCap": 5,
   "interact": {
     "note": "World interact/talk proximity is a box test, not a radius: the target's own footprint (world.json npcs[].w/h, default 48x32 human size when absent) expanded by this buffer on every side, feet-anchored the same way it's drawn (box bottom = mark.y, box top = mark.y - h). Both engines interpret this the same way; the Dreamcast port scales w/h/buffer down by its own tile size (20px vs this pack's 32px). buffer must be at least one tile (32 in this pack's coordinate space) -- at the old value of 16 (half a tile), standing one full tile directly below an NPC (the single most common way a player approaches someone: walk up, stand in front, press A) fell outside the box on the south side, even though north/west/east happened to pass because of the box's height-driven asymmetry. Bumped to 32 so every one-tile-adjacent position on all four sides, plus diagonals, is inside the box.",
     "defaultW": 48,

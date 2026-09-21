@@ -60,7 +60,7 @@ FORBIDDEN_TEXT = [
 ]
 SKIP_NAME = {".git", "node_modules", ".vercel", "backups", "__pycache__", "placeholder_sprites"}
 REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross", "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "marshBog", "marshReed", "quartz"]
-REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat", "growth", "natureMoves", "toxicBurst", "natureTypes"]
+REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat", "growth", "natureMoves", "shinyMove", "statStages", "statusEffects", "hypeUp", "natureTypes"]
 
 
 def union_members(text: str, name: str) -> list[str]:
@@ -483,14 +483,20 @@ def main() -> int:
         if nid not in move_nats:
             errors.append(f"logic.natureMoves missing nature {nid!r}")
     for m in nmoves:
-        for k in ("nature", "name", "stat", "power", "speed", "mods"):
+        for k in ("nature", "name", "kind", "maxPp"):
             if k not in m:
                 errors.append(f"logic.natureMoves entry missing {k}")
                 break
         else:
-            mods = m.get("mods") or {}
-            if not any(int(mods.get(stat) or 0) < 0 for stat in ("str", "agl", "spc")):
-                errors.append(f"logic.natureMoves {m.get('nature')!r} must lower at least one foe stat")
+            kind = m.get("kind")
+            if kind == "stage":
+                if m.get("stat") not in ("str", "agl", "spc"):
+                    errors.append(f"logic.natureMoves {m.get('nature')!r} (kind=stage) needs stat in str/agl/spc")
+            elif kind == "status":
+                if m.get("status") not in ("burned", "poisoned", "confused", "paralyzed", "exhausted"):
+                    errors.append(f"logic.natureMoves {m.get('nature')!r} (kind=status) has an unknown status {m.get('status')!r}")
+            else:
+                errors.append(f"logic.natureMoves {m.get('nature')!r} kind must be 'stage' or 'status', got {kind!r}")
     spec = data["species"]
     for sid, s in spec.items():
         evo = s.get("evolvesTo")

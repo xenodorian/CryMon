@@ -1,4 +1,4 @@
-import type { AtkStat, ItemDef, ItemId, Monster, SpeakerId, Species, SpeciesId, TalkBeat } from "./types";
+import type { AtkStat, ItemDef, ItemId, Monster, SpeakerId, Species, SpeciesId, StatusId, TalkBeat } from "./types";
 import speciesJson from "../../content/species.json";
 import itemsJson from "../../content/items.json";
 import mapsJson from "../../content/maps.json";
@@ -206,16 +206,45 @@ export const COMBAT = (logicJson.combat || {
   },
 }) as CombatConfig;
 
-export type ToxicBurstConfig = {
-  name: string;
-  stat: AtkStat;
-  power: number;
-  speed: number;
-  poisonDivisor: number;
+/** Leg 2.11: stage-based stat drops (Proud Roar/Magebane/Slow Powder/
+ *  Overload) + real status conditions (Scorch/Blight/Bind/Veil, plus
+ *  Overload's Exhausted), replacing the old damage-dealing secondaries.
+ *  See CURRENT_WORK.md 2.11 for the two interpretation calls flagged there
+ *  (crystal->status assignment, Exhausted battle-scoped not persisted). */
+export type StatStagesConfig = { mult: number[]; maxStage: number; floorAtMaxStage: number };
+export const STAT_STAGES = ((logicJson as { statStages?: StatStagesConfig }).statStages || {
+  mult: [1, 0.7, 0.4, 0.1, 0], maxStage: 4, floorAtMaxStage: 1,
+}) as StatStagesConfig;
+
+/** Effective value of a base stat at the given stage (0 = unaffected). */
+export function effectiveStat(base: number, stage: number): number {
+  if (stage >= STAT_STAGES.maxStage) return STAT_STAGES.floorAtMaxStage;
+  return Math.round(base * (STAT_STAGES.mult[stage] ?? 1));
+}
+
+export type StatusEffectsConfig = {
+  burned: { hpPercent: number; turnsMin: number; turnsMax: number };
+  poisoned: { startPercent: number; stepPercent: number };
+  paralyzed: { turnsMin: number; turnsMax: number };
 };
-export const TOXIC_BURST = (logicJson.toxicBurst || {
-  name: "Toxic Burst", stat: "str", power: 1, speed: 1, poisonDivisor: 16,
-}) as ToxicBurstConfig;
+export const STATUS_EFFECTS = ((logicJson as { statusEffects?: StatusEffectsConfig }).statusEffects || {
+  burned: { hpPercent: 5, turnsMin: 2, turnsMax: 5 },
+  poisoned: { startPercent: 1, stepPercent: 1 },
+  paralyzed: { turnsMin: 1, turnsMax: 5 },
+}) as StatusEffectsConfig;
+
+export type ShinyMoveConfig = { name: string; status: StatusId; maxPp: number };
+export const SHINY_MOVE = ((logicJson as { shinyMove?: ShinyMoveConfig }).shinyMove || {
+  name: "Overload", status: "exhausted", maxPp: 10,
+}) as ShinyMoveConfig;
+
+export type HypeUpConfig = { name: string; hypePercent: number; maxPp: number };
+export const HYPE_UP = ((logicJson as { hypeUp?: HypeUpConfig }).hypeUp || {
+  name: "Hype Up", hypePercent: 35, maxPp: 10,
+}) as HypeUpConfig;
+
+export const STAT_MOVE_CAP = (logicJson as { statMoveCap?: number }).statMoveCap ?? 10;
+export const STATUS_MOVE_CAP = (logicJson as { statusMoveCap?: number }).statusMoveCap ?? 5;
 
 /** World interact/talk proximity: a box test against the target's own
  *  footprint (npc.w/h, default defaultW/H) plus this buffer on every
@@ -232,27 +261,38 @@ export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt
 export type NatureMoveDef = {
   nature: string;
   name: string;
-  stat: AtkStat;
-  power: number;
-  speed: number;
-  mods: { str: number; agl: number; spc: number };
+  kind: "stage" | "status";
+  stat?: "str" | "agl" | "spc";
+  status?: StatusId;
+  maxPp: number;
 };
 export const NATURE_MOVES = ((logicJson as { natureMoves?: NatureMoveDef[] }).natureMoves || []) as NatureMoveDef[];
 
 export type UnlockedMove = {
-  kind: "basic" | "secondary" | "toxic" | "special" | "spell" | "wait";
+  kind: "basic" | "special" | "spell" | "nmove" | "hypeUp" | "wait";
   name: string;
   stat: AtkStat;
   power: number;
   speed: number;
   pp?: boolean;
   spellId?: string;
-  mods?: { str: number; agl: number; spc: number };
+  /** kind === "nmove" only (the crystal secondary, or Overload for shinies). */
+  moveKind?: "stage" | "status";
+  statTarget?: "str" | "agl" | "spc";
+  statusTarget?: StatusId;
+  maxPp?: number;
 };
 
 export function natureMoveFor(species: SpeciesId): NatureMoveDef | null {
   const nid = (SPECIES[species] as { nature?: string })?.nature;
   return NATURE_MOVES.find((m) => m.nature === nid) ?? NATURE_MOVES[0] ?? null;
+}
+
+/** Any species that is some other species' evolvesTo target has evolved
+ *  into its current form, and Hype Up is learned on evolving (see 2.11 --
+ *  this is deliberately not a persisted flag, just derived from species.json). */
+export function knowsHypeUp(species: SpeciesId): boolean {
+  return Object.values(SPECIES).some((s) => s.evolvesTo === species);
 }
 
 export function unlockedMoves(m: Monster, includeWait = false): UnlockedMove[] {
@@ -267,25 +307,41 @@ export function unlockedMoves(m: Monster, includeWait = false): UnlockedMove[] {
   if (m.level >= GROWTH.secondaryAt) {
     if (m.shiny) {
       rows.push({
-        kind: "toxic",
-        name: TOXIC_BURST.name,
-        stat: TOXIC_BURST.stat,
-        power: TOXIC_BURST.power,
-        speed: TOXIC_BURST.speed,
+        kind: "nmove",
+        name: SHINY_MOVE.name,
+        stat: "str",
+        power: 0,
+        speed: 1,
+        moveKind: "status",
+        statusTarget: SHINY_MOVE.status,
+        maxPp: SHINY_MOVE.maxPp,
       });
     } else {
       const nm = natureMoveFor(m.species);
       if (nm) {
         rows.push({
-          kind: "secondary",
+          kind: "nmove",
           name: nm.name,
-          stat: nm.stat,
-          power: nm.power,
-          speed: nm.speed,
-          mods: nm.mods,
+          stat: "str",
+          power: 0,
+          speed: 1,
+          moveKind: nm.kind,
+          statTarget: nm.stat,
+          statusTarget: nm.status,
+          maxPp: nm.maxPp,
         });
       }
     }
+  }
+  if (knowsHypeUp(m.species)) {
+    rows.push({
+      kind: "hypeUp",
+      name: HYPE_UP.name,
+      stat: "str",
+      power: 0,
+      speed: 1,
+      maxPp: HYPE_UP.maxPp,
+    });
   }
   if (m.level >= GROWTH.specialAt) {
     if (s.spells?.length) {
@@ -379,6 +435,9 @@ export function mintMonster(species: SpeciesId, level = 3, shiny = false, nature
     xp: 0,
     shiny,
     nature: ni,
+    status: "none",
+    statusTurns: 0,
+    poisonStack: 0,
   };
 }
 

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=a81211a43cee9185 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=7b5dd168810cf33a — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC

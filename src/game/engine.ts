@@ -48,14 +48,18 @@ import {
   artManifest,
   itemEffect,
   COMBAT,
-  TOXIC_BURST,
   INTERACT,
   atkStatValue,
   frand,
   unlockedMoves,
   natureMatchNames,
   MERCY_DISMISS,
-  FORMULAS
+  FORMULAS,
+  STAT_STAGES,
+  STATUS_EFFECTS,
+  SHINY_MOVE,
+  HYPE_UP,
+  effectiveStat
 } from "./data";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
@@ -1180,6 +1184,11 @@ export class CryMon {
 		this.party.forEach((m) => {
 			m.hp = m.maxHp;
 			m.specialPp = m.specialPpMax;
+			// Leg 2.11: Burned/Poisoned/Confused/Paralyzed persist on the
+			// player's own CryMon until their next rest -- this is that rest.
+			m.status = "none";
+			m.statusTurns = 0;
+			m.poisonStack = 0;
 		});
 	}
 	giveAnneGems() {
@@ -2334,6 +2343,7 @@ export class CryMon {
 			pendingDmg: 0,
 			pendingLabel: "",
 			pendingMods: { str: 0, agl: 0, spc: 0 },
+			pendingEffectText: "",
 			minigame: 0,
 			minigameDir: 1,
 			minigameHit: null,
@@ -2353,8 +2363,9 @@ export class CryMon {
 			faintT: 0,
 			foeEnterT: 0,
 			foeFaintT: 0,
-			plPoisoned: false,
-			foePoisoned: false
+			stage: { selfStr: 0, selfAgl: 0, selfSpc: 0, foeStr: 0, foeAgl: 0, foeSpc: 0 },
+			hypeActive: { self: false, foe: false },
+			movePpUsed: {},
 		};
 		
 		if (foe && foe.species === "lead") {
@@ -2413,15 +2424,35 @@ export class CryMon {
 	}
 	partyMoves(m) {
 		return unlockedMoves(m, false).map((mv) => {
+			if (mv.kind === "nmove" || mv.kind === "hypeUp") {
+				const effect =
+					mv.kind === "hypeUp"
+						? `Raises all stats +${HYPE_UP.hypePercent}%`
+						: mv.moveKind === "stage"
+							? `Lowers foe ${(mv.statTarget || "").toUpperCase()}`
+							: `Inflicts ${mv.statusTarget}`;
+				return { name: mv.name, stat: mv.stat, power: 0, speed: mv.speed, pp: `${mv.maxPp}/battle`, dmg: 0, kind: mv.kind, effect };
+			}
 			const atk = atkStatValue(m, 0, 0, mv.stat);
 			const dmg = Math.max(1, Math.round(atk * (mv.power || 0)));
-			const pp = mv.pp ? `${m.specialPp}/${m.specialPpMax}` : mv.kind === "toxic" ? "psn" : null;
-			return { name: mv.name, stat: mv.stat, power: mv.power, speed: mv.speed, pp, dmg, kind: mv.kind, mods: mv.mods };
+			const pp = mv.pp ? `${m.specialPp}/${m.specialPpMax}` : null;
+			return { name: mv.name, stat: mv.stat, power: mv.power, speed: mv.speed, pp, dmg, kind: mv.kind };
 		});
 	}
 	attackMenu(p) {
+		const b = this.battle;
 		return unlockedMoves(p, true).map((mv) => {
 			if (mv.kind === "wait") return "Wait";
+			if (mv.kind === "nmove" || mv.kind === "hypeUp") {
+				const remain = b ? this.movePpRemaining(b, p, mv) : mv.maxPp;
+				const effect =
+					mv.kind === "hypeUp"
+						? "ALL STATS UP"
+						: mv.moveKind === "stage"
+							? `${(mv.statTarget || "").toUpperCase()} DOWN`
+							: `${(mv.statusTarget || "").toUpperCase()}`;
+				return `${mv.name}  ${remain}/${mv.maxPp}  ${effect}`;
+			}
 			const detail = this.atkDetail(mv.stat, mv.power, mv.speed);
 			if (mv.pp) return `${mv.name}  ${p.specialPp}/${p.specialPpMax}  ${detail}`;
 			return `${mv.name}  ${detail}`;
@@ -2515,7 +2546,7 @@ export class CryMon {
 					this.audio.ok();
 				} else this.audio.miss();
 				const s = SPECIES[b.player.species];
-				const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, s.specialStat);
+				const atk = this.dmgStat(b, b.player, "self", s.specialStat);
 				b.pendingDmg = Math.max(1, Math.round(atk * s.specialPower * mul));
 				b.pendingLabel = `${s.special} ${tag}`;
 				b.phase = "resolve_hit";
@@ -2523,26 +2554,24 @@ export class CryMon {
 			return;
 		}
 		if (b.phase === "resolve_hit") {
-			let poisonLine = "";
-			if (b.foePoisoned && b.foe.hp > 0) {
-				const tick = Math.max(1, Math.floor(b.foe.maxHp / 16));
-				b.foe.hp = Math.max(0, b.foe.hp - tick);
-				poisonLine = ` Psn-${tick}`;
+			const foeTick = this.tickStatus(b.foe);
+			let line;
+			if (b.pendingDmg > 0) {
+				// Crystal matchup, applied once here rather than in each move
+				// branch that sets pendingDmg, so every player attack is scaled
+				// exactly once and by the same rule the foe's attacks get below.
+				const hit = natureScaleDmg(b.pendingDmg, b.player.species, b.foe.species);
+				b.foe.hp = Math.max(0, b.foe.hp - hit.dmg);
+				this.shake = .25;
+				this.audio.hit();
+				line = `${b.pendingLabel}  ${hit.dmg} dmg.${natureTag(hit.sign)}${foeTick}`;
+			} else {
+				this.shake = .1;
+				this.audio.ok();
+				line = `${b.pendingLabel}${b.pendingEffectText ? ` ${b.pendingEffectText}` : ""}${foeTick}`;
 			}
-			// Crystal matchup, applied once here rather than in each move
-			// branch that sets pendingDmg, so every player attack is scaled
-			// exactly once and by the same rule the foe's attacks get below.
-			const hit = natureScaleDmg(b.pendingDmg, b.player.species, b.foe.species);
-			b.foe.hp = Math.max(0, b.foe.hp - hit.dmg);
-			if (b.pendingMods) {
-				b.mods.foeStr += b.pendingMods.str || 0;
-				b.mods.foeAgl += b.pendingMods.agl || 0;
-				b.mods.foeSpc += b.pendingMods.spc || 0;
-				b.pendingMods = { str: 0, agl: 0, spc: 0 };
-			}
-			this.shake = .25;
-			this.audio.hit();
-			const lines = [`${b.pendingLabel}  ${hit.dmg} dmg.${natureTag(hit.sign)}${poisonLine}`];
+			b.pendingEffectText = "";
+			const lines = [line];
 			if (b.foe.hp <= 0) {
 				const lines2 = [...lines, `${b.foe.name} falls.`];
 				if (b.foeBench.length) {
@@ -2555,6 +2584,10 @@ export class CryMon {
 					b.mods.foeStr = 0;
 					b.mods.foeAgl = 0;
 					b.mods.foeSpc = 0;
+					b.stage.foeStr = 0;
+					b.stage.foeAgl = 0;
+					b.stage.foeSpc = 0;
+					b.hypeActive.foe = false;
 					b.foeEnterT = 0;
 					b.foeFaintT = 0;
 					const evo = xp.notes[0] ? ` ${xp.notes[0]}` : "";
@@ -2577,27 +2610,80 @@ export class CryMon {
 			return;
 		}
 		if (b.phase === "resolve_guard") {
-			if (b.plPoisoned && b.player.hp > 0) {
-				const tick = Math.max(1, Math.floor(b.player.maxHp / 16));
-				b.player.hp = Math.max(0, b.player.hp - tick);
+			const selfTick = this.tickStatus(b.player);
+			if (b.player.hp <= 0) {
+				this.party[this.partyIndex] = { ...b.player };
+				const next = this.party.findIndex((m, i) => i !== this.partyIndex && m.hp > 0);
+				const line = `${b.player.name}${selfTick}`;
+				if (next >= 0) {
+					this.partyIndex = next;
+					b.player = { ...this.party[next] };
+					b.mods.selfStr = 0;
+					b.mods.selfAgl = 0;
+					b.mods.selfSpc = 0;
+					b.stage.selfStr = 0;
+					b.stage.selfAgl = 0;
+					b.stage.selfSpc = 0;
+					b.hypeActive.self = false;
+					b.enterT = 0;
+					b.faintT = 0;
+					b.msg = [line, `${b.player.name} jumps in.`];
+					b.msgI = 0;
+					b.phase = "msg";
+					b.afterMsg = "item";
+					return;
+				}
+				b.msg = [line, `${b.player.name} cannot stand.`];
+				b.msgI = 0;
+				b.phase = "msg";
+				b.afterMsg = "end_lose";
+				return;
+			}
+			if (b.foe.status === "paralyzed") {
+				this.tickStatus(b.foe);
+				b.msg = [`${b.foe.name} is paralyzed and can't move.${selfTick}`];
+				b.msgI = 0;
+				b.phase = "msg";
+				b.afterMsg = "item";
+				return;
+			}
+			const confused = this.confusionOutcome(b.foe, false);
+			if (confused && confused.kind !== "normal") {
+				if (confused.kind === "none") {
+					b.msg = [`${b.foe.name} is too confused to act.${selfTick}`];
+				} else if (confused.kind === "self") {
+					const dmg = Math.min(b.foe.hp - 1, confused.dmg);
+					b.foe.hp = Math.max(1, b.foe.hp - Math.max(0, dmg));
+					b.msg = [`${b.foe.name} is confused and hits itself!${selfTick}`];
+				} else {
+					const target = b.foeBench[confused.targetIdx];
+					if (target) target.hp = Math.max(0, target.hp - confused.dmg);
+					b.msg = [`${b.foe.name} is confused and hits ${target?.name ?? "an ally"}!${selfTick}`];
+				}
+				b.msgI = 0;
+				b.phase = "msg";
+				b.afterMsg = "item";
+				return;
 			}
 			const g = b.guard ?? "block";
 			const foeS = SPECIES[b.foe.species];
 			let moveName = foeS.basic;
 			let dmg = 0;
 			let moveSpeed = foeS.basicSpeed;
-			let inflictsPoison = false;
+			let pick = null;
+			let effectText = "";
 			const foeMoves = unlockedMoves(b.foe, false);
 			const specials = foeMoves.filter((mv) => mv.kind === "special" || (mv.kind === "spell" && mv.pp));
-			const secondaries = foeMoves.filter((mv) => mv.kind === "secondary" || mv.kind === "toxic");
+			const nmoves = foeMoves.filter((mv) => mv.kind === "nmove" && this.movePpRemaining(b, b.foe, mv) > 0);
+			const hypeMoves = foeMoves.filter((mv) => mv.kind === "hypeUp" && this.movePpRemaining(b, b.foe, mv) > 0);
 			const basics = foeMoves.filter((mv) => mv.kind === "basic" || (mv.kind === "spell" && !mv.pp));
-			let pick = basics[0] || foeMoves[0];
-			if (b.foe.shiny && secondaries.some((mv) => mv.kind === "toxic") && !b.plPoisoned && randI(0, 99) < 30) {
-				pick = secondaries.find((mv) => mv.kind === "toxic") || pick;
-			} else if (specials.length && b.foe.specialPp > 0 && Math.random() < 0.28) {
+			pick = basics[0] || foeMoves[0];
+			if (specials.length && b.foe.specialPp > 0 && Math.random() < 0.28) {
 				pick = specials[randI(0, specials.length - 1)];
-			} else if (secondaries.length && Math.random() < 0.35) {
-				pick = secondaries[randI(0, secondaries.length - 1)];
+			} else if (hypeMoves.length && !b.hypeActive.foe && Math.random() < 0.15) {
+				pick = hypeMoves[0];
+			} else if (nmoves.length && Math.random() < 0.35) {
+				pick = nmoves[randI(0, nmoves.length - 1)];
 			} else if (basics.length) {
 				pick = basics[randI(0, basics.length - 1)];
 			}
@@ -2606,58 +2692,63 @@ export class CryMon {
 				dmg = result.dmg;
 				moveName = result.label;
 				moveSpeed = pick.speed;
-			} else if (pick?.kind === "toxic") {
-				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, TOXIC_BURST.stat);
-				dmg = Math.max(1, Math.round(atk * TOXIC_BURST.power));
-				moveSpeed = TOXIC_BURST.speed;
-				moveName = TOXIC_BURST.name;
-				inflictsPoison = true;
-			} else if (pick?.kind === "secondary") {
-				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, pick.stat);
-				dmg = Math.max(1, Math.round(atk * pick.power));
-				moveSpeed = pick.speed;
+			} else if (pick?.kind === "nmove") {
+				this.spendMovePp(b, b.foe, pick);
 				moveName = pick.name;
-				if (pick.mods) {
-					b.mods.selfStr += pick.mods.str || 0;
-					b.mods.selfAgl += pick.mods.agl || 0;
-					b.mods.selfSpc += pick.mods.spc || 0;
+				moveSpeed = pick.speed;
+				if (pick.moveKind === "stage") {
+					effectText = `${(pick.statTarget || "").toUpperCase()} FALLS`;
+				} else {
+					effectText = `${(pick.statusTarget || "").toUpperCase()}`;
 				}
+			} else if (pick?.kind === "hypeUp") {
+				// Self-buff -- always takes effect regardless of the player's
+				// guard choice, unlike Proud Roar etc. which target the player
+				// and can be dodged (see the `landed` gate below).
+				this.spendMovePp(b, b.foe, pick);
+				b.hypeActive.foe = true;
+				moveName = pick.name;
+				moveSpeed = pick.speed;
+				effectText = "STATS UP";
 			} else if (pick?.kind === "special") {
 				b.foe.specialPp -= 1;
-				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, pick.stat);
+				const atk = this.dmgStat(b, b.foe, "foe", pick.stat);
 				dmg = Math.max(1, Math.round(atk * pick.power));
 				moveSpeed = pick.speed;
 				moveName = pick.name;
 			} else {
-				const atk = atkStatValue(b.foe, b.mods.foeStr, b.mods.foeSpc, pick?.stat || foeS.basicStat);
+				const atk = this.dmgStat(b, b.foe, "foe", pick?.stat || foeS.basicStat);
 				dmg = Math.max(1, Math.round(atk * (pick?.power || foeS.basicPower)));
 				moveSpeed = pick?.speed || foeS.basicSpeed;
 				moveName = pick?.name || foeS.basic;
 			}
 			// Matchup decides how hard the blow lands; the guard below decides
-			// how much of it the player eats.
+			// how much of it the player eats. Zero-damage nmove/hypeUp moves
+			// scale to 0 harmlessly.
 			const incoming = natureScaleDmg(dmg, b.foe.species, b.player.species);
 			dmg = incoming.dmg;
 			let line = "";
 			let counterDmg = 0;
+			let landed = true;
 			if (g === "dodge") {
-				const atkSpeed = (b.foe.agl + b.mods.foeAgl) * moveSpeed;
-				const defSpeed = (b.player.agl + b.mods.selfAgl) * frand(COMBAT.dodgeDefenderRandMin, COMBAT.dodgeDefenderRandMax);
+				const atkSpeed = this.effStat(b.foe, "agl", b.stage.foeAgl, b.hypeActive.foe, b.mods.foeAgl) * moveSpeed;
+				const defSpeed = this.effStat(b.player, "agl", b.stage.selfAgl, b.hypeActive.self, b.mods.selfAgl) * frand(COMBAT.dodgeDefenderRandMin, COMBAT.dodgeDefenderRandMax);
 				if (atkSpeed - defSpeed > 0) {
-					line = `The dodge fails. ${dmg} dmg.`;
+					line = dmg > 0 ? `The dodge fails. ${dmg} dmg.` : "The dodge fails.";
 					this.audio.hit();
 				} else {
 					dmg = 0;
+					landed = false;
 					line = `${b.player.name} slips aside.`;
 					this.audio.ok();
 				}
 			} else if (g === "block") {
-				const blockScore = Math.round((b.player.str + b.mods.selfStr) * frand(COMBAT.guardRandMin, COMBAT.guardRandMax));
+				const blockScore = Math.round(this.dmgStat(b, b.player, "self", "str") * frand(COMBAT.guardRandMin, COMBAT.guardRandMax));
 				const reduced = dmg - blockScore;
 				if (reduced <= 0) {
 					counterDmg = dmg;
 					dmg = 0;
-					line = `${COMBAT.parriedText} Foe takes ${counterDmg} dmg.`;
+					line = counterDmg > 0 ? `${COMBAT.parriedText} Foe takes ${counterDmg} dmg.` : "";
 					this.audio.ok();
 				} else {
 					dmg = reduced;
@@ -2665,13 +2756,13 @@ export class CryMon {
 					this.audio.hit();
 				}
 			} else {
-				const barrierScore = Math.round((b.player.spc + b.mods.selfSpc) * frand(COMBAT.guardRandMin, COMBAT.guardRandMax));
+				const barrierScore = Math.round(this.dmgStat(b, b.player, "self", "mag") * frand(COMBAT.guardRandMin, COMBAT.guardRandMax));
 				const reduced = dmg - barrierScore;
 				if (reduced <= 0) {
 					const heal = Math.floor(dmg / COMBAT.barrierHealDivisor);
 					dmg = 0;
 					b.player.hp = Math.min(b.player.maxHp, b.player.hp + heal);
-					line = `${COMBAT.absorbedText} +${heal} HP.`;
+					line = heal > 0 ? `${COMBAT.absorbedText} +${heal} HP.` : "";
 					this.audio.ok();
 				} else {
 					dmg = reduced;
@@ -2683,7 +2774,14 @@ export class CryMon {
 			// zeroes dmg, and an effectiveness note on a blow that never
 			// connected reads as a contradiction.
 			if (dmg > 0) line += natureTag(incoming.sign);
-			if (inflictsPoison) b.plPoisoned = true;
+			if (pick?.kind === "hypeUp") {
+				// Already applied above (self-buff, not dodgeable) -- just show it.
+				line = line ? `${line} ${effectText}` : effectText;
+			} else if (landed && pick?.kind === "nmove") {
+				if (pick.moveKind === "stage") this.advanceStage(b, "self", pick.statTarget);
+				else this.inflictStatus(b.player, pick.statusTarget);
+				line = line ? `${line} ${effectText}` : effectText;
+			}
 			b.player.hp = Math.max(0, b.player.hp - dmg);
 			this.shake = dmg === 0 ? .05 : .28;
 			if (b.player.hp <= 0) {
@@ -2692,16 +2790,22 @@ export class CryMon {
 				if (next >= 0) {
 					this.partyIndex = next;
 					b.player = { ...this.party[next] };
-					b.plPoisoned = false;
+					b.mods.selfStr = 0;
+					b.mods.selfAgl = 0;
+					b.mods.selfSpc = 0;
+					b.stage.selfStr = 0;
+					b.stage.selfAgl = 0;
+					b.stage.selfSpc = 0;
+					b.hypeActive.self = false;
 					b.enterT = 0;
 					b.faintT = 0;
-					b.msg = [line, `${b.player.name} jumps in.`];
+					b.msg = [`${line}${selfTick}`, `${b.player.name} jumps in.`];
 					b.msgI = 0;
 					b.phase = "msg";
 					b.afterMsg = "item";
 					return;
 				}
-				b.msg = [line, `${b.player.name} cannot stand.`];
+				b.msg = [`${line}${selfTick}`, `${b.player.name} cannot stand.`];
 				b.msgI = 0;
 				b.phase = "msg";
 				b.afterMsg = "end_lose";
@@ -2722,9 +2826,12 @@ export class CryMon {
 						b.mods.foeStr = 0;
 						b.mods.foeAgl = 0;
 						b.mods.foeSpc = 0;
+						b.stage.foeStr = 0;
+						b.stage.foeAgl = 0;
+						b.stage.foeSpc = 0;
+						b.hypeActive.foe = false;
 						b.foeEnterT = 0;
 						b.foeFaintT = 0;
-						b.foePoisoned = false;
 						const evo = xp.notes[0] ? ` ${xp.notes[0]}` : "";
 						b.msg = [...lines, `${b.foeName} sends ${nxt.name}.${evo}`];
 						b.msgI = 0;
@@ -2739,7 +2846,7 @@ export class CryMon {
 					return;
 				}
 			}
-			b.msg = [`${b.foe.name} uses ${moveName}.`, line];
+			b.msg = [`${b.foe.name} uses ${moveName}.`, `${line}${selfTick}`];
 			b.msgI = 0;
 			b.phase = "msg";
 			b.afterMsg = "item";
@@ -2881,6 +2988,35 @@ export class CryMon {
 		const mv = unlockedMoves(b.player, true)[i];
 		if (!mv) return;
 		b.pendingMods = { str: 0, agl: 0, spc: 0 };
+		b.pendingEffectText = "";
+		// Paralysis/confusion intercept before the chosen move even runs --
+		// the turn-countdown/HP-tick itself happens once per round in
+		// resolve_guard, not here, so this only checks and bypasses.
+		if (b.player.status === "paralyzed") {
+			b.pendingDmg = 0;
+			b.pendingLabel = `${this.playerDisplayName()} is paralyzed and can't move.`;
+			b.phase = "resolve_hit";
+			this.audio.miss();
+			return;
+		}
+		const confused = this.confusionOutcome(b.player, true);
+		if (confused && confused.kind !== "normal") {
+			b.pendingDmg = 0;
+			if (confused.kind === "none") {
+				b.pendingLabel = `${this.playerDisplayName()} is too confused to act.`;
+			} else if (confused.kind === "self") {
+				const dmg = Math.max(0, Math.min(b.player.hp - 1, confused.dmg));
+				b.player.hp = Math.max(1, b.player.hp - dmg);
+				b.pendingLabel = `${this.playerDisplayName()} is confused and hits itself!`;
+			} else {
+				const target = this.party[confused.targetIdx];
+				if (target) target.hp = Math.max(0, target.hp - confused.dmg);
+				b.pendingLabel = `${this.playerDisplayName()} is confused and hits ${target?.name ?? "an ally"}!`;
+			}
+			b.phase = "resolve_hit";
+			this.audio.miss();
+			return;
+		}
 		if (mv.kind === "wait") {
 			b.msg = [`${this.playerDisplayName()} holds.`];
 			b.msgI = 0;
@@ -2893,11 +3029,26 @@ export class CryMon {
 			this.castSpell(mv.spellId, true);
 			return;
 		}
-		if (mv.kind === "toxic") {
-			const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, TOXIC_BURST.stat);
-			b.pendingDmg = Math.max(1, Math.round(atk * TOXIC_BURST.power));
-			b.pendingLabel = TOXIC_BURST.name;
-			b.foePoisoned = true;
+		if (mv.kind === "nmove" || mv.kind === "hypeUp") {
+			if (!this.spendMovePp(b, b.player, mv)) {
+				b.msg = [`${mv.name} is spent.`];
+				b.msgI = 0;
+				b.phase = "msg";
+				b.afterMsg = "attack";
+				return;
+			}
+			b.pendingDmg = 0;
+			b.pendingLabel = mv.name;
+			if (mv.kind === "hypeUp") {
+				b.hypeActive.self = true;
+				b.pendingEffectText = "STATS UP";
+			} else if (mv.moveKind === "stage") {
+				this.advanceStage(b, "foe", mv.statTarget);
+				b.pendingEffectText = `${(mv.statTarget || "").toUpperCase()} FALLS`;
+			} else {
+				this.inflictStatus(b.foe, mv.statusTarget);
+				b.pendingEffectText = `${(mv.statusTarget || "").toUpperCase()}`;
+			}
 			b.phase = "resolve_hit";
 			this.audio.special();
 			return;
@@ -2918,19 +3069,129 @@ export class CryMon {
 			this.audio.special();
 			return;
 		}
-		const atk = atkStatValue(b.player, b.mods.selfStr, b.mods.selfSpc, mv.stat);
+		const atk = this.dmgStat(b, b.player, "self", mv.stat);
 		b.pendingDmg = Math.max(1, Math.round(atk * mv.power));
 		b.pendingLabel = mv.name;
-		if (mv.kind === "secondary" && mv.mods) b.pendingMods = { ...mv.mods };
 		b.phase = "resolve_hit";
 	}
 	foeDebuffed() {
-		const m = this.battle.mods;
-		return m.foeStr < 0 || m.foeAgl < 0 || m.foeSpc < 0;
+		const m = this.battle.mods, s = this.battle.stage;
+		return m.foeStr < 0 || m.foeAgl < 0 || m.foeSpc < 0 || s.foeStr > 0 || s.foeAgl > 0 || s.foeSpc > 0;
 	}
 	selfDebuffed() {
-		const m = this.battle.mods;
-		return m.selfStr < 0 || m.selfAgl < 0 || m.selfSpc < 0;
+		const m = this.battle.mods, s = this.battle.stage;
+		return m.selfStr < 0 || m.selfAgl < 0 || m.selfSpc < 0 || s.selfStr > 0 || s.selfAgl > 0 || s.selfSpc > 0;
+	}
+	/* Leg 2.11: stage-based stat drops + real status conditions.
+	 * effStat() composes base -> statStages multiplier -> Hype Up's flat
+	 * +35%-of-base -> the pre-existing flat item mod, in that order. */
+	effStat(m, stat, stageVal, hyped, flatMod) {
+		const base = stat === "str" ? m.str : stat === "agl" ? m.agl : m.spc;
+		let v = effectiveStat(base, stageVal);
+		if (hyped) v += Math.round((base * HYPE_UP.hypePercent) / 100);
+		return v + flatMod;
+	}
+	/** atkStatValue's replacement for in-battle damage: folds in this side's
+	 *  stat stage (Proud Roar/Magebane/etc knocked it down) and Hype Up on
+	 *  top of the pre-existing flat item mod. atkStat is "str"|"mag" (mag
+	 *  reads the spc stat, matching atkStatValue's own convention). */
+	dmgStat(b, m, side, atkStat) {
+		const statKey = atkStat === "str" ? "str" : "spc";
+		const stage = side === "self" ? (statKey === "str" ? b.stage.selfStr : b.stage.selfSpc) : (statKey === "str" ? b.stage.foeStr : b.stage.foeSpc);
+		const hyped = side === "self" ? b.hypeActive.self : b.hypeActive.foe;
+		const flat = side === "self" ? (statKey === "str" ? b.mods.selfStr : b.mods.selfSpc) : (statKey === "str" ? b.mods.foeStr : b.mods.foeSpc);
+		return this.effStat(m, statKey, stage, hyped, flat);
+	}
+	movePpKey(m, mv) {
+		return `${m.id}:${mv.kind === "hypeUp" ? "hype" : "nmove"}`;
+	}
+	movePpRemaining(b, m, mv) {
+		return (mv.maxPp ?? 0) - (b.movePpUsed[this.movePpKey(m, mv)] ?? 0);
+	}
+	spendMovePp(b, m, mv) {
+		const key = this.movePpKey(m, mv);
+		const used = b.movePpUsed[key] ?? 0;
+		if (used >= (mv.maxPp ?? 0)) return false;
+		b.movePpUsed[key] = used + 1;
+		return true;
+	}
+	/** Advances one stat's stage on the given side by 1 (capped). side is
+	 *  "self" or "foe" as seen from the CryMon whose stat is dropping. */
+	advanceStage(b, side, stat) {
+		const key = `${side}${stat === "str" ? "Str" : stat === "agl" ? "Agl" : "Spc"}`;
+		b.stage[key] = Math.min(STAT_STAGES.maxStage, b.stage[key] + 1);
+	}
+	/** Inflicts a status on a Monster, replacing whatever was active. Rolls
+	 *  the burn/paralysis turn count once here, at inflict time. */
+	inflictStatus(m, status) {
+		m.status = status;
+		if (status === "burned") {
+			const e = STATUS_EFFECTS.burned;
+			m.statusTurns = randI(e.turnsMin, e.turnsMax);
+			m.poisonStack = 0;
+		} else if (status === "paralyzed") {
+			const e = STATUS_EFFECTS.paralyzed;
+			m.statusTurns = randI(e.turnsMin, e.turnsMax);
+			m.poisonStack = 0;
+		} else if (status === "poisoned") {
+			m.statusTurns = 0;
+			m.poisonStack = 0;
+		} else {
+			m.statusTurns = 0;
+			m.poisonStack = 0;
+		}
+	}
+	clearStatus(m) {
+		m.status = "none";
+		m.statusTurns = 0;
+		m.poisonStack = 0;
+	}
+	/** One status tick (HP drain + turn countdown), called once per side per
+	 *  round. Returns a short message suffix, or "" if nothing happened. */
+	tickStatus(m) {
+		if (!m.status || m.status === "none" || m.hp <= 0) return "";
+		if (m.status === "burned") {
+			const tick = Math.max(1, Math.round((m.maxHp * STATUS_EFFECTS.burned.hpPercent) / 100));
+			m.hp = Math.max(0, m.hp - tick);
+			m.statusTurns = (m.statusTurns ?? 1) - 1;
+			if (m.statusTurns <= 0) this.clearStatus(m);
+			return ` Burn-${tick}`;
+		}
+		if (m.status === "poisoned") {
+			m.poisonStack = (m.poisonStack ?? 0) + 1;
+			const pct = STATUS_EFFECTS.poisoned.startPercent + (m.poisonStack - 1) * STATUS_EFFECTS.poisoned.stepPercent;
+			const tick = Math.max(1, Math.round((m.maxHp * pct) / 100));
+			m.hp = Math.max(0, m.hp - tick);
+			return ` Psn-${tick}`;
+		}
+		if (m.status === "paralyzed") {
+			m.statusTurns = (m.statusTurns ?? 1) - 1;
+			if (m.statusTurns <= 0) this.clearStatus(m);
+			return "";
+		}
+		return "";
+	}
+	/** Confusion's 4-way roll. self=true for the player's own side. Returns
+	 *  null if the CryMon isn't confused (caller proceeds normally), or a
+	 *  {kind, dmg?, targetIdx?} describing what confusion did instead. */
+	confusionOutcome(m, self) {
+		if (m.status !== "confused") return null;
+		const roll = randI(0, 3);
+		if (roll === 0) return { kind: "normal" };
+		if (roll === 1) return { kind: "none" };
+		const basic = SPECIES[m.species];
+		const selfDmg = Math.max(1, Math.round(m.str * basic.basicPower));
+		if (roll === 2) return { kind: "self", dmg: selfDmg };
+		if (self) {
+			const others = this.party.map((_, i) => i).filter((i) => i !== this.partyIndex && this.party[i].hp > 0);
+			if (!others.length) return { kind: "self", dmg: selfDmg };
+			const idx = others[randI(0, others.length - 1)];
+			return { kind: "ally", dmg: selfDmg, targetIdx: idx };
+		}
+		const bench = this.battle.foeBench.map((_, i) => i).filter((i) => this.battle.foeBench[i].hp > 0);
+		if (!bench.length) return { kind: "self", dmg: selfDmg };
+		const idx = bench[randI(0, bench.length - 1)];
+		return { kind: "ally", dmg: selfDmg, targetIdx: idx };
 	}
 	castSpell(id, fromPlayer) {
 		const b = this.battle;
@@ -4039,6 +4300,7 @@ export class CryMon {
 				this.text(`AGL ${m.agl}`, X(108), Y(92), "#c5cec6", FONT);
 				this.text(`MAG ${m.spc}`, X(108), Y(104), "#c5cec6", FONT);
 				this.text(`XP  ${m.xp}/${m.level * 10}`, X(108), Y(116), "#8a8678", FONT);
+				if (m.status && m.status !== "none") this.text(m.status.toUpperCase(), X(190), Y(80), "#8f4a40", FONT);
 				this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 			} else {
 				const moves = this.partyMoves(m);
@@ -4054,18 +4316,14 @@ export class CryMon {
 					this.text(`${on ? ">" : " "}${mv.name}${pp}`, X(108), Y(54 + i * 12), on ? "#e8e4d8" : "#8a8678", FONT);
 				}
 				const mv = moves[cur];
-				if (mv) {
+				if (mv && (mv.kind === "nmove" || mv.kind === "hypeUp")) {
+					this.text(mv.effect, X(16), Y(100), "#8f4a40", FONT);
+					this.text(`Uses    ${mv.pp}`, X(16), Y(112), "#e8e4d8", FONT);
+				} else if (mv) {
 					this.text(mv.stat === "str" ? "STRENGTH based" : "MAGIC based", X(16), Y(100), "#c5cec6", FONT);
 					this.text(`Damage  ${mv.dmg}`, X(16), Y(112), "#e8e4d8", FONT);
 					this.text(`Speed   ${Math.round(mv.speed * 10)}`, X(16), Y(124), "#e8e4d8", FONT);
 					this.text(`Power   ${Math.round(mv.power * 10)}`, X(108), Y(112), "#8a8678", FONT);
-					if (mv.mods) {
-						const bits = [];
-						if (mv.mods.str) bits.push(`STR${mv.mods.str}`);
-						if (mv.mods.agl) bits.push(`AGL${mv.mods.agl}`);
-						if (mv.mods.spc) bits.push(`MAG${mv.mods.spc}`);
-						this.text(bits.join("  "), X(108), Y(124), "#8f4a40", FONT);
-					} else if (mv.kind === "toxic") this.text("Poisons", X(108), Y(124), "#8f4a40", FONT);
 				}
 				this.text("UP/DOWN  inspect", X(16), Y(138), "#5a7a52", FONT);
 				this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
@@ -4152,10 +4410,12 @@ export class CryMon {
 		this.text(`${b.foe.shiny ? "*" : ""}${b.foe.name.toUpperCase()}`, X(10), Y(9), b.foe.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(10), Y(22), X(96), b.foe.hp, b.foe.maxHp);
 		this.text(`${b.foe.hp}`, X(110), Y(20), "#8a8678", FONT);
+		if (b.foe.status && b.foe.status !== "none") this.text(b.foe.status.slice(0, 3).toUpperCase(), X(10), Y(28), "#8f4a40", FONT);
 		this.box(X(108), Y(78), X(126), Y(28));
 		this.text(`${b.player.shiny ? "*" : ""}${b.player.name.toUpperCase()} Lv${b.player.level}`, X(112), Y(80), b.player.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(112), Y(92), X(96), b.player.hp, b.player.maxHp);
 		this.text(`${b.player.hp}`, X(212), Y(90), "#8a8678", FONT);
+		if (b.player.status && b.player.status !== "none") this.text(b.player.status.slice(0, 3).toUpperCase(), X(112), Y(100), "#8f4a40", FONT);
 		if (b.phase === "msg") {
 			this.box(X(6), Y(110), X(228), Y(46));
 			const line = b.msg[b.msgI] ?? "";
