@@ -1,0 +1,435 @@
+{
+  "version": 1,
+  "name": "CryMon overworld map layout",
+  "coordinateSystem": {
+    "type": "abstract map grid",
+    "origin": "CRYTOWN=(0,0)",
+    "x": "east/right increases +1",
+    "y": "south/down increases +1"
+  },
+  "playerMarker": {
+    "mapId": "veld",
+    "label": "CRYTOWN",
+    "note": "World-map marker. A new game starts inside HOME; the first outdoor overworld area is CRYTOWN."
+  },
+  "maps": {
+    "house": {
+      "label": "HOME",
+      "grid": [
+        0,
+        -1
+      ],
+      "active": true,
+      "width": 14,
+      "height": 11
+    },
+    "veld": {
+      "label": "CRYTOWN",
+      "grid": [
+        0,
+        0
+      ],
+      "active": true,
+      "width": 30,
+      "height": 23
+    },
+    "camp": {
+      "label": "THE CAMP",
+      "grid": [
+        -1,
+        1
+      ],
+      "active": true,
+      "width": 16,
+      "height": 10
+    },
+    "forest": {
+      "label": "THE FOREST",
+      "grid": [
+        0,
+        1
+      ],
+      "active": true,
+      "width": 26,
+      "height": 20
+    },
+    "cliffs": {
+      "label": "THE CLIFFS",
+      "grid": [
+        1,
+        1
+      ],
+      "active": true,
+      "width": 18,
+      "height": 12
+    },
+    "marsh": {
+      "label": "THE MARSH",
+      "grid": [
+        1,
+        2
+      ],
+      "active": true,
+      "width": 18,
+      "height": 13
+    },
+    "grove": {
+      "label": "THE GROVE",
+      "grid": [
+        0,
+        2
+      ],
+      "active": true,
+      "width": 26,
+      "height": 21
+    },
+    "quarry": {
+      "label": "THE QUARRY",
+      "grid": [
+        2,
+        2
+      ],
+      "active": true,
+      "width": 16,
+      "height": 13
+    },
+    "gauntlet1": {
+      "label": "GAUNTLET 1",
+      "grid": [
+        -1,
+        3
+      ],
+      "active": true,
+      "width": 16,
+      "height": 36
+    },
+    "ruins": {
+      "label": "THE RUINS",
+      "grid": [
+        0,
+        3
+      ],
+      "active": true,
+      "width": 20,
+      "height": 13
+    },
+    "reach": {
+      "label": "THE REACH",
+      "grid": [
+        0,
+        4
+      ],
+      "active": true,
+      "width": 20,
+      "height": 16
+    },
+    "gauntlet2": {
+      "label": "GAUNTLET 2",
+      "grid": [
+        -1,
+        4
+      ],
+      "active": true,
+      "width": 16,
+      "height": 36
+    },
+    "gauntlet3": {
+      "label": "GAUNTLET 3",
+      "grid": [
+        -1,
+        5
+      ],
+      "active": true,
+      "width": 16,
+      "height": 36
+    },
+    "gauntlet4": {
+      "label": "GAUNTLET 4",
+      "grid": [
+        -1,
+        6
+      ],
+      "active": true,
+      "width": 16,
+      "height": 36
+    },
+    "gauntlet5": {
+      "label": "GAUNTLET 5",
+      "grid": [
+        -1,
+        7
+      ],
+      "active": true,
+      "width": 16,
+      "height": 36
+    },
+    "gauntlet6": {
+      "label": "THE GRAVE",
+      "grid": [
+        -1,
+        8
+      ],
+      "active": true,
+      "width": 16,
+      "height": 20
+    },
+    "gauntlet": {
+      "label": "GAUNTLET 1 (legacy duplicate)",
+      "grid": [
+        3,
+        8
+      ],
+      "active": false,
+      "width": 16,
+      "height": 36
+    }
+  },
+  "connections": [
+    {
+      "from": "house",
+      "to": "veld",
+      "fromTile": "D",
+      "toTile": "D",
+      "fromXY": {
+        "x": 6,
+        "y": 10
+      },
+      "toXY": {
+        "x": 17,
+        "y": 3
+      },
+      "direction": "down",
+      "need": "tookStarter"
+    },
+    {
+      "from": "veld",
+      "to": "forest",
+      "fromTile": "Z",
+      "toTile": "Y",
+      "fromXY": {
+        "x": 14,
+        "y": 22
+      },
+      "toXY": {
+        "x": 13,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "forest",
+      "to": "grove",
+      "fromTile": "O",
+      "toTile": "O",
+      "fromXY": {
+        "x": 13,
+        "y": 19
+      },
+      "toXY": {
+        "x": 13,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "veld",
+      "to": "camp",
+      "fromTile": "F",
+      "toTile": "D",
+      "fromXY": {
+        "x": 8,
+        "y": 20
+      },
+      "toXY": {
+        "x": 7,
+        "y": 1
+      },
+      "direction": "down",
+      "need": "beatCalder"
+    },
+    {
+      "from": "veld",
+      "to": "cliffs",
+      "fromTile": "c",
+      "toTile": "D",
+      "fromXY": {
+        "x": 28,
+        "y": 11
+      },
+      "toXY": {
+        "x": 9,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "grove",
+      "to": "ruins",
+      "fromTile": "g",
+      "toTile": "D",
+      "fromXY": {
+        "x": 13,
+        "y": 19
+      },
+      "toXY": {
+        "x": 10,
+        "y": 1
+      },
+      "direction": "down",
+      "need": "beatShin"
+    },
+    {
+      "from": "ruins",
+      "to": "reach",
+      "fromTile": "e",
+      "toTile": "D",
+      "fromXY": {
+        "x": 10,
+        "y": 12
+      },
+      "toXY": {
+        "x": 10,
+        "y": 1
+      },
+      "direction": "down",
+      "need": "hasScroll"
+    },
+    {
+      "from": "forest",
+      "to": "marsh",
+      "fromTile": "m",
+      "toTile": "Y",
+      "fromXY": {
+        "x": 20,
+        "y": 9
+      },
+      "toXY": {
+        "x": 8,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "cliffs",
+      "to": "quarry",
+      "fromTile": "q",
+      "toTile": "D",
+      "fromXY": {
+        "x": 2,
+        "y": 10
+      },
+      "toXY": {
+        "x": 9,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "grove",
+      "to": "gauntlet1",
+      "fromTile": "G",
+      "toTile": "2",
+      "fromXY": {
+        "x": 2,
+        "y": 18
+      },
+      "toXY": {
+        "x": 8,
+        "y": 1
+      },
+      "direction": "down",
+      "need": "choseHeavenfall"
+    },
+    {
+      "from": "gauntlet1",
+      "to": "gauntlet2",
+      "fromTile": "1",
+      "toTile": "2",
+      "fromXY": {
+        "x": 8,
+        "y": 34
+      },
+      "toXY": {
+        "x": 8,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "gauntlet2",
+      "to": "gauntlet3",
+      "fromTile": "1",
+      "toTile": "2",
+      "fromXY": {
+        "x": 8,
+        "y": 34
+      },
+      "toXY": {
+        "x": 8,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "gauntlet3",
+      "to": "gauntlet4",
+      "fromTile": "1",
+      "toTile": "2",
+      "fromXY": {
+        "x": 8,
+        "y": 34
+      },
+      "toXY": {
+        "x": 8,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "gauntlet4",
+      "to": "gauntlet5",
+      "fromTile": "1",
+      "toTile": "2",
+      "fromXY": {
+        "x": 8,
+        "y": 34
+      },
+      "toXY": {
+        "x": 8,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "gauntlet5",
+      "to": "gauntlet6",
+      "fromTile": "1",
+      "toTile": "2",
+      "fromXY": {
+        "x": 8,
+        "y": 34
+      },
+      "toXY": {
+        "x": 8,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
+    }
+  ],
+  "rules": [
+    "Map IDs remain stable internal identifiers; the player-facing name of map ID `veld` is CRYTOWN.",
+    "Grid coordinates are a world-map reconstruction layer, not runtime pixel coordinates.",
+    "Connection records retain the exact source/destination tile marks and their 0-based tile coordinates from the canonical map arrays.",
+    "The legacy `gauntlet` map is retained in mapOrder but has no active warp connection; gauntlet1 through gauntlet6 are the active chain."
+  ]
+}
