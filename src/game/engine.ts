@@ -1686,6 +1686,10 @@ export class CryMon {
 			}
 			return;
 		}
+		if (this.input.pressed("Tab") || this.input.pressed("KeyQ")) {
+			this.swapParties();
+			return;
+		}
 		if (this.anne.phase === "leave") {
 			this.anne.y += 80 * dt;
 			this.anne.dir = "down";
