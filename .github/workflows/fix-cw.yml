@@ -8,12 +8,42 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/patch_sell_rep.py
+      - run: python3 -m pip install --user Pillow
+      - name: Generate art debt sprites
+        run: python3 tools/gen_art_debt_2_0.py
+      - name: Mark CURRENT_WORK 2.0 art shipped
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("CURRENT_WORK.md")
+          t = p.read_text()
+          old = """**Partial (Grok A):** Mega / Ultimate / Perfect Capture Crystal item
+icons pushed. Driller world frames pushed (`npc/driller-1..4.png`).
+Dray world frames + portrait pushed (`npc/dray-1..4.png`,
+`portraits/dray.png`). `check_sync --strict` FAIL is now 16 files
+(was 28). Remaining: marsh NPC world frames (Bogwalker, Reedguard,
+Fenn) + their portraits, plus `quartz-2.png`."""
+          new = """**DONE (Grok C):** Mega / Ultimate / Perfect Capture Crystal item
+icons, Driller/Dray frames, and remaining marsh art pushed:
+`npc/bogwalker-1..4.png`, `npc/reedguard-1..4.png`, `npc/fenn-1..4.png`,
+portraits for bogwalker/reedguard/fenn (160x200), and `quartz-2.png`.
+World frames are 48x64 transparent pixel art."""
+          if old in t:
+              t = t.replace(old, new, 1)
+              p.write_text(t)
+              print("CURRENT_WORK updated")
+          else:
+              print("CURRENT_WORK anchor missing — skip")
+          PY
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add src/game/engine.ts ports/dreamcast/src/main.c
+          git add public/sprites/npc/bogwalker-*.png public/sprites/npc/reedguard-*.png \
+            public/sprites/npc/fenn-*.png public/sprites/npc/quartz-2.png \
+            public/sprites/portraits/bogwalker.png public/sprites/portraits/reedguard.png \
+            public/sprites/portraits/fenn.png CURRENT_WORK.md
+          git status
           git diff --staged --quiet && echo no changes && exit 0
-          git commit -m "Shop: sell = half buy, +/-1% per reputation (floor 1 mark)"
+          git commit -m "Art 2.0: bogwalker/reedguard/fenn frames+portraits, quartz-2"
           git push
