@@ -27,7 +27,7 @@
     "xpBase": 6,
     "xpPerLevel": 4,
     "levelXpMul": 10,
-    "levelCap": 20,
+    "levelCap": 100,
     "levelHp": 3,
     "levelStat": 1,
     "mintGrowPerLevel": 0.12,
@@ -933,6 +933,19 @@
       "party": [
         {
           "species": "heavenfall",
+          "level": 20
+        }
+      ]
+    },
+    "lieutenantLead": {
+      "title": "Lieutenant Lead bars the north road",
+      "name": "Lieutenant Lead",
+      "winTalk": "leadWinPlaceholder",
+      "set": "beatLieutenantLead",
+      "marks": 20,
+      "party": [
+        {
+          "species": "lead",
           "level": 20
         }
       ]
@@ -1957,6 +1970,24 @@
           "talk": "gauntletGraveRise",
           "if": "hasScroll",
           "pending": "heavenfallGrave"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "L",
+      "id": "lieutenantLead",
+      "role": "trainer",
+      "sprite": "npc/lead",
+      "talk": "leadSpot",
+      "talkDone": "leadWinPlaceholder",
+      "script": [
+        {
+          "hideIf": "beatLieutenantLead"
+        },
+        {
+          "talk": "leadSpot",
+          "pending": "lieutenantLead"
         }
       ]
     }

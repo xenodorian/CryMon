@@ -970,6 +970,10 @@ export class CryMon {
 				this.choiceCur = 0;
 			} else if (next === "wsoldier") {
 				this.startWsBattle(this.pendingWs);
+			} else if (next === "leadThanksGO") {
+				this.startFade("hfGameOver");
+			} else if (next === "hfGameOver") {
+				this.runHeavenfallGameOverFx();
 			} else if (next === "ending") {
 				/* 2.4: Father stays in world; Heavenfall path only unlocks gauntlet (choseHeavenfall). */
 				if (this.choseHeavenfall) {
@@ -2048,6 +2052,9 @@ export class CryMon {
 			this.doorLock = 0.4;
 			this.announceMap();
 		}
+		if (this.fade.action === "hfGameOver") {
+			this.reloadLastSaveOrTitle();
+		}
 	}
 	tickFade(dt: number) {
 		if (this.fade.phase === "off") return;
@@ -2342,6 +2349,13 @@ export class CryMon {
 			plPoisoned: false,
 			foePoisoned: false
 		};
+		
+		if (foe && foe.species === "lead") {
+			foe.name = "Lieutenant Lead";
+			foe.level = 20;
+			foe.maxHp = 60; foe.hp = 60;
+			foe.str = 20; foe.agl = 20; foe.spc = 10;
+		}
 		this.mode = "battle";
 		this.audio.ok();
 	}
@@ -2426,7 +2440,11 @@ export class CryMon {
 						this.leaveBattle();
 						this.world.encounterLock = 3;
 						this.onBattleOver();
-						this.startFade("loss");
+						if (this.choseHeavenfall) {
+							this.beginHeavenfallGameOver();
+						} else {
+							this.startFade("loss");
+						}
 						return;
 					}
 					if (b.afterMsg === "end_catch" || b.afterMsg === "end_run") {
@@ -3016,6 +3034,11 @@ export class CryMon {
 				else if (who === "opal") this.badgeOpal = true;
 				else if (who === "quarryDriller") this.beatQuarryDriller = true;
 				else if (who === "commanderFinal") this.beatCommander = true;
+				else if (who === "lieutenantLead") {
+					this.beatLieutenantLead = true;
+					this.say(TALK.leadWinPlaceholder || [{ speaker: "system", text: "Thank you for playing." }], "leadThanksGO");
+					return;
+				}
 				else if (who === "heavenfallGrave") {
 					this.beatHeavenfall = true;
 					this.titleSlayer = true;
@@ -3281,6 +3304,27 @@ export class CryMon {
 		];
 		for (const m of this.party2) this.markCaught(m.species);
 	}
+
+	beginHeavenfallGameOver() {
+		this.say(TALK.heavenfallDevour || [
+			{ speaker: "system", text: "Heavenfall descends. There is no path home from this." },
+		], "hfGameOver");
+	}
+	runHeavenfallGameOverFx() {
+		try { this.audio.scream(); } catch {}
+		this.startFade("hfGameOver");
+	}
+	reloadLastSaveOrTitle() {
+		const buf = typeof readSaveBlob === "function" ? readSaveBlob() : null;
+		const snap = buf ? unpackSave(buf) : null;
+		if (snap && this.applySave(snap)) {
+			this.mode = "world";
+			this.note("Loaded last save.");
+			return;
+		}
+		this.reset();
+		this.mode = "title";
+	}
 	playerDisplayName() {
 		if (this.titleSlayer) return "Heaven Slayer";
 		if (this.titleTamer) return "Heaven Tamer";
@@ -3320,7 +3364,7 @@ export class CryMon {
 		if (a <= 0) return;
 		this.ctx.save();
 		this.ctx.globalAlpha = a;
-		this.ctx.fillStyle = this.fade.action === "execute" ? "#8b1010" : "#000";
+		this.ctx.fillStyle = this.fade.action === "execute" || this.fade.action === "hfGameOver" ? "#8b1010" : "#000";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 		this.ctx.restore();
 	}

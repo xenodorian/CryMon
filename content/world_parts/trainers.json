@@ -362,6 +362,19 @@
           "level": 20
         }
       ]
+    },
+    "lieutenantLead": {
+      "title": "Lieutenant Lead bars the north road",
+      "name": "Lieutenant Lead",
+      "winTalk": "leadWinPlaceholder",
+      "set": "beatLieutenantLead",
+      "marks": 20,
+      "party": [
+        {
+          "species": "lead",
+          "level": 20
+        }
+      ]
     }
   }
 }

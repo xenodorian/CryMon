@@ -70,7 +70,8 @@
     "gravelurk",
     "cindermite",
     "veilcap",
-    "kilnback"
+    "kilnback",
+    "lead"
   ],
   "flags": [
     "tookStarter",
@@ -132,7 +133,8 @@
     "gauntletWipeRegret",
     "titleSlayer",
     "titleTamer",
-    "beatHeavenfall"
+    "beatHeavenfall",
+    "beatLieutenantLead"
   ],
   "layout": {
     "magic": [

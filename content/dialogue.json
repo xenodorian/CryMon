@@ -1404,6 +1404,48 @@
         "speaker": "max",
         "text": "Heavenfall falls. The path of power is paid in full."
       }
+    ],
+    "leadSpot": [
+      {
+        "speaker": "lead",
+        "text": "Halt. Lieutenant Lead, Weeping Army."
+      },
+      {
+        "speaker": "lead",
+        "text": "No one leaves Crytown by the north road."
+      },
+      {
+        "speaker": "lead",
+        "text": "Turn back, or face me."
+      }
+    ],
+    "leadWinPlaceholder": [
+      {
+        "speaker": "system",
+        "text": "..."
+      },
+      {
+        "speaker": "system",
+        "text": "Thank you for playing."
+      },
+      {
+        "speaker": "system",
+        "text": "More of the world opens in Leg 3."
+      }
+    ],
+    "heavenfallDevour": [
+      {
+        "speaker": "system",
+        "text": "The air tears open."
+      },
+      {
+        "speaker": "system",
+        "text": "Heavenfall descends on Max with a hunger that has no bottom."
+      },
+      {
+        "speaker": "system",
+        "text": "There is no path home from this."
+      }
     ]
   },
   "endingWinHeavenfall": [

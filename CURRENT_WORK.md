@@ -808,6 +808,29 @@ before the rest of 2.7.
 
 ---
 
+
+## Leg 2 wrap → Leg 3 gate (user 2026-09-21, Grok C)
+
+**Before Leg 3 cities/generals, lock these wrap items:**
+
+1. **Level cap 100** (was 20) in `formulas.levelCap` / both engines.
+2. **Heavenfall-path party wipe = Game Over:** if `choseHeavenfall` and the
+   party fully faints, play narrative (Heavenfall attacks and eats Max),
+   red fade + unique female scream SFX, fade to black, then reload last
+   save (or title if none). Not a soft trip home.
+3. **Lieutenant Lead** blocks the **north path out of Crytown (veld)**.
+   Human soldier who fights **as himself** (pseudo-species), not a CryMon
+   squad. Level 20, HP 60, Str 20, Agl 20, Spc 10. Basic **Burst Fire**
+   power **1.5** (Heavenfall basic also **1.5**). Crystal nature weak to
+   Heavenfall (diamond beats him). Fightable anytime; without Heavenfall
+   the math is brutal. Art: camo + rifle (overworld frames, portrait,
+   battle sprite).
+4. **Beating Lead (placeholder):** "Thank you for playing" then Game Over
+   until Leg 3 unlocks the north / generals.
+
+**Leg 3 still requires** reputation + gauntlet decisions already landed;
+Lead is the narrative door into that leg.
+
 ## Leg 3 (open — also from the same doc)
 
 **Do not start before Leg 2's gauntlet/reputation work lands** — Leg 3
