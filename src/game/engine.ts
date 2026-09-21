@@ -151,6 +151,7 @@ export class CryMon {
 	party2 = [];
 	/** 0 = Max, 1 = Father. */
 	activeParty = 0;
+	party2Index = 0;
 	bag: Record<ItemId, number> = { ...START_BAG };
 	battle = null;
 	talkedFather = false;
@@ -329,6 +330,7 @@ export class CryMon {
 		this.partyIndex = 0;
 		this.party2 = [];
 		this.activeParty = 0;
+		this.party2Index = 0;
 		this.bag = { ...START_BAG };
 		this.marks = START_MARKS;
 		this.talkQ = [];
@@ -472,8 +474,8 @@ export class CryMon {
 			executedMask: this.executedMask,
 			bag: { ...this.bag },
 			flags,
-			party: this.party.map((m) => ({ ...m })),
-			party2: this.party2.map((m) => ({ ...m })),
+			party: (this.activeParty === 1 ? this.party2 : this.party).map((m) => ({ ...m })),
+			party2: (this.activeParty === 1 ? this.party : this.party2).map((m) => ({ ...m })),
 			activeParty: this.activeParty,
 			dexSeen: this.dexSeen >>> 0,
 			dexCaught: this.dexCaught >>> 0,
@@ -499,6 +501,13 @@ export class CryMon {
 			nature: m.nature ?? 0,
 		}));
 		this.activeParty = snap.activeParty ? 1 : 0;
+		this.party2Index = 0;
+		// If save says Father was active, swap so this.party is the controlled set.
+		if (this.activeParty === 1 && this.party2.length) {
+			const tmp = this.party;
+			this.party = this.party2;
+			this.party2 = tmp;
+		}
 		this.partyIndex = Math.min(snap.partyIndex, Math.max(0, this.party.length - 1));
 		this.battlesDone = snap.battlesDone;
 		this.mason2Map = snap.mason2Map;
@@ -1521,6 +1530,10 @@ export class CryMon {
 		}
 		if (this.input.start() || this.input.cancel()) {
 			this.closeMenu();
+			return;
+		}
+		if (this.input.pressed("Tab") || this.input.pressed("KeyQ")) {
+			this.swapParties();
 			return;
 		}
 		if (this.input.select()) {
@@ -3197,12 +3210,40 @@ export class CryMon {
 			if (this.choiceCur === 0) {
 				this.revivedFather = true;
 				this.adjustReputation(LOGIC.reputation?.fatherRevive ?? 25);
+				this.seedFatherParty();
 				this.warpTo("house", "P", "up");
 				this.say(TALK.choiceFather, "ending");
 			} else {
 				this.say(TALK.choiceHeavenfall, "ending");
 			}
 		}
+	}
+
+	/** Swap Max <-> Father party in place so existing this.party battle code keeps working. */
+	swapParties() {
+		if (!this.revivedFather) {
+			this.note("Father is not with you.");
+			return;
+		}
+		const tmp = this.party;
+		this.party = this.party2;
+		this.party2 = tmp;
+		const ti = this.partyIndex;
+		this.partyIndex = this.party2Index;
+		this.party2Index = ti;
+		this.activeParty = this.activeParty ? 0 : 1;
+		const who = this.activeParty === 1 ? "Father" : "Max";
+		this.note(`${who}'s party takes the field.`);
+		this.audio.ui();
+	}
+	seedFatherParty() {
+		if (this.party2.length > 0) return;
+		// Independent starter set for Father (does not touch Max's party).
+		this.party2 = [
+			mintMonster("mossback", 8),
+			mintMonster("quillpup", 7),
+		];
+		for (const m of this.party2) this.markCaught(m.species);
 	}
 	playerDisplayName() {
 		if (this.revivedFather) return LOGIC.reputation?.kindName || "Max The Kind";
@@ -3643,6 +3684,10 @@ export class CryMon {
 		const boxW = Math.max(340, statsX + 230);
 		this.box(8, 8, boxW, 40);
 		this.text(name, 16, 12, "#e8e4d8", FONT);
+		if (this.revivedFather) {
+			const tag = this.activeParty === 1 ? "FATHER" : "MAX";
+			this.text(tag, 16 + Math.ceil(this.ctx.measureText(name).width) + 8, 12, this.activeParty === 1 ? "#c5a06a" : "#8a9eb0", FONT);
+		}
 		this.text(`Xtals ${this.bag.gem}`, statsX, 12, "#c5cec6", FONT);
 		this.text(`M ${this.marks}`, statsX + 112, 12, "#8f4a40", FONT);
 		{

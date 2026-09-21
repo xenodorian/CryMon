@@ -146,7 +146,7 @@ export function CryMonApp() {
               <span className="text-muted">Doors</span> walk onto them — no button
             </li>
             <li>
-              <span className="text-muted">Back / switch CryMon</span> X C Esc · 1 2 3 4 5 6
+              <span className="text-muted">Party</span> Tab/Q Max↔Father · 1-6 lead · X C Esc
             </li>
           </ul>
           <p>
