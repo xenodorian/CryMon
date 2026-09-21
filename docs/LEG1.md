@@ -7,9 +7,9 @@ Weeping Army / Anne's 5-crystal gift / Shinigami scroll unchanged).
 
 ## Where we are
 
-- 8 maps: house, veld, forest, grove, camp, cliffs, ruins, reach
+- 8 maps: house, CryTown, forest, grove, camp, cliffs, ruins, reach
 - 20 species, 7 evolve lines, 7 crystals
-- Wild grass on veld/forest/cliffs/reach plus Claude's grove/camp/ruins patches
+- Wild grass on CryTown/forest/cliffs/reach plus Claude's grove/camp/ruins patches
 - P1 on `main`: unevolved early pools, evolved late pools, 5 signature specials
 - Trainers exist (Calder, camp trio, sentry, Cross, Mason, Shinigami, Cathleen)
 - Not FireRed-scale: no badge circuit, no boxed PC, few routes, 20 mons
