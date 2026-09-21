@@ -434,6 +434,20 @@ after the father/Heavenfall choice. **New spec:**
     when implementing this.
 - It's **5 maps of tall grass**, back to back, each with
   increasingly higher-level wild CryMon than the last.
+
+- **Map shape (user 2026-09-21):** each of the 5 grass maps (and the
+  approach through them) should be **long and thin**, with **lines of
+  trees** forming a **maze-like** layout and **multiple dead ends**.
+  Navigation is part of the pressure: a full party wipe already sends
+  the player home, so the gauntlet is a **one-shot run** — clear all
+  maps without blacking out, or start over from home.
+- **First gauntlet wipe dialogue (user 2026-09-21):** the first time the
+  player blacks out / is sent home **from the gauntlet** after having
+  chosen the Heavenfall path (not Father), play a short series of
+  dialogue boxes as **Max**: she regrets choosing power over the life
+  of her father and wishes he were still here. Gate with a new save
+  flag (e.g. `gauntletWipeRegret`) so it only fires **once**. Later
+  wipes are silent (or use generic blackout only).
 - The **5th map's encounter pool includes every CryMon species in the
   game** that isn't a one-off named character (Cathleen and Heavenfall
   excluded), all catchable there.
@@ -483,6 +497,8 @@ the quarry/endgame breakdown shape that worked well all session:
 7. Wire into `engine.ts`, then `main.c` (same non-generic Dreamcast
    wiring every boss/map addition has needed all session).
 8. Integration pass + playtest.
+9. Maze layouts (long/thin + tree corridors + dead ends) for all 5 grass maps.
+10. First-wipe Max regret dialogue + `gauntletWipeRegret` flag (Heavenfall path only).
 
 ### 2.5 — Replace the capture-rate mechanic + add crystal tiers
 
