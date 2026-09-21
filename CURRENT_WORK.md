@@ -3,6 +3,13 @@
 Live coordination doc for every agent working this repo (Claude, Grok,
 ChatGPT, others). Read before starting anything; update before you stop.
 
+**Current world-map/naming contract:**
+- The player-facing name of map ID `veld` is **CRYTOWN**. Do not use "Veld" or "the veld" in new prose, UI, documentation, dialogue, or agent notes.
+- The internal map ID remains `veld` for save/map-order compatibility. Do not rename that identifier without an explicit save-format migration.
+- `content/world_map_layout.json` is the canonical abstract grid for reconstructing the current overworld. It records map positions, dimensions, and every active warp pair with exact tile coordinates.
+- The CRYTOWN ↔ HOME connection is currently restored: `content/maps.json` contains exactly one CRYTOWN `D` at row 3, column 18 (0-based x=17,y=3), paired with HOME `D` at x=6,y=10. The prior missing-door regression was fixed in commit `1a5866b71936911bd1cd558984cad4efa6610464`. Do not remove or relocate this tile without updating the world-map layout and connection checks.
+- `public/maps/crytown-world-map.png` is the code-derived world-map reference. It is schematic, not a source map texture.
+
 **Standing house rules:**
 - **Commit-and-push per step, always.** After finishing each individual
   step/sub-step (not each large multi-part item — each *step*), commit
@@ -1073,7 +1080,7 @@ everything else.
      (10 art placeholders — now includes the 6 new items' icons,
      1 stray PNG, `data.ts`/`types.ts` map/species drift, the
      pre-existing `gauntlet` legacy-map-key encounter FAIL, and the
-     pre-existing `veld.D`/`veld.L`/`lieutenantLead` warp FAILs) — all
+     pre-existing `veld.L`/`lieutenantLead` warp FAILs; the `veld.D` house connection regression is resolved) — all
      predate this sub-step and are out of scope (other owners'
      content). No new FAILs.
    - `npm run typecheck`: clean.
@@ -1101,7 +1108,7 @@ commit, push) runs next.
    party fully faints, play narrative (Heavenfall attacks and eats Max),
    red fade + unique female scream SFX, fade to black, then reload last
    save (or title if none). Not a soft trip home.
-3. **Lieutenant Lead** blocks the **north path out of Crytown (veld)**.
+3. **Lieutenant Lead** blocks the **north path out of CryTown**.
    Human soldier who fights **as himself** (pseudo-species), not a CryMon
    squad. Level 20, HP 60, Str 20, Agl 20, Spc 10. Basic **Burst Fire**
    power **1.5** (Heavenfall basic also **1.5**). Crystal nature weak to
