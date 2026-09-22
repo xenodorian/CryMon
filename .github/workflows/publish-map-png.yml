@@ -1,0 +1,23 @@
+name: Publish map PNG
+on:
+  workflow_dispatch:
+jobs:
+  pub:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rasterize SVG
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
+          convert -background '#0d1b2a' public/maps/sorrow-county-town-map.svg public/maps/sorrow-county-town-map.png
+          convert public/maps/sorrow-county-town-map.png -resize 400x public/maps/sorrow-county-town-map-preview.png
+          ls -la public/maps/*.png
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add public/maps/*.png
+          git commit -m "Add Town Map PNG preview for display" || exit 0
+          git push
