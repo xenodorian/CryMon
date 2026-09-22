@@ -4194,9 +4194,16 @@ export class CryMon {
 			fill("#4a3a28", dx, dy + 5, t, 1);
 			return;
 		}
-		if (ch === "C" || ch === "S") {
+		if (ch === "C") {
 			fill("#6a5238");
 			fill("#4a3a28", dx, dy + 12, t, 1);
+			return;
+		}
+		// S = Lieutenant Lead mark on CryTown north path — dirt, not crate/stump
+		if (ch === "S") {
+			fill("#6b5a3a");
+			fill("#8a7348", dx + 2, dy + 4, 1, 1);
+			fill("#4a3a28", dx + 9, dy + 11, 1, 1);
 			return;
 		}
 		if (ch === ".") {
@@ -4239,11 +4246,19 @@ export class CryMon {
 			fill("#6a6050", dx + 3, dy + 4, 10, 4);
 			return;
 		}
-		if (ch === "N" || ch === "E") {
+		if (ch === "N") {
+			// tent footprint (camp)
 			fill("#3d5a38");
 			fill("#8a7348", dx + 2, dy + 7, 12, 9);
 			fill("#6a4030", dx + 1, dy + 2, 14, 6);
 			fill("#3a2c22", dx + 7, dy, 2, 4);
+			return;
+		}
+		// E = Calder mark — grass only (was shared with tent and looked like a stump/acorn)
+		if (ch === "E") {
+			fill("#3d5a38");
+			fill("#4a6b42", dx + 2, dy + 4, 1, 1);
+			fill("#2f4a2c", dx + 9, dy + 11, 1, 1);
 			return;
 		}
 		if (ch === "K" || ch === "V" || ch === "A" || ch === "Q" || ch === "M" || ch === "G" || ch === "L" || ch === "J" || ch === "1" || ch === "2") {
