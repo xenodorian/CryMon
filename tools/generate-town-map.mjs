@@ -43,7 +43,7 @@ const REGION_META = {
   quarry: { label: "The Quarry", kind: "cave", gem: false },
   ruins: { label: "The Ruins", kind: "route", gem: false },
   reach: { label: "The Reach", kind: "route", gem: false },
-  gauntlet_route: { label: "Gauntlet", kind: "gauntlet", gem: false },
+  gauntlet_route: { label: "Gauntlet", kind: "route", gem: false },
   heavenfall_shrine: { label: "Heavenfall Shrine", kind: "shrine", gem: true },
 };
 
@@ -230,7 +230,7 @@ md.push("```text");
 for (const [id, pos] of [...positions.entries()].sort(
   (a, b) => a[1].y - b[1].y || a[1].x - b[1].x
 )) {
-  const marker = isGem(id) ? "💎" : kindOf(id) === "cave" || kindOf(id) === "gauntlet" ? "●" : "·";
+  const marker = isGem(id) ? "💎" : kindOf(id) === "cave" ? "●" : "·";
   md.push(`${marker} ${labelOf(id)}  (${pos.x},${pos.y})`);
 }
 md.push("```");
@@ -302,7 +302,7 @@ for (const [id, pos] of positions) {
   const x = px(pos.x);
   const y = py(pos.y);
   const kind = kindOf(id);
-  const isPOI = kind === "cave" || kind === "gauntlet";
+  const isPOI = kind === "cave";
   if (isGem(id)) {
     // Real landmark (town/camp/shrine): discrete diamond marker, like FireRed's town-pin.
     svg.push(
@@ -315,9 +315,10 @@ for (const [id, pos] of positions) {
       `  <text x="${x}" y="${y + 30}" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">${esc(labelOf(id))}</text>`
     );
   } else if (isPOI) {
-    // Point of interest along the road (cave/gauntlet entrance): small dot, no box.
+    // Location along the road (cave entrance): small stone-gray dot, no box.
+    // Never beige — beige reads as part of the road, not a marker.
     svg.push(
-      `  <circle cx="${x}" cy="${y}" r="6" fill="#8a7a55" stroke="#4a3a28" stroke-width="1.5"/>`
+      `  <circle cx="${x}" cy="${y}" r="6" fill="#5a5a52" stroke="#2a2a24" stroke-width="1.5"/>`
     );
     svg.push(
       `  <text x="${x}" y="${y + 22}" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="10">${esc(labelOf(id))}</text>`

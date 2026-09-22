@@ -14,7 +14,7 @@ Anchor: **CryTown** (`veld`)
 ● The Quarry  (2,1)
 · The Grove  (0,2)
 · The Ruins  (2,2)
-● Gauntlet  (0,3)
+· Gauntlet  (0,3)
 · The Reach  (2,3)
 💎 Heavenfall Shrine  (0,4)
 ```

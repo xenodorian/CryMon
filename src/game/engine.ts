@@ -1098,7 +1098,7 @@ export class CryMon {
 		for (const n of nodes) {
 			const x = px(n.x);
 			const y = py(n.y);
-			const isPOI = n.kind === "cave" || n.kind === "gauntlet";
+			const isPOI = n.kind === "cave";
 			if (n.gem) {
 				// Real landmark (town/camp/shrine): discrete diamond marker.
 				ctx.fillStyle = n.id === here ? "#7ec8f0" : "#4a90c8";
@@ -1111,8 +1111,9 @@ export class CryMon {
 				ctx.fill();
 				this.text(n.label, X(x), Y(y + 16), n.id === here ? "#ffe08a" : "#d8d0c0", 10, "center");
 			} else if (isPOI) {
-				// Point of interest along the road (cave/gauntlet entrance): small dot.
-				ctx.fillStyle = n.id === here ? "#f0e6c0" : "#8a7a55";
+				// Location along the road (cave entrance): small stone-gray dot.
+				// Never beige — beige reads as part of the road, not a marker.
+				ctx.fillStyle = n.id === here ? "#f0e6c0" : "#5a5a52";
 				ctx.beginPath();
 				ctx.arc(x, y, 4, 0, Math.PI * 2);
 				ctx.fill();

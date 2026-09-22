@@ -96,7 +96,7 @@
     {
       "id": "gauntlet_route",
       "label": "Gauntlet",
-      "kind": "gauntlet",
+      "kind": "route",
       "gem": false,
       "x": 0,
       "y": 3,

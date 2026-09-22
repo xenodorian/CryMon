@@ -398,6 +398,25 @@ Fixed in both renderers (they must stay in sync, same three-tier logic):
   Dreamcast rebuild needed — `main.c` and baked `.inc` content
   untouched (`town_map.json` is web-only runtime data, not baked).
 
+**Town Map follow-up: Gauntlet is a route, Quarry's marker isn't beige
+(Claude, 2026-09-22).** User corrected the previous fix on two points:
+- **Gauntlet is a route, not a location.** `REGION_META.gauntlet_route`
+  changed from `kind: "gauntlet"` to `kind: "route"` — it now renders
+  exactly like Forest/Grove/Cliffs/etc: no marker, just a label on the
+  path. There is no `kind: "gauntlet"` left anywhere; the POI-dot tier
+  is now driven solely by `kind === "cave"` (currently only Quarry).
+- **No beige dots.** The small location-dot marker (for cave entrances)
+  was `#8a7a55` — the same tan family as the road, so it read as part
+  of the path rather than a distinct marker. Changed to stone-gray
+  (`#5a5a52` fill / `#2a2a24` stroke) in both
+  `tools/generate-town-map.mjs` and `src/game/engine.ts`'s
+  `drawTownMap()`.
+- Regenerated, re-ran `run_full_audit.py` (PASS), rendered and
+  confirmed: Gauntlet is now a bare label on the Grove→Heavenfall
+  road, Quarry keeps a dark gray dot (not beige).
+- `check_sync --strict`, typecheck, web build clean. No Dreamcast
+  rebuild needed (same reason as above).
+
 ---
 
 ## Leg 3 (open — from the user's doc)

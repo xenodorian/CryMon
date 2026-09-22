@@ -33,12 +33,11 @@
   <text x="416" y="100" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Cliffs</text>
   <text x="256" y="180" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Forest</text>
   <text x="96" y="180" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Marsh</text>
-  <circle cx="416" cy="192" r="6" fill="#8a7a55" stroke="#4a3a28" stroke-width="1.5"/>
+  <circle cx="416" cy="192" r="6" fill="#5a5a52" stroke="#2a2a24" stroke-width="1.5"/>
   <text x="416" y="214" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="10">The Quarry</text>
   <text x="256" y="260" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Grove</text>
   <text x="416" y="260" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Ruins</text>
-  <circle cx="256" cy="352" r="6" fill="#8a7a55" stroke="#4a3a28" stroke-width="1.5"/>
-  <text x="256" y="374" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="10">Gauntlet</text>
+  <text x="256" y="340" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">Gauntlet</text>
   <text x="416" y="340" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Reach</text>
   <circle cx="256" cy="432" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
   <path d="M 256 422 L 265 432 L 256 442 L 247 432 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
