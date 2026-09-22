@@ -133,6 +133,8 @@ export const YOD = normalize(raw.yod);
 export const GEVURAH = normalize(raw.gevurah);
 export const MEM = normalize(raw.mem);
 
+export const LAMED = normalize(raw.lamed);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -171,6 +173,7 @@ export const MAPS = {
   yod: YOD,
   gevurah: GEVURAH,
   mem: MEM,
+  lamed: LAMED,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

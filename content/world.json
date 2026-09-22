@@ -84,7 +84,8 @@
     "kaph": "PATH OF KAPH",
     "yod": "PATH OF YOD",
     "gevurah": "GEVURAH",
-    "mem": "PATH OF MEM"
+    "mem": "PATH OF MEM",
+    "lamed": "PATH OF LAMED"
   },
   "mapIds": [
     "house",
@@ -123,7 +124,8 @@
     "kaph",
     "yod",
     "gevurah",
-    "mem"
+    "mem",
+    "lamed"
   ],
   "encounters": [
     {
@@ -1024,6 +1026,38 @@
       "spawn": "2",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "gevurah",
+      "tile": "O",
+      "to": "lamed",
+      "spawn": "1",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "lamed",
+      "tile": "1",
+      "to": "gevurah",
+      "spawn": "O",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "lamed",
+      "tile": "2",
+      "to": "tiferet",
+      "spawn": "Z",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "tiferet",
+      "tile": "Z",
+      "to": "lamed",
+      "spawn": "2",
+      "dir": "left",
+      "ox": -32
     }
   ],
   "trainers": {
