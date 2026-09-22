@@ -1196,4 +1196,7 @@ ports/dreamcast` -> commit -> push -> note completed step here.
 - Step 6/23: `resh` (route, hod<->yesod). Green.
 - Step 7/23: `tzaddi` (route, netzach<->yesod). Bottom quad (Malkuth/
   Yesod/Netzach/Hod) now fully interconnected. Green.
+- Step 8/23: `tiferet` (city, the tree's 8-degree hub -- 3 exits N,
+  2 E, 2 W, 1 S, verified no mark collisions on any wall) + `samekh`
+  (route, tiferet<->yesod). Green.
 

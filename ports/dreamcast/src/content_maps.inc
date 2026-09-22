@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=42964793135019f6 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d44d218f96e0950c — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -28,7 +28,9 @@
 #define MAP_PEH 25
 #define MAP_RESH 26
 #define MAP_TZADDI 27
-#define MAP_N 28
+#define MAP_TIFERET 28
+#define MAP_SAMEKH 29
+#define MAP_N 30
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -698,6 +700,48 @@ static const char *const map_tzaddi_rows[] = {
     "########################",
 };
 
+static const char *const map_tiferet_rows[] = {
+    "####O##G###J####",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "D..............P",
+    "#..............#",
+    "#..............#",
+    "Z..............L",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#######Q########",
+};
+
+static const char *const map_samekh_rows[] = {
+    "###1##",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "###2##",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
@@ -727,10 +771,12 @@ static const Map MAPS[MAP_N] = {
     { map_peh_rows, 24, 6 },
     { map_resh_rows, 24, 6 },
     { map_tzaddi_rows, 24, 6 },
+    { map_tiferet_rows, 16, 12 },
+    { map_samekh_rows, 6, 24 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";

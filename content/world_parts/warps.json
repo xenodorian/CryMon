@@ -472,6 +472,38 @@
       "spawn": "2",
       "dir": "right",
       "ox": 40
+    },
+    {
+      "from": "tiferet",
+      "tile": "Q",
+      "to": "samekh",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "samekh",
+      "tile": "1",
+      "to": "tiferet",
+      "spawn": "Q",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "samekh",
+      "tile": "2",
+      "to": "yesod",
+      "spawn": "O",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "yesod",
+      "tile": "O",
+      "to": "samekh",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
     }
   ]
 }
