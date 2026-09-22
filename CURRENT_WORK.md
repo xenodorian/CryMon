@@ -1554,3 +1554,95 @@ Verified visually against the real dev server: standing next to the
 house's shelf (previously a guaranteed trigger) shows no popup.
 typecheck, web build, and a clean Dreamcast rebuild all pass.
 
+## Camera unclamped so the HUD box never occludes map edges (Claude, 2026-09-22)
+
+User reported a house near a map's top edge looking "chopped up" --
+actually a fixed top-left HUD box (`drawWorldHud()` web /
+`draw_hud()` Dreamcast, both ~40px tall, drawn at screen `(8,8)`)
+occluding map content whenever the player stood within `VIEW_H/2`
+(240px web) / `SCREEN_H/2` (120px Dreamcast) of the top or left map
+edge, because the camera used to clamp to `[0, mapWidth-VIEW_W]` /
+`[0, mapHeight-VIEW_H]` and couldn't pan far enough to keep the player
+centered near an edge. User's own follow-up correctly diagnosed the
+real fix: let the camera move past the map bounds instead of clamping
+it.
+
+- **`src/game/engine.ts`'s `cam()`** and **`ports/dreamcast/src/main.c`'s
+  `compute_camera()`** now always center exactly on the player,
+  unconditionally -- no bounds clamp at all. Safe because `drawMap()`'s
+  tile loop (both engines) already skips anything outside the grid and
+  the background is filled first, so panning past an edge just reveals
+  plain background, no crash risk.
+- Verified via Playwright: the previously-occluded house door/roof now
+  renders fully visible below the HUD with clear margin; spot-checked
+  other map corners too.
+- `check_sync --strict`, typecheck, web build, `make -C
+  ports/dreamcast` all clean.
+
+## Fixed NaN HP / NaN capture% on wild encounters (Claude, 2026-09-22)
+
+User reported "NaN% x5" on a Capture Crystal in the battle item menu,
+then separately that a wild Briarfox had "NaN" for its HP bar. Same
+root cause: **`content/world_parts/meta.json`'s `formulas` object was
+missing the `wildLevelCap` key entirely** (confirmed via `git log --all
+-p` that it existed before, valued `50`, and was already absent going
+back to the earliest commit that still touches this file -- a
+pre-existing bug, not something introduced this session).
+
+Poisoning chain: `tryEncounter()` (`src/game/engine.ts`) does `const
+cap = shiny ? Math.floor(FORMULAS.wildLevelCap / 2) : FORMULAS.wildLevelCap;
+lv = Math.min(lv, cap);` -- with `wildLevelCap` `undefined`, `Math.min(lv,
+undefined)` is `NaN`, which then poisons `mintMonster()`'s entire stat
+block (`Math.max(1, NaN)` is `NaN`, `Math.round(NaN)` is `NaN`, etc.),
+and separately breaks `captureChance()`'s clamp (`NaN < 0`/`NaN > 100`
+are both `false`, so a NaN chance falls through uncaught).
+
+- **`content/world_parts/meta.json`**: restored `"wildLevelCap": 50`
+  in `formulas`, plus its historical rationale note ("hard ceiling on
+  any wild-encounter mint... no encounter table currently rolls
+  anywhere near it, this is a safety clamp").
+- **`src/game/data.ts`'s `captureChance()`**: added a defensive
+  `!Number.isFinite(chance)` guard alongside the existing `< 0` clamp,
+  per the user's explicit ask that a negative/invalid chance should
+  display as zero -- belt-and-suspenders on top of the meta.json fix,
+  not a substitute for it.
+- **Dreamcast confirmed unaffected**, no C-side change needed:
+  `tools/bake_content.py` already falls back to `levelCap` (100) when
+  `wildLevelCap` is missing when baking `#define WILD_LEVEL_CAP`, and
+  `capture_chance()` in `main.c` works entirely in `int`, so there's
+  no NaN-equivalent failure mode there. This is why only the web build
+  showed the bug.
+- Verified end-to-end via Playwright against the real dev server:
+  minted a wild Briarfox (normal and shiny) and computed its capture
+  chance -- all values are real numbers (e.g. `hp:28, maxHp:28,
+  chance:56`; shiny `level:6, hp:38, maxHp:38`), no NaN anywhere,
+  including the shiny-doubling path that halves the cap.
+- `check_sync --strict`, typecheck, web build, `make -C
+  ports/dreamcast` all clean.
+
+## Stump-blocking bug ("acorn-like sprite in the way") -- STILL OPEN
+
+User reported being unable to walk into the space near the tree-stump
+prop in veld (tallgrass + brick building nearby in their screenshot).
+Investigated and ruled out the obvious causes without finding a root
+cause:
+- The stump (`prop-stump`, mark `'L'` via `spawnOf(VELD, "L")`) is
+  purely decorative -- `drawProp()` calls have no collision logic tied
+  to them on web at all, and grep found zero `'L'`-mark handling
+  anywhere in Dreamcast's `main.c` (`actor_blocks()`'s per-map
+  hardcoded list only covers real NPC marks like K/I/V/A/Q/J/E/4/Y/9).
+- Called `blocked(x,y)` directly (web) at the stump's exact tile and
+  all 4 cardinal neighbors in a fresh `skipToWorld("veld")` state --
+  every call returned `false`.
+- No coincidental NPC mark sits within blocking radius of the stump.
+
+Not yet tried: reproducing with specific game-state flags set (the
+user's screenshot may reflect state this session hasn't replicated),
+or reconsidering whether the reported symptom is actually a
+side-effect of the now-fixed `wildLevelCap` NaN bug (the stump sits
+right next to tallgrass, a wild-encounter trigger tile -- a
+NaN-corrupted encounter could plausibly have looked like a movement
+soft-lock rather than a true collision). Worth retesting now that
+`wildLevelCap` is fixed before resuming a from-scratch collision
+investigation.
+
