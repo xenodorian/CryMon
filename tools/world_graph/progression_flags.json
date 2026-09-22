@@ -1,0 +1,11 @@
+{
+  "description": "Canonical progression requirements used by world graph tooling.",
+  "flags": {
+    "tookStarter": 1,
+    "beatCalder": 2,
+    "beatShin": 3,
+    "hasScroll": 4,
+    "beatSentry": 5,
+    "choseHeavenfall": 6
+  }
+}
