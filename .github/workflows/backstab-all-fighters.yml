@@ -1,0 +1,98 @@
+name: Backstab all fighters
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch
+        run: |
+          set -e
+          python3 << 'END'
+          from pathlib import Path
+          import re
+
+          ep = Path('src/game/engine.ts')
+          et = ep.read_text()
+
+          # Replace canBackstab function (keep any prior helpers if partial)
+          if 'isFightAfter' not in et:
+              # insert before canBackstab
+              pass
+
+          et2, n = re.subn(
+              r'\tcanBackstab\(npc, step\) \{[\s\S]*?\n\t\}\n\topenBackstabChoice\(npc, step\) \{[\s\S]*?\n\t\tthis\.audio\.ui\(\);\n\t\}',
+              '''\t/** Fight handoffs that start a battle (not shops/heals/cutscenes). */\n\tisFightAfter(after: string | undefined | null): boolean {\n\t\tif (!after) return false;\n\t\treturn (\n\t\t\tafter === "wsoldier" ||\n\t\t\tafter === "calder" ||\n\t\t\tafter === "soldier" ||\n\t\t\tafter === "cathleen" ||\n\t\t\tafter === "shinigami" ||\n\t\t\tafter === "mason" ||\n\t\t\tafter === "mason2"\n\t\t);\n\t}\n\t/** True if any of the NPC's marks is a warp tile on their map (gate post). */\n\tnpcOnWarpGate(npc): boolean {\n\t\tconst marks = this.npcMarks(npc);\n\t\tif (!marks.length) return false;\n\t\tconst mapId = npc.map;\n\t\treturn WARPS.some((w) => w.from === mapId && marks.includes(w.tile));\n\t}\n\tcanBackstab(npc, step) {\n\t\tif (!(this.bag.bowieKnife > 0)) return false;\n\t\tif (!step || !this.isFightAfter(step.after)) return false;\n\t\tif (this.npcIsExecuted(npc.id)) return false;\n\t\tif (this.npcOnWarpGate(npc)) return false;\n\t\tif (this.roamableNpc(npc)) {\n\t\t\tconst r = this.ensureRoamer(npc);\n\t\t\tif (r.chase) return false;\n\t\t\tif (this.roamerLos(r.x, r.y, r.dir)) return false;\n\t\t}\n\t\treturn true;\n\t}\n\topenBackstabChoice(npc, step) {\n\t\tconst kitKey = step.pending || (step.after === "calder" ? "calder" : step.after === "shinigami" ? "shinigami" : step.after === "cathleen" ? "cathleen" : step.after === "mason" || step.after === "mason2" ? "mason" : step.pending);\n\t\tconst kit = kitKey ? TRAINERS[kitKey] : null;\n\t\tconst levels = kit ? (kit.lead?.[1] || 0) + (kit.bench || []).reduce((s, b) => s + (b[1] || 0), 0) : 1;\n\t\tthis.pendingBackstab = {\n\t\t\tnpc,\n\t\t\tpending: step.pending || kitKey || "",\n\t\t\tafter: step.after || "",\n\t\t\ttalk: step.talk,\n\t\t\tlevels,\n\t\t};\n\t\tthis.backstabCur = 0;\n\t\tthis.mode = "backstab";\n\t\tthis.audio.ui();\n\t}''',
+              et,
+              count=1,
+          )
+          if n != 1 and 'npcOnWarpGate' not in et:
+              raise SystemExit(f'canBackstab block n={n}')
+          if n == 1:
+              et = et2
+
+          et = et.replace(
+              'pendingBackstab: { npc: unknown; pending: string; talk: string; levels: number } | null = null;',
+              'pendingBackstab: { npc: any; pending: string; after: string; talk: string; levels: number } | null = null;',
+          )
+
+          # resolveBackstab — handle non-wsoldier
+          if 'after === "calder"' not in et.split('resolveBackstab')[1][:800]:
+              et2, n = re.subn(
+                  r'\tresolveBackstab\(pb\) \{[\s\S]*?\n\t\tthis\.note\(`Took \$\{gain\} marks and loot\.\`\);\n\t\}',
+                  '''\tresolveBackstab(pb) {\n\t\tconst levels = pb.levels || 1;\n\t\tthis.adjustReputation(-25);\n\t\tconst gain = levels * 10;\n\t\tthis.marks += gain;\n\t\tconst a = this.randomMercyItem();\n\t\tconst b = this.randomMercyItem();\n\t\tthis.bag[a] = (this.bag[a] ?? 0) + 1;\n\t\tthis.bag[b] = (this.bag[b] ?? 0) + 1;\n\t\tconst after = pb.after || "wsoldier";\n\t\tconst pending = pb.pending || "";\n\t\tif (after === "calder") this.markExecuted("calder", null);\n\t\telse if (after === "soldier") this.markExecuted("soldier", pending || this.pendingSoldier);\n\t\telse if (after === "cathleen") { this.beatCathleen = true; this.cathleenCaught = true; }\n\t\telse if (after === "shinigami") this.beatShinigami = true;\n\t\telse if (after === "mason" || after === "mason2") this.foughtMason = true;\n\t\telse this.markExecuted("wsoldier", pending);\n\t\tconst kit = TRAINERS[pending] || TRAINERS[after === "calder" ? "calder" : pending];\n\t\tif (kit?.grant) {\n\t\t\tfor (const [iid, qty] of kit.grant) {\n\t\t\t\tthis.bag[iid] = (this.bag[iid] ?? 0) + qty;\n\t\t\t}\n\t\t}\n\t\tif (after === "calder") this.beatCalder = true;\n\t\telse this.applyWsBeatFlags(pending);\n\t\tif (pb.npc?.id && this.roamers[pb.npc.id]) this.roamers[pb.npc.id].chase = false;\n\t\tthis.world.encounterLock = 3;\n\t\tthis.audio.scream();\n\t\tthis.startFade("execute");\n\t\tthis.say(TALK.backstabExecute || [{ speaker: "none", text: "The blade is quick. They never see it coming." }]);\n\t\tthis.note(`Took ${gain} marks and loot.`);\n\t}''',
+                  et,
+                  count=1,
+              )
+              if n != 1:
+                  raise SystemExit(f'resolve n={n}')
+              et = et2
+
+          ep.write_text(et)
+
+          # DC
+          cp = Path('ports/dreamcast/src/main.c')
+          ct = cp.read_text()
+          if 'npc_on_warp_gate' not in ct:
+              raise SystemExit('expected prior LOS backstab helpers')
+          # Replace find_backstab_target body start constraints
+          ct2, n = re.subn(
+              r'static int find_backstab_target\(int map_id, int ppx, int ppy, int \*\*ft, int party_n\) \{[\s\S]*?\n    return best;\n\}',
+              '''static int npc_after_is_fight(int after) {\n    return after == NPC_AFTER_WSOLDIER\n        || after == NPC_AFTER_CALDER\n        || after == NPC_AFTER_CATHLEEN\n        || after == NPC_AFTER_SHINIGAMI;\n}\n\nstatic int npc_on_warp_gate(int map_id, char mark) {\n    int i;\n    for(i = 0; i < WARP_N; i++)\n        if(WARPS[i].from_map == map_id && WARPS[i].tile == mark) return 1;\n    return 0;\n}\n\nstatic int find_backstab_target(int map_id, int ppx, int ppy, int **ft, int party_n) {\n    int i, best = -1, best_d = 0x7fffffff;\n    for(i = 0; i < NPC_DEF_N; i++) {\n        int mx, my, dx, dy, d;\n        int half_w, left, right, top, bottom;\n        int si, ebit;\n        const NpcStep *st;\n        if(NPC_DEFS[i].map_id != map_id) continue;\n        if(npc_on_warp_gate(map_id, NPC_DEFS[i].mark)) continue;\n        ebit = npc_exec_bit(NPC_DEFS[i].map_id, NPC_DEFS[i].mark);\n        if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;\n        si = npc_match_step(&NPC_DEFS[i], ft, party_n);\n        if(si < 0) continue;\n        st = &NPC_STEPS[si];\n        if(!npc_after_is_fight(st->after)) continue;\n        if(npc_def_roamable(i)) {\n            roamer_ensure(i);\n            if(g_roamers[i].chase) continue;\n            if(roamer_los(map_id, g_roamers[i].x, g_roamers[i].y, g_roamers[i].dir, ppx / TILE, ppy / TILE)) continue;\n            mx = (int)g_roamers[i].x; my = (int)g_roamers[i].y;\n        } else {\n            mark_center(map_id, NPC_DEFS[i].mark, &mx, &my);\n        }\n        half_w = NPC_DEFS[i].w / 2 + INTERACT_BUFFER;\n        left = mx - half_w;\n        right = mx + half_w;\n        bottom = my + INTERACT_BUFFER;\n        top = my - NPC_DEFS[i].h - INTERACT_BUFFER;\n        if(ppx < left || ppx > right || ppy < top || ppy > bottom) continue;\n        dx = ppx - mx; dy = ppy - my;\n        d = dx * dx + dy * dy;\n        if(d <= best_d) { best_d = d; best = i; }\n    }\n    return best;\n}''',
+              ct,
+              count=1,
+          )
+          # If helpers already exist, strip duplicate defs
+          if n == 1:
+              ct = ct2
+              # Remove earlier duplicate helper defs if regex left double
+              while ct.count('static int npc_after_is_fight') > 1:
+                  # remove first occurrence of the pair before find
+                  i = ct.find('static int npc_after_is_fight')
+                  j = ct.find('static int npc_after_is_fight', i+1)
+                  # delete from i back to previous blank through first block only
+                  end = ct.find('static int find_backstab_target', i)
+                  # keep from second - actually delete first block until before second
+                  ct = ct[:i] + ct[j:]
+          # always fix from_map
+          ct = ct.replace('WARPS[i].from == map_id', 'WARPS[i].from_map == map_id')
+          Path('ports/dreamcast/src/main.c').write_text(ct)
+          print('OK')
+          END
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/engine.ts ports/dreamcast/src/main.c
+          git commit -m "Backstab: any fightable NPC except those standing on a warp gate" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
