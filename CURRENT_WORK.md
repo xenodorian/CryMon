@@ -1654,3 +1654,34 @@ game state can't be replayed. **If the user reports this again,**
 get the exact tile/direction from a fresh screenshot rather than
 re-assuming it's the same root cause.
 
+## Lieutenant Lead repositioned, stump prop removed for good (Claude, 2026-09-22)
+
+User's follow-up screenshot with marked red dots pinned two more
+things: (1) Lieutenant Lead standing off to the side of the north
+path instead of guarding it, (2) the recurring "acorn-like sprite"
+(the tree stump prop) sitting next to Calder.
+
+- **Lieutenant Lead**: `content/maps.json`'s veld rows had his mark
+  ('S') at row2/col13, two tiles left of the path's actual center
+  (col14-16, confirmed by scanning every `=` column across all 23
+  rows). Moved to row1/col15 -- directly under the north exit ('O' at
+  row0/col15) and centered on the path, so he now visually blocks/
+  guards it instead of standing beside it on the grass.
+- **Stump prop, resolved by removal (per explicit user request) rather
+  than another positioning fix**: deleted the mark ('L') from
+  `maps.json`, deleted its `npcs.json` entry (`role: "loot"`, granted
+  1 bandage on first interaction -- that free item is gone now, not
+  relocated), and deleted the `drawProp("prop-stump", ...)` /
+  `hintZ()` call in `engine.ts` that rendered it. This closes the
+  still-open item from the entry above -- turns out the object itself
+  was simply unwanted, not just mispositioned.
+- Dreamcast's C side never had rendering code for mark 'L' (confirmed
+  again via grep) -- it only tracked the `got_stump` save flag, which
+  is untouched and now permanently unused, same treatment as any
+  other flag whose feature gets removed (no save-version bump needed).
+- Verified visually against the real dev server: Lieutenant Lead now
+  stands on/blocking the path; the stump area (near the brick building
+  and Calder) renders with no stump sprite at all.
+- `check_sync --strict`, typecheck, web build, `make -C
+  ports/dreamcast` all clean.
+
