@@ -1072,56 +1072,71 @@ export class CryMon {
 		const maxX = Math.max(...xs);
 		const minY = Math.min(...ys);
 		const maxY = Math.max(...ys);
-		const top = 36;
-		const cellW = Math.min(56, Math.floor((280 - 40) / Math.max(1, maxX - minX + 1)));
-		const cellH = Math.min(40, Math.floor((180 - top) / Math.max(1, maxY - minY + 1)));
+		const top = 40;
+		const cellW = Math.min(56, Math.floor((280 - 36) / Math.max(1, maxX - minX + 1)));
+		const cellH = Math.min(36, Math.floor((168 - top) / Math.max(1, maxY - minY + 1)));
 		const ox = (320 - (maxX - minX + 1) * cellW) / 2 + cellW / 2;
 		const oy = top + cellH / 2;
 		const px = (x) => ox + (x - minX) * cellW;
 		const py = (y) => oy + (y - minY) * cellH;
+		// Land panel
 		this.panel(12, 12, 296, 216);
-		this.text(TOWN_MAP?.name ?? "Sorrow County", X(160), Y(28), "#e8e4d8", FONT, "center");
 		const ctx = this.ctx;
 		ctx.save();
-		for (const e of edges) {
-			const a = nodes.find((n) => n.id === e.from);
-			const b = nodes.find((n) => n.id === e.to);
+		ctx.fillStyle = "#3d6a38";
+		ctx.fillRect(16, 16, 288, 188);
+		ctx.fillStyle = "#4a7a42";
+		ctx.fillRect(20, 20, 280, 180);
+		this.text(TOWN_MAP?.name ?? "Sorrow County", X(160), Y(30), "#e8f0d8", FONT, "center");
+		// Thick route corridors (FireRed-style roads)
+		for (const ed of edges) {
+			const a = nodes.find((n) => n.id === ed.from);
+			const b = nodes.find((n) => n.id === ed.to);
 			if (!a || !b) continue;
-			ctx.strokeStyle = "#8a7a55";
-			ctx.lineWidth = 3;
+			ctx.strokeStyle = "#6a5a38";
+			ctx.lineWidth = 10;
+			ctx.lineCap = "round";
+			ctx.beginPath();
+			ctx.moveTo(px(a.x), py(a.y));
+			ctx.lineTo(px(b.x), py(b.y));
+			ctx.stroke();
+			ctx.strokeStyle = "#e0d0a0";
+			ctx.lineWidth = 6;
 			ctx.beginPath();
 			ctx.moveTo(px(a.x), py(a.y));
 			ctx.lineTo(px(b.x), py(b.y));
 			ctx.stroke();
 		}
 		const here = this.townMapRegionId();
+		// Routes: small pip + label only
 		for (const n of nodes) {
+			if (n.gem) continue;
 			const x = px(n.x);
 			const y = py(n.y);
-			const isPOI = n.kind === "cave";
-			if (n.gem) {
-				// Real landmark (town/camp/shrine): discrete diamond marker.
-				ctx.fillStyle = n.id === here ? "#7ec8f0" : "#4a90c8";
-				ctx.beginPath();
-				ctx.moveTo(x, y - 8);
-				ctx.lineTo(x + 7, y);
-				ctx.lineTo(x, y + 8);
-				ctx.lineTo(x - 7, y);
-				ctx.closePath();
-				ctx.fill();
-				this.text(n.label, X(x), Y(y + 16), n.id === here ? "#ffe08a" : "#d8d0c0", 10, "center");
-			} else if (isPOI) {
-				// Location along the road (cave entrance): small stone-gray dot.
-				// Never beige — beige reads as part of the road, not a marker.
-				ctx.fillStyle = n.id === here ? "#f0e6c0" : "#5a5a52";
-				ctx.beginPath();
-				ctx.arc(x, y, 4, 0, Math.PI * 2);
-				ctx.fill();
-				this.text(n.label, X(x), Y(y + 14), n.id === here ? "#ffe08a" : "#d8d0c0", 10, "center");
-			} else {
-				// Plain route: no marker — the connecting line itself is the road.
-				this.text(n.label, X(x), Y(y - 10), n.id === here ? "#ffe08a" : "#8a7a55", 10, "center");
-			}
+			ctx.fillStyle = n.id === here ? "#fff0c0" : "#c4b078";
+			ctx.beginPath();
+			ctx.arc(x, y, 3, 0, Math.PI * 2);
+			ctx.fill();
+			this.text(n.label, X(x), Y(y - 9), n.id === here ? "#ffe08a" : "#c8c0a0", 9, "center");
+		}
+		// Destinations: gem only
+		for (const n of nodes) {
+			if (!n.gem) continue;
+			const x = px(n.x);
+			const y = py(n.y);
+			ctx.fillStyle = "#1a4a6a";
+			ctx.beginPath();
+			ctx.arc(x, y, 9, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.fillStyle = n.id === here ? "#a0e0ff" : "#5eb0e0";
+			ctx.beginPath();
+			ctx.moveTo(x, y - 7);
+			ctx.lineTo(x + 6, y);
+			ctx.lineTo(x, y + 7);
+			ctx.lineTo(x - 6, y);
+			ctx.closePath();
+			ctx.fill();
+			this.text(n.label, X(x), Y(y + 14), n.id === here ? "#ffe08a" : "#f0ecd8", 10, "center");
 		}
 		ctx.restore();
 		const hereLabel = nodes.find((n) => n.id === here)?.label ?? here;

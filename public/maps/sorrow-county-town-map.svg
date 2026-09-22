@@ -1,45 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="536" viewBox="0 0 512 536">
-  <rect width="100%" height="100%" fill="#3d5a3a"/>
-  <rect x="12" y="12" width="488" height="512" rx="8" fill="#c9b896" stroke="#6b5a3e" stroke-width="4"/>
-  <rect x="20" y="20" width="472" height="496" rx="4" fill="#e8dcc0"/>
-  <text x="256" y="42" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="18" font-weight="bold">Sorrow County</text>
-  <line x1="256" y1="112" x2="256" y2="192" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="112" x2="256" y2="192" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="192" x2="256" y2="272" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="192" x2="256" y2="272" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="112" x2="96" y2="112" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="112" x2="96" y2="112" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="112" x2="416" y2="112" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="112" x2="416" y2="112" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="272" x2="416" y2="272" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="272" x2="416" y2="272" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="416" y1="272" x2="416" y2="352" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="416" y1="272" x2="416" y2="352" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="192" x2="96" y2="192" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="192" x2="96" y2="192" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="416" y1="112" x2="416" y2="192" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="416" y1="112" x2="416" y2="192" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="272" x2="256" y2="352" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="272" x2="256" y2="352" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="352" x2="256" y2="432" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="352" x2="256" y2="432" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="256" cy="112" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
-  <path d="M 256 102 L 265 112 L 256 122 L 247 112 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
-  <text x="256" y="142" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">CryTown</text>
-  <circle cx="96" cy="112" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
-  <path d="M 96 102 L 105 112 L 96 122 L 87 112 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
-  <text x="96" y="142" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Camp</text>
-  <text x="416" y="100" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Cliffs</text>
-  <text x="256" y="180" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Forest</text>
-  <text x="96" y="180" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Marsh</text>
-  <circle cx="416" cy="192" r="6" fill="#5a5a52" stroke="#2a2a24" stroke-width="1.5"/>
-  <text x="416" y="214" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="10">The Quarry</text>
-  <text x="256" y="260" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Grove</text>
-  <text x="416" y="260" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Ruins</text>
-  <text x="256" y="340" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">Gauntlet</text>
-  <text x="416" y="340" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">The Reach</text>
-  <circle cx="256" cy="432" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
-  <path d="M 256 422 L 265 432 L 256 442 L 247 432 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
-  <text x="256" y="462" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">Heavenfall Shrine</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="568" height="600" viewBox="0 0 568 600">
+  <defs>
+    <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5a8a4a"/>
+      <stop offset="55%" stop-color="#4a7a3a"/>
+      <stop offset="100%" stop-color="#3d6a32"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#2a4a6a"/>
+  <rect x="10" y="10" width="548" height="580" rx="6" fill="url(#land)" stroke="#1a3a1a" stroke-width="4"/>
+  <ellipse cx="198.79999999999998" cy="240" rx="227.20000000000002" ry="210" fill="#6a9a55" opacity="0.35"/>
+  <ellipse cx="397.59999999999997" cy="330" rx="170.4" ry="168.00000000000003" fill="#5a8a48" opacity="0.3"/>
+  <text x="284" y="36" text-anchor="middle" fill="#e8f0d8" font-family="Georgia, serif" font-size="18" font-weight="bold">Sorrow County</text>
+  <line x1="284" y1="132" x2="284" y2="220" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="284" y1="132" x2="284" y2="220" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="284" y1="220" x2="284" y2="308" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="284" y1="220" x2="284" y2="308" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="284" y1="132" x2="108" y2="132" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="284" y1="132" x2="108" y2="132" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="284" y1="132" x2="460" y2="132" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="284" y1="132" x2="460" y2="132" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="284" y1="308" x2="460" y2="308" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="284" y1="308" x2="460" y2="308" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="460" y1="308" x2="460" y2="396" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="460" y1="308" x2="460" y2="396" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="284" y1="220" x2="108" y2="220" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="284" y1="220" x2="108" y2="220" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="460" y1="132" x2="460" y2="220" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="460" y1="132" x2="460" y2="220" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="284" y1="308" x2="284" y2="396" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="284" y1="308" x2="284" y2="396" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <line x1="284" y1="396" x2="284" y2="484" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>
+  <line x1="284" y1="396" x2="284" y2="484" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="460" cy="132" r="4" fill="#c4b078" stroke="#6a5a38" stroke-width="1"/>
+  <text x="460" y="118" text-anchor="middle" fill="#f0ecd0" font-family="Georgia, serif" font-size="11">The Cliffs</text>
+  <circle cx="284" cy="220" r="4" fill="#c4b078" stroke="#6a5a38" stroke-width="1"/>
+  <text x="284" y="206" text-anchor="middle" fill="#f0ecd0" font-family="Georgia, serif" font-size="11">The Forest</text>
+  <circle cx="108" cy="220" r="4" fill="#c4b078" stroke="#6a5a38" stroke-width="1"/>
+  <text x="108" y="206" text-anchor="middle" fill="#f0ecd0" font-family="Georgia, serif" font-size="11">The Marsh</text>
+  <circle cx="460" cy="220" r="4" fill="#c4b078" stroke="#6a5a38" stroke-width="1"/>
+  <text x="460" y="206" text-anchor="middle" fill="#f0ecd0" font-family="Georgia, serif" font-size="11">The Quarry</text>
+  <circle cx="460" cy="308" r="4" fill="#c4b078" stroke="#6a5a38" stroke-width="1"/>
+  <text x="460" y="294" text-anchor="middle" fill="#f0ecd0" font-family="Georgia, serif" font-size="11">The Ruins</text>
+  <circle cx="284" cy="396" r="4" fill="#c4b078" stroke="#6a5a38" stroke-width="1"/>
+  <text x="284" y="382" text-anchor="middle" fill="#f0ecd0" font-family="Georgia, serif" font-size="11">Gauntlet</text>
+  <circle cx="284" cy="132" r="15" fill="#2a6a9a" stroke="#0a2a4a" stroke-width="2"/>
+  <path d="M 284 122 L 293 132 L 284 142 L 275 132 Z" fill="#7ec8f0" stroke="#1a4a6a" stroke-width="1.5"/>
+  <text x="284" y="160" text-anchor="middle" fill="#fff8e0" font-family="Georgia, serif" font-size="12" font-weight="bold">CryTown</text>
+  <circle cx="108" cy="132" r="15" fill="#2a6a9a" stroke="#0a2a4a" stroke-width="2"/>
+  <path d="M 108 122 L 117 132 L 108 142 L 99 132 Z" fill="#7ec8f0" stroke="#1a4a6a" stroke-width="1.5"/>
+  <text x="108" y="160" text-anchor="middle" fill="#fff8e0" font-family="Georgia, serif" font-size="12" font-weight="bold">The Camp</text>
+  <circle cx="284" cy="308" r="15" fill="#2a6a9a" stroke="#0a2a4a" stroke-width="2"/>
+  <path d="M 284 298 L 293 308 L 284 318 L 275 308 Z" fill="#7ec8f0" stroke="#1a4a6a" stroke-width="1.5"/>
+  <text x="284" y="336" text-anchor="middle" fill="#fff8e0" font-family="Georgia, serif" font-size="12" font-weight="bold">The Grove</text>
+  <circle cx="460" cy="396" r="15" fill="#2a6a9a" stroke="#0a2a4a" stroke-width="2"/>
+  <path d="M 460 386 L 469 396 L 460 406 L 451 396 Z" fill="#7ec8f0" stroke="#1a4a6a" stroke-width="1.5"/>
+  <text x="460" y="424" text-anchor="middle" fill="#fff8e0" font-family="Georgia, serif" font-size="12" font-weight="bold">The Reach</text>
+  <circle cx="284" cy="484" r="15" fill="#2a6a9a" stroke="#0a2a4a" stroke-width="2"/>
+  <path d="M 284 474 L 293 484 L 284 494 L 275 484 Z" fill="#7ec8f0" stroke="#1a4a6a" stroke-width="1.5"/>
+  <text x="284" y="512" text-anchor="middle" fill="#fff8e0" font-family="Georgia, serif" font-size="12" font-weight="bold">Heavenfall Shrine</text>
 </svg>

@@ -473,3 +473,10 @@ Independent `party2[6]` + `activeParty` (0=Max, 1=Father), not a
 generalized multi-party array — keeps every existing `party` call site
 working; the swap UI just toggles which array battles/menus use. See
 save-format table above for byte offsets.
+
+### Town Map gem/route split (Grok, 2026-09-21)
+
+Destinations (💎 only): CryTown, Camp, Grove, Reach, Heavenfall Shrine.
+Routes (corridor only): Forest, Cliffs, Marsh, Quarry, Ruins, Gauntlet.
+SVG + in-game Map: thick beige roads on land, gems only on destinations.
+

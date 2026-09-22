@@ -63,7 +63,7 @@
     {
       "id": "quarry",
       "label": "The Quarry",
-      "kind": "cave",
+      "kind": "route",
       "gem": false,
       "x": 2,
       "y": 1,
@@ -74,8 +74,8 @@
     {
       "id": "grove",
       "label": "The Grove",
-      "kind": "route",
-      "gem": false,
+      "kind": "landmark",
+      "gem": true,
       "x": 0,
       "y": 2,
       "playableMaps": [
@@ -111,8 +111,8 @@
     {
       "id": "reach",
       "label": "The Reach",
-      "kind": "route",
-      "gem": false,
+      "kind": "landmark",
+      "gem": true,
       "x": 2,
       "y": 3,
       "playableMaps": [

@@ -34,17 +34,19 @@ const COLLAPSE = {
 };
 
 const REGION_META = {
+  /* Destinations (plot hubs) — gem markers only */
   veld: { label: "CryTown", kind: "town", gem: true },
   camp: { label: "The Camp", kind: "camp", gem: true },
+  grove: { label: "The Grove", kind: "landmark", gem: true },
+  reach: { label: "The Reach", kind: "landmark", gem: true },
+  heavenfall_shrine: { label: "Heavenfall Shrine", kind: "shrine", gem: true },
+  /* Routes (travel corridors + borderline) — path only, no gem */
   forest: { label: "The Forest", kind: "route", gem: false },
-  grove: { label: "The Grove", kind: "route", gem: false },
   cliffs: { label: "The Cliffs", kind: "route", gem: false },
   marsh: { label: "The Marsh", kind: "route", gem: false },
-  quarry: { label: "The Quarry", kind: "cave", gem: false },
+  quarry: { label: "The Quarry", kind: "route", gem: false },
   ruins: { label: "The Ruins", kind: "route", gem: false },
-  reach: { label: "The Reach", kind: "route", gem: false },
   gauntlet_route: { label: "Gauntlet", kind: "route", gem: false },
-  heavenfall_shrine: { label: "Heavenfall Shrine", kind: "shrine", gem: true },
 };
 
 function regionId(mapId) {
@@ -230,7 +232,7 @@ md.push("```text");
 for (const [id, pos] of [...positions.entries()].sort(
   (a, b) => a[1].y - b[1].y || a[1].x - b[1].x
 )) {
-  const marker = isGem(id) ? "💎" : kindOf(id) === "cave" ? "●" : "·";
+  const marker = isGem(id) ? "💎" :  "·";
   md.push(`${marker} ${labelOf(id)}  (${pos.x},${pos.y})`);
 }
 md.push("```");
@@ -255,19 +257,19 @@ md.push(errors.length ? errors.map((e) => `- ERROR: ${e}`).join("\n") : "All reg
 fs.mkdirSync(path.dirname(mdOut), { recursive: true });
 fs.writeFileSync(mdOut, md.join("\n") + "\n");
 
-// --- FireRed-ish SVG ---
+// --- FireRed-style region SVG (destinations = gems, routes = thick paths) ---
 const xs = [...positions.values()].map((p) => p.x);
 const ys = [...positions.values()].map((p) => p.y);
 const minX = Math.min(...xs);
 const maxX = Math.max(...xs);
 const minY = Math.min(...ys);
 const maxY = Math.max(...ys);
-const cell = 80;
-const pad = 56;
+const cell = 88;
+const pad = 64;
 const width = (maxX - minX + 1) * cell + pad * 2;
-const height = (maxY - minY + 1) * cell + pad * 2 + 24;
+const height = (maxY - minY + 1) * cell + pad * 2 + 32;
 const px = (x) => pad + (x - minX) * cell + cell / 2;
-const py = (y) => pad + 16 + (y - minY) * cell + cell / 2;
+const py = (y) => pad + 24 + (y - minY) * cell + cell / 2;
 
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -278,58 +280,60 @@ svg.push(`<?xml version="1.0" encoding="UTF-8"?>`);
 svg.push(
   `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`
 );
-// parchment background
-svg.push(`  <rect width="100%" height="100%" fill="#3d5a3a"/>`);
-svg.push(`  <rect x="12" y="12" width="${width - 24}" height="${height - 24}" rx="8" fill="#c9b896" stroke="#6b5a3e" stroke-width="4"/>`);
-svg.push(`  <rect x="20" y="20" width="${width - 40}" height="${height - 40}" rx="4" fill="#e8dcc0"/>`);
+// Terrain basemap (soft hills + water tint) — geography, not pure parchment graph
+svg.push(`  <defs>
+    <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5a8a4a"/>
+      <stop offset="55%" stop-color="#4a7a3a"/>
+      <stop offset="100%" stop-color="#3d6a32"/>
+    </linearGradient>
+  </defs>`);
+svg.push(`  <rect width="100%" height="100%" fill="#2a4a6a"/>`);
+svg.push(`  <rect x="10" y="10" width="${width - 20}" height="${height - 20}" rx="6" fill="url(#land)" stroke="#1a3a1a" stroke-width="4"/>`);
+// soft land blobs for depth
+svg.push(`  <ellipse cx="${width * 0.35}" cy="${height * 0.4}" rx="${width * 0.4}" ry="${height * 0.35}" fill="#6a9a55" opacity="0.35"/>`);
+svg.push(`  <ellipse cx="${width * 0.7}" cy="${height * 0.55}" rx="${width * 0.3}" ry="${height * 0.28}" fill="#5a8a48" opacity="0.3"/>`);
 svg.push(
-  `  <text x="${width / 2}" y="42" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="18" font-weight="bold">Sorrow County</text>`
+  `  <text x="${width / 2}" y="36" text-anchor="middle" fill="#e8f0d8" font-family="Georgia, serif" font-size="18" font-weight="bold">Sorrow County</text>`
 );
 
+// Route corridors first (thick beige roads like FireRed)
 for (const e of edges) {
   if (!positions.has(e.from) || !positions.has(e.to)) continue;
   const a = positions.get(e.from);
   const b = positions.get(e.to);
   svg.push(
-    `  <line x1="${px(a.x)}" y1="${py(a.y)}" x2="${px(b.x)}" y2="${py(b.y)}" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>`
+    `  <line x1="${px(a.x)}" y1="${py(a.y)}" x2="${px(b.x)}" y2="${py(b.y)}" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>`
   );
   svg.push(
-    `  <line x1="${px(a.x)}" y1="${py(a.y)}" x2="${px(b.x)}" y2="${py(b.y)}" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>`
+    `  <line x1="${px(a.x)}" y1="${py(a.y)}" x2="${px(b.x)}" y2="${py(b.y)}" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>`
   );
 }
 
+// Route labels + intermediate dots (no gems)
 for (const [id, pos] of positions) {
+  if (isGem(id)) continue;
   const x = px(pos.x);
   const y = py(pos.y);
-  const kind = kindOf(id);
-  const isPOI = kind === "cave";
-  if (isGem(id)) {
-    // Real landmark (town/camp/shrine): discrete diamond marker, like FireRed's town-pin.
-    svg.push(
-      `  <circle cx="${x}" cy="${y}" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>`
-    );
-    svg.push(
-      `  <path d="M ${x} ${y - 10} L ${x + 9} ${y} L ${x} ${y + 10} L ${x - 9} ${y} Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>`
-    );
-    svg.push(
-      `  <text x="${x}" y="${y + 30}" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">${esc(labelOf(id))}</text>`
-    );
-  } else if (isPOI) {
-    // Location along the road (cave entrance): small stone-gray dot, no box.
-    // Never beige — beige reads as part of the road, not a marker.
-    svg.push(
-      `  <circle cx="${x}" cy="${y}" r="6" fill="#5a5a52" stroke="#2a2a24" stroke-width="1.5"/>`
-    );
-    svg.push(
-      `  <text x="${x}" y="${y + 22}" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="10">${esc(labelOf(id))}</text>`
-    );
-  } else {
-    // Plain route: no marker at all — the road itself is the route. Label sits
-    // directly on the path, like FireRed's Town Map route names.
-    svg.push(
-      `  <text x="${x}" y="${y - 12}" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">${esc(labelOf(id))}</text>`
-    );
-  }
+  // small route pip on the road
+  svg.push(`  <circle cx="${x}" cy="${y}" r="4" fill="#c4b078" stroke="#6a5a38" stroke-width="1"/>`);
+  svg.push(
+    `  <text x="${x}" y="${y - 14}" text-anchor="middle" fill="#f0ecd0" font-family="Georgia, serif" font-size="11">${esc(labelOf(id))}</text>`
+  );
+}
+
+// Destination gems only
+for (const [id, pos] of positions) {
+  if (!isGem(id)) continue;
+  const x = px(pos.x);
+  const y = py(pos.y);
+  svg.push(`  <circle cx="${x}" cy="${y}" r="15" fill="#2a6a9a" stroke="#0a2a4a" stroke-width="2"/>`);
+  svg.push(
+    `  <path d="M ${x} ${y - 10} L ${x + 9} ${y} L ${x} ${y + 10} L ${x - 9} ${y} Z" fill="#7ec8f0" stroke="#1a4a6a" stroke-width="1.5"/>`
+  );
+  svg.push(
+    `  <text x="${x}" y="${y + 28}" text-anchor="middle" fill="#fff8e0" font-family="Georgia, serif" font-size="12" font-weight="bold">${esc(labelOf(id))}</text>`
+  );
 }
 svg.push(`</svg>`);
 fs.mkdirSync(path.dirname(svgOut), { recursive: true });
