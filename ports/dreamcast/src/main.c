@@ -985,31 +985,18 @@ static void draw_tile(int map_id, char ch, int dx, int dy) {
    produces the letterboxed look the old HOUSE-only code hardcoded --
    a tile drawn at col*TILE - cam_x still lands in the right place
    when cam_x is negative. */
+/* Unclamped (matches engine.ts's cam()): always centers exactly on the
+   player, even past a map edge -- the tile-draw loop already skips
+   anything outside the grid, so this just reveals plain background
+   there. Clamping to the map bounds used to push small/near-edge maps'
+   top rows up under draw_hud()'s fixed top-left box whenever the
+   player was anywhere in the map's top SCREEN_H/2 (120px). Free camera
+   panning keeps the player centered instead, so nothing near an edge
+   sits under the HUD. */
 static void compute_camera(int map_id, int px, int py, int *cam_x, int *cam_y) {
-    const Map *m = &MAPS[map_id];
-    int mw = m->cols * TILE, mh = m->rows_n * TILE;
-    int cx, cy;
-
-    if(mw <= SCREEN_W) {
-        cx = (mw - SCREEN_W) / 2;
-    }
-    else {
-        cx = px - SCREEN_W / 2;
-        if(cx < 0) cx = 0;
-        if(cx > mw - SCREEN_W) cx = mw - SCREEN_W;
-    }
-
-    if(mh <= SCREEN_H) {
-        cy = (mh - SCREEN_H) / 2;
-    }
-    else {
-        cy = py - SCREEN_H / 2;
-        if(cy < 0) cy = 0;
-        if(cy > mh - SCREEN_H) cy = mh - SCREEN_H;
-    }
-
-    *cam_x = cx;
-    *cam_y = cy;
+    (void)map_id;
+    *cam_x = px - SCREEN_W / 2;
+    *cam_y = py - SCREEN_H / 2;
 }
 
 /* Draws only the tile range that can be visible at this camera

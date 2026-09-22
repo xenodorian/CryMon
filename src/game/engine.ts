@@ -4098,16 +4098,18 @@ export class CryMon {
 		this.wrap(body, 42).slice(0, 3).forEach((ln, i) => this.text(ln, X(14), Y(118 + i * 10), "#e8e4d8", FONT));
 	}
 	cam() {
-		const map = this.map();
-		const mw = (map[0]?.length ?? 1) * TILE;
-		const mh = map.length * TILE;
-		let cx = this.world.x - VIEW_W / 2;
-		let cy = this.world.y - VIEW_H / 2;
-		cx = clamp(cx, 0, Math.max(0, mw - VIEW_W));
-		cy = clamp(cy, 0, Math.max(0, mh - VIEW_H));
+		// Unclamped: always centers exactly on the player, even past a map
+		// edge (drawMap()'s tile loop already skips anything outside the
+		// grid, so this just reveals plain background there). Clamping to
+		// the map bounds used to push small/near-edge maps like veld's
+		// upper rows up under the fixed HUD box (drawWorldHud() is ~40px
+		// tall at the screen's top-left) whenever the player was anywhere
+		// in the map's top VIEW_H/2 (240px) -- the door/roof near row1
+		// rendered right behind it. Free camera panning keeps the player
+		// centered instead, so nothing near an edge sits under the HUD.
 		return {
-			cx,
-			cy
+			cx: this.world.x - VIEW_W / 2,
+			cy: this.world.y - VIEW_H / 2
 		};
 	}
 	paintTile(ch, dx, dy) {
