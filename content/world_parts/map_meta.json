@@ -34,7 +34,9 @@
     "ayin": "PATH OF AYIN",
     "chesed": "CHESED",
     "kaph": "PATH OF KAPH",
-    "yod": "PATH OF YOD"
+    "yod": "PATH OF YOD",
+    "gevurah": "GEVURAH",
+    "mem": "PATH OF MEM"
   },
   "mapIds": [
     "house",
@@ -71,6 +73,8 @@
     "ayin",
     "chesed",
     "kaph",
-    "yod"
+    "yod",
+    "gevurah",
+    "mem"
   ]
 }

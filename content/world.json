@@ -82,7 +82,9 @@
     "ayin": "PATH OF AYIN",
     "chesed": "CHESED",
     "kaph": "PATH OF KAPH",
-    "yod": "PATH OF YOD"
+    "yod": "PATH OF YOD",
+    "gevurah": "GEVURAH",
+    "mem": "PATH OF MEM"
   },
   "mapIds": [
     "house",
@@ -119,7 +121,9 @@
     "ayin",
     "chesed",
     "kaph",
-    "yod"
+    "yod",
+    "gevurah",
+    "mem"
   ],
   "encounters": [
     {
@@ -988,6 +992,38 @@
       "spawn": "2",
       "dir": "right",
       "ox": 40
+    },
+    {
+      "from": "gevurah",
+      "tile": "G",
+      "to": "mem",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "mem",
+      "tile": "1",
+      "to": "gevurah",
+      "spawn": "G",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "mem",
+      "tile": "2",
+      "to": "hod",
+      "spawn": "O",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "hod",
+      "tile": "O",
+      "to": "mem",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
     }
   ],
   "trainers": {

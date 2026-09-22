@@ -130,6 +130,9 @@ export const KAPH = normalize(raw.kaph);
 
 export const YOD = normalize(raw.yod);
 
+export const GEVURAH = normalize(raw.gevurah);
+export const MEM = normalize(raw.mem);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -166,6 +169,8 @@ export const MAPS = {
   chesed: CHESED,
   kaph: KAPH,
   yod: YOD,
+  gevurah: GEVURAH,
+  mem: MEM,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

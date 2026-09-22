@@ -1204,4 +1204,5 @@ ports/dreamcast` -> commit -> push -> note completed step here.
   bottom quad complete. Green.
 - Step 11/23: `chesed` (city) + `kaph` (route, chesed<->netzach). Green.
 - Step 12/23: `yod` (route, chesed<->tiferet). Green.
+- Step 13/23: `gevurah` (city) + `mem` (route, gevurah<->hod). Green.
 
