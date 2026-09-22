@@ -1131,6 +1131,24 @@ static void ws_push_mark_idle(WorldSprite *list, int *n, int map_id, char mark,
     ws_push_mark(list, n, map_id, mark, frames[f], w, h);
 }
 
+/* Same as ws_push_mark_idle, but nudged by (off_x, off_y) pixels --
+   for a gate-blocking NPC (Calder, the Priestess) that steps aside
+   once its passIf condition is met instead of just stopping being
+   solid at the same spot (matches engine.ts's equivalent offset in
+   the NPC draw loop). Still honors g_executed_mask like the plain
+   variant. */
+static void ws_push_mark_idle_off(WorldSprite *list, int *n, int map_id, char mark,
+                                   const u16 *const frames[4], u32 frame_count,
+                                   int frames_per_step, int w, int h,
+                                   int off_x, int off_y) {
+    int f = (int)((frame_count / (u32)frames_per_step) % 4u);
+    int cx, cy, ebit;
+    ebit = npc_exec_bit(map_id, mark);
+    if(ebit >= 0 && (g_executed_mask & (1u << ebit))) return;
+    mark_center(map_id, mark, &cx, &cy);
+    ws_push(list, n, frames[f], w, h, cx + off_x, cy + off_y);
+}
+
 /* dir/frame lookup tables for the 3 walking actors (Mason, Anne, the
    FOREST soldiers all share one sprite set), matching
    gen_sprites.py's PLAYER_DIRS order: 0=down,1=up,2=left,3=right. */
@@ -1189,7 +1207,8 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
                           int mason_state, float mason_x, float mason_y, int mason_dir, int mason_frame,
                           int anne_state, float anne_x, float anne_y, int anne_dir, int anne_frame,
                           int cath_caught, int beat_shin, int saw_shinigami_rock,
-                          const Soldier *soldiers, const int *soldier_beaten) {
+                          const Soldier *soldiers, const int *soldier_beaten,
+                          int beat_calder, int has_scroll) {
     if(map_id == MAP_VELD) {
         ws_push_mark_idle(list, n, map_id, 'K', WREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'I', MAE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
@@ -1197,8 +1216,19 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, 'A', NELL_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'Q', PIKE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'J', BRAM_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        /* Calder and the Priestess guard the only walkable approach to
+           their gates -- once beaten (any mercy outcome; execute hides
+           them entirely via g_executed_mask, same as every other NPC),
+           they step aside one tile instead of lingering exactly on the
+           spot they used to block. Offsets are hand-picked open ground
+           next to each gate (see maps.json's VELD rows around 'E'/'4'
+           -- Calder steps south, the Priestess steps southeast onto
+           the open tile beside the gauntlet door). Matches engine.ts's
+           npcPassOffset(). */
+        ws_push_mark_idle_off(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H,
+                               0, beat_calder ? TILE : 0);
+        ws_push_mark_idle_off(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H,
+                               has_scroll ? TILE : 0, has_scroll ? TILE : 0);
         /* PLACEHOLDER_ART: no real boulder art exists yet, see
            public/sprites/npc/shinigamiBoulder-*.png and CURRENT_WORK.md.
            Seals the west gate until the rock-shatter event actually
@@ -7544,7 +7574,8 @@ void main(void) {
                 collect_npcs(ws_list, &ws_n, map_id, frame_count,
                              mason_state, mason_x, mason_y, mason_dir, mason_frame,
                              anne_state, anne_x, anne_y, anne_dir, anne_frame,
-                             cath_caught, beat_shin, saw_shinigami_rock, soldiers, soldier_beaten);
+                             cath_caught, beat_shin, saw_shinigami_rock, soldiers, soldier_beaten,
+                             beat_calder, has_scroll);
                 ws_push(ws_list, &ws_n, MAX_FRAMES[pdir][(anim_counter / 10) & 3],
                         MAX_SPRITE_W, MAX_SPRITE_H, px, py);
                 ws_sort_and_draw(ws_list, ws_n, cam_x, cam_y);

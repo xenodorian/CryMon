@@ -279,7 +279,8 @@
         {
           "if": "beatCalder",
           "talk": "calderAfter",
-          "passIf": "beatCalder"
+          "passIf": "beatCalder",
+          "passOffset": [0, 32]
         },
         {
           "talk": "calderFight",
@@ -1026,7 +1027,8 @@
         {
           "if": "hasScroll",
           "talk": "priestessHasScroll",
-          "passIf": "hasScroll"
+          "passIf": "hasScroll",
+          "passOffset": [32, 32]
         },
         {
           "talk": "priestessNoScroll",

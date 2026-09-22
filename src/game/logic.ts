@@ -31,6 +31,11 @@ export type NpcStep = {
 	heal?: boolean;
 	marks?: number;
 	takeItem?: string;
+	passIf?: string;
+	/** [dx, dy] pixel offset applied to a passIf NPC's drawn/interact
+	 *  position once passIf's flag is true -- a gate-blocker steps
+	 *  aside instead of just standing there passable. */
+	passOffset?: [number, number];
 };
 
 export function arrivalAllowed(flags: LogicFlags, name: string): boolean {

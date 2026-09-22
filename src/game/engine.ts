@@ -2173,6 +2173,14 @@ export class CryMon {
 	npcPassable(npc, flags) {
 		return !!npc.script?.some((s) => s.passIf && flags[s.passIf as string]);
 	}
+	/** [dx, dy] pixel offset for a passable gate-blocker's drawn/interact
+	 *  position -- [0, 0] once not passable, or if the matching step
+	 *  carries no passOffset. Keeps the sprite/hitbox off the spot it
+	 *  used to block instead of leaving it standing there passable. */
+	npcPassOffset(npc, flags): [number, number] {
+		const step = npc.script?.find((s) => s.passIf && flags[s.passIf as string]);
+		return step?.passOffset ?? [0, 0];
+	}
 	runNpc(npc) {
 		const flags = this.npcFlags();
 		const step = matchNpcScript(npc.script, flags);
@@ -2216,8 +2224,11 @@ export class CryMon {
 			if (npc.map !== this.world.mapId || !npc.script?.length) continue;
 			if (this.npcIsExecuted(npc.id)) continue;
 			if (!matchNpcScript(npc.script, flags)) continue;
+			const [poX, poY] = this.npcPassOffset(npc, flags);
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(map, mark);
+				s.x += poX;
+				s.y += poY;
 				// Box test against the target's own footprint (npc.w/h,
 				// default the human sprite size) plus INTERACT.buffer on
 				// every side, feet-anchored the same way it's drawn: box
@@ -4486,8 +4497,11 @@ export class CryMon {
 			if (npc.sprite === "npc/soldier" || String(npc.id || "").startsWith("soldier")) continue;
 			if (this.npcHidden(npc, flags)) continue;
 			if (this.npcIsExecuted(npc.id)) continue;
+			const [poX, poY] = this.npcPassOffset(npc, flags);
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(this.map(), mark);
+				s.x += poX;
+				s.y += poY;
 				const base = String(npc.sprite).includes("/")
 					? String(npc.sprite).split("/").pop()!
 					: String(npc.sprite);
