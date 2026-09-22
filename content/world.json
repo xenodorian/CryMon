@@ -88,7 +88,8 @@
     "lamed": "PATH OF LAMED",
     "teth": "PATH OF TETH",
     "binah": "BINAH",
-    "zayin": "PATH OF ZAYIN"
+    "zayin": "PATH OF ZAYIN",
+    "heth": "PATH OF HETH"
   },
   "mapIds": [
     "house",
@@ -131,7 +132,8 @@
     "lamed",
     "teth",
     "binah",
-    "zayin"
+    "zayin",
+    "heth"
   ],
   "encounters": [
     {
@@ -1125,6 +1127,38 @@
       "from": "tiferet",
       "tile": "J",
       "to": "zayin",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "binah",
+      "tile": "G",
+      "to": "heth",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "heth",
+      "tile": "1",
+      "to": "binah",
+      "spawn": "G",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "heth",
+      "tile": "2",
+      "to": "gevurah",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gevurah",
+      "tile": "D",
+      "to": "heth",
       "spawn": "2",
       "dir": "up",
       "oy": -32

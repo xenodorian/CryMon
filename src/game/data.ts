@@ -140,6 +140,8 @@ export const TETH = normalize(raw.teth);
 export const BINAH = normalize(raw.binah);
 export const ZAYIN = normalize(raw.zayin);
 
+export const HETH = normalize(raw.heth);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -182,6 +184,7 @@ export const MAPS = {
   teth: TETH,
   binah: BINAH,
   zayin: ZAYIN,
+  heth: HETH,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

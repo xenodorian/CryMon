@@ -40,7 +40,8 @@
     "lamed": "PATH OF LAMED",
     "teth": "PATH OF TETH",
     "binah": "BINAH",
-    "zayin": "PATH OF ZAYIN"
+    "zayin": "PATH OF ZAYIN",
+    "heth": "PATH OF HETH"
   },
   "mapIds": [
     "house",
@@ -83,6 +84,7 @@
     "lamed",
     "teth",
     "binah",
-    "zayin"
+    "zayin",
+    "heth"
   ]
 }

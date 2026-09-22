@@ -43,7 +43,7 @@ export type SpeciesId =
   | "peatling" | "mireback" | "glowcap" | "slatekin" | "gravelurk" | "cindermite"
   | "veilcap" | "kilnback" | "lead";
 
-export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry" | "gauntlet" | "gauntlet1" | "gauntlet2" | "gauntlet3" | "gauntlet4" | "gauntlet5" | "gauntlet6" | "malkuth" | "weepingroad" | "yesod" | "tau" | "netzach" | "qoph" | "hod" | "shin" | "peh" | "resh" | "tzaddi" | "tiferet" | "samekh" | "nun" | "ayin" | "chesed" | "kaph" | "yod" | "gevurah" | "mem" | "lamed" | "teth" | "binah" | "zayin";
+export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry" | "gauntlet" | "gauntlet1" | "gauntlet2" | "gauntlet3" | "gauntlet4" | "gauntlet5" | "gauntlet6" | "malkuth" | "weepingroad" | "yesod" | "tau" | "netzach" | "qoph" | "hod" | "shin" | "peh" | "resh" | "tzaddi" | "tiferet" | "samekh" | "nun" | "ayin" | "chesed" | "kaph" | "yod" | "gevurah" | "mem" | "lamed" | "teth" | "binah" | "zayin" | "heth";
 
 export type SpellId = "firebolt" | "icebeam" | "lightning" | "manasurge";
 
