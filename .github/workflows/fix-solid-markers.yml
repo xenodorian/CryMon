@@ -1,0 +1,44 @@
+name: Fix solid markers
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Strip NPC markers from solid
+        run: |
+          set -e
+          python3 << 'PY'
+          import json
+          from pathlib import Path
+          maps = json.loads(Path('content/maps.json').read_text())
+          old = maps['solid']
+          # NPC/prop marks must not be solid — collision is the sprite footprint.
+          # E=Calder, S=Lead, X=cart were blocking empty grass after paint fix.
+          remove = set('ESX')
+          new = ''.join(ch for ch in old if ch not in remove)
+          seen = set(); out = ''
+          for ch in new:
+              if ch not in seen:
+                  seen.add(ch); out += ch
+          maps['solid'] = out
+          Path('content/maps.json').write_text(json.dumps(maps, indent=2) + '\n')
+          print(f'solid: {old!r} -> {out!r}')
+          assert 'E' not in out and 'S' not in out and 'X' not in out
+          assert '#' in out and 'H' in out
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/maps.json
+          git commit -m "Collision: NPC marks (E/S/X) no longer solid — tied to sprites only"
+          git push
+      - name: Ship Pages
+        run: gh workflow run deploy-pages.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
