@@ -1305,3 +1305,156 @@ working; swap UI (2.7.4) toggles which array battles/menus use.
 - `executedMask` remains @ 145
 
 Next: 2.7.4 swap UI (web then DC).
+
+---
+
+## Procedural Region Map Builder (Sorrow County Town Map) — plan landed
+
+Source plan (user / prior agent, 2026-09-21). Appended so multi-agent
+coordination has a durable home for this workstream.
+
+**Existing foundation already in-repo:**
+- `content/world_map_layout.json` — canonical abstract grid + warps
+- `tools/generate-town-map.mjs` — early generator (BFS layout → markdown)
+- `public/maps/crytown-world-map.svg` — current static player map asset
+
+**Phases (from plan):**
+1. Extract world graph from layout + warps; validate
+2. Collapse internal maps (house/shops/gauntlet floors → landmarks/routes)
+3. Auto layout (CryTown anchor, directional placement, collision resolve)
+4. Completeness validation (orphans, dead ends, disconnected branches)
+5. Render FireRed-style Town Map (gems = towns/landmarks, beige = routes)
+
+**Player vs developer views** both required.
+
+```
+CryMon Procedural Region Map Builder Plan
+
+Purpose
+
+Create a FireRed-style Town Map system for Sorrow County that
+automatically generates a clear player-facing region map from the actual
+game world graph.
+
+Core Principle
+
+The world data is the source of truth. The Town Map is a generated
+visual projection of that data.
+
+The system should preserve: - directional relationships - meaningful
+branches - destinations - travel routes - future expansion capability
+
+The system should not require manually drawing a new map every time the
+world changes.
+
+Architecture
+
+Playable Maps | v World Connection Graph | +–> Validation | +–> Town Map
+Generator | v Rendered Region Map
+
+Implementation Steps
+
+Phase 1: Extract the World Graph
+
+Input: - content/world_map_layout.json - map metadata - warp connections
+
+Create a graph where: - each meaningful location is a node - each
+connection is an edge - north/south/east/west relationships are
+preserved
+
+Validation: - missing maps - invalid connections - disconnected regions
+
+Phase 2: Collapse Internal Maps
+
+The Town Map should not display every playable room.
+
+Examples:
+
+Display: - CryTown - Camp - Heavenfall Shrine - future towns - major
+landmarks
+
+Hide/collapse: - player house - shops - NPC interiors - individual
+Gauntlet floors
+
+Examples: HOME becomes part of CryTown. Gauntlet floors become a
+Gauntlet route leading toward Heavenfall Shrine.
+
+Phase 3: Generate Layout
+
+The generator should calculate placement automatically.
+
+Rules: - CryTown is the anchor point. - Directional connections
+influence placement. - Branches are preserved. - Collisions are resolved
+automatically.
+
+The generator should never require manually entering every x/y
+coordinate.
+
+Phase 4: Validate World Completeness
+
+The generator should detect:
+
+-   paths that lead nowhere
+-   orphan maps
+-   unreachable destinations
+-   disconnected branches
+
+A branch leaving CryTown should: - reach an existing destination, - loop
+back into the world, - or require creation of a new destination.
+
+Phase 5: Render Player Map
+
+Generate a Pokemon-style Town Map image.
+
+Rendering rules:
+
+Gem icons: - towns - camps - shrines - major landmarks
+
+Beige tiles: - routes - forests - caves - gauntlets - travel areas
+
+Optional markers: - secrets - side locations
+
+Developer Debug Output
+
+The generator should produce two views:
+
+Player View: - clean regional map - simple landmarks - understandable
+paths
+
+Developer View: - map IDs - connections - validation errors -
+hidden/internal maps
+
+Why I Was Unable To Fully Execute The Plan
+
+I was able to begin implementation by creating the procedural generator
+foundation.
+
+However, I was not able to complete the full repository update because
+the remaining required change was to append this plan into
+CURRENT_WORK.md, the shared multi-agent coordination document.
+
+The GitHub write workflow required the current file blob SHA before
+updating the existing file. The repository read tool exposed the file
+contents but did not expose the SHA metadata needed for a safe update.
+
+I intentionally did not overwrite or recreate CURRENT_WORK.md because: -
+it is actively used by multiple agents - it contains coordination
+state - replacing it could erase other agents’ progress
+
+The implementation was therefore stopped at the safe point: - plan
+completed - generator concept established - documentation prepared -
+repository coordination file update blocked by missing Git metadata
+
+Next Agent Instructions
+
+Retrieve CURRENT_WORK.md with Git blob metadata, obtain the SHA, append
+this plan, commit the change separately, and push.
+
+After that: 1. Build the graph solver. 2. Add collapse rules. 3. Add
+validation. 4. Add pixel renderer. 5. Generate the first Sorrow County
+Town Map.
+
+```
+
+**Next concrete steps:** graph solver → collapse rules → validation → pixel renderer → first generated Sorrow County Town Map image.
+
