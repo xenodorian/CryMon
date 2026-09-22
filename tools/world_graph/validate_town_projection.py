@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Validate the world graph against the player-facing Town Map projection.
 
-Checks that the generated Town Map abstraction does not hide playable areas
-without representation and that collapsed regions resolve correctly.
+Checks that the generated Town Map abstraction does not hide playable areas,
+that collapsed regions resolve correctly, and that visible destinations have
+valid world graph support.
 """
 
 import json
 import sys
 from pathlib import Path
+from collections import defaultdict, deque
 
 
 def load(path):
@@ -41,11 +43,35 @@ def main():
         if map_id not in represented and map_id not in collapse:
             errors.append(f"active map missing Town Map representation: {map_id}")
 
-    # Detect Town Map destinations that have no underlying world source.
     collapsed_sources = set(collapse.keys())
     for node_id in town_nodes:
         if node_id not in playable and node_id not in collapsed_sources:
             warnings.append(f"Town Map node has no direct playable map or collapse source: {node_id}")
+
+    # Validate visible graph endpoints.
+    graph = defaultdict(set)
+    for edge in town.get("edges", []):
+        graph[edge["from"]].add(edge["to"])
+        graph[edge["to"]].add(edge["from"])
+
+    anchor = town.get("anchor", "veld")
+    reachable = set()
+    queue = deque([anchor])
+    while queue:
+        current = queue.popleft()
+        if current in reachable:
+            continue
+        reachable.add(current)
+        queue.extend(graph[current])
+
+    for node_id in town_nodes:
+        if node_id not in reachable:
+            errors.append(f"Town Map node unreachable from anchor {anchor}: {node_id}")
+
+    # Route nodes should not silently terminate unless they are intentional gems.
+    for node in town.get("nodes", []):
+        if not node.get("gem") and len(graph[node["id"]]) == 0:
+            warnings.append(f"route has no connection: {node['id']}")
 
     required = ["veld", "camp", "heavenfall_shrine"]
     for destination in required:
@@ -55,6 +81,7 @@ def main():
     print("TOWN MAP PROJECTION REPORT")
     print(f"World maps: {len(playable)}")
     print(f"Town nodes: {len(town_nodes)}")
+    print(f"Reachable nodes: {len(reachable)}")
 
     if errors:
         print("\nProblems:")
