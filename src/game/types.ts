@@ -225,6 +225,8 @@ export interface Roamer {
   x: number;
   y: number;
   chase: boolean;
+  /** Facing for LOS — only spots the player on a clear ray this way. */
+  dir: Dir;
 }
 
 export type RivalPhase = "off" | "approach" | "talk" | "done" | "leave";

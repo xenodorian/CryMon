@@ -2595,10 +2595,23 @@ export class CryMon {
 		if (!r) {
 			const mark = this.npcMarks(npc)[0];
 			const s = mark ? spawnOf(this.map(), mark) : { x: 0, y: 0 };
-			r = { x: s.x, y: s.y, chase: false };
+			const dir = this.roamerFacing(npc, s.x, s.y);
+			r = { x: s.x, y: s.y, chase: false, dir };
 			this.roamers[npc.id] = r;
 		}
 		return r;
+	}
+	/** Prefer explicit npc.dir; else face toward map center so edge posts look inward. */
+	roamerFacing(npc, x, y): Dir {
+		const explicit = (npc as { dir?: Dir }).dir;
+		if (explicit === "up" || explicit === "down" || explicit === "left" || explicit === "right") return explicit;
+		const map = this.map();
+		const midX = ((map[0]?.length ?? 1) * TILE) / 2;
+		const midY = (map.length * TILE) / 2;
+		const dx = midX - x;
+		const dy = midY - y;
+		if (Math.abs(dx) >= Math.abs(dy)) return dx < 0 ? "left" : "right";
+		return dy < 0 ? "up" : "down";
 	}
 	/** These trainers have no walk-cycle art (content/sprites.json's
 	 *  `walkers` list is just max/mason/anne/soldier/shinigami), so
@@ -2607,15 +2620,14 @@ export class CryMon {
 	 *  every approach from its post instead of one fixed heading:
 	 *  true only when the player shares its row or column with a
 	 *  clear (non-solid) line between them. */
-	roamerLos(x, y) {
+	roamerLos(x, y, dir: Dir) {
 		const stx = Math.floor(x / TILE);
 		const sty = Math.floor(y / TILE);
 		const ptx = Math.floor(this.world.x / TILE);
 		const pty = Math.floor(this.world.y / TILE);
-		if (stx !== ptx && sty !== pty) return false;
-		if (stx === ptx && sty === pty) return true;
-		const dx = stx === ptx ? 0 : (ptx > stx ? 1 : -1);
-		const dy = sty === pty ? 0 : (pty > sty ? 1 : -1);
+		const dx = dir === "left" ? -1 : dir === "right" ? 1 : 0;
+		const dy = dir === "up" ? -1 : dir === "down" ? 1 : 0;
+		if (dx === 0 && dy === 0) return false;
 		const map = this.map();
 		const max = Math.max(map[0]?.length ?? 0, map.length);
 		for (let i = 1; i <= max; i++) {
@@ -2664,9 +2676,10 @@ export class CryMon {
 				const sp = 112 * dt;
 				r.x += dx / dist * sp;
 				r.y += dy / dist * sp;
+				r.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "left" : "right") : (dy < 0 ? "up" : "down");
 				continue;
 			}
-			if (this.roamerLos(r.x, r.y)) {
+			if (this.roamerLos(r.x, r.y, r.dir)) {
 				r.chase = true;
 				chasing = true;
 				this.audio.ui();
@@ -4715,7 +4728,7 @@ export class CryMon {
 				const walkers = (SPRITES as { walkers?: Record<string, string> }).walkers || {};
 				if (base in walkers || npc.sprite === "shinigami") {
 					const sf = Math.floor(this.clock * 3) % 4 + 1;
-					this.drawActor(`${base}-down-${sf}`, s.x, s.y);
+					this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y);
 				} else {
 					this.drawActor(`${base}-${wf}`, s.x, s.y);
 				}

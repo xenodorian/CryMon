@@ -4031,6 +4031,7 @@ static int npc_match_step(const NpcDef *d, int **ft, int party_n) {
 typedef struct {
     float x, y;
     int chase, inited;
+    int dir; /* 0=down 1=up 2=left 3=right */
 } Roamer;
 static Roamer g_roamers[NPC_DEF_N];
 
@@ -4050,22 +4051,25 @@ static void roamer_ensure(int i) {
         r->x = (float)cx;
         r->y = (float)cy;
         r->chase = 0;
+        {
+            int mid_x = (MAPS[NPC_DEFS[i].map_id].cols * TILE) / 2;
+            int mid_y = (MAPS[NPC_DEFS[i].map_id].rows_n * TILE) / 2;
+            int adx = mid_x - cx; if(adx < 0) adx = -adx;
+            int ady = mid_y - cy; if(ady < 0) ady = -ady;
+            if(adx >= ady) r->dir = (mid_x < cx) ? 2 : 3;
+            else r->dir = (mid_y < cy) ? 1 : 0;
+        }
         r->inited = 1;
     }
 }
 
-/* 4-directional line of sight from (x,y) to (ptx,pty) tiles -- mirrors
-   engine.ts's roamerLos(): these NPCs have no walk-cycle art (see
-   collect_npcs()'s idle-only draws), so unlike the FOREST soldiers'
-   single stored facing direction, a stationary guard is assumed to
-   watch every approach from its post instead of one fixed heading. */
-static int roamer_los(int map_id, float x, float y, int ptx, int pty) {
+/* Facing-only LOS — same ray as soldier_los. dir: 0=down 1=up 2=left 3=right. */
+static int roamer_los(int map_id, float x, float y, int dir, int ptx, int pty) {
     int stx = (int)x / TILE, sty = (int)y / TILE;
-    int dx, dy, i, max, tx, ty;
-    if(stx != ptx && sty != pty) return 0;
-    if(stx == ptx && sty == pty) return 1;
-    dx = (stx == ptx) ? 0 : (ptx > stx ? 1 : -1);
-    dy = (sty == pty) ? 0 : (pty > sty ? 1 : -1);
+    int dx = (dir == 2) ? -1 : (dir == 3) ? 1 : 0;
+    int dy = (dir == 1) ? -1 : (dir == 0) ? 1 : 0;
+    int i, max, tx, ty;
+    if(dx == 0 && dy == 0) return 0;
     max = MAPS[map_id].cols > MAPS[map_id].rows_n ? MAPS[map_id].cols : MAPS[map_id].rows_n;
     for(i = 1; i <= max; i++) {
         tx = stx + dx * i;
@@ -6964,7 +6968,7 @@ void main(void) {
                         r->y += dy * ACTOR_SPD_CHASE;
                         continue;
                     }
-                    if(roamer_los(map_id, r->x, r->y, px / TILE, py / TILE))
+                    if(roamer_los(map_id, r->x, r->y, r->dir, px / TILE, py / TILE))
                         r->chase = 1;
                 }
             }
