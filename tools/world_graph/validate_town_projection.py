@@ -55,10 +55,14 @@ def main():
         if map_id not in represented and map_id not in collapse:
             errors.append(f"active map missing Town Map representation: {map_id}")
 
-    collapsed_sources = set(collapse.keys())
+    # A Town Map node is legitimate if it's either a real playable map id,
+    # or a synthetic region something collapses INTO (a collapse target,
+    # e.g. "gauntlet_route" -- gauntlet1..5 all collapse into it, so it's
+    # never itself a map id or a collapse source/key).
+    collapse_targets = {target for target in collapse.values() if target}
     for node_id in town_nodes:
-        if node_id not in playable and node_id not in collapsed_sources:
-            warnings.append(f"Town Map node has no direct playable map or collapse source: {node_id}")
+        if node_id not in playable and node_id not in collapse_targets:
+            warnings.append(f"Town Map node has no direct playable map or collapse target: {node_id}")
 
     graph = defaultdict(set)
     requirements = {}

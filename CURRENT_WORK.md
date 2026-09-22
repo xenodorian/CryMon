@@ -250,7 +250,7 @@ matters going forward:
 
 ---
 
-## World Graph / Town Map workstream (in progress)
+## World Graph / Town Map workstream — validation hardening done (Claude, 2026-09-22)
 
 Goal: the Town Map (player-facing region map) should be a **generated
 projection** of `content/world_map_layout.json`, never a second source
@@ -287,24 +287,45 @@ World Data (world_map_layout.json)
     become the single canonical list so validators stop each
     maintaining their own hardcoded copy.
   - `README.md` — one-paragraph purpose summary for the above.
+  - `run_full_audit.py` — runs the generator + all 3 validators in
+    order and writes one consolidated report to
+    `docs/generated/sorrow_county_validation_report.md`. Re-run this
+    after any world-layout or Town Map change: `python3
+    tools/world_graph/run_full_audit.py`.
 
-**Conclusion from the review so far:** the project does **not** need a
-new Town Map generator — `generate-town-map.mjs` already produces a
+**Conclusion from the review:** the project does **not** need a new
+Town Map generator — `generate-town-map.mjs` already produces a
 correct projection (CryTown anchor, Camp/Forest/Cliffs/Quarry branches,
-Gauntlet route, Heavenfall Shrine endpoint all confirmed present).
-Remaining work is **hardening and validating** the existing generator,
-not replacing it.
+Gauntlet route, Heavenfall Shrine endpoint all confirmed present), and
+it already guards against the two things a hand-maintained map could
+get wrong (an "Unreachable: X" / "Isolated: X" build-time error if a
+new map lands with no connection, or none at all). Hardening was
+validation-layer work, not generator work — **done:**
 
-**Remaining:**
-1. Finish wiring `validate_progression_requirements.py` to read from
-   `progression_flags.json` instead of any hardcoded flag list still
-   in it, and add unknown/unused/duplicate-flag detection.
-2. Run the full validation chain end-to-end (generate → validate world
-   graph → validate projection → validate progression) and produce a
-   single audit report (e.g. `docs/generated/sorrow_county_validation_report.md`).
-3. Feed findings back into `generate-town-map.mjs` itself (branch
-   direction stability, preventing new locations from landing
-   disconnected) rather than only reporting problems after the fact.
+1. **Done.** `validate_progression_requirements.py` now reads
+   `tools/world_graph/progression_flags.json` as its source of truth
+   instead of a hardcoded set, and reports unknown requirements
+   (error), duplicate flag ids (error), and registry flags that don't
+   gate any Town Map edge (warning only — a flag can legitimately gate
+   a battle/dialogue beat without gating a map route, so this doesn't
+   fail the run).
+2. **Done.** `run_full_audit.py` chains generate → validate world
+   graph → validate projection → validate progression into one
+   `docs/generated/sorrow_county_validation_report.md`. Current status:
+   **PASS**, zero errors, zero warnings.
+3. **Found and fixed a real bug** while verifying item 2's report:
+   `validate_town_projection.py` was checking whether a Town Map node
+   was a collapse **source** (`collapse.keys()`) when it should check
+   collapse **target** (`collapse.values()`) — `gauntlet_route` and
+   `heavenfall_shrine` are synthetic regions other maps collapse
+   *into*, never map ids or collapse keys themselves, so the old logic
+   false-flagged both of them every run. Fixed and verified against a
+   deliberately-injected bogus node to confirm real orphans are still
+   caught (they are — 3 separate checks still fire correctly).
+
+Nothing else queued here right now — this workstream is caught up.
+Re-run `run_full_audit.py` after any future world/Town Map edit to
+keep the report current.
 
 ---
 
