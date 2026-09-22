@@ -4398,12 +4398,14 @@ static int find_backstab_target(int map_id, int ppx, int ppy, int **ft, int part
         if(NPC_DEFS[i].map_id != map_id || !npc_def_roamable(i)) continue;
         ebit = npc_exec_bit(NPC_DEFS[i].map_id, NPC_DEFS[i].mark);
         if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;
-        if(!g_roamers[i].inited || g_roamers[i].chase) continue;
+        roamer_ensure(i);
+        if(g_roamers[i].chase) continue;
+        if(roamer_los(map_id, g_roamers[i].x, g_roamers[i].y, g_roamers[i].dir, ppx / TILE, ppy / TILE)) continue;
         si = npc_match_step(&NPC_DEFS[i], ft, party_n);
         if(si < 0) continue;
         st = &NPC_STEPS[si];
         if(st->after != NPC_AFTER_WSOLDIER) continue;
-        mark_center(map_id, NPC_DEFS[i].mark, &mx, &my);
+        mx = (int)g_roamers[i].x; my = (int)g_roamers[i].y;
         half_w = NPC_DEFS[i].w / 2 + INTERACT_BUFFER;
         left = mx - half_w;
         right = mx + half_w;
@@ -6591,6 +6593,25 @@ void main(void) {
                     if(sb) (*sb)++;
                     if(ebit >= 0 && ebit < 31) g_executed_mask |= (1u << ebit);
                     if(g_roamers[idx].inited) g_roamers[idx].chase = 0;
+                    {
+                        int bsi = npc_match_step(&NPC_DEFS[idx], ft, party_n);
+                        const NpcStep *bst = (bsi >= 0) ? &NPC_STEPS[bsi] : NULL;
+                        if(bst) {
+                            if(bst->pending == NPC_PENDING_SENTRY) { beat_wsoldier_cliffs = 1; bag.cageKey += 1; }
+                            else if(bst->pending == NPC_PENDING_CONSCRIPT) beat_wsoldier_camp1 = 1;
+                            else if(bst->pending == NPC_PENDING_ENFORCER) beat_wsoldier_camp2 = 1;
+                            else if(bst->pending == NPC_PENDING_CROSS) beat_wsoldier_grove = 1;
+                            else if(bst->pending == NPC_PENDING_FOREST_RANGER) beat_forest_ranger = 1;
+                            else if(bst->pending == NPC_PENDING_FOREST_SCOUT) beat_forest_scout = 1;
+                            else if(bst->pending == NPC_PENDING_RUINS_KEEPER) beat_ruins_keeper = 1;
+                            else if(bst->pending == NPC_PENDING_RUINS_WARDEN) beat_ruins_warden = 1;
+                            else if(bst->pending == NPC_PENDING_MARSH_BOG) beat_marsh_bog = 1;
+                            else if(bst->pending == NPC_PENDING_MARSH_REED) beat_marsh_reed = 1;
+                            else if(bst->pending == NPC_PENDING_QUARTZ) badge_quartz = 1;
+                            else if(bst->pending == NPC_PENDING_OPAL) badge_opal = 1;
+                            else if(bst->pending == NPC_PENDING_QUARRY_DRILLER) beat_quarry_driller = 1;
+                        }
+                    }
                     chip_sfx_faint();
                     g_mercy_red_fade = 1;
                     fade_state = FADE_OUT;

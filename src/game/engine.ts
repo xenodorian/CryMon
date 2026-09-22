@@ -4021,10 +4021,13 @@ export class CryMon {
 	 *  Backstab target: a roamable wsoldier trainer that hasn't spotted
 	 *  the player yet (no active chase), still fightable, while the
 	 *  player carries the Bowie Knife. */	canBackstab(npc, step) {
-		if (!this.bag.bowieKnife) return false;
+		if (!(this.bag.bowieKnife > 0)) return false;
 		if (!step || step.after !== "wsoldier") return false;
 		if (!this.roamableNpc(npc)) return false;
-		if (this.roamers[npc.id]?.chase) return false;
+		if (this.npcIsExecuted(npc.id)) return false;
+		const r = this.ensureRoamer(npc);
+		if (r.chase) return false;
+		if (this.roamerLos(r.x, r.y, r.dir)) return false;
 		return true;
 	}
 	openBackstabChoice(npc, step) {
@@ -4070,11 +4073,36 @@ export class CryMon {
 		this.bag[a] = (this.bag[a] ?? 0) + 1;
 		this.bag[b] = (this.bag[b] ?? 0) + 1;
 		this.markExecuted("wsoldier", pb.pending);
+		const kit = TRAINERS[pb.pending];
+		if (kit?.grant) {
+			for (const [iid, qty] of kit.grant) {
+				this.bag[iid] = (this.bag[iid] ?? 0) + qty;
+			}
+		}
+		this.applyWsBeatFlags(pb.pending);
+		if (this.roamers[pb.npc?.id]) this.roamers[pb.npc.id].chase = false;
 		this.world.encounterLock = 3;
 		this.audio.scream();
 		this.startFade("execute");
 		this.say(TALK.backstabExecute || [{ speaker: "none", text: "The blade is quick. They never see it coming." }]);
 		this.note(`Took ${gain} marks and loot.`);
+	}
+	applyWsBeatFlags(who: string) {
+		if (who === "sentry") this.beatSentry = true;
+		else if (who === "conscript") this.beatConscript = true;
+		else if (who === "enforcer") this.beatEnforcer = true;
+		else if (who === "cross") this.beatCross = true;
+		else if (who === "forestRanger") this.beatForestRanger = true;
+		else if (who === "forestScout") this.beatForestScout = true;
+		else if (who === "ruinsKeeper") this.beatRuinsKeeper = true;
+		else if (who === "ruinsWarden") this.beatRuinsWarden = true;
+		else if (who === "marshBog") this.beatMarshBog = true;
+		else if (who === "marshReed") this.beatMarshReed = true;
+		else if (who === "quartz") this.badgeQuartz = true;
+		else if (who === "opal") this.badgeOpal = true;
+		else if (who === "quarryDriller") this.beatQuarryDriller = true;
+		else if (who === "commanderFinal") this.beatCommander = true;
+		else if (who === "lieutenantLead") this.beatLieutenantLead = true;
 	}
 	drawBackstabChoice() {
 		this.drawWorld();
