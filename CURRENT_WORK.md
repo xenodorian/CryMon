@@ -499,3 +499,163 @@ Procedural terrain grid in `town_map.json` (v2): water/land/biomes + road carve.
 Tile-based SVG + in-game Map render; pixel dither on forest/marsh/cliff.
 See `docs/generated/town-map-tile-pipeline.md`.
 
+---
+
+## Town Map action plan: routes must be real map shapes, not phantom
+## connectors (Claude, 2026-09-22) — PLANNED, NOT STARTED
+
+### The actual problem (user-confirmed diagnosis)
+
+In FireRed, a Route is a real, separate playable map — same as a town
+— and the Town Map's tan path for "Route 1" is a spatially faithful
+sketch of *that specific map's* real shape/length/bends. Walking the
+paper-map path and walking the in-game route are the same journey.
+
+CryMon's routes (`forest`, `cliffs`, `marsh`, `ruins`, `reach`,
+`gauntlet1..5`) are *also* real separate maps in `content/maps.json`
+— that part already matches FireRed. But `generate-town-map.mjs`
+never reads that real geometry. Every region (landmark or route
+alike) collapses to a single abstract `(x, y)` integer coordinate on
+the `SEED`/BFS layout grid, and the "path" between two route dots is
+synthesized by `carveRoad()` — a Bresenham line stamped with generic
+road tiles on a synthetic terrain grid. It has zero data lineage back
+to the route's real tile layout. Two fixes so far (no boxes on
+routes, no beige dots, Quarry-as-location) only changed how the fake
+connector *looks* — they didn't stop it from being fake. The line
+between CryTown and Cliffs still doesn't know Cliffs is 18×12 tiles,
+still doesn't know which edge of Cliffs actually borders CryTown.
+
+### Real data that already exists to fix this (verified, not assumed)
+
+- **`content/maps.json`'s `rows[mapId]`** — the actual ASCII tile grid
+  for every real map, `forest`/`cliffs`/`marsh`/`ruins`/`reach`/
+  `gauntlet1..6`/etc included. Confirmed dimensions match
+  `world_map_layout.json` exactly for every route (e.g. forest
+  26×20, cliffs 18×12, marsh 18×13, ruins 20×13, reach 20×16,
+  gauntlet1-5 16×36 each, gauntlet6 16×20, quarry 16×13).
+  `maps.json.solid` (`#HWRBC^NErUSX%k`) is the legend of which tile
+  chars block walking — enough to derive a walkable-vs-wall mask per
+  route without new data.
+- **`content/world.json`'s `warps[]`** — each entry has a `tile`
+  marker char (e.g. `{from:"veld", tile:"Z", to:"forest",
+  spawn:"Y", dir:"down"}`). Scanning `rows[mapId]` for that char
+  (same technique `main.c`'s `find_mark()` already uses) gives the
+  **exact real tile coordinate** of the door on both sides of every
+  connection — i.e., real entry/exit points, not a guessed
+  up/down/left/right label.
+- **`world_map_layout.json`'s `maps[id].width/height`** — real
+  dimensions, redundant with `rows` but useful as a cheap cross-check.
+
+So the raw material to derive a real route shape (footprint +
+orientation + the two real anchor points it must touch) already
+exists in the content pack. Nothing needs to be added to JSON before
+this can be built — this is a generator/renderer rewrite, not a
+content-authoring task.
+
+### Proposed phases (sequential, each independently committable/
+### verifiable — do not batch into one giant patch)
+
+**Phase 0 — Audit, read-only.** For every id currently `kind:"route"`
+in `REGION_META` (forest, cliffs, marsh, ruins, reach,
+gauntlet_route), confirm it has: real `rows[id]` data, real
+`width/height`, and at least one warp with a real `tile` marker on
+each side that connects it to its neighbors. Note exceptions:
+`gauntlet_route` is a `COLLAPSE` target for **five** chained real
+maps (`gauntlet1..5`), not one map — decide whether to stitch all
+five shapes end-to-end (most accurate) or represent it as one
+simplified elongated corridor sized as their combined length
+(cheaper, still real-data-derived). Output: a short findings note
+appended here, no code changes.
+
+**Phase 1 — Shape extraction (pure function, testable in isolation).**
+Add a `extractRouteShape(mapId)` step to `generate-town-map.mjs` that:
+  1. Loads `rows[mapId]` and `maps.json.solid`.
+  2. Downsamples into a coarse walkable/blocked mask (bucket every
+     N real tiles into 1 Town-Map cell — N picked so the *longest*
+     route still reads as a distinct silhouette at Town Map scale,
+     not so fine it's noisy, not so coarse it's a blob).
+  3. For each warp touching `mapId`, scans `rows[mapId]` for the
+     `tile` char to get the real (col,row) of that door, and records
+     which neighbor it connects to and which edge of the map it sits
+     on (the door's position relative to the map's bounding box).
+  Output: `{ id, maskCells: [[x,y],...], anchors: {neighborId: {col,row}} }`
+  per route. No rendering changes yet — dump this as JSON and
+  visually sanity-check a couple of routes (e.g. print Forest's mask
+  next to its ASCII `rows` and confirm the silhouette matches by eye)
+  before wiring it into layout.
+
+**Phase 2 — Replace point-placement for routes only.** Landmarks
+(`gem:true`) keep the existing SEED/BFS single-point placement — they
+really are single pins, this isn't broken for them. For routes,
+stop assigning a single abstract `(x,y)`; instead anchor the route's
+extracted shape (Phase 1 output) so its two real doors line up with
+the real positions of the landmark/route nodes on either side of it,
+scaled to fit the layout grid's spacing. This is the structurally
+hard part — the current SEED grid has ~1 unit of spacing between
+adjacent nodes, nowhere near enough room to host a proportional
+26×20 shape; the grid spacing/units likely need to scale up
+alongside this change (e.g. move from "1 grid cell = 1 abstract
+node slot" to "1 grid cell = N real tiles", consistent across all
+routes so relative lengths stay meaningful).
+
+**Phase 3 — Schema.** Bump `content/town_map.json` to v3. Add real
+per-route shape data (a cell list or simplified polygon per route
+edge) generated once by the Phase 1/2 pipeline. Both renderers must
+read this shared field — neither should re-derive or re-guess a
+shape independently, to avoid the SVG and in-game map drifting apart
+again (which is exactly how the current phantom-line duplication
+happened in the first place).
+
+**Phase 4 — Rendering.** Replace `carveRoad()`'s synthetic
+Bresenham-line-plus-generic-tile-stamp with: trace the real shape
+data from Phase 3 directly onto the terrain grid (SVG generator) and
+canvas (`engine.ts`'s `drawTownMap()`). The route's drawn shape
+should now be recognizably derived from its actual level geometry —
+long winding routes look long and winding, short routes look short,
+an L-bend in the real map shows up as a bend on the Town Map.
+
+**Phase 5 — Validation.** Add a check (either inline in the
+generator's existing `errors[]` array, or a new
+`tools/world_graph/validate_*` script) that fails loudly — not a
+silent fallback to a straight line — if a route claimed as
+`kind:"route"` is missing `rows`/`width`/`height` data, or if its
+extracted shape doesn't actually reach the real anchor tile for one
+of its declared connections. This is meant to catch future content
+edits (e.g. someone resizes Forest's map or moves its door) that
+would silently desync the Town Map from the real level again.
+
+**Phase 6 — Regenerate, verify, ship.** Full verification bar
+(`check_sync --strict`, typecheck, web build; Dreamcast rebuild only
+if this ends up touching baked content, which it currently doesn't —
+`town_map.json` stays web-only runtime data). Render via headless
+Chromium, compare by eye against the FireRed reference the user
+supplied, confirm each route's Town Map shape plausibly resembles
+its real `rows[id]` layout. Commit per phase, not as one commit —
+per the standing house rule.
+
+### Open design questions (need a decision before Phase 2, not before
+### Phase 0/1)
+
+- **Fidelity target:** exact tile-for-tile silhouette of the real map,
+  or a simplified "ribbon" that approximates real length/bend/
+  orientation without literal tile-for-tile noise? FireRed's own Town
+  Map is itself a simplification of the real routes, not 1:1 — worth
+  confirming how literal the user wants this before Phase 2 locks in
+  an approach.
+- **Gauntlet's 5-map chain:** stitch all five real maps end-to-end, or
+  one simplified corridor sized to their combined length? Affects
+  Phase 0/1 scope directly.
+- **Scale/spacing rework:** Phase 2's grid-spacing change affects
+  every existing node position (the whole `SEED` table), so this
+  will visually re-lay-out the entire map, not just add detail to
+  routes — worth a "here's the new layout, does this look right"
+  check-in before Phase 3 locks the schema.
+
+### Status
+
+Plan only — no code written yet. Multiple agents (Claude, Grok) have
+been actively iterating on `generate-town-map.mjs` this session;
+whoever picks up Phase 0 should re-read this section first in case
+another agent already started, to avoid duplicate/conflicting work
+on the same file.
+
