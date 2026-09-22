@@ -1,0 +1,40 @@
+name: Fix confuse text
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch status labels
+        run: |
+          set -e
+          python3 << 'PY'
+          from pathlib import Path
+          p = Path('src/game/engine.ts')
+          t = p.read_text()
+          old = '''\t\tif (b.player.status === "paralyzed") {\n\t\t\tb.pendingDmg = 0;\n\t\t\tb.pendingLabel = `${this.playerDisplayName()} is paralyzed and can't move.`;\n\t\t\tb.phase = "resolve_hit";\n\t\t\tthis.audio.miss();\n\t\t\treturn;\n\t\t}\n\t\tconst confused = this.confusionOutcome(b.player, true);\n\t\tif (confused && confused.kind !== "normal") {\n\t\t\tb.pendingDmg = 0;\n\t\t\tif (confused.kind === "none") {\n\t\t\t\tb.pendingLabel = `${this.playerDisplayName()} is too confused to act.`;\n\t\t\t} else if (confused.kind === "self") {\n\t\t\t\tconst dmg = Math.max(0, Math.min(b.player.hp - 1, confused.dmg));\n\t\t\t\tb.player.hp = Math.max(1, b.player.hp - dmg);\n\t\t\t\tb.pendingLabel = `${this.playerDisplayName()} is confused and hits itself!`;\n\t\t\t} else {\n\t\t\t\tconst target = this.party[confused.targetIdx];\n\t\t\t\tif (target) target.hp = Math.max(0, target.hp - confused.dmg);\n\t\t\t\tb.pendingLabel = `${this.playerDisplayName()} is confused and hits ${target?.name ?? "an ally"}!`;\n\t\t\t}\n\t\t\tb.phase = "resolve_hit";\n\t\t\tthis.audio.miss();\n\t\t\treturn;\n\t\t}\n\t\tif (mv.kind === "wait") {\n\t\t\tb.msg = [`${this.playerDisplayName()} holds.`];'''
+          new = '''\t\tif (b.player.status === "paralyzed") {\n\t\t\tb.pendingDmg = 0;\n\t\t\tb.pendingLabel = `${b.player.name} is paralyzed and can't move.`;\n\t\t\tb.phase = "resolve_hit";\n\t\t\tthis.audio.miss();\n\t\t\treturn;\n\t\t}\n\t\tconst confused = this.confusionOutcome(b.player, true);\n\t\tif (confused && confused.kind !== "normal") {\n\t\t\tb.pendingDmg = 0;\n\t\t\tif (confused.kind === "none") {\n\t\t\t\tb.pendingLabel = `${b.player.name} is too confused to act.`;\n\t\t\t} else if (confused.kind === "self") {\n\t\t\t\tconst dmg = Math.max(0, Math.min(b.player.hp - 1, confused.dmg));\n\t\t\t\tb.player.hp = Math.max(1, b.player.hp - dmg);\n\t\t\t\tb.pendingLabel = `${b.player.name} is confused and hits itself!`;\n\t\t\t} else {\n\t\t\t\tconst target = this.party[confused.targetIdx];\n\t\t\t\tif (target) target.hp = Math.max(0, target.hp - confused.dmg);\n\t\t\t\tb.pendingLabel = `${b.player.name} is confused and hits ${target?.name ?? "an ally"}!`;\n\t\t\t}\n\t\t\tb.phase = "resolve_hit";\n\t\t\tthis.audio.miss();\n\t\t\treturn;\n\t\t}\n\t\tif (mv.kind === "wait") {\n\t\t\tb.msg = [`${b.player.name} holds.`];'''
+          if old not in t:
+              if 'b.player.name} is too confused' in t:
+                  print('already patched')
+              else:
+                  raise SystemExit('block not found')
+          else:
+              p.write_text(t.replace(old, new, 1))
+              print('patched')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/engine.ts
+          git commit -m "Battle text: confusion/paralysis name the active CryMon, not Max"
+          git push
+      - name: Ship Pages
+        run: gh workflow run deploy-pages.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
