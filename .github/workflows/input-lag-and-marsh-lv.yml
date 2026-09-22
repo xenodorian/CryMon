@@ -1,0 +1,103 @@
+name: Input lag + marsh levels
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch
+        run: |
+          set -e
+          python3 << 'END'
+          import json, re, subprocess
+          from pathlib import Path
+
+          # --- trainer levels ---
+          p = Path('content/world_parts/trainers.json')
+          data = json.loads(p.read_text())
+          t = data['trainers']
+          def set_all(kit, level):
+              kit['lead'] = [kit['lead'][0], level]
+              kit['bench'] = [[sp, level] for sp, _ in kit.get('bench') or []]
+          set_all(t['marshBog'], 3)
+          set_all(t['marshReed'], 3)
+          p.write_text(json.dumps(data, indent=2) + '\n')
+
+          # --- input.ts dir repeat + consumeQueuedFace ---
+          ip = Path('src/game/input.ts')
+          it = ip.read_text()
+          it = it.replace(
+              'if (held > 140 && since > 50) {',
+              'if (held > 55 && since > 28) {',
+          )
+          if 'consumeQueuedFace' not in it:
+              it = it.replace(
+                  '''  queueSelect() {\n    this.tapSelectQueued += 1;\n  }''',
+                  '''  queueSelect() {\n    this.tapSelectQueued += 1;\n  }\n  consumeQueuedFace() {\n    if (this.tapAQueued > 0) { this.tapA = true; this.tapAQueued -= 1; }\n    if (this.tapBQueued > 0) { this.tapB = true; this.tapBQueued -= 1; }\n    if (this.tapStartQueued > 0) { this.tapStart = true; this.tapStartQueued -= 1; }\n    if (this.tapSelectQueued > 0) { this.tapSelect = true; this.tapSelectQueued -= 1; }\n    this.used.clear();\n  }''',
+              )
+          ip.write_text(it)
+
+          # --- engine multi-STEP tap drain ---
+          ep = Path('src/game/engine.ts')
+          et = ep.read_text()
+          old = '''\t\t\tthis.input.beginFrame();\n\t\t\tthis.input.pollGamepad();\n\t\t\twhile (this.acc >= STEP) {\n\t\t\t\tthis.update(STEP);\n\t\t\t\tthis.acc -= STEP;\n\t\t\t}'''
+          new = '''\t\t\tthis.input.beginFrame();\n\t\t\tthis.input.pollGamepad();\n\t\t\tlet stepI = 0;\n\t\t\twhile (this.acc >= STEP) {\n\t\t\t\tif (stepI > 0) this.input.consumeQueuedFace();\n\t\t\t\tthis.update(STEP);\n\t\t\t\tthis.acc -= STEP;\n\t\t\t\tstepI += 1;\n\t\t\t}'''
+          if old not in et:
+              if 'consumeQueuedFace' in et:
+                  print('engine already multi-step')
+              else:
+                  raise SystemExit('engine loop not found')
+          else:
+              et = et.replace(old, new, 1)
+              ep.write_text(et)
+
+          # --- crymon-app Face + Dpad ---
+          app = Path('src/components/crymon-app.tsx')
+          at = app.read_text()
+          at = re.sub(
+              r'  const \[pad, setPad\] = useState\(\{ x: 0, y: 0 \}\);\n',
+              '',
+              at,
+              count=1,
+          )
+          at = re.sub(
+              r'  useEffect\(\(\) => \{\n    gameRef\.current\?\.input\.setPad\(pad\.x, pad\.y\);\n  \}, \[pad\]\);\n\n',
+              '  // Pad written straight to Input on pointer events.\n\n',
+              at,
+              count=1,
+          )
+          at = at.replace(
+              '''            <Dpad\n              onPad={(v) => {\n                setPad(v);\n                gameRef.current?.input.setPad(v.x, v.y);\n              }}\n            />''',
+              '''            <Dpad\n              onPad={(v) => {\n                gameRef.current?.input.setPad(v.x, v.y);\n              }}\n            />''',
+          )
+          # Face: ensure preventDefault + stopPropagation on pointerdown
+          if 'e.stopPropagation()' not in at:
+              at = at.replace(
+                  '''      onPointerDown={(e) => {\n        e.preventDefault();\n        (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);\n        onClick();\n      }}''',
+                  '''      onPointerDown={(e) => {\n        e.preventDefault();\n        e.stopPropagation();\n        (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);\n        onClick();\n      }}''',
+              )
+          app.write_text(at)
+
+          subprocess.check_call(['python3', 'tools/merge_world.py'])
+          subprocess.check_call(['python3', 'tools/bake_content.py', '--content', 'content', '--out', 'ports/dreamcast/src'])
+          print('bog', t['marshBog']['lead'], t['marshBog']['bench'])
+          print('reed', t['marshReed']['lead'], t['marshReed']['bench'])
+          print('OK')
+          END
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/world_parts/trainers.json content/world.json src/game/input.ts src/game/engine.ts src/components/crymon-app.tsx ports/dreamcast/src/
+          git commit -m "Marsh trainers Lv3; cut virtual-button input lag for rapid mashing" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
