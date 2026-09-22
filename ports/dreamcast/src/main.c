@@ -1200,7 +1200,7 @@ static const u16 *const HEAVENFALLPRIESTESS_FRAMES[4] = { npc_heavenfallPriestes
 static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
                           int mason_state, float mason_x, float mason_y, int mason_dir, int mason_frame,
                           int anne_state, float anne_x, float anne_y, int anne_dir, int anne_frame,
-                          int cath_caught, int beat_shin,
+                          int cath_caught, int beat_shin, int saw_shinigami_rock,
                           const Soldier *soldiers, const int *soldier_beaten) {
     if(map_id == MAP_VELD) {
         ws_push_mark_idle(list, n, map_id, 'K', WREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
@@ -1211,6 +1211,8 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, 'J', BRAM_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        if(beat_shin && !saw_shinigami_rock)
+            ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
         if(mason_state) {
             ws_push_walker(list, n, MASON_FRAMES, mason_x, mason_y, mason_dir, mason_frame);
             if(*n > 0) list[*n - 1].scale = SPR_SCALE_MASON;
@@ -1370,7 +1372,16 @@ typedef struct {
 #define SPK_SENTRY    21
 #define SPK_FATHER    22
 #define SPK_HEAVENFALL 23
-#define SPK_COUNT     24
+/* 24-36 are unused speaker ids on the web side (e.g. "system", id 36 --
+   narration/system-voiced lines with no portrait) that were never given
+   a Dreamcast portrait slot; the gap is intentional, not a bug, filled
+   with { 0, 0, 0 } (no portrait) below. SPK_HEAVENFALLPRIESTESS must
+   stay exactly 37 -- it has to match content_talk.inc's baked speaker
+   id (tools/bake_content.py's SPEAKER dict), the same requirement
+   every other SPK_* here already has, just with a real gap before it
+   instead of a contiguous run. */
+#define SPK_HEAVENFALLPRIESTESS 37
+#define SPK_COUNT     38
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of
@@ -1408,6 +1419,20 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_sentry,    PORT_SENTRY_W,    PORT_SENTRY_H },
     { port_father,    PORT_FATHER_W,    PORT_FATHER_H },
     { port_heavenfall,PORT_HEAVENFALL_W,PORT_HEAVENFALL_H },
+    { 0, 0, 0 }, /* 24 */
+    { 0, 0, 0 }, /* 25 */
+    { 0, 0, 0 }, /* 26 */
+    { 0, 0, 0 }, /* 27 */
+    { 0, 0, 0 }, /* 28 */
+    { 0, 0, 0 }, /* 29 */
+    { 0, 0, 0 }, /* 30 */
+    { 0, 0, 0 }, /* 31 */
+    { 0, 0, 0 }, /* 32 */
+    { 0, 0, 0 }, /* 33 */
+    { 0, 0, 0 }, /* 34 */
+    { 0, 0, 0 }, /* 35 */
+    { 0, 0, 0 }, /* 36 -- SPK_NONE/"system" territory, no portrait */
+    { port_heavenfallPriestess, PORT_HEAVENFALLPRIESTESS_W, PORT_HEAVENFALLPRIESTESS_H }, /* 37 */
 };
 
 #include "content_talk.inc"
@@ -4701,6 +4726,7 @@ void main(void) {
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
     int talked_reach = 0;
+    int saw_shinigami_rock = 0;
     int quarry_crate_looted = 0, quarry_shelf_searched = 0;
     int cage_open = 0;
     int has_scroll = 0; /* Legendary Reanimation, granted once Shinigami's win dialogue closes */
@@ -4831,6 +4857,7 @@ void main(void) {
         ft[FLAG_CAGE_OPEN] = &cage_open;
         ft[FLAG_HAS_CAGE_KEY] = &bag.cageKey;
         ft[FLAG_TALKED_REACH] = &talked_reach;
+        ft[FLAG_SAW_SHINIGAMI_ROCK] = &saw_shinigami_rock;
         ft[FLAG_QUARRY_CRATE_LOOTED] = &quarry_crate_looted;
         ft[FLAG_QUARRY_SHELF_SEARCHED] = &quarry_shelf_searched;
     }
@@ -5114,6 +5141,7 @@ void main(void) {
                         anne2_told = save_flag_get(&sl, SAVE_FLAG_ANNE2_TOLD);
                         mason2_done = save_flag_get(&sl, SAVE_FLAG_MASON2_DONE);
                         talked_reach = save_flag_get(&sl, SAVE_FLAG_TALKED_REACH);
+                        saw_shinigami_rock = save_flag_get(&sl, SAVE_FLAG_SAW_SHINIGAMI_ROCK);
                         soldier_beaten[0] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN0);
                         soldier_beaten[1] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN1);
                         soldier_beaten[2] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN2);
@@ -5184,6 +5212,7 @@ void main(void) {
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
                 talked_reach = 0;
+                saw_shinigami_rock = 0;
                 dex_clear();
                 choice_mode = 0; choice_cur = 0;
                 mercy_mode = 0; mercy_cur = 0; mercy_foe_levels = 0; mercy_foe_name[0] = 0; g_executed_mask = 0;
@@ -5345,6 +5374,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_ANNE2_TOLD, anne2_told);
                     save_flag_put(&sl, SAVE_FLAG_MASON2_DONE, mason2_done);
                     save_flag_put(&sl, SAVE_FLAG_TALKED_REACH, talked_reach);
+                    save_flag_put(&sl, SAVE_FLAG_SAW_SHINIGAMI_ROCK, saw_shinigami_rock);
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN0, soldier_beaten[0]);
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN1, soldier_beaten[1]);
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN2, soldier_beaten[2]);
@@ -6361,6 +6391,27 @@ void main(void) {
                 mason_y = (float)py + 100.0f;
                 mason_dir = 1; /* up */
                 mason_anim = 0.0f;
+            }
+
+            /* Shinigami, freed in the Prison, stands beside the boulder
+               blocking CryTown's west gate. No walk-cycle cutscene --
+               he's just already there (VELD mark '9', collect_npcs()
+               above), and the moment the player's viewport reaches him
+               the rock event fires once. The boulder "exploding" is
+               narrated in TALK_SHINIGAMI_ROCK_EVENT's text only; a real
+               particle-burst animation is a marked TODO, not
+               implemented here. Matches engine.ts's maybeShinigamiRock(). */
+            if(map_id == MAP_VELD && beat_shin && !saw_shinigami_rock && !seq_lines) {
+                int sx, sy, ddx, ddy;
+                mark_center(MAP_VELD, '9', &sx, &sy);
+                ddx = sx - px; if(ddx < 0) ddx = -ddx;
+                ddy = sy - py; if(ddy < 0) ddy = -ddy;
+                if(ddx < SCREEN_W / 2 && ddy < SCREEN_H / 2) {
+                    saw_shinigami_rock = 1;
+                    seq_lines = TALK_SHINIGAMI_ROCK_EVENT;
+                    seq_len = TALK_LEN(TALK_SHINIGAMI_ROCK_EVENT);
+                    seq_beat = 0;
+                }
             }
 
             /* ensureSoldiers(): lazily place the 3 FOREST soldiers at
@@ -7448,7 +7499,7 @@ void main(void) {
                 collect_npcs(ws_list, &ws_n, map_id, frame_count,
                              mason_state, mason_x, mason_y, mason_dir, mason_frame,
                              anne_state, anne_x, anne_y, anne_dir, anne_frame,
-                             cath_caught, beat_shin, soldiers, soldier_beaten);
+                             cath_caught, beat_shin, saw_shinigami_rock, soldiers, soldier_beaten);
                 ws_push(ws_list, &ws_n, MAX_FRAMES[pdir][(anim_counter / 10) & 3],
                         MAX_SPRITE_W, MAX_SPRITE_H, px, py);
                 ws_sort_and_draw(ws_list, ws_n, cam_x, cam_y);

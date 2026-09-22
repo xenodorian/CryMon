@@ -212,6 +212,7 @@ export class CryMon {
 	cathleenCaught = false;
 	beatCathleen = false;
 	beatShinigami = false;
+	sawShinigamiRock = false;
 	hasScroll = false;
 	anne2Told = false;
 	tessaGifted = false;
@@ -387,6 +388,7 @@ export class CryMon {
 		this.cathleenCaught = false;
 		this.beatCathleen = false;
 		this.beatShinigami = false;
+		this.sawShinigamiRock = false;
 		this.hasScroll = false;
 		this.anne2Told = false;
 		this.tessaGifted = false;
@@ -1787,6 +1789,7 @@ export class CryMon {
 		if (this.mapBannerT > 0) this.mapBannerT = Math.max(0, this.mapBannerT - dt);
 		if (!this.talking() && this.hudT <= 0) this.maybeStartAnne();
 		this.maybeStartMasonRematch();
+		this.maybeShinigamiRock();
 		if (this.rival.phase === "approach") {
 			this.world.moving = false;
 			this.world.frame = 0;
@@ -1936,6 +1939,7 @@ export class CryMon {
 		for (const npc of NPCS) {
 			if (npc.map !== this.world.mapId || !npc.sprite) continue;
 			if (npc.id === "shinigami" && this.beatShinigami) continue;
+			if (npc.id === "shinigamiRock" && this.sawShinigamiRock) continue;
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(this.map(), mark);
 				if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 16) return true;
@@ -2049,6 +2053,7 @@ export class CryMon {
 			gotStump: this.gotStump,
 			cathleenCaught: this.cathleenCaught,
 			beatShinigami: this.beatShinigami,
+			sawShinigamiRock: this.sawShinigamiRock,
 			beatCross: this.beatCross,
 			beatConscript: this.beatConscript,
 			beatEnforcer: this.beatEnforcer,
@@ -2234,6 +2239,22 @@ export class CryMon {
 			this.fade.t = 0;
 		} else if (this.fade.phase === "in" && this.fade.t >= inSec) {
 			this.fade = { phase: "off", t: 0, action: null };
+		}
+	}
+	// Shinigami, freed in the Prison, stands beside the boulder blocking
+	// CryTown's west gate. No walk-cycle cutscene (none of this codebase's
+	// scripted-NPC-movement code is generic across characters -- see
+	// CURRENT_WORK.md) -- he's just already there, and the moment Max
+	// walks into view of him the rock event fires once. The boulder
+	// "exploding" is narrated in shinigamiRockEvent's text only; a real
+	// particle-burst animation is a marked TODO, not implemented here.
+	maybeShinigamiRock() {
+		if (this.world.mapId !== "veld" || !this.beatShinigami || this.sawShinigamiRock || this.talking()) return;
+		const s = spawnOf(this.map(), "9");
+		if (Math.abs(s.x - this.world.x) < VIEW_W / 2 && Math.abs(s.y - this.world.y) < VIEW_H / 2) {
+			this.sawShinigamiRock = true;
+			this.say(TALK.shinigamiRockEvent);
+			this.persist(false);
 		}
 	}
 	maybeStartMasonRematch() {

@@ -1059,6 +1059,18 @@
         }
       ],
       "sprite": "npc/heavenfallPriestess"
+    },
+    {
+      "map": "veld",
+      "mark": "9",
+      "id": "shinigamiRock",
+      "role": "talk",
+      "sprite": "shinigami",
+      "script": [
+        {
+          "hideIf": "sawShinigamiRock"
+        }
+      ]
     }
   ]
 }

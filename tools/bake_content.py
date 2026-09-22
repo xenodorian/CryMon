@@ -55,6 +55,7 @@ SPEAKER = {
     "dray": 34,
     "lead": 35,
     "system": 36,
+    "heavenfallPriestess": 37,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -891,6 +892,7 @@ FLAG_IDS = [
     "cageOpen",
     "hasCageKey",
     "talkedReach",
+    "sawShinigamiRock",
 ]
 FLAG_INDEX = {name: i for i, name in enumerate(FLAG_IDS)}
 

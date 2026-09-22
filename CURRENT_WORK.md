@@ -1023,3 +1023,71 @@ scroll -> she says so, shouts "Then begone!", and teleports Max home.
   `make -C ports/dreamcast` clean rebuild (only baseline warnings),
   full world-graph audit PASS.
 
+**Shinigami-at-the-rock event + Priestess real portrait (Claude,
+2026-09-22).** Two follow-ups to the entries above.
+
+*Shinigami stands next to the rock (no walk cutscene, as decided
+above; user confirmed: standing NPC + auto-trigger on proximity
+instead).* New NPC `shinigamiRock` (id distinct from Grove's
+`shinigami` and Reach's `shinigamiFree` -- same character, three
+separate npc-table entries, matching how this codebase already
+handles Shinigami's Grove/Reach split), `veld` mark `'9'` placed
+right next to the new west door, reusing his existing `shinigami`
+sprite (no new art). New save flag `sawShinigamiRock` (63rd of the
+64 available bits -- 1 left after this). `engine.ts`'s
+`maybeShinigamiRock()` (called from `updateWorld()` alongside the
+existing `maybeStartAnne`/`maybeStartMasonRematch`) fires once, the
+first time the player's viewport overlaps his position, while
+`beatShinigami` is true and the event hasn't fired yet -- plays
+`TALK.shinigamiRockEvent`, sets the flag, hides him after (`hideIf`
+in his script + an `isSolid()` exception matching the existing
+Grove-Shinigami pattern). Mirrored on Dreamcast: `saw_shinigami_rock`
+local + `SAVE_FLAG_SAW_SHINIGAMI_ROCK` save/restore + `FLAG_SAW_
+SHINIGAMI_ROCK` for the `hideIf`, a `collect_npcs()` VELD entry
+gated on `beat_shin && !saw_shinigami_rock`, and a proximity check in
+the main per-frame loop using `SCREEN_W/H` (Dreamcast's real
+resolution, vs. `VIEW_W/H` on web) as the "in view" test.
+**The boulder "exploding" is narrated in the dialogue text only --
+no particle animation exists.** Marked with a code comment at both
+trigger sites and here: a real particle-burst effect is a follow-up
+for whoever next touches VFX, not implemented in this pass.
+
+*Priestess portrait, from the source art, re-stripped since the
+uncompressed intermediate wasn't kept.* The npc-sprite step earlier
+this session deleted its working file (`_priestess_raw.png`) after
+fitting it to 48x64, so per the user's own fallback instruction, the
+portrait was made by re-running `strip_magenta.py key-clamp` fresh
+against the original upload (not the compressed 48x64 sprite) and
+cropping to the character's bbox with padding -- full resolution,
+not tiny. This is now a **real** portrait (unlike the removed
+placeholder priest), so she's wired as a proper named speaker instead
+of the portrait-less `"system"` voice used before: `heavenfallPriestess`
+added to `content/dialogue.json`'s `speakers`, `tools/bake_content.py`'s
+`SPEAKER` dict (id 37), `content/sprites.json`'s `portraits` catalog,
+and `src/game/types.ts`'s `SpeakerId` union (`check_sync` catches a
+mismatch here, which is how this got noticed before it half-shipped).
+- **Found and fixed a real pre-existing bug while wiring her
+  Dreamcast portrait:** `SPEAKER_PORTRAIT[beat->speaker]` in `main.c`
+  has never bounds-checked the array access, and `"system"` (Python
+  speaker id 36) was already being looked up against an array sized
+  only `SPK_COUNT` = 24 -- an out-of-bounds read on real hardware for
+  every existing `system`-voiced line (gravestone, several `failTalk`
+  messages), predating this session entirely. Rather than paper over
+  it with a bounds-check band-aid, sized `SPEAKER_PORTRAIT` up to 38
+  entries (ids 24-36 filled with `{0,0,0}`, i.e. no portrait, matching
+  what those ids already mean on the web side) so `SPK_HEAVENFALLPRIESTESS`
+  = 37 lines up with the same baked id Python assigned and every
+  index in range is now genuinely valid memory. **If you add another
+  new speaker, its id must still land inside `SPEAKER_PORTRAIT`'s
+  bounds** -- extend the array (or its dummy-entry range) again, the
+  same way this fix did, rather than assuming Python and C only need
+  to agree on the number and not on the array actually being that
+  large.
+- Rewrote her introduction lines to drop the third-person "she says"
+  narration wrapper now that a real speaker tag makes that redundant
+  (every other character's dialogue is plain first-person text under
+  their own name tag; hers should read the same way).
+- Full verification: `check_sync --strict` (caught the `SpeakerId`
+  union gap), typecheck, web build, `make -C ports/dreamcast` clean
+  rebuild (only baseline warnings), full world-graph audit PASS.
+

@@ -36,7 +36,8 @@
     "fenn": "Fenn",
     "dray": "Dray",
     "lead": "Lieutenant Lead",
-    "system": ""
+    "system": "",
+    "heavenfallPriestess": "The Heavenfall Priestess"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
@@ -1471,30 +1472,48 @@
     ],
     "priestessHasScroll": [
       {
-        "speaker": "system",
-        "text": "\"I am the Priestess of the Fall of Heaven,\" she says. \"None may enter the gauntlet without the sacred Scroll of Resurrection, with which the fallen Heavenfall may be raised.\""
+        "speaker": "heavenfallPriestess",
+        "text": "I am the Priestess of the Fall of Heaven. None may enter the gauntlet without the sacred Scroll of Resurrection, with which the fallen Heavenfall may be raised."
       },
       {
-        "speaker": "system",
+        "speaker": "heavenfallPriestess",
         "text": "The scroll. So it's true."
       },
       {
-        "speaker": "system",
+        "speaker": "heavenfallPriestess",
         "text": "Go, then. What you do with the dead is on you now."
       }
     ],
     "priestessNoScroll": [
       {
-        "speaker": "system",
-        "text": "\"I am the Priestess of the Fall of Heaven,\" she says. \"None may enter the gauntlet without the sacred Scroll of Resurrection, with which the fallen Heavenfall may be raised.\""
+        "speaker": "heavenfallPriestess",
+        "text": "I am the Priestess of the Fall of Heaven. None may enter the gauntlet without the sacred Scroll of Resurrection, with which the fallen Heavenfall may be raised."
       },
       {
-        "speaker": "system",
+        "speaker": "heavenfallPriestess",
         "text": "You don't have a scroll."
       },
       {
-        "speaker": "system",
-        "text": "\"Then begone!\""
+        "speaker": "heavenfallPriestess",
+        "text": "Then begone!"
+      }
+    ],
+    "shinigamiRockEvent": [
+      {
+        "speaker": "shinigami",
+        "text": "There you are."
+      },
+      {
+        "speaker": "none",
+        "text": "Shinigami turns to the boulder sealing the western pass and raises a clawed hand."
+      },
+      {
+        "speaker": "none",
+        "text": "The rock shatters."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "The path's open. I'll be at the Reach, if you're still keeping count of favors."
       }
     ]
   },
