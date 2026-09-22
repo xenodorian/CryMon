@@ -729,3 +729,26 @@ known baseline warning set), `run_full_audit.py` PASS, rendered SVG
 visually confirmed (no overlaps, Gauntlet's long corridor and label
 centering both correct, all four routes visibly longer/thinner now).
 
+**Flat-beige cells, gems only get color (Claude, 2026-09-22).** User
+flagged that the per-kind biome colors and the route "path stripe"
+implied a specific correct sub-path through a cell that isn't real —
+the cell is a simplified proportional footprint, not a tile-traced
+route, so a lighter stripe down the middle reads as "walk here" when
+that's not meaningfully truer than any other point in the cell. Fixed
+in both `tools/generate-town-map.mjs` and `engine.ts`'s
+`drawTownMap()`: every cell is now the same flat beige
+(`#d4c49a`/`#8a7a55` stroke), no kind-based fill, no path stripe. Gem
+markers brightened to a more strikingly saturated blue (`#29b6ff`
+diamond on a `#0a2f52` backing) so they read as the only meaningful
+color on the map.
+
+Also explained (not changed, per request): Quarry's box visually
+sits astride the CryTown/Camp seam because Quarry's real door exits
+Cliffs near a point that, projected onto the county grid, lands
+inside CryTown's own box (CryTown sits directly west of Cliffs and
+already owns that space) — the collision-avoiding placement search
+pushes Quarry to the nearest fully free cell, which happens to be the
+small gap above where Camp and CryTown meet. Not a bug to fix per the
+user, just asked to explain it; explanation given, no code changed
+for this part.
+

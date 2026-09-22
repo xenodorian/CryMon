@@ -1076,15 +1076,12 @@ export class CryMon {
 		const mapW = 272;
 		const mapH = 150;
 
-		const BIOME_FILL: Record<string, string> = {
-			town: "#8fae5c",
-			camp: "#c9a86a",
-			landmark: "#5e9e6e",
-			shrine: "#c9a86a",
-			cave: "#8a8a78",
-			route: "#6f9450",
-		};
-		const ROUTE_PATH_FILL = "#d8c79a";
+		// Every cell is the same flat beige -- a colored-by-kind fill or an
+		// internal "path stripe" implies a specific correct sub-path through
+		// the cell that isn't real (the cell is a simplified proportional
+		// footprint, not a tile-traced route). Only the gem markers get color.
+		const CELL_FILL = "#d4c49a";
+		const CELL_STROKE = "#8a7a55";
 
 		const minX = Math.min(...nodes.map((n) => n.x));
 		const minY = Math.min(...nodes.map((n) => n.y));
@@ -1104,18 +1101,11 @@ export class CryMon {
 			const y = oy + (n.y - minY) * cell;
 			const w = cw * cell;
 			const h = ch * cell;
-			ctx.fillStyle = BIOME_FILL[n.kind] ?? BIOME_FILL.route;
+			ctx.fillStyle = CELL_FILL;
 			ctx.fillRect(x, y, w, h);
-			if (n.kind === "route") {
-				ctx.fillStyle = ROUTE_PATH_FILL;
-				if (ch >= cw) {
-					const sw = Math.max(cell * 0.4, w * 0.35);
-					ctx.fillRect(x + (w - sw) / 2, y, sw, h);
-				} else {
-					const sh = Math.max(cell * 0.4, h * 0.35);
-					ctx.fillRect(x, y + (h - sh) / 2, w, sh);
-				}
-			}
+			ctx.strokeStyle = CELL_STROKE;
+			ctx.lineWidth = 0.5;
+			ctx.strokeRect(x, y, w, h);
 		}
 		for (const n of nodes) {
 			const cw = n.cellW ?? 1;
@@ -1131,11 +1121,11 @@ export class CryMon {
 			this.text(n.label, X(cx), Y(labelY), isHere ? "#ffe08a" : "#f0ecd8", 8, "center");
 			if (n.gem) {
 				const gy = y + (ch * cell) / 2;
-				ctx.fillStyle = "#1a4a6a";
+				ctx.fillStyle = "#0a2f52";
 				ctx.beginPath();
 				ctx.arc(cx, gy, Math.max(3, cell * 0.3), 0, Math.PI * 2);
 				ctx.fill();
-				ctx.fillStyle = isHere ? "#a0e0ff" : "#5eb0e0";
+				ctx.fillStyle = isHere ? "#a0e0ff" : "#29b6ff";
 				ctx.beginPath();
 				ctx.moveTo(cx, gy - 4);
 				ctx.lineTo(cx + 3, gy);

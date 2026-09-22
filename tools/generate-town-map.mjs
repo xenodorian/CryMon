@@ -313,15 +313,12 @@ const oy = 32;
 const svgW = gridW * CELL + ox * 2;
 const svgH = gridH * CELL + oy + 20;
 
-const BIOME_FILL = {
-  town: "#8fae5c",
-  camp: "#c9a86a",
-  landmark: "#5e9e6e",
-  shrine: "#c9a86a",
-  cave: "#8a8a78",
-  route: "#6f9450",
-};
-const ROUTE_PATH_FILL = "#d8c79a";
+// Every cell is the same flat beige -- a colored-by-kind fill or an
+// internal "path stripe" implies a specific correct sub-path through
+// the cell that isn't real (the cell is a simplified proportional
+// footprint, not a tile-traced route). Only the gem markers get color.
+const CELL_FILL = "#d4c49a";
+const CELL_STROKE = "#8a7a55";
 
 function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -334,23 +331,11 @@ svg.push(`  <rect width="100%" height="100%" fill="#14283a"/>`);
 svg.push(`  <text x="${svgW / 2}" y="18" text-anchor="middle" fill="#e8f0d8" font-family="Georgia, serif" font-size="14" font-weight="bold">${esc(townMap.name)}</text>`);
 
 for (const [id, b] of Object.entries(boxes)) {
-  const kind = kindOf(id);
-  const fill = BIOME_FILL[kind] ?? BIOME_FILL.route;
   const x = ox + (M + b.x) * CELL;
   const y = oy + (M + b.y) * CELL;
   const w = b.w * CELL;
   const h = b.h * CELL;
-  svg.push(`  <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`);
-  if (kind === "route") {
-    // A lighter path stripe down the long axis reads as the walkable road.
-    if (b.h >= b.w) {
-      const stripeW = Math.max(CELL * 0.4, w * 0.35);
-      svg.push(`  <rect x="${x + (w - stripeW) / 2}" y="${y}" width="${stripeW}" height="${h}" fill="${ROUTE_PATH_FILL}"/>`);
-    } else {
-      const stripeH = Math.max(CELL * 0.4, h * 0.35);
-      svg.push(`  <rect x="${x}" y="${y + (h - stripeH) / 2}" width="${w}" height="${stripeH}" fill="${ROUTE_PATH_FILL}"/>`);
-    }
-  }
+  svg.push(`  <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${CELL_FILL}" stroke="${CELL_STROKE}" stroke-width="0.5"/>`);
 }
 
 for (const [id, b] of Object.entries(boxes)) {
@@ -363,8 +348,8 @@ for (const [id, b] of Object.entries(boxes)) {
   svg.push(`  <text x="${cx}" y="${labelY}" text-anchor="middle" fill="#f8f4e2" font-family="Georgia, serif" font-size="8" stroke="#1a1408" stroke-width="2" paint-order="stroke">${esc(labelOf(id))}</text>`);
   if (gem) {
     const gy = oy + (M + b.y + b.h / 2) * CELL;
-    svg.push(`  <circle cx="${cx}" cy="${gy}" r="5" fill="#1a4a6a" stroke="#0d2838" stroke-width="1"/>`);
-    svg.push(`  <path d="M ${cx} ${gy - 4} L ${cx + 3.5} ${gy} L ${cx} ${gy + 4} L ${cx - 3.5} ${gy} Z" fill="#7ec8f0"/>`);
+    svg.push(`  <circle cx="${cx}" cy="${gy}" r="5.5" fill="#0a2f52" stroke="#04182b" stroke-width="1"/>`);
+    svg.push(`  <path d="M ${cx} ${gy - 4} L ${cx + 3.5} ${gy} L ${cx} ${gy + 4} L ${cx - 3.5} ${gy} Z" fill="#29b6ff" stroke="#0288d1" stroke-width="0.5"/>`);
   }
 }
 svg.push(`</svg>`);
