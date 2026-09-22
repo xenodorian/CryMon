@@ -1,0 +1,80 @@
+name: Fix backstab
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch backstab
+        run: |
+          set -e
+          python3 << 'END'
+          from pathlib import Path
+          import re
+
+          ep = Path('src/game/engine.ts')
+          et = ep.read_text()
+
+          # canBackstab
+          et2, n = re.subn(
+              r'canBackstab\(npc, step\) \{[\s\S]*?\n\t\}',
+              '''canBackstab(npc, step) {\n\t\tif (!(this.bag.bowieKnife > 0)) return false;\n\t\tif (!step || step.after !== "wsoldier") return false;\n\t\tif (!this.roamableNpc(npc)) return false;\n\t\tif (this.npcIsExecuted(npc.id)) return false;\n\t\tconst r = this.ensureRoamer(npc);\n\t\tif (r.chase) return false;\n\t\tif (this.roamerLos(r.x, r.y, r.dir)) return false;\n\t\treturn true;\n\t}''',
+              et,
+              count=1,
+          )
+          if n != 1:
+              raise SystemExit(f'canBackstab replace {n}')
+          et = et2
+
+          if 'applyWsBeatFlags' not in et:
+              old = '''\tresolveBackstab(pb) {\n\t\tconst levels = pb.levels || 1;\n\t\tthis.adjustReputation(-25);\n\t\tconst gain = levels * 10;\n\t\tthis.marks += gain;\n\t\tconst a = this.randomMercyItem();\n\t\tconst b = this.randomMercyItem();\n\t\tthis.bag[a] = (this.bag[a] ?? 0) + 1;\n\t\tthis.bag[b] = (this.bag[b] ?? 0) + 1;\n\t\tthis.markExecuted("wsoldier", pb.pending);\n\t\tthis.world.encounterLock = 3;\n\t\tthis.audio.scream();\n\t\tthis.startFade("execute");\n\t\tthis.say(TALK.backstabExecute || [{ speaker: "none", text: "The blade is quick. They never see it coming." }]);\n\t\tthis.note(`Took ${gain} marks and loot.`);\n\t}'''
+              new = '''\tresolveBackstab(pb) {\n\t\tconst levels = pb.levels || 1;\n\t\tthis.adjustReputation(-25);\n\t\tconst gain = levels * 10;\n\t\tthis.marks += gain;\n\t\tconst a = this.randomMercyItem();\n\t\tconst b = this.randomMercyItem();\n\t\tthis.bag[a] = (this.bag[a] ?? 0) + 1;\n\t\tthis.bag[b] = (this.bag[b] ?? 0) + 1;\n\t\tthis.markExecuted("wsoldier", pb.pending);\n\t\tconst kit = TRAINERS[pb.pending];\n\t\tif (kit?.grant) {\n\t\t\tfor (const [iid, qty] of kit.grant) {\n\t\t\t\tthis.bag[iid] = (this.bag[iid] ?? 0) + qty;\n\t\t\t}\n\t\t}\n\t\tthis.applyWsBeatFlags(pb.pending);\n\t\tif (this.roamers[pb.npc?.id]) this.roamers[pb.npc.id].chase = false;\n\t\tthis.world.encounterLock = 3;\n\t\tthis.audio.scream();\n\t\tthis.startFade("execute");\n\t\tthis.say(TALK.backstabExecute || [{ speaker: "none", text: "The blade is quick. They never see it coming." }]);\n\t\tthis.note(`Took ${gain} marks and loot.`);\n\t}\n\tapplyWsBeatFlags(who: string) {\n\t\tif (who === "sentry") this.beatSentry = true;\n\t\telse if (who === "conscript") this.beatConscript = true;\n\t\telse if (who === "enforcer") this.beatEnforcer = true;\n\t\telse if (who === "cross") this.beatCross = true;\n\t\telse if (who === "forestRanger") this.beatForestRanger = true;\n\t\telse if (who === "forestScout") this.beatForestScout = true;\n\t\telse if (who === "ruinsKeeper") this.beatRuinsKeeper = true;\n\t\telse if (who === "ruinsWarden") this.beatRuinsWarden = true;\n\t\telse if (who === "marshBog") this.beatMarshBog = true;\n\t\telse if (who === "marshReed") this.beatMarshReed = true;\n\t\telse if (who === "quartz") this.badgeQuartz = true;\n\t\telse if (who === "opal") this.badgeOpal = true;\n\t\telse if (who === "quarryDriller") this.beatQuarryDriller = true;\n\t\telse if (who === "commanderFinal") this.beatCommander = true;\n\t\telse if (who === "lieutenantLead") this.beatLieutenantLead = true;\n\t}'''
+              if old not in et:
+                  raise SystemExit('resolveBackstab missing')
+              et = et.replace(old, new, 1)
+          ep.write_text(et)
+
+          # DC find_backstab_target
+          cp = Path('ports/dreamcast/src/main.c')
+          ct = cp.read_text()
+          if 'Outside facing LOS only' not in ct:
+              old = '''        if(!g_roamers[i].inited || g_roamers[i].chase) continue;\n        si = npc_match_step(&NPC_DEFS[i], ft, party_n);\n        if(si < 0) continue;\n        st = &NPC_STEPS[si];\n        if(st->after != NPC_AFTER_WSOLDIER) continue;\n        mark_center(map_id, NPC_DEFS[i].mark, &mx, &my);'''
+              new = '''        roamer_ensure(i);\n        if(g_roamers[i].chase) continue;\n        if(roamer_los(map_id, g_roamers[i].x, g_roamers[i].y, g_roamers[i].dir, ppx / TILE, ppy / TILE)) continue;\n        si = npc_match_step(&NPC_DEFS[i], ft, party_n);\n        if(si < 0) continue;\n        st = &NPC_STEPS[si];\n        if(st->after != NPC_AFTER_WSOLDIER) continue;\n        mx = (int)g_roamers[i].x; my = (int)g_roamers[i].y;'''
+              if old not in ct:
+                  raise SystemExit('DC find_backstab pattern missing')
+              ct = ct.replace(old, new, 1)
+
+          if 'Mirror real win grants' not in ct:
+              old = '''                    if(ebit >= 0 && ebit < 31) g_executed_mask |= (1u << ebit);\n                    if(g_roamers[idx].inited) g_roamers[idx].chase = 0;\n                    chip_sfx_faint();'''
+              new = '''                    if(ebit >= 0 && ebit < 31) g_executed_mask |= (1u << ebit);\n                    if(g_roamers[idx].inited) g_roamers[idx].chase = 0;\n                    {\n                        int bsi = npc_match_step(&NPC_DEFS[idx], ft, party_n);\n                        const NpcStep *bst = (bsi >= 0) ? &NPC_STEPS[bsi] : NULL;\n                        if(bst) {\n                            if(bst->pending == NPC_PENDING_SENTRY) { beat_wsoldier_cliffs = 1; bag.cageKey += 1; }\n                            else if(bst->pending == NPC_PENDING_CONSCRIPT) beat_wsoldier_camp1 = 1;\n                            else if(bst->pending == NPC_PENDING_ENFORCER) beat_wsoldier_camp2 = 1;\n                            else if(bst->pending == NPC_PENDING_CROSS) beat_wsoldier_grove = 1;\n                            else if(bst->pending == NPC_PENDING_FOREST_RANGER) beat_forest_ranger = 1;\n                            else if(bst->pending == NPC_PENDING_FOREST_SCOUT) beat_forest_scout = 1;\n                            else if(bst->pending == NPC_PENDING_RUINS_KEEPER) beat_ruins_keeper = 1;\n                            else if(bst->pending == NPC_PENDING_RUINS_WARDEN) beat_ruins_warden = 1;\n                            else if(bst->pending == NPC_PENDING_MARSH_BOG) beat_marsh_bog = 1;\n                            else if(bst->pending == NPC_PENDING_MARSH_REED) beat_marsh_reed = 1;\n                            else if(bst->pending == NPC_PENDING_QUARTZ) badge_quartz = 1;\n                            else if(bst->pending == NPC_PENDING_OPAL) badge_opal = 1;\n                            else if(bst->pending == NPC_PENDING_QUARRY_DRILLER) beat_quarry_driller = 1;\n                        }\n                    }\n                    chip_sfx_faint();'''
+              if old not in ct:
+                  raise SystemExit('DC resolve pattern missing')
+              ct = ct.replace(old, new, 1)
+          # fix wrong names if present
+          ct = ct.replace('beat_wsoldier_ranger', 'beat_forest_ranger')
+          ct = ct.replace('beat_wsoldier_scout', 'beat_forest_scout')
+          ct = ct.replace('beat_wsoldier_keeper', 'beat_ruins_keeper')
+          ct = ct.replace('beat_wsoldier_warden', 'beat_ruins_warden')
+          ct = ct.replace('beat_wsoldier_marsh_bog', 'beat_marsh_bog')
+          ct = ct.replace('beat_wsoldier_marsh_reed', 'beat_marsh_reed')
+          ct = ct.replace('beat_wsoldier_quarry', 'beat_quarry_driller')
+          cp.write_text(ct)
+          print('OK')
+          END
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/engine.ts ports/dreamcast/src/main.c
+          git commit -m "Backstab: require outside facing LOS; apply win grants/flags (cageKey, beat*)" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
