@@ -474,10 +474,23 @@ generalized multi-party array — keeps every existing `party` call site
 working; the swap UI just toggles which array battles/menus use. See
 save-format table above for byte offsets.
 
-### Town Map gem/route split (Grok, 2026-09-21)
+### Town Map gem/route split (Grok, 2026-09-21; corrected Claude, 2026-09-22)
 
-Destinations (💎 only): CryTown, Camp, Grove, Reach, Heavenfall Shrine.
-Routes (corridor only): Forest, Cliffs, Marsh, Quarry, Ruins, Gauntlet.
+Destinations (💎 only): CryTown, Camp, Grove, Reach, Heavenfall Shrine,
+**Quarry**. Routes (corridor only, no marker): Forest, Cliffs, Marsh,
+Ruins, Gauntlet.
+
+The 2026-09-21 rewrite of `generate-town-map.mjs` (procedural tile
+terrain) reset `REGION_META.quarry` to `kind:"route", gem:false` —
+this silently undid an explicit user correction from earlier the same
+day ("the quarry is a location, not a route; the gauntlet is meant to
+be a route, not a location"). Restored: `quarry: { kind: "cave", gem:
+true }`. Gauntlet was already correctly `kind:"route", gem:false` in
+the rewrite — no change needed there. **If you touch `REGION_META`
+again, re-read this note first** — Quarry=location/gem,
+Gauntlet=route/no-marker is a standing, explicit user requirement, not
+a stylistic default to rebalance.
+
 SVG + in-game Map: thick beige roads on land, gems only on destinations.
 
 ### Town Map tile pipeline (Grok, 2026-09-21)

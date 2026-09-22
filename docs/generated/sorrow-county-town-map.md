@@ -11,7 +11,7 @@ Terrain grid: 46×46 tiles (procedural)
 · The Cliffs  (2,0) [route]
 · The Marsh  (-2,1) [route]
 · The Forest  (0,1) [route]
-· The Quarry  (2,1) [route]
+💎 The Quarry  (2,1) [cave]
 💎 The Grove  (0,2) [landmark]
 · The Ruins  (2,2) [route]
 · Gauntlet  (0,3) [route]

@@ -63,8 +63,8 @@
     {
       "id": "quarry",
       "label": "The Quarry",
-      "kind": "route",
-      "gem": false,
+      "kind": "cave",
+      "gem": true,
       "x": 2,
       "y": 1,
       "playableMaps": [

@@ -2352,6 +2352,9 @@
   <circle cx="57" cy="73" r="5" fill="#1a4a6a"/>
   <path d="M 57 69 L 60.5 73 L 57 77 L 53.5 73 Z" fill="#7ec8f0"/>
   <text x="57" y="85" text-anchor="middle" fill="#fff8e0" font-family="monospace" font-size="7">The Camp</text>
+  <circle cx="249" cy="121" r="5" fill="#1a4a6a"/>
+  <path d="M 249 117 L 252.5 121 L 249 125 L 245.5 121 Z" fill="#7ec8f0"/>
+  <text x="249" y="133" text-anchor="middle" fill="#fff8e0" font-family="monospace" font-size="7">The Quarry</text>
   <circle cx="153" cy="169" r="5" fill="#1a4a6a"/>
   <path d="M 153 165 L 156.5 169 L 153 173 L 149.5 169 Z" fill="#7ec8f0"/>
   <text x="153" y="181" text-anchor="middle" fill="#fff8e0" font-family="monospace" font-size="7">The Grove</text>
@@ -2364,7 +2367,6 @@
   <text x="249" y="68" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">The Cliffs</text>
   <text x="153" y="116" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">The Forest</text>
   <text x="57" y="116" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">The Marsh</text>
-  <text x="249" y="116" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">The Quarry</text>
   <text x="249" y="164" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">The Ruins</text>
   <text x="153" y="212" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">Gauntlet</text>
 </svg>
