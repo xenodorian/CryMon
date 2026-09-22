@@ -16,7 +16,9 @@
     "gauntlet3": "GAUNTLET 3",
     "gauntlet4": "GAUNTLET 4",
     "gauntlet5": "GAUNTLET 5",
-    "gauntlet6": "THE GRAVE"
+    "gauntlet6": "THE GRAVE",
+    "malkuth": "MALKUTH",
+    "weepingroad": "THE WEEPING ROAD"
   },
   "mapIds": [
     "house",
@@ -35,6 +37,8 @@
     "gauntlet3",
     "gauntlet4",
     "gauntlet5",
-    "gauntlet6"
+    "gauntlet6",
+    "malkuth",
+    "weepingroad"
   ]
 }

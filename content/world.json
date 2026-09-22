@@ -64,7 +64,9 @@
     "gauntlet3": "GAUNTLET 3",
     "gauntlet4": "GAUNTLET 4",
     "gauntlet5": "GAUNTLET 5",
-    "gauntlet6": "THE GRAVE"
+    "gauntlet6": "THE GRAVE",
+    "malkuth": "MALKUTH",
+    "weepingroad": "THE WEEPING ROAD"
   },
   "mapIds": [
     "house",
@@ -83,7 +85,9 @@
     "gauntlet3",
     "gauntlet4",
     "gauntlet5",
-    "gauntlet6"
+    "gauntlet6",
+    "malkuth",
+    "weepingroad"
   ],
   "encounters": [
     {
@@ -568,6 +572,38 @@
       "spawn": "F",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "veld",
+      "tile": "O",
+      "to": "weepingroad",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "weepingroad",
+      "tile": "1",
+      "to": "veld",
+      "spawn": "O",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "weepingroad",
+      "tile": "2",
+      "to": "malkuth",
+      "spawn": "Z",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "malkuth",
+      "tile": "Z",
+      "to": "weepingroad",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40
     }
   ],
   "trainers": {

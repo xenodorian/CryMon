@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=ed88eb3b6f4f2b42 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=2bf33b5043b358cb — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -17,7 +17,9 @@
 #define MAP_GAUNTLET4 14
 #define MAP_GAUNTLET5 15
 #define MAP_GAUNTLET6 16
-#define MAP_N 17
+#define MAP_MALKUTH 17
+#define MAP_WEEPINGROAD 18
+#define MAP_N 19
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -34,7 +36,7 @@ static const char *const map_house_rows[] = {
 };
 
 static const char *const map_veld_rows[] = {
-    "##############################",
+    "##############O###############",
     "####.............R..........##",
     "##.Q.^^......S...r......WWW.##",
     "##...............D.....WWA..##",
@@ -492,6 +494,48 @@ static const char *const map_gauntlet6_rows[] = {
     "################",
 };
 
+static const char *const map_malkuth_rows[] = {
+    "####D##O###G####",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............#",
+    "#######Z########",
+};
+
+static const char *const map_weepingroad_rows[] = {
+    "###2##",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "#....#",
+    "###1##",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
@@ -510,10 +554,12 @@ static const Map MAPS[MAP_N] = {
     { map_gauntlet4_rows, 16, 36 },
     { map_gauntlet5_rows, 16, 36 },
     { map_gauntlet6_rows, 16, 20 },
+    { map_malkuth_rows, 16, 12 },
+    { map_weepingroad_rows, 6, 24 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";

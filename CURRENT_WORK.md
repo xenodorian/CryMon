@@ -1110,3 +1110,83 @@ mismatch here, which is how this got noticed before it half-shipped).
   union gap), typecheck, web build, `make -C ports/dreamcast` clean
   rebuild (only baseline warnings), full world-graph audit PASS.
 
+## Tree of Life expansion (Claude, in progress, 2026-09-22)
+
+**Design.** North of CryTown (`veld`) is Weeping Army territory. A
+single new route, **The Weeping Road** (`weeping_road`), leaves
+CryTown's north wall and leads to **Malkuth**, the southernmost/
+lowest Sephirah and entry point into a 10-city, 22-path map cluster
+shaped like the Kabbalistic Tree of Life. All 10 cities are named
+after the Sephirot; all 22 connecting routes are named after the
+22 paths (Hebrew-letter-named, classic Golden Dawn assignment,
+paths 11-32). Every one of these 32 maps is intentionally **blank**
+(bordered walkable room/corridor, no NPCs/encounters/dialogue) --
+scaffolding to "build upon later," per the user's explicit request.
+Movement stays strictly 4-directional (this engine has no diagonal
+player movement, web or Dreamcast) -- "diagonal" is expressed two
+ways that don't require engine changes: (1) a path's own corridor
+tiles can zigzag/staircase through its bounding rows the same way
+the warning-stripe reference image does, and (2) the county map's
+generator now supports fixed coordinate overrides + a stairstep
+line renderer for connections between non-adjacent cells, so the
+Tree of Life silhouette actually appears on the Town Map screen.
+
+**Sephirot -> map id / city name / tree grid coords** (col,row; col
+negative=left pillar, 0=center pillar, positive=right pillar):
+1 Keter/keter (0,0) 2 Chokmah/chokmah (2,1) 3 Binah/binah (-2,1)
+4 Chesed/chesed (2,2) 5 Gevurah/gevurah (-2,2) 6 Tiferet/tiferet (0,3)
+7 Netzach/netzach (2,4) 8 Hod/hod (-2,4) 9 Yesod/yesod (0,5)
+10 Malkuth/malkuth (0,6)
+
+**22 paths -> map id / endpoints** (`veld<->malkuth` via
+`weeping_road` is separate, not part of the 22):
+11 aleph keter-chokmah, 12 beth keter-binah, 13 gimel keter-tiferet,
+14 daleth chokmah-binah, 15 he chokmah-tiferet, 16 vau chokmah-chesed,
+17 zayin binah-tiferet, 18 heth binah-gevurah, 19 teth chesed-gevurah,
+20 yod chesed-tiferet, 21 kaph chesed-netzach, 22 lamed gevurah-tiferet,
+23 mem gevurah-hod, 24 nun tiferet-netzach, 25 samekh tiferet-yesod,
+26 ayin tiferet-hod, 27 peh netzach-hod, 28 tzaddi netzach-yesod,
+29 qoph netzach-malkuth, 30 resh hod-yesod, 31 shin hod-malkuth,
+32 tau yesod-malkuth.
+
+**Per-map wiring checklist** (repeated per map, both engines are
+data-driven for blank maps -- confirmed no bespoke Dreamcast C is
+needed as long as a map has zero NPCs): `content/maps.json` rows,
+`content/world_parts/map_meta.json` mapIds+mapNames (append-only,
+order must match `save.json`'s mapOrder exactly per `check_sync`),
+`content/save.json` mapOrder, `content/world_parts/warps.json`
+(bidirectional pair), `src/game/types.ts` MapId union,
+`src/game/data.ts` const + MAPS entry, `content/world_map_layout.json`
+(maps + connections, drives the county-map generator/world_graph
+audit only -- not part of `check_sync --strict`, but kept in sync
+per the CLAUDE.md contract), `tools/generate-town-map.mjs`
+REGION_META entry. `python3 tools/bake_content.py` regenerates all
+Dreamcast `.inc` files generically from the same JSON -- no `main.c`
+edits needed per map.
+
+**Build order** (topological -- every step's new warp endpoints
+must already exist by the end of that step, so `check_sync --strict`
+passes at every commit): `weeping_road`+`malkuth`, then walk the
+tree from Malkuth outward (Tau, Qoph/Shin, Samekh/Nun/Ayin, ...),
+introducing each new city on its first edge and wiring its remaining
+edges once both endpoints exist. Each step: edit -> bake -> 
+`check_sync --strict` -> typecheck -> build -> `make -C
+ports/dreamcast` -> commit -> push -> note completed step here.
+
+**Progress:** (updated per step below as they land)
+- Step 1/23: `malkuth` (city) + `weepingroad` (route, CryTown's new north
+  exit, mark `O` punched into `veld`'s row0). Built by
+  `tools/build_sephirot.py --step 1`. Note: map ids can't contain `_`
+  -- `check_sync`'s `union_members()`/`maps_object_keys()` regexes are
+  `[a-zA-Z0-9]+`/`[a-z0-9]+` only, caught immediately by the strict
+  gate on the first attempt (`weeping_road` -> renamed `weepingroad`).
+  All city rooms are pre-carved with their FULL eventual exit set on
+  first creation (Malkuth already has all 4 marks: 3 north for
+  Qoph/Shin/Tau reverse + 1 south for the road) -- only the matching
+  `warps.json` pair is added once both endpoints of an edge exist, so
+  later steps never have to touch an already-placed city's geometry
+  again, just add more warps to marks that are already sitting there
+  inert. Verified: bake, check_sync --strict, typecheck, build, clean
+  Dreamcast rebuild (no C changes needed, confirmed the whole tile/
+  warp system is fully data-driven for NPC-less maps).
+

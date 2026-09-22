@@ -100,6 +100,9 @@ export const GAUNTLET4 = normalize(raw.gauntlet4);
 export const GAUNTLET5 = normalize(raw.gauntlet5);
 export const GAUNTLET6 = normalize(raw.gauntlet6);
 
+export const MALKUTH = normalize(raw.malkuth);
+export const WEEPINGROAD = normalize(raw.weepingroad);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -118,6 +121,8 @@ export const MAPS = {
   gauntlet4: GAUNTLET4,
   gauntlet5: GAUNTLET5,
   gauntlet6: GAUNTLET6,
+  malkuth: MALKUTH,
+  weepingroad: WEEPINGROAD,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;
