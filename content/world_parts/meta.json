@@ -1,13 +1,13 @@
 {
   "startBag": {
     "gem": 0,
-    "salve": 2,
-    "bitterroot": 1,
-    "dust": 1,
-    "bandage": 2,
+    "salve": 0,
+    "bitterroot": 0,
+    "dust": 0,
+    "bandage": 0,
     "sunbalm": 0,
     "warroot": 0,
-    "smokebomb": 1,
+    "smokebomb": 0,
     "greatcrystal": 0,
     "cageKey": 0
   },

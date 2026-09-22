@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=d5f5a5e5da345448 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=f1ffd8a50bd2d872 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -32,7 +32,7 @@ static const TalkBeat TALK_BED[] = {
 };
 static const TalkBeat TALK_SHELF[] = {
     { "THIS IS IT. FATHER'S CRYSTAL. QUILLPUP IS INSIDE.", 1 },
-    { "THE CRYSTAL BREAKS WARM IN HER HANDS. QUILLPUP SHAKES OUT ONTO THE FLOORBOARDS.", 0 },
+    { "MAX CLOSES HER HAND AROUND THE CRYSTAL AND POCKETS IT.", 0 },
     { "YOU'RE COMING. CRYTOWN DOESN'T GET TO FALL.", 1 },
 };
 static const TalkBeat TALK_SHELF_EMPTY[] = {

@@ -1511,3 +1511,31 @@ exactly as before. Web-only change (`input.ts` has no Dreamcast
 equivalent -- this is specifically about a browser DOM element
 stealing keystrokes from another DOM element).
 
+## Empty starting bag + shelf dialogue (Claude, 2026-09-22)
+
+Two small content fixes, both pure JSON, zero engine code (both are
+already fully data-driven -- confirmed startBag bakes generically
+into Dreamcast's `START_BAG_INIT`, no `main.c` changes needed):
+
+- **`content/world_parts/meta.json`'s `startBag`** had 2 salve, 1
+  bitterroot, 1 dust, 2 bandage, 1 smoke bomb baked in at game start,
+  on top of what the house's shelf (Quillpup) and crate (1 linen
+  wrap/bandage) already grant on interaction. Zeroed every non-zero
+  entry -- Max now starts with nothing, exactly the Quillpup + one
+  linen wrap she actually picks up in the cottage.
+- **`content/dialogue.json`'s `shelf` talk** had a line ("The crystal
+  breaks warm in her hands. Quillpup shakes out onto the floorboards.")
+  describing Quillpup physically appearing on the floor -- there's no
+  sprite for that (Quillpup only ever renders as a party icon/battle
+  sprite, no "wild starter on the floor" overworld art exists).
+  Replaced with "Max closes her hand around the crystal and pockets
+  it.", keeping Quillpup narratively inside the crystal rather than
+  implying a visual that isn't there.
+
+Verified against the real dev server: a fresh `reset()` shows an
+empty bag (`{gem:0, salve:0, ...}` all zero) and no party, and the
+live `shelf` dialogue table (fetched from the running app, not just
+read from the source file) matches the new three lines exactly.
+`check_sync --strict`, typecheck, web build, and a clean Dreamcast
+rebuild all pass.
+
