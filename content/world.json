@@ -66,7 +66,9 @@
     "gauntlet5": "GAUNTLET 5",
     "gauntlet6": "THE GRAVE",
     "malkuth": "MALKUTH",
-    "weepingroad": "THE WEEPING ROAD"
+    "weepingroad": "THE WEEPING ROAD",
+    "yesod": "YESOD",
+    "tau": "PATH OF TAU"
   },
   "mapIds": [
     "house",
@@ -87,7 +89,9 @@
     "gauntlet5",
     "gauntlet6",
     "malkuth",
-    "weepingroad"
+    "weepingroad",
+    "yesod",
+    "tau"
   ],
   "encounters": [
     {
@@ -604,6 +608,38 @@
       "spawn": "2",
       "dir": "down",
       "oy": 40
+    },
+    {
+      "from": "yesod",
+      "tile": "G",
+      "to": "tau",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "tau",
+      "tile": "1",
+      "to": "yesod",
+      "spawn": "G",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "tau",
+      "tile": "2",
+      "to": "malkuth",
+      "spawn": "G",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "malkuth",
+      "tile": "G",
+      "to": "tau",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
     }
   ],
   "trainers": {

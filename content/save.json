@@ -42,7 +42,9 @@
     "gauntlet5",
     "gauntlet6",
     "malkuth",
-    "weepingroad"
+    "weepingroad",
+    "yesod",
+    "tau"
   ],
   "dirOrder": [
     "down",

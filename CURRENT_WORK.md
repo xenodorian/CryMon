@@ -1189,4 +1189,5 @@ ports/dreamcast` -> commit -> push -> note completed step here.
   inert. Verified: bake, check_sync --strict, typecheck, build, clean
   Dreamcast rebuild (no C changes needed, confirmed the whole tile/
   warp system is fully data-driven for NPC-less maps).
+- Step 2/23: `yesod` (city) + `tau` (route, yesod<->malkuth). Green.
 

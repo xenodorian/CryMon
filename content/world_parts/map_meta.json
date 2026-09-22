@@ -18,7 +18,9 @@
     "gauntlet5": "GAUNTLET 5",
     "gauntlet6": "THE GRAVE",
     "malkuth": "MALKUTH",
-    "weepingroad": "THE WEEPING ROAD"
+    "weepingroad": "THE WEEPING ROAD",
+    "yesod": "YESOD",
+    "tau": "PATH OF TAU"
   },
   "mapIds": [
     "house",
@@ -39,6 +41,8 @@
     "gauntlet5",
     "gauntlet6",
     "malkuth",
-    "weepingroad"
+    "weepingroad",
+    "yesod",
+    "tau"
   ]
 }
