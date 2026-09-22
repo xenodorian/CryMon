@@ -42,6 +42,11 @@ Status:
 
 In progress.
 
+Completed:
+
+- Added world graph validation foundation.
+- Added Town Map projection validation layer.
+
 ---
 
 ## Phase 2 - World Data Separation
@@ -84,28 +89,34 @@ Rules:
 - Routes, forests, caves, and gauntlets render as paths.
 - Internal maps collapse into meaningful locations.
 
-Known examples:
+Current generated Town Map review:
 
-HOME -> CRYTOWN
+Confirmed existing representation includes:
 
-Gauntlet floors -> Gauntlet route
+- CryTown anchor
+- Camp destination
+- Forest branch
+- Quarry branch
+- Gauntlet route
+- Heavenfall Shrine endpoint
 
-Heavenfall endpoint -> Heavenfall Shrine
-
-Camp -> visible destination
+The existing generator is the correct implementation target. Future work should improve validation rather than replace the generator.
 
 ---
 
 ## Phase 4 - Validation Improvements
 
-Before content expansion:
+Completed improvements:
 
-Verify:
+- Validate collapse targets resolve to Town Map nodes.
+- Detect Town Map nodes without world sources.
+- Preserve required destinations.
 
-- no disconnected maps
-- no accidental dead ends
-- no missing destinations
-- no progression loops
+Remaining:
+
+- Execute validation against generated output.
+- Add stronger progression-path validation.
+- Detect intentional versus accidental dead ends.
 
 ---
 
@@ -127,11 +138,12 @@ Recommended future documentation split:
 - Identified world graph as the correct backbone for Town Map generation.
 - Identified existing Town Map generation code as an integration target rather than a replacement target.
 - Established this independent work log.
+- Added Town Map projection validation tooling.
+- Reviewed generated Sorrow County Town Map data.
 
 # Next Steps
 
-1. Inspect existing Town Map generator.
-2. Integrate world graph validation.
-3. Add Sorrow County topology checks.
-4. Improve generated Town Map reliability.
-5. Return findings to shared coordination documentation.
+1. Run validation pipeline against generated Town Map output.
+2. Add missing topology checks discovered during validation.
+3. Improve generated Town Map reliability.
+4. Return findings to shared coordination documentation.
