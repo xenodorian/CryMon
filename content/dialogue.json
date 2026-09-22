@@ -146,7 +146,7 @@
       },
       {
         "speaker": "none",
-        "text": "Tall grass hides CryMon. Wren west. Pond east. Bram on the path. Calder south."
+        "text": "Tall grass hides CryMon. Wren's got salve. Bram's on the path. Watch for Calder."
       }
     ],
     "footsteps": [
@@ -174,7 +174,7 @@
       },
       {
         "speaker": "max",
-        "text": "South. Past the Weeping Army's camp, to the Grove."
+        "text": "Danger lies between here and the Grove."
       },
       {
         "speaker": "mason",
@@ -208,7 +208,7 @@
     "masonAfter": [
       {
         "speaker": "mason",
-        "text": "Fine. Calder is still south."
+        "text": "Fine. Calder is still out there."
       },
       {
         "speaker": "max",
@@ -222,7 +222,7 @@
       },
       {
         "speaker": "mason",
-        "text": "Go, then. But the camp guards the road south, and the Grove guards itself."
+        "text": "Go, then. But the Weeping Army guards the road, and the Grove guards itself."
       },
       {
         "speaker": "max",
@@ -236,7 +236,7 @@
     "wrenFirst": [
       {
         "speaker": "wren",
-        "text": "Too young. Take the salve. Calder camps south."
+        "text": "Too young. Take the salve. Calder's still out there."
       },
       {
         "speaker": "max",
@@ -244,7 +244,7 @@
       },
       {
         "speaker": "wren",
-        "text": "West is Ivo. East is Nell. Keep that hound fed."
+        "text": "Ivo and Nell are close by. Keep that hound fed."
       }
     ],
     "wrenBeat": [
@@ -294,7 +294,7 @@
     "maeAgain": [
       {
         "speaker": "mae",
-        "text": "I'll be here. South still drums."
+        "text": "I'll be here. The war drums haven't stopped."
       },
       {
         "speaker": "max",
@@ -304,11 +304,11 @@
     "ivoFirst": [
       {
         "speaker": "ivo",
-        "text": "Camp took my CryMon. Chew this. Calder sits south."
+        "text": "Camp took my CryMon. Chew this. Calder's still out there."
       },
       {
         "speaker": "max",
-        "text": "I'm going south anyway."
+        "text": "I'm going after them anyway."
       },
       {
         "speaker": "ivo",
@@ -348,7 +348,7 @@
     "nellAgain": [
       {
         "speaker": "nell",
-        "text": "The pond keeps secrets. South still drums."
+        "text": "The pond keeps secrets. The war drums haven't stopped."
       },
       {
         "speaker": "max",
@@ -358,7 +358,7 @@
     "pikeFirst": [
       {
         "speaker": "pike",
-        "text": "I dropped a moonstone in the east reeds. Don't tell Wren."
+        "text": "I dropped a moonstone in the reeds. Don't tell Wren."
       },
       {
         "speaker": "max",
@@ -388,7 +388,7 @@
     "pikeHint": [
       {
         "speaker": "pike",
-        "text": "East of the path. In the tall grass by the water."
+        "text": "In the tall grass by the water."
       }
     ],
     "herb": [
@@ -440,13 +440,13 @@
       },
       {
         "speaker": "none",
-        "text": "A Weeping Army letter on the wreck. Send the cottage girl south. We need bodies."
+        "text": "A Weeping Army letter on the wreck. Send the cottage girl to us. We need bodies."
       }
     ],
     "calderAfter": [
       {
         "speaker": "calder",
-        "text": "South is the Weeping Army's camp. Don't die stupid."
+        "text": "The Weeping Army's camp is close. Don't die stupid."
       },
       {
         "speaker": "max",
@@ -466,7 +466,7 @@
     "calderWin": [
       {
         "speaker": "none",
-        "text": "Calder falls. The path south is clear."
+        "text": "Calder falls. The path is clear."
       },
       {
         "speaker": "none",
@@ -498,7 +498,7 @@
       },
       {
         "speaker": "none",
-        "text": "Tall grass. Patrols. If they see you, they will come. The path keeps south."
+        "text": "Tall grass. Patrols. If they see you, they will come."
       }
     ],
     "forestLeave": [
@@ -672,7 +672,7 @@
     "anneAgain": [
       {
         "speaker": "anne",
-        "text": "Don't lose those. Calder is still south."
+        "text": "Don't lose those. Calder is still out there."
       },
       {
         "speaker": "max",
@@ -962,7 +962,7 @@
     "cottage": [
       {
         "speaker": "max",
-        "text": "The cottage. Father in the bed. My bed. South door leaves."
+        "text": "The cottage. Father in the bed. My bed."
       }
     ],
     "lose": [
@@ -1024,7 +1024,7 @@
     "reachLocked": [
       {
         "speaker": "max",
-        "text": "The south path is sealed. The scroll would open it."
+        "text": "The path is sealed. The scroll would open it."
       }
     ],
     "quarryLocked": [
@@ -1040,7 +1040,7 @@
       },
       {
         "speaker": "none",
-        "text": "The Reach. Past the ruins the crystals still sing."
+        "text": "The Reach. The crystals still sing here."
       },
       {
         "speaker": "max",
@@ -1114,7 +1114,7 @@
     "ruinsWardenWin": [
       {
         "speaker": "warden",
-        "text": "Go. The Reach is beyond the lower gate."
+        "text": "Go. The Reach awaits."
       }
     ],
     "quarryCrate": [
@@ -1420,7 +1420,7 @@
       },
       {
         "speaker": "lead",
-        "text": "No one leaves Crytown by the north road."
+        "text": "No one leaves Crytown while I stand here."
       },
       {
         "speaker": "lead",

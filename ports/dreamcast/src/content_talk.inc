@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4823435c39a3d7ff — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=eda016431e4f88fa — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -68,7 +68,7 @@ static const TalkBeat TALK_MASON_FIGHT[] = {
     { "MASON.", 1 },
     { "YOU WALKED OUT WITH YOUR FATHER'S HOUND AND A CRYSTAL IN YOUR FIST.", 3 },
     { "WHERE ARE YOU GOING?", 3 },
-    { "SOUTH. PAST THE WEEPING ARMY'S CAMP, TO THE GROVE.", 1 },
+    { "DANGER LIES BETWEEN HERE AND THE GROVE.", 1 },
     { "THE GROVE IS A PRISON. NOBODY WALKS OUT OF THE GROVE.", 3 },
     { "SHINIGAMI IS CHAINED THERE. LOCKED UP FOR NECROMANCY.", 1 },
     { "I'M GOING TO FREE HIM. HE OWES ME POWER FOR IT.", 1 },
@@ -79,7 +79,7 @@ static const TalkBeat TALK_MASON_FIGHT[] = {
 };
 static const TalkBeat TALK_MASON_WIN[] = {
     { "MASON SPITS IN THE DIRT. HIS CRYMON WON'T RISE.", 0 },
-    { "GO, THEN. BUT THE CAMP GUARDS THE ROAD SOUTH, AND THE GROVE GUARDS ITSELF.", 3 },
+    { "GO, THEN. BUT THE WEEPING ARMY GUARDS THE ROAD, AND THE GROVE GUARDS ITSELF.", 3 },
     { "I DIDN'T ASK FOR YOUR BLESSING.", 1 },
     { "YOU DIDN'T NEED IT. YOU TOOK IT ANYWAY.", 3 },
 };
@@ -92,9 +92,9 @@ static const TalkBeat TALK_MASON_WIN2[] = {
     { "MASON KNEELS. THREE DOWN. HE HAS NOTHING LEFT TO PROVE.", 0 },
 };
 static const TalkBeat TALK_WREN_FIRST[] = {
-    { "TOO YOUNG. TAKE THE SALVE. CALDER CAMPS SOUTH.", 4 },
+    { "TOO YOUNG. TAKE THE SALVE. CALDER'S STILL OUT THERE.", 4 },
     { "I'M NOT TOO YOUNG.", 1 },
-    { "WEST IS IVO. EAST IS NELL. KEEP THAT HOUND FED.", 4 },
+    { "IVO AND NELL ARE CLOSE BY. KEEP THAT HOUND FED.", 4 },
 };
 static const TalkBeat TALK_WREN_BEAT[] = {
     { "YOU BEAT HIM. THE WEEPING ARMY STILL WANTS MORE OF US.", 4 },
@@ -114,12 +114,12 @@ static const TalkBeat TALK_MAE_FIRST[] = {
     { "I WON'T. TAKE THE WRAP. WREN HEALS. I JUST DIDN'T WANT THE PATH EMPTY.", 5 },
 };
 static const TalkBeat TALK_MAE_AGAIN[] = {
-    { "I'LL BE HERE. SOUTH STILL DRUMS.", 5 },
+    { "I'LL BE HERE. THE WAR DRUMS HAVEN'T STOPPED.", 5 },
     { "I HEAR THEM.", 1 },
 };
 static const TalkBeat TALK_IVO_FIRST[] = {
-    { "CAMP TOOK MY CRYMON. CHEW THIS. CALDER SITS SOUTH.", 6 },
-    { "I'M GOING SOUTH ANYWAY.", 1 },
+    { "CAMP TOOK MY CRYMON. CHEW THIS. CALDER'S STILL OUT THERE.", 6 },
+    { "I'M GOING AFTER THEM ANYWAY.", 1 },
     { "DON'T GIVE HIM A CLEAN FIGHT.", 6 },
 };
 static const TalkBeat TALK_IVO_AGAIN[] = {
@@ -135,11 +135,11 @@ static const TalkBeat TALK_NELL_BONUS[] = {
     { "I CAUGHT IT FAIR.", 1 },
 };
 static const TalkBeat TALK_NELL_AGAIN[] = {
-    { "THE POND KEEPS SECRETS. SOUTH STILL DRUMS.", 7 },
+    { "THE POND KEEPS SECRETS. THE WAR DRUMS HAVEN'T STOPPED.", 7 },
     { "I HEAR THEM.", 1 },
 };
 static const TalkBeat TALK_PIKE_FIRST[] = {
-    { "I DROPPED A MOONSTONE IN THE EAST REEDS. DON'T TELL WREN.", 8 },
+    { "I DROPPED A MOONSTONE IN THE REEDS. DON'T TELL WREN.", 8 },
     { "I WON'T TELL WREN.", 1 },
 };
 static const TalkBeat TALK_PIKE_HELP[] = {
@@ -151,7 +151,7 @@ static const TalkBeat TALK_PIKE_DONE[] = {
     { "I KNOW.", 1 },
 };
 static const TalkBeat TALK_PIKE_HINT[] = {
-    { "EAST OF THE PATH. IN THE TALL GRASS BY THE WATER.", 8 },
+    { "IN THE TALL GRASS BY THE WATER.", 8 },
 };
 static const TalkBeat TALK_HERB[] = {
     { "BITTERROOT. STR +4 IF I LAST.", 1 },
@@ -176,10 +176,10 @@ static const TalkBeat TALK_STUMP_GONE[] = {
 };
 static const TalkBeat TALK_CART[] = {
     { "THEY ALREADY KNEW MY NAME.", 1 },
-    { "A WEEPING ARMY LETTER ON THE WRECK. SEND THE COTTAGE GIRL SOUTH. WE NEED BODIES.", 0 },
+    { "A WEEPING ARMY LETTER ON THE WRECK. SEND THE COTTAGE GIRL TO US. WE NEED BODIES.", 0 },
 };
 static const TalkBeat TALK_CALDER_AFTER[] = {
-    { "SOUTH IS THE WEEPING ARMY'S CAMP. DON'T DIE STUPID.", 9 },
+    { "THE WEEPING ARMY'S CAMP IS CLOSE. DON'T DIE STUPID.", 9 },
     { "I DON'T PLAN TO.", 1 },
 };
 static const TalkBeat TALK_CALDER_FIGHT[] = {
@@ -187,7 +187,7 @@ static const TalkBeat TALK_CALDER_FIGHT[] = {
     { "I'M NOT STRAY.", 1 },
 };
 static const TalkBeat TALK_CALDER_WIN[] = {
-    { "CALDER FALLS. THE PATH SOUTH IS CLEAR.", 0 },
+    { "CALDER FALLS. THE PATH IS CLEAR.", 0 },
     { "THE CAMP WAITS.", 0 },
 };
 static const TalkBeat TALK_CAMP_COMMANDER[] = {
@@ -350,11 +350,11 @@ static const TalkBeat TALK_CHOICE_HEAVENFALL[] = {
     { "HEAVENFALL IS AWAKE. THE WEEPING ARMY DOESN'T KNOW YET WHAT'S COMING.", 1 },
 };
 static const TalkBeat TALK_REACH_LOCKED[] = {
-    { "THE SOUTH PATH IS SEALED. THE SCROLL WOULD OPEN IT.", 1 },
+    { "THE PATH IS SEALED. THE SCROLL WOULD OPEN IT.", 1 },
 };
 static const TalkBeat TALK_REACH_STONE[] = {
     { "THE SCROLL'S WRITING LIGHTS A STONE IN THE GRASS.", 1 },
-    { "THE REACH. PAST THE RUINS THE CRYSTALS STILL SING.", 0 },
+    { "THE REACH. THE CRYSTALS STILL SING HERE.", 0 },
     { "WILD CRYMON OUT HERE HIT HARDER THAN CRYTOWN EVER DID.", 1 },
 };
 static const TalkBeat TALK_REACH_AGAIN[] = {
@@ -369,18 +369,18 @@ static const TalkBeat TALK_QUARTZ_WIN[] = {
 };
 static const TalkBeat TALK_DOOR_OUT[] = {
     { "NIGHT AIR. I CAN DO THIS.", 1 },
-    { "TALL GRASS HIDES CRYMON. WREN WEST. POND EAST. BRAM ON THE PATH. CALDER SOUTH.", 0 },
+    { "TALL GRASS HIDES CRYMON. WREN'S GOT SALVE. BRAM'S ON THE PATH. WATCH FOR CALDER.", 0 },
 };
 static const TalkBeat TALK_FOOTSTEPS[] = {
     { "FOOTSTEPS ON THE PATH. SOMEONE FOLLOWED YOU OUT.", 0 },
 };
 static const TalkBeat TALK_MASON_AFTER[] = {
-    { "FINE. CALDER IS STILL SOUTH.", 3 },
+    { "FINE. CALDER IS STILL OUT THERE.", 3 },
     { "I WON'T DIE FIRST.", 1 },
 };
 static const TalkBeat TALK_FOREST_ENTER[] = {
     { "THE TREES CLOSE OVER THE PATH.", 1 },
-    { "TALL GRASS. PATROLS. IF THEY SEE YOU, THEY WILL COME. THE PATH KEEPS SOUTH.", 0 },
+    { "TALL GRASS. PATROLS. IF THEY SEE YOU, THEY WILL COME.", 0 },
 };
 static const TalkBeat TALK_FOREST_LEAVE[] = {
     { "BACK TOWARD THE COTTAGE PATH.", 1 },
@@ -393,11 +393,11 @@ static const TalkBeat TALK_GROVE_LEAVE[] = {
     { "BACK UNDER THE TREES.", 1 },
 };
 static const TalkBeat TALK_ANNE_AGAIN[] = {
-    { "DON'T LOSE THOSE. CALDER IS STILL SOUTH.", 2 },
+    { "DON'T LOSE THOSE. CALDER IS STILL OUT THERE.", 2 },
     { "I KNOW THE WAY.", 1 },
 };
 static const TalkBeat TALK_COTTAGE[] = {
-    { "THE COTTAGE. FATHER IN THE BED. MY BED. SOUTH DOOR LEAVES.", 1 },
+    { "THE COTTAGE. FATHER IN THE BED. MY BED.", 1 },
 };
 static const TalkBeat TALK_LOSE[] = {
     { "WE STILL BREATHE. CRAWL BACK.", 1 },
@@ -431,7 +431,7 @@ static const TalkBeat TALK_RUINS_WARDEN_SPOT[] = {
     { "THEN FIGHT.", 1 },
 };
 static const TalkBeat TALK_RUINS_WARDEN_WIN[] = {
-    { "GO. THE REACH IS BEYOND THE LOWER GATE.", 27 },
+    { "GO. THE REACH AWAITS.", 27 },
 };
 static const TalkBeat TALK_QUARRY_CRATE[] = {
     { "A QUARRY CRATE. SOMETHING RATTLES UNDER THE DUST.", 1 },
@@ -537,7 +537,7 @@ static const TalkBeat TALK_GAUNTLET_GRAVE_WIN[] = {
 };
 static const TalkBeat TALK_LEAD_SPOT[] = {
     { "HALT. LIEUTENANT LEAD, WEEPING ARMY.", 35 },
-    { "NO ONE LEAVES CRYTOWN BY THE NORTH ROAD.", 35 },
+    { "NO ONE LEAVES CRYTOWN WHILE I STAND HERE.", 35 },
     { "TURN BACK, OR FACE ME.", 35 },
 };
 static const TalkBeat TALK_LEAD_WIN_PLACEHOLDER[] = {

@@ -938,7 +938,7 @@
       "set": "beatHeavenfall"
     },
     "lieutenantLead": {
-      "title": "Lieutenant Lead bars the north road",
+      "title": "Lieutenant Lead bars the road",
       "name": "Lieutenant Lead",
       "winTalk": "leadWinPlaceholder",
       "set": "beatLieutenantLead",

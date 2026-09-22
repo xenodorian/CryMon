@@ -815,3 +815,31 @@ Town Map relabeling:
   `beatCalder` flag index correctly followed the gate to its new
   warp).
 
+**Scrubbed stale location references from NPC dialogue (Claude,
+2026-09-22).** User's follow-up: since the world map keeps getting
+restructured, any dialogue line asserting a specific direction/
+position ("Calder south", "West is Ivo, East is Nell", "the camp
+guards the road south", "No one leaves Crytown by the north road")
+is a standing liability — either already wrong (Camp isn't south of
+CryTown anymore after the east-chain rewire above) or will break the
+next time the map changes. Scanned `content/dialogue.json` (all of
+`talk`/`intro`/`endingWin*`/`mercyDismissLines`) and
+`content/world.json` for `north|south|east|west` plus positional
+phrasing (`beyond`, `past the`, `by the water`), found 23 lines total
+across `dialogue.json` and one trainer battle title
+(`lieutenantLead.title` in **`content/world_parts/trainers.json`** —
+edited the real source, not `world.json` directly, then re-ran
+`merge_world.py`). Rewrote each to drop the specific
+direction/position while keeping the character's voice and any
+actually-useful hint (e.g. `pikeHint` keeps "In the tall grass by the
+water," drops "East of the path"). Left place **names** alone where
+they're just narrative color, not a navigation claim (e.g. "The Grove
+is a prison," "Marsh trade" as a shop's flavor line) — only removed
+lines making a locatable/directional claim, since that's what goes
+stale, not the existence of a place name.
+- `check_sync --strict`, typecheck, web build, `make -C
+  ports/dreamcast` all clean.
+- **If you add new NPC/trainer dialogue,** don't give it a compass
+  direction or "past/beyond X" hint — the world layout is still being
+  actively rearranged this session.
+
