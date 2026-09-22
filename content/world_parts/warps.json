@@ -600,6 +600,38 @@
       "spawn": "2",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "chesed",
+      "tile": "Z",
+      "to": "yod",
+      "spawn": "1",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "yod",
+      "tile": "1",
+      "to": "chesed",
+      "spawn": "Z",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "yod",
+      "tile": "2",
+      "to": "tiferet",
+      "spawn": "L",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "tiferet",
+      "tile": "L",
+      "to": "yod",
+      "spawn": "2",
+      "dir": "right",
+      "ox": 40
     }
   ]
 }
