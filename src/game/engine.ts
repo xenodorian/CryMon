@@ -257,6 +257,10 @@ export class CryMon {
 	pendingWs = null;
 	choiceCur = 0;
 	shopKeep: string = "bram";
+	/** Per-keeper, per-item units left on the shelf (1-10, rolled fresh
+	 *  by rollShopStock()). Never persisted -- session/rest-scoped, not
+	 *  save state, see CURRENT_WORK.md. */
+	shopStock: Record<string, Record<string, number>> = {};
 	/** -100..100, see logic.json reputation. */
 	reputation = 0;
 	/** Post-battle mercy menu (Leg 2.9). */
@@ -432,6 +436,7 @@ export class CryMon {
 		this.pendingWs = null;
 		this.choiceCur = 0;
 		this.shopKeep = "bram";
+		this.shopStock = {};
 		this.reputation = 0;
 		this.executedMask = 0;
 		this.shopFreeBram = false;
@@ -1212,14 +1217,32 @@ export class CryMon {
 		this.actCursor = 0;
 		this.audio.ui();
 	}
-	shopBuyRows() {
+	/** Every item a keeper CAN carry, independent of current stock
+	 *  levels -- the set rollShopStock() rolls quantities for. */
+	shopCatalog(keeper: string) {
 		const stock = LOGIC.shops?.crystalStock ?? {};
-		const allowed: string[] = stock[this.shopKeep] ?? stock.default ?? [];
+		const allowed: string[] = stock[keeper] ?? stock.default ?? [];
 		return ITEM_ORDER.filter((id) => {
 			if (ITEMS[id].buy <= 0) return false;
 			if (ITEMS[id].effect?.kind === "capture") return allowed.includes(id);
 			return true;
 		});
+	}
+	/** 1-10 units of every item this keeper carries. Called on every
+	 *  rest (sleepHeal) for all keepers at once, and lazily the first
+	 *  time a given keeper's shop is opened this session. */
+	rollShopStock(keeper: string) {
+		const s: Record<string, number> = {};
+		for (const id of this.shopCatalog(keeper)) s[id] = 1 + Math.floor(Math.random() * 10);
+		this.shopStock[keeper] = s;
+	}
+	rollAllShopStock() {
+		for (const k of Object.keys(SHOP_FREE_FLAG)) this.rollShopStock(k);
+	}
+	shopBuyRows() {
+		if (!this.shopStock[this.shopKeep]) this.rollShopStock(this.shopKeep);
+		const s = this.shopStock[this.shopKeep];
+		return this.shopCatalog(this.shopKeep).filter((id) => (s[id] ?? 0) > 0);
 	}
 	shopBuyPrice(id) {
 		const base = ITEMS[id].buy;
@@ -1323,6 +1346,7 @@ export class CryMon {
 		return true;
 	}
 	sleepHeal() {
+		this.rollAllShopStock();
 		this.party.forEach((m) => {
 			m.hp = m.maxHp;
 			m.specialPp = m.specialPpMax;
@@ -1759,6 +1783,8 @@ export class CryMon {
 			const id = rows[this.shopCursor];
 			if (!id) return;
 			if (this.shopTab === "buy") {
+				const stockLeft = this.shopStock[this.shopKeep]?.[id] ?? 0;
+				if (stockLeft <= 0) return;
 				const gift = this.shopGiftPending();
 				const cost = gift ? 0 : this.shopBuyPrice(id);
 				if (this.marks < cost) {
@@ -1767,12 +1793,20 @@ export class CryMon {
 					return;
 				}
 				this.marks -= cost;
-				this.bag[id] += 1;
+				// Not every buyable item starts in the player's bag (the
+				// higher capture-crystal tiers never do) -- `bag[id] += 1`
+				// on an unset key is `undefined + 1 = NaN`, permanently
+				// corrupting that slot. This is the root cause behind the
+				// "0 or undefined" quantities reported for greater/mega/
+				// ultimate crystals.
+				this.bag[id] = (this.bag[id] ?? 0) + 1;
+				this.shopStock[this.shopKeep][id] = stockLeft - 1;
 				this.audio.ok();
 				if (gift) {
 					this.markShopGiftTaken();
 					this.note(`A gift. ${ITEMS[id].name}.`);
 				} else this.note(`Bought ${ITEMS[id].name}.`);
+				if (stockLeft - 1 <= 0) this.shopCursor = 0;
 			} else {
 				if (this.bag[id] <= 0) return;
 				this.bag[id] -= 1;
@@ -4639,7 +4673,10 @@ export class CryMon {
 				const price = this.shopTab === "buy"
 					? (this.shopGiftPending() ? "FREE" : `${this.shopBuyPrice(id)}m`)
 					: `${this.shopSellPrice(id)}m`;
-				this.text(`${on ? ">" : " "}${ITEMS[id].name}  ${price}  x${this.bag[id]}`, X(18), y, on ? "#e8e4d8" : "#8a8678", FONT);
+				// Buy tab: units left on the shelf. Sell tab: how many
+				// you own (what you're selling from) -- different numbers.
+				const qty = this.shopTab === "buy" ? (this.shopStock[this.shopKeep]?.[id] ?? 0) : this.bag[id];
+				this.text(`${on ? ">" : " "}${ITEMS[id].name}  ${price}  x${qty}`, X(18), y, on ? "#e8e4d8" : "#8a8678", FONT);
 			}
 		}
 		this.text("A/D tab   Z trade   X leave", X(18), Y(140), "#5a7a52", FONT);

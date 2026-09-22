@@ -1403,3 +1403,80 @@ split), but worth re-running by hand after any future warp edit until
 someone ports it in properly. `tools/world_graph/run_full_audit.py`
 and `check_sync --strict` both still pass.
 
+## Real merchant stock (Claude, 2026-09-22)
+
+**Reported bug:** greater/mega/ultimate capture crystals showed
+quantity 0 or undefined at Dray's stall. Root cause was two separate
+things, both fixed:
+
+1. **The shop UI's buy-tab quantity was never stock -- it was
+   `this.bag[id]`, how many the player already owned**, mislabeled
+   as if it meant availability. For an item never yet bought (every
+   higher crystal tier, since none of them start in `startBag`),
+   `this.bag[id]` was `undefined`, rendering as `xundefined`.
+2. **The actual purchase line, `this.bag[id] += 1`, is `undefined + 1
+   = NaN`** the first time any such item is bought -- permanently
+   corrupting that bag slot (NaN stays NaN forever after). This is
+   the real bug: even once the display was fixed, buying one of
+   these crystals would have silently broken that item slot. Fixed
+   to `this.bag[id] = (this.bag[id] ?? 0) + 1`, matching the
+   `?? 0` idiom already used elsewhere in the file (`giveAnneGems()`).
+   Dreamcast was never at risk of this class of bug -- its `Bag` is a
+   fixed C struct, zero-initialized, no such thing as an "unset"
+   field.
+
+**Requested feature, built on top of the same fix:** real per-item
+shop stock, 1-10 units, refreshing every time Max rests.
+- `shopCatalog(keeper)` is the old `shopBuyRows()` body verbatim
+  (which items a keeper CAN carry) with a new name; `shopBuyRows()`
+  now also filters that catalog down to items with stock > 0.
+- `rollShopStock(keeper)` assigns `1 + random(10)` to every item in
+  that keeper's catalog; `rollAllShopStock()` does all 4 (bram, oren,
+  fenn, dray) at once. Called from `sleepHeal()` -- itself already
+  the one shared function for every "Max rests" path (a real bed,
+  the after-loss teleport-home, and any NPC script step with
+  `heal: true`, e.g. Wren's), so no new trigger wiring was needed,
+  just extending the function that already covers all three.
+  Lazily rolled on first shop open too, so a keeper visited before
+  ever resting still has real stock, not empty.
+- Buying decrements stock and is blocked at 0 (mirrors the existing
+  sell-side `bag[id] <= 0` guard and cursor-reset-to-0 pattern).
+- The buy-tab display now shows shelf stock; the sell tab is
+  unchanged (still shows how many you own, which is correct there).
+- **Not persisted to the save file** -- session/rest-scoped only, by
+  design (a save-format change for ~15 items x 4 keepers felt out of
+  proportion to what was asked; loading a save just rolls fresh
+  stock, same as a new game). Flagging in case persistence turns out
+  to matter later.
+
+**Dreamcast**, for full parity (`actor_blocks()`-style reasoning
+doesn't apply here, this is `main.c`'s existing `shop_rows()`/
+`draw_shop()`/buy-handler trio, which had the exact same owned-vs-
+stock display conflation, minus the NaN risk noted above):
+- `shop_stock[SHOP_CRYSTAL_MASK_N][ITEM_COUNT]`, a plain file-scope
+  global rather than threaded through every shop function's already-
+  long parameter list (unlike `shop_free[]`, a flat 1-D array that's
+  cheap to thread, this is a 2-D per-item table touching
+  `shop_rows`/`draw_shop`/the buy handler/`try_npc_script`'s
+  `NpcRun` all at once for no real benefit in a single-threaded
+  game).
+- `roll_all_shop_stock()` needed a forward declaration before
+  `heal_party()` -- its real definition has to come after
+  `content_items.inc`/`content_world.inc` are `#include`d (for
+  `ITEM_COUNT`/`SHOP_CRYSTAL_MASK_N`), which happens *after*
+  `heal_party()`'s own position in the file. Standard C forward-
+  declare-then-define-later, not a design smell.
+  Called from `heal_party()` itself (mirrors web's `sleepHeal()`
+  hook exactly -- same 3 call sites for free) and once explicitly on
+  new-game reset and on a successful save load (shop_stock isn't
+  part of the save format there either).
+
+Verified end-to-end via a Playwright script against the real dev
+server, going through the actual `updateShop()` confirm path (not
+just calling the setter methods directly): initial stock at Dray's
+showed real 1-10 numbers for every item including all three crystal
+tiers, buying one down to 0 correctly removed it from the buy list
+and left a real (non-NaN) bag count, and `sleepHeal()` visibly
+re-rolled every number. `check_sync --strict`, typecheck, web build,
+and a clean Dreamcast rebuild all pass.
+

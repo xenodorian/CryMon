@@ -1966,8 +1966,11 @@ static int grant_party_xp(Monster *party, int party_n, int lead, int foe_lv) {
 
 /* fullHeal(), also used by the bed and by a party wipe's fade-and-
    teleport-home (see main()'s FADE_ACTION_BED/FADE_ACTION_LOSS). */
+static void roll_all_shop_stock(void); /* defined below, once ITEM_COUNT/SHOP_CRYSTAL_MASK_N are #include'd */
+
 static void heal_party(Monster *party, int party_n) {
     int i;
+    roll_all_shop_stock();
     for(i = 0; i < party_n; i++) {
         party[i].hp = party[i].maxHp;
         party[i].spp = party[i].sppMax;
@@ -4374,6 +4377,27 @@ static int actor_blocks(int map_id, int cx, int cy,
    restricts (see SHOP_CRYSTAL_MASK) -- every other purchasable item is
    sold everywhere, same as before. Selling isn't restricted either,
    matching the web engine. */
+/* Per-keeper shelf stock, 1-10 units per item, rolled fresh by
+   roll_all_shop_stock() (called from heal_party() -- every rest, real
+   bed or script `heal`, refreshes every merchant at once, matching
+   web's sleepHeal()). A plain global rather than threaded through
+   every shop function's parameter list (shop_free[] does that, but
+   as a flat 1-D array threading it is cheap; this is a 2-D per-item
+   table and the extra parameter would touch shop_rows/draw_shop/the
+   buy handler/try_npc_script's NpcRun all at once for no real
+   benefit in a single-threaded game). */
+static int shop_stock[SHOP_CRYSTAL_MASK_N][ITEM_COUNT];
+
+static void roll_shop_stock(int keeper) {
+    int i;
+    for(i = 0; i < ITEM_COUNT; i++) shop_stock[keeper][i] = irand(1, 10);
+}
+
+static void roll_all_shop_stock(void) {
+    int k;
+    for(k = 0; k < SHOP_CRYSTAL_MASK_N; k++) roll_shop_stock(k);
+}
+
 static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int rows[ITEM_COUNT]) {
     int n = 0, i;
     int mask = (shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N)
@@ -4383,6 +4407,7 @@ static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int rows[IT
         if(!sell_tab) {
             if(ITEMS[i].buy <= 0) continue;
             if(ITEM_FX[i].kind == 4 && !((mask >> i) & 1)) continue;
+            if(shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N && shop_stock[shop_keep_id][i] <= 0) continue;
             rows[n++] = i;
         } else if(owned > 0 && ITEMS[i].sell > 0) {
             rows[n++] = i;
@@ -4463,6 +4488,8 @@ static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop
             int idx = rows[i];
             int price = sell_tab ? shop_sell_price(ITEMS[idx].buy, reputation) : shop_buy_price(ITEMS[idx].buy, reputation);
             int owned = *bag_field((Bag *)bag, idx);
+            int qty = sell_tab ? owned
+                : (shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N ? shop_stock[shop_keep_id][idx] : 0);
             int gift = !sell_tab && shop_gift_open(reputation, shop_keep_id, shop_free);
             char row[40];
             int rn = s_cat(row, 0, ITEMS[idx].name);
@@ -4473,7 +4500,7 @@ static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop
                 rn = s_cat_uint(row, rn, price);
                 rn = s_cat(row, rn, "M X");
             }
-            rn = s_cat_uint(row, rn, owned);
+            rn = s_cat_uint(row, rn, qty);
             row[rn] = 0;
             draw_menu_row_icon(ITEM_ICONS[idx], row, i, cur, y);
             y += MENU_ROW_H;
@@ -5172,6 +5199,10 @@ void main(void) {
                         door_lock = 8;
                         enc_lock = 8;
                         state = 1;
+                        /* Shop stock isn't part of the save format (see
+                           shop_stock's own comment) -- roll it fresh on
+                           every load, same as a brand-new run. */
+                        roll_all_shop_stock();
                         chip_sfx_ok();
                         do_new = 0;
                     } else {
@@ -5253,6 +5284,7 @@ void main(void) {
                    see rng_next()'s comment for why this stands in for
                    a real RTC/rand() source. */
                 rng_state ^= frame_count | 1u;
+                roll_all_shop_stock();
                 chip_sfx_ok();
                 }
             }
@@ -6195,12 +6227,18 @@ void main(void) {
                 if(a_now && !prev_a && n_rows > 0) {
                     int idx = rows[shop_cur];
                     if(!shop_sell_tab) {
+                        int in_range = shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N;
+                        int stock_left = in_range ? shop_stock[shop_keep_id][idx] : 1;
                         int gift = shop_gift_open(reputation, shop_keep_id, shop_free);
                         int cost = gift ? 0 : shop_buy_price(ITEMS[idx].buy, reputation);
-                        if(marks >= cost) {
+                        if(stock_left > 0 && marks >= cost) {
                             marks -= cost;
                             (*bag_field(&bag, idx))++;
-                            if(gift && shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N)
+                            if(in_range) {
+                                shop_stock[shop_keep_id][idx]--;
+                                if(shop_stock[shop_keep_id][idx] <= 0) shop_cur = 0;
+                            }
+                            if(gift && in_range)
                                 shop_free[shop_keep_id] = 1;
                         }
                     }
