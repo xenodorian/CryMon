@@ -428,15 +428,34 @@ existing and behaving correctly.
 New content: liberating cities from occupying Weeping Army soldiers,
 building to a final confrontation with their king.
 
-### 3.1 — Shackles item + Weeping Generals
-- New item, **Shackles**, sold at every merchant except the first one.
-  Required to challenge Weeping Generals.
-- Populate newly-added liberation cities (new maps/NPCs, not yet
-  designed) with one individually-named **Weeping General** each.
+### 3.1 — Weeping Generals, military bases, and medal progression
+- Each **Weeping General** is housed indoors inside a military base in
+  one of the liberation cities.
+- Reaching a General is structured like a **Pokémon Gym**: the player
+  must fight through soldiers who are trying to stop them from entering
+  the restricted military facility. These encounters replace the
+  traditional Gym Trainer role.
+- Each General is individually named and has their own military base.
+- Defeating a General awards one of their **actual military medals**.
+  These are not symbolic badges created for the player to display as
+  proof of progress. They are real military decorations such as the
+  **Purple Heart, Medal of Honor, Distinguished Service Cross, Prisoner
+  of War Medal, Gold Star, Silver Star, Bronze Star**, and others.
+- The player must possess one General's medal before they can challenge
+  another General. This is the progression gate between General
+  encounters.
 
 ### 3.2 — Arrest or execute each Weeping General
+- The former requirement to purchase **Shackles** before confronting a
+  General is removed.
+- **Shackles** are still sold at every merchant except the first one,
+  but they now determine whether the player can **arrest** a General.
+- If the player has Shackles, they are presented with the choice to
+  **arrest** or **execute** the defeated General.
 - **Arrest** (requires Shackles): `+10` reputation.
 - **Execute:** `-25` reputation.
+- If the player did not purchase Shackles because they do not intend to
+  arrest the General, **execute is the only option presented**.
 
 ### 3.3 — Golden Shackles + Weeping King Nero
 Defeating **all** Weeping Generals unlocks the **Golden Shackles**,
