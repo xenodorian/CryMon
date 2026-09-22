@@ -1021,7 +1021,7 @@ export class CryMon {
 		this.audio.ui();
 	}
 	updatePause() {
-		const rows = ["Party", "Bag", "CryDex", "Map", "Save", "Close"];
+		const rows = ["Party", "Bag", "CryDex", "Map", "Settings", "Save", "Close"];
 		if (this.input.up()) {
 			this.pauseCursor = (this.pauseCursor + rows.length - 1) % rows.length;
 			this.audio.ui();
@@ -1035,12 +1035,13 @@ export class CryMon {
 			this.audio.ui();
 			return;
 		}
-		if (this.input.confirm() || (this.input.start() && this.pauseCursor === 5)) {
+		if (this.input.confirm() || (this.input.start() && this.pauseCursor === 6)) {
 			if (this.pauseCursor === 0) this.openParty();
 			else if (this.pauseCursor === 1) this.openBag();
 			else if (this.pauseCursor === 2) this.openCryDex();
 			else if (this.pauseCursor === 3) this.openTownMap();
-			else if (this.pauseCursor === 4) {
+			else if (this.pauseCursor === 4) this.openSettings();
+			else if (this.pauseCursor === 5) {
 				this.mode = "world";
 				this.persist(true);
 			} else {
@@ -1051,6 +1052,45 @@ export class CryMon {
 			this.mode = "world";
 			this.audio.ui();
 		}
+	}
+
+	openSettings() {
+		this.mode = "settings";
+		this.audio.ui();
+	}
+	updateSettings() {
+		if (this.input.cancel() || this.input.start() || this.input.confirm()) {
+			this.mode = "pause";
+			this.audio.ui();
+			return;
+		}
+		if (this.input.up()) {
+			this.audio.nudgeVolume(1);
+			this.audio.ui();
+		}
+		if (this.input.down()) {
+			this.audio.nudgeVolume(-1);
+			this.audio.ui();
+		}
+	}
+	drawSettings() {
+		this.drawWorld();
+		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.box(X(8), Y(6), X(224), Y(148));
+		this.text("SETTINGS", X(16), Y(10), "#c5cec6", FONT);
+		const pct = this.audio.volumePct();
+		this.text("VOLUME", X(16), Y(40), "#c5cec6", FONT);
+		this.text(`${pct}%`, X(180), Y(40), "#e8e4d8", FONT);
+		const bx = X(16), by = Y(58), bw = X(200), bh = Y(10);
+		this.ctx.fillStyle = "#2a2620";
+		this.ctx.fillRect(bx, by, bw, bh);
+		const fill = Math.max(0, Math.min(1, this.audio.volume / VOLUME.max));
+		this.ctx.fillStyle = "#5a7a52";
+		this.ctx.fillRect(bx, by, Math.round(bw * fill), bh);
+		this.text("UP louder   DOWN quieter", X(16), Y(80), "#8a8678", FONT);
+		this.text("200% is twice the old max", X(16), Y(96), "#8a8678", FONT);
+		this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 	}
 
 	openTownMap() {
@@ -1512,6 +1552,10 @@ export class CryMon {
 			this.updateTownMap();
 			return;
 		}
+		if (this.mode === "settings") {
+			this.updateSettings();
+			return;
+		}
 		if (this.mode === "world") {
 			if (!this.talking() && this.rival.phase !== "approach" && this.anne.phase !== "approach" && this.hudT <= 0) {
 				if (this.input.start()) {
@@ -1585,22 +1629,6 @@ export class CryMon {
 						this.openBag();
 					}
 				}
-			}
-			return;
-		}
-		if (this.partyView === "settings") {
-			if (this.input.cancel() || this.input.start()) {
-				this.partyView = "list";
-				this.audio.ui();
-				return;
-			}
-			if (this.input.up()) {
-				this.audio.nudgeVolume(1);
-				this.audio.ui();
-			}
-			if (this.input.down()) {
-				this.audio.nudgeVolume(-1);
-				this.audio.ui();
 			}
 			return;
 		}
@@ -1731,11 +1759,6 @@ export class CryMon {
 		}
 		if (this.input.select()) {
 			this.openBag();
-			return;
-		}
-		if (this.input.left() || this.input.right()) {
-			this.partyView = "settings";
-			this.audio.ui();
 			return;
 		}
 		if (this.party.length === 0) return;
@@ -3949,6 +3972,7 @@ export class CryMon {
 		else if (this.mode === "pause") this.drawPause();
 		else if (this.mode === "crydex") this.drawCryDex();
 		else if (this.mode === "townmap") this.drawTownMap();
+		else if (this.mode === "settings") this.drawSettings();
 		else this.drawWorld();
 		this.drawFade();
 		ctx.restore();
@@ -4034,9 +4058,9 @@ export class CryMon {
 	}
 	drawPause() {
 		this.drawWorld();
-		this.box(X(64), Y(28), X(112), Y(92));
+		this.box(X(64), Y(28), X(112), Y(100));
 		this.text("PAUSE", X(120), Y(34), "#e8e4d8", FONT, "center");
-		const rows = ["Party", "Bag", "CryDex", "Map", "Save", "Close"];
+		const rows = ["Party", "Bag", "CryDex", "Map", "Settings", "Save", "Close"];
 		rows.forEach((r, i) => {
 			const on = i === this.pauseCursor;
 			this.text(on ? `> ${r}` : r, X(120), Y(48 + i * 11), on ? "#5a7a52" : "#c5cec6", FONT, "center");
@@ -4604,25 +4628,8 @@ export class CryMon {
 			: this.partyView === "moves" ? "MOVES"
 			: this.partyView === "release" ? `RELEASE ${this.party[this.partyCursor]?.name.toUpperCase() ?? ""}?`
 			: this.partyView === "catchSwap" ? `KEEP ${this.pendingCatch?.name.toUpperCase() ?? "CRYMON"}`
-			: this.partyView === "settings" ? "SETTINGS"
 			: "CRYMON";
 		this.text(title, X(16), Y(10), "#c5cec6", FONT);
-		if (this.partyView === "settings") {
-			const pct = this.audio.volumePct();
-			this.text("VOLUME", X(16), Y(40), "#c5cec6", FONT);
-			this.text(`${pct}%`, X(180), Y(40), "#e8e4d8", FONT);
-			const bx = X(16), by = Y(58), bw = X(200), bh = Y(10);
-			this.ctx.fillStyle = "#2a2620";
-			this.ctx.fillRect(bx, by, bw, bh);
-			const fill = Math.max(0, Math.min(1, this.audio.volume / VOLUME.max));
-			this.ctx.fillStyle = "#5a7a52";
-			this.ctx.fillRect(bx, by, Math.round(bw * fill), bh);
-			this.text("UP louder   DOWN quieter", X(16), Y(80), "#8a8678", FONT);
-			this.text("200% is twice the old max", X(16), Y(96), "#8a8678", FONT);
-			this.text("LEFT/RIGHT from CRYMON list opens this", X(16), Y(112), "#5a7a52", FONT);
-			this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
-			return;
-		}
 		if (this.partyView === "stats" || this.partyView === "moves") {
 			const m = this.party[this.partyCursor] ?? this.lead();
 			this.drawMonIcon(m, X(12), Y(24), X(88), Y(110));

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3e1a9f8c8c87c0ba — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d9d61f5faff45551 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -68,9 +68,9 @@ static const char *const map_house_rows[] = {
 
 static const char *const map_veld_rows[] = {
     "##############O###############",
-    "####...........S.R..........##",
-    "##.Q.^^..........r......WWW.##",
-    "##...............D.....WWA..##",
+    "####..........S.RRR.........##",
+    "##.Q.^^.........rrr.....WWW.##",
+    "##..............HDH....WWA..##",
     "##..K.........===...I...W....#",
     "##...TTT.....=====.....TTT..G#",
     "##...TTT....===,===....TTT...#",
@@ -1155,5 +1155,5 @@ static const char *const MAP_DISPLAY_NAME[MAP_N] = {
     "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH",
 };
 
-static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";
+static const char *const SOLID_TILES = "#HWRBC^NrU%k";
 

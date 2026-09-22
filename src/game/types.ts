@@ -1,8 +1,8 @@
 export type Dir = "down" | "left" | "right" | "up";
 
-export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop" | "choice" | "mercy" | "pause" | "crydex" | "townmap";
+export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop" | "choice" | "mercy" | "pause" | "crydex" | "townmap" | "settings";
 
-export type PartyView = "list" | "act" | "stats" | "moves" | "target" | "release" | "catchSwap" | "settings";
+export type PartyView = "list" | "act" | "stats" | "moves" | "target" | "release" | "catchSwap";
 
 export type ShopTab = "buy" | "sell";
 
