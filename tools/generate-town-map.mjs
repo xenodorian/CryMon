@@ -344,7 +344,7 @@ for (const [id, b] of Object.entries(boxes)) {
   // Gauntlet's label sits in the vertical middle of the long corridor it
   // represents (the 5 chained gauntlet maps), not pinned to the top edge.
   const labelInMiddle = id === "gauntlet_route";
-  const labelY = labelInMiddle ? oy + (M + b.y + b.h / 2) * CELL + 3 : oy + (M + b.y) * CELL - 6;
+  const labelY = labelInMiddle ? oy + (M + b.y + b.h / 2) * CELL + 3 : oy + (M + b.y) * CELL + 9;
   svg.push(`  <text x="${cx}" y="${labelY}" text-anchor="middle" fill="#f8f4e2" font-family="Georgia, serif" font-size="8" stroke="#1a1408" stroke-width="2" paint-order="stroke">${esc(labelOf(id))}</text>`);
   if (gem) {
     const gy = oy + (M + b.y + b.h / 2) * CELL;

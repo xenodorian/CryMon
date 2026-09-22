@@ -752,3 +752,12 @@ small gap above where Camp and CryTown meet. Not a bug to fix per the
 user, just asked to explain it; explanation given, no code changed
 for this part.
 
+**Labels moved inside their own cell, except Gauntlet (Claude,
+2026-09-22).** Every non-Gauntlet label was pinned just above its
+box's top edge, spilling out of the rectangle it names. Moved inside
+the top of the box (`generate-town-map.mjs`: `oy+(M+b.y)*CELL+9`;
+`engine.ts`: `y+Math.max(4, cell*0.5)`, proportional since the
+in-game panel's cell size is much smaller than the SVG's fixed 26px).
+Gauntlet's label is untouched — it already sits correctly centered in
+the middle of its long corridor.
+

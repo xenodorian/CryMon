@@ -1117,7 +1117,7 @@ export class CryMon {
 			// Gauntlet's label sits in the vertical middle of the long corridor
 			// it represents, not pinned to the top edge.
 			const labelInMiddle = n.id === "gauntlet_route";
-			const labelY = labelInMiddle ? y + (ch * cell) / 2 + 3 : y - 4;
+			const labelY = labelInMiddle ? y + (ch * cell) / 2 + 3 : y + Math.max(4, cell * 0.5);
 			this.text(n.label, X(cx), Y(labelY), isHere ? "#ffe08a" : "#f0ecd8", 8, "center");
 			if (n.gem) {
 				const gy = y + (ch * cell) / 2;
