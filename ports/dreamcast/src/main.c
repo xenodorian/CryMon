@@ -4633,8 +4633,8 @@ void main(void) {
 #define POST_OPEN_MERCY 29
 #define POST_WSOLDIER_LEAD 30
 #define POST_WSOLDIER_HEAVENFALL_GRAVE 31
-#define POST_LEAD_GAMEOVER 31
-#define POST_HFGAMEOVER_SCREAM 32
+#define POST_LEAD_GAMEOVER 32
+#define POST_HFGAMEOVER_SCREAM 33
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
    from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
    title and crystal-tier stock, no separate post_action per merchant. */

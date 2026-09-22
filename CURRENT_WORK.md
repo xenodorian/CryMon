@@ -1185,6 +1185,43 @@ engine.ts) but had two real gaps, both now fixed:
     doesn't fully trigger on either engine currently, and that content
     is another agent's active work. Left alone.
 
+**Leg 1/2 sweep (Claude, 2026-09-22), user asked for everything left
+that's within reach before Leg 3** (audio confirmed working, 2.8 is
+mid-flight elsewhere, art generation is out of reach — all excluded):
+- Found the same real bug independently landed by another agent while
+  this was in flight (`6c7c870`, "Stabilize gauntlet/Heavenfall (2.4)
+  and wire 2.8 rep on both engines"): `data.ts`'s `MAPS` object never
+  had the `GAUNTLET1..6` entries the redesigned gauntlet maze maps
+  need — `this.map()` would return `undefined` for `gauntlet1`..
+  `gauntlet6`, so the web build could never actually render/move
+  through the maze. Their fix landed first and is identical to the one
+  drafted here; merged cleanly, nothing left to do on that front.
+- Cleared the long-standing "gauntlet has 43 T tiles but 0 encounter
+  rules" `check_sync` FAIL by replacing those tiles with plain floor
+  in `maps.json`'s orphaned legacy `"gauntlet"` (singular) map — that
+  map has no warps or NPCs pointing at it anywhere, so it's dead,
+  unreachable content left over from before the gauntlet1-6 redesign.
+  **Deliberately did not remove the map/its `mapId` entry itself** —
+  `world.mapIds` order feeds directly into `save.mapOrder`'s numeric
+  encoding of a save's stored map, and that encoding isn't protected
+  by `SAVE_VERSION` the way the fixed-byte-layout fields are; removing
+  an entry mid-list would silently shift every later map's saved id
+  with no version-mismatch guard to catch it. Not worth that risk to
+  clear a hygiene FAIL on unreachable content — zeroing its tiles was
+  the low-risk fix.
+- **Fixed a build-breaking collision from the same merge:** that
+  commit's `#define POST_WSOLDIER_HEAVENFALL_GRAVE 31` landed on the
+  exact same number as this session's own `POST_LEAD_GAMEOVER 31`
+  (both picked 31 independently, concurrently) — `make -C
+  ports/dreamcast` failed outright with "duplicate case value" until
+  `POST_LEAD_GAMEOVER`/`POST_HFGAMEOVER_SCREAM` were renumbered to
+  32/33. Nothing else touched.
+- Left alone: the 6 `items/*.png` art-placeholder FAILs (2.11's new
+  items) — no art-generation capability here.
+- `check_sync --strict` is now down to only that one art FAIL;
+  `npm run typecheck`, `npm run build`, and `make -C ports/dreamcast`
+  all clean, no new warnings.
+
 ## Leg 3 (open — also from the same doc)
 
 **Do not start before Leg 2's gauntlet/reputation work lands** — Leg 3
