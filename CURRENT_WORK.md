@@ -1262,3 +1262,37 @@ Tree of Life cluster further (adding NPCs, dialogue, real art) should
 also backfill `world_map_layout.json`'s `maps`/`connections` entries
 so `tools/world_graph/run_full_audit.py` covers it too.
 
+## Dev Codes (web preview only, Claude, 2026-09-22)
+
+Added a debug console to `src/components/crymon-app.tsx` (the web
+app shell, not the in-game UI) -- a "Dev Codes" toggle button in the
+header that reveals a text input + Submit button, wired to a new
+`CryMon.submitDevCode(raw)` method in `src/game/engine.ts`. **Web
+preview only, by design** -- there's no equivalent UI or code on
+Dreamcast, and none was added; nothing in `main.c` changed.
+
+- **`WinAll`** -- calls `devWinAll()`, which sets the current foe's hp
+  to 0, clears its bench, and calls the game's own `finishWin()`
+  directly (same function a real battle win calls) rather than faking
+  a simpler ending -- so trainer flags, mercy prompts, and XP/marks
+  rewards all fire exactly as they would from a real win, just
+  instantly. No-ops with a message if no battle is in progress.
+- **`PassAll`** -- sets a new `devPassAll` flag (never persisted,
+  never reset on new game -- it's a session-only debug toggle, not
+  game state) that (1) makes `blocked()` return false unconditionally
+  (noclip through every wall/solid tile) and (2) makes `applyWarp()`
+  skip its `warp.need` story-flag gate check, so every warp fires
+  regardless of progress. Both are one-line additions to existing
+  functions, not new systems.
+
+Verified end-to-end with a headless-Chromium Playwright script
+against the real dev server (not just typecheck): toggled Dev Codes
+on, confirmed PassAll actually lets the player walk straight through
+the cottage's north wall (screenshot showed the sprite outside the
+room's border), and confirmed WinAll against a real battle -- forced
+one via a temporary `window` test hook (removed before committing,
+never shipped), submitted `WinAll` through the actual UI text box,
+and confirmed mode returned to `"world"`, marks incremented by the
+normal wild-win amount (+3), and the party CryMon's hp was untouched
+-- exactly the "skip to the end as if you'd won" behavior asked for.
+

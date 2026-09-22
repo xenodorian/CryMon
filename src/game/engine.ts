@@ -205,6 +205,10 @@ export class CryMon {
 		frame: 0,
 		anim: 0
 	};
+	/** Web-preview-only debug console (crymon-app.tsx's "Dev Codes"
+	 *  toggle) -- never persisted, never reset on new game, no Dreamcast
+	 *  equivalent (there's no dev-code UI to drive it on that engine). */
+	devPassAll = false;
 	soldiers: Soldier[] = [];
 	pendingSoldier: string | null = null;
 	battlesDone = 0;
@@ -1910,6 +1914,7 @@ export class CryMon {
 		if (this.input.cancel()) this.cycleParty();
 	}
 	blocked(x, y) {
+		if (this.devPassAll) return false;
 		const r = 10;
 		if ([
 			[x - r, y],
@@ -2267,7 +2272,7 @@ export class CryMon {
 	applyWarp(ch: string) {
 		const warp = WARPS.find((w) => w.from === this.world.mapId && w.tile === ch);
 		if (!warp) return false;
-		if (warp.need && !this.flagFor(warp.need)) {
+		if (warp.need && !this.devPassAll && !this.flagFor(warp.need)) {
 			if (warp.failTalk) {
 				const d = spawnOf(this.map(), ch);
 				if (warp.dir === "down") this.world.y = Math.min(this.world.y, d.y - TILE);
@@ -3440,6 +3445,32 @@ export class CryMon {
 		const b = this.battle;
 		b.guard = kinds[i] ?? "block";
 		b.phase = "resolve_guard";
+	}
+	/** Dev Codes console (web preview only, see devPassAll above).
+	 *  Returns a short status string for the UI to display. */
+	submitDevCode(raw: string): string {
+		const code = raw.trim().toLowerCase();
+		if (code === "winall") {
+			if (this.mode !== "battle" || !this.battle) return "WinAll: no battle in progress.";
+			this.devWinAll();
+			return "WinAll: battle won.";
+		}
+		if (code === "passall") {
+			this.devPassAll = true;
+			return "PassAll: all warp gates open, noclip on.";
+		}
+		return `Unknown dev code: "${raw}"`;
+	}
+	/** Skips straight to the end of the current battle as a win, exactly
+	 *  as if every enemy CryMon had just fainted -- reuses finishWin()
+	 *  (trainer/story-flag handling, mercy prompts, XP) rather than
+	 *  faking a simpler ending, so it can't drift from a real win. */
+	devWinAll() {
+		const b = this.battle;
+		if (!b) return;
+		b.foe.hp = 0;
+		b.foeBench = [];
+		this.finishWin();
 	}
 	finishWin() {
 		const b = this.battle;

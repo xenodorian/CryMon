@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
 import { Download, Volume2, VolumeX } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { CryMon } from "@/game/engine";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +11,9 @@ export function CryMonApp() {
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
   const [pad, setPad] = useState({ x: 0, y: 0 });
+  const [devCodesOn, setDevCodesOn] = useState(false);
+  const [devCodeText, setDevCodeText] = useState("");
+  const [devCodeMsg, setDevCodeMsg] = useState("");
 
   useEffect(() => {
     const canvas = ref.current;
@@ -83,8 +87,46 @@ export function CryMonApp() {
               <Download className="size-4" />
               Dreamcast CDI
             </a>
+            <Button
+              size="sm"
+              variant={devCodesOn ? "default" : "ghost"}
+              onClick={() => {
+                setDevCodesOn((v) => !v);
+                setDevCodeMsg("");
+              }}
+              aria-pressed={devCodesOn}
+            >
+              Dev Codes
+            </Button>
           </div>
         </div>
+        {devCodesOn && (
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-2 px-4 pb-4 sm:px-6">
+            <Input
+              value={devCodeText}
+              onChange={(e) => setDevCodeText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                const msg = gameRef.current?.submitDevCode(devCodeText) ?? "";
+                setDevCodeMsg(msg);
+              }}
+              placeholder="WinAll · PassAll"
+              className="max-w-[220px]"
+              aria-label="Dev code"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const msg = gameRef.current?.submitDevCode(devCodeText) ?? "";
+                setDevCodeMsg(msg);
+              }}
+            >
+              Submit
+            </Button>
+            {devCodeMsg && <span className="text-xs text-muted">{devCodeMsg}</span>}
+          </div>
+        )}
       </header>
 
       <main className="mx-auto grid max-w-5xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_220px]">
