@@ -1636,13 +1636,21 @@ cause:
   every call returned `false`.
 - No coincidental NPC mark sits within blocking radius of the stump.
 
-Not yet tried: reproducing with specific game-state flags set (the
-user's screenshot may reflect state this session hasn't replicated),
-or reconsidering whether the reported symptom is actually a
-side-effect of the now-fixed `wildLevelCap` NaN bug (the stump sits
-right next to tallgrass, a wild-encounter trigger tile -- a
-NaN-corrupted encounter could plausibly have looked like a movement
-soft-lock rather than a true collision). Worth retesting now that
-`wildLevelCap` is fixed before resuming a from-scratch collision
-investigation.
+Re-tested after the `wildLevelCap` fix landed: re-located the stump
+via `spawnOf(MAPS.veld, "L")` (now row12/col24, `x:784,y:400` in the
+current, heavily-rewritten veld layout) and probed `blocked()` at that
+tile plus all 8 neighbors, and scanned `NPCS` for anything within 3
+tiles -- still all clear, still no NPC nearby. No code path currently
+blocks this position.
+
+Leaning toward this having been the `wildLevelCap` NaN bug all along
+(stump sits next to tallgrass, a wild-encounter trigger tile -- a
+NaN-corrupted encounter could plausibly read as a movement soft-lock
+rather than a true collision), now fixed as a side effect, plus
+possibly veld's own repeated layout rewrites this session moving the
+stump's surroundings away from whatever it was originally sitting
+against. Not fully confirmed since the original screenshot's exact
+game state can't be replayed. **If the user reports this again,**
+get the exact tile/direction from a fresh screenshot rather than
+re-assuming it's the same root cause.
 
