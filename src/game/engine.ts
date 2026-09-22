@@ -2165,6 +2165,8 @@ export class CryMon {
 				choseHeavenfall: this.choseHeavenfall,
 				revivedFather: this.revivedFather,
 				beatCommander: this.beatCommander,
+				quarryCrateLooted: this.quarryCrateLooted,
+				quarryShelfSearched: this.quarryShelfSearched,
 		};
 	}
 	setNpcFlag(name: string) {
@@ -4656,12 +4658,12 @@ export class CryMon {
 			this.drawProp("prop-bed-father", bed.x, bed.y + 8, 64, 56);
 			this.drawProp("prop-bed-empty", mine.x, mine.y + 8, 64, 56);
 			this.drawProp("prop-shelf", shelf.x, shelf.y + 4, 40, 44);
-			this.drawProp("prop-crate", crate.x, crate.y + 4, 32, 32);
+			if (!this.lootedCrate) this.drawProp("prop-crate", crate.x, crate.y + 4, 32, 32);
 			this.text("...", bed.x - cx - 6, bed.y - cy - 20, "#8a8678", FONT);
 			this.hintZ(bed.x, bed.y, 36);
 			this.hintZ(mine.x, mine.y, 36);
 			this.hintZ(shelf.x, shelf.y, 36);
-			this.hintZ(crate.x, crate.y, 36);
+			if (!this.lootedCrate) this.hintZ(crate.x, crate.y, 36);
 		}
 		if (this.world.mapId === "veld") {
 			const door = spawnOf(VELD, "D");
@@ -4736,7 +4738,7 @@ export class CryMon {
 			this.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
 			this.hintZ(c.x, c.y);
 		}
-		if (this.world.mapId === "cliffs") {
+		if (this.world.mapId === "cliffs" && !this.chestLooted) {
 			const chest = spawnOf(CLIFFS, "C");
 			this.drawProp("prop-crate", chest.x, chest.y + 4, 32, 32);
 			this.hintZ(chest.x, chest.y);

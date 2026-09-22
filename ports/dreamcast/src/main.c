@@ -1051,13 +1051,14 @@ static void draw_prop(char mark, const u16 *px, int w, int h, int cam_x, int cam
     blit_sprite(px, w, h, cx - cam_x - w / 2, cy - cam_y - h / 2);
 }
 
-static void draw_props(int map_id, int cam_x, int cam_y) {
+static void draw_props(int map_id, int cam_x, int cam_y, int looted_crate) {
     if(map_id != MAP_HOUSE)
         return;
     draw_prop('B', prop_bed_father, PROP_BED_FATHER_W, PROP_BED_FATHER_H, cam_x, cam_y);
     draw_prop('U', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);
     draw_prop('S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H, cam_x, cam_y);
-    draw_prop('C', prop_crate, PROP_CRATE_W, PROP_CRATE_H, cam_x, cam_y);
+    if(!looted_crate)
+        draw_prop('C', prop_crate, PROP_CRATE_W, PROP_CRATE_H, cam_x, cam_y);
 }
 
 /* World NPCs: bottom-anchored on their mark's tile like the player
@@ -4113,7 +4114,8 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
                           int anne_state, float anne_x, float anne_y, int anne_dir, int anne_frame,
                           int cath_caught, int beat_shin, int saw_shinigami_rock,
                           const Soldier *soldiers, const int *soldier_beaten,
-                          int beat_calder, int has_scroll) {
+                          int beat_calder, int has_scroll,
+                          int chest_looted, int quarry_crate_looted, int quarry_shelf_searched) {
     if(map_id == MAP_VELD) {
         ws_push_mark_idle(list, n, map_id, 'K', WREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'I', MAE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
@@ -4178,7 +4180,8 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         /* Treasure chest: reuses the existing crate prop art rather
            than needing new placeholder art -- close enough visually
            (a wooden storage box) that it doesn't need its own tag. */
-        ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
+        if(!chest_looted)
+            ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
     }
     else if(map_id == MAP_RUINS) {
         ws_push_mark_idle(list, n, map_id, 'J', OREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
@@ -4192,8 +4195,10 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
            above, just placed on their own marks instead of HOUSE's
            draw_props-only 'C'/'S' (see that function's HOUSE-only
            note) so they actually draw on this map. */
-        ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
-        ws_push_mark(list, n, map_id, 'S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H);
+        if(!quarry_crate_looted)
+            ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
+        if(!quarry_shelf_searched)
+            ws_push_mark(list, n, map_id, 'S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H);
     }
     else if(map_id == MAP_REACH) {
         /* Shinigami's second appearance, once freed from the Prison --
@@ -7925,7 +7930,7 @@ void main(void) {
         else {
             compute_camera(map_id, px, py, &cam_x, &cam_y);
             draw_map(map_id, cam_x, cam_y);
-            draw_props(map_id, cam_x, cam_y);
+            draw_props(map_id, cam_x, cam_y, looted_crate);
             {
                 WorldSprite ws_list[MAX_WORLD_SPRITES];
                 int ws_n = 0;
@@ -7935,7 +7940,8 @@ void main(void) {
                              mason_state, mason_x, mason_y, mason_dir, mason_frame,
                              anne_state, anne_x, anne_y, anne_dir, anne_frame,
                              cath_caught, beat_shin, saw_shinigami_rock, soldiers, soldier_beaten,
-                             beat_calder, has_scroll);
+                             beat_calder, has_scroll,
+                             got_chest, quarry_crate_looted, quarry_shelf_searched);
                 ws_push(ws_list, &ws_n, MAX_FRAMES[pdir][(anim_counter / 10) & 3],
                         MAX_SPRITE_W, MAX_SPRITE_H, px, py);
                 ws_sort_and_draw(ws_list, ws_n, cam_x, cam_y);

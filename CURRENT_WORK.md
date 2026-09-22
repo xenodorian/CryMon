@@ -1745,3 +1745,65 @@ skipping the battle entirely.
   emulator/hardware available in this sandbox, same standing caveat
   as every other Dreamcast-only feature in this log.
 
+## Fix: pressing A/Z shouldn't trigger a warp gate, only walking onto it (Claude, 2026-09-22)
+
+User reported pressing A (Z on keyboard) near a warp gate was
+triggering the warp on its own, when only walking onto the tile
+should. Found it in `interact()` (`engine.ts`): a fallback fired
+`useDoor()` whenever the player was merely *adjacent* to any
+`'D'`-tagged warp tile (`nearbyTiles()`'s 4 cardinal neighbors +
+center) and pressed confirm -- not only when standing on it. Every
+warp tile, including every `'D'` one across every map (`content/
+world_parts/warps.json` has a dozen+), already triggers correctly by
+walking onto it via `tryDoor()`/`tryMapWarp()`, which run
+unconditionally every frame regardless of button state. Removed the
+redundant button-triggered fallback and the now-dead `nearbyTiles()`
+helper it was the only caller of. Dreamcast's `main.c` never had an
+equivalent button-triggered path -- its warp check was always purely
+position-based -- so this bug was web-only.
+
+Verified via Playwright: standing one tile from the house door and
+pressing A no longer warps (stays in house); walking exactly onto the
+door tile still auto-warps with no button press, unchanged. No
+content/Dreamcast rebake needed (pure `engine.ts` fix).
+
+## Fix: picked-up items stayed interactable/visible forever (Claude, 2026-09-22)
+
+User reported that one-time pickups (capture crystals and similar
+loot) stayed interactable after being taken -- e.g. in the house or
+CryTown (veld). Investigated every `role: "loot"` NPC (`crate` house,
+`herb`/`gem` veld, `chest` cliffs, `quarryCrate`/`quarryShelf` quarry)
+and found two separate bugs:
+
+- **Visual**: the house crate and cliffs chest (`prop-crate`) were
+  drawn unconditionally in `drawWorld()` regardless of whether they'd
+  been looted -- unlike `herb`/`gem`, which were already correctly
+  gated behind `!this.gotHerb`/`!this.gotFieldGem`. Added the same
+  `!this.lootedCrate`/`!this.chestLooted` gates. Dreamcast's
+  `draw_props()` (house) and `collect_npcs()`'s CLIFFS/QUARRY blocks
+  had the identical bug (crate/chest/quarry crate+shelf sprites all
+  drawn unconditionally) -- threaded `looted_crate`/`chest_looted`/
+  `quarry_crate_looted`/`quarry_shelf_searched` through both
+  functions' signatures and call sites to gate them the same way.
+- **Re-grantable (worse)**: `quarryCrateLooted` and
+  `quarryShelfSearched` were real class fields, correctly set by
+  `setNpcFlag()`, but never included in `npcFlags()` -- the object
+  `matchNpcScript()`/`npcHidden()` actually read from. Their `ifNot`
+  gate on the grant step always saw the flag as unset, so both could
+  be looted for infinite smoke bombs/dust. Dreamcast's equivalent
+  `ft[]` wiring was already correct (not affected). Added both to
+  `npcFlags()`.
+- Beyond the visual fix, added a `{"hideIf": "<flag>"}` step (the
+  same mechanism already used for `cageGate`/`shinigamiRock`/etc.) as
+  the first script entry for all six loot NPCs, so
+  `matchNpcScript()`/`npcHidden()` treat them as fully gone --
+  no sprite, no interact, no leftover "it's empty" line -- the moment
+  their flag is set, on both engines (Dreamcast's `hide_if` NpcStep
+  field bakes and is read by `npc_match_step()` the same way).
+- Verified via Playwright: interacting twice with each of the five
+  pickups that grant a real item (house crate, veld herb/gem, quarry
+  crate/shelf) grants exactly once -- the second interact is a no-op,
+  confirming both the regrant bug and the hide-on-pickup behavior.
+  `verify_step.sh` (bake, check_sync --strict, typecheck, Dreamcast
+  build) all green.
+

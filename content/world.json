@@ -1838,6 +1838,9 @@
       ],
       "script": [
         {
+          "hideIf": "lootedCrate"
+        },
+        {
           "ifNot": "lootedCrate",
           "set": "lootedCrate",
           "grant": [
@@ -2058,6 +2061,9 @@
       ],
       "script": [
         {
+          "hideIf": "gotHerb"
+        },
+        {
           "ifNot": "gotHerb",
           "set": "gotHerb",
           "grant": [
@@ -2087,6 +2093,9 @@
         1
       ],
       "script": [
+        {
+          "hideIf": "gotFieldGem"
+        },
         {
           "ifNot": "gotFieldGem",
           "set": "gotFieldGem",
@@ -2320,6 +2329,9 @@
       "talk": "chest",
       "talkDone": "chestEmpty",
       "script": [
+        {
+          "hideIf": "chestLooted"
+        },
         {
           "if": "cageOpen",
           "ifNot": "chestLooted",
@@ -2561,6 +2573,9 @@
       ],
       "script": [
         {
+          "hideIf": "quarryCrateLooted"
+        },
+        {
           "ifNot": "quarryCrateLooted",
           "set": "quarryCrateLooted",
           "grant": [
@@ -2590,6 +2605,9 @@
         1
       ],
       "script": [
+        {
+          "hideIf": "quarryShelfSearched"
+        },
         {
           "ifNot": "quarryShelfSearched",
           "set": "quarryShelfSearched",
