@@ -78,7 +78,8 @@
     "tzaddi": "PATH OF TZADDI",
     "tiferet": "TIFERET",
     "samekh": "PATH OF SAMEKH",
-    "nun": "PATH OF NUN"
+    "nun": "PATH OF NUN",
+    "ayin": "PATH OF AYIN"
   },
   "mapIds": [
     "house",
@@ -111,7 +112,8 @@
     "tzaddi",
     "tiferet",
     "samekh",
-    "nun"
+    "nun",
+    "ayin"
   ],
   "encounters": [
     {
@@ -884,6 +886,38 @@
       "spawn": "2",
       "dir": "left",
       "ox": -32
+    },
+    {
+      "from": "tiferet",
+      "tile": "D",
+      "to": "ayin",
+      "spawn": "1",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "ayin",
+      "tile": "1",
+      "to": "tiferet",
+      "spawn": "D",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "ayin",
+      "tile": "2",
+      "to": "hod",
+      "spawn": "D",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "hod",
+      "tile": "D",
+      "to": "ayin",
+      "spawn": "2",
+      "dir": "right",
+      "ox": 40
     }
   ],
   "trainers": {

@@ -1200,4 +1200,6 @@ ports/dreamcast` -> commit -> push -> note completed step here.
   2 E, 2 W, 1 S, verified no mark collisions on any wall) + `samekh`
   (route, tiferet<->yesod). Green.
 - Step 9/23: `nun` (route, tiferet<->netzach). Green.
+- Step 10/23: `ayin` (route, tiferet<->hod). Tiferet's links to the
+  bottom quad complete. Green.
 

@@ -123,6 +123,8 @@ export const SAMEKH = normalize(raw.samekh);
 
 export const NUN = normalize(raw.nun);
 
+export const AYIN = normalize(raw.ayin);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -155,6 +157,7 @@ export const MAPS = {
   tiferet: TIFERET,
   samekh: SAMEKH,
   nun: NUN,
+  ayin: AYIN,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

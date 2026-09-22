@@ -30,7 +30,8 @@
     "tzaddi": "PATH OF TZADDI",
     "tiferet": "TIFERET",
     "samekh": "PATH OF SAMEKH",
-    "nun": "PATH OF NUN"
+    "nun": "PATH OF NUN",
+    "ayin": "PATH OF AYIN"
   },
   "mapIds": [
     "house",
@@ -63,6 +64,7 @@
     "tzaddi",
     "tiferet",
     "samekh",
-    "nun"
+    "nun",
+    "ayin"
   ]
 }

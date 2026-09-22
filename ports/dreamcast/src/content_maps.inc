@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=dfb239005f106696 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=289e4a6b95929e35 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -31,7 +31,8 @@
 #define MAP_TIFERET 28
 #define MAP_SAMEKH 29
 #define MAP_NUN 30
-#define MAP_N 31
+#define MAP_AYIN 31
+#define MAP_N 32
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -752,6 +753,15 @@ static const char *const map_nun_rows[] = {
     "########################",
 };
 
+static const char *const map_ayin_rows[] = {
+    "########################",
+    "#......................#",
+    "#......................#",
+    "2......................1",
+    "#......................#",
+    "########################",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
@@ -784,10 +794,11 @@ static const Map MAPS[MAP_N] = {
     { map_tiferet_rows, 16, 12 },
     { map_samekh_rows, 6, 24 },
     { map_nun_rows, 24, 6 },
+    { map_ayin_rows, 24, 6 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";
