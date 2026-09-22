@@ -253,7 +253,7 @@ export class CryMon {
 	/** Choice presented when interacting with an unspotted roamable
 	 *  trainer while carrying the Bowie Knife -- see openBackstabChoice(). */
 	backstabCur = 0;
-	pendingBackstab: { npc: unknown; pending: string; talk: string; levels: number } | null = null;
+	pendingBackstab: { npc: any; pending: string; after: string; talk: string; levels: number } | null = null;
 	quarryCrateLooted = false;
 	quarryShelfSearched = false;
 	cageOpen = false;
@@ -4020,24 +4020,62 @@ export class CryMon {
 	/** Whether npc (with its currently-matched script step) is a valid
 	 *  Backstab target: a roamable wsoldier trainer that hasn't spotted
 	 *  the player yet (no active chase), still fightable, while the
-	 *  player carries the Bowie Knife. */	canBackstab(npc, step) {
+	 *  player carries the Bowie Knife. */	isFightAfter(after: string | undefined | null): boolean {
+		if (!after) return false;
+		return (
+			after === "wsoldier" ||
+			after === "calder" ||
+			after === "soldier" ||
+			after === "cathleen" ||
+			after === "shinigami" ||
+			after === "mason" ||
+			after === "mason2"
+		);
+	}
+	npcOnWarpGate(npc): boolean {
+		const marks = this.npcMarks(npc);
+		if (!marks.length) return false;
+		const mapId = npc.map;
+		return WARPS.some((w) => w.from === mapId && marks.includes(w.tile));
+	}
+	canBackstab(npc, step) {
 		if (!(this.bag.bowieKnife > 0)) return false;
-		if (!step || step.after !== "wsoldier") return false;
-		if (!this.roamableNpc(npc)) return false;
+		if (!step || !this.isFightAfter(step.after)) return false;
 		if (this.npcIsExecuted(npc.id)) return false;
-		const r = this.ensureRoamer(npc);
-		if (r.chase) return false;
-		if (this.roamerLos(r.x, r.y, r.dir)) return false;
+		if (this.npcOnWarpGate(npc)) return false;
+		if (this.roamableNpc(npc)) {
+			const r = this.ensureRoamer(npc);
+			if (r.chase) return false;
+			if (this.roamerLos(r.x, r.y, r.dir)) return false;
+		}
 		return true;
 	}
 	openBackstabChoice(npc, step) {
-		const kit = TRAINERS[step.pending];
+		const kitKey =
+			step.pending ||
+			(step.after === "calder"
+				? "calder"
+				: step.after === "shinigami"
+					? "shinigami"
+					: step.after === "cathleen"
+						? "cathleen"
+						: step.after === "mason" || step.after === "mason2"
+							? "mason"
+							: step.pending);
+		const kit = kitKey ? TRAINERS[kitKey] : null;
 		const levels = kit ? (kit.lead?.[1] || 0) + (kit.bench || []).reduce((s, b) => s + (b[1] || 0), 0) : 1;
-		this.pendingBackstab = { npc, pending: step.pending, talk: step.talk, levels };
+		this.pendingBackstab = {
+			npc,
+			pending: step.pending || kitKey || "",
+			after: step.after || "",
+			talk: step.talk,
+			levels,
+		};
 		this.backstabCur = 0;
 		this.mode = "backstab";
 		this.audio.ui();
 	}
+
 	updateBackstabChoice() {
 		if (this.input.up() || this.input.down()) {
 			this.backstabCur = 1 - this.backstabCur;
@@ -4072,15 +4110,26 @@ export class CryMon {
 		const b = this.randomMercyItem();
 		this.bag[a] = (this.bag[a] ?? 0) + 1;
 		this.bag[b] = (this.bag[b] ?? 0) + 1;
-		this.markExecuted("wsoldier", pb.pending);
-		const kit = TRAINERS[pb.pending];
+		const after = pb.after || "wsoldier";
+		const pending = pb.pending || "";
+		if (after === "calder") this.markExecuted("calder", null);
+		else if (after === "soldier") this.markExecuted("soldier", pending || this.pendingSoldier);
+		else if (after === "cathleen") {
+			this.beatCathleen = true;
+			this.cathleenCaught = true;
+		} else if (after === "shinigami") this.beatShinigami = true;
+		else if (after === "mason" || after === "mason2") this.foughtMason = true;
+		else this.markExecuted("wsoldier", pending);
+		const kit = TRAINERS[pending] || (after === "calder" ? TRAINERS.calder : undefined);
 		if (kit?.grant) {
 			for (const [iid, qty] of kit.grant) {
 				this.bag[iid] = (this.bag[iid] ?? 0) + qty;
 			}
 		}
-		this.applyWsBeatFlags(pb.pending);
-		if (this.roamers[pb.npc?.id]) this.roamers[pb.npc.id].chase = false;
+		if (after === "calder") this.beatCalder = true;
+		else this.applyWsBeatFlags(pending);
+		if (pb.npc?.id && this.roamers[pb.npc.id]) this.roamers[pb.npc.id].chase = false;
+
 		this.world.encounterLock = 3;
 		this.audio.scream();
 		this.startFade("execute");

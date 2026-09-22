@@ -4388,6 +4388,20 @@ static int kit_for_pending(int pending) {
  * only while bag.bowieKnife > 0, so a knifeless player always falls
  * straight through to normal try_npc_script() dialogue. Returns the
  * nearest matching NPC_DEFS index, or -1. */
+static int npc_after_is_fight(int after) {
+    return after == NPC_AFTER_WSOLDIER
+        || after == NPC_AFTER_CALDER
+        || after == NPC_AFTER_CATHLEEN
+        || after == NPC_AFTER_SHINIGAMI;
+}
+
+static int npc_on_warp_gate(int map_id, char mark) {
+    int i;
+    for(i = 0; i < WARP_N; i++)
+        if(WARPS[i].from_map == map_id && WARPS[i].tile == mark) return 1;
+    return 0;
+}
+
 static int find_backstab_target(int map_id, int ppx, int ppy, int **ft, int party_n) {
     int i, best = -1, best_d = 0x7fffffff;
     for(i = 0; i < NPC_DEF_N; i++) {
@@ -4395,17 +4409,22 @@ static int find_backstab_target(int map_id, int ppx, int ppy, int **ft, int part
         int half_w, left, right, top, bottom;
         int si, ebit;
         const NpcStep *st;
-        if(NPC_DEFS[i].map_id != map_id || !npc_def_roamable(i)) continue;
+        if(NPC_DEFS[i].map_id != map_id) continue;
+        if(npc_on_warp_gate(map_id, NPC_DEFS[i].mark)) continue;
         ebit = npc_exec_bit(NPC_DEFS[i].map_id, NPC_DEFS[i].mark);
         if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;
-        roamer_ensure(i);
-        if(g_roamers[i].chase) continue;
-        if(roamer_los(map_id, g_roamers[i].x, g_roamers[i].y, g_roamers[i].dir, ppx / TILE, ppy / TILE)) continue;
         si = npc_match_step(&NPC_DEFS[i], ft, party_n);
         if(si < 0) continue;
         st = &NPC_STEPS[si];
-        if(st->after != NPC_AFTER_WSOLDIER) continue;
-        mx = (int)g_roamers[i].x; my = (int)g_roamers[i].y;
+        if(!npc_after_is_fight(st->after)) continue;
+        if(npc_def_roamable(i)) {
+            roamer_ensure(i);
+            if(g_roamers[i].chase) continue;
+            if(roamer_los(map_id, g_roamers[i].x, g_roamers[i].y, g_roamers[i].dir, ppx / TILE, ppy / TILE)) continue;
+            mx = (int)g_roamers[i].x; my = (int)g_roamers[i].y;
+        } else {
+            mark_center(map_id, NPC_DEFS[i].mark, &mx, &my);
+        }
         half_w = NPC_DEFS[i].w / 2 + INTERACT_BUFFER;
         left = mx - half_w;
         right = mx + half_w;
@@ -4418,6 +4437,7 @@ static int find_backstab_target(int map_id, int ppx, int ppy, int **ft, int part
     }
     return best;
 }
+
 
 /* ensureSoldiers(): id/name/species/level, matching state.lua's
    patrol/scout/sentry entries (their patrol minv/maxv/axis/LOS isn't
