@@ -4401,11 +4401,6 @@ export class CryMon {
 				this.drawProp("prop-moonstone", gem.x, gem.y + 4, 28, 28);
 				this.hintZ(gem.x, gem.y);
 			}
-			if (!this.gotStump) {
-				const stump = spawnOf(VELD, "L");
-				this.drawProp("prop-stump", stump.x, stump.y + 4, 32, 32);
-				this.hintZ(stump.x, stump.y);
-			}
 		}
 		const wf = Math.floor(this.clock * 4) % 4 + 1;
 		const flags = this.npcFlags();

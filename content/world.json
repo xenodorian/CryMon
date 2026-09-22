@@ -2103,36 +2103,6 @@
     },
     {
       "map": "veld",
-      "mark": "L",
-      "id": "stump",
-      "role": "loot",
-      "w": 32,
-      "h": 32,
-      "talk": "stump",
-      "talkDone": "stumpGone",
-      "grantItem": [
-        "bandage",
-        1
-      ],
-      "script": [
-        {
-          "ifNot": "gotStump",
-          "set": "gotStump",
-          "grant": [
-            [
-              "bandage",
-              1
-            ]
-          ],
-          "talk": "stump"
-        },
-        {
-          "talk": "stumpGone"
-        }
-      ]
-    },
-    {
-      "map": "veld",
       "mark": "X",
       "id": "cart",
       "role": "talk",
