@@ -82,7 +82,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | `shop:${string}` | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal";
+type TalkAfter = null | `shop:${string}` | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL" };
 const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray" };
@@ -248,7 +248,7 @@ export class CryMon {
 	dexCaught = 0;
 	dexCursor = 0;
 	dexView = "list";
-	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" };
+	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" | "priestessTeleport" };
 	pendingWs = null;
 	choiceCur = 0;
 	shopKeep: string = "bram";
@@ -995,6 +995,8 @@ export class CryMon {
 			} else if (next === "creditsFinal") {
 				this.mode = "ending";
 				this.endI = 0;
+			} else if (next === "priestessTeleport") {
+				this.startFade("priestessTeleport");
 			}
 			this.maybeStartAnne();
 		}
@@ -2186,7 +2188,7 @@ export class CryMon {
 		const spec = LOGIC.arrivals[name];
 		if (spec && "spawn" in spec && spec.spawn.actor === "mason") this.spawnMasonApproach(false);
 	}
-	startFade(action: "bed" | "loss" | "execute") {
+	startFade(action: "bed" | "loss" | "execute" | "priestessTeleport") {
 		this.fade = { phase: "out", t: 0, action };
 	}
 	applyFadeHold() {
@@ -2208,6 +2210,15 @@ export class CryMon {
 		}
 		if (this.fade.action === "hfGameOver") {
 			this.reloadLastSaveOrTitle();
+		}
+		if (this.fade.action === "priestessTeleport") {
+			const mark = spawnOf(HOUSE, LOGIC.partyWipe.mark);
+			this.world.mapId = LOGIC.partyWipe.map;
+			this.world.x = mark.x + TILE;
+			this.world.y = mark.y;
+			this.world.dir = LOGIC.partyWipe.dir;
+			this.doorLock = 0.4;
+			this.announceMap();
 		}
 	}
 	tickFade(dt: number) {

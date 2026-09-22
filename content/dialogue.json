@@ -1340,11 +1340,7 @@
     "gauntletLocked": [
       {
         "speaker": "system",
-        "text": "The gauntlet to the south leads to the shrine of the ancient and dead Heavenfall."
-      },
-      {
-        "speaker": "system",
-        "text": "I will not move unless you present me with the sacred Scroll of Resurrection."
+        "text": "The Heavenfall Priestess bars the way south. She will not move unless you present the sacred Scroll of Resurrection."
       }
     ],
     "gauntletWipeRegret": [
@@ -1467,17 +1463,17 @@
         "text": "I said no one gets past this point."
       }
     ],
-    "priestSpot": [
+    "rockBlocked": [
       {
-        "speaker": "system",
-        "text": "The gauntlet to the south leads to the shrine of the ancient and dead Heavenfall."
-      },
-      {
-        "speaker": "system",
-        "text": "I will not move unless you present me with the sacred Scroll of Resurrection."
+        "speaker": "max",
+        "text": "A boulder seals the western pass. Nothing short of a monster could move it."
       }
     ],
-    "priestHasScroll": [
+    "priestessHasScroll": [
+      {
+        "speaker": "system",
+        "text": "\"I am the Priestess of the Fall of Heaven,\" she says. \"None may enter the gauntlet without the sacred Scroll of Resurrection, with which the fallen Heavenfall may be raised.\""
+      },
       {
         "speaker": "system",
         "text": "The scroll. So it's true."
@@ -1487,10 +1483,18 @@
         "text": "Go, then. What you do with the dead is on you now."
       }
     ],
-    "rockBlocked": [
+    "priestessNoScroll": [
       {
-        "speaker": "max",
-        "text": "A boulder seals the western pass. Nothing short of a monster could move it."
+        "speaker": "system",
+        "text": "\"I am the Priestess of the Fall of Heaven,\" she says. \"None may enter the gauntlet without the sacred Scroll of Resurrection, with which the fallen Heavenfall may be raised.\""
+      },
+      {
+        "speaker": "system",
+        "text": "You don't have a scroll."
+      },
+      {
+        "speaker": "system",
+        "text": "\"Then begone!\""
       }
     ]
   },

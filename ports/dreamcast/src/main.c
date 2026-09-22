@@ -1192,6 +1192,7 @@ static const u16 *const RANGER_FRAMES[4]     = { npc_ranger_1, npc_ranger_2, npc
 static const u16 *const SCOUT_FRAMES[4]      = { npc_scout_1, npc_scout_2, npc_scout_3, npc_scout_4 };
 static const u16 *const KEEPER_FRAMES[4]     = { npc_keeper_1, npc_keeper_2, npc_keeper_3, npc_keeper_4 };
 static const u16 *const WARDEN_FRAMES[4]     = { npc_warden_1, npc_warden_2, npc_warden_3, npc_warden_4 };
+static const u16 *const HEAVENFALLPRIESTESS_FRAMES[4] = { npc_heavenfallPriestess_1, npc_heavenfallPriestess_2, npc_heavenfallPriestess_3, npc_heavenfallPriestess_4 };
 /* npc_father_1..4 (Father's walk frames) aren't used -- he's bedridden
    and only ever appears via his portrait (SPK_FATHER), never placed as
    a WorldSprite. */
@@ -1209,6 +1210,7 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, 'Q', PIKE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'J', BRAM_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         if(mason_state) {
             ws_push_walker(list, n, MASON_FRAMES, mason_x, mason_y, mason_dir, mason_frame);
             if(*n > 0) list[*n - 1].scale = SPR_SCALE_MASON;
@@ -1258,6 +1260,15 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
            note) so they actually draw on this map. */
         ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
         ws_push_mark(list, n, map_id, 'S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H);
+    }
+    else if(map_id == MAP_REACH) {
+        /* Shinigami's second appearance, once freed from the Prison --
+           reuses his existing GROVE sprite/frames, same character. He
+           isn't here at all until beat_shin (mirrors the GROVE branch
+           above, which hides him there once beaten -- opposite sense,
+           same flag). */
+        if(beat_shin)
+            ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
     }
 
     /* Anne isn't tied to one map like the stationary VELD NPCs --
@@ -4622,6 +4633,7 @@ void main(void) {
 #define FADE_ACTION_BED  1
 #define FADE_ACTION_LOSS 2
 #define FADE_ACTION_HFGAMEOVER 3
+#define FADE_ACTION_PRIESTESS 4
 
     /* Active dialogue sequence: seq_lines/seq_len name the current
        TALK_* array, seq_beat indexes into it. seq_lines == 0 means no
@@ -4664,6 +4676,7 @@ void main(void) {
 #define POST_WSOLDIER_HEAVENFALL_GRAVE 31
 #define POST_LEAD_GAMEOVER 32
 #define POST_HFGAMEOVER_SCREAM 33
+#define POST_PRIESTESS_TELEPORT 34
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
    from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
    title and crystal-tier stock, no separate post_action per merchant. */
@@ -4925,6 +4938,19 @@ void main(void) {
                        "not a soft trip home") -- the old soft-regret
                        stub that used to live here is gone. */
                     heal_party(party, party_n);
+                    map_id = MAP_HOUSE;
+                    find_mark(MAP_HOUSE, 'U', &col, &row);
+                    px = (col + 1) * TILE + TILE / 2;
+                    py = row * TILE + TILE / 2;
+                    pdir = 1; /* facing up, toward the bed */
+                    last_tx = -1;
+                    last_ty = -1;
+                    door_lock = 20;
+                }
+                else if(fade_action == FADE_ACTION_PRIESTESS) {
+                    /* The Heavenfall Priestess turning Max away without
+                       the scroll -- same house teleport as a party
+                       wipe, minus the heal (nothing was lost here). */
                     map_id = MAP_HOUSE;
                     find_mark(MAP_HOUSE, 'U', &col, &row);
                     px = (col + 1) * TILE + TILE / 2;
@@ -7250,6 +7276,11 @@ void main(void) {
                                     fade_timer = 0;
                                     fade_action = FADE_ACTION_BED;
                                     break;
+                                case POST_PRIESTESS_TELEPORT:
+                                    fade_state = FADE_OUT;
+                                    fade_timer = 0;
+                                    fade_action = FADE_ACTION_PRIESTESS;
+                                    break;
                                 case POST_LEAD_GAMEOVER:
                                     /* Plain black fade (no scream, no
                                        red tint -- that's the genuine
@@ -7351,6 +7382,9 @@ void main(void) {
                                     post_action = POST_WSOLDIER_LEAD;
                                 else if(npc_pending == NPC_PENDING_HEAVENFALL_GRAVE)
                                     post_action = POST_WSOLDIER_HEAVENFALL_GRAVE;
+                                break;
+                            case NPC_AFTER_PRIESTESS_TELEPORT:
+                                post_action = POST_PRIESTESS_TELEPORT;
                                 break;
                             default:
                                 post_action = POST_NONE;

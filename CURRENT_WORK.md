@@ -942,3 +942,84 @@ New warp graph (all real door tiles, not just Town Map relabeling):
   routes), rendered SVG visually confirmed against the requested
   layout.
 
+**Priest -> named Heavenfall Priestess, real art, scroll-check
+teleport-home (Claude, 2026-09-22).** User supplied real art (a
+pixel-art sorceress on a magenta background) and asked for the
+placeholder-art priest from the previous entry to become a named
+character: introduces herself as "The Priestess of the Fall of
+Heaven," referred to elsewhere as "the Heavenfall Priestess." No
+scroll -> she says so, shouts "Then begone!", and teleports Max home.
+- **Art pipeline:** `tools/strip_magenta.py key-clamp --size 0 --pad 0`
+  on the source image, then PIL contain-fit into the standard 48x64
+  NPC canvas (feet-aligned to the bottom), saved as
+  `public/sprites/npc/heavenfallPriestess-{1..4}.png`. Registered in
+  `content/sprites.json`'s `npcs` catalog (required for
+  `check_sync`'s sprite-gap check). **All 4 frames are the same
+  static image** — only one pose was provided, and inventing 3 more
+  animation frames from imagination isn't something I'll do; she
+  reads as stationary rather than idle-animated. A real 4-frame
+  walk/idle cycle would be a good follow-up if more art comes in.
+  - **`npc/priest` doesn't exist as a real art asset was the previous
+    entry's finding — still true, that reference is gone now that
+    the id and sprite are real.**
+  - **Caught a real self-inflicted mistake before it landed:** ran
+    `python3 tools/strip_magenta.py --help` expecting a help flag;
+    this script parses argv manually and has no `--help` handling, so
+    anything other than `key-clamp` as the first arg falls through to
+    its *legacy bulk mode* — it silently re-processed every sprite
+    under `public/sprites/` with the older, cruder 1px fringe-delete
+    pass and rewrote ~15 pre-existing files (anne/mason/max walk
+    frames, several npc frames). This is **exactly** the failure mode
+    `CURRENT_WORK.md`'s own magenta-keying section already warns
+    about ("Don't use bare `strip_magenta.py`, it still does this
+    legacy pass") — I'd read that warning earlier this session and
+    still tripped it via `--help`, since the warning doesn't call out
+    that `--help` specifically isn't safe. Caught via `git status`
+    turning up a pile of unexpected sprite diffs before committing;
+    reverted all of them with `git checkout HEAD --
+    <path>` and regenerated `sprites.h` fresh afterward so it
+    doesn't carry the accidentally-refringed pixel data. **Never run
+    `tools/strip_magenta.py` with anything other than `key-clamp ...`
+    as the first argument — there is no safe no-op invocation of this
+    tool, including `--help`.**
+- **New NPC-level teleport mechanic (`priestessTeleport`)** — the
+  first `after`-triggered effect that isn't a battle, shop, or heal.
+  Small, well-precedented addition on both engines, not a new
+  subsystem: reuses the existing party-wipe-style "fade out, warp to
+  HOUSE's `U` mark, fade in" sequence (`LOGIC.partyWipe`), just
+  without the heal. Wired end-to-end: `tools/bake_content.py`'s
+  `AFTER_IDS`/header defines, `content/world_parts/npcs.json`'s
+  script (`if hasScroll -> priestessHasScroll` else
+  `priestessNoScroll` + `after:"priestessTeleport"`),
+  `src/game/engine.ts` (`TalkAfter` union, `startFade`'s action union,
+  `applyFadeHold()`, the `advanceTalk()` dispatch), and
+  `ports/dreamcast/src/main.c` (`POST_PRIESTESS_TELEPORT` = 34 —
+  checked the current max POST_* first per the standing numbering
+  gotcha, `FADE_ACTION_PRIESTESS` = 4, both dispatch switches, and
+  the `HEAVENFALLPRIESTESS_FRAMES`/`collect_npcs()` VELD registration
+  so she actually renders there).
+- **Found and fixed a real pre-existing Dreamcast gap while in this
+  code:** the previous entry's Shinigami-at-the-Reach NPC
+  (`shinigamiFree`) was never wired into `main.c`'s `collect_npcs()`
+  — he'd have been invisible there on Dreamcast (the dialogue/script
+  side worked fine, only the sprite draw call was missing). Added a
+  `MAP_REACH` branch reusing `SHINIGAMI_FRAMES`, gated on `beat_shin`
+  (opposite sense from the Grove branch, which hides him there once
+  beaten). **Not fixed, pre-existing, unrelated to my changes:**
+  Quartz and Opal (the Reach's badge trainers) also have no
+  `collect_npcs()` entry at all — flagging for whoever touches Reach
+  next, didn't want to scope-creep into it this turn.
+- speaker stays `"system"` (portrait-less) for her lines, same
+  reasoning as the previous entry's priest -- a proper named speaker
+  needs a generated Dreamcast portrait
+  (`SPEAKER_PORTRAIT[SPK_COUNT]`), which is a bigger art-pipeline
+  lift than her overworld walk sprite; the dialogue portrait
+  (`public/sprites/portraits/`) convention keeps each character's
+  full painted background, and this source art is a character on
+  flat magenta with none, which would look inconsistent with every
+  other character's portrait if used as-is. Worth a proper portrait
+  pass later, not blocking this feature.
+- Full verification: `check_sync --strict`, typecheck, web build,
+  `make -C ports/dreamcast` clean rebuild (only baseline warnings),
+  full world-graph audit PASS.
+

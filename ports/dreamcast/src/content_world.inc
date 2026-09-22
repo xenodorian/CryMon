@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=e7d9eb30bf29abd3 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=42e758671b44f2e1 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -53,7 +53,7 @@ static const WarpDef WARPS[] = {
     { MAP_QUARRY, MAP_MARSH, 'G', 'X', 2, 0, 0, -1 },
     { MAP_QUARRY, MAP_CAMP, 'J', 'L', 3, 0, 0, -1 },
     { MAP_CAMP, MAP_QUARRY, 'L', 'J', 2, 0, 0, -1 },
-    { MAP_VELD, MAP_RUINS, 'P', 'e', 2, 3, 0, 132 },
+    { MAP_VELD, MAP_RUINS, 'P', 'e', 2, 3, 0, 130 },
     { MAP_RUINS, MAP_VELD, 'e', 'P', 3, 0, 0, -1 },
     { MAP_RUINS, MAP_REACH, 'D', 'D', 2, 0, 0, -1 },
     { MAP_REACH, MAP_RUINS, 'D', 'D', 3, 0, 0, -1 },
@@ -240,6 +240,7 @@ static const int SHOP_CRYSTAL_MASK[] = {
 #define NPC_AFTER_CATHLEEN 5
 #define NPC_AFTER_SHINIGAMI 6
 #define NPC_AFTER_WSOLDIER 7
+#define NPC_AFTER_PRIESTESS_TELEPORT 8
 #define NPC_PENDING_CROSS 0
 #define NPC_PENDING_CONSCRIPT 1
 #define NPC_PENDING_ENFORCER 2
@@ -365,7 +366,7 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, 62, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 124, -1, -1, 0, 14, 0, 0, -1 },
     { 33, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 131, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 130, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 132, -1, -1, 8, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },

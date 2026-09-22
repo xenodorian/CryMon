@@ -901,6 +901,7 @@ AFTER_IDS = {
     "cathleen": 5,
     "shinigami": 6,
     "wsoldier": 7,
+    "priestessTeleport": 8,
 }
 # Shopkeeper ids referenced by world.json's "after": "shop:<id>" -- reuses
 # the NpcStep.pending slot the same way NPC_AFTER_WSOLDIER reuses it for
@@ -981,6 +982,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("#define NPC_AFTER_CATHLEEN 5")
     lines.append("#define NPC_AFTER_SHINIGAMI 6")
     lines.append("#define NPC_AFTER_WSOLDIER 7")
+    lines.append("#define NPC_AFTER_PRIESTESS_TELEPORT 8")
     lines.append("#define NPC_PENDING_CROSS 0")
     lines.append("#define NPC_PENDING_CONSCRIPT 1")
     lines.append("#define NPC_PENDING_ENFORCER 2")

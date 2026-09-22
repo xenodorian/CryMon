@@ -1992,19 +1992,21 @@
     {
       "map": "veld",
       "mark": "4",
-      "id": "priest",
+      "id": "heavenfallPriestess",
       "role": "talk",
-      "talk": "priestSpot",
-      "talkDone": "priestSpot",
+      "talk": "priestessNoScroll",
+      "talkDone": "priestessNoScroll",
       "script": [
         {
           "if": "hasScroll",
-          "talk": "priestHasScroll"
+          "talk": "priestessHasScroll"
         },
         {
-          "talk": "priestSpot"
+          "talk": "priestessNoScroll",
+          "after": "priestessTeleport"
         }
-      ]
+      ],
+      "sprite": "npc/heavenfallPriestess"
     }
   ]
 }
