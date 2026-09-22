@@ -1480,3 +1480,34 @@ and left a real (non-NaN) bag count, and `sleepHeal()` visibly
 re-rolled every number. `check_sync --strict`, typecheck, web build,
 and a clean Dreamcast rebuild all pass.
 
+## Dev Codes field ate Backspace (Claude, 2026-09-22)
+
+Reported: the Dev Codes text input wouldn't accept Backspace.
+Root cause was in `src/game/input.ts`, not the Dev Codes UI itself:
+`Input.attach()`'s `keydown` listener is on `window` (so held arrows/
+WASD keep working no matter what's focused) and calls
+`e.preventDefault()` for every code in `GAME_KEYS` -- which includes
+`Backspace` (also aliases `select()`), `Enter`, `Space`, `Tab`,
+`Escape`, and the WASD/Z/X/C/Q letters. That fires for every keydown
+on the page regardless of focus, so typing into the Dev Codes field
+had the browser's normal Backspace-deletes-character behavior
+cancelled out from under it -- same for Space, Enter, and several
+letters, not just Backspace.
+
+Fixed generally rather than special-casing Backspace: `down` now
+no-ops (skips both the `preventDefault()` and adding to `this.keys`)
+whenever `document.activeElement` is an `<input>`, `<textarea>`, or
+`contentEditable` element -- covers the Dev Codes field and any
+future text input the same way, not just this one case. `keyup`
+deliberately stays unconditional (removing a key from the held-set
+is always safe and prevents a key pressed before focus moved to a
+text field from getting stuck "held" forever).
+
+Verified via Playwright against the real dev server: typed into Dev
+Codes and confirmed Backspace actually deletes characters, and
+confirmed normal gameplay input (title -> New Game -> intro, and
+re-focusing the canvas after typing in the field) still works
+exactly as before. Web-only change (`input.ts` has no Dreamcast
+equivalent -- this is specifically about a browser DOM element
+stealing keystrokes from another DOM element).
+

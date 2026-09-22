@@ -48,10 +48,23 @@ export class Input {
   private used = new Set<string>();
 
   attach(el: HTMLElement) {
+    // This listener is on window, so it fires for every keystroke on the
+    // page -- including real text inputs like crymon-app.tsx's Dev Codes
+    // field. Without this check, GAME_KEYS' preventDefault() (needed so
+    // held arrows/WASD don't scroll the page) also steals Backspace,
+    // Space, Enter, Tab and the letter keys from any focused input.
+    const typing = () => {
+      const t = document.activeElement;
+      return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || (t as HTMLElement).isContentEditable);
+    };
     const down = (e: KeyboardEvent) => {
+      if (typing()) return;
       if (GAME_KEYS.has(e.code)) e.preventDefault();
       this.keys.add(e.code);
     };
+    // Always process keyup (even while typing) so a key held down before
+    // focus moved to a text field doesn't get stuck "pressed" forever --
+    // removing from the set is harmless no matter who has focus.
     const up = (e: KeyboardEvent) => this.keys.delete(e.code);
     const clear = () => this.keys.clear();
     window.addEventListener("keydown", down);
