@@ -1,0 +1,47 @@
+name: Balance east trainers
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set levels
+        run: |
+          set -e
+          python3 << 'END'
+          import json, subprocess
+          from pathlib import Path
+          p = Path('content/world_parts/trainers.json')
+          data = json.loads(p.read_text())
+          t = data['trainers']
+          def set_all(kit, level):
+              lead = kit['lead']
+              kit['lead'] = [lead[0], level]
+              kit['bench'] = [[sp, level] for sp, _ in kit.get('bench') or []]
+          set_all(t['sentry'], 3)
+          set_all(t['quarryDriller'], 4)
+          set_all(t['marshBog'], 5)
+          set_all(t['marshReed'], 6)
+          p.write_text(json.dumps(data, indent=2) + '\n')
+          subprocess.check_call(['python3', 'tools/merge_world.py'])
+          subprocess.check_call(['python3', 'tools/bake_content.py', '--content', 'content', '--out', 'ports/dreamcast/src'])
+          for k in ['sentry','quarryDriller','marshBog','marshReed']:
+              print(k, t[k]['lead'], t[k]['bench'])
+          END
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/world_parts/trainers.json content/world.json ports/dreamcast/src/
+          git commit -m "Balance: east trainers Sentry Lv3, Driller Lv4, Bogwalker Lv5, Reedguard Lv6" || exit 0
+          git push
+      - name: Ship Pages + CDI
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
