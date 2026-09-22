@@ -998,7 +998,6 @@ static void compute_camera(int map_id, int px, int py, int *cam_x, int *cam_y) {
     *cam_x = px - SCREEN_W / 2;
     *cam_y = py - SCREEN_H / 2;
 }
-
 /* Draws only the tile range that can be visible at this camera
    offset -- VELD alone is 30x22 = 660 tiles, too many to redraw
    in full every frame at 20px/tile through put_pixel. */
@@ -1997,8 +1996,7 @@ static void draw_crydex(int cur, int entry) {
         draw_menu_frame("CRYDEX", "A/B BACK");
         draw_text_s(SPECIES[cur].name, MENU_X + 8, MENU_Y + 24, 0xFFFF, MENU_SCALE);
         n = s_cat(buf, 0, NATURES[nat].name);
-        n = s_cat(buf, n, " CRYSTAL");
-        buf[n] = 0;
+        n = s_cat(buf, n, " CRYSTAL");        buf[n] = 0;
         draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H, rgb565(197, 206, 198), MENU_SCALE);
         draw_text_s("WEAK TO", MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 3, rgb565(143, 74, 64), MENU_SCALE);
         n = 0;
@@ -2997,8 +2995,7 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
             b->mods_self_str = b->mods_self_agl = b->mods_self_spc = 0;
             b->stage_self_str = b->stage_self_agl = b->stage_self_spc = 0;
             b->hype_self = 0;
-            b->nmove_pl_used = b->hype_pl_used = 0;
-            n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
+            b->nmove_pl_used = b->hype_pl_used = 0;            n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
             n = s_cat(b->msg[1], n, " JUMPS IN");
             b->msg[1][n] = 0;
             b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
@@ -3997,8 +3994,7 @@ near_mark(int map_id, char mark, int px, int py, int radius_sq) {
     mark_center(map_id, mark, &mx, &my);
     dx = px - mx;
     dy = py - my;
-    return dx * dx + dy * dy <= radius_sq;
-}
+    return dx * dx + dy * dy <= radius_sq;}
 
 static int npc_flag_on(int id, int **ft, int party_n) {
     if(id == FLAG_HAS_PARTY2) return party_n > 1;
@@ -4936,6 +4932,7 @@ void main(void) {
 #define POST_SOLDIER     4
 #define POST_CATHLEEN    5
 #define POST_SHOP        6
+#define POST_DRAY_KNIFE_SHOP 35
 #define POST_MASON_LEAVE 7
 #define POST_ANNE_LEAVE  8
 #define POST_BED_HEAL    10
@@ -4997,8 +4994,7 @@ void main(void) {
     int mercy_mode = 0, mercy_cur = 0; /* Leg 2.9 post-battle mercy menu */
     int mercy_foe_levels = 0;
     /* g_executed_mask is g_executed_mask (file-static) */
-        char mercy_foe_name[32];
-    /* Leg 2.12 Bowie Knife: Approach/Backstab prompt, opened instead of
+        char mercy_foe_name[32];    /* Leg 2.12 Bowie Knife: Approach/Backstab prompt, opened instead of
        try_npc_script()'s normal dialogue when find_backstab_target()
        finds an eligible target (see the manual interact path below). */
     int backstab_mode = 0, backstab_cur = 0;
@@ -5997,8 +5993,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_FOREST_SCOUT_WIN;
-                                    seq_len = TALK_LEN(TALK_FOREST_SCOUT_WIN);
+                                    seq_lines = TALK_FOREST_SCOUT_WIN;                                    seq_len = TALK_LEN(TALK_FOREST_SCOUT_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
                                 }
@@ -6997,8 +6992,7 @@ void main(void) {
                        diagonal. Half the collision box (6px) is
                        checked at the candidate feet position. */
                     /* Leg 2.1 fix: was a flat `int speed = 1` (exactly
-                       60px/sec at our fixed 60fps vblank), 29% slower
-                       than web's delta-time `const sp = 84` in
+                       60px/sec at our fixed 60fps vblank), 29% slower                       than web's delta-time `const sp = 84` in
                        engine.ts. A plain integer per-frame step can
                        never hit 84 exactly (84/60 = 1.4px/frame), so
                        accumulate the fractional remainder in 1/256ths
@@ -7666,17 +7660,29 @@ void main(void) {
                                         seq_len = TALK_LEN(TALK_HEAVENFALL_SHOP_WARN);
                                         seq_beat = 0;
                                         post_action = POST_SHOP;
-                                    } else if(shop_keep_id == 3 && reputation < 0 && !dray_knife_offered) {
+                                    } else if(shop_keep_id == 3 && reputation < 0 && *bag_field(&bag, 19) <= 0) {
+                                        /* The offer is followed by a dedicated one-item shop. */
                                         dray_knife_offered = 1;
                                         seq_lines = TALK_DRAY_KNIFE_OFFER;
                                         seq_len = TALK_LEN(TALK_DRAY_KNIFE_OFFER);
                                         seq_beat = 0;
-                                        post_action = POST_SHOP;
+                                        post_action = POST_DRAY_KNIFE_SHOP;
                                     } else {
                                         shop_open = 1;
                                         shop_sell_tab = 0;
                                         shop_cur = 0;
                                     }
+                                    break;
+                                case POST_DRAY_KNIFE_SHOP:
+                                    /* The offer dialogue has finished. Show exactly one Bowie Knife. */
+                                    {
+                                        int si;
+                                        for(si = 0; si < ITEM_COUNT; si++) shop_stock[3][si] = 0;
+                                        shop_stock[3][19] = 1;
+                                    }
+                                    shop_open = 1;
+                                    shop_sell_tab = 0;
+                                    shop_cur = 0;
                                     break;
                                 case POST_MASON_LEAVE:
                                     /* startRivalLeave(). */
