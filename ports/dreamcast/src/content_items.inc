@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=d25c9723ddd14226 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d7688e3bf23b8009 — do not edit. python3 tools/bake_content.py */
 
 #define ITEM_COUNT 19
 static const ItemDef ITEMS[ITEM_COUNT] = {

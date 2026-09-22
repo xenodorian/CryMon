@@ -135,6 +135,8 @@ export const MEM = normalize(raw.mem);
 
 export const LAMED = normalize(raw.lamed);
 
+export const TETH = normalize(raw.teth);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -174,6 +176,7 @@ export const MAPS = {
   gevurah: GEVURAH,
   mem: MEM,
   lamed: LAMED,
+  teth: TETH,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

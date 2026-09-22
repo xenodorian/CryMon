@@ -85,7 +85,8 @@
     "yod": "PATH OF YOD",
     "gevurah": "GEVURAH",
     "mem": "PATH OF MEM",
-    "lamed": "PATH OF LAMED"
+    "lamed": "PATH OF LAMED",
+    "teth": "PATH OF TETH"
   },
   "mapIds": [
     "house",
@@ -125,7 +126,8 @@
     "yod",
     "gevurah",
     "mem",
-    "lamed"
+    "lamed",
+    "teth"
   ],
   "encounters": [
     {
@@ -1058,6 +1060,38 @@
       "spawn": "2",
       "dir": "left",
       "ox": -32
+    },
+    {
+      "from": "chesed",
+      "tile": "O",
+      "to": "teth",
+      "spawn": "1",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "teth",
+      "tile": "1",
+      "to": "chesed",
+      "spawn": "O",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "teth",
+      "tile": "2",
+      "to": "gevurah",
+      "spawn": "Z",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "gevurah",
+      "tile": "Z",
+      "to": "teth",
+      "spawn": "2",
+      "dir": "right",
+      "ox": 40
     }
   ],
   "trainers": {

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=d25c9723ddd14226 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d7688e3bf23b8009 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -38,7 +38,8 @@
 #define MAP_GEVURAH 35
 #define MAP_MEM 36
 #define MAP_LAMED 37
-#define MAP_N 38
+#define MAP_TETH 38
+#define MAP_N 39
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -870,6 +871,15 @@ static const char *const map_lamed_rows[] = {
     "########################",
 };
 
+static const char *const map_teth_rows[] = {
+    "########################",
+    "#......................#",
+    "#......................#",
+    "2......................1",
+    "#......................#",
+    "########################",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
@@ -909,10 +919,11 @@ static const Map MAPS[MAP_N] = {
     { map_gevurah_rows, 16, 12 },
     { map_mem_rows, 6, 24 },
     { map_lamed_rows, 24, 6 },
+    { map_teth_rows, 24, 6 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";
