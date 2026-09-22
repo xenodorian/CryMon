@@ -926,16 +926,16 @@
       "set": "beatCommander"
     },
     "heavenfallGrave": {
+      "lead": [
+        "heavenfall",
+        20
+      ],
+      "bench": [],
       "title": "Heavenfall answers the scroll",
       "name": "Heavenfall",
+      "marks": 30,
       "winTalk": "gauntletGraveWin",
-      "set": "beatHeavenfall",
-      "party": [
-        {
-          "species": "heavenfall",
-          "level": 20
-        }
-      ]
+      "set": "beatHeavenfall"
     },
     "lieutenantLead": {
       "title": "Lieutenant Lead bars the north road",
@@ -1968,6 +1968,7 @@
         {
           "talk": "gauntletGraveRise",
           "if": "hasScroll",
+          "after": "wsoldier",
           "pending": "heavenfallGrave"
         }
       ]

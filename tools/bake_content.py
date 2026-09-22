@@ -680,7 +680,7 @@ def bake_logic(data: dict, out: Path) -> None:
     out.write_text("\n".join(lines) + "\n")
 
 
-NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4, "beatSentry": 5}
+NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4, "beatSentry": 5, "choseHeavenfall": 6}
 ARRIVE = {"masonAmbush": 1, "ensureSoldiers": 2}
 ITEM_FX = {"heal": 1, "buff": 2, "debuff": 3, "capture": 4, "flee": 5, "cleanse": 6, "cure": 7}
 
@@ -784,7 +784,7 @@ def bake_world(data: dict, out: Path) -> None:
     kit_keys = ["sentry", "conscript", "enforcer", "cross",
                 "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "quartz",
                 "quarryDriller", "marshBog", "marshReed", "opal", "commanderFinal",
-                "lieutenantLead"]
+                "lieutenantLead", "heavenfallGrave"]
     lines.append(f"static const TrainerKit TRAINER_KITS[{len(kit_keys)}] = {{")
     for k in kit_keys:
         t = world["trainers"][k]
@@ -927,6 +927,7 @@ PENDING_IDS = {
     "quarryDriller": 12,
     "commanderFinal": 13,
     "lieutenantLead": 14,
+    "heavenfallGrave": 15,
 }
 
 
@@ -994,6 +995,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("#define NPC_PENDING_OPAL 11")
     lines.append("#define NPC_PENDING_COMMANDER_FINAL 13")
     lines.append("#define NPC_PENDING_LEAD 14")
+    lines.append("#define NPC_PENDING_HEAVENFALL_GRAVE 15")
     lines.append("typedef struct {")
     lines.append("    int if_flag, if_not, hide_if, set_flag;")
     lines.append("    int g_item[3], g_qty[3], g_n;")

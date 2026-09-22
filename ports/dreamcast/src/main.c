@@ -2464,6 +2464,7 @@ typedef struct {
 #define TRAINER_WSOLDIER_MARSH_REED 18
 #define TRAINER_WSOLDIER_COMMANDER_FINAL 19
 #define TRAINER_WSOLDIER_LEAD 20
+#define TRAINER_WSOLDIER_HEAVENFALL_GRAVE 21
 
 #define BAFTER_ITEM      1
 #define BAFTER_ATK       2
@@ -4631,6 +4632,7 @@ void main(void) {
 #define POST_CREDITS_FINAL 28
 #define POST_OPEN_MERCY 29
 #define POST_WSOLDIER_LEAD 30
+#define POST_WSOLDIER_HEAVENFALL_GRAVE 31
 #define POST_LEAD_GAMEOVER 31
 #define POST_HFGAMEOVER_SCREAM 32
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
@@ -4651,7 +4653,7 @@ void main(void) {
     int beat_ruins_keeper = 0, beat_ruins_warden = 0, badge_quartz = 0;
     int beat_quarry_driller = 0;
     int beat_marsh_bog = 0, beat_marsh_reed = 0, badge_opal = 0;
-    int chose_heavenfall, beat_commander = 0;
+    int chose_heavenfall = 0, gauntlet_unlocked = 0, beat_heavenfall = 0, heavenfall_rep_warned = 0, title_slayer = 0, title_tamer = 0, beat_commander = 0;
     int beat_lieutenant_lead = 0;
     int revived_father = 0;
     int got_chest = 0;
@@ -5039,6 +5041,9 @@ void main(void) {
                         shop_free[2] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_FENN);
                         shop_free[3] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_DRAY);
                         beat_commander = save_flag_get(&sl, SAVE_FLAG_BEAT_COMMANDER);
+                        beat_heavenfall = save_flag_get(&sl, SAVE_FLAG_BEAT_HEAVENFALL);
+                        heavenfall_rep_warned = save_flag_get(&sl, SAVE_FLAG_HEAVENFALL_REP_WARNED);
+                        gauntlet_unlocked = save_flag_get(&sl, SAVE_FLAG_GAUNTLET_UNLOCKED);
                         beat_lieutenant_lead = save_flag_get(&sl, SAVE_FLAG_BEAT_LIEUTENANT_LEAD);
                         talked_tessa = save_flag_get(&sl, SAVE_FLAG_TESSA_GIFTED);
                         got_chest = save_flag_get(&sl, SAVE_FLAG_CHEST_LOOTED);
@@ -5263,6 +5268,9 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_FENN, shop_free[2]);
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_DRAY, shop_free[3]);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_COMMANDER, beat_commander);
+                    save_flag_put(&sl, SAVE_FLAG_BEAT_HEAVENFALL, beat_heavenfall);
+                    save_flag_put(&sl, SAVE_FLAG_HEAVENFALL_REP_WARNED, heavenfall_rep_warned);
+                    save_flag_put(&sl, SAVE_FLAG_GAUNTLET_UNLOCKED, gauntlet_unlocked);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_LIEUTENANT_LEAD, beat_lieutenant_lead);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
@@ -5738,6 +5746,21 @@ void main(void) {
                                     seq_beat = 0;
                                     post_action = POST_LEAD_GAMEOVER;
                                 }
+                                else if(battle.trainer_kind == TRAINER_WSOLDIER_HEAVENFALL_GRAVE) {
+                                    if(!beat_heavenfall) {
+                                        beat_heavenfall = 1;
+                                        reputation += LOGIC_REP_HEAVENFALL_REVIVE;
+                                        if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
+                                        if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                                    }
+                                    title_slayer = 1; title_tamer = 0;
+                                    marks += 30; battles++;
+                                    in_battle = 0; enc_lock = 3;
+                                    seq_lines = TALK_GAUNTLET_GRAVE_WIN;
+                                    seq_len = TALK_LEN(TALK_GAUNTLET_GRAVE_WIN);
+                                    seq_beat = 0;
+                                    post_action = POST_CREDITS_FINAL;
+                                }
                                 else if(battle.trainer_kind == TRAINER_SOLDIER) {
                                     soldier_beaten[battle.soldier_id] = 1;
                                     marks += 8;
@@ -5872,6 +5895,15 @@ void main(void) {
                                    branch). */
                                 if(battle.foe.species == SP_CATHLEEN)
                                     cath_caught = 1;
+                                if(battle.foe.species == SP_HEAVENFALL) {
+                                    if(!beat_heavenfall) {
+                                        beat_heavenfall = 1;
+                                        reputation += LOGIC_REP_HEAVENFALL_REVIVE;
+                                        if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
+                                        if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                                    }
+                                    title_tamer = 1; title_slayer = 0;
+                                }
                                 if(battle.catch_full) {
                                     pending_catch = battle.foe;
                                     catch_swap = 1;
@@ -6159,6 +6191,7 @@ void main(void) {
             if(a_now && !prev_a) {
                 choice_mode = 0;
                 chose_heavenfall = choice_cur;
+                if(chose_heavenfall) gauntlet_unlocked = 1;
                 if(choice_cur == 0) {
                     revived_father = 1;
                     apply_player_name(1);
@@ -6508,6 +6541,7 @@ void main(void) {
                         else if(w->need == 3) need_ok = beat_shin;
                         else if(w->need == 4) need_ok = has_scroll;
                         else if(w->need == 5) need_ok = beat_wsoldier_cliffs;
+                        else if(w->need == 6) need_ok = (chose_heavenfall || gauntlet_unlocked);
                         if(!need_ok) {
                             if(w->fail_talk >= 0 && w->fail_talk < TALK_TABLE_N) {
                                 find_mark(map_id, w->tile, &col, &row);
@@ -6966,6 +7000,30 @@ void main(void) {
                                     battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench_n = 0;
                                     battle.grew = 0;
+
+                                case POST_WSOLDIER_HEAVENFALL_GRAVE:
+                                    battle.foe = mint_monster(TRAINER_KITS[KIT_HEAVENFALL_GRAVE].lead_sp, TRAINER_KITS[KIT_HEAVENFALL_GRAVE].lead_lv);
+                                    battle.wild = 0;
+                                    battle.trainer_kind = TRAINER_WSOLDIER_HEAVENFALL_GRAVE;
+                                    battle.phase = 0;
+                                    { int n = s_cat(battle.msg[0], 0, "HEAVENFALL ANSWERS THE SCROLL");
+                                      battle.msg[0][n] = 0; }
+                                    battle.msg_n = 1; battle.msg_i = 0; battle.after = BAFTER_ITEM;
+                                    battle.cur = 0;
+                                    battle.mods_self_str = battle.mods_self_agl = battle.mods_self_spc = 0;
+                                    battle.mods_foe_str = battle.mods_foe_agl = battle.mods_foe_spc = 0;
+                                    battle.pend_str = battle.pend_agl = battle.pend_spc = 0;
+                                    battle.pl_poisoned = battle.foe_poisoned = 0;
+                                    battle.stage_self_str = battle.stage_self_agl = battle.stage_self_spc = 0;
+                                    battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
+                                    battle.hype_self = battle.hype_foe = 0;
+                                    battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
+                                    battle.bench_n = 0;
+                                    battle.grew = 0;
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
+
                                     battle.pl = party[lead];
                                     in_battle = 1;
                                     break;
@@ -7076,6 +7134,12 @@ void main(void) {
                                         seq_len = TALK_LEN(TALK_SHOP_REFUSE);
                                         seq_beat = 0;
                                         post_action = POST_NONE;
+                                    } else if(beat_heavenfall && !heavenfall_rep_warned) {
+                                        heavenfall_rep_warned = 1;
+                                        seq_lines = TALK_HEAVENFALL_SHOP_WARN;
+                                        seq_len = TALK_LEN(TALK_HEAVENFALL_SHOP_WARN);
+                                        seq_beat = 0;
+                                        post_action = POST_SHOP;
                                     } else {
                                         shop_open = 1;
                                         shop_sell_tab = 0;
@@ -7243,6 +7307,8 @@ void main(void) {
                                     post_action = POST_WSOLDIER_COMMANDER_FINAL;
                                 else if(npc_pending == NPC_PENDING_LEAD)
                                     post_action = POST_WSOLDIER_LEAD;
+                                else if(npc_pending == NPC_PENDING_HEAVENFALL_GRAVE)
+                                    post_action = POST_WSOLDIER_HEAVENFALL_GRAVE;
                                 break;
                             default:
                                 post_action = POST_NONE;

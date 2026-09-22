@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=fb5f7962f5be77e5 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=432f99f691978344 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -49,7 +49,7 @@ static const WarpDef WARPS[] = {
     { MAP_MARSH, MAP_FOREST, 'Y', 'm', 0, 0, 0, -1 },
     { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 1, 0, 0, -1 },
     { MAP_QUARRY, MAP_CLIFFS, 'D', 'q', 0, 0, 0, -1 },
-    { MAP_GROVE, MAP_GAUNTLET1, 'G', '2', 1, 0, 0, 122 },
+    { MAP_GROVE, MAP_GAUNTLET1, 'G', '2', 1, 6, 0, 122 },
     { MAP_GAUNTLET1, MAP_GROVE, '2', 'G', 0, 0, 0, -1 },
     { MAP_GAUNTLET1, MAP_GAUNTLET2, '1', '2', 1, 0, 0, -1 },
     { MAP_GAUNTLET2, MAP_GAUNTLET1, '2', '1', 0, 0, 0, -1 },
@@ -95,7 +95,7 @@ typedef struct {
     int lead_sp, lead_lv;
     int bench_sp[2], bench_lv[2], bench_n;
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[15] = {
+static const TrainerKit TRAINER_KITS[16] = {
     { 11, 5, { 12, 14 }, { 6, 7 }, 2 },
     { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
     { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
@@ -111,6 +111,7 @@ static const TrainerKit TRAINER_KITS[15] = {
     { 17, 10, { 14, 0 }, { 11, 1 }, 1 },
     { 13, 12, { 7, 15 }, { 11, 11 }, 2 },
     { 28, 20, { 0, 0 }, { 1, 1 }, 0 },
+    { 19, 20, { 0, 0 }, { 1, 1 }, 0 },
 };
 #define KIT_SENTRY 0
 #define KIT_CONSCRIPT 1
@@ -127,6 +128,7 @@ static const TrainerKit TRAINER_KITS[15] = {
 #define KIT_OPAL 12
 #define KIT_COMMANDER_FINAL 13
 #define KIT_LIEUTENANT_LEAD 14
+#define KIT_HEAVENFALL_GRAVE 15
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
@@ -253,6 +255,7 @@ static const int SHOP_CRYSTAL_MASK[] = {
 #define NPC_PENDING_OPAL 11
 #define NPC_PENDING_COMMANDER_FINAL 13
 #define NPC_PENDING_LEAD 14
+#define NPC_PENDING_HEAVENFALL_GRAVE 15
 typedef struct {
     int if_flag, if_not, hide_if, set_flag;
     int g_item[3], g_qty[3], g_n;
@@ -358,7 +361,7 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 116, -1, -1, 2, 2, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 117, -1, -1, 2, 3, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 124, -1, -1, 0, -1, 0, 0, -1 },
-    { 33, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 125, -1, -1, 0, -1, 0, 0, -1 },
+    { 33, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 125, -1, -1, 7, 15, 0, 0, -1 },
     { -1, -1, 62, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 127, -1, -1, 0, 14, 0, 0, -1 },
 };
