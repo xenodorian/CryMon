@@ -24,7 +24,8 @@
     "netzach": "NETZACH",
     "qoph": "PATH OF QOPH",
     "hod": "HOD",
-    "shin": "PATH OF SHIN"
+    "shin": "PATH OF SHIN",
+    "peh": "PATH OF PEH"
   },
   "mapIds": [
     "house",
@@ -51,6 +52,7 @@
     "netzach",
     "qoph",
     "hod",
-    "shin"
+    "shin",
+    "peh"
   ]
 }

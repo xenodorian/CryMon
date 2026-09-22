@@ -72,7 +72,8 @@
     "netzach": "NETZACH",
     "qoph": "PATH OF QOPH",
     "hod": "HOD",
-    "shin": "PATH OF SHIN"
+    "shin": "PATH OF SHIN",
+    "peh": "PATH OF PEH"
   },
   "mapIds": [
     "house",
@@ -99,7 +100,8 @@
     "netzach",
     "qoph",
     "hod",
-    "shin"
+    "shin",
+    "peh"
   ],
   "encounters": [
     {
@@ -712,6 +714,38 @@
       "spawn": "2",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "netzach",
+      "tile": "G",
+      "to": "peh",
+      "spawn": "1",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "peh",
+      "tile": "1",
+      "to": "netzach",
+      "spawn": "G",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "peh",
+      "tile": "2",
+      "to": "hod",
+      "spawn": "G",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "hod",
+      "tile": "G",
+      "to": "peh",
+      "spawn": "2",
+      "dir": "right",
+      "ox": 40
     }
   ],
   "trainers": {

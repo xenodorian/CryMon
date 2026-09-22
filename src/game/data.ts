@@ -112,6 +112,8 @@ export const QOPH = normalize(raw.qoph);
 export const HOD = normalize(raw.hod);
 export const SHIN = normalize(raw.shin);
 
+export const PEH = normalize(raw.peh);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -138,6 +140,7 @@ export const MAPS = {
   qoph: QOPH,
   hod: HOD,
   shin: SHIN,
+  peh: PEH,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;
