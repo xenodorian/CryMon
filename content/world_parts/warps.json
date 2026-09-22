@@ -440,6 +440,38 @@
       "spawn": "2",
       "dir": "left",
       "ox": -32
+    },
+    {
+      "from": "netzach",
+      "tile": "P",
+      "to": "tzaddi",
+      "spawn": "1",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "tzaddi",
+      "tile": "1",
+      "to": "netzach",
+      "spawn": "P",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "tzaddi",
+      "tile": "2",
+      "to": "yesod",
+      "spawn": "Z",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "yesod",
+      "tile": "Z",
+      "to": "tzaddi",
+      "spawn": "2",
+      "dir": "right",
+      "ox": 40
     }
   ]
 }

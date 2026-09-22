@@ -26,7 +26,8 @@
     "hod": "HOD",
     "shin": "PATH OF SHIN",
     "peh": "PATH OF PEH",
-    "resh": "PATH OF RESH"
+    "resh": "PATH OF RESH",
+    "tzaddi": "PATH OF TZADDI"
   },
   "mapIds": [
     "house",
@@ -55,6 +56,7 @@
     "hod",
     "shin",
     "peh",
-    "resh"
+    "resh",
+    "tzaddi"
   ]
 }

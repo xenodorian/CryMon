@@ -116,6 +116,8 @@ export const PEH = normalize(raw.peh);
 
 export const RESH = normalize(raw.resh);
 
+export const TZADDI = normalize(raw.tzaddi);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -144,6 +146,7 @@ export const MAPS = {
   shin: SHIN,
   peh: PEH,
   resh: RESH,
+  tzaddi: TZADDI,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

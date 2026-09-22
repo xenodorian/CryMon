@@ -1194,4 +1194,6 @@ ports/dreamcast` -> commit -> push -> note completed step here.
 - Step 4/23: `hod` (city) + `shin` (route, hod<->malkuth). Green.
 - Step 5/23: `peh` (route, netzach<->hod). Green.
 - Step 6/23: `resh` (route, hod<->yesod). Green.
+- Step 7/23: `tzaddi` (route, netzach<->yesod). Bottom quad (Malkuth/
+  Yesod/Netzach/Hod) now fully interconnected. Green.
 
