@@ -633,29 +633,36 @@ supplied, confirm each route's Town Map shape plausibly resembles
 its real `rows[id]` layout. Commit per phase, not as one commit —
 per the standing house rule.
 
-### Open design questions (need a decision before Phase 2, not before
-### Phase 0/1)
+### Open design questions — DECIDED (user, 2026-09-22)
 
-- **Fidelity target:** exact tile-for-tile silhouette of the real map,
-  or a simplified "ribbon" that approximates real length/bend/
-  orientation without literal tile-for-tile noise? FireRed's own Town
-  Map is itself a simplification of the real routes, not 1:1 — worth
-  confirming how literal the user wants this before Phase 2 locks in
-  an approach.
-- **Gauntlet's 5-map chain:** stitch all five real maps end-to-end, or
-  one simplified corridor sized to their combined length? Affects
-  Phase 0/1 scope directly.
-- **Scale/spacing rework:** Phase 2's grid-spacing change affects
-  every existing node position (the whole `SEED` table), so this
-  will visually re-lay-out the entire map, not just add detail to
-  routes — worth a "here's the new layout, does this look right"
-  check-in before Phase 3 locks the schema.
+- **Fidelity target: simplified ribbon.** Not a tile-for-tile
+  silhouette. The extracted shape from Phase 1 gets reduced to a
+  ribbon/polyline that captures the real map's length, bend count,
+  and orientation — not literal wall-by-wall noise. Matches FireRed's
+  own Town Map, which is also a simplification.
+- **Gauntlet's 5-map chain: one simplified corridor**, sized to the
+  combined length of `gauntlet1..5` (all real 16×36 maps chained
+  north-south) rather than stitching five separate ribbon segments.
+  Phase 0/1 should sum their real lengths along the chain's actual
+  connection order and treat that as a single route shape input.
+- **Scale/spacing rework: confirmed, in scope.** The whole map is
+  expected to visually re-lay-out, not just routes — every node
+  (landmarks included) moves to whatever spacing the real,
+  proportionally-scaled route ribbons require. This is not a
+  regression to avoid; it's the intended outcome of grounding the
+  layout in real map geometry instead of an arbitrary 1-unit grid.
+
+All three questions are now settled. Phase 2 can proceed without a
+further check-in on these specific points; a visual check-in after
+Phase 2's re-layout lands is still worthwhile (see Phase 2/3 in the
+plan above) since "everything moves" is hard to fully predict without
+seeing it rendered.
 
 ### Status
 
-Plan only — no code written yet. Multiple agents (Claude, Grok) have
+Plan decided, not yet implemented. Multiple agents (Claude, Grok) have
 been actively iterating on `generate-town-map.mjs` this session;
-whoever picks up Phase 0 should re-read this section first in case
-another agent already started, to avoid duplicate/conflicting work
-on the same file.
+whoever picks up Phase 0 should re-read this whole section first in
+case another agent already started, to avoid duplicate/conflicting
+work on the same file.
 
