@@ -1,0 +1,87 @@
+name: Fix CryTown layout
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply CryTown fixes
+        run: |
+          set -e
+          python3 << 'PY'
+          import json
+          from pathlib import Path
+
+          maps = json.loads(Path('content/maps.json').read_text())
+          rows = [list(r) for r in maps['rows']['veld']]
+
+          # 1) Lead (S) directly under north gate O
+          for y, row in enumerate(rows):
+              for x, c in enumerate(row):
+                  if c == 'S':
+                      row[x] = '.'
+          # O is at col 14 row 0
+          assert rows[0][14] == 'O', rows[0]
+          rows[1][14] = 'S'
+
+          # 2) Expand house: RRR / rrr / HDH around door at (17,3)
+          for x in range(16, 19):
+              rows[1][x] = 'R'
+              rows[2][x] = 'r'
+          rows[3][16] = 'H'
+          rows[3][17] = 'D'
+          rows[3][18] = 'H'
+
+          maps['rows']['veld'] = [''.join(r) for r in rows]
+          maps.setdefault('tileArt', {})
+          maps['tileArt']['E'] = 'tile-grass'
+          maps['tileArt']['S'] = 'tile-dirt'
+          Path('content/maps.json').write_text(json.dumps(maps, indent=2) + '\n')
+          print('maps fixed')
+          for y in range(4):
+              print(y, maps['rows']['veld'][y])
+
+          # 3) paintTile: S as dirt path; E as grass (not tent/stump)
+          p = Path('src/game/engine.ts')
+          t = p.read_text()
+          old = '''\t\tif (ch === "C" || ch === "S") {\n\t\t\tfill("#6a5238");\n\t\t\tfill("#4a3a28", dx, dy + 12, t, 1);\n\t\t\treturn;\n\t\t}'''
+          new = '''\t\tif (ch === "C") {\n\t\t\tfill("#6a5238");\n\t\t\tfill("#4a3a28", dx, dy + 12, t, 1);\n\t\t\treturn;\n\t\t}\n\t\t// S = Lieutenant Lead mark on CryTown north path — dirt, not crate/stump\n\t\tif (ch === "S") {\n\t\t\tfill("#6b5a3a");\n\t\t\tfill("#8a7348", dx + 2, dy + 4, 1, 1);\n\t\t\tfill("#4a3a28", dx + 9, dy + 11, 1, 1);\n\t\t\treturn;\n\t\t}'''
+          if old not in t:
+              # already patched?
+              if 'Lieutenant Lead mark' in t:
+                  print('S paint already fixed')
+              else:
+                  raise SystemExit('C/S block not found')
+          else:
+              t = t.replace(old, new, 1)
+              print('S paint fixed')
+
+          old2 = '''\t\tif (ch === "N" || ch === "E") {\n\t\t\tfill("#3d5a38");\n\t\t\tfill("#8a7348", dx + 2, dy + 7, 12, 9);\n\t\t\tfill("#6a4030", dx + 1, dy + 2, 14, 6);\n\t\t\tfill("#3a2c22", dx + 7, dy, 2, 4);\n\t\t\treturn;\n\t\t}'''
+          new2 = '''\t\tif (ch === "N") {\n\t\t\t// tent footprint (camp)\n\t\t\tfill("#3d5a38");\n\t\t\tfill("#8a7348", dx + 2, dy + 7, 12, 9);\n\t\t\tfill("#6a4030", dx + 1, dy + 2, 14, 6);\n\t\t\tfill("#3a2c22", dx + 7, dy, 2, 4);\n\t\t\treturn;\n\t\t}\n\t\t// E = Calder mark — grass only (was shared with tent and looked like a stump/acorn)\n\t\tif (ch === "E") {\n\t\t\tfill("#3d5a38");\n\t\t\tfill("#4a6b42", dx + 2, dy + 4, 1, 1);\n\t\t\tfill("#2f4a2c", dx + 9, dy + 11, 1, 1);\n\t\t\treturn;\n\t\t}'''
+          if old2 not in t:
+              if 'Calder mark' in t:
+                  print('E paint already fixed')
+              else:
+                  raise SystemExit('N/E block not found')
+          else:
+              t = t.replace(old2, new2, 1)
+              print('E paint fixed')
+
+          p.write_text(t)
+          print('done')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/maps.json src/game/engine.ts
+          git commit -m "CryTown: Lead under north gate, 3-tile house, Calder tile no longer stump"
+          git push
+      - name: Ship Pages
+        run: gh workflow run deploy-pages.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
