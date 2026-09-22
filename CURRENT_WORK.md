@@ -1202,4 +1202,5 @@ ports/dreamcast` -> commit -> push -> note completed step here.
 - Step 9/23: `nun` (route, tiferet<->netzach). Green.
 - Step 10/23: `ayin` (route, tiferet<->hod). Tiferet's links to the
   bottom quad complete. Green.
+- Step 11/23: `chesed` (city) + `kaph` (route, chesed<->netzach). Green.
 

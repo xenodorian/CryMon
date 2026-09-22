@@ -568,6 +568,38 @@
       "spawn": "2",
       "dir": "right",
       "ox": 40
+    },
+    {
+      "from": "chesed",
+      "tile": "D",
+      "to": "kaph",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "kaph",
+      "tile": "1",
+      "to": "chesed",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "kaph",
+      "tile": "2",
+      "to": "netzach",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "netzach",
+      "tile": "D",
+      "to": "kaph",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
     }
   ]
 }

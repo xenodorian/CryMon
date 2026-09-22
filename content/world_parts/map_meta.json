@@ -31,7 +31,9 @@
     "tiferet": "TIFERET",
     "samekh": "PATH OF SAMEKH",
     "nun": "PATH OF NUN",
-    "ayin": "PATH OF AYIN"
+    "ayin": "PATH OF AYIN",
+    "chesed": "CHESED",
+    "kaph": "PATH OF KAPH"
   },
   "mapIds": [
     "house",
@@ -65,6 +67,8 @@
     "tiferet",
     "samekh",
     "nun",
-    "ayin"
+    "ayin",
+    "chesed",
+    "kaph"
   ]
 }
