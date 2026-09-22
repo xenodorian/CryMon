@@ -843,3 +843,102 @@ stale, not the existence of a place name.
   direction or "past/beyond X" hint — the world layout is still being
   actively rearranged this session.
 
+**Full west/south world rewrite: Ruins/Reach west, Gauntlet direct
+south, Camp->Forest->Prison chain, Grove renamed (Claude, 2026-09-22).**
+User-directed narrative + topology rewrite. Confirmed with the user
+first: Shinigami's fight is unchanged mechanically (still grants
+`hasScroll` on defeat — "freed" means freed *by* being fought, not
+instead of it; he's imprisoned in the Grove, reached by first beating
+Cathleen), and the new CryTown-south Gauntlet gate **replaces** the
+old Grove entrance entirely.
+
+New warp graph (all real door tiles, not just Town Map relabeling):
+- **CryTown -- west --> Ruins -- west --> Reach.** New door 'P' on
+  veld's west wall (row11); Ruins' old west door (was to Grove) now
+  points to Reach instead; Ruins' old south door (was to Reach) moved
+  to its east wall, now points to CryTown; Reach's old north door
+  moved to its east wall. Gated `need:"beatShin"` (the west path is a
+  shortcut unlocked by freeing Shinigami via the long way round, not
+  a required progression path — you reach the Grove through the
+  east/south chain regardless).
+- **CryTown -- east --> Cliffs** now gated `need:"beatCalder"`
+  (moved from the old `quarry->camp` warp, which is now ungated —
+  Calder guards the first step of the chain, not the last). Calder's
+  NPC mark physically relocated in veld's grid to stand in the
+  corridor right before the 'c' door (row11, next to it).
+- **Camp -- south --> Forest -- south --> The Prison** (was Grove).
+  New door 'F' on camp's south wall; Forest's old north door (was to
+  veld) repointed to Camp instead — CryTown no longer connects to
+  Forest directly at all.
+- **CryTown -- south --> Gauntlet1** (was CryTown -- south -->
+  Forest). Reuses veld's existing south 'Z' tile and gauntlet1's
+  existing entrance mark '2' — just repointed, no new tile surgery
+  needed on either side. Gated `need:"hasScroll"`. The old
+  `grove->gauntlet1` warp (gated `choseHeavenfall`) is removed
+  entirely per the user's explicit "replace it" choice.
+- All three gates (`beatCalder`/`beatShin`/`hasScroll`) were **already
+  valid `need` codes** in `tools/bake_content.py`'s `NEED` dict and
+  both engines' need-check logic (confirmed before writing any data)
+  — zero new engine code required for any of the gating.
+- Grove renamed to **The Prison** everywhere: `world_parts/map_meta.json`
+  (`mapNames.grove`), `generate-town-map.mjs`'s `REGION_META.grove.label`,
+  and every dialogue line that named "the Grove" as a place (internal
+  map id `grove` is unchanged — same pattern as `veld`/CryTown).
+- **Shinigami's win dialogue (`shinigamiAfter`) rewritten** — it
+  previously had him vanish into fog forever ("I won't be here to
+  care" / "turns to fog" / gone for good), which flatly contradicted
+  the new plot (he travels to CryTown, breaks the rock, ends up at
+  the Reach). Now he says he's going to go break "an old rock," and
+  simply walks out.
+  - **The "rock" and the "priest" are narrative-only** (`failTalk` on
+    the gated warps), matching every existing gate in this codebase
+    (`campLocked`/`reachLocked` etc. — none of them change world tiles
+    or spawn a physical obstacle object). No new engine mechanic
+    invented for this.
+  - **Considered and rejected:** a literal scripted "Shinigami walks
+    to CryTown, breaks the rock, walks onto the warp tile, vanishes"
+    cutscene. The only existing precedent for a scripted walking NPC
+    (`arrivals`/`masonAmbush` in `logic.json` + hardcoded
+    rival/anne phase state in `engine.ts`) is built specifically for
+    Mason and Anne, not generic — cloning it for a third character on
+    both engines would have been a genuinely large new engine feature
+    for one flavor beat. Told the story in text instead: his win
+    dialogue narrates the rock-breaking intent, and the Reach NPC
+    confirms it happened, on the way to talking about the Reach
+    Stone/Quartz/Opal/badges as asked.
+- **Reused the existing `reachStone` NPC slot for Shinigami's second
+  appearance** (`content/world_parts/npcs.json`): id renamed
+  `shinigamiFree`, sprite reused from his existing Grove appearance
+  (`sprite: "shinigami"`, no new art needed), dialogue rewritten to
+  explain the Reach Stone, Crystal Quartz, Crystal Opal, and the
+  badges, exactly as asked. Kept the existing `talkedReach` save flag
+  name unchanged even though the NPC's identity changed — it's baked
+  into the binary save format's bit layout, renaming it would be
+  pure churn with no functional benefit.
+- **New `priest` NPC blocking the Gauntlet gate has no sprite.**
+  Tried `sprite: "npc/priest"` first; caught before committing that
+  no such art exists (`content/sprites.json`'s `npcs` catalog doesn't
+  list "priest", nothing under `public/sprites/npc/`) — this is
+  exactly the "never silently reuse another character's sprite,
+  missing art → PLACEHOLDER_ART" rule in `docs/CRYMON.md`. Removed
+  the sprite field entirely, matching the existing `cageGate`
+  precedent (an invisible blocking/talk object, no portrait). A
+  future art pass should add real `npc/priest` frames and set the
+  sprite field.
+  - **Also caught before committing:** giving the priest his own
+    named `speaker` (`"priest"`) in dialogue crashes
+    `bake_content.py` — Dreamcast's speaker system isn't just a name
+    string, it's a hardcoded `SPK_*` enum in `main.c` paired 1:1 with
+    a generated portrait image per speaker
+    (`SPEAKER_PORTRAIT[SPK_COUNT]`), and adding a new one needs real
+    generated art the same way a new NPC sprite does. Used the
+    existing `speaker: "system"` (already used by the gravestone —
+    an established "environmental voice, no portrait" pattern) for
+    all of the priest's lines instead of inventing a new speaker id.
+- Full verification: `check_sync --strict`, typecheck, web build,
+  `make -C ports/dreamcast` (only baseline warnings), full
+  world-graph audit PASS (every region still reachable from CryTown,
+  including the Gauntlet chain and the Prison, through the new
+  routes), rendered SVG visually confirmed against the requested
+  layout.
+

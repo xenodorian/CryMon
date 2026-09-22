@@ -46,7 +46,7 @@ const REGION_META = {
   /* Destinations (plot hubs / points of interest) -- gem markers */
   veld: { label: "CryTown", kind: "town", gem: true },
   camp: { label: "The Camp", kind: "camp", gem: true },
-  grove: { label: "The Grove", kind: "landmark", gem: true },
+  grove: { label: "The Prison", kind: "landmark", gem: true },
   reach: { label: "The Reach", kind: "landmark", gem: true },
   heavenfall_shrine: { label: "Heavenfall Shrine", kind: "shrine", gem: true },
   quarry: { label: "The Quarry", kind: "cave", gem: false },

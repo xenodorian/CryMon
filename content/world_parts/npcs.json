@@ -720,20 +720,21 @@
     {
       "map": "reach",
       "mark": "Y",
-      "id": "reachStone",
+      "id": "shinigamiFree",
       "role": "talk",
-      "talk": "reachStone",
-      "talkDone": "reachAgain",
+      "talk": "shinigamiReachSpot",
+      "talkDone": "shinigamiReachAgain",
       "script": [
         {
           "ifNot": "talkedReach",
           "set": "talkedReach",
-          "talk": "reachStone"
+          "talk": "shinigamiReachSpot"
         },
         {
-          "talk": "reachAgain"
+          "talk": "shinigamiReachAgain"
         }
-      ]
+      ],
+      "sprite": "shinigami"
     },
     {
       "map": "forest",
@@ -1037,6 +1038,23 @@
         {
           "talk": "leadSpot",
           "pending": "lieutenantLead"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "4",
+      "id": "priest",
+      "role": "talk",
+      "talk": "priestSpot",
+      "talkDone": "priestSpot",
+      "script": [
+        {
+          "if": "hasScroll",
+          "talk": "priestHasScroll"
+        },
+        {
+          "talk": "priestSpot"
         }
       ]
     }

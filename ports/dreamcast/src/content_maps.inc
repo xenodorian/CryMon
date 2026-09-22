@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=eda016431e4f88fa — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=e7d9eb30bf29abd3 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -45,7 +45,7 @@ static const char *const map_veld_rows[] = {
     "##.V.TTT......===......TTT...#",
     "##.rrr........===.......rrr..#",
     "###HHH.X...J.=====......HHH..#",
-    "##...TTT......===...........c#",
+    "P....TTT......===.........E.c#",
     "##............===.......L....#",
     "##...TTT.....=====......TTT..#",
     "##............===.rrr..^^....#",
@@ -53,9 +53,9 @@ static const char *const map_veld_rows[] = {
     "##....TTT.....===......TTT...#",
     "##rrr.........===............#",
     "##HHH........=====.....NNNN..#",
-    "##............===.......NE...#",
+    "##............===.......N....#",
     "##......F========............#",
-    "###...........===...........##",
+    "###...........===4..........##",
     "#############=Z=##############",
 };
 
@@ -128,7 +128,7 @@ static const char *const map_camp_rows[] = {
     "#..S...I.......#",
     "#.rrr......rrr.#",
     "#.HHH......HHH.#",
-    "################",
+    "########F#######",
 };
 
 static const char *const map_cliffs_rows[] = {
@@ -163,7 +163,7 @@ static const char *const map_ruins_rows[] = {
     "#..................#",
     "#..................#",
     "#..................#",
-    "D..................#",
+    "D..................e",
     "#....J........K....#",
     "#.............7....#",
     "#..rrr........rrr..#",
@@ -173,19 +173,19 @@ static const char *const map_ruins_rows[] = {
     "#..................#",
     "#....TTTTTTTT......#",
     "#....TTTTTTTT......#",
-    "##########e#########",
+    "####################",
 };
 
 static const char *const map_reach_rows[] = {
     "####################",
-    "#.........D........#",
+    "#.........#........#",
     "#.......Q..........#",
     "#..rrr........rrr..#",
     "#..HHH........HHH..#",
     "#..................#",
     "#......TTTTTT......#",
     "#......TTTTTT......#",
-    "#........Y.........#",
+    "#........Y.........D",
     "#......TTTTTT......#",
     "#......TTTTTT......#",
     "#..........O.......#",
@@ -513,7 +513,7 @@ static const Map MAPS[MAP_N] = {
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE GROVE", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";

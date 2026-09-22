@@ -51,7 +51,7 @@
     "house": "HOME",
     "veld": "CRYTOWN",
     "forest": "THE FOREST",
-    "grove": "THE GROVE",
+    "grove": "THE PRISON",
     "camp": "THE CAMP",
     "cliffs": "THE CLIFFS",
     "ruins": "THE RUINS",
@@ -340,23 +340,6 @@
       "oy": -32
     },
     {
-      "from": "veld",
-      "tile": "Z",
-      "to": "forest",
-      "spawn": "Y",
-      "dir": "down",
-      "oy": 40,
-      "onArrive": "ensureSoldiers"
-    },
-    {
-      "from": "forest",
-      "tile": "Y",
-      "to": "veld",
-      "spawn": "Z",
-      "dir": "up",
-      "oy": -32
-    },
-    {
       "from": "forest",
       "tile": "O",
       "to": "grove",
@@ -378,67 +361,15 @@
       "to": "cliffs",
       "spawn": "D",
       "dir": "down",
-      "oy": 40
+      "oy": 40,
+      "need": "beatCalder",
+      "failTalk": "cliffsLocked"
     },
     {
       "from": "cliffs",
       "tile": "D",
       "to": "veld",
       "spawn": "c",
-      "dir": "up",
-      "oy": -32
-    },
-    {
-      "from": "grove",
-      "tile": "g",
-      "to": "ruins",
-      "spawn": "D",
-      "dir": "down",
-      "oy": 40,
-      "need": "beatShin",
-      "failTalk": "groveLocked"
-    },
-    {
-      "from": "ruins",
-      "tile": "D",
-      "to": "grove",
-      "spawn": "g",
-      "dir": "up",
-      "oy": -32
-    },
-    {
-      "from": "ruins",
-      "tile": "e",
-      "to": "reach",
-      "spawn": "D",
-      "dir": "down",
-      "oy": 40,
-      "need": "hasScroll",
-      "failTalk": "reachLocked"
-    },
-    {
-      "from": "reach",
-      "tile": "D",
-      "to": "ruins",
-      "spawn": "e",
-      "dir": "up",
-      "oy": -32
-    },
-    {
-      "from": "grove",
-      "tile": "G",
-      "to": "gauntlet1",
-      "spawn": "2",
-      "dir": "down",
-      "oy": 40,
-      "need": "choseHeavenfall",
-      "failTalk": "gauntletLocked"
-    },
-    {
-      "from": "gauntlet1",
-      "tile": "2",
-      "to": "grove",
-      "spawn": "G",
       "dir": "up",
       "oy": -32
     },
@@ -560,9 +491,7 @@
       "to": "camp",
       "spawn": "L",
       "dir": "right",
-      "ox": 40,
-      "need": "beatCalder",
-      "failTalk": "campLocked"
+      "ox": 40
     },
     {
       "from": "camp",
@@ -571,6 +500,74 @@
       "spawn": "J",
       "dir": "left",
       "ox": -32
+    },
+    {
+      "from": "veld",
+      "tile": "P",
+      "to": "ruins",
+      "spawn": "e",
+      "dir": "left",
+      "ox": -32,
+      "need": "beatShin",
+      "failTalk": "rockBlocked"
+    },
+    {
+      "from": "ruins",
+      "tile": "e",
+      "to": "veld",
+      "spawn": "P",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "ruins",
+      "tile": "D",
+      "to": "reach",
+      "spawn": "D",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "reach",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": "D",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "veld",
+      "tile": "Z",
+      "to": "gauntlet1",
+      "spawn": "2",
+      "dir": "down",
+      "oy": 40,
+      "need": "hasScroll",
+      "failTalk": "gauntletLocked"
+    },
+    {
+      "from": "gauntlet1",
+      "tile": "2",
+      "to": "veld",
+      "spawn": "Z",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "camp",
+      "tile": "F",
+      "to": "forest",
+      "spawn": "Y",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "forest",
+      "tile": "Y",
+      "to": "camp",
+      "spawn": "F",
+      "dir": "up",
+      "oy": -32
     }
   ],
   "trainers": {
@@ -1671,20 +1668,21 @@
     {
       "map": "reach",
       "mark": "Y",
-      "id": "reachStone",
+      "id": "shinigamiFree",
       "role": "talk",
-      "talk": "reachStone",
-      "talkDone": "reachAgain",
+      "talk": "shinigamiReachSpot",
+      "talkDone": "shinigamiReachAgain",
       "script": [
         {
           "ifNot": "talkedReach",
           "set": "talkedReach",
-          "talk": "reachStone"
+          "talk": "shinigamiReachSpot"
         },
         {
-          "talk": "reachAgain"
+          "talk": "shinigamiReachAgain"
         }
-      ]
+      ],
+      "sprite": "shinigami"
     },
     {
       "map": "forest",
@@ -1988,6 +1986,23 @@
         {
           "talk": "leadSpot",
           "pending": "lieutenantLead"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "4",
+      "id": "priest",
+      "role": "talk",
+      "talk": "priestSpot",
+      "talkDone": "priestSpot",
+      "script": [
+        {
+          "if": "hasScroll",
+          "talk": "priestHasScroll"
+        },
+        {
+          "talk": "priestSpot"
         }
       ]
     }

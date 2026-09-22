@@ -11,7 +11,7 @@
       "label": "CryTown",
       "kind": "town",
       "gem": true,
-      "x": 0,
+      "x": 4,
       "y": 1,
       "cellW": 3,
       "cellH": 2,
@@ -25,28 +25,11 @@
       }
     },
     {
-      "id": "forest",
-      "label": "The Forest",
-      "kind": "route",
-      "gem": false,
-      "x": 0,
-      "y": 3,
-      "cellW": 3,
-      "cellH": 3,
-      "playableMaps": [
-        "forest"
-      ],
-      "realSize": {
-        "width": 26,
-        "height": 32
-      }
-    },
-    {
       "id": "cliffs",
       "label": "The Cliffs",
       "kind": "route",
       "gem": false,
-      "x": 3,
+      "x": 7,
       "y": 1,
       "cellW": 2,
       "cellH": 2,
@@ -59,46 +42,12 @@
       }
     },
     {
-      "id": "grove",
-      "label": "The Grove",
-      "kind": "landmark",
-      "gem": true,
-      "x": 0,
-      "y": 6,
-      "cellW": 3,
-      "cellH": 2,
-      "playableMaps": [
-        "grove"
-      ],
-      "realSize": {
-        "width": 26,
-        "height": 21
-      }
-    },
-    {
-      "id": "marsh",
-      "label": "The Marsh",
-      "kind": "route",
-      "gem": false,
-      "x": 5,
-      "y": 0,
-      "cellW": 2,
-      "cellH": 2,
-      "playableMaps": [
-        "marsh"
-      ],
-      "realSize": {
-        "width": 18,
-        "height": 21
-      }
-    },
-    {
       "id": "ruins",
       "label": "The Ruins",
       "kind": "route",
       "gem": false,
-      "x": 3,
-      "y": 6,
+      "x": 2,
+      "y": 1,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -114,8 +63,8 @@
       "label": "Gauntlet",
       "kind": "route",
       "gem": false,
-      "x": 0,
-      "y": 8,
+      "x": 4,
+      "y": 3,
       "cellW": 2,
       "cellH": 18,
       "playableMaps": [
@@ -131,20 +80,20 @@
       }
     },
     {
-      "id": "quarry",
-      "label": "The Quarry",
-      "kind": "cave",
+      "id": "marsh",
+      "label": "The Marsh",
+      "kind": "route",
       "gem": false,
-      "x": 7,
-      "y": 1,
+      "x": 9,
+      "y": 0,
       "cellW": 2,
-      "cellH": 1,
+      "cellH": 2,
       "playableMaps": [
-        "quarry"
+        "marsh"
       ],
       "realSize": {
-        "width": 16,
-        "height": 13
+        "width": 18,
+        "height": 21
       }
     },
     {
@@ -152,8 +101,8 @@
       "label": "The Reach",
       "kind": "landmark",
       "gem": true,
-      "x": 3,
-      "y": 8,
+      "x": 0,
+      "y": 0,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -169,8 +118,8 @@
       "label": "Heavenfall Shrine",
       "kind": "shrine",
       "gem": true,
-      "x": 0,
-      "y": 26,
+      "x": 4,
+      "y": 21,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -182,11 +131,28 @@
       }
     },
     {
+      "id": "quarry",
+      "label": "The Quarry",
+      "kind": "cave",
+      "gem": false,
+      "x": 11,
+      "y": 1,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [
+        "quarry"
+      ],
+      "realSize": {
+        "width": 16,
+        "height": 13
+      }
+    },
+    {
       "id": "camp",
       "label": "The Camp",
       "kind": "camp",
       "gem": true,
-      "x": 9,
+      "x": 13,
       "y": 1,
       "cellW": 2,
       "cellH": 1,
@@ -197,15 +163,43 @@
         "width": 16,
         "height": 10
       }
+    },
+    {
+      "id": "forest",
+      "label": "The Forest",
+      "kind": "route",
+      "gem": false,
+      "x": 13,
+      "y": 2,
+      "cellW": 3,
+      "cellH": 3,
+      "playableMaps": [
+        "forest"
+      ],
+      "realSize": {
+        "width": 26,
+        "height": 32
+      }
+    },
+    {
+      "id": "grove",
+      "label": "The Prison",
+      "kind": "landmark",
+      "gem": true,
+      "x": 13,
+      "y": 5,
+      "cellW": 3,
+      "cellH": 2,
+      "playableMaps": [
+        "grove"
+      ],
+      "realSize": {
+        "width": 26,
+        "height": 21
+      }
     }
   ],
   "edges": [
-    {
-      "from": "veld",
-      "to": "forest",
-      "edge": "south",
-      "need": null
-    },
     {
       "from": "forest",
       "to": "grove",
@@ -216,25 +210,7 @@
       "from": "veld",
       "to": "cliffs",
       "edge": "east",
-      "need": null
-    },
-    {
-      "from": "grove",
-      "to": "ruins",
-      "edge": "east",
-      "need": "beatShin"
-    },
-    {
-      "from": "ruins",
-      "to": "reach",
-      "edge": "south",
-      "need": "hasScroll"
-    },
-    {
-      "from": "grove",
-      "to": "gauntlet_route",
-      "edge": "south",
-      "need": "choseHeavenfall"
+      "need": "beatCalder"
     },
     {
       "from": "gauntlet_route",
@@ -258,7 +234,31 @@
       "from": "quarry",
       "to": "camp",
       "edge": "east",
-      "need": "beatCalder"
+      "need": null
+    },
+    {
+      "from": "veld",
+      "to": "ruins",
+      "edge": "west",
+      "need": "beatShin"
+    },
+    {
+      "from": "ruins",
+      "to": "reach",
+      "edge": "west",
+      "need": null
+    },
+    {
+      "from": "veld",
+      "to": "gauntlet_route",
+      "edge": "south",
+      "need": "hasScroll"
+    },
+    {
+      "from": "camp",
+      "to": "forest",
+      "edge": "south",
+      "need": null
     }
   ],
   "collapse": {
@@ -272,8 +272,8 @@
     "gauntlet": null
   },
   "terrain": {
-    "width": 15,
-    "height": 32
+    "width": 20,
+    "height": 27
   },
   "generatedFrom": {
     "layout": "content/world_map_layout.json",

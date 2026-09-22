@@ -45,7 +45,7 @@
     "Quillpup is inside it. She will take the CryMon. CryTown does not get to fall."
   ],
   "endingWin": [
-    "Max stands at the edge of the Grove, the scroll empty in her hands.",
+    "Max stands at the edge of the Prison, the scroll empty in her hands.",
     "The war isn't over. It isn't even close to over.",
     "But for the first time since she left home, she isn't alone in it.",
     "Thank you for playing the CryMon demo."
@@ -174,11 +174,11 @@
       },
       {
         "speaker": "max",
-        "text": "Danger lies between here and the Grove."
+        "text": "Danger lies between here and the Prison."
       },
       {
         "speaker": "mason",
-        "text": "The Grove is a prison. Nobody walks out of the Grove."
+        "text": "This place is a prison. Nobody walks out of the Prison."
       },
       {
         "speaker": "max",
@@ -222,7 +222,7 @@
       },
       {
         "speaker": "mason",
-        "text": "Go, then. But the Weeping Army guards the road, and the Grove guards itself."
+        "text": "Go, then. But the Weeping Army guards the road, and the Prison guards itself."
       },
       {
         "speaker": "max",
@@ -456,11 +456,11 @@
     "calderFight": [
       {
         "speaker": "calder",
-        "text": "The camp takes strays. One more won't be missed."
+        "text": "No one gets past this point. This is a military camp for the Weeping Army."
       },
       {
         "speaker": "max",
-        "text": "I'm not stray."
+        "text": "Then I'll make room."
       }
     ],
     "calderWin": [
@@ -484,7 +484,7 @@
       },
       {
         "speaker": "commander",
-        "text": "Get back on the road before we feed you to the Grove ourselves."
+        "text": "Get back on the road before we feed you to the Prison ourselves."
       },
       {
         "speaker": "max",
@@ -598,15 +598,15 @@
       },
       {
         "speaker": "shinigami",
-        "text": "I won't be here to care."
+        "text": "This prison held me a long time. There's an old rock I mean to see broken."
       },
       {
         "speaker": "none",
-        "text": "Shinigami turns to fog before she can answer."
+        "text": "Shinigami walks out past you without another word."
       },
       {
         "speaker": "none",
-        "text": "The Grove is quiet where he stood."
+        "text": "The Prison is quiet where he stood."
       },
       {
         "speaker": "none",
@@ -898,7 +898,7 @@
     "birchFirst": [
       {
         "speaker": "birch",
-        "text": "You came from the Grove? Then Shinigami's really gone."
+        "text": "You came from the Prison? Then Shinigami's really gone."
       },
       {
         "speaker": "max",
@@ -997,12 +997,6 @@
         "text": "The camp still holds this road. Calder isn't down yet."
       }
     ],
-    "groveLocked": [
-      {
-        "speaker": "max",
-        "text": "Sealed. The ruins stay shut until Shinigami is gone."
-      }
-    ],
     "cageLocked": [
       {
         "speaker": "max",
@@ -1031,26 +1025,6 @@
       {
         "speaker": "max",
         "text": "The quarry gate stays shut while Sentry still stands."
-      }
-    ],
-    "reachStone": [
-      {
-        "speaker": "max",
-        "text": "The scroll's writing lights a stone in the grass."
-      },
-      {
-        "speaker": "none",
-        "text": "The Reach. The crystals still sing here."
-      },
-      {
-        "speaker": "max",
-        "text": "Wild CryMon out here hit harder than CryTown ever did."
-      }
-    ],
-    "reachAgain": [
-      {
-        "speaker": "max",
-        "text": "The stone is quiet. The grass is not."
       }
     ],
     "forestRangerSpot": [
@@ -1366,11 +1340,11 @@
     "gauntletLocked": [
       {
         "speaker": "system",
-        "text": "The path behind Shinigami is sealed."
+        "text": "The gauntlet to the south leads to the shrine of the ancient and dead Heavenfall."
       },
       {
         "speaker": "system",
-        "text": "Only those who sought Heavenfall may pass."
+        "text": "I will not move unless you present me with the sacred Scroll of Resurrection."
       }
     ],
     "gauntletWipeRegret": [
@@ -1453,6 +1427,70 @@
       {
         "speaker": "system",
         "text": "There is no path home from this."
+      }
+    ],
+    "shinigamiReachSpot": [
+      {
+        "speaker": "none",
+        "text": "The stone in the grass is gone. Shinigami stands where it was."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "The rock at CryTown's western wall. I broke it myself, on my way out here."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "This is the Reach. That stone you're looking for hums with old crystal -- it's what wakes CryMon like these."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Quartz guards one badge past here. Opal guards the other. Beat them both if you mean to matter to anyone official."
+      },
+      {
+        "speaker": "max",
+        "text": "Wild CryMon out here hit harder than CryTown ever did."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Good. Get stronger, or get left behind."
+      }
+    ],
+    "shinigamiReachAgain": [
+      {
+        "speaker": "shinigami",
+        "text": "Quartz and Opal are still out there. Go earn your badges."
+      }
+    ],
+    "cliffsLocked": [
+      {
+        "speaker": "calder",
+        "text": "I said no one gets past this point."
+      }
+    ],
+    "priestSpot": [
+      {
+        "speaker": "system",
+        "text": "The gauntlet to the south leads to the shrine of the ancient and dead Heavenfall."
+      },
+      {
+        "speaker": "system",
+        "text": "I will not move unless you present me with the sacred Scroll of Resurrection."
+      }
+    ],
+    "priestHasScroll": [
+      {
+        "speaker": "system",
+        "text": "The scroll. So it's true."
+      },
+      {
+        "speaker": "system",
+        "text": "Go, then. What you do with the dead is on you now."
+      }
+    ],
+    "rockBlocked": [
+      {
+        "speaker": "max",
+        "text": "A boulder seals the western pass. Nothing short of a monster could move it."
       }
     ]
   },

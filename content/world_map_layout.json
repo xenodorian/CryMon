@@ -268,22 +268,6 @@
       "need": "tookStarter"
     },
     {
-      "from": "veld",
-      "to": "forest",
-      "fromTile": "Z",
-      "toTile": "Y",
-      "fromXY": {
-        "x": 14,
-        "y": 22
-      },
-      "toXY": {
-        "x": 13,
-        "y": 1
-      },
-      "direction": "down",
-      "need": null
-    },
-    {
       "from": "forest",
       "to": "grove",
       "fromTile": "O",
@@ -313,55 +297,7 @@
         "y": 1
       },
       "direction": "down",
-      "need": null
-    },
-    {
-      "from": "grove",
-      "to": "ruins",
-      "fromTile": "g",
-      "toTile": "D",
-      "fromXY": {
-        "x": 23,
-        "y": 16
-      },
-      "toXY": {
-        "x": 0,
-        "y": 5
-      },
-      "direction": "right",
-      "need": "beatShin"
-    },
-    {
-      "from": "ruins",
-      "to": "reach",
-      "fromTile": "e",
-      "toTile": "D",
-      "fromXY": {
-        "x": 10,
-        "y": 12
-      },
-      "toXY": {
-        "x": 10,
-        "y": 1
-      },
-      "direction": "down",
-      "need": "hasScroll"
-    },
-    {
-      "from": "grove",
-      "to": "gauntlet1",
-      "fromTile": "G",
-      "toTile": "2",
-      "fromXY": {
-        "x": 13,
-        "y": 19
-      },
-      "toXY": {
-        "x": 8,
-        "y": 1
-      },
-      "direction": "down",
-      "need": "choseHeavenfall"
+      "need": "beatCalder"
     },
     {
       "from": "gauntlet1",
@@ -489,7 +425,71 @@
         "y": 5
       },
       "direction": "right",
-      "need": "beatCalder"
+      "need": null
+    },
+    {
+      "from": "veld",
+      "to": "ruins",
+      "fromTile": "P",
+      "toTile": "e",
+      "fromXY": {
+        "x": 0,
+        "y": 11
+      },
+      "toXY": {
+        "x": 19,
+        "y": 8
+      },
+      "direction": "left",
+      "need": "beatShin"
+    },
+    {
+      "from": "ruins",
+      "to": "reach",
+      "fromTile": "D",
+      "toTile": "D",
+      "fromXY": {
+        "x": 0,
+        "y": 8
+      },
+      "toXY": {
+        "x": 19,
+        "y": 8
+      },
+      "direction": "left",
+      "need": null
+    },
+    {
+      "from": "veld",
+      "to": "gauntlet1",
+      "fromTile": "Z",
+      "toTile": "2",
+      "fromXY": {
+        "x": 14,
+        "y": 22
+      },
+      "toXY": {
+        "x": 8,
+        "y": 1
+      },
+      "direction": "down",
+      "need": "hasScroll"
+    },
+    {
+      "from": "camp",
+      "to": "forest",
+      "fromTile": "F",
+      "toTile": "Y",
+      "fromXY": {
+        "x": 8,
+        "y": 9
+      },
+      "toXY": {
+        "x": 13,
+        "y": 1
+      },
+      "direction": "down",
+      "need": null
     }
   ],
   "rules": [

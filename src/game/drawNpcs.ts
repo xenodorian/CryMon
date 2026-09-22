@@ -2,7 +2,7 @@
  *  engine.ts: for each NPCS entry on the current map with sprite starting
  *  "npc/", spawnOf(MAPS[mapId], mark) and drawActor(`${id}-${wf}`).
  *  Skip: soldier1/2/3, cathleen, shinigami, chest, spawn, houseDoor,
- *  cageGate, reachStone (those keep special-case draws).
+ *  cageGate, shinigamiFree (those keep special-case draws).
  */
 export const PACK_NPC_SKIP = [
   "soldier1",
@@ -14,5 +14,5 @@ export const PACK_NPC_SKIP = [
   "spawn",
   "houseDoor",
   "cageGate",
-  "reachStone",
+  "shinigamiFree",
 ] as const;
