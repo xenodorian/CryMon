@@ -6,6 +6,7 @@ import dialogueJson from "../../content/dialogue.json";
 import worldJson from "../../content/world.json";
 import spritesJson from "../../content/sprites.json";
 import logicJson from "../../content/logic.json";
+import townMapJson from "../../content/town_map.json";
 
 export const PARTY_MAX = (logicJson as { party?: { max?: number } }).party?.max ?? 6;
 export const TILE = 32;
@@ -29,6 +30,12 @@ export const MERCY_DISMISS = (dialogueJson as { mercyDismissLines?: string[] }).
 export const START_BAG = worldJson.startBag as Record<ItemId, number>;
 export const START_MARKS = worldJson.startMarks;
 export const MAP_NAME = worldJson.mapNames as Record<string, string>;
+export const TOWN_MAP = townMapJson as {
+  name: string;
+  anchor: string;
+  nodes: { id: string; label: string; kind: string; gem: boolean; x: number; y: number; playableMaps: string[] }[];
+  edges: { from: string; to: string; direction: string; need: string | null }[];
+};
 export const MAP_IDS = worldJson.mapIds as string[];
 export const WARPS = worldJson.warps;
 export const ENCOUNTERS = worldJson.encounters;

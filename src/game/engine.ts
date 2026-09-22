@@ -60,7 +60,7 @@ import {
   SHINY_MOVE,
   HYPE_UP,
   effectiveStat
-} from "./data";
+, TOWN_MAP } from "./data";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
 import type {
@@ -1008,7 +1008,7 @@ export class CryMon {
 		this.audio.ui();
 	}
 	updatePause() {
-		const rows = ["Party", "Bag", "CryDex", "Save", "Close"];
+		const rows = ["Party", "Bag", "CryDex", "Map", "Save", "Close"];
 		if (this.input.up()) {
 			this.pauseCursor = (this.pauseCursor + rows.length - 1) % rows.length;
 			this.audio.ui();
@@ -1022,11 +1022,12 @@ export class CryMon {
 			this.audio.ui();
 			return;
 		}
-		if (this.input.confirm() || (this.input.start() && this.pauseCursor === 4)) {
+		if (this.input.confirm() || (this.input.start() && this.pauseCursor === 5)) {
 			if (this.pauseCursor === 0) this.openParty();
 			else if (this.pauseCursor === 1) this.openBag();
 			else if (this.pauseCursor === 2) this.openCryDex();
-			else if (this.pauseCursor === 3) {
+			else if (this.pauseCursor === 3) this.openTownMap();
+			else if (this.pauseCursor === 4) {
 				this.mode = "world";
 				this.persist(true);
 			} else {
@@ -1038,6 +1039,86 @@ export class CryMon {
 			this.audio.ui();
 		}
 	}
+
+	openTownMap() {
+		this.mode = "townmap";
+		this.audio.ui();
+	}
+	updateTownMap() {
+		if (this.input.cancel() || this.input.start() || this.input.confirm()) {
+			this.mode = "pause";
+			this.audio.ui();
+		}
+	}
+	townMapRegionId() {
+		const mapId = this.world.mapId;
+		const nodes = TOWN_MAP?.nodes ?? [];
+		for (const n of nodes) {
+			if (n.playableMaps?.includes(mapId)) return n.id;
+		}
+		return TOWN_MAP?.anchor ?? "veld";
+	}
+	drawTownMap() {
+		const nodes = TOWN_MAP?.nodes ?? [];
+		const edges = TOWN_MAP?.edges ?? [];
+		if (!nodes.length) {
+			this.panel(20, 20, 280, 200);
+			this.text("No map data.", X(160), Y(110), "#e8e4d8", FONT, "center");
+			return;
+		}
+		const xs = nodes.map((n) => n.x);
+		const ys = nodes.map((n) => n.y);
+		const minX = Math.min(...xs);
+		const maxX = Math.max(...xs);
+		const minY = Math.min(...ys);
+		const maxY = Math.max(...ys);
+		const top = 36;
+		const cellW = Math.min(56, Math.floor((280 - 40) / Math.max(1, maxX - minX + 1)));
+		const cellH = Math.min(40, Math.floor((180 - top) / Math.max(1, maxY - minY + 1)));
+		const ox = (320 - (maxX - minX + 1) * cellW) / 2 + cellW / 2;
+		const oy = top + cellH / 2;
+		const px = (x) => ox + (x - minX) * cellW;
+		const py = (y) => oy + (y - minY) * cellH;
+		this.panel(12, 12, 296, 216);
+		this.text(TOWN_MAP?.name ?? "Sorrow County", X(160), Y(28), "#e8e4d8", FONT, "center");
+		const ctx = this.ctx;
+		ctx.save();
+		for (const e of edges) {
+			const a = nodes.find((n) => n.id === e.from);
+			const b = nodes.find((n) => n.id === e.to);
+			if (!a || !b) continue;
+			ctx.strokeStyle = "#8a7a55";
+			ctx.lineWidth = 3;
+			ctx.beginPath();
+			ctx.moveTo(px(a.x), py(a.y));
+			ctx.lineTo(px(b.x), py(b.y));
+			ctx.stroke();
+		}
+		const here = this.townMapRegionId();
+		for (const n of nodes) {
+			const x = px(n.x);
+			const y = py(n.y);
+			if (n.gem) {
+				ctx.fillStyle = n.id === here ? "#7ec8f0" : "#4a90c8";
+				ctx.beginPath();
+				ctx.moveTo(x, y - 8);
+				ctx.lineTo(x + 7, y);
+				ctx.lineTo(x, y + 8);
+				ctx.lineTo(x - 7, y);
+				ctx.closePath();
+				ctx.fill();
+			} else {
+				ctx.fillStyle = n.id === here ? "#f0e6c0" : "#c4b48a";
+				ctx.fillRect(x - 12, y - 7, 24, 14);
+			}
+			this.text(n.label, X(x), Y(y + 16), n.id === here ? "#ffe08a" : "#d8d0c0", 10, "center");
+		}
+		ctx.restore();
+		const hereLabel = nodes.find((n) => n.id === here)?.label ?? here;
+		this.text("You are here: " + hereLabel, X(160), Y(210), "#a8c090", 10, "center");
+		this.text("B / Start: back", X(160), Y(222), "#7a7868", 10, "center");
+	}
+
 	openCryDex() {
 		this.mode = "crydex";
 		this.dexCursor = 0;
@@ -1367,6 +1448,10 @@ export class CryMon {
 		}
 		if (this.mode === "crydex") {
 			this.updateCryDex();
+			return;
+		}
+		if (this.mode === "townmap") {
+			this.updateTownMap();
 			return;
 		}
 		if (this.mode === "world") {
@@ -3681,6 +3766,7 @@ export class CryMon {
 		else if (this.mode === "mercy") this.drawMercy();
 		else if (this.mode === "pause") this.drawPause();
 		else if (this.mode === "crydex") this.drawCryDex();
+		else if (this.mode === "townmap") this.drawTownMap();
 		else this.drawWorld();
 		this.drawFade();
 		ctx.restore();
@@ -3768,7 +3854,7 @@ export class CryMon {
 		this.drawWorld();
 		this.box(X(64), Y(28), X(112), Y(92));
 		this.text("PAUSE", X(120), Y(34), "#e8e4d8", FONT, "center");
-		const rows = ["Party", "Bag", "CryDex", "Save", "Close"];
+		const rows = ["Party", "Bag", "CryDex", "Map", "Save", "Close"];
 		rows.forEach((r, i) => {
 			const on = i === this.pauseCursor;
 			this.text(on ? `> ${r}` : r, X(120), Y(48 + i * 11), on ? "#5a7a52" : "#c5cec6", FONT, "center");
