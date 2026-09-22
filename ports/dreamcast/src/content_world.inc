@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=706391c9ff6922b7 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=ba0b35ef67b57bd2 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -188,7 +188,7 @@ typedef struct {
     int bench_sp[2], bench_lv[2], bench_n;
 } TrainerKit;
 static const TrainerKit TRAINER_KITS[16] = {
-    { 11, 5, { 12, 14 }, { 6, 7 }, 2 },
+    { 11, 3, { 12, 14 }, { 3, 3 }, 2 },
     { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
     { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
     { 10, 9, { 18, 13 }, { 10, 11 }, 2 },
@@ -197,9 +197,9 @@ static const TrainerKit TRAINER_KITS[16] = {
     { 4, 7, { 17, 0 }, { 7, 1 }, 1 },
     { 2, 8, { 18, 0 }, { 8, 1 }, 1 },
     { 4, 9, { 8, 0 }, { 10, 1 }, 1 },
-    { 23, 8, { 22, 0 }, { 9, 1 }, 1 },
-    { 20, 5, { 21, 0 }, { 6, 1 }, 1 },
-    { 6, 6, { 22, 0 }, { 7, 1 }, 1 },
+    { 23, 4, { 22, 0 }, { 4, 1 }, 1 },
+    { 20, 5, { 21, 0 }, { 5, 1 }, 1 },
+    { 6, 6, { 22, 0 }, { 6, 1 }, 1 },
     { 17, 10, { 14, 0 }, { 11, 1 }, 1 },
     { 13, 12, { 7, 15 }, { 11, 11 }, 2 },
     { 28, 20, { 0, 0 }, { 1, 1 }, 0 },

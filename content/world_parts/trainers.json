@@ -3,16 +3,16 @@
     "sentry": {
       "lead": [
         "emberling",
-        5
+        3
       ],
       "bench": [
         [
           "frostail",
-          6
+          3
         ],
         [
           "stormwing",
-          7
+          3
         ]
       ],
       "title": "Sentry sends Emberling",
@@ -253,7 +253,7 @@
       "bench": [
         [
           "mireback",
-          6
+          5
         ]
       ],
       "title": "Bogwalker sends Peatling",
@@ -270,7 +270,7 @@
       "bench": [
         [
           "glowcap",
-          7
+          6
         ]
       ],
       "title": "Reedguard sends Fenwisp",
@@ -316,12 +316,12 @@
     "quarryDriller": {
       "lead": [
         "slatekin",
-        8
+        4
       ],
       "bench": [
         [
           "glowcap",
-          9
+          4
         ]
       ],
       "title": "Driller sends Slatekin",
