@@ -824,6 +824,38 @@
       "spawn": "2",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "chokmah",
+      "tile": "Z",
+      "to": "vau",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "vau",
+      "tile": "1",
+      "to": "chokmah",
+      "spawn": "Z",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "vau",
+      "tile": "2",
+      "to": "chesed",
+      "spawn": "G",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "chesed",
+      "tile": "G",
+      "to": "vau",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
     }
   ]
 }

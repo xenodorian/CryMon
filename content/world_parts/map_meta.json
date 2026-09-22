@@ -43,7 +43,8 @@
     "zayin": "PATH OF ZAYIN",
     "heth": "PATH OF HETH",
     "chokmah": "CHOKMAH",
-    "he": "PATH OF HE"
+    "he": "PATH OF HE",
+    "vau": "PATH OF VAU"
   },
   "mapIds": [
     "house",
@@ -89,6 +90,7 @@
     "zayin",
     "heth",
     "chokmah",
-    "he"
+    "he",
+    "vau"
   ]
 }

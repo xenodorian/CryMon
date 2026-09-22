@@ -1218,4 +1218,5 @@ ports/dreamcast` -> commit -> push -> note completed step here.
   silently skipped, and check_sync caught it (`data.ts MAPS keys !=
   world.mapIds`). Fixed to a word-boundary regex
   (`re.search(rf"raw\.{id}\b", ...)`), reran step 18 clean.
+- Step 19/23: `vau` (route, chokmah<->chesed). Green.
 
