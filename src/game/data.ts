@@ -109,6 +109,9 @@ export const TAU = normalize(raw.tau);
 export const NETZACH = normalize(raw.netzach);
 export const QOPH = normalize(raw.qoph);
 
+export const HOD = normalize(raw.hod);
+export const SHIN = normalize(raw.shin);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -133,6 +136,8 @@ export const MAPS = {
   tau: TAU,
   netzach: NETZACH,
   qoph: QOPH,
+  hod: HOD,
+  shin: SHIN,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

@@ -22,7 +22,9 @@
     "yesod": "YESOD",
     "tau": "PATH OF TAU",
     "netzach": "NETZACH",
-    "qoph": "PATH OF QOPH"
+    "qoph": "PATH OF QOPH",
+    "hod": "HOD",
+    "shin": "PATH OF SHIN"
   },
   "mapIds": [
     "house",
@@ -47,6 +49,8 @@
     "yesod",
     "tau",
     "netzach",
-    "qoph"
+    "qoph",
+    "hod",
+    "shin"
   ]
 }

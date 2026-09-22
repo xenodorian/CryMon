@@ -344,6 +344,38 @@
       "spawn": "2",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "hod",
+      "tile": "P",
+      "to": "shin",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "shin",
+      "tile": "1",
+      "to": "hod",
+      "spawn": "P",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "shin",
+      "tile": "2",
+      "to": "malkuth",
+      "spawn": "O",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "malkuth",
+      "tile": "O",
+      "to": "shin",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
     }
   ]
 }
