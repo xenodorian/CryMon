@@ -9,7 +9,7 @@ jobs:
       actions: write
     steps:
       - uses: actions/checkout@v4
-      - name: Generate town_map v3 from real route geometry
+      - name: Generate town_map v3 + SVG
         run: |
           set -e
           python3 << 'PY'
@@ -94,7 +94,7 @@ jobs:
             A,B = pos.get(a), pos.get(b)
             if not A or not B: return []
             pts=[[A['x'],A['y']]]
-            route = a if META.get(a,(None,'route'))[1]=='route' else (b if META.get(b,(None,''))[1]=='route' else None)
+            route = a if META.get(a,(None,''))[1]=='route' else (b if META.get(b,(None,''))[1]=='route' else None)
             if route and span(route)>=3:
               pts.append([(A['x']+B['x'])/2, (A['y']+B['y'])/2])
             pts.append([B['x'],B['y']]); return pts
@@ -107,32 +107,89 @@ jobs:
             nodes_out.append(n)
           edges_out=[{'from':e['from'],'to':e['to'],'direction':e['direction'],'need':e['need'],'ribbon':ribbon(e['from'],e['to'])} for e in edges]
           nxs=[p['x'] for p in pos.values()]; nys=[p['y'] for p in pos.values()]
-          tw = (max(nxs)-min(nxs)+1)*6+8; th=(max(nys)-min(nys)+1)*6+8
+          nminx,nmaxx,nminy,nmaxy=min(nxs),max(nxs),min(nys),max(nys)
+          TS,MARG=6,4
+          gw=(nmaxx-nminx+1)*TS+MARG*2; gh=(nmaxy-nminy+1)*TS+MARG*2
+          grid=[['W']*gw for _ in range(gh)]
+          def origin(rx,ry):
+            return MARG+(rx-nminx)*TS+TS//2, MARG+(ry-nminy)*TS+TS//2
+          for y in range(MARG,gh-MARG):
+            for x in range(MARG,gw-MARG):
+              grid[y][x]='L'
+          def carve(x0,y0,x1,y1):
+            x0,y0,x1,y1=map(round,(x0,y0,x1,y1))
+            dx,dy=abs(x1-x0),abs(y1-y0)
+            sx,sy=(1 if x0<x1 else -1),(1 if y0<y1 else -1)
+            err,x,y,g=dx-dy,x0,y0,0
+            limit=(dx+dy+2)*4+64
+            while True:
+              for oy in (-1,0,1):
+                for ox in (-1,0,1):
+                  if abs(ox)+abs(oy)>1: continue
+                  tx,ty=x+ox,y+oy
+                  if 0<=tx<gw and 0<=ty<gh and grid[ty][tx]!='W': grid[ty][tx]='R'
+              if x==x1 and y==y1: break
+              g+=1
+              if g>limit: break
+              e2=2*err
+              if e2>-dy: err-=dy; x+=sx
+              if e2<dx: err+=dx; y+=sy
+          for e in edges_out:
+            rib=e.get('ribbon') or []
+            if len(rib)>=2:
+              pix=[origin(p[0],p[1]) for p in rib]
+              for i in range(len(pix)-1):
+                carve(pix[i][0],pix[i][1],pix[i+1][0],pix[i+1][1])
+          BIOME={'marsh':'M','cliffs':'C','quarry':'C','forest':'F','grove':'F','gauntlet_route':'F','ruins':'S','reach':'S','camp':'S','heavenfall_shrine':'S'}
+          for i,p in pos.items():
+            ox,oy=origin(p['x'],p['y']); ch=BIOME.get(i,'G')
+            rad=4 if i=='veld' else 3
+            for dy in range(-rad,rad+1):
+              for dx in range(-rad,rad+1):
+                if dx*dx+dy*dy>rad*rad: continue
+                tx,ty=ox+dx,oy+dy
+                if 0<=tx<gw and 0<=ty<gh and grid[ty][tx] not in ('W','R'): grid[ty][tx]=ch
           town={
             'version':3,'name':layout.get('name') or 'Sorrow County','anchor':'veld',
             'playerStartMap':layout.get('playerMarker',{}).get('mapId') or 'veld','unitTiles':UNIT,
             'nodes':nodes_out,'edges':edges_out,
             'routeShapes':{i:{'id':s['id'],'mapIds':s['mapIds'],'width':s['width'],'height':s['height'],'lengthTiles':s['lengthTiles'],'anchors':s['anchors']} for i,s in shapes.items()},
-            'collapse':COLLAPSE,'terrain':{'width':tw,'height':th,'tiles':['L'*tw for _ in range(th)]},
+            'collapse':COLLAPSE,'terrain':{'width':gw,'height':gh,'tiles':[''.join(row) for row in grid]},
             'generatedFrom':{'layout':'content/world_map_layout.json','maps':'content/maps.json','warps':'content/world.json'},
           }
           (ROOT/'content/town_map.json').write_text(json.dumps(town, indent=2)+'\n')
           (ROOT/'docs/generated').mkdir(parents=True, exist_ok=True)
           (ROOT/'docs/generated/route-shape-audit.json').write_text(json.dumps({'routes':shapes,'positions':pos}, indent=2)+'\n')
+          COLORS={'W':'#1a3a5c','L':'#3d6b3d','G':'#4a8a4a','F':'#2d5a2d','M':'#3a5a4a','C':'#6a6a5a','R':'#c4a574','S':'#b8a878'}
+          PX=8; sw,sh=gw*PX+40, gh*PX+40
+          svg=[f'<?xml version="1.0" encoding="UTF-8"?>',f'<svg xmlns="http://www.w3.org/2000/svg" width="{sw}" height="{sh}" viewBox="0 0 {sw} {sh}">',f'<rect width="100%" height="100%" fill="#0d1b2a"/>']
+          for y in range(gh):
+            for x in range(gw):
+              svg.append(f'<rect x="{20+x*PX}" y="{20+y*PX}" width="{PX}" height="{PX}" fill="{COLORS.get(grid[y][x],"#333")}"/>')
+          for i,p in pos.items():
+            lab,kind,gem=META.get(i,(i,'route',False))
+            ox,oy=origin(p['x'],p['y']); gx,gy=20+ox*PX+PX/2,20+oy*PX+PX/2
+            if gem:
+              svg.append(f'<circle cx="{gx}" cy="{gy}" r="5" fill="#1a4a6a"/>')
+              svg.append(f'<path d="M {gx} {gy-4} L {gx+3.5} {gy} L {gx} {gy+4} L {gx-3.5} {gy} Z" fill="#7ec8f0"/>')
+              svg.append(f'<text x="{gx}" y="{gy+12}" text-anchor="middle" fill="#fff8e0" font-family="monospace" font-size="7">{lab}</text>')
+            else:
+              svg.append(f'<text x="{gx}" y="{gy-5}" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">{lab}</text>')
+          svg.append('</svg>')
+          (ROOT/'public/maps').mkdir(parents=True, exist_ok=True)
+          (ROOT/'public/maps/sorrow-county-town-map.svg').write_text('\n'.join(svg)+'\n')
           print('OK', {i:s['lengthTiles'] for i,s in shapes.items()})
           print('pos', pos)
+          print('terrain', gw, 'x', gh, 'roads', sum(row.count('R') for row in grid))
           PY
-          if grep -qx PLACEHOLDER tools/generate-town-map.mjs 2>/dev/null; then
-            git show fc96571a83:tools/generate-town-map.mjs > tools/generate-town-map.mjs || true
-          fi
       - name: Commit
         run: |
           git config user.name "Grok C"
           git config user.email "76492590+xenodorian@users.noreply.github.com"
-          git add content/town_map.json docs/generated/ tools/generate-town-map.mjs
+          git add content/town_map.json docs/generated/ public/maps/sorrow-county-town-map.svg
           git status
           git diff --staged --quiet && exit 0
-          git commit -m "Town Map Phases 0-4: real route shapes, scaled layout, schema v3"
+          git commit -m "Regen Town Map v3: real route lengths, ribbon roads, biomes, SVG"
           git push
       - name: Ship Pages
         run: gh workflow run deploy-pages.yml --ref main || true
