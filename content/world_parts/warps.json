@@ -504,6 +504,38 @@
       "spawn": "2",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "tiferet",
+      "tile": "P",
+      "to": "nun",
+      "spawn": "1",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "nun",
+      "tile": "1",
+      "to": "tiferet",
+      "spawn": "P",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "nun",
+      "tile": "2",
+      "to": "netzach",
+      "spawn": "O",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "netzach",
+      "tile": "O",
+      "to": "nun",
+      "spawn": "2",
+      "dir": "left",
+      "ox": -32
     }
   ]
 }

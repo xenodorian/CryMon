@@ -121,6 +121,8 @@ export const TZADDI = normalize(raw.tzaddi);
 export const TIFERET = normalize(raw.tiferet);
 export const SAMEKH = normalize(raw.samekh);
 
+export const NUN = normalize(raw.nun);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -152,6 +154,7 @@ export const MAPS = {
   tzaddi: TZADDI,
   tiferet: TIFERET,
   samekh: SAMEKH,
+  nun: NUN,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

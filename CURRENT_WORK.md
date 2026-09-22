@@ -1199,4 +1199,5 @@ ports/dreamcast` -> commit -> push -> note completed step here.
 - Step 8/23: `tiferet` (city, the tree's 8-degree hub -- 3 exits N,
   2 E, 2 W, 1 S, verified no mark collisions on any wall) + `samekh`
   (route, tiferet<->yesod). Green.
+- Step 9/23: `nun` (route, tiferet<->netzach). Green.
 
