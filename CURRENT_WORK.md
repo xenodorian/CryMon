@@ -1224,4 +1224,5 @@ ports/dreamcast` -> commit -> push -> note completed step here.
 - Step 21/23: `keter` (city, the crown -- final city) + `gimel`
   (route, keter<->tiferet). All 10 Sephirot cities now exist.
   Remaining: aleph, beth (Keter's other two edges). Green.
+- Step 22/23: `aleph` (route, keter<->chokmah). Green.
 

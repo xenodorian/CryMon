@@ -95,7 +95,8 @@
     "vau": "PATH OF VAU",
     "daleth": "PATH OF DALETH",
     "keter": "KETER",
-    "gimel": "PATH OF GIMEL"
+    "gimel": "PATH OF GIMEL",
+    "aleph": "PATH OF ALEPH"
   },
   "mapIds": [
     "house",
@@ -145,7 +146,8 @@
     "vau",
     "daleth",
     "keter",
-    "gimel"
+    "gimel",
+    "aleph"
   ],
   "encounters": [
     {
@@ -1302,6 +1304,38 @@
       "spawn": "2",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "keter",
+      "tile": "D",
+      "to": "aleph",
+      "spawn": "1",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "aleph",
+      "tile": "1",
+      "to": "keter",
+      "spawn": "D",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "aleph",
+      "tile": "2",
+      "to": "chokmah",
+      "spawn": "D",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "chokmah",
+      "tile": "D",
+      "to": "aleph",
+      "spawn": "2",
+      "dir": "left",
+      "ox": -32
     }
   ],
   "trainers": {

@@ -47,7 +47,8 @@
     "vau": "PATH OF VAU",
     "daleth": "PATH OF DALETH",
     "keter": "KETER",
-    "gimel": "PATH OF GIMEL"
+    "gimel": "PATH OF GIMEL",
+    "aleph": "PATH OF ALEPH"
   },
   "mapIds": [
     "house",
@@ -97,6 +98,7 @@
     "vau",
     "daleth",
     "keter",
-    "gimel"
+    "gimel",
+    "aleph"
   ]
 }

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=bf665c5b355248af — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=3a3e7cfe474586cf — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -48,7 +48,8 @@
 #define MAP_DALETH 45
 #define MAP_KETER 46
 #define MAP_GIMEL 47
-#define MAP_N 48
+#define MAP_ALEPH 48
+#define MAP_N 49
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -1078,6 +1079,15 @@ static const char *const map_gimel_rows[] = {
     "###2##",
 };
 
+static const char *const map_aleph_rows[] = {
+    "########################",
+    "#......................#",
+    "#......................#",
+    "1......................2",
+    "#......................#",
+    "########################",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
@@ -1127,10 +1137,11 @@ static const Map MAPS[MAP_N] = {
     { map_daleth_rows, 24, 6 },
     { map_keter_rows, 16, 12 },
     { map_gimel_rows, 6, 24 },
+    { map_aleph_rows, 24, 6 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";
