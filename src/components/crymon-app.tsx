@@ -10,7 +10,6 @@ export function CryMonApp() {
   const gameRef = useRef<CryMon | null>(null);
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [pad, setPad] = useState({ x: 0, y: 0 });
   const [devCodesOn, setDevCodesOn] = useState(false);
   const [devCodeText, setDevCodeText] = useState("");
   const [devCodeMsg, setDevCodeMsg] = useState("");
@@ -56,9 +55,7 @@ export function CryMonApp() {
     g.audio.muted = muted;
   }, [muted]);
 
-  useEffect(() => {
-    gameRef.current?.input.setPad(pad.x, pad.y);
-  }, [pad]);
+  // Pad written straight to Input on pointer events.
 
   return (
     <div className="min-h-dvh bg-bg text-fg">
@@ -147,7 +144,6 @@ export function CryMonApp() {
           <div className="flex w-full max-w-[960px] items-end justify-between gap-3 overflow-x-hidden">
             <Dpad
               onPad={(v) => {
-                setPad(v);
                 gameRef.current?.input.setPad(v.x, v.y);
               }}
             />
@@ -262,6 +258,7 @@ function Face({
       style={{ touchAction: "manipulation" }}
       onPointerDown={(e) => {
         e.preventDefault();
+        e.stopPropagation();
         (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
         onClick();
       }}

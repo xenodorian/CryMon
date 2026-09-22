@@ -625,9 +625,12 @@ export class CryMon {
 			this.acc += dt;
 			this.input.beginFrame();
 			this.input.pollGamepad();
+			let stepI = 0;
 			while (this.acc >= STEP) {
+				if (stepI > 0) this.input.consumeQueuedFace();
 				this.update(STEP);
 				this.acc -= STEP;
+				stepI += 1;
 			}
 			this.draw();
 			this.input.endFrame();

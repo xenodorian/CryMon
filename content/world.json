@@ -1623,12 +1623,12 @@
     "marshBog": {
       "lead": [
         "peatling",
-        5
+        3
       ],
       "bench": [
         [
           "mireback",
-          5
+          3
         ]
       ],
       "title": "Bogwalker sends Peatling",
@@ -1640,12 +1640,12 @@
     "marshReed": {
       "lead": [
         "fenwisp",
-        6
+        3
       ],
       "bench": [
         [
           "glowcap",
-          6
+          3
         ]
       ],
       "title": "Reedguard sends Fenwisp",

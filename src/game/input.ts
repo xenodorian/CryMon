@@ -185,7 +185,7 @@ export class Input {
     } else if (this.dirHeldAt[name] != null) {
       const held = now - (this.dirHeldAt[name] as number);
       const since = now - this.dirLastFire[name];
-      if (held > 140 && since > 50) {
+      if (held > 55 && since > 28) {
         this.dirLastFire[name] = now;
         v = true;
       }
@@ -221,6 +221,13 @@ export class Input {
   }
   queueSelect() {
     this.tapSelectQueued += 1;
+  }
+  consumeQueuedFace() {
+    if (this.tapAQueued > 0) { this.tapA = true; this.tapAQueued -= 1; }
+    if (this.tapBQueued > 0) { this.tapB = true; this.tapBQueued -= 1; }
+    if (this.tapStartQueued > 0) { this.tapStart = true; this.tapStartQueued -= 1; }
+    if (this.tapSelectQueued > 0) { this.tapSelect = true; this.tapSelectQueued -= 1; }
+    this.used.clear();
   }
 
   setPad(x: number, y: number) {
