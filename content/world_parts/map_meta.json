@@ -38,7 +38,9 @@
     "gevurah": "GEVURAH",
     "mem": "PATH OF MEM",
     "lamed": "PATH OF LAMED",
-    "teth": "PATH OF TETH"
+    "teth": "PATH OF TETH",
+    "binah": "BINAH",
+    "zayin": "PATH OF ZAYIN"
   },
   "mapIds": [
     "house",
@@ -79,6 +81,8 @@
     "gevurah",
     "mem",
     "lamed",
-    "teth"
+    "teth",
+    "binah",
+    "zayin"
   ]
 }

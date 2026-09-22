@@ -1208,4 +1208,5 @@ ports/dreamcast` -> commit -> push -> note completed step here.
 - Step 14/23: `lamed` (route, gevurah<->tiferet). Green.
 - Step 15/23: `teth` (route, chesed<->gevurah). Chesed/Gevurah/Tiferet
   triangle complete. Green.
+- Step 16/23: `binah` (city) + `zayin` (route, binah<->tiferet). Green.
 
