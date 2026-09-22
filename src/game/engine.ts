@@ -4357,13 +4357,10 @@ export class CryMon {
 		const { cx, cy } = this.cam();
 		this.drawSprite(key, wx - cx - w / 2, wy - cy - h + 6, w, h);
 	}
-	hintZ(wx, wy, radius = 52) {
-		const { cx, cy } = this.cam();
-		const dx = wx - this.world.x;
-		const dy = wy - this.world.y;
-		if (dx * dx + dy * dy > radius * radius) return;
-		this.text("Z", wx - cx - 2, wy - cy - 22, "#e8e4d8", FONT);
-	}
+	/** No interaction-prompt popup wanted. Kept as a no-op instead of
+	 *  removing every drawWorld() call site -- interact()'s own
+	 *  proximity checks are separate and unaffected. */
+	hintZ(_wx: number, _wy: number, _radius = 52) {}
 	drawWorld() {
 		const { cx, cy } = this.cam();
 		const map = this.map();

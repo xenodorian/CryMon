@@ -1539,3 +1539,18 @@ read from the source file) matches the new three lines exactly.
 `check_sync --strict`, typecheck, web build, and a clean Dreamcast
 rebuild all pass.
 
+## Removed the "Z" interaction popup (Claude, 2026-09-22)
+
+Web-only feature, web-only fix: `hintZ(wx, wy, radius)` drew a "Z"
+above any interactable (shelf, crate, herb, NPCs, the wrecked cart,
+etc.) once Max stood within `radius` of it -- ~15 call sites across
+`drawWorld()`. Turned it into a no-op rather than stripping all 15
+call sites individually (lower risk, same result; `interact()`'s own
+proximity checks are separate code and unaffected). Dreamcast never
+had this popup at all (confirmed: no `"Z"` text draw anywhere in
+`main.c`), so no Dreamcast change needed.
+
+Verified visually against the real dev server: standing next to the
+house's shelf (previously a guaranteed trigger) shows no popup.
+typecheck, web build, and a clean Dreamcast rebuild all pass.
+
