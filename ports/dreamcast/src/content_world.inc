@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3c3831dfffb8e488 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4823435c39a3d7ff — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -37,18 +37,12 @@ static const WarpDef WARPS[] = {
     { MAP_FOREST, MAP_VELD, 'Y', 'Z', 1, 0, 0, -1 },
     { MAP_FOREST, MAP_GROVE, 'O', 'O', 0, 0, 0, -1 },
     { MAP_GROVE, MAP_FOREST, 'O', 'O', 1, 0, 0, -1 },
-    { MAP_VELD, MAP_CAMP, 'F', 'D', 0, 2, 0, 10 },
-    { MAP_CAMP, MAP_VELD, 'D', 'F', 1, 0, 0, -1 },
     { MAP_VELD, MAP_CLIFFS, 'c', 'D', 0, 0, 0, -1 },
     { MAP_CLIFFS, MAP_VELD, 'D', 'c', 1, 0, 0, -1 },
-    { MAP_GROVE, MAP_RUINS, 'g', 'D', 3, 3, 0, 11 },
-    { MAP_RUINS, MAP_GROVE, 'D', 'g', 2, 0, 0, -1 },
+    { MAP_GROVE, MAP_RUINS, 'g', 'D', 0, 3, 0, 11 },
+    { MAP_RUINS, MAP_GROVE, 'D', 'g', 1, 0, 0, -1 },
     { MAP_RUINS, MAP_REACH, 'e', 'D', 0, 4, 0, 77 },
     { MAP_REACH, MAP_RUINS, 'D', 'e', 1, 0, 0, -1 },
-    { MAP_FOREST, MAP_MARSH, 'm', 'Y', 0, 0, 0, -1 },
-    { MAP_MARSH, MAP_FOREST, 'Y', 'm', 1, 0, 0, -1 },
-    { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 0, 0, 0, -1 },
-    { MAP_QUARRY, MAP_CLIFFS, 'D', 'q', 1, 0, 0, -1 },
     { MAP_GROVE, MAP_GAUNTLET1, 'G', '2', 0, 6, 0, 122 },
     { MAP_GAUNTLET1, MAP_GROVE, '2', 'G', 1, 0, 0, -1 },
     { MAP_GAUNTLET1, MAP_GAUNTLET2, '1', '2', 0, 0, 0, -1 },
@@ -61,6 +55,12 @@ static const WarpDef WARPS[] = {
     { MAP_GAUNTLET5, MAP_GAUNTLET4, '2', '1', 1, 0, 0, -1 },
     { MAP_GAUNTLET5, MAP_GAUNTLET6, '1', '2', 0, 0, 0, -1 },
     { MAP_GAUNTLET6, MAP_GAUNTLET5, '2', '1', 1, 0, 0, -1 },
+    { MAP_CLIFFS, MAP_MARSH, 'L', 'G', 3, 0, 0, -1 },
+    { MAP_MARSH, MAP_CLIFFS, 'G', 'L', 2, 0, 0, -1 },
+    { MAP_MARSH, MAP_QUARRY, 'X', 'G', 3, 0, 0, -1 },
+    { MAP_QUARRY, MAP_MARSH, 'G', 'X', 2, 0, 0, -1 },
+    { MAP_QUARRY, MAP_CAMP, 'J', 'L', 3, 2, 0, 10 },
+    { MAP_CAMP, MAP_QUARRY, 'L', 'J', 2, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
 

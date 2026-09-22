@@ -301,22 +301,6 @@
     },
     {
       "from": "veld",
-      "to": "camp",
-      "fromTile": "F",
-      "toTile": "D",
-      "fromXY": {
-        "x": 8,
-        "y": 20
-      },
-      "toXY": {
-        "x": 7,
-        "y": 1
-      },
-      "direction": "down",
-      "need": "beatCalder"
-    },
-    {
-      "from": "veld",
       "to": "cliffs",
       "fromTile": "c",
       "toTile": "D",
@@ -362,38 +346,6 @@
       },
       "direction": "down",
       "need": "hasScroll"
-    },
-    {
-      "from": "forest",
-      "to": "marsh",
-      "fromTile": "m",
-      "toTile": "Y",
-      "fromXY": {
-        "x": 20,
-        "y": 9
-      },
-      "toXY": {
-        "x": 8,
-        "y": 1
-      },
-      "direction": "down",
-      "need": null
-    },
-    {
-      "from": "cliffs",
-      "to": "quarry",
-      "fromTile": "q",
-      "toTile": "D",
-      "fromXY": {
-        "x": 2,
-        "y": 10
-      },
-      "toXY": {
-        "x": 9,
-        "y": 1
-      },
-      "direction": "down",
-      "need": null
     },
     {
       "from": "grove",
@@ -490,6 +442,54 @@
       },
       "direction": "down",
       "need": null
+    },
+    {
+      "from": "cliffs",
+      "to": "marsh",
+      "fromTile": "L",
+      "toTile": "G",
+      "fromXY": {
+        "x": 17,
+        "y": 5
+      },
+      "toXY": {
+        "x": 0,
+        "y": 10
+      },
+      "direction": "right",
+      "need": null
+    },
+    {
+      "from": "marsh",
+      "to": "quarry",
+      "fromTile": "X",
+      "toTile": "G",
+      "fromXY": {
+        "x": 17,
+        "y": 10
+      },
+      "toXY": {
+        "x": 0,
+        "y": 6
+      },
+      "direction": "right",
+      "need": null
+    },
+    {
+      "from": "quarry",
+      "to": "camp",
+      "fromTile": "J",
+      "toTile": "L",
+      "fromXY": {
+        "x": 15,
+        "y": 6
+      },
+      "toXY": {
+        "x": 0,
+        "y": 5
+      },
+      "direction": "right",
+      "need": "beatCalder"
     }
   ],
   "rules": [

@@ -761,3 +761,57 @@ in-game panel's cell size is much smaller than the SVG's fixed 26px).
 Gauntlet's label is untouched — it already sits correctly centered in
 the middle of its long corridor.
 
+**Rewired east chain: CryTown -> Cliffs -> Marsh -> Quarry -> Camp
+(Claude, 2026-09-22).** Previously Camp hung directly off CryTown
+(south, gated by `beatCalder`), Marsh hung off Forest (south), and
+Quarry hung off Cliffs (south) — three separate short branches, not
+a path. User wanted a single linear route east of CryTown through
+all three, terminating at Camp. Real warp/door surgery, not just
+Town Map relabeling:
+- **`content/maps.json`**: added new east/west door tiles to each of
+  `cliffs` (`L`, east wall), `marsh` (`G` west / `X` east), `quarry`
+  (`G` west / `J` east), `camp` (`L` west); removed the old
+  now-unused south/north doors (`cliffs`'s `q`, `marsh`'s `Y`,
+  `quarry`'s old `D`, `camp`'s old `D`) so no phantom door graphic is
+  left with nothing behind it. Verified every warp/mark character
+  still appears exactly once per map afterward.
+- **IMPORTANT PROCESS NOTE:** `content/world.json` is a **generated**
+  file — `tools/merge_world.py` assembles it from
+  `content/world_parts/*.json` (its own header says so:
+  "Agents edit only their part file, then run this. Do not
+  hand-edit world.json."). This wasn't written down anywhere in this
+  doc before now and I initially hand-edited `world.json` directly
+  out of habit before catching it — fixed by applying the same warp
+  changes to `content/world_parts/warps.json` and re-running
+  `python3 tools/merge_world.py` to regenerate `world.json`
+  canonically. **If you're about to hand-edit `content/world.json`,
+  don't — edit the matching file in `content/world_parts/` and run
+  `merge_world.py`, or your change is at risk of being silently
+  clobbered next time someone else runs it.**
+- New warps: `cliffs<->marsh`, `marsh<->quarry`, `quarry<->camp`, all
+  `dir:"right"`/`dir:"left"` (the `ox:40`/`ox:-32` convention from
+  the Grove/Ruins east-west warp work earlier this session). The
+  `need:"beatCalder"`/`failTalk:"campLocked"` gate moved from the old
+  `veld->camp` warp onto the new `quarry->camp` warp — Camp is still
+  gated behind beating Calder, just reached through the chain now.
+  Old `veld<->camp`, `forest<->marsh`, `cliffs<->quarry` warps
+  removed entirely (no direct branches anymore).
+- **`content/world_map_layout.json`**: connections updated to match,
+  with real `fromXY`/`toXY` scanned from the new door tile positions
+  (not guessed) so the Town Map generator's `exitEdge()` computes
+  "east"/"west" correctly from real geometry.
+- **`tools/generate-town-map.mjs`**: `REGION_META.quarry.gem` set to
+  `false` (was `true`) — Quarry is a waypoint on the chain now, not a
+  destination.
+- Regenerated: `run_full_audit.py` PASS, developer markdown confirms
+  the exact chain (`CryTown -> The Cliffs [east]`, `The Cliffs -> The
+  Marsh [east]`, `The Marsh -> The Quarry [east]`, `The Quarry -> The
+  Camp [east] need:beatCalder`), rendered SVG visually confirmed as a
+  clean eastward line with no overlaps.
+- `check_sync --strict`, typecheck, web build, `make -C
+  ports/dreamcast` all clean (baked `.inc` content changed since
+  `maps.json`/`world.json` changed — verified the baked `WarpDef`
+  entries carry the correct dir codes 2/3 for left/right and the
+  `beatCalder` flag index correctly followed the gate to its new
+  warp).
+

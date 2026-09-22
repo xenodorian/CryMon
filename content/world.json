@@ -374,24 +374,6 @@
     },
     {
       "from": "veld",
-      "tile": "F",
-      "to": "camp",
-      "spawn": "D",
-      "dir": "down",
-      "oy": 40,
-      "need": "beatCalder",
-      "failTalk": "campLocked"
-    },
-    {
-      "from": "camp",
-      "tile": "D",
-      "to": "veld",
-      "spawn": "F",
-      "dir": "up",
-      "oy": -32
-    },
-    {
-      "from": "veld",
       "tile": "c",
       "to": "cliffs",
       "spawn": "D",
@@ -411,8 +393,8 @@
       "tile": "g",
       "to": "ruins",
       "spawn": "D",
-      "dir": "right",
-      "ox": 40,
+      "dir": "down",
+      "oy": 40,
       "need": "beatShin",
       "failTalk": "groveLocked"
     },
@@ -421,8 +403,8 @@
       "tile": "D",
       "to": "grove",
       "spawn": "g",
-      "dir": "left",
-      "ox": -32
+      "dir": "up",
+      "oy": -32
     },
     {
       "from": "ruins",
@@ -439,38 +421,6 @@
       "tile": "D",
       "to": "ruins",
       "spawn": "e",
-      "dir": "up",
-      "oy": -32
-    },
-    {
-      "from": "forest",
-      "tile": "m",
-      "to": "marsh",
-      "spawn": "Y",
-      "dir": "down",
-      "oy": 40
-    },
-    {
-      "from": "marsh",
-      "tile": "Y",
-      "to": "forest",
-      "spawn": "m",
-      "dir": "up",
-      "oy": -32
-    },
-    {
-      "from": "cliffs",
-      "tile": "q",
-      "to": "quarry",
-      "spawn": "D",
-      "dir": "down",
-      "oy": 40
-    },
-    {
-      "from": "quarry",
-      "tile": "D",
-      "to": "cliffs",
-      "spawn": "q",
       "dir": "up",
       "oy": -32
     },
@@ -571,6 +521,56 @@
       "spawn": "1",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "cliffs",
+      "tile": "L",
+      "to": "marsh",
+      "spawn": "G",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "marsh",
+      "tile": "G",
+      "to": "cliffs",
+      "spawn": "L",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "marsh",
+      "tile": "X",
+      "to": "quarry",
+      "spawn": "G",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "quarry",
+      "tile": "G",
+      "to": "marsh",
+      "spawn": "X",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "quarry",
+      "tile": "J",
+      "to": "camp",
+      "spawn": "L",
+      "dir": "right",
+      "ox": 40,
+      "need": "beatCalder",
+      "failTalk": "campLocked"
+    },
+    {
+      "from": "camp",
+      "tile": "L",
+      "to": "quarry",
+      "spawn": "J",
+      "dir": "left",
+      "ox": -32
     }
   ],
   "trainers": {

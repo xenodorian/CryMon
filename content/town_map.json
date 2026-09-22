@@ -11,7 +11,7 @@
       "label": "CryTown",
       "kind": "town",
       "gem": true,
-      "x": 2,
+      "x": 0,
       "y": 1,
       "cellW": 3,
       "cellH": 2,
@@ -29,7 +29,7 @@
       "label": "The Forest",
       "kind": "route",
       "gem": false,
-      "x": 2,
+      "x": 0,
       "y": 3,
       "cellW": 3,
       "cellH": 3,
@@ -42,28 +42,11 @@
       }
     },
     {
-      "id": "camp",
-      "label": "The Camp",
-      "kind": "camp",
-      "gem": true,
-      "x": 0,
-      "y": 1,
-      "cellW": 2,
-      "cellH": 1,
-      "playableMaps": [
-        "camp"
-      ],
-      "realSize": {
-        "width": 16,
-        "height": 10
-      }
-    },
-    {
       "id": "cliffs",
       "label": "The Cliffs",
       "kind": "route",
       "gem": false,
-      "x": 5,
+      "x": 3,
       "y": 1,
       "cellW": 2,
       "cellH": 2,
@@ -80,7 +63,7 @@
       "label": "The Grove",
       "kind": "landmark",
       "gem": true,
-      "x": 2,
+      "x": 0,
       "y": 6,
       "cellW": 3,
       "cellH": 2,
@@ -98,7 +81,7 @@
       "kind": "route",
       "gem": false,
       "x": 5,
-      "y": 3,
+      "y": 0,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -110,28 +93,11 @@
       }
     },
     {
-      "id": "quarry",
-      "label": "The Quarry",
-      "kind": "cave",
-      "gem": true,
-      "x": 1,
-      "y": 0,
-      "cellW": 2,
-      "cellH": 1,
-      "playableMaps": [
-        "quarry"
-      ],
-      "realSize": {
-        "width": 16,
-        "height": 13
-      }
-    },
-    {
       "id": "ruins",
       "label": "The Ruins",
       "kind": "route",
       "gem": false,
-      "x": 5,
+      "x": 3,
       "y": 6,
       "cellW": 2,
       "cellH": 2,
@@ -148,7 +114,7 @@
       "label": "Gauntlet",
       "kind": "route",
       "gem": false,
-      "x": 2,
+      "x": 0,
       "y": 8,
       "cellW": 2,
       "cellH": 18,
@@ -165,11 +131,28 @@
       }
     },
     {
+      "id": "quarry",
+      "label": "The Quarry",
+      "kind": "cave",
+      "gem": false,
+      "x": 7,
+      "y": 1,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [
+        "quarry"
+      ],
+      "realSize": {
+        "width": 16,
+        "height": 13
+      }
+    },
+    {
       "id": "reach",
       "label": "The Reach",
       "kind": "landmark",
       "gem": true,
-      "x": 5,
+      "x": 3,
       "y": 8,
       "cellW": 2,
       "cellH": 2,
@@ -186,7 +169,7 @@
       "label": "Heavenfall Shrine",
       "kind": "shrine",
       "gem": true,
-      "x": 2,
+      "x": 0,
       "y": 26,
       "cellW": 2,
       "cellH": 2,
@@ -196,6 +179,23 @@
       "realSize": {
         "width": 16,
         "height": 20
+      }
+    },
+    {
+      "id": "camp",
+      "label": "The Camp",
+      "kind": "camp",
+      "gem": true,
+      "x": 9,
+      "y": 1,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [
+        "camp"
+      ],
+      "realSize": {
+        "width": 16,
+        "height": 10
       }
     }
   ],
@@ -211,12 +211,6 @@
       "to": "grove",
       "edge": "south",
       "need": null
-    },
-    {
-      "from": "veld",
-      "to": "camp",
-      "edge": "south",
-      "need": "beatCalder"
     },
     {
       "from": "veld",
@@ -237,18 +231,6 @@
       "need": "hasScroll"
     },
     {
-      "from": "forest",
-      "to": "marsh",
-      "edge": "east",
-      "need": null
-    },
-    {
-      "from": "cliffs",
-      "to": "quarry",
-      "edge": "west",
-      "need": null
-    },
-    {
       "from": "grove",
       "to": "gauntlet_route",
       "edge": "south",
@@ -259,6 +241,24 @@
       "to": "heavenfall_shrine",
       "edge": "south",
       "need": null
+    },
+    {
+      "from": "cliffs",
+      "to": "marsh",
+      "edge": "east",
+      "need": null
+    },
+    {
+      "from": "marsh",
+      "to": "quarry",
+      "edge": "east",
+      "need": null
+    },
+    {
+      "from": "quarry",
+      "to": "camp",
+      "edge": "east",
+      "need": "beatCalder"
     }
   ],
   "collapse": {
@@ -272,7 +272,7 @@
     "gauntlet": null
   },
   "terrain": {
-    "width": 11,
+    "width": 15,
     "height": 32
   },
   "generatedFrom": {

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3c3831dfffb8e488 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4823435c39a3d7ff — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -120,11 +120,11 @@ static const char *const map_grove_rows[] = {
 
 static const char *const map_camp_rows[] = {
     "################",
-    "#######D########",
+    "################",
     "#.rrr.K..A.rrr.#",
     "#.HHH......HHH.#",
     "#.HHH......HHH.#",
-    "#...TTTTTTTT...#",
+    "L...TTTTTTTT...#",
     "#..S...I.......#",
     "#.rrr......rrr.#",
     "#.HHH......HHH.#",
@@ -137,7 +137,7 @@ static const char *const map_cliffs_rows[] = {
     "#................#",
     "#................#",
     "#.TTT.......TTT..#",
-    "#................#",
+    "#................L",
     "#.TTT.......TTT..#",
     "#...V............#",
     "#................#",
@@ -150,7 +150,7 @@ static const char *const map_cliffs_rows[] = {
     "#................#",
     "#.TTT.......TTT..#",
     "#.TTT............#",
-    "#.q..............#",
+    "#................#",
     "##################",
 };
 
@@ -197,7 +197,7 @@ static const char *const map_reach_rows[] = {
 
 static const char *const map_marsh_rows[] = {
     "##################",
-    "####....Y....#####",
+    "####.........#####",
     "###....====....###",
     "###....====....###",
     "##..T..====..T..##",
@@ -206,7 +206,7 @@ static const char *const map_marsh_rows[] = {
     "##.TTT.====.TTT.##",
     "##..T..====..T..##",
     "##..T..====..T..##",
-    "##.1...====..2..##",
+    "G..1...====..2...X",
     "##.T...====...T.##",
     "##.T...====...T.##",
     "##.TTT.====.TTT.##",
@@ -221,12 +221,12 @@ static const char *const map_marsh_rows[] = {
 
 static const char *const map_quarry_rows[] = {
     "################",
-    "#........D.....#",
+    "#........#.....#",
     "#.........1....#",
     "#..^^^^........#",
     "#..^^^^..TTT...#",
     "#..^^^^..TTT...#",
-    "#........TTT...#",
+    "G........TTT...J",
     "#...C.S........#",
     "#..............#",
     "#....^^^^......#",

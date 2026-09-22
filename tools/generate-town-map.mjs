@@ -49,7 +49,7 @@ const REGION_META = {
   grove: { label: "The Grove", kind: "landmark", gem: true },
   reach: { label: "The Reach", kind: "landmark", gem: true },
   heavenfall_shrine: { label: "Heavenfall Shrine", kind: "shrine", gem: true },
-  quarry: { label: "The Quarry", kind: "cave", gem: true },
+  quarry: { label: "The Quarry", kind: "cave", gem: false },
   /* Routes -- real elongated corridors, no marker, label on the path */
   forest: { label: "The Forest", kind: "route", gem: false },
   cliffs: { label: "The Cliffs", kind: "route", gem: false },
