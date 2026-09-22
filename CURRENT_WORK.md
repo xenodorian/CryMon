@@ -1222,6 +1222,31 @@ mid-flight elsewhere, art generation is out of reach — all excluded):
   `npm run typecheck`, `npm run build`, and `make -C ports/dreamcast`
   all clean, no new warnings.
 
+**Repo review + bugfix (Claude, 2026-09-22):** general review turned up
+`title_slayer`/`title_tamer` (`6c7c870`'s 2.8-wiring commit) were set
+correctly at the heavenfallGrave win/capture branches but never read
+anywhere on Dreamcast — the compiler even flagged them `set but not
+used`. Web's `playerDisplayName()` shows "Heaven Slayer"/"Heaven
+Tamer" for the same state; Dreamcast's `apply_player_name()` only
+ever toggled MAX / `LOGIC_REP_KIND_NAME`. Fixed to match web's exact
+precedence (titleSlayer > titleTamer > revived/kindName > "MAX"):
+- `apply_player_name()` now takes `(revived, slayer, tamer)` and picks
+  the display name with that precedence; called at both the
+  Slayer/Tamer-setting sites (so the name updates live in-session) and
+  after a save loads.
+- Found and fixed the same class of gap for the save layer: `title_
+  slayer`/`title_tamer` had save-flag bits already baked
+  (`SAVE_FLAG_TITLE_SLAYER`/`_TAMER`, 57/58) but no load/write glue at
+  all — a title would silently vanish on save/reload. Added both.
+- Also found `beat_heavenfall`/`heavenfall_rep_warned`/
+  `gauntlet_unlocked`/`title_slayer`/`title_tamer` were missing from
+  the New Game reset block entirely (same "New Game leak" class as the
+  `reputation` bug fixed earlier this leg) — a second playthrough in
+  the same session could start with a stale title or an already-warned
+  merchant. All five now reset.
+- Rebuilt clean: the two `set but not used` warnings are gone, no new
+  ones; `check_sync --strict` still fully green.
+
 ## Leg 3 (open — also from the same doc)
 
 **Do not start before Leg 2's gauntlet/reputation work lands** — Leg 3

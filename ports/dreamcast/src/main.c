@@ -774,12 +774,20 @@ typedef struct {
 #include "content_logic.inc"
 
 /* Display-name override (Leg 2.7.5). Defaults to MAX; father revival
-   swaps in LOGIC_REP_KIND_NAME. Later titles (Slayer/Tamer) reuse this. */
+   swaps in LOGIC_REP_KIND_NAME. Precedence matches web's
+   playerDisplayName() exactly: titleSlayer > titleTamer > revived
+   (kindName) > "MAX". Call whenever any of the three inputs changes
+   (title_slayer/title_tamer flip at the heavenfallGrave win/capture
+   branches, revived flips at the resurrection choice) and once after
+   a save loads, so a reload doesn't silently drop a title. */
 static const char *g_player_name = "MAX";
 static int g_player_renamed = 0;
-static void apply_player_name(int revived) {
-    g_player_renamed = revived ? 1 : 0;
-    g_player_name = revived ? LOGIC_REP_KIND_NAME : "MAX";
+static void apply_player_name(int revived, int slayer, int tamer) {
+    g_player_renamed = (revived || slayer || tamer) ? 1 : 0;
+    if(slayer) g_player_name = "HEAVEN SLAYER";
+    else if(tamer) g_player_name = "HEAVEN TAMER";
+    else if(revived) g_player_name = LOGIC_REP_KIND_NAME;
+    else g_player_name = "MAX";
 }
 
 #define FADE_NONE 0
@@ -5035,7 +5043,9 @@ void main(void) {
                         badge_opal = save_flag_get(&sl, SAVE_FLAG_BADGE_OPAL);
                         chose_heavenfall = save_flag_get(&sl, SAVE_FLAG_CHOSE_HEAVENFALL);
                         revived_father = save_flag_get(&sl, SAVE_FLAG_REVIVED_FATHER);
-                        apply_player_name(revived_father);
+                        title_slayer = save_flag_get(&sl, SAVE_FLAG_TITLE_SLAYER);
+                        title_tamer = save_flag_get(&sl, SAVE_FLAG_TITLE_TAMER);
+                        apply_player_name(revived_father, title_slayer, title_tamer);
                         shop_free[0] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_BRAM);
                         shop_free[1] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_OREN);
                         shop_free[2] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_FENN);
@@ -5117,9 +5127,11 @@ void main(void) {
                 beat_marsh_bog = 0; beat_marsh_reed = 0; badge_opal = 0;
                 chose_heavenfall = 0; beat_commander = 0;
                 beat_lieutenant_lead = 0;
+                beat_heavenfall = 0; heavenfall_rep_warned = 0; gauntlet_unlocked = 0;
+                title_slayer = 0; title_tamer = 0;
                 revived_father = 0;
                 reputation = 0;
-                apply_player_name(0);
+                apply_player_name(0, 0, 0);
                 shop_free[0] = shop_free[1] = shop_free[2] = shop_free[3] = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
@@ -5271,6 +5283,8 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_BEAT_HEAVENFALL, beat_heavenfall);
                     save_flag_put(&sl, SAVE_FLAG_HEAVENFALL_REP_WARNED, heavenfall_rep_warned);
                     save_flag_put(&sl, SAVE_FLAG_GAUNTLET_UNLOCKED, gauntlet_unlocked);
+                    save_flag_put(&sl, SAVE_FLAG_TITLE_SLAYER, title_slayer);
+                    save_flag_put(&sl, SAVE_FLAG_TITLE_TAMER, title_tamer);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_LIEUTENANT_LEAD, beat_lieutenant_lead);
                     save_flag_put(&sl, SAVE_FLAG_TESSA_GIFTED, talked_tessa);
                     save_flag_put(&sl, SAVE_FLAG_CHEST_LOOTED, got_chest);
@@ -5754,6 +5768,7 @@ void main(void) {
                                         if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
                                     }
                                     title_slayer = 1; title_tamer = 0;
+                                    apply_player_name(revived_father, title_slayer, title_tamer);
                                     marks += 30; battles++;
                                     in_battle = 0; enc_lock = 3;
                                     seq_lines = TALK_GAUNTLET_GRAVE_WIN;
@@ -5903,6 +5918,7 @@ void main(void) {
                                         if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
                                     }
                                     title_tamer = 1; title_slayer = 0;
+                                    apply_player_name(revived_father, title_slayer, title_tamer);
                                 }
                                 if(battle.catch_full) {
                                     pending_catch = battle.foe;
@@ -6194,7 +6210,7 @@ void main(void) {
                 if(chose_heavenfall) gauntlet_unlocked = 1;
                 if(choice_cur == 0) {
                     revived_father = 1;
-                    apply_player_name(1);
+                    apply_player_name(1, title_slayer, title_tamer);
                     reputation += LOGIC_REP_FATHER_REVIVE;
                     if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
                     if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
