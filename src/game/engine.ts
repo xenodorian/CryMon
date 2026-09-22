@@ -3508,9 +3508,19 @@ export class CryMon {
 	submitDevCode(raw: string): string {
 		const code = raw.trim().toLowerCase();
 		if (code === "winall") {
-			if (this.mode !== "battle" || !this.battle) return "WinAll: no battle in progress.";
-			this.devWinAll();
-			return "WinAll: battle won.";
+			if (this.mode === "battle" && this.battle) {
+				this.devWinAll();
+				return "WinAll: battle won.";
+			}
+			if (this.mode === "mercy" && this.battle) {
+				this.mode = "world";
+				this.battle = null;
+				this.world.encounterLock = 3;
+				this.onBattleOver();
+				return "WinAll: left mercy, battle cleared.";
+			}
+			this.devWinAllFlags();
+			return "WinAll: all trainers cleared (use in battle to win one fight).";
 		}
 		if (code === "passall") {
 			this.devPassAll = true;
@@ -3528,6 +3538,30 @@ export class CryMon {
 		b.foe.hp = 0;
 		b.foeBench = [];
 		this.finishWin();
+	}
+	/** Outside battle: mark every trainer/story flag beaten so the player
+	 *  can walk the full map without grinding (dev only). */
+	devWinAllFlags() {
+		this.beatCalder = true;
+		this.beatCathleen = true;
+		this.beatShinigami = true;
+		this.beatCross = true;
+		this.beatConscript = true;
+		this.beatEnforcer = true;
+		this.beatSentry = true;
+		this.beatForestRanger = true;
+		this.beatForestScout = true;
+		this.beatRuinsKeeper = true;
+		this.beatRuinsWarden = true;
+		this.beatMarshBog = true;
+		this.beatMarshReed = true;
+		this.badgeQuartz = true;
+		this.badgeOpal = true;
+		this.beatQuarryDriller = true;
+		this.beatCommander = true;
+		this.beatLieutenantLead = true;
+		this.beatHeavenfall = true;
+		for (const sol of this.soldiers) sol.beaten = true;
 	}
 	finishWin() {
 		const b = this.battle;
