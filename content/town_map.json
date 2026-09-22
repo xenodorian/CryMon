@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "name": "Sorrow County",
+  "anchor": "veld",
+  "playerStartMap": "veld",
+  "nodes": [
+    {
+      "id": "veld",
+      "label": "CryTown",
+      "kind": "town",
+      "gem": true,
+      "x": 0,
+      "y": 0,
+      "playableMaps": [
+        "house",
+        "veld"
+      ]
+    },
+    {
+      "id": "camp",
+      "label": "The Camp",
+      "kind": "camp",
+      "gem": true,
+      "x": -2,
+      "y": 0,
+      "playableMaps": [
+        "camp"
+      ]
+    },
+    {
+      "id": "cliffs",
+      "label": "The Cliffs",
+      "kind": "route",
+      "gem": false,
+      "x": 2,
+      "y": 0,
+      "playableMaps": [
+        "cliffs"
+      ]
+    },
+    {
+      "id": "forest",
+      "label": "The Forest",
+      "kind": "route",
+      "gem": false,
+      "x": 0,
+      "y": 1,
+      "playableMaps": [
+        "forest"
+      ]
+    },
+    {
+      "id": "marsh",
+      "label": "The Marsh",
+      "kind": "route",
+      "gem": false,
+      "x": -2,
+      "y": 1,
+      "playableMaps": [
+        "marsh"
+      ]
+    },
+    {
+      "id": "quarry",
+      "label": "The Quarry",
+      "kind": "cave",
+      "gem": false,
+      "x": 2,
+      "y": 1,
+      "playableMaps": [
+        "quarry"
+      ]
+    },
+    {
+      "id": "grove",
+      "label": "The Grove",
+      "kind": "route",
+      "gem": false,
+      "x": 0,
+      "y": 2,
+      "playableMaps": [
+        "grove"
+      ]
+    },
+    {
+      "id": "gauntlet_route",
+      "label": "Gauntlet",
+      "kind": "gauntlet",
+      "gem": false,
+      "x": -2,
+      "y": 2,
+      "playableMaps": [
+        "gauntlet1",
+        "gauntlet2",
+        "gauntlet3",
+        "gauntlet4",
+        "gauntlet5"
+      ]
+    },
+    {
+      "id": "ruins",
+      "label": "The Ruins",
+      "kind": "route",
+      "gem": false,
+      "x": 0,
+      "y": 3,
+      "playableMaps": [
+        "ruins"
+      ]
+    },
+    {
+      "id": "heavenfall_shrine",
+      "label": "Heavenfall Shrine",
+      "kind": "shrine",
+      "gem": true,
+      "x": -2,
+      "y": 3,
+      "playableMaps": [
+        "gauntlet6"
+      ]
+    },
+    {
+      "id": "reach",
+      "label": "The Reach",
+      "kind": "route",
+      "gem": false,
+      "x": 0,
+      "y": 4,
+      "playableMaps": [
+        "reach"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "veld",
+      "to": "forest",
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "forest",
+      "to": "grove",
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "veld",
+      "to": "camp",
+      "direction": "down",
+      "need": "beatCalder"
+    },
+    {
+      "from": "veld",
+      "to": "cliffs",
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "grove",
+      "to": "ruins",
+      "direction": "down",
+      "need": "beatShin"
+    },
+    {
+      "from": "ruins",
+      "to": "reach",
+      "direction": "down",
+      "need": "hasScroll"
+    },
+    {
+      "from": "forest",
+      "to": "marsh",
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "cliffs",
+      "to": "quarry",
+      "direction": "down",
+      "need": null
+    },
+    {
+      "from": "grove",
+      "to": "gauntlet_route",
+      "direction": "down",
+      "need": "choseHeavenfall"
+    },
+    {
+      "from": "gauntlet_route",
+      "to": "heavenfall_shrine",
+      "direction": "down",
+      "need": null
+    }
+  ],
+  "collapse": {
+    "house": "veld",
+    "gauntlet1": "gauntlet_route",
+    "gauntlet2": "gauntlet_route",
+    "gauntlet3": "gauntlet_route",
+    "gauntlet4": "gauntlet_route",
+    "gauntlet5": "gauntlet_route",
+    "gauntlet6": "heavenfall_shrine",
+    "gauntlet": null
+  },
+  "generatedFrom": "content/world_map_layout.json"
+}

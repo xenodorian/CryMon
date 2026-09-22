@@ -1,37 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="312" height="456" viewBox="0 0 312 456">
-  <rect width="100%" height="100%" fill="#2a3a28"/>
-  <text x="48" y="28" fill="#e8e4d0" font-family="monospace" font-size="16">Sorrow County</text>
-  <line x1="156" y1="84" x2="156" y2="156" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="156" y1="156" x2="156" y2="228" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="156" y1="84" x2="84" y2="84" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="156" y1="84" x2="228" y2="84" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="156" y1="228" x2="156" y2="300" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="156" y1="300" x2="156" y2="372" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="156" y1="156" x2="84" y2="156" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="228" y1="84" x2="228" y2="156" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="156" y1="228" x2="84" y2="228" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <line x1="84" y1="228" x2="84" y2="300" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
-  <path d="M 156 70 L 168 84 L 156 98 L 144 84 Z" fill="#5ec8ff" stroke="#1a4a6a" stroke-width="2"/>
-  <text x="156" y="112" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">CryTown</text>
-  <rect x="138" y="144" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
-  <text x="156" y="184" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Forest</text>
-  <path d="M 84 70 L 96 84 L 84 98 L 72 84 Z" fill="#5ec8ff" stroke="#1a4a6a" stroke-width="2"/>
-  <text x="84" y="112" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Camp</text>
-  <rect x="210" y="72" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
-  <text x="228" y="112" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Cliffs</text>
-  <rect x="138" y="216" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
-  <text x="156" y="256" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Grove</text>
-  <rect x="66" y="144" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
-  <text x="84" y="184" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Marsh</text>
-  <rect x="210" y="144" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
-  <text x="228" y="184" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Quarry</text>
-  <rect x="138" y="288" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
-  <text x="156" y="328" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Ruins</text>
-  <rect x="66" y="216" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
-  <text x="84" y="256" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">Gauntlet</text>
-  <rect x="138" y="360" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
-  <text x="156" y="400" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Reach</text>
-  <path d="M 84 286 L 96 300 L 84 314 L 72 300 Z" fill="#5ec8ff" stroke="#1a4a6a" stroke-width="2"/>
-  <text x="84" y="328" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">Heavenfall Shrine</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="536" viewBox="0 0 512 536">
+  <rect width="100%" height="100%" fill="#3d5a3a"/>
+  <rect x="12" y="12" width="488" height="512" rx="8" fill="#c9b896" stroke="#6b5a3e" stroke-width="4"/>
+  <rect x="20" y="20" width="472" height="496" rx="4" fill="#e8dcc0"/>
+  <text x="256" y="42" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="18" font-weight="bold">Sorrow County</text>
+  <line x1="256" y1="112" x2="256" y2="192" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="112" x2="256" y2="192" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="192" x2="256" y2="272" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="192" x2="256" y2="272" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="112" x2="96" y2="112" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="112" x2="96" y2="112" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="112" x2="416" y2="112" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="112" x2="416" y2="112" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="272" x2="256" y2="352" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="272" x2="256" y2="352" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="352" x2="256" y2="432" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="352" x2="256" y2="432" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="192" x2="96" y2="192" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="192" x2="96" y2="192" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="416" y1="112" x2="416" y2="192" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="416" y1="112" x2="416" y2="192" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="272" x2="96" y2="272" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="272" x2="96" y2="272" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="96" y1="272" x2="96" y2="352" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="96" y1="272" x2="96" y2="352" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="256" cy="112" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
+  <path d="M 256 102 L 265 112 L 256 122 L 247 112 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
+  <text x="256" y="142" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">CryTown</text>
+  <circle cx="96" cy="112" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
+  <path d="M 96 102 L 105 112 L 96 122 L 87 112 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
+  <text x="96" y="142" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Camp</text>
+  <rect x="396" y="100" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="416" y="142" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Cliffs</text>
+  <rect x="236" y="180" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="256" y="222" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Forest</text>
+  <rect x="76" y="180" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="96" y="222" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Marsh</text>
+  <rect x="396" y="180" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="416" y="222" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Quarry</text>
+  <rect x="236" y="260" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="256" y="302" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Grove</text>
+  <rect x="76" y="260" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="96" y="302" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">Gauntlet</text>
+  <rect x="236" y="340" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="256" y="382" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Ruins</text>
+  <circle cx="96" cy="352" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
+  <path d="M 96 342 L 105 352 L 96 362 L 87 352 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
+  <text x="96" y="382" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">Heavenfall Shrine</text>
+  <rect x="236" y="420" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="256" y="462" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Reach</text>
 </svg>

@@ -1458,3 +1458,10 @@ Town Map.
 
 **Next concrete steps:** graph solver → collapse rules → validation → pixel renderer → first generated Sorrow County Town Map image.
 
+### Town map runtime (Grok, 2026-09-21)
+
+- `tools/generate-town-map.mjs` emits `content/town_map.json` + SVG + developer MD
+- Seeded layout (CryTown center, Camp west, Cliffs east, Gauntlet branch)
+- Web: Pause → **Map** opens `townmap` mode; highlights current region
+- Re-run: `node tools/generate-town-map.mjs`
+
