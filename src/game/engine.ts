@@ -3246,7 +3246,7 @@ export class CryMon {
 		// resolve_guard, not here, so this only checks and bypasses.
 		if (b.player.status === "paralyzed") {
 			b.pendingDmg = 0;
-			b.pendingLabel = `${this.playerDisplayName()} is paralyzed and can't move.`;
+			b.pendingLabel = `${b.player.name} is paralyzed and can't move.`;
 			b.phase = "resolve_hit";
 			this.audio.miss();
 			return;
@@ -3255,22 +3255,22 @@ export class CryMon {
 		if (confused && confused.kind !== "normal") {
 			b.pendingDmg = 0;
 			if (confused.kind === "none") {
-				b.pendingLabel = `${this.playerDisplayName()} is too confused to act.`;
+				b.pendingLabel = `${b.player.name} is too confused to act.`;
 			} else if (confused.kind === "self") {
 				const dmg = Math.max(0, Math.min(b.player.hp - 1, confused.dmg));
 				b.player.hp = Math.max(1, b.player.hp - dmg);
-				b.pendingLabel = `${this.playerDisplayName()} is confused and hits itself!`;
+				b.pendingLabel = `${b.player.name} is confused and hits itself!`;
 			} else {
 				const target = this.party[confused.targetIdx];
 				if (target) target.hp = Math.max(0, target.hp - confused.dmg);
-				b.pendingLabel = `${this.playerDisplayName()} is confused and hits ${target?.name ?? "an ally"}!`;
+				b.pendingLabel = `${b.player.name} is confused and hits ${target?.name ?? "an ally"}!`;
 			}
 			b.phase = "resolve_hit";
 			this.audio.miss();
 			return;
 		}
 		if (mv.kind === "wait") {
-			b.msg = [`${this.playerDisplayName()} holds.`];
+			b.msg = [`${b.player.name} holds.`];
 			b.msgI = 0;
 			b.phase = "msg";
 			b.afterMsg = "guard";
