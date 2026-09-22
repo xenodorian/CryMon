@@ -206,15 +206,167 @@ const regionEdges = edges.map((e) => ({
   direction: e.direction,
   need: e.need,
 }));
+
+/* ========== Procedural tile terrain (FireRed-style region sheet) ==========
+ * Tile codes:
+ *  W water | L land | G grass | F forest | M marsh | C cliff | R road | S sand
+ */
+const TILE = { W: 0, L: 1, G: 2, F: 3, M: 4, C: 5, R: 6, S: 7 };
+const TILE_NAME = ["W", "L", "G", "F", "M", "C", "R", "S"];
+
+const nxs = [...positions.values()].map((p) => p.x);
+const nys = [...positions.values()].map((p) => p.y);
+const nMinX = Math.min(...nxs);
+const nMaxX = Math.max(...nxs);
+const nMinY = Math.min(...nys);
+const nMaxY = Math.max(...nys);
+// Each region cell expands to TILE_SCALE×TILE_SCALE pixels on the sheet
+const TILE_SCALE = 8;
+const MARGIN = 3;
+const gridW = (nMaxX - nMinX + 1) * TILE_SCALE + MARGIN * 2;
+const gridH = (nMaxY - nMinY + 1) * TILE_SCALE + MARGIN * 2;
+
+function cellOrigin(rx, ry) {
+  return {
+    x: MARGIN + (rx - nMinX) * TILE_SCALE + Math.floor(TILE_SCALE / 2),
+    y: MARGIN + (ry - nMinY) * TILE_SCALE + Math.floor(TILE_SCALE / 2),
+  };
+}
+
+const grid = Array.from({ length: gridH }, () =>
+  Array.from({ length: gridW }, () => TILE.W)
+);
+
+function inBounds(x, y) {
+  return x >= 0 && y >= 0 && x < gridW && y < gridH;
+}
+function setTile(x, y, t) {
+  if (inBounds(x, y)) grid[y][x] = t;
+}
+function stampDisk(cx, cy, r, tile, onlyIf) {
+  for (let dy = -r; dy <= r; dy++) {
+    for (let dx = -r; dx <= r; dx++) {
+      if (dx * dx + dy * dy > r * r) continue;
+      const x = cx + dx;
+      const y = cy + dy;
+      if (!inBounds(x, y)) continue;
+      if (onlyIf && !onlyIf(grid[y][x])) continue;
+      grid[y][x] = tile;
+    }
+  }
+}
+
+// 1) Mainland landmass covering all nodes (+margin)
+for (let y = MARGIN - 1; y < gridH - (MARGIN - 1); y++) {
+  for (let x = MARGIN - 1; x < gridW - (MARGIN - 1); x++) {
+    // Irregular coast: push water inward on corners
+    const edge =
+      x <= MARGIN ||
+      y <= MARGIN ||
+      x >= gridW - MARGIN - 1 ||
+      y >= gridH - MARGIN - 1;
+    if (edge && ((x + y) % 5 === 0 || (x * 3 + y) % 7 === 0)) continue;
+    grid[y][x] = TILE.L;
+  }
+}
+
+// 2) Local terrain from node kind
+const KIND_TILE = {
+  town: TILE.G,
+  camp: TILE.S,
+  landmark: TILE.G,
+  shrine: TILE.S,
+  route: TILE.G,
+};
+for (const [id, pos] of positions) {
+  const o = cellOrigin(pos.x, pos.y);
+  const kind = kindOf(id);
+  let base = KIND_TILE[kind] ?? TILE.G;
+  if (id === "marsh") base = TILE.M;
+  if (id === "cliffs" || id === "quarry") base = TILE.C;
+  if (id === "forest" || id === "grove" || id === "gauntlet_route") base = TILE.F;
+  if (id === "ruins" || id === "reach") base = TILE.S;
+  stampDisk(o.x, o.y, id === "veld" ? 4 : 3, base, (t) => t !== TILE.W);
+}
+
+// 3) Roads along edges (Bresenham) — routes are the corridors
+function carveRoad(x0, y0, x1, y1) {
+  let dx = Math.abs(x1 - x0);
+  let dy = Math.abs(y1 - y0);
+  let sx = x0 < x1 ? 1 : -1;
+  let sy = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+  let x = x0;
+  let y = y0;
+  for (;;) {
+    for (let oy = -1; oy <= 1; oy++) {
+      for (let ox = -1; ox <= 1; ox++) {
+        if (Math.abs(ox) + Math.abs(oy) > 1) continue; // plus shape
+        const tx = x + ox;
+        const ty = y + oy;
+        if (!inBounds(tx, ty)) continue;
+        if (grid[ty][tx] === TILE.W) continue;
+        grid[ty][tx] = TILE.R;
+      }
+    }
+    if (x === x1 && y === y1) break;
+    const e2 = 2 * err;
+    if (e2 > -dy) {
+      err -= dy;
+      x += sx;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y += sy;
+    }
+  }
+}
+for (const e of edges) {
+  if (!positions.has(e.from) || !positions.has(e.to)) continue;
+  const a = cellOrigin(positions.get(e.from).x, positions.get(e.from).y);
+  const b = cellOrigin(positions.get(e.to).x, positions.get(e.to).y);
+  carveRoad(a.x, a.y, b.x, b.y);
+}
+
+// 4) Pixel-art style dither on forests/marsh/cliffs
+function dither(tile, fn) {
+  for (let y = 0; y < gridH; y++) {
+    for (let x = 0; x < gridW; x++) {
+      if (grid[y][x] === tile && fn(x, y)) {
+        /* keep as-is; drawing layer handles pattern */
+      }
+    }
+  }
+}
+dither(TILE.F, () => true);
+
+const terrain = {
+  width: gridW,
+  height: gridH,
+  tileSize: 4, // display pixels per tile in static art
+  tiles: grid.map((row) => row.map((t) => TILE_NAME[t]).join("")),
+  legend: {
+    W: "water",
+    L: "land",
+    G: "grass",
+    F: "forest",
+    M: "marsh",
+    C: "cliff",
+    R: "road",
+    S: "sand",
+  },
+};
+
 const playerMapId = world.playerMarker?.mapId ?? "veld";
 const townMap = {
-  version: 1,
+  version: 2,
   name: "Sorrow County",
   anchor,
   playerStartMap: playerMapId,
   nodes: regionNodes,
   edges: regionEdges,
   collapse: COLLAPSE,
+  terrain,
   generatedFrom: input,
 };
 fs.writeFileSync(jsonOut, JSON.stringify(townMap, null, 2) + "\n");
@@ -225,17 +377,15 @@ md.push("# Sorrow County Town Map (generated)");
 md.push("");
 md.push(`Source: \`${input}\` → \`${jsonOut}\``);
 md.push(`Anchor: **${labelOf(anchor)}** (\`${anchor}\`)`);
+md.push(`Terrain grid: ${gridW}×${gridH} tiles (procedural)`);
 md.push("");
-md.push("## Player projection");
+md.push("## Destinations (gems) vs routes");
 md.push("");
-md.push("```text");
 for (const [id, pos] of [...positions.entries()].sort(
   (a, b) => a[1].y - b[1].y || a[1].x - b[1].x
 )) {
-  const marker = isGem(id) ? "💎" :  "·";
-  md.push(`${marker} ${labelOf(id)}  (${pos.x},${pos.y})`);
+  md.push(`${isGem(id) ? "💎" : "·"} ${labelOf(id)}  (${pos.x},${pos.y}) [${kindOf(id)}]`);
 }
-md.push("```");
 md.push("");
 md.push("## Connections");
 md.push("");
@@ -245,94 +395,94 @@ for (const e of edges) {
   );
 }
 md.push("");
-md.push("## Collapse");
-md.push("");
-for (const [dest, srcs] of Object.entries(collapsedInto)) {
-  md.push(`- ${srcs.join(", ")} → **${labelOf(dest)}**`);
-}
-md.push("");
 md.push("## Validation");
 md.push("");
-md.push(errors.length ? errors.map((e) => `- ERROR: ${e}`).join("\n") : "All region nodes reachable from CryTown.");
+md.push(
+  errors.length
+    ? errors.map((e) => `- ERROR: ${e}`).join("\n")
+    : "All region nodes reachable from CryTown."
+);
 fs.mkdirSync(path.dirname(mdOut), { recursive: true });
 fs.writeFileSync(mdOut, md.join("\n") + "\n");
 
-// --- FireRed-style region SVG (destinations = gems, routes = thick paths) ---
-const xs = [...positions.values()].map((p) => p.x);
-const ys = [...positions.values()].map((p) => p.y);
-const minX = Math.min(...xs);
-const maxX = Math.max(...xs);
-const minY = Math.min(...ys);
-const maxY = Math.max(...ys);
-const cell = 88;
-const pad = 64;
-const width = (maxX - minX + 1) * cell + pad * 2;
-const height = (maxY - minY + 1) * cell + pad * 2 + 32;
-const px = (x) => pad + (x - minX) * cell + cell / 2;
-const py = (y) => pad + 24 + (y - minY) * cell + cell / 2;
+// --- Pixel-art tile SVG ---
+const TS = 6; // px per terrain tile in SVG
+const svgW = gridW * TS + 24;
+const svgH = gridH * TS + 40;
+const COLORS = {
+  W: ["#3a6a9a", "#2a5a8a"],
+  L: ["#6a9a4a", "#5a8a3a"],
+  G: ["#7aba55", "#6aaa45"],
+  F: ["#3d7a35", "#2d6a28"],
+  M: ["#5a8a60", "#4a7a50"],
+  C: ["#8a8a78", "#6a6a5a"],
+  R: ["#e8d9a8", "#d0c090"],
+  S: ["#d4c48a", "#c4b47a"],
+};
 
-function esc(s) {
-  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+function tileColor(ch, x, y) {
+  const pair = COLORS[ch] || COLORS.L;
+  // checker/dither for pixel feel
+  return (x + y) % 2 === 0 ? pair[0] : pair[1];
 }
 
 const svg = [];
 svg.push(`<?xml version="1.0" encoding="UTF-8"?>`);
 svg.push(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" shape-rendering="crispEdges">`
 );
-// Terrain basemap (soft hills + water tint) — geography, not pure parchment graph
-svg.push(`  <defs>
-    <linearGradient id="land" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5a8a4a"/>
-      <stop offset="55%" stop-color="#4a7a3a"/>
-      <stop offset="100%" stop-color="#3d6a32"/>
-    </linearGradient>
-  </defs>`);
-svg.push(`  <rect width="100%" height="100%" fill="#2a4a6a"/>`);
-svg.push(`  <rect x="10" y="10" width="${width - 20}" height="${height - 20}" rx="6" fill="url(#land)" stroke="#1a3a1a" stroke-width="4"/>`);
-// soft land blobs for depth
-svg.push(`  <ellipse cx="${width * 0.35}" cy="${height * 0.4}" rx="${width * 0.4}" ry="${height * 0.35}" fill="#6a9a55" opacity="0.35"/>`);
-svg.push(`  <ellipse cx="${width * 0.7}" cy="${height * 0.55}" rx="${width * 0.3}" ry="${height * 0.28}" fill="#5a8a48" opacity="0.3"/>`);
+svg.push(`  <rect width="100%" height="100%" fill="#1a2a18"/>`);
 svg.push(
-  `  <text x="${width / 2}" y="36" text-anchor="middle" fill="#e8f0d8" font-family="Georgia, serif" font-size="18" font-weight="bold">Sorrow County</text>`
+  `  <text x="${svgW / 2}" y="18" text-anchor="middle" fill="#e8f0d8" font-family="monospace" font-size="12">Sorrow County</text>`
 );
-
-// Route corridors first (thick beige roads like FireRed)
-for (const e of edges) {
-  if (!positions.has(e.from) || !positions.has(e.to)) continue;
-  const a = positions.get(e.from);
-  const b = positions.get(e.to);
-  svg.push(
-    `  <line x1="${px(a.x)}" y1="${py(a.y)}" x2="${px(b.x)}" y2="${py(b.y)}" stroke="#8a7a50" stroke-width="18" stroke-linecap="round"/>`
-  );
-  svg.push(
-    `  <line x1="${px(a.x)}" y1="${py(a.y)}" x2="${px(b.x)}" y2="${py(b.y)}" stroke="#e8d9a8" stroke-width="12" stroke-linecap="round"/>`
-  );
+const ox = 12;
+const oy = 28;
+for (let y = 0; y < gridH; y++) {
+  for (let x = 0; x < gridW; x++) {
+    const ch = TILE_NAME[grid[y][x]];
+    // sub-pixel detail: 2x2 micro tiles inside each cell for forest/marsh
+    if (ch === "F" || ch === "M" || ch === "C") {
+      const hs = TS / 2;
+      for (let sy = 0; sy < 2; sy++) {
+        for (let sx = 0; sx < 2; sx++) {
+          const c = tileColor(ch, x * 2 + sx, y * 2 + sy);
+          svg.push(
+            `  <rect x="${ox + x * TS + sx * hs}" y="${oy + y * TS + sy * hs}" width="${hs}" height="${hs}" fill="${c}"/>`
+          );
+        }
+      }
+    } else {
+      svg.push(
+        `  <rect x="${ox + x * TS}" y="${oy + y * TS}" width="${TS}" height="${TS}" fill="${tileColor(ch, x, y)}"/>`
+      );
+    }
+  }
 }
-
-// Route labels + intermediate dots (no gems)
-for (const [id, pos] of positions) {
-  if (isGem(id)) continue;
-  const x = px(pos.x);
-  const y = py(pos.y);
-  // small route pip on the road
-  svg.push(`  <circle cx="${x}" cy="${y}" r="4" fill="#c4b078" stroke="#6a5a38" stroke-width="1"/>`);
-  svg.push(
-    `  <text x="${x}" y="${y - 14}" text-anchor="middle" fill="#f0ecd0" font-family="Georgia, serif" font-size="11">${esc(labelOf(id))}</text>`
-  );
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-
-// Destination gems only
+// Gems on destinations
 for (const [id, pos] of positions) {
   if (!isGem(id)) continue;
-  const x = px(pos.x);
-  const y = py(pos.y);
-  svg.push(`  <circle cx="${x}" cy="${y}" r="15" fill="#2a6a9a" stroke="#0a2a4a" stroke-width="2"/>`);
+  const o = cellOrigin(pos.x, pos.y);
+  const gx = ox + o.x * TS + TS / 2;
+  const gy = oy + o.y * TS + TS / 2;
+  svg.push(`  <circle cx="${gx}" cy="${gy}" r="5" fill="#1a4a6a"/>`);
   svg.push(
-    `  <path d="M ${x} ${y - 10} L ${x + 9} ${y} L ${x} ${y + 10} L ${x - 9} ${y} Z" fill="#7ec8f0" stroke="#1a4a6a" stroke-width="1.5"/>`
+    `  <path d="M ${gx} ${gy - 4} L ${gx + 3.5} ${gy} L ${gx} ${gy + 4} L ${gx - 3.5} ${gy} Z" fill="#7ec8f0"/>`
   );
   svg.push(
-    `  <text x="${x}" y="${y + 28}" text-anchor="middle" fill="#fff8e0" font-family="Georgia, serif" font-size="12" font-weight="bold">${esc(labelOf(id))}</text>`
+    `  <text x="${gx}" y="${gy + 12}" text-anchor="middle" fill="#fff8e0" font-family="monospace" font-size="7">${esc(labelOf(id))}</text>`
+  );
+}
+// Route labels (small)
+for (const [id, pos] of positions) {
+  if (isGem(id)) continue;
+  const o = cellOrigin(pos.x, pos.y);
+  const gx = ox + o.x * TS + TS / 2;
+  const gy = oy + o.y * TS + TS / 2;
+  svg.push(
+    `  <text x="${gx}" y="${gy - 5}" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">${esc(labelOf(id))}</text>`
   );
 }
 svg.push(`</svg>`);
@@ -342,6 +492,7 @@ fs.writeFileSync(svgOut, svg.join("\n") + "\n");
 console.log(`Generated ${jsonOut}`);
 console.log(`Generated ${mdOut}`);
 console.log(`Generated ${svgOut}`);
+console.log(`Terrain ${gridW}x${gridH} tiles`);
 if (errors.length) {
   console.error("Validation:", errors.join("; "));
   process.exitCode = 1;

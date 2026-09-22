@@ -1060,85 +1060,91 @@ export class CryMon {
 	}
 	drawTownMap() {
 		const nodes = TOWN_MAP?.nodes ?? [];
-		const edges = TOWN_MAP?.edges ?? [];
+		const terrain = TOWN_MAP?.terrain;
 		if (!nodes.length) {
 			this.panel(20, 20, 280, 200);
 			this.text("No map data.", X(160), Y(110), "#e8e4d8", FONT, "center");
 			return;
 		}
-		const xs = nodes.map((n) => n.x);
-		const ys = nodes.map((n) => n.y);
-		const minX = Math.min(...xs);
-		const maxX = Math.max(...xs);
-		const minY = Math.min(...ys);
-		const maxY = Math.max(...ys);
-		const top = 40;
-		const cellW = Math.min(56, Math.floor((280 - 36) / Math.max(1, maxX - minX + 1)));
-		const cellH = Math.min(36, Math.floor((168 - top) / Math.max(1, maxY - minY + 1)));
-		const ox = (320 - (maxX - minX + 1) * cellW) / 2 + cellW / 2;
-		const oy = top + cellH / 2;
-		const px = (x) => ox + (x - minX) * cellW;
-		const py = (y) => oy + (y - minY) * cellH;
-		// Land panel
 		this.panel(12, 12, 296, 216);
 		const ctx = this.ctx;
 		ctx.save();
-		ctx.fillStyle = "#3d6a38";
-		ctx.fillRect(16, 16, 288, 188);
-		ctx.fillStyle = "#4a7a42";
-		ctx.fillRect(20, 20, 280, 180);
-		this.text(TOWN_MAP?.name ?? "Sorrow County", X(160), Y(30), "#e8f0d8", FONT, "center");
-		// Thick route corridors (FireRed-style roads)
-		for (const ed of edges) {
-			const a = nodes.find((n) => n.id === ed.from);
-			const b = nodes.find((n) => n.id === ed.to);
-			if (!a || !b) continue;
-			ctx.strokeStyle = "#6a5a38";
-			ctx.lineWidth = 10;
-			ctx.lineCap = "round";
-			ctx.beginPath();
-			ctx.moveTo(px(a.x), py(a.y));
-			ctx.lineTo(px(b.x), py(b.y));
-			ctx.stroke();
-			ctx.strokeStyle = "#e0d0a0";
-			ctx.lineWidth = 6;
-			ctx.beginPath();
-			ctx.moveTo(px(a.x), py(a.y));
-			ctx.lineTo(px(b.x), py(b.y));
-			ctx.stroke();
-		}
-		const here = this.townMapRegionId();
-		// Routes: small pip + label only
-		for (const n of nodes) {
-			if (n.gem) continue;
-			const x = px(n.x);
-			const y = py(n.y);
-			ctx.fillStyle = n.id === here ? "#fff0c0" : "#c4b078";
-			ctx.beginPath();
-			ctx.arc(x, y, 3, 0, Math.PI * 2);
-			ctx.fill();
-			this.text(n.label, X(x), Y(y - 9), n.id === here ? "#ffe08a" : "#c8c0a0", 9, "center");
-		}
-		// Destinations: gem only
-		for (const n of nodes) {
-			if (!n.gem) continue;
-			const x = px(n.x);
-			const y = py(n.y);
-			ctx.fillStyle = "#1a4a6a";
-			ctx.beginPath();
-			ctx.arc(x, y, 9, 0, Math.PI * 2);
-			ctx.fill();
-			ctx.fillStyle = n.id === here ? "#a0e0ff" : "#5eb0e0";
-			ctx.beginPath();
-			ctx.moveTo(x, y - 7);
-			ctx.lineTo(x + 6, y);
-			ctx.lineTo(x, y + 7);
-			ctx.lineTo(x - 6, y);
-			ctx.closePath();
-			ctx.fill();
-			this.text(n.label, X(x), Y(y + 14), n.id === here ? "#ffe08a" : "#f0ecd8", 10, "center");
+		ctx.imageSmoothingEnabled = false;
+		this.text(TOWN_MAP?.name ?? "Sorrow County", X(160), Y(26), "#e8f0d8", FONT, "center");
+
+		const mapX = 24;
+		const mapY = 36;
+		const mapW = 272;
+		const mapH = 150;
+
+		const tileColors = {
+			W: ["#3a6a9a", "#2a5a8a"],
+			L: ["#6a9a4a", "#5a8a3a"],
+			G: ["#7aba55", "#6aaa45"],
+			F: ["#3d7a35", "#2d6a28"],
+			M: ["#5a8a60", "#4a7a50"],
+			C: ["#8a8a78", "#6a6a5a"],
+			R: ["#e8d9a8", "#d0c090"],
+			S: ["#d4c48a", "#c4b47a"],
+		};
+
+		if (terrain?.tiles?.length) {
+			const tw = terrain.width;
+			const th = terrain.height;
+			const ts = Math.max(2, Math.min(
+				Math.floor(mapW / tw),
+				Math.floor(mapH / th)
+			));
+			const ox = mapX + Math.floor((mapW - tw * ts) / 2);
+			const oy = mapY + Math.floor((mapH - th * ts) / 2);
+			for (let y = 0; y < th; y++) {
+				const row = terrain.tiles[y] || "";
+				for (let x = 0; x < tw; x++) {
+					const ch = row[x] || "W";
+					const pair = tileColors[ch] || tileColors.L;
+					ctx.fillStyle = (x + y) % 2 === 0 ? pair[0] : pair[1];
+					ctx.fillRect(ox + x * ts, oy + y * ts, ts, ts);
+				}
+			}
+			// Gems / labels in tile space
+			const nxs = nodes.map((n) => n.x);
+			const nys = nodes.map((n) => n.y);
+			const nMinX = Math.min(...nxs);
+			const nMinY = Math.min(...nys);
+			const TILE_SCALE = 8;
+			const MARGIN = 3;
+			const here = this.townMapRegionId();
+			for (const n of nodes) {
+				const cx = MARGIN + (n.x - nMinX) * TILE_SCALE + Math.floor(TILE_SCALE / 2);
+				const cy = MARGIN + (n.y - nMinY) * TILE_SCALE + Math.floor(TILE_SCALE / 2);
+				const px = ox + cx * ts + ts / 2;
+				const py = oy + cy * ts + ts / 2;
+				if (n.gem) {
+					ctx.fillStyle = "#1a4a6a";
+					ctx.beginPath();
+					ctx.arc(px, py, Math.max(3, ts), 0, Math.PI * 2);
+					ctx.fill();
+					ctx.fillStyle = n.id === here ? "#a0e0ff" : "#5eb0e0";
+					ctx.beginPath();
+					ctx.moveTo(px, py - 4);
+					ctx.lineTo(px + 3, py);
+					ctx.lineTo(px, py + 4);
+					ctx.lineTo(px - 3, py);
+					ctx.closePath();
+					ctx.fill();
+					this.text(n.label, X(px), Y(py + 10), n.id === here ? "#ffe08a" : "#f0ecd8", 8, "center");
+				} else if (n.id === here) {
+					ctx.fillStyle = "#ffe08a";
+					ctx.fillRect(px - 2, py - 2, 4, 4);
+					this.text(n.label, X(px), Y(py - 6), "#ffe08a", 8, "center");
+				}
+			}
+		} else {
+			// Fallback graph if terrain missing
+			this.text("(no terrain grid)", X(160), Y(110), "#a09080", 10, "center");
 		}
 		ctx.restore();
+		const here = this.townMapRegionId();
 		const hereLabel = nodes.find((n) => n.id === here)?.label ?? here;
 		this.text("You are here: " + hereLabel, X(160), Y(210), "#a8c090", 10, "center");
 		this.text("B / Start: back", X(160), Y(222), "#7a7868", 10, "center");

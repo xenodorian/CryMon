@@ -480,3 +480,9 @@ Destinations (💎 only): CryTown, Camp, Grove, Reach, Heavenfall Shrine.
 Routes (corridor only): Forest, Cliffs, Marsh, Quarry, Ruins, Gauntlet.
 SVG + in-game Map: thick beige roads on land, gems only on destinations.
 
+### Town Map tile pipeline (Grok, 2026-09-21)
+
+Procedural terrain grid in `town_map.json` (v2): water/land/biomes + road carve.
+Tile-based SVG + in-game Map render; pixel dither on forest/marsh/cliff.
+See `docs/generated/town-map-tile-pipeline.md`.
+

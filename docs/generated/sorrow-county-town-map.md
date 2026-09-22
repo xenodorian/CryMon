@@ -2,22 +2,21 @@
 
 Source: `content/world_map_layout.json` → `content/town_map.json`
 Anchor: **CryTown** (`veld`)
+Terrain grid: 46×46 tiles (procedural)
 
-## Player projection
+## Destinations (gems) vs routes
 
-```text
-💎 The Camp  (-2,0)
-💎 CryTown  (0,0)
-· The Cliffs  (2,0)
-· The Marsh  (-2,1)
-· The Forest  (0,1)
-· The Quarry  (2,1)
-💎 The Grove  (0,2)
-· The Ruins  (2,2)
-· Gauntlet  (0,3)
-💎 The Reach  (2,3)
-💎 Heavenfall Shrine  (0,4)
-```
+💎 The Camp  (-2,0) [camp]
+💎 CryTown  (0,0) [town]
+· The Cliffs  (2,0) [route]
+· The Marsh  (-2,1) [route]
+· The Forest  (0,1) [route]
+· The Quarry  (2,1) [route]
+💎 The Grove  (0,2) [landmark]
+· The Ruins  (2,2) [route]
+· Gauntlet  (0,3) [route]
+💎 The Reach  (2,3) [landmark]
+💎 Heavenfall Shrine  (0,4) [shrine]
 
 ## Connections
 
@@ -31,12 +30,6 @@ Anchor: **CryTown** (`veld`)
 - The Cliffs → The Quarry [down]
 - The Grove → Gauntlet [down] need:choseHeavenfall
 - Gauntlet → Heavenfall Shrine [down]
-
-## Collapse
-
-- house → **CryTown**
-- gauntlet1, gauntlet2, gauntlet3, gauntlet4, gauntlet5 → **Gauntlet**
-- gauntlet6 → **Heavenfall Shrine**
 
 ## Validation
 

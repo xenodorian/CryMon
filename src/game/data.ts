@@ -35,6 +35,13 @@ export const TOWN_MAP = townMapJson as {
   anchor: string;
   nodes: { id: string; label: string; kind: string; gem: boolean; x: number; y: number; playableMaps: string[] }[];
   edges: { from: string; to: string; direction: string; need: string | null }[];
+  terrain?: {
+    width: number;
+    height: number;
+    tileSize: number;
+    tiles: string[];
+    legend: Record<string, string>;
+  };
 };
 export const MAP_IDS = worldJson.mapIds as string[];
 export const WARPS = worldJson.warps;
