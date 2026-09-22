@@ -1221,4 +1221,7 @@ ports/dreamcast` -> commit -> push -> note completed step here.
 - Step 19/23: `vau` (route, chokmah<->chesed). Green.
 - Step 20/23: `daleth` (route, chokmah<->binah). Chokmah/Binah/Tiferet
   triangle complete. Green.
+- Step 21/23: `keter` (city, the crown -- final city) + `gimel`
+  (route, keter<->tiferet). All 10 Sephirot cities now exist.
+  Remaining: aleph, beth (Keter's other two edges). Green.
 

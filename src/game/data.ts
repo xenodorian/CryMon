@@ -150,6 +150,9 @@ export const VAU = normalize(raw.vau);
 
 export const DALETH = normalize(raw.daleth);
 
+export const KETER = normalize(raw.keter);
+export const GIMEL = normalize(raw.gimel);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -197,6 +200,8 @@ export const MAPS = {
   he: HE,
   vau: VAU,
   daleth: DALETH,
+  keter: KETER,
+  gimel: GIMEL,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

@@ -888,6 +888,38 @@
       "spawn": "2",
       "dir": "right",
       "ox": 40
+    },
+    {
+      "from": "keter",
+      "tile": "G",
+      "to": "gimel",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gimel",
+      "tile": "1",
+      "to": "keter",
+      "spawn": "G",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "gimel",
+      "tile": "2",
+      "to": "tiferet",
+      "spawn": "O",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "tiferet",
+      "tile": "O",
+      "to": "gimel",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
     }
   ]
 }
