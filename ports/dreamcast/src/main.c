@@ -1193,6 +1193,7 @@ static const u16 *const SCOUT_FRAMES[4]      = { npc_scout_1, npc_scout_2, npc_s
 static const u16 *const KEEPER_FRAMES[4]     = { npc_keeper_1, npc_keeper_2, npc_keeper_3, npc_keeper_4 };
 static const u16 *const WARDEN_FRAMES[4]     = { npc_warden_1, npc_warden_2, npc_warden_3, npc_warden_4 };
 static const u16 *const HEAVENFALLPRIESTESS_FRAMES[4] = { npc_heavenfallPriestess_1, npc_heavenfallPriestess_2, npc_heavenfallPriestess_3, npc_heavenfallPriestess_4 };
+static const u16 *const SHINIGAMIBOULDER_FRAMES[4] = { npc_shinigamiBoulder_1, npc_shinigamiBoulder_2, npc_shinigamiBoulder_3, npc_shinigamiBoulder_4 };
 /* npc_father_1..4 (Father's walk frames) aren't used -- he's bedridden
    and only ever appears via his portrait (SPK_FATHER), never placed as
    a WorldSprite. */
@@ -1211,6 +1212,12 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, 'J', BRAM_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        /* PLACEHOLDER_ART: no real boulder art exists yet, see
+           public/sprites/npc/shinigamiBoulder-*.png and CURRENT_WORK.md.
+           Seals the west gate until Shinigami is beaten; his own sprite
+           (mark '9', below) only appears from that point on. */
+        if(!beat_shin)
+            ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMIBOULDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         if(beat_shin && !saw_shinigami_rock)
             ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
         if(mason_state) {
@@ -4285,7 +4292,8 @@ static int actor_blocks(int map_id, int cx, int cy,
                          int mason_state, float mason_x, float mason_y,
                          int anne_state, float anne_x, float anne_y,
                          const Soldier *soldiers, const int *soldier_beaten,
-                         int cath_caught, int beat_shin) {
+                         int cath_caught, int beat_shin,
+                         int beat_calder, int has_scroll, int saw_shinigami_rock) {
     int dx, dy;
 #define HIT_R2 81 /* 9px radius, squared */
     if(map_id == MAP_VELD) {
@@ -4303,6 +4311,19 @@ static int actor_blocks(int map_id, int cx, int cy,
         if(mark_hit(map_id, 'A', cx, cy, HIT_R2)) return 1;
         if(mark_hit(map_id, 'Q', cx, cy, HIT_R2)) return 1;
         if(mark_hit(map_id, 'J', cx, cy, HIT_R2)) return 1;
+        /* Calder and the Heavenfall Priestess stand directly in the
+           only walkable approach to their gates (east/south) -- see
+           the wall edits around VELD marks 'E'/'4' in maps.json. Each
+           steps aside (stops blocking, matches web's npcPassable())
+           once its condition is met, without disappearing. */
+        if(!beat_calder && mark_hit(map_id, 'E', cx, cy, HIT_R2)) return 1;
+        if(!has_scroll && mark_hit(map_id, '4', cx, cy, HIT_R2)) return 1;
+        /* The boulder (mark 'Y') seals the sole approach to the west
+           gate until Shinigami is beaten; his own sprite (mark '9')
+           only exists from that point on (collect_npcs()) and stops
+           blocking once the rock-shatter event has played. */
+        if(!beat_shin && mark_hit(map_id, 'Y', cx, cy, HIT_R2)) return 1;
+        if(beat_shin && !saw_shinigami_rock && mark_hit(map_id, '9', cx, cy, HIT_R2)) return 1;
     }
     else if(map_id == MAP_FOREST && soldiers) {
         int i;
@@ -6613,14 +6634,16 @@ void main(void) {
                                                                  py / TILE), cath_caught || beat_cathleen, beat_calder, beat_shin, cage_open) &&
                        !actor_blocks(map_id, nx, py, mason_state, mason_x, mason_y,
                                      anne_state, anne_x, anne_y, soldiers, soldier_beaten,
-                                     cath_caught || beat_cathleen, beat_shin)) {
+                                     cath_caught || beat_cathleen, beat_shin,
+                                     beat_calder, has_scroll, saw_shinigami_rock)) {
                         px = nx;
                     }
                     if(dy != 0 && !tile_blocked(map_id, tile_at(map_id, px / TILE,
                                                                  (ny + (dy > 0 ? 6 : -6)) / TILE), cath_caught || beat_cathleen, beat_calder, beat_shin, cage_open) &&
                        !actor_blocks(map_id, px, ny, mason_state, mason_x, mason_y,
                                      anne_state, anne_x, anne_y, soldiers, soldier_beaten,
-                                     cath_caught || beat_cathleen, beat_shin)) {
+                                     cath_caught || beat_cathleen, beat_shin,
+                                     beat_calder, has_scroll, saw_shinigami_rock)) {
                         py = ny;
                     }
 

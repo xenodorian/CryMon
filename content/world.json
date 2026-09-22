@@ -426,18 +426,18 @@
       "tile": "c",
       "to": "cliffs",
       "spawn": "D",
-      "dir": "down",
-      "oy": 40,
+      "dir": "right",
       "need": "beatCalder",
-      "failTalk": "cliffsLocked"
+      "failTalk": "cliffsLocked",
+      "ox": 40
     },
     {
       "from": "cliffs",
       "tile": "D",
       "to": "veld",
       "spawn": "c",
-      "dir": "up",
-      "oy": -32
+      "dir": "left",
+      "ox": -32
     },
     {
       "from": "gauntlet1",
@@ -2028,7 +2028,8 @@
       "script": [
         {
           "if": "beatCalder",
-          "talk": "calderAfter"
+          "talk": "calderAfter",
+          "passIf": "beatCalder"
         },
         {
           "talk": "calderFight",
@@ -2801,7 +2802,8 @@
       "script": [
         {
           "if": "hasScroll",
-          "talk": "priestessHasScroll"
+          "talk": "priestessHasScroll",
+          "passIf": "hasScroll"
         },
         {
           "talk": "priestessNoScroll",
@@ -2818,7 +2820,21 @@
       "sprite": "shinigami",
       "script": [
         {
+          "if": "beatShinigami",
           "hideIf": "sawShinigamiRock"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "Y",
+      "id": "shinigamiBoulder",
+      "role": "talk",
+      "talk": "rockBlocked",
+      "sprite": "npc/shinigamiBoulder",
+      "script": [
+        {
+          "hideIf": "beatShinigami"
         }
       ]
     }

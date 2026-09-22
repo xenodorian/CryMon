@@ -40,18 +40,18 @@
       "tile": "c",
       "to": "cliffs",
       "spawn": "D",
-      "dir": "down",
-      "oy": 40,
+      "dir": "right",
       "need": "beatCalder",
-      "failTalk": "cliffsLocked"
+      "failTalk": "cliffsLocked",
+      "ox": 40
     },
     {
       "from": "cliffs",
       "tile": "D",
       "to": "veld",
       "spawn": "c",
-      "dir": "up",
-      "oy": -32
+      "dir": "left",
+      "ox": -32
     },
     {
       "from": "gauntlet1",

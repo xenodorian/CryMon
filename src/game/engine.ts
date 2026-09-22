@@ -660,9 +660,9 @@ export class CryMon {
 			this.world.dir = "down";
 		} else if (mapId === "cliffs") {
 			const s = spawnOf(CLIFFS, "D");
-			this.world.x = s.x;
-			this.world.y = s.y + TILE + 8;
-			this.world.dir = "down";
+			this.world.x = s.x + TILE + 8;
+			this.world.y = s.y;
+			this.world.dir = "right";
 		} else if (mapId === "ruins") {
 			this.beatShinigami = true;
 			this.hasScroll = true;
@@ -1941,10 +1941,11 @@ export class CryMon {
 			const s = spawnOf(GROVE, "9");
 			if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 18) return true;
 		}
+		const blockFlags = this.npcFlags();
 		for (const npc of NPCS) {
 			if (npc.map !== this.world.mapId || !npc.sprite) continue;
-			if (npc.id === "shinigami" && this.beatShinigami) continue;
-			if (npc.id === "shinigamiRock" && this.sawShinigamiRock) continue;
+			if (this.npcHidden(npc, blockFlags)) continue;
+			if (this.npcPassable(npc, blockFlags)) continue;
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(this.map(), mark);
 				if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 16) return true;
@@ -2059,6 +2060,7 @@ export class CryMon {
 			cathleenCaught: this.cathleenCaught,
 			beatShinigami: this.beatShinigami,
 			sawShinigamiRock: this.sawShinigamiRock,
+			hasScroll: this.hasScroll,
 			beatCross: this.beatCross,
 			beatConscript: this.beatConscript,
 			beatEnforcer: this.beatEnforcer,
@@ -2091,6 +2093,27 @@ export class CryMon {
 	npcMarks(npc) {
 		if (Array.isArray(npc.marks) && npc.marks.length) return npc.marks;
 		return npc.mark ? [npc.mark] : [];
+	}
+	/** Shared by the draw loop and blocked()'s collision loop so an NPC's
+	 *  visibility and solidity never disagree -- a hidden gate-blocker
+	 *  (like shinigamiBoulder once beatShin flips) must also stop
+	 *  blocking movement in the same frame it stops being drawn.
+	 *  `hideIf`: hide once the flag is true. `if`: hide until the flag
+	 *  is true. Either can appear on any script step. */
+	npcHidden(npc, flags) {
+		// A step's `if` only gates visibility when the step is otherwise
+		// empty (no `talk`) -- e.g. shinigamiRock's {if: beatShinigami}.
+		// On a step that also carries dialogue (calder, the Priestess),
+		// `if` instead picks which line to show and must not hide the
+		// NPC just because that particular branch didn't match.
+		return !!npc.script?.some((s) => (s.hideIf && flags[s.hideIf as string]) || (s.if && !s.talk && !flags[s.if as string]));
+	}
+	/** A gate-blocking NPC that should stay visible but step out of the
+	 *  way once beaten/satisfied (Calder, the Heavenfall Priestess) --
+	 *  distinct from npcHidden(), which also removes the sprite. `passIf`
+	 *  can sit on any existing script step alongside its talk/if keys. */
+	npcPassable(npc, flags) {
+		return !!npc.script?.some((s) => s.passIf && flags[s.passIf as string]);
 	}
 	runNpc(npc) {
 		const flags = this.npcFlags();
@@ -4359,7 +4382,7 @@ export class CryMon {
 		for (const npc of NPCS) {
 			if (npc.map !== this.world.mapId || !npc.sprite) continue;
 			if (npc.sprite === "npc/soldier" || String(npc.id || "").startsWith("soldier")) continue;
-			if (npc.script?.some((s) => s.hideIf && flags[s.hideIf as string])) continue;
+			if (this.npcHidden(npc, flags)) continue;
 			if (this.npcIsExecuted(npc.id)) continue;
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(this.map(), mark);

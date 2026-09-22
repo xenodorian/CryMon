@@ -1296,3 +1296,110 @@ and confirmed mode returned to `"world"`, marks incremented by the
 normal wild-win amount (+3), and the party CryMon's hp was untouched
 -- exactly the "skip to the end as if you'd won" behavior asked for.
 
+## Gate-blocking + directional warp audit (Claude, 2026-09-22)
+
+Four bugs reported together, all fixed:
+
+**1. Calder/Priestess didn't actually block their gates.** Both had a
+sprite (which blocks by default) but sat 2+ tiles away from the real
+gate tile, with open floor on every side -- the plaza around both
+gates was wide open, so the "gate guard" was trivially walkable
+around. Fixed by actually building a chokepoint: walled off (`H`,
+matching the nearby roof/building tiles) every approach to each gate
+except one tile, then moved the NPC onto that sole tile.
+- East gate (`c`, mark col28 row11 in `veld`): walled `col28` at
+  rows 10 and 12 (its only two neighbors besides the border and the
+  west approach), moved Calder (`E`) from col26 to col27 -- now the
+  gate's only reachable neighbor.
+- South gate (`Z`, col14 row22): walled row21 cols 13/15/16 (it was
+  a 3-tile-wide approach plus a stray col13 bypass), moved the
+  Priestess (`4`) from col17 to col14, directly above the gate.
+- The west gate (`P`, col0 row11) turned out to already be a clean
+  1-tile chokepoint (border walls close on both sides) -- no wall
+  edits needed there, see the boulder fix below.
+
+**2. Calder/Priestess needed to stop blocking once satisfied**, still
+visible ("step aside"), not vanish. `npcHidden()` (draw+collision)
+intentionally couples visibility and solidity for the shinigami-rock
+case below, so a *separate* mechanism was needed for "still there,
+just not in the way": a new `passIf` script key, checked only in
+`blocked()`, independent of drawing. Added `"passIf": "beatCalder"`
+to Calder's existing `if:"beatCalder"` step and `"passIf":
+"hasScroll"` to the Priestess's -- reusing the same step object
+their dialogue-branch `if` already lived on, not a new script entry.
+**Dreamcast had never blocked either of them at all** (found while
+wiring this) -- `actor_blocks()`'s VELD branch only listed decorative
+prop marks (K/I/V/A/Q/J), not Calder/Priestess -- so this was a
+bigger gap there than on web. Extended `actor_blocks()`'s signature
+with `beat_calder`/`has_scroll`/`saw_shinigami_rock` and added the
+matching `mark_hit()` checks.
+
+**3. Shinigami's overworld sprite stood at the west gate instead of a
+rock, and appeared before he'd even been fought.** His `shinigamiRock`
+NPC script only had `hideIf: sawShinigamiRock` -- nothing gated it
+*on* `beatShinigami` in the first place (Dreamcast's `collect_npcs()`
+already had this right, `if(beat_shin && !saw_shinigami_rock)`; only
+the web side was missing the entry condition). Fixed by extending
+`if`-condition support into the same generic visibility check that
+already handled `hideIf` (`npcHidden()`, shared by the draw loop and
+`blocked()` so they can never disagree) -- but this required a real
+fix, not a blind extension: a naive `s.if && !flags[s.if]` check
+broke Calder and the Priestess, because their existing `if` fields
+are for *dialogue branch selection*, not visibility, and don't mean
+"hide the NPC" when unmet. `npcHidden()` now only treats `if` as a
+visibility gate on a step that carries no `talk` (shinigamiRock's
+`{if: beatShinigami, hideIf: sawShinigamiRock}` has none; Calder's
+`{if: beatCalder, talk: calderAfter, passIf: beatCalder}` does, so
+its `if` is left alone). Caught by directly exercising `blocked()`
+via a temporary test hook before it shipped -- the Priestess
+silently stopped blocking pre-scroll on the first version of this
+fix, exactly the kind of regression a plain typecheck can't catch.
+- Added a **new visible boulder** (`shinigamiBoulder`, mark `Y`,
+  placed on the west gate's one approach tile) since the rock was
+  previously narrative-only (`CURRENT_WORK.md`'s own earlier entry
+  explicitly said "no physical obstacle object, matching every
+  existing gate" -- superseded now that the user asked for a real
+  one). No boulder art exists, so this is **PLACEHOLDER_ART**: a
+  plain schematic gray rock shape generated with PIL (see
+  `public/sprites/npc/shinigamiBoulder-*.png`), not real art. Visible
+  (and blocking, `hideIf: beatShinigami`) until Shinigami is beaten,
+  then gone, matching when his own sprite starts appearing next to
+  the (now-shattered, per existing dialogue) rock.
+- Found and fixed a second bug while wiring this: `hasScroll` was
+  never in `npcFlags()` at all -- meaning the Priestess's existing
+  `priestessHasScroll` dialogue branch, and her failed-teleport
+  branch, had *never* correctly evaluated `if: hasScroll` since she
+  was added; always fell through to the no-scroll branch regardless
+  of the player's actual scroll status. Added it.
+
+**4. `veld`'s east gate warped into Cliffs' north edge instead of its
+west edge** ("player is warped in through the northern warp gate of
+the next map"). Root-caused with a small audit script (reused the
+same `exitEdge()` logic `tools/generate-town-map.mjs` already uses
+to place regions on the county map, run standalone against every
+warp in `warps.json`): compares each warp's declared `dir` against
+where its tile *actually* sits on its own map's border. Found exactly
+one mismatch across all 122 warps (including the whole 33-map Tree of
+Life cluster, which checked out clean since `build_sephirot.py`
+derives `dir` from real coordinates): `veld -> cliffs` via `c` was
+tagged `dir: "down"` (a leftover from some earlier topology, per
+`content/town_map.json`'s node positions `cliffs` really is due
+east of `veld`) when the tile is actually on veld's east border.
+Fixed the warp pair's `dir`/`oy`->`ox` (both directions), and
+**physically moved Cliffs' own `D` entrance mark from its north
+edge (row1) to its west edge (row8, col0)** -- relabeling the warp's
+`dir` alone would have fixed the *direction* but the player would
+still have visually spawned falling in from the top of Cliffs. Also
+fixed `skipToWorld()`'s cliffs branch (a debug fast-travel helper,
+web-only, no Dreamcast equivalent) which nudged the spawn point
+`down` assuming a north entrance.
+
+**Audit script confirms all 122 warps now consistent** (declared
+`dir` matches the tile's real border position on its own map, every
+reciprocal pair uses the opposite direction) -- not committed as a
+permanent tool since it duplicates `generate-town-map.mjs`'s
+`exitEdge()` logic inline rather than importing it (a Python/JS
+split), but worth re-running by hand after any future warp edit until
+someone ports it in properly. `tools/world_graph/run_full_audit.py`
+and `check_sync --strict` both still pass.
+

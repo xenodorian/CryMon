@@ -278,7 +278,8 @@
       "script": [
         {
           "if": "beatCalder",
-          "talk": "calderAfter"
+          "talk": "calderAfter",
+          "passIf": "beatCalder"
         },
         {
           "talk": "calderFight",
@@ -1051,7 +1052,8 @@
       "script": [
         {
           "if": "hasScroll",
-          "talk": "priestessHasScroll"
+          "talk": "priestessHasScroll",
+          "passIf": "hasScroll"
         },
         {
           "talk": "priestessNoScroll",
@@ -1068,7 +1070,21 @@
       "sprite": "shinigami",
       "script": [
         {
+          "if": "beatShinigami",
           "hideIf": "sawShinigamiRock"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "Y",
+      "id": "shinigamiBoulder",
+      "role": "talk",
+      "talk": "rockBlocked",
+      "sprite": "npc/shinigamiBoulder",
+      "script": [
+        {
+          "hideIf": "beatShinigami"
         }
       ]
     }

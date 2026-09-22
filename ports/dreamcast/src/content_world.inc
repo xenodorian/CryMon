@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=d19a6a6474064238 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d5f5a5e5da345448 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -35,8 +35,8 @@ static const WarpDef WARPS[] = {
     { MAP_VELD, MAP_HOUSE, 'D', 'D', 1, 0, 0, -1 },
     { MAP_FOREST, MAP_GROVE, 'O', 'O', 0, 0, 0, -1 },
     { MAP_GROVE, MAP_FOREST, 'O', 'O', 1, 0, 0, -1 },
-    { MAP_VELD, MAP_CLIFFS, 'c', 'D', 0, 2, 0, 129 },
-    { MAP_CLIFFS, MAP_VELD, 'D', 'c', 1, 0, 0, -1 },
+    { MAP_VELD, MAP_CLIFFS, 'c', 'D', 3, 2, 0, 129 },
+    { MAP_CLIFFS, MAP_VELD, 'D', 'c', 2, 0, 0, -1 },
     { MAP_GAUNTLET1, MAP_GAUNTLET2, '1', '2', 0, 0, 0, -1 },
     { MAP_GAUNTLET2, MAP_GAUNTLET1, '2', '1', 1, 0, 0, -1 },
     { MAP_GAUNTLET2, MAP_GAUNTLET3, '1', '2', 0, 0, 0, -1 },
@@ -460,7 +460,8 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 124, -1, -1, 0, 14, 0, 0, -1 },
     { 34, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 131, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 132, -1, -1, 8, -1, 0, 0, -1 },
-    { -1, -1, 29, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { 17, -1, 29, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, 17, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -509,7 +510,8 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_VELD, 'S', 90, 2, 30, 32 },
     { MAP_VELD, '4', 92, 2, 30, 32 },
     { MAP_VELD, '9', 94, 1, 30, 32 },
+    { MAP_VELD, 'Y', 95, 1, 30, 32 },
 };
-#define NPC_DEF_N 46
+#define NPC_DEF_N 47
 #define INTERACT_BUFFER 20
 
