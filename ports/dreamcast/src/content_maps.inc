@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=c2bf55be73c5c517 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=8a3a64f72eeb8e66 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -26,7 +26,8 @@
 #define MAP_HOD 23
 #define MAP_SHIN 24
 #define MAP_PEH 25
-#define MAP_N 26
+#define MAP_RESH 26
+#define MAP_N 27
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -678,6 +679,15 @@ static const char *const map_peh_rows[] = {
     "########################",
 };
 
+static const char *const map_resh_rows[] = {
+    "########################",
+    "#......................#",
+    "#......................#",
+    "1......................2",
+    "#......................#",
+    "########################",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 30, 23 },
@@ -705,10 +715,11 @@ static const Map MAPS[MAP_N] = {
     { map_hod_rows, 16, 12 },
     { map_shin_rows, 6, 24 },
     { map_peh_rows, 24, 6 },
+    { map_resh_rows, 24, 6 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NErUSX%k";

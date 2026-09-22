@@ -73,7 +73,8 @@
     "qoph": "PATH OF QOPH",
     "hod": "HOD",
     "shin": "PATH OF SHIN",
-    "peh": "PATH OF PEH"
+    "peh": "PATH OF PEH",
+    "resh": "PATH OF RESH"
   },
   "mapIds": [
     "house",
@@ -101,7 +102,8 @@
     "qoph",
     "hod",
     "shin",
-    "peh"
+    "peh",
+    "resh"
   ],
   "encounters": [
     {
@@ -746,6 +748,38 @@
       "spawn": "2",
       "dir": "right",
       "ox": 40
+    },
+    {
+      "from": "hod",
+      "tile": "Z",
+      "to": "resh",
+      "spawn": "1",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "resh",
+      "tile": "1",
+      "to": "hod",
+      "spawn": "Z",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "resh",
+      "tile": "2",
+      "to": "yesod",
+      "spawn": "D",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "yesod",
+      "tile": "D",
+      "to": "resh",
+      "spawn": "2",
+      "dir": "left",
+      "ox": -32
     }
   ],
   "trainers": {
