@@ -1210,4 +1210,12 @@ ports/dreamcast` -> commit -> push -> note completed step here.
   triangle complete. Green.
 - Step 16/23: `binah` (city) + `zayin` (route, binah<->tiferet). Green.
 - Step 17/23: `heth` (route, binah<->gevurah). Green.
+- Step 18/23: `chokmah` (city) + `he` (route, chokmah<->tiferet). Hit
+  a real bug in `tools/build_sephirot.py`'s data.ts-registration
+  check: `"raw.he" not in data_text` is a **substring** match, and
+  `"raw.heth"` (added step 17) already contains `"raw.he"` as a
+  substring -- so `he`'s own `export const HE = ...`/`MAPS` entry got
+  silently skipped, and check_sync caught it (`data.ts MAPS keys !=
+  world.mapIds`). Fixed to a word-boundary regex
+  (`re.search(rf"raw\.{id}\b", ...)`), reran step 18 clean.
 

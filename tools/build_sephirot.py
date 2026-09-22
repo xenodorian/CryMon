@@ -356,7 +356,7 @@ def main():
         TYPES_TS.write_text(types_text)
 
     # data.ts: const declarations + MAPS object entries for new ids.
-    new_for_data = [i for i in mapIds if f"raw.{i}" not in data_text]
+    new_for_data = [i for i in mapIds if not re.search(rf"raw\.{re.escape(i)}\b", data_text)]
     if new_for_data:
         const_lines = "\n".join(f"export const {i.upper()} = normalize(raw.{i});" for i in new_for_data)
         marker = "export const MAPS = {"
