@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3a3e7cfe474586cf — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d19a6a6474064238 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -149,6 +149,10 @@ static const WarpDef WARPS[] = {
     { MAP_ALEPH, MAP_KETER, '1', 'D', 2, 0, 0, -1 },
     { MAP_ALEPH, MAP_CHOKMAH, '2', 'D', 3, 0, 0, -1 },
     { MAP_CHOKMAH, MAP_ALEPH, 'D', '2', 2, 0, 0, -1 },
+    { MAP_KETER, MAP_BETH, 'O', '1', 2, 0, 0, -1 },
+    { MAP_BETH, MAP_KETER, '1', 'O', 3, 0, 0, -1 },
+    { MAP_BETH, MAP_BINAH, '2', 'D', 2, 0, 0, -1 },
+    { MAP_BINAH, MAP_BETH, 'D', '2', 3, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
 

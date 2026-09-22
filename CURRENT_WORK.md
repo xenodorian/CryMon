@@ -1225,4 +1225,11 @@ ports/dreamcast` -> commit -> push -> note completed step here.
   (route, keter<->tiferet). All 10 Sephirot cities now exist.
   Remaining: aleph, beth (Keter's other two edges). Green.
 - Step 22/23: `aleph` (route, keter<->chokmah). Green.
+- Step 23/23: `beth` (route, keter<->binah). **All 33 maps complete**
+  (10 Sephirot cities + 22 named paths + the Weeping Road). Total map
+  count 17 (pre-existing) + 33 = 50, confirmed via `world.json`'s
+  `mapIds`. Content build is done; remaining work is the county-map
+  generator upgrade (coordinate overrides + stairstep connector
+  lines so the Tree of Life silhouette actually renders on the Town
+  Map screen) -- not yet started.
 

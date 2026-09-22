@@ -952,6 +952,38 @@
       "spawn": "2",
       "dir": "left",
       "ox": -32
+    },
+    {
+      "from": "keter",
+      "tile": "O",
+      "to": "beth",
+      "spawn": "1",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "beth",
+      "tile": "1",
+      "to": "keter",
+      "spawn": "O",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "beth",
+      "tile": "2",
+      "to": "binah",
+      "spawn": "D",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "binah",
+      "tile": "D",
+      "to": "beth",
+      "spawn": "2",
+      "dir": "right",
+      "ox": 40
     }
   ]
 }

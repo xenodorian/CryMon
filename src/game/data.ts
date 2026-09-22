@@ -155,6 +155,8 @@ export const GIMEL = normalize(raw.gimel);
 
 export const ALEPH = normalize(raw.aleph);
 
+export const BETH = normalize(raw.beth);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -205,6 +207,7 @@ export const MAPS = {
   keter: KETER,
   gimel: GIMEL,
   aleph: ALEPH,
+  beth: BETH,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;
