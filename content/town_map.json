@@ -4,15 +4,15 @@
   "anchor": "veld",
   "playerStartMap": "veld",
   "scale": 10,
-  "scaleNote": "1 cell = 10 real tiles (CryTown 30x23 -> 3x2)",
+  "scaleNote": "1 cell = 10 real tiles",
   "nodes": [
     {
       "id": "veld",
       "label": "CryTown",
       "kind": "town",
       "gem": true,
-      "x": 0,
-      "y": 0,
+      "x": 2,
+      "y": 1,
       "cellW": 3,
       "cellH": 2,
       "playableMaps": [
@@ -29,16 +29,16 @@
       "label": "The Forest",
       "kind": "route",
       "gem": false,
-      "x": 0,
-      "y": 2,
+      "x": 2,
+      "y": 3,
       "cellW": 3,
-      "cellH": 2,
+      "cellH": 3,
       "playableMaps": [
         "forest"
       ],
       "realSize": {
         "width": 26,
-        "height": 20
+        "height": 32
       }
     },
     {
@@ -47,7 +47,7 @@
       "kind": "camp",
       "gem": true,
       "x": 0,
-      "y": 2,
+      "y": 1,
       "cellW": 2,
       "cellH": 1,
       "playableMaps": [
@@ -63,16 +63,16 @@
       "label": "The Cliffs",
       "kind": "route",
       "gem": false,
-      "x": 3,
-      "y": 0,
+      "x": 5,
+      "y": 1,
       "cellW": 2,
-      "cellH": 1,
+      "cellH": 2,
       "playableMaps": [
         "cliffs"
       ],
       "realSize": {
         "width": 18,
-        "height": 12
+        "height": 20
       }
     },
     {
@@ -80,8 +80,8 @@
       "label": "The Grove",
       "kind": "landmark",
       "gem": true,
-      "x": 0,
-      "y": 4,
+      "x": 2,
+      "y": 6,
       "cellW": 3,
       "cellH": 2,
       "playableMaps": [
@@ -97,16 +97,16 @@
       "label": "The Marsh",
       "kind": "route",
       "gem": false,
-      "x": 3,
-      "y": 2,
+      "x": 5,
+      "y": 3,
       "cellW": 2,
-      "cellH": 1,
+      "cellH": 2,
       "playableMaps": [
         "marsh"
       ],
       "realSize": {
         "width": 18,
-        "height": 13
+        "height": 21
       }
     },
     {
@@ -114,8 +114,8 @@
       "label": "The Quarry",
       "kind": "cave",
       "gem": true,
-      "x": 3,
-      "y": 1,
+      "x": 1,
+      "y": 0,
       "cellW": 2,
       "cellH": 1,
       "playableMaps": [
@@ -131,16 +131,16 @@
       "label": "The Ruins",
       "kind": "route",
       "gem": false,
-      "x": 3,
-      "y": 5,
+      "x": 5,
+      "y": 6,
       "cellW": 2,
-      "cellH": 1,
+      "cellH": 2,
       "playableMaps": [
         "ruins"
       ],
       "realSize": {
         "width": 20,
-        "height": 13
+        "height": 19
       }
     },
     {
@@ -148,8 +148,8 @@
       "label": "Gauntlet",
       "kind": "route",
       "gem": false,
-      "x": 0,
-      "y": 6,
+      "x": 2,
+      "y": 8,
       "cellW": 2,
       "cellH": 18,
       "playableMaps": [
@@ -169,8 +169,8 @@
       "label": "The Reach",
       "kind": "landmark",
       "gem": true,
-      "x": 3,
-      "y": 6,
+      "x": 5,
+      "y": 8,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -186,8 +186,8 @@
       "label": "Heavenfall Shrine",
       "kind": "shrine",
       "gem": true,
-      "x": 0,
-      "y": 24,
+      "x": 2,
+      "y": 26,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -245,7 +245,7 @@
     {
       "from": "cliffs",
       "to": "quarry",
-      "edge": "south",
+      "edge": "west",
       "need": null
     },
     {
@@ -272,40 +272,8 @@
     "gauntlet": null
   },
   "terrain": {
-    "width": 9,
-    "height": 30,
-    "tiles": [
-      "WWWWWWWWW",
-      "WWWWWWWWW",
-      "WWRRRRRWW",
-      "WWRRRRRWW",
-      "WWRRRRRWW",
-      "WWRRRWWWW",
-      "WWRRRWWWW",
-      "WWRRRRRWW",
-      "WWRRWRRWW",
-      "WWRRWRRWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWRRWWWWW",
-      "WWWWWWWWW",
-      "WWWWWWWWW"
-    ]
+    "width": 11,
+    "height": 32
   },
   "generatedFrom": {
     "layout": "content/world_map_layout.json",

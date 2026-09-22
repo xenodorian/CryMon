@@ -658,11 +658,74 @@ Phase 2's re-layout lands is still worthwhile (see Phase 2/3 in the
 plan above) since "everything moves" is hard to fully predict without
 seeing it rendered.
 
-### Status
+### Status: IMPLEMENTED (Claude, 2026-09-22)
 
-Plan decided, not yet implemented. Multiple agents (Claude, Grok) have
-been actively iterating on `generate-town-map.mjs` this session;
-whoever picks up Phase 0 should re-read this whole section first in
-case another agent already started, to avoid duplicate/conflicting
-work on the same file.
+Real routes were genuinely too short/square to read as Pokémon-style
+routes, so before the generator work, the four real route maps in
+`content/maps.json` were physically elongated (their actual walkable
+tile grids, not just the Town Map projection):
+- `forest` 26x20 -> 26x32, `cliffs` 18x12 -> 18x20, `marsh` 18x13 ->
+  18x21, `ruins` 20x13 -> 20x19. `world_map_layout.json`'s
+  width/height updated to match.
+- Done by duplicating existing filler-pattern rows (forest/marsh
+  already had a clean repeating tree/path motif; cliffs/ruins got
+  extra floor-corridor rows inserted between existing chambers) —
+  every trainer/NPC/warp is referenced purely by its mark character
+  (scanned dynamically at runtime, confirmed via `grep` across
+  `world.json`/`main.c`/`engine.ts` — nothing hardcodes row/col), so
+  no entity coordinates needed updating, only the grids themselves.
+  Verified every warp/mark character still appears exactly once per
+  map after the edit before moving on.
+- **Gauntlet's own maps were explicitly left untouched** per the
+  user's instruction — they were already right.
+
+Then `tools/generate-town-map.mjs` was rewritten for real (previously
+it had drifted: the actual live `content/town_map.json`/SVG were
+produced by a one-off Python script embedded directly in
+`.github/workflows/town-map-v4.yml`, never ported back into the
+checked-in generator — running the documented `node
+tools/generate-town-map.mjs` command silently regenerated the OLD v2
+procedural-terrain data and would have destroyed the v4 work; this
+was caught and reverted before committing, see the note below). The
+new generator:
+- Sizes each region's Town Map cell proportionally to its **real**
+  tile dimensions from `content/maps.json`'s `rows[id]` (not the
+  partly-inert `world_map_layout.json` width/height, though those are
+  now kept in sync too), scaled 1 cell : 10 real tiles.
+- Fixed the Camp/Forest overlap bug found in the v4 workflow script:
+  its rectangle packer only tried different x-offsets within the
+  immediate row below a parent, and silently fell back to an occupied
+  slot when that whole row was already taken (both Camp and Forest
+  compute as veld's "south" exit by real door position). Replaced
+  with an expanding-ring free-space search that guarantees no overlap.
+- Gauntlet stays the single combined-length corridor (not five
+  stitched segments) per the earlier decision — now 18 cells tall
+  (real 180 tiles / 10), and its label is drawn at the **vertical
+  middle** of that corridor instead of pinned to the top edge, per
+  request.
+- Restored real biome-colored terrain (route cells get a lighter path
+  stripe down their long axis) instead of the flat tan blocks the
+  workflow script produced.
+- `src/game/engine.ts`'s `drawTownMap()` (in-game Pause->Map screen)
+  and `src/game/data.ts`'s `TOWN_MAP` type were rewritten to match —
+  the old code read `terrain.tiles` (a full procedural tile grid) which
+  the new schema doesn't produce; it now draws proportional cells
+  directly, same visual language as the SVG.
+- Removed the stray duplicate `public/maps/sorrow-county-town-map-preview.png`
+  and regenerated the canonical `.png` to match the new SVG (was stale,
+  nothing in code referenced either PNG).
+
+**Standing gotcha for whoever touches this next:** the leftover
+`.github/workflows/town-map-*.yml`/`restore-mjs.yml`/`publish-map-png.yml`
+files and `tools/_gen_parts/*.txt` scratch files are from that
+workflow-based detour and are not part of the real pipeline anymore —
+`tools/generate-town-map.mjs` is the source of truth again. Don't run
+Town Map changes through a one-off workflow script; edit the real
+generator and commit it, the same as any other tool.
+
+Verified: `check_sync --strict` green, `npm run typecheck` clean,
+`npm run build` clean, `make -C ports/dreamcast` clean (only the
+known baseline warning set), `run_full_audit.py` PASS, rendered SVG
+visually confirmed (no overlaps, Gauntlet's long corridor and label
+centering both correct, all four routes visibly longer/thinner now).
 

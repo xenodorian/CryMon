@@ -1060,7 +1060,6 @@ export class CryMon {
 	}
 	drawTownMap() {
 		const nodes = TOWN_MAP?.nodes ?? [];
-		const terrain = TOWN_MAP?.terrain;
 		if (!nodes.length) {
 			this.panel(20, 20, 280, 200);
 			this.text("No map data.", X(160), Y(110), "#e8e4d8", FONT, "center");
@@ -1077,74 +1076,80 @@ export class CryMon {
 		const mapW = 272;
 		const mapH = 150;
 
-		const tileColors = {
-			W: ["#3a6a9a", "#2a5a8a"],
-			L: ["#6a9a4a", "#5a8a3a"],
-			G: ["#7aba55", "#6aaa45"],
-			F: ["#3d7a35", "#2d6a28"],
-			M: ["#5a8a60", "#4a7a50"],
-			C: ["#8a8a78", "#6a6a5a"],
-			R: ["#e8d9a8", "#d0c090"],
-			S: ["#d4c48a", "#c4b47a"],
+		const BIOME_FILL: Record<string, string> = {
+			town: "#8fae5c",
+			camp: "#c9a86a",
+			landmark: "#5e9e6e",
+			shrine: "#c9a86a",
+			cave: "#8a8a78",
+			route: "#6f9450",
 		};
+		const ROUTE_PATH_FILL = "#d8c79a";
 
-		if (terrain?.tiles?.length) {
-			const tw = terrain.width;
-			const th = terrain.height;
-			const ts = Math.max(2, Math.min(
-				Math.floor(mapW / tw),
-				Math.floor(mapH / th)
-			));
-			const ox = mapX + Math.floor((mapW - tw * ts) / 2);
-			const oy = mapY + Math.floor((mapH - th * ts) / 2);
-			for (let y = 0; y < th; y++) {
-				const row = terrain.tiles[y] || "";
-				for (let x = 0; x < tw; x++) {
-					const ch = row[x] || "W";
-					const pair = tileColors[ch] || tileColors.L;
-					ctx.fillStyle = (x + y) % 2 === 0 ? pair[0] : pair[1];
-					ctx.fillRect(ox + x * ts, oy + y * ts, ts, ts);
+		const minX = Math.min(...nodes.map((n) => n.x));
+		const minY = Math.min(...nodes.map((n) => n.y));
+		const maxX = Math.max(...nodes.map((n) => n.x + (n.cellW ?? 1)));
+		const maxY = Math.max(...nodes.map((n) => n.y + (n.cellH ?? 1)));
+		const gw = maxX - minX;
+		const gh = maxY - minY;
+		const cell = Math.max(2, Math.min(Math.floor(mapW / gw), Math.floor(mapH / gh)));
+		const ox = mapX + Math.floor((mapW - gw * cell) / 2);
+		const oy = mapY + Math.floor((mapH - gh * cell) / 2);
+		const here = this.townMapRegionId();
+
+		for (const n of nodes) {
+			const cw = n.cellW ?? 1;
+			const ch = n.cellH ?? 1;
+			const x = ox + (n.x - minX) * cell;
+			const y = oy + (n.y - minY) * cell;
+			const w = cw * cell;
+			const h = ch * cell;
+			ctx.fillStyle = BIOME_FILL[n.kind] ?? BIOME_FILL.route;
+			ctx.fillRect(x, y, w, h);
+			if (n.kind === "route") {
+				ctx.fillStyle = ROUTE_PATH_FILL;
+				if (ch >= cw) {
+					const sw = Math.max(cell * 0.4, w * 0.35);
+					ctx.fillRect(x + (w - sw) / 2, y, sw, h);
+				} else {
+					const sh = Math.max(cell * 0.4, h * 0.35);
+					ctx.fillRect(x, y + (h - sh) / 2, w, sh);
 				}
 			}
-			// Gems / labels in tile space
-			const nxs = nodes.map((n) => n.x);
-			const nys = nodes.map((n) => n.y);
-			const nMinX = Math.min(...nxs);
-			const nMinY = Math.min(...nys);
-			const TILE_SCALE = 8;
-			const MARGIN = 3;
-			const here = this.townMapRegionId();
-			for (const n of nodes) {
-				const cx = MARGIN + (n.x - nMinX) * TILE_SCALE + Math.floor(TILE_SCALE / 2);
-				const cy = MARGIN + (n.y - nMinY) * TILE_SCALE + Math.floor(TILE_SCALE / 2);
-				const px = ox + cx * ts + ts / 2;
-				const py = oy + cy * ts + ts / 2;
-				if (n.gem) {
-					ctx.fillStyle = "#1a4a6a";
-					ctx.beginPath();
-					ctx.arc(px, py, Math.max(3, ts), 0, Math.PI * 2);
-					ctx.fill();
-					ctx.fillStyle = n.id === here ? "#a0e0ff" : "#5eb0e0";
-					ctx.beginPath();
-					ctx.moveTo(px, py - 4);
-					ctx.lineTo(px + 3, py);
-					ctx.lineTo(px, py + 4);
-					ctx.lineTo(px - 3, py);
-					ctx.closePath();
-					ctx.fill();
-					this.text(n.label, X(px), Y(py + 10), n.id === here ? "#ffe08a" : "#f0ecd8", 8, "center");
-				} else if (n.id === here) {
-					ctx.fillStyle = "#ffe08a";
-					ctx.fillRect(px - 2, py - 2, 4, 4);
-					this.text(n.label, X(px), Y(py - 6), "#ffe08a", 8, "center");
-				}
+		}
+		for (const n of nodes) {
+			const cw = n.cellW ?? 1;
+			const ch = n.cellH ?? 1;
+			const x = ox + (n.x - minX) * cell;
+			const y = oy + (n.y - minY) * cell;
+			const cx = x + (cw * cell) / 2;
+			const isHere = n.id === here;
+			// Gauntlet's label sits in the vertical middle of the long corridor
+			// it represents, not pinned to the top edge.
+			const labelInMiddle = n.id === "gauntlet_route";
+			const labelY = labelInMiddle ? y + (ch * cell) / 2 + 3 : y - 4;
+			this.text(n.label, X(cx), Y(labelY), isHere ? "#ffe08a" : "#f0ecd8", 8, "center");
+			if (n.gem) {
+				const gy = y + (ch * cell) / 2;
+				ctx.fillStyle = "#1a4a6a";
+				ctx.beginPath();
+				ctx.arc(cx, gy, Math.max(3, cell * 0.3), 0, Math.PI * 2);
+				ctx.fill();
+				ctx.fillStyle = isHere ? "#a0e0ff" : "#5eb0e0";
+				ctx.beginPath();
+				ctx.moveTo(cx, gy - 4);
+				ctx.lineTo(cx + 3, gy);
+				ctx.lineTo(cx, gy + 4);
+				ctx.lineTo(cx - 3, gy);
+				ctx.closePath();
+				ctx.fill();
+			} else if (isHere) {
+				const gy = y + (ch * cell) / 2;
+				ctx.fillStyle = "#ffe08a";
+				ctx.fillRect(cx - 2, gy - 2, 4, 4);
 			}
-		} else {
-			// Fallback graph if terrain missing
-			this.text("(no terrain grid)", X(160), Y(110), "#a09080", 10, "center");
 		}
 		ctx.restore();
-		const here = this.townMapRegionId();
 		const hereLabel = nodes.find((n) => n.id === here)?.label ?? here;
 		this.text("You are here: " + hereLabel, X(160), Y(210), "#a8c090", 10, "center");
 		this.text("B / Start: back", X(160), Y(222), "#7a7868", 10, "center");

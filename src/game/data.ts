@@ -33,15 +33,20 @@ export const MAP_NAME = worldJson.mapNames as Record<string, string>;
 export const TOWN_MAP = townMapJson as {
   name: string;
   anchor: string;
-  nodes: { id: string; label: string; kind: string; gem: boolean; x: number; y: number; playableMaps: string[] }[];
-  edges: { from: string; to: string; direction: string; need: string | null }[];
-  terrain?: {
-    width: number;
-    height: number;
-    tileSize: number;
-    tiles: string[];
-    legend: Record<string, string>;
-  };
+  nodes: {
+    id: string;
+    label: string;
+    kind: string;
+    gem: boolean;
+    x: number;
+    y: number;
+    cellW: number;
+    cellH: number;
+    playableMaps: string[];
+    realSize: { width: number; height: number };
+  }[];
+  edges: { from: string; to: string; edge: string; need: string | null }[];
+  terrain?: { width: number; height: number };
 };
 export const MAP_IDS = worldJson.mapIds as string[];
 export const WARPS = worldJson.warps;

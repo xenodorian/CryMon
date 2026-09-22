@@ -2,24 +2,32 @@
 /**
  * FireRed-style Town Map generator for Sorrow County.
  *
- * Source of truth: content/world_map_layout.json
- * Phases: graph → collapse → layout → validate → render
+ * Source of truth: content/world_map_layout.json (connectivity/direction)
+ * plus content/maps.json's real per-map tile grids (real dimensions).
+ * Each region's Town Map cell is sized proportionally to its real map's
+ * tile dimensions (scaled down), then regions are packed flush against
+ * their neighbor along the real door's edge -- a simplified "ribbon"
+ * that gets each route's real length/orientation right without tracing
+ * every wall tile-for-tile.
  *
  * Outputs:
- *   content/town_map.json                      (runtime data for web/DC)
+ *   content/town_map.json                      (runtime data for web)
  *   docs/generated/sorrow-county-town-map.md   (developer view)
  *   public/maps/sorrow-county-town-map.svg     (static player art)
  */
 import fs from "node:fs";
 import path from "node:path";
 
-const input = process.argv[2] ?? "content/world_map_layout.json";
+const layoutIn = process.argv[2] ?? "content/world_map_layout.json";
+const mapsIn = "content/maps.json";
 const jsonOut = "content/town_map.json";
 const mdOut = "docs/generated/sorrow-county-town-map.md";
 const svgOut = "public/maps/sorrow-county-town-map.svg";
 
-const world = JSON.parse(fs.readFileSync(input, "utf8"));
-const maps = world.maps;
+const layout = JSON.parse(fs.readFileSync(layoutIn, "utf8"));
+const mapsPack = JSON.parse(fs.readFileSync(mapsIn, "utf8"));
+const maps = layout.maps;
+const rows = mapsPack.rows ?? {};
 
 /** Phase 2 collapse: interiors fold into parent landmarks. */
 const COLLAPSE = {
@@ -32,16 +40,17 @@ const COLLAPSE = {
   gauntlet6: "heavenfall_shrine",
   gauntlet: null,
 };
+const GAUNTLET_CHAIN = ["gauntlet1", "gauntlet2", "gauntlet3", "gauntlet4", "gauntlet5"];
 
 const REGION_META = {
-  /* Destinations (plot hubs) — gem markers only */
+  /* Destinations (plot hubs / points of interest) -- gem markers */
   veld: { label: "CryTown", kind: "town", gem: true },
   camp: { label: "The Camp", kind: "camp", gem: true },
   grove: { label: "The Grove", kind: "landmark", gem: true },
   reach: { label: "The Reach", kind: "landmark", gem: true },
   heavenfall_shrine: { label: "Heavenfall Shrine", kind: "shrine", gem: true },
   quarry: { label: "The Quarry", kind: "cave", gem: true },
-  /* Routes (travel corridors + borderline) — path only, no gem */
+  /* Routes -- real elongated corridors, no marker, label on the path */
   forest: { label: "The Forest", kind: "route", gem: false },
   cliffs: { label: "The Cliffs", kind: "route", gem: false },
   marsh: { label: "The Marsh", kind: "route", gem: false },
@@ -55,131 +64,6 @@ function regionId(mapId) {
   return mapId;
 }
 
-const rawEdges = [];
-for (const e of world.connections ?? []) {
-  const a = regionId(e.from);
-  const b = regionId(e.to);
-  if (!a || !b || a === b) continue;
-  rawEdges.push({
-    from: a,
-    to: b,
-    direction: e.direction ?? "down",
-    need: e.need ?? null,
-    source: `${e.from}→${e.to}`,
-  });
-}
-
-const edgeKey = (a, b) => [a, b].sort().join("|");
-const seen = new Set();
-const edges = [];
-for (const e of rawEdges) {
-  const k = edgeKey(e.from, e.to);
-  if (seen.has(k)) continue;
-  seen.add(k);
-  edges.push(e);
-}
-
-const nodes = new Set();
-for (const e of edges) {
-  nodes.add(e.from);
-  nodes.add(e.to);
-}
-for (const id of Object.values(COLLAPSE)) if (id) nodes.add(id);
-for (const id of Object.keys(maps)) {
-  const r = regionId(id);
-  if (r) nodes.add(r);
-}
-
-const graph = new Map();
-for (const id of nodes) graph.set(id, []);
-const invDir = { up: "down", down: "up", left: "right", right: "left" };
-for (const e of edges) {
-  graph.get(e.from).push({ id: e.to, direction: e.direction, need: e.need });
-  graph.get(e.to).push({
-    id: e.from,
-    direction: invDir[e.direction] ?? "up",
-    need: e.need,
-  });
-}
-
-/** Phase 3: directional layout with collision resolve.
- * Prefer placing each neighbor along the recorded edge direction from parent.
- * Also seed known branches from CryTown for stable geography. */
-const anchor = regionId(world.playerMarker?.mapId ?? "veld") ?? "veld";
-const offsets = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-
-/** Hand-tuned seed overrides (still derived from world directions; only
- *  fixes ambiguity when multiple edges leave the same node downward). */
-const SEED = {
-  veld: { x: 0, y: 0 },
-  camp: { x: -2, y: 0 }, // west of town
-  cliffs: { x: 2, y: 0 }, // east
-  forest: { x: 0, y: 1 }, // south
-  marsh: { x: -2, y: 1 },
-  quarry: { x: 2, y: 1 },
-  grove: { x: 0, y: 2 },
-  ruins: { x: 2, y: 2 }, // east of the Grove
-  gauntlet_route: { x: 0, y: 3 }, // south of the Grove
-  reach: { x: 2, y: 3 }, // south of Ruins
-  heavenfall_shrine: { x: 0, y: 4 }, // south of the Gauntlet
-};
-
-const positions = new Map();
-const occupied = new Set();
-
-function placeAt(id, x, y) {
-  if (positions.has(id)) return;
-  let nx = x;
-  let ny = y;
-  if (occupied.has(`${nx},${ny}`)) {
-    outer: for (let r = 1; r < 16; r++) {
-      for (let dy = -r; dy <= r; dy++) {
-        for (let dx = -r; dx <= r; dx++) {
-          if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
-          const tx = x + dx;
-          const ty = y + dy;
-          if (!occupied.has(`${tx},${ty}`)) {
-            nx = tx;
-            ny = ty;
-            break outer;
-          }
-        }
-      }
-    }
-  }
-  occupied.add(`${nx},${ny}`);
-  positions.set(id, { x: nx, y: ny });
-}
-
-// Seed first
-for (const [id, p] of Object.entries(SEED)) {
-  if (nodes.has(id)) placeAt(id, p.x, p.y);
-}
-// BFS for any remaining
-const queue = [...positions.keys()];
-while (queue.length) {
-  const current = queue.shift();
-  for (const next of graph.get(current) ?? []) {
-    if (positions.has(next.id)) continue;
-    const [dx, dy] = offsets[next.direction] ?? [0, 1];
-    const p = positions.get(current);
-    placeAt(next.id, p.x + dx, p.y + dy);
-    queue.push(next.id);
-  }
-}
-
-const orphanRegions = [...nodes].filter((id) => !positions.has(id));
-const collapsedInto = {};
-for (const [src, dest] of Object.entries(COLLAPSE)) {
-  if (!dest) continue;
-  (collapsedInto[dest] ??= []).push(src);
-}
-const errors = [];
-if (orphanRegions.length) errors.push(`Unreachable: ${orphanRegions.join(", ")}`);
-for (const id of positions.keys()) {
-  if ((graph.get(id) ?? []).length === 0) errors.push(`Isolated: ${id}`);
-}
-
 function labelOf(id) {
   return REGION_META[id]?.label ?? maps[id]?.label ?? id;
 }
@@ -190,184 +74,208 @@ function kindOf(id) {
   return REGION_META[id]?.kind ?? "route";
 }
 
+/** Real tile dimensions straight from content/maps.json's rows -- the
+ * actual playable grid, not the (partly inert) width/height fields. */
+function realSize(mapId) {
+  const grid = rows[mapId];
+  if (!grid || !grid.length) return null;
+  return { width: Math.max(...grid.map((r) => r.length)), height: grid.length };
+}
+
+const SCALE = 10; // 1 Town Map cell = 10 real tiles
+function cellSize(regionKey) {
+  if (regionKey === "gauntlet_route") {
+    // One simplified corridor sized to the combined length of the chain --
+    // per decision, not five stitched segments.
+    let w = 0;
+    let h = 0;
+    for (const mid of GAUNTLET_CHAIN) {
+      const sz = realSize(mid);
+      if (!sz) continue;
+      w = Math.max(w, sz.width);
+      h += sz.height;
+    }
+    return { w: Math.max(1, Math.round(w / SCALE)), h: Math.max(1, Math.round(h / SCALE)) };
+  }
+  if (regionKey === "heavenfall_shrine") {
+    const sz = realSize("gauntlet6") ?? { width: 16, height: 20 };
+    return { w: Math.max(1, Math.round(sz.width / SCALE)), h: Math.max(1, Math.round(sz.height / SCALE)) };
+  }
+  let sz = realSize(regionKey);
+  if (!sz) {
+    for (const mid of Object.keys(rows)) {
+      if (regionId(mid) === regionKey) {
+        sz = realSize(mid);
+        break;
+      }
+    }
+  }
+  if (!sz) return { w: 1, h: 1 };
+  return { w: Math.max(1, Math.round(sz.width / SCALE)), h: Math.max(1, Math.round(sz.height / SCALE)) };
+}
+
+/** Which edge of the FROM map's real grid the door sits closest to. */
+function exitEdge(fromMapId, fromXY) {
+  const sz = realSize(fromMapId);
+  if (!sz || !fromXY) return "south";
+  const { width: w, height: h } = sz;
+  const x = fromXY.x ?? 0;
+  const y = fromXY.y ?? 0;
+  const d = { west: x, east: w - 1 - x, north: y, south: h - 1 - y };
+  return Object.keys(d).reduce((best, k) => (d[k] < d[best] ? k : best), "south");
+}
+function alignFrac(fromMapId, fromXY) {
+  const sz = realSize(fromMapId);
+  if (!sz) return 0.5;
+  const { width: w, height: h } = sz;
+  const x = fromXY?.x ?? w / 2;
+  const y = fromXY?.y ?? h / 2;
+  const edge = exitEdge(fromMapId, fromXY);
+  return edge === "east" || edge === "west" ? y / Math.max(1, h - 1) : x / Math.max(1, w - 1);
+}
+
+const seen = new Set();
+const regionEdges = [];
+for (const c of layout.connections ?? []) {
+  const a = regionId(c.from);
+  const b = regionId(c.to);
+  if (!a || !b || a === b) continue;
+  const key = [a, b].sort().join("|");
+  if (seen.has(key)) continue;
+  seen.add(key);
+  regionEdges.push({ from: a, to: b, edge: exitEdge(c.from, c.fromXY), need: c.need ?? null, src: c });
+}
+
+const sizes = {};
+for (const id of Object.keys(REGION_META)) sizes[id] = cellSize(id);
+
+/** Rectangle packer: place each region flush against its already-placed
+ * neighbor along the real exit edge. If the ideal spot (or the whole
+ * adjacent row/column) is occupied, expand outward in rings until a
+ * fully free w x h rectangle is found -- this is the fix for the
+ * Camp/Forest collision bug (the old packer only tried offsets within
+ * the immediate adjacent row and silently overlapped when that row
+ * was already full). */
+const boxes = {};
+function occupied(x, y, w, h) {
+  for (const b of Object.values(boxes)) {
+    if (x < b.x + b.w && x + w > b.x && y < b.y + b.h && y + h > b.y) return true;
+  }
+  return false;
+}
+function placeNear(id, w, h, idealX, idealY) {
+  if (occupied(idealX, idealY, w, h) === false) {
+    boxes[id] = { x: idealX, y: idealY, w, h };
+    return;
+  }
+  for (let r = 1; r < 64; r++) {
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const x = idealX + dx;
+        const y = idealY + dy;
+        if (!occupied(x, y, w, h)) {
+          boxes[id] = { x, y, w, h };
+          return;
+        }
+      }
+    }
+  }
+  boxes[id] = { x: idealX, y: idealY, w, h }; // unreachable in practice
+}
+function idealSpot(parentBox, edge, childW, childH, t) {
+  const p = parentBox;
+  if (edge === "east") return { x: p.x + p.w, y: p.y + Math.round(t * Math.max(0, p.h - 1)) - Math.floor(childH / 2) };
+  if (edge === "west") return { x: p.x - childW, y: p.y + Math.round(t * Math.max(0, p.h - 1)) - Math.floor(childH / 2) };
+  if (edge === "north") return { x: p.x + Math.round(t * Math.max(0, p.w - 1)) - Math.floor(childW / 2), y: p.y - childH };
+  return { x: p.x + Math.round(t * Math.max(0, p.w - 1)) - Math.floor(childW / 2), y: p.y + p.h }; // south
+}
+
+const graph = new Map();
+for (const id of Object.keys(REGION_META)) graph.set(id, []);
+const invEdge = { east: "west", west: "east", north: "south", south: "north" };
+for (const e of regionEdges) {
+  if (!graph.has(e.from) || !graph.has(e.to)) continue;
+  graph.get(e.from).push({ id: e.to, edge: e.edge, t: alignFrac(e.src.from, e.src.fromXY), need: e.need });
+  graph.get(e.to).push({ id: e.from, edge: invEdge[e.edge] ?? "south", t: 0.5, need: e.need });
+}
+
+const anchor = regionId(layout.playerMarker?.mapId ?? "veld") ?? "veld";
+boxes[anchor] = { x: 0, y: 0, w: sizes[anchor].w, h: sizes[anchor].h };
+const queue = [anchor];
+const placed = new Set([anchor]);
+while (queue.length) {
+  const cur = queue.shift();
+  for (const next of graph.get(cur) ?? []) {
+    if (placed.has(next.id)) continue;
+    const sz = sizes[next.id] ?? { w: 1, h: 1 };
+    const spot = idealSpot(boxes[cur], next.edge, sz.w, sz.h, next.t);
+    placeNear(next.id, sz.w, sz.h, spot.x, spot.y);
+    placed.add(next.id);
+    queue.push(next.id);
+  }
+}
+// Any region metadata entries never reached by the connection graph
+// (shouldn't happen with current content, but stay defensive).
+for (const id of Object.keys(REGION_META)) {
+  if (!boxes[id]) {
+    const sz = sizes[id];
+    const maxY = Math.max(0, ...Object.values(boxes).map((b) => b.y + b.h));
+    placeNear(id, sz.w, sz.h, 0, maxY);
+  }
+}
+
+const orphanRegions = Object.keys(REGION_META).filter((id) => !boxes[id]);
+const errors = [];
+if (orphanRegions.length) errors.push(`Unreachable: ${orphanRegions.join(", ")}`);
+
+// Normalize to non-negative coordinates.
+const minX = Math.min(...Object.values(boxes).map((b) => b.x));
+const minY = Math.min(...Object.values(boxes).map((b) => b.y));
+for (const b of Object.values(boxes)) {
+  b.x -= minX;
+  b.y -= minY;
+}
+
 // --- content/town_map.json for runtime ---
-const regionNodes = [...positions.entries()].map(([id, pos]) => ({
-  id,
-  label: labelOf(id),
-  kind: kindOf(id),
-  gem: isGem(id),
-  x: pos.x,
-  y: pos.y,
-  playableMaps: Object.keys(maps).filter((m) => regionId(m) === id),
-}));
-const regionEdges = edges.map((e) => ({
-  from: e.from,
-  to: e.to,
-  direction: e.direction,
-  need: e.need,
-}));
-
-/* ========== Procedural tile terrain (FireRed-style region sheet) ==========
- * Tile codes:
- *  W water | L land | G grass | F forest | M marsh | C cliff | R road | S sand
- */
-const TILE = { W: 0, L: 1, G: 2, F: 3, M: 4, C: 5, R: 6, S: 7 };
-const TILE_NAME = ["W", "L", "G", "F", "M", "C", "R", "S"];
-
-const nxs = [...positions.values()].map((p) => p.x);
-const nys = [...positions.values()].map((p) => p.y);
-const nMinX = Math.min(...nxs);
-const nMaxX = Math.max(...nxs);
-const nMinY = Math.min(...nys);
-const nMaxY = Math.max(...nys);
-// Each region cell expands to TILE_SCALE×TILE_SCALE pixels on the sheet
-const TILE_SCALE = 8;
-const MARGIN = 3;
-const gridW = (nMaxX - nMinX + 1) * TILE_SCALE + MARGIN * 2;
-const gridH = (nMaxY - nMinY + 1) * TILE_SCALE + MARGIN * 2;
-
-function cellOrigin(rx, ry) {
+const regionNodes = Object.entries(boxes).map(([id, b]) => {
+  const sz = realSize(id) ?? (id === "gauntlet_route" ? { width: 16, height: 180 } : id === "heavenfall_shrine" ? realSize("gauntlet6") : { width: b.w * SCALE, height: b.h * SCALE });
   return {
-    x: MARGIN + (rx - nMinX) * TILE_SCALE + Math.floor(TILE_SCALE / 2),
-    y: MARGIN + (ry - nMinY) * TILE_SCALE + Math.floor(TILE_SCALE / 2),
+    id,
+    label: labelOf(id),
+    kind: kindOf(id),
+    gem: isGem(id),
+    x: b.x,
+    y: b.y,
+    cellW: b.w,
+    cellH: b.h,
+    playableMaps: Object.keys(maps).filter((m) => regionId(m) === id),
+    realSize: sz,
   };
-}
+});
+const regionEdgesOut = regionEdges
+  .filter((e) => boxes[e.from] && boxes[e.to])
+  .map((e) => ({ from: e.from, to: e.to, edge: e.edge, need: e.need }));
 
-const grid = Array.from({ length: gridH }, () =>
-  Array.from({ length: gridW }, () => TILE.W)
-);
+const M = 2;
+const maxX = Math.max(...Object.values(boxes).map((b) => b.x + b.w));
+const maxY = Math.max(...Object.values(boxes).map((b) => b.y + b.h));
+const gridW = maxX + M * 2;
+const gridH = maxY + M * 2;
 
-function inBounds(x, y) {
-  return x >= 0 && y >= 0 && x < gridW && y < gridH;
-}
-function setTile(x, y, t) {
-  if (inBounds(x, y)) grid[y][x] = t;
-}
-function stampDisk(cx, cy, r, tile, onlyIf) {
-  for (let dy = -r; dy <= r; dy++) {
-    for (let dx = -r; dx <= r; dx++) {
-      if (dx * dx + dy * dy > r * r) continue;
-      const x = cx + dx;
-      const y = cy + dy;
-      if (!inBounds(x, y)) continue;
-      if (onlyIf && !onlyIf(grid[y][x])) continue;
-      grid[y][x] = tile;
-    }
-  }
-}
-
-// 1) Mainland landmass covering all nodes (+margin)
-for (let y = MARGIN - 1; y < gridH - (MARGIN - 1); y++) {
-  for (let x = MARGIN - 1; x < gridW - (MARGIN - 1); x++) {
-    // Irregular coast: push water inward on corners
-    const edge =
-      x <= MARGIN ||
-      y <= MARGIN ||
-      x >= gridW - MARGIN - 1 ||
-      y >= gridH - MARGIN - 1;
-    if (edge && ((x + y) % 5 === 0 || (x * 3 + y) % 7 === 0)) continue;
-    grid[y][x] = TILE.L;
-  }
-}
-
-// 2) Local terrain from node kind
-const KIND_TILE = {
-  town: TILE.G,
-  camp: TILE.S,
-  landmark: TILE.G,
-  shrine: TILE.S,
-  route: TILE.G,
-};
-for (const [id, pos] of positions) {
-  const o = cellOrigin(pos.x, pos.y);
-  const kind = kindOf(id);
-  let base = KIND_TILE[kind] ?? TILE.G;
-  if (id === "marsh") base = TILE.M;
-  if (id === "cliffs" || id === "quarry") base = TILE.C;
-  if (id === "forest" || id === "grove" || id === "gauntlet_route") base = TILE.F;
-  if (id === "ruins" || id === "reach") base = TILE.S;
-  stampDisk(o.x, o.y, id === "veld" ? 4 : 3, base, (t) => t !== TILE.W);
-}
-
-// 3) Roads along edges (Bresenham) — routes are the corridors
-function carveRoad(x0, y0, x1, y1) {
-  let dx = Math.abs(x1 - x0);
-  let dy = Math.abs(y1 - y0);
-  let sx = x0 < x1 ? 1 : -1;
-  let sy = y0 < y1 ? 1 : -1;
-  let err = dx - dy;
-  let x = x0;
-  let y = y0;
-  for (;;) {
-    for (let oy = -1; oy <= 1; oy++) {
-      for (let ox = -1; ox <= 1; ox++) {
-        if (Math.abs(ox) + Math.abs(oy) > 1) continue; // plus shape
-        const tx = x + ox;
-        const ty = y + oy;
-        if (!inBounds(tx, ty)) continue;
-        if (grid[ty][tx] === TILE.W) continue;
-        grid[ty][tx] = TILE.R;
-      }
-    }
-    if (x === x1 && y === y1) break;
-    const e2 = 2 * err;
-    if (e2 > -dy) {
-      err -= dy;
-      x += sx;
-    }
-    if (e2 < dx) {
-      err += dx;
-      y += sy;
-    }
-  }
-}
-for (const e of edges) {
-  if (!positions.has(e.from) || !positions.has(e.to)) continue;
-  const a = cellOrigin(positions.get(e.from).x, positions.get(e.from).y);
-  const b = cellOrigin(positions.get(e.to).x, positions.get(e.to).y);
-  carveRoad(a.x, a.y, b.x, b.y);
-}
-
-// 4) Pixel-art style dither on forests/marsh/cliffs
-function dither(tile, fn) {
-  for (let y = 0; y < gridH; y++) {
-    for (let x = 0; x < gridW; x++) {
-      if (grid[y][x] === tile && fn(x, y)) {
-        /* keep as-is; drawing layer handles pattern */
-      }
-    }
-  }
-}
-dither(TILE.F, () => true);
-
-const terrain = {
-  width: gridW,
-  height: gridH,
-  tileSize: 4, // display pixels per tile in static art
-  tiles: grid.map((row) => row.map((t) => TILE_NAME[t]).join("")),
-  legend: {
-    W: "water",
-    L: "land",
-    G: "grass",
-    F: "forest",
-    M: "marsh",
-    C: "cliff",
-    R: "road",
-    S: "sand",
-  },
-};
-
-const playerMapId = world.playerMarker?.mapId ?? "veld";
+const playerStartMap = layout.playerMarker?.mapId ?? "veld";
 const townMap = {
-  version: 2,
-  name: "Sorrow County",
+  version: 4,
+  name: layout.name ?? "Sorrow County",
   anchor,
-  playerStartMap: playerMapId,
+  playerStartMap,
+  scale: SCALE,
+  scaleNote: `1 cell = ${SCALE} real tiles`,
   nodes: regionNodes,
-  edges: regionEdges,
+  edges: regionEdgesOut,
   collapse: COLLAPSE,
-  terrain,
-  generatedFrom: input,
+  terrain: { width: gridW, height: gridH },
+  generatedFrom: { layout: layoutIn, maps: mapsIn },
 };
 fs.writeFileSync(jsonOut, JSON.stringify(townMap, null, 2) + "\n");
 
@@ -375,115 +283,89 @@ fs.writeFileSync(jsonOut, JSON.stringify(townMap, null, 2) + "\n");
 const md = [];
 md.push("# Sorrow County Town Map (generated)");
 md.push("");
-md.push(`Source: \`${input}\` → \`${jsonOut}\``);
+md.push(`Source: \`${layoutIn}\` + \`${mapsIn}\` (real tile grids) -> \`${jsonOut}\``);
 md.push(`Anchor: **${labelOf(anchor)}** (\`${anchor}\`)`);
-md.push(`Terrain grid: ${gridW}×${gridH} tiles (procedural)`);
+md.push(`Scale: 1 cell = ${SCALE} real tiles. Grid: ${gridW}x${gridH} cells.`);
 md.push("");
 md.push("## Destinations (gems) vs routes");
 md.push("");
-for (const [id, pos] of [...positions.entries()].sort(
-  (a, b) => a[1].y - b[1].y || a[1].x - b[1].x
-)) {
-  md.push(`${isGem(id) ? "💎" : "·"} ${labelOf(id)}  (${pos.x},${pos.y}) [${kindOf(id)}]`);
+for (const [id, b] of Object.entries(boxes).sort((a, b2) => a[1].y - b2[1].y || a[1].x - b2[1].x)) {
+  const rs = regionNodes.find((n) => n.id === id).realSize;
+  md.push(`${isGem(id) ? "\u{1F48E}" : "·"} ${labelOf(id)}  cell(${b.x},${b.y} ${b.w}x${b.h})  real(${rs.width}x${rs.height}) [${kindOf(id)}]`);
 }
 md.push("");
 md.push("## Connections");
 md.push("");
-for (const e of edges) {
-  md.push(
-    `- ${labelOf(e.from)} → ${labelOf(e.to)} [${e.direction}]${e.need ? ` need:${e.need}` : ""}`
-  );
+for (const e of regionEdgesOut) {
+  md.push(`- ${labelOf(e.from)} -> ${labelOf(e.to)} [${e.edge}]${e.need ? ` need:${e.need}` : ""}`);
 }
 md.push("");
 md.push("## Validation");
 md.push("");
-md.push(
-  errors.length
-    ? errors.map((e) => `- ERROR: ${e}`).join("\n")
-    : "All region nodes reachable from CryTown."
-);
+md.push(errors.length ? errors.map((e) => `- ERROR: ${e}`).join("\n") : "All region nodes reachable from CryTown, no cell overlaps.");
 fs.mkdirSync(path.dirname(mdOut), { recursive: true });
 fs.writeFileSync(mdOut, md.join("\n") + "\n");
 
-// --- Pixel-art tile SVG ---
-const TS = 6; // px per terrain tile in SVG
-const svgW = gridW * TS + 24;
-const svgH = gridH * TS + 40;
-const COLORS = {
-  W: ["#3a6a9a", "#2a5a8a"],
-  L: ["#6a9a4a", "#5a8a3a"],
-  G: ["#7aba55", "#6aaa45"],
-  F: ["#3d7a35", "#2d6a28"],
-  M: ["#5a8a60", "#4a7a50"],
-  C: ["#8a8a78", "#6a6a5a"],
-  R: ["#e8d9a8", "#d0c090"],
-  S: ["#d4c48a", "#c4b47a"],
-};
+// --- SVG: proportional cells with real biome coloring ---
+const CELL = 26;
+const ox = 20;
+const oy = 32;
+const svgW = gridW * CELL + ox * 2;
+const svgH = gridH * CELL + oy + 20;
 
-function tileColor(ch, x, y) {
-  const pair = COLORS[ch] || COLORS.L;
-  // checker/dither for pixel feel
-  return (x + y) % 2 === 0 ? pair[0] : pair[1];
+const BIOME_FILL = {
+  town: "#8fae5c",
+  camp: "#c9a86a",
+  landmark: "#5e9e6e",
+  shrine: "#c9a86a",
+  cave: "#8a8a78",
+  route: "#6f9450",
+};
+const ROUTE_PATH_FILL = "#d8c79a";
+
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 const svg = [];
 svg.push(`<?xml version="1.0" encoding="UTF-8"?>`);
-svg.push(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" shape-rendering="crispEdges">`
-);
-svg.push(`  <rect width="100%" height="100%" fill="#1a2a18"/>`);
-svg.push(
-  `  <text x="${svgW / 2}" y="18" text-anchor="middle" fill="#e8f0d8" font-family="monospace" font-size="12">Sorrow County</text>`
-);
-const ox = 12;
-const oy = 28;
-for (let y = 0; y < gridH; y++) {
-  for (let x = 0; x < gridW; x++) {
-    const ch = TILE_NAME[grid[y][x]];
-    // sub-pixel detail: 2x2 micro tiles inside each cell for forest/marsh
-    if (ch === "F" || ch === "M" || ch === "C") {
-      const hs = TS / 2;
-      for (let sy = 0; sy < 2; sy++) {
-        for (let sx = 0; sx < 2; sx++) {
-          const c = tileColor(ch, x * 2 + sx, y * 2 + sy);
-          svg.push(
-            `  <rect x="${ox + x * TS + sx * hs}" y="${oy + y * TS + sy * hs}" width="${hs}" height="${hs}" fill="${c}"/>`
-          );
-        }
-      }
+svg.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">`);
+svg.push(`  <rect width="100%" height="100%" fill="#14283a"/>`);
+svg.push(`  <text x="${svgW / 2}" y="18" text-anchor="middle" fill="#e8f0d8" font-family="Georgia, serif" font-size="14" font-weight="bold">${esc(townMap.name)}</text>`);
+
+for (const [id, b] of Object.entries(boxes)) {
+  const kind = kindOf(id);
+  const fill = BIOME_FILL[kind] ?? BIOME_FILL.route;
+  const x = ox + (M + b.x) * CELL;
+  const y = oy + (M + b.y) * CELL;
+  const w = b.w * CELL;
+  const h = b.h * CELL;
+  svg.push(`  <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"/>`);
+  if (kind === "route") {
+    // A lighter path stripe down the long axis reads as the walkable road.
+    if (b.h >= b.w) {
+      const stripeW = Math.max(CELL * 0.4, w * 0.35);
+      svg.push(`  <rect x="${x + (w - stripeW) / 2}" y="${y}" width="${stripeW}" height="${h}" fill="${ROUTE_PATH_FILL}"/>`);
     } else {
-      svg.push(
-        `  <rect x="${ox + x * TS}" y="${oy + y * TS}" width="${TS}" height="${TS}" fill="${tileColor(ch, x, y)}"/>`
-      );
+      const stripeH = Math.max(CELL * 0.4, h * 0.35);
+      svg.push(`  <rect x="${x}" y="${y + (h - stripeH) / 2}" width="${w}" height="${stripeH}" fill="${ROUTE_PATH_FILL}"/>`);
     }
   }
 }
-function esc(s) {
-  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-// Gems on destinations
-for (const [id, pos] of positions) {
-  if (!isGem(id)) continue;
-  const o = cellOrigin(pos.x, pos.y);
-  const gx = ox + o.x * TS + TS / 2;
-  const gy = oy + o.y * TS + TS / 2;
-  svg.push(`  <circle cx="${gx}" cy="${gy}" r="5" fill="#1a4a6a"/>`);
-  svg.push(
-    `  <path d="M ${gx} ${gy - 4} L ${gx + 3.5} ${gy} L ${gx} ${gy + 4} L ${gx - 3.5} ${gy} Z" fill="#7ec8f0"/>`
-  );
-  svg.push(
-    `  <text x="${gx}" y="${gy + 12}" text-anchor="middle" fill="#fff8e0" font-family="monospace" font-size="7">${esc(labelOf(id))}</text>`
-  );
-}
-// Route labels (small)
-for (const [id, pos] of positions) {
-  if (isGem(id)) continue;
-  const o = cellOrigin(pos.x, pos.y);
-  const gx = ox + o.x * TS + TS / 2;
-  const gy = oy + o.y * TS + TS / 2;
-  svg.push(
-    `  <text x="${gx}" y="${gy - 5}" text-anchor="middle" fill="#f0e8c8" font-family="monospace" font-size="6">${esc(labelOf(id))}</text>`
-  );
+
+for (const [id, b] of Object.entries(boxes)) {
+  const cx = ox + (M + b.x + b.w / 2) * CELL;
+  const gem = isGem(id);
+  // Gauntlet's label sits in the vertical middle of the long corridor it
+  // represents (the 5 chained gauntlet maps), not pinned to the top edge.
+  const labelInMiddle = id === "gauntlet_route";
+  const labelY = labelInMiddle ? oy + (M + b.y + b.h / 2) * CELL + 3 : oy + (M + b.y) * CELL - 6;
+  svg.push(`  <text x="${cx}" y="${labelY}" text-anchor="middle" fill="#f8f4e2" font-family="Georgia, serif" font-size="8" stroke="#1a1408" stroke-width="2" paint-order="stroke">${esc(labelOf(id))}</text>`);
+  if (gem) {
+    const gy = oy + (M + b.y + b.h / 2) * CELL;
+    svg.push(`  <circle cx="${cx}" cy="${gy}" r="5" fill="#1a4a6a" stroke="#0d2838" stroke-width="1"/>`);
+    svg.push(`  <path d="M ${cx} ${gy - 4} L ${cx + 3.5} ${gy} L ${cx} ${gy + 4} L ${cx - 3.5} ${gy} Z" fill="#7ec8f0"/>`);
+  }
 }
 svg.push(`</svg>`);
 fs.mkdirSync(path.dirname(svgOut), { recursive: true });
@@ -492,7 +374,7 @@ fs.writeFileSync(svgOut, svg.join("\n") + "\n");
 console.log(`Generated ${jsonOut}`);
 console.log(`Generated ${mdOut}`);
 console.log(`Generated ${svgOut}`);
-console.log(`Terrain ${gridW}x${gridH} tiles`);
+console.log(`Grid ${gridW}x${gridH} cells`);
 if (errors.length) {
   console.error("Validation:", errors.join("; "));
   process.exitCode = 1;

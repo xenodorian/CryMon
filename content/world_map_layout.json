@@ -65,7 +65,7 @@
       ],
       "active": true,
       "width": 26,
-      "height": 20,
+      "height": 32,
       "worldBox": {
         "x": 400,
         "y": 430
@@ -79,7 +79,7 @@
       ],
       "active": true,
       "width": 18,
-      "height": 12,
+      "height": 20,
       "worldBox": {
         "x": 700,
         "y": 140
@@ -93,7 +93,7 @@
       ],
       "active": true,
       "width": 18,
-      "height": 13,
+      "height": 21,
       "worldBox": {
         "x": 710,
         "y": 620
@@ -149,7 +149,7 @@
       ],
       "active": true,
       "width": 20,
-      "height": 13,
+      "height": 19,
       "worldBox": {
         "x": 700,
         "y": 690
