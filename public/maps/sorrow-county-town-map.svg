@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="312" height="456" viewBox="0 0 312 456">
+  <rect width="100%" height="100%" fill="#2a3a28"/>
+  <text x="48" y="28" fill="#e8e4d0" font-family="monospace" font-size="16">Sorrow County</text>
+  <line x1="156" y1="84" x2="156" y2="156" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="156" y1="156" x2="156" y2="228" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="156" y1="84" x2="84" y2="84" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="156" y1="84" x2="228" y2="84" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="156" y1="228" x2="156" y2="300" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="156" y1="300" x2="156" y2="372" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="156" y1="156" x2="84" y2="156" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="228" y1="84" x2="228" y2="156" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="156" y1="228" x2="84" y2="228" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <line x1="84" y1="228" x2="84" y2="300" stroke="#c4b896" stroke-width="6" stroke-linecap="round"/>
+  <path d="M 156 70 L 168 84 L 156 98 L 144 84 Z" fill="#5ec8ff" stroke="#1a4a6a" stroke-width="2"/>
+  <text x="156" y="112" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">CryTown</text>
+  <rect x="138" y="144" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
+  <text x="156" y="184" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Forest</text>
+  <path d="M 84 70 L 96 84 L 84 98 L 72 84 Z" fill="#5ec8ff" stroke="#1a4a6a" stroke-width="2"/>
+  <text x="84" y="112" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Camp</text>
+  <rect x="210" y="72" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
+  <text x="228" y="112" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Cliffs</text>
+  <rect x="138" y="216" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
+  <text x="156" y="256" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Grove</text>
+  <rect x="66" y="144" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
+  <text x="84" y="184" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Marsh</text>
+  <rect x="210" y="144" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
+  <text x="228" y="184" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Quarry</text>
+  <rect x="138" y="288" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
+  <text x="156" y="328" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Ruins</text>
+  <rect x="66" y="216" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
+  <text x="84" y="256" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">Gauntlet</text>
+  <rect x="138" y="360" width="36" height="24" rx="3" fill="#d9cba8" stroke="#8a7a55" stroke-width="2"/>
+  <text x="156" y="400" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">The Reach</text>
+  <path d="M 84 286 L 96 300 L 84 314 L 72 300 Z" fill="#5ec8ff" stroke="#1a4a6a" stroke-width="2"/>
+  <text x="84" y="328" text-anchor="middle" fill="#f0ecd8" font-family="monospace" font-size="11">Heavenfall Shrine</text>
+</svg>
