@@ -20,7 +20,9 @@
     "malkuth": "MALKUTH",
     "weepingroad": "THE WEEPING ROAD",
     "yesod": "YESOD",
-    "tau": "PATH OF TAU"
+    "tau": "PATH OF TAU",
+    "netzach": "NETZACH",
+    "qoph": "PATH OF QOPH"
   },
   "mapIds": [
     "house",
@@ -43,6 +45,8 @@
     "malkuth",
     "weepingroad",
     "yesod",
-    "tau"
+    "tau",
+    "netzach",
+    "qoph"
   ]
 }

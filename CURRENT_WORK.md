@@ -1190,4 +1190,5 @@ ports/dreamcast` -> commit -> push -> note completed step here.
   Dreamcast rebuild (no C changes needed, confirmed the whole tile/
   warp system is fully data-driven for NPC-less maps).
 - Step 2/23: `yesod` (city) + `tau` (route, yesod<->malkuth). Green.
+- Step 3/23: `netzach` (city) + `qoph` (route, netzach<->malkuth). Green.
 

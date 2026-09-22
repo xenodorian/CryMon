@@ -68,7 +68,9 @@
     "malkuth": "MALKUTH",
     "weepingroad": "THE WEEPING ROAD",
     "yesod": "YESOD",
-    "tau": "PATH OF TAU"
+    "tau": "PATH OF TAU",
+    "netzach": "NETZACH",
+    "qoph": "PATH OF QOPH"
   },
   "mapIds": [
     "house",
@@ -91,7 +93,9 @@
     "malkuth",
     "weepingroad",
     "yesod",
-    "tau"
+    "tau",
+    "netzach",
+    "qoph"
   ],
   "encounters": [
     {
@@ -637,6 +641,38 @@
       "from": "malkuth",
       "tile": "G",
       "to": "tau",
+      "spawn": "2",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "netzach",
+      "tile": "Z",
+      "to": "qoph",
+      "spawn": "1",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "qoph",
+      "tile": "1",
+      "to": "netzach",
+      "spawn": "Z",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "qoph",
+      "tile": "2",
+      "to": "malkuth",
+      "spawn": "D",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "malkuth",
+      "tile": "D",
+      "to": "qoph",
       "spawn": "2",
       "dir": "up",
       "oy": -32
