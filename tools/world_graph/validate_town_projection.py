@@ -2,8 +2,8 @@
 """Validate the world graph against the player-facing Town Map projection.
 
 Checks that the generated Town Map abstraction does not hide playable areas,
-that collapsed regions resolve correctly, and that visible destinations have
-valid world graph support.
+that collapsed regions resolve correctly, that visible destinations have
+valid world graph support, and that progression paths remain coherent.
 """
 
 import json
@@ -14,6 +14,18 @@ from collections import defaultdict, deque
 
 def load(path):
     return json.loads(Path(path).read_text())
+
+
+def reachable_from(graph, start):
+    reachable = set()
+    queue = deque([start])
+    while queue:
+        current = queue.popleft()
+        if current in reachable:
+            continue
+        reachable.add(current)
+        queue.extend(graph[current])
+    return reachable
 
 
 def main():
@@ -48,27 +60,30 @@ def main():
         if node_id not in playable and node_id not in collapsed_sources:
             warnings.append(f"Town Map node has no direct playable map or collapse source: {node_id}")
 
-    # Validate visible graph endpoints.
     graph = defaultdict(set)
+    requirements = {}
     for edge in town.get("edges", []):
         graph[edge["from"]].add(edge["to"])
         graph[edge["to"]].add(edge["from"])
+        if edge.get("need"):
+            requirements[(edge["from"], edge["to"])] = edge["need"]
 
     anchor = town.get("anchor", "veld")
-    reachable = set()
-    queue = deque([anchor])
-    while queue:
-        current = queue.popleft()
-        if current in reachable:
-            continue
-        reachable.add(current)
-        queue.extend(graph[current])
+    reachable = reachable_from(graph, anchor)
 
     for node_id in town_nodes:
         if node_id not in reachable:
             errors.append(f"Town Map node unreachable from anchor {anchor}: {node_id}")
 
-    # Route nodes should not silently terminate unless they are intentional gems.
+    # Ensure progression-gated routes still have a visible path.
+    # This catches a map that exists visually but cannot be reached through
+    # any represented route chain.
+    for edge, requirement in requirements.items():
+        if edge[0] in reachable and edge[1] not in town_nodes:
+            errors.append(
+                f"progression edge points outside Town Map: {edge[0]} -> {edge[1]} ({requirement})"
+            )
+
     for node in town.get("nodes", []):
         if not node.get("gem") and len(graph[node["id"]]) == 0:
             warnings.append(f"route has no connection: {node['id']}")
