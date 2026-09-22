@@ -1098,7 +1098,9 @@ export class CryMon {
 		for (const n of nodes) {
 			const x = px(n.x);
 			const y = py(n.y);
+			const isPOI = n.kind === "cave" || n.kind === "gauntlet";
 			if (n.gem) {
+				// Real landmark (town/camp/shrine): discrete diamond marker.
 				ctx.fillStyle = n.id === here ? "#7ec8f0" : "#4a90c8";
 				ctx.beginPath();
 				ctx.moveTo(x, y - 8);
@@ -1107,11 +1109,18 @@ export class CryMon {
 				ctx.lineTo(x - 7, y);
 				ctx.closePath();
 				ctx.fill();
+				this.text(n.label, X(x), Y(y + 16), n.id === here ? "#ffe08a" : "#d8d0c0", 10, "center");
+			} else if (isPOI) {
+				// Point of interest along the road (cave/gauntlet entrance): small dot.
+				ctx.fillStyle = n.id === here ? "#f0e6c0" : "#8a7a55";
+				ctx.beginPath();
+				ctx.arc(x, y, 4, 0, Math.PI * 2);
+				ctx.fill();
+				this.text(n.label, X(x), Y(y + 14), n.id === here ? "#ffe08a" : "#d8d0c0", 10, "center");
 			} else {
-				ctx.fillStyle = n.id === here ? "#f0e6c0" : "#c4b48a";
-				ctx.fillRect(x - 12, y - 7, 24, 14);
+				// Plain route: no marker — the connecting line itself is the road.
+				this.text(n.label, X(x), Y(y - 10), n.id === here ? "#ffe08a" : "#8a7a55", 10, "center");
 			}
-			this.text(n.label, X(x), Y(y + 16), n.id === here ? "#ffe08a" : "#d8d0c0", 10, "center");
 		}
 		ctx.restore();
 		const hereLabel = nodes.find((n) => n.id === here)?.label ?? here;

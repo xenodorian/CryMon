@@ -230,7 +230,8 @@ md.push("```text");
 for (const [id, pos] of [...positions.entries()].sort(
   (a, b) => a[1].y - b[1].y || a[1].x - b[1].x
 )) {
-  md.push(`${isGem(id) ? "💎" : "▫"} ${labelOf(id)}  (${pos.x},${pos.y})`);
+  const marker = isGem(id) ? "💎" : kindOf(id) === "cave" || kindOf(id) === "gauntlet" ? "●" : "·";
+  md.push(`${marker} ${labelOf(id)}  (${pos.x},${pos.y})`);
 }
 md.push("```");
 md.push("");
@@ -300,21 +301,34 @@ for (const e of edges) {
 for (const [id, pos] of positions) {
   const x = px(pos.x);
   const y = py(pos.y);
+  const kind = kindOf(id);
+  const isPOI = kind === "cave" || kind === "gauntlet";
   if (isGem(id)) {
+    // Real landmark (town/camp/shrine): discrete diamond marker, like FireRed's town-pin.
     svg.push(
       `  <circle cx="${x}" cy="${y}" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>`
     );
     svg.push(
       `  <path d="M ${x} ${y - 10} L ${x + 9} ${y} L ${x} ${y + 10} L ${x - 9} ${y} Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>`
     );
-  } else {
     svg.push(
-      `  <rect x="${x - 20}" y="${y - 12}" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>`
+      `  <text x="${x}" y="${y + 30}" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">${esc(labelOf(id))}</text>`
+    );
+  } else if (isPOI) {
+    // Point of interest along the road (cave/gauntlet entrance): small dot, no box.
+    svg.push(
+      `  <circle cx="${x}" cy="${y}" r="6" fill="#8a7a55" stroke="#4a3a28" stroke-width="1.5"/>`
+    );
+    svg.push(
+      `  <text x="${x}" y="${y + 22}" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="10">${esc(labelOf(id))}</text>`
+    );
+  } else {
+    // Plain route: no marker at all — the road itself is the route. Label sits
+    // directly on the path, like FireRed's Town Map route names.
+    svg.push(
+      `  <text x="${x}" y="${y - 12}" text-anchor="middle" fill="#4a3a28" font-family="Georgia, serif" font-size="10" stroke="#e8dcc0" stroke-width="3" paint-order="stroke">${esc(labelOf(id))}</text>`
     );
   }
-  svg.push(
-    `  <text x="${x}" y="${y + 30}" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">${esc(labelOf(id))}</text>`
-  );
 }
 svg.push(`</svg>`);
 fs.mkdirSync(path.dirname(svgOut), { recursive: true });

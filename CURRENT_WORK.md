@@ -365,6 +365,39 @@ Fixed for real, not just relabeled:
 - `check_sync --strict`, typecheck, web build, and `make -C
   ports/dreamcast` all clean.
 
+**Town Map rendering fixed: plain routes are now the road, not a box
+(Claude, 2026-09-22).** User flagged (with FireRed screenshots) that
+every node — real landmarks AND plain connective routes — was drawn as
+a discrete box/diamond joined by thin lines, making routes look like
+disconnected "phantom" stops instead of the road itself. FireRed's Town
+Map only puts a marker on true landmarks and cave/dungeon entrances;
+a plain route is just the continuous tan path with a label on it.
+Fixed in both renderers (they must stay in sync, same three-tier logic):
+- **`tools/generate-town-map.mjs`** (SVG generator) and
+  **`src/game/engine.ts`'s `drawTownMap()`** (in-game Pause→Map canvas)
+  both now branch on `gem`/`kind` into three tiers instead of two:
+  - `gem:true` (veld/CryTown, camp, heavenfall_shrine) → unchanged
+    diamond-on-circle landmark marker.
+  - `kind:"cave"` or `kind:"gauntlet"` (quarry, gauntlet_route) → new
+    small dot marker (no box) — a point of interest sitting on the
+    road, not a destination town.
+  - everything else (`kind:"route"`, `gem:false` — forest, grove,
+    cliffs, marsh, ruins, reach) → **no marker at all**, just the
+    label sitting directly on the connecting road (SVG label gets a
+    stroked halo for legibility over the tan path).
+- Developer markdown legend (`docs/generated/sorrow-county-town-map.md`)
+  updated to a matching 💎/●/· three-symbol legend.
+- No `content/town_map.json` schema change (`kind` field already
+  existed on every node) — this is a pure rendering fix, both
+  renderers read data that was already there.
+- Regenerated Town Map, re-ran `run_full_audit.py` (PASS), rendered
+  the new SVG via headless Chromium and visually confirmed it now
+  reads as a continuous path with landmark/POI markers only, matching
+  the FireRed reference the user provided.
+- `check_sync --strict`, typecheck, and web build all clean. No
+  Dreamcast rebuild needed — `main.c` and baked `.inc` content
+  untouched (`town_map.json` is web-only runtime data, not baked).
+
 ---
 
 ## Leg 3 (open — from the user's doc)
