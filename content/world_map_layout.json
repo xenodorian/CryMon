@@ -130,29 +130,29 @@
     "gauntlet1": {
       "label": "GAUNTLET 1",
       "grid": [
-        -1,
+        0,
         3
       ],
       "active": true,
       "width": 16,
       "height": 36,
       "worldBox": {
-        "x": 0,
+        "x": 400,
         "y": 980
       }
     },
     "ruins": {
       "label": "THE RUINS",
       "grid": [
-        0,
-        3
+        1,
+        2
       ],
       "active": true,
       "width": 20,
       "height": 13,
       "worldBox": {
-        "x": 400,
-        "y": 980
+        "x": 700,
+        "y": 690
       }
     },
     "reach": {
@@ -172,70 +172,70 @@
     "gauntlet2": {
       "label": "GAUNTLET 2",
       "grid": [
-        -1,
+        0,
         4
       ],
       "active": true,
       "width": 16,
       "height": 36,
       "worldBox": {
-        "x": 0,
+        "x": 400,
         "y": 1360
       }
     },
     "gauntlet3": {
       "label": "GAUNTLET 3",
       "grid": [
-        -1,
+        0,
         5
       ],
       "active": true,
       "width": 16,
       "height": 36,
       "worldBox": {
-        "x": 0,
+        "x": 400,
         "y": 1740
       }
     },
     "gauntlet4": {
       "label": "GAUNTLET 4",
       "grid": [
-        -1,
+        0,
         6
       ],
       "active": true,
       "width": 16,
       "height": 36,
       "worldBox": {
-        "x": 0,
+        "x": 400,
         "y": 2120
       }
     },
     "gauntlet5": {
       "label": "GAUNTLET 5",
       "grid": [
-        -1,
+        0,
         7
       ],
       "active": true,
       "width": 16,
       "height": 36,
       "worldBox": {
-        "x": 0,
+        "x": 400,
         "y": 2500
       }
     },
     "gauntlet6": {
       "label": "THE GRAVE",
       "grid": [
-        -1,
+        0,
         8
       ],
       "active": true,
       "width": 16,
       "height": 20,
       "worldBox": {
-        "x": 0,
+        "x": 400,
         "y": 2880
       }
     },
@@ -337,14 +337,14 @@
       "fromTile": "g",
       "toTile": "D",
       "fromXY": {
-        "x": 13,
-        "y": 19
+        "x": 23,
+        "y": 16
       },
       "toXY": {
-        "x": 10,
-        "y": 1
+        "x": 0,
+        "y": 5
       },
-      "direction": "down",
+      "direction": "right",
       "need": "beatShin"
     },
     {
@@ -401,8 +401,8 @@
       "fromTile": "G",
       "toTile": "2",
       "fromXY": {
-        "x": 2,
-        "y": 18
+        "x": 13,
+        "y": 19
       },
       "toXY": {
         "x": 8,
@@ -570,7 +570,7 @@
       "CRYTOWN's camp warp is at x=8,y=20, placing THE CAMP in the lower-left relationship to CRYTOWN.",
       "CRYTOWN's forest warp is at x=14,y=22, placing THE FOREST directly below CRYTOWN.",
       "CRYTOWN's cliffs warp is at x=28,y=11, placing THE CLIFFS on CRYTOWN's right side.",
-      "Subsequent boxes follow the exact source warp side/position: forest→grove and grove→ruins/reach continue downward; forest→marsh branches right; cliffs→quarry branches downward-left; grove→gauntlet1 branches left.",
+      "Subsequent boxes follow the exact source warp side/position: forest\u2192grove and grove\u2192ruins/reach continue downward; forest\u2192marsh branches right; cliffs\u2192quarry branches downward-left; grove\u2192gauntlet1 branches left.",
       "The gauntlet maps form a strict vertical chain."
     ],
     "renderRules": [

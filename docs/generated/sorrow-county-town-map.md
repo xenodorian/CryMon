@@ -12,11 +12,11 @@ Anchor: **CryTown** (`veld`)
 ▫ The Marsh  (-2,1)
 ▫ The Forest  (0,1)
 ▫ The Quarry  (2,1)
-▫ Gauntlet  (-2,2)
 ▫ The Grove  (0,2)
-💎 Heavenfall Shrine  (-2,3)
-▫ The Ruins  (0,3)
-▫ The Reach  (0,4)
+▫ The Ruins  (2,2)
+▫ Gauntlet  (0,3)
+▫ The Reach  (2,3)
+💎 Heavenfall Shrine  (0,4)
 ```
 
 ## Connections
@@ -25,7 +25,7 @@ Anchor: **CryTown** (`veld`)
 - The Forest → The Grove [down]
 - CryTown → The Camp [down] need:beatCalder
 - CryTown → The Cliffs [down]
-- The Grove → The Ruins [down] need:beatShin
+- The Grove → The Ruins [right] need:beatShin
 - The Ruins → The Reach [down] need:hasScroll
 - The Forest → The Marsh [down]
 - The Cliffs → The Quarry [down]

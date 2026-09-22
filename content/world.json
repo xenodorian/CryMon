@@ -411,8 +411,8 @@
       "tile": "g",
       "to": "ruins",
       "spawn": "D",
-      "dir": "down",
-      "oy": 40,
+      "dir": "right",
+      "ox": 40,
       "need": "beatShin",
       "failTalk": "groveLocked"
     },
@@ -421,8 +421,8 @@
       "tile": "D",
       "to": "grove",
       "spawn": "g",
-      "dir": "up",
-      "oy": -32
+      "dir": "left",
+      "ox": -32
     },
     {
       "from": "ruins",

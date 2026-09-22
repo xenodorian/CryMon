@@ -2214,13 +2214,15 @@ export class CryMon {
 				const d = spawnOf(this.map(), ch);
 				if (warp.dir === "down") this.world.y = Math.min(this.world.y, d.y - TILE);
 				else if (warp.dir === "up") this.world.y = Math.max(this.world.y, d.y + TILE);
+				else if (warp.dir === "right") this.world.x = Math.min(this.world.x, d.x - TILE);
+				else if (warp.dir === "left") this.world.x = Math.max(this.world.x, d.x + TILE);
 				this.doorLock = .5;
 				this.say(TALK[warp.failTalk] || TALK.doorLocked);
 			}
 			return true;
 		}
 		if (warp.onArrive === "ensureSoldiers") this.ensureSoldiers();
-		this.warpTo(warp.to, warp.spawn, warp.dir, warp.oy);
+		this.warpTo(warp.to, warp.spawn, warp.dir, warp.oy, warp.ox);
 		if (warp.onArrive && warp.onArrive !== "ensureSoldiers") this.runArrival(warp.onArrive);
 		this.maybeStartAnne();
 		return true;
@@ -2389,11 +2391,11 @@ export class CryMon {
 		const ch = tileAt(this.map(), this.world.x, this.world.y);
 		this.applyWarp(ch);
 	}
-	warpTo(mapId, mark, dir, yOff = 0) {
+	warpTo(mapId, mark, dir, yOff = 0, xOff = 0) {
 		const rows = MAPS[mapId];
 		const s = spawnOf(rows, mark);
 		this.world.mapId = mapId;
-		this.world.x = s.x;
+		this.world.x = s.x + xOff;
 		this.world.y = s.y + yOff;
 		this.world.dir = dir;
 		this.world.encounterLock = 3;

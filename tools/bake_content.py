@@ -720,23 +720,24 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("typedef struct {")
     lines.append("    int from_map, to_map;")
     lines.append("    char tile, spawn;")
-    lines.append("    int face_down; /* 1 = arrive facing down (from south) */")
+    lines.append("    int dir;       /* facing on arrival: 0=down,1=up,2=left,3=right */")
     lines.append("    int need;      /* 0 none, 1 tookStarter, 2 beatCalder, 3 beatShin, 4 hasScroll */")
     lines.append("    int on_arrive; /* 0 none, 1 masonAmbush, 2 ensureSoldiers */")
     lines.append("    int fail_talk; /* talk table index, -1 none */")
     lines.append("} WarpDef;")
     lines.append("static const WarpDef WARPS[] = {")
+    warp_dir_code = {"down": 0, "up": 1, "left": 2, "right": 3}
     for w in world["warps"]:
         frm = map_sym(w["from"])
         to = map_sym(w["to"])
         tile = w["tile"]
         spawn = w["spawn"]
-        face = 1 if w.get("dir") == "down" else 0
+        dirv = warp_dir_code.get(w.get("dir"), 0)
         need = NEED.get(w.get("need") or "", 0)
         arr = ARRIVE.get(w.get("onArrive") or "", 0)
         fail = talk_id(w["failTalk"]) if w.get("failTalk") else -1
         lines.append(
-            f"    {{ {frm}, {to}, '{tile}', '{spawn}', {face}, {need}, {arr}, {fail} }},"
+            f"    {{ {frm}, {to}, '{tile}', '{spawn}', {dirv}, {need}, {arr}, {fail} }},"
         )
     lines.append("};")
     lines.append(f"#define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))")

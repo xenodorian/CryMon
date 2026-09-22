@@ -327,6 +327,44 @@ Nothing else queued here right now — this workstream is caught up.
 Re-run `run_full_audit.py` after any future world/Town Map edit to
 keep the report current.
 
+**Grove's exits corrected: Gauntlet south, Ruins east (Claude,
+2026-09-22).** The Gauntlet warp was already `dir: "down"` (correct),
+but the Town Map's Ruins warp was also `"down"`, and Ruins/Gauntlet
+were only disambiguated by a hardcoded SEED override in
+`generate-town-map.mjs` that placed Gauntlet west — cosmetic, not
+geographically accurate, and didn't match the real tile layout either
+(Grove's Gauntlet gate `G` sat near the west wall, not south-center).
+Fixed for real, not just relabeled:
+- **`content/maps.json`:** Grove's `G` (gauntlet gate) moved to
+  south-center (was near the west wall); Grove's `g` (ruins gate)
+  moved to the east wall (was south-center, swapped with `G`'s old
+  spot). Ruins' `D` (arrival-from-grove door) moved from its north
+  wall to its west wall.
+- **`content/world.json`:** grove→ruins warp is now `dir: "right"` /
+  `ox: 40` (was `down`/`oy: 40`); the reverse ruins→grove warp is now
+  `dir: "left"` / `ox: -32`.
+- **First east/west warp this codebase has ever had** — every other
+  warp is vertical (`up`/`down` + a Y offset). Required real engine
+  work, not just data: `warpTo()` (web) gained an `xOff` param and the
+  locked-door push-back nudge gained `left`/`right` branches;
+  Dreamcast's `WarpDef.face_down` (a binary down/up flag) became
+  `WarpDef.dir` (0..3, all four directions), `do_warp()` was rewritten
+  to compute px/py and facing for any direction instead of only Y, and
+  its own locked-door nudge got the same left/right branches. Verified
+  against a real clean rebuild on both engines (typecheck, `npm run
+  build`, `make -C ports/dreamcast`) — no new warnings.
+- **`content/world_map_layout.json`:** connection direction/coordinates
+  and the (currently tooling-only, not read by the live generator)
+  `grid`/`worldBox` reference fields updated for Ruins/Gauntlet1-6 to
+  match.
+- **`tools/generate-town-map.mjs`'s `SEED` table** updated to match —
+  this is what actually controls the rendered Town Map layout (the
+  `world_map_layout.json` `grid`/`worldBox` fields are unused by it).
+  Verified by regenerating and rendering the SVG: Gauntlet now sits
+  directly south of the Grove, Ruins directly east.
+- `check_sync --strict`, typecheck, web build, and `make -C
+  ports/dreamcast` all clean.
+
 ---
 
 ## Leg 3 (open — from the user's doc)

@@ -12,18 +12,18 @@
   <line x1="256" y1="112" x2="96" y2="112" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
   <line x1="256" y1="112" x2="416" y2="112" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
   <line x1="256" y1="112" x2="416" y2="112" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="272" x2="256" y2="352" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="272" x2="256" y2="352" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="352" x2="256" y2="432" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="352" x2="256" y2="432" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="272" x2="416" y2="272" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="272" x2="416" y2="272" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="416" y1="272" x2="416" y2="352" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="416" y1="272" x2="416" y2="352" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
   <line x1="256" y1="192" x2="96" y2="192" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
   <line x1="256" y1="192" x2="96" y2="192" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
   <line x1="416" y1="112" x2="416" y2="192" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
   <line x1="416" y1="112" x2="416" y2="192" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="256" y1="272" x2="96" y2="272" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="256" y1="272" x2="96" y2="272" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
-  <line x1="96" y1="272" x2="96" y2="352" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
-  <line x1="96" y1="272" x2="96" y2="352" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="272" x2="256" y2="352" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="272" x2="256" y2="352" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="352" x2="256" y2="432" stroke="#b8a878" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="352" x2="256" y2="432" stroke="#f0e6c8" stroke-width="4" stroke-linecap="round"/>
   <circle cx="256" cy="112" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
   <path d="M 256 102 L 265 112 L 256 122 L 247 112 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
   <text x="256" y="142" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">CryTown</text>
@@ -40,13 +40,13 @@
   <text x="416" y="222" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Quarry</text>
   <rect x="236" y="260" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
   <text x="256" y="302" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Grove</text>
-  <rect x="76" y="260" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
-  <text x="96" y="302" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">Gauntlet</text>
+  <rect x="396" y="260" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="416" y="302" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Ruins</text>
   <rect x="236" y="340" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
-  <text x="256" y="382" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Ruins</text>
-  <circle cx="96" cy="352" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
-  <path d="M 96 342 L 105 352 L 96 362 L 87 352 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
-  <text x="96" y="382" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">Heavenfall Shrine</text>
-  <rect x="236" y="420" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
-  <text x="256" y="462" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Reach</text>
+  <text x="256" y="382" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">Gauntlet</text>
+  <rect x="396" y="340" width="40" height="24" rx="2" fill="#d4c49a" stroke="#8a7a55" stroke-width="2"/>
+  <text x="416" y="382" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">The Reach</text>
+  <circle cx="256" cy="432" r="16" fill="#4a90c8" stroke="#1a3a5a" stroke-width="2"/>
+  <path d="M 256 422 L 265 432 L 256 442 L 247 432 Z" fill="#7ec8f0" stroke="#2a5a7a" stroke-width="1"/>
+  <text x="256" y="462" text-anchor="middle" fill="#3a2a18" font-family="Georgia, serif" font-size="11">Heavenfall Shrine</text>
 </svg>

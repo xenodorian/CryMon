@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=00708924202b5ddf — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=78708be18df46412 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -25,42 +25,42 @@
 typedef struct {
     int from_map, to_map;
     char tile, spawn;
-    int face_down; /* 1 = arrive facing down (from south) */
+    int dir;       /* facing on arrival: 0=down,1=up,2=left,3=right */
     int need;      /* 0 none, 1 tookStarter, 2 beatCalder, 3 beatShin, 4 hasScroll */
     int on_arrive; /* 0 none, 1 masonAmbush, 2 ensureSoldiers */
     int fail_talk; /* talk table index, -1 none */
 } WarpDef;
 static const WarpDef WARPS[] = {
-    { MAP_HOUSE, MAP_VELD, 'D', 'D', 1, 1, 1, 9 },
-    { MAP_VELD, MAP_HOUSE, 'D', 'D', 0, 0, 0, -1 },
-    { MAP_VELD, MAP_FOREST, 'Z', 'Y', 1, 0, 2, -1 },
-    { MAP_FOREST, MAP_VELD, 'Y', 'Z', 0, 0, 0, -1 },
-    { MAP_FOREST, MAP_GROVE, 'O', 'O', 1, 0, 0, -1 },
-    { MAP_GROVE, MAP_FOREST, 'O', 'O', 0, 0, 0, -1 },
-    { MAP_VELD, MAP_CAMP, 'F', 'D', 1, 2, 0, 10 },
-    { MAP_CAMP, MAP_VELD, 'D', 'F', 0, 0, 0, -1 },
-    { MAP_VELD, MAP_CLIFFS, 'c', 'D', 1, 0, 0, -1 },
-    { MAP_CLIFFS, MAP_VELD, 'D', 'c', 0, 0, 0, -1 },
-    { MAP_GROVE, MAP_RUINS, 'g', 'D', 1, 3, 0, 11 },
-    { MAP_RUINS, MAP_GROVE, 'D', 'g', 0, 0, 0, -1 },
-    { MAP_RUINS, MAP_REACH, 'e', 'D', 1, 4, 0, 77 },
-    { MAP_REACH, MAP_RUINS, 'D', 'e', 0, 0, 0, -1 },
-    { MAP_FOREST, MAP_MARSH, 'm', 'Y', 1, 0, 0, -1 },
-    { MAP_MARSH, MAP_FOREST, 'Y', 'm', 0, 0, 0, -1 },
-    { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 1, 0, 0, -1 },
-    { MAP_QUARRY, MAP_CLIFFS, 'D', 'q', 0, 0, 0, -1 },
-    { MAP_GROVE, MAP_GAUNTLET1, 'G', '2', 1, 6, 0, 122 },
-    { MAP_GAUNTLET1, MAP_GROVE, '2', 'G', 0, 0, 0, -1 },
-    { MAP_GAUNTLET1, MAP_GAUNTLET2, '1', '2', 1, 0, 0, -1 },
-    { MAP_GAUNTLET2, MAP_GAUNTLET1, '2', '1', 0, 0, 0, -1 },
-    { MAP_GAUNTLET2, MAP_GAUNTLET3, '1', '2', 1, 0, 0, -1 },
-    { MAP_GAUNTLET3, MAP_GAUNTLET2, '2', '1', 0, 0, 0, -1 },
-    { MAP_GAUNTLET3, MAP_GAUNTLET4, '1', '2', 1, 0, 0, -1 },
-    { MAP_GAUNTLET4, MAP_GAUNTLET3, '2', '1', 0, 0, 0, -1 },
-    { MAP_GAUNTLET4, MAP_GAUNTLET5, '1', '2', 1, 0, 0, -1 },
-    { MAP_GAUNTLET5, MAP_GAUNTLET4, '2', '1', 0, 0, 0, -1 },
-    { MAP_GAUNTLET5, MAP_GAUNTLET6, '1', '2', 1, 0, 0, -1 },
-    { MAP_GAUNTLET6, MAP_GAUNTLET5, '2', '1', 0, 0, 0, -1 },
+    { MAP_HOUSE, MAP_VELD, 'D', 'D', 0, 1, 1, 9 },
+    { MAP_VELD, MAP_HOUSE, 'D', 'D', 1, 0, 0, -1 },
+    { MAP_VELD, MAP_FOREST, 'Z', 'Y', 0, 0, 2, -1 },
+    { MAP_FOREST, MAP_VELD, 'Y', 'Z', 1, 0, 0, -1 },
+    { MAP_FOREST, MAP_GROVE, 'O', 'O', 0, 0, 0, -1 },
+    { MAP_GROVE, MAP_FOREST, 'O', 'O', 1, 0, 0, -1 },
+    { MAP_VELD, MAP_CAMP, 'F', 'D', 0, 2, 0, 10 },
+    { MAP_CAMP, MAP_VELD, 'D', 'F', 1, 0, 0, -1 },
+    { MAP_VELD, MAP_CLIFFS, 'c', 'D', 0, 0, 0, -1 },
+    { MAP_CLIFFS, MAP_VELD, 'D', 'c', 1, 0, 0, -1 },
+    { MAP_GROVE, MAP_RUINS, 'g', 'D', 3, 3, 0, 11 },
+    { MAP_RUINS, MAP_GROVE, 'D', 'g', 2, 0, 0, -1 },
+    { MAP_RUINS, MAP_REACH, 'e', 'D', 0, 4, 0, 77 },
+    { MAP_REACH, MAP_RUINS, 'D', 'e', 1, 0, 0, -1 },
+    { MAP_FOREST, MAP_MARSH, 'm', 'Y', 0, 0, 0, -1 },
+    { MAP_MARSH, MAP_FOREST, 'Y', 'm', 1, 0, 0, -1 },
+    { MAP_CLIFFS, MAP_QUARRY, 'q', 'D', 0, 0, 0, -1 },
+    { MAP_QUARRY, MAP_CLIFFS, 'D', 'q', 1, 0, 0, -1 },
+    { MAP_GROVE, MAP_GAUNTLET1, 'G', '2', 0, 6, 0, 122 },
+    { MAP_GAUNTLET1, MAP_GROVE, '2', 'G', 1, 0, 0, -1 },
+    { MAP_GAUNTLET1, MAP_GAUNTLET2, '1', '2', 0, 0, 0, -1 },
+    { MAP_GAUNTLET2, MAP_GAUNTLET1, '2', '1', 1, 0, 0, -1 },
+    { MAP_GAUNTLET2, MAP_GAUNTLET3, '1', '2', 0, 0, 0, -1 },
+    { MAP_GAUNTLET3, MAP_GAUNTLET2, '2', '1', 1, 0, 0, -1 },
+    { MAP_GAUNTLET3, MAP_GAUNTLET4, '1', '2', 0, 0, 0, -1 },
+    { MAP_GAUNTLET4, MAP_GAUNTLET3, '2', '1', 1, 0, 0, -1 },
+    { MAP_GAUNTLET4, MAP_GAUNTLET5, '1', '2', 0, 0, 0, -1 },
+    { MAP_GAUNTLET5, MAP_GAUNTLET4, '2', '1', 1, 0, 0, -1 },
+    { MAP_GAUNTLET5, MAP_GAUNTLET6, '1', '2', 0, 0, 0, -1 },
+    { MAP_GAUNTLET6, MAP_GAUNTLET5, '2', '1', 1, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
 

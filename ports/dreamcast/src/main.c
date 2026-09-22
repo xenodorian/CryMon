@@ -4470,17 +4470,38 @@ closest_mark(int px, int py) {
    mark, facing back the way they came (down if arriving from the
    south, up otherwise) -- matches doorLock's 20-frame cooldown below
    against instantly re-triggering the door tile on arrival. */
+/* dir: 0=down,1=up,2=left,3=right (matches WarpDef.dir/pdir). The spawn
+   tile is pushed one tile-plus-a-bit further along the arrival facing so
+   the player lands just clear of the door instead of on top of it --
+   mirrors web's warpTo() oy/ox nudge, same +TILE+8 / -TILE magnitudes on
+   whichever axis the direction moves along. */
 static void do_warp(int *map_id, int *px, int *py, int *pdir,
-                     int to_map, char mark, int from_south,
+                     int to_map, char mark, int dir,
                      int *banner_timer) {
     int col, row, sx, sy;
     *map_id = to_map;
     find_mark(to_map, mark, &col, &row);
     sx = col * TILE + TILE / 2;
     sy = row * TILE + TILE / 2;
-    *px = sx;
-    *py = from_south ? (sy + TILE + 8) : (sy - TILE);
-    *pdir = from_south ? 0 : 1;
+    switch(dir) {
+        case 2: /* left */
+            *px = sx - TILE;
+            *py = sy;
+            break;
+        case 3: /* right */
+            *px = sx + TILE + 8;
+            *py = sy;
+            break;
+        case 1: /* up */
+            *px = sx;
+            *py = sy - TILE;
+            break;
+        default: /* 0 = down */
+            *px = sx;
+            *py = sy + TILE + 8;
+            break;
+    }
+    *pdir = dir;
     *banner_timer = MAP_BANNER_TOTAL;
 }
 
@@ -6561,10 +6582,15 @@ void main(void) {
                         if(!need_ok) {
                             if(w->fail_talk >= 0 && w->fail_talk < TALK_TABLE_N) {
                                 find_mark(map_id, w->tile, &col, &row);
-                                if(w->face_down)
-                                    py = row * TILE + TILE / 2 - TILE;
-                                else
-                                    py = row * TILE + TILE / 2 + TILE;
+                                /* Push the player back off the locked door
+                                   tile, away from whichever direction they'd
+                                   be facing on arrival -- same nudge web's
+                                   applyWarp() does before showing the
+                                   fail-talk line. */
+                                if(w->dir == 0)      py = row * TILE + TILE / 2 - TILE;
+                                else if(w->dir == 1) py = row * TILE + TILE / 2 + TILE;
+                                else if(w->dir == 2) px = col * TILE + TILE / 2 + TILE;
+                                else if(w->dir == 3) px = col * TILE + TILE / 2 - TILE;
                                 door_lock = 20;
                                 seq_lines = TALK_PTRS[w->fail_talk];
                                 seq_len = TALK_COUNTS[w->fail_talk];
@@ -6572,7 +6598,7 @@ void main(void) {
                             }
                             break;
                         }
-                        do_warp(&map_id, &px, &py, &pdir, w->to_map, w->spawn, w->face_down, &map_banner_timer);
+                        do_warp(&map_id, &px, &py, &pdir, w->to_map, w->spawn, w->dir, &map_banner_timer);
                         door_lock = 20;
                         if(w->on_arrive == 1 && mason_state == 0
                            && (!LOGIC_MASON_AMBUSH_UNLESS_BEAT || !beat_mason)

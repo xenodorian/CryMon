@@ -116,10 +116,10 @@ const SEED = {
   marsh: { x: -2, y: 1 },
   quarry: { x: 2, y: 1 },
   grove: { x: 0, y: 2 },
-  gauntlet_route: { x: -2, y: 2 },
-  ruins: { x: 0, y: 3 },
-  heavenfall_shrine: { x: -2, y: 3 },
-  reach: { x: 0, y: 4 },
+  ruins: { x: 2, y: 2 }, // east of the Grove
+  gauntlet_route: { x: 0, y: 3 }, // south of the Grove
+  reach: { x: 2, y: 3 }, // south of Ruins
+  heavenfall_shrine: { x: 0, y: 4 }, // south of the Gauntlet
 };
 
 const positions = new Map();

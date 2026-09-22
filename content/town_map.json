@@ -83,12 +83,23 @@
       ]
     },
     {
+      "id": "ruins",
+      "label": "The Ruins",
+      "kind": "route",
+      "gem": false,
+      "x": 2,
+      "y": 2,
+      "playableMaps": [
+        "ruins"
+      ]
+    },
+    {
       "id": "gauntlet_route",
       "label": "Gauntlet",
       "kind": "gauntlet",
       "gem": false,
-      "x": -2,
-      "y": 2,
+      "x": 0,
+      "y": 3,
       "playableMaps": [
         "gauntlet1",
         "gauntlet2",
@@ -98,14 +109,14 @@
       ]
     },
     {
-      "id": "ruins",
-      "label": "The Ruins",
+      "id": "reach",
+      "label": "The Reach",
       "kind": "route",
       "gem": false,
-      "x": 0,
+      "x": 2,
       "y": 3,
       "playableMaps": [
-        "ruins"
+        "reach"
       ]
     },
     {
@@ -113,21 +124,10 @@
       "label": "Heavenfall Shrine",
       "kind": "shrine",
       "gem": true,
-      "x": -2,
-      "y": 3,
-      "playableMaps": [
-        "gauntlet6"
-      ]
-    },
-    {
-      "id": "reach",
-      "label": "The Reach",
-      "kind": "route",
-      "gem": false,
       "x": 0,
       "y": 4,
       "playableMaps": [
-        "reach"
+        "gauntlet6"
       ]
     }
   ],
@@ -159,7 +159,7 @@
     {
       "from": "grove",
       "to": "ruins",
-      "direction": "down",
+      "direction": "right",
       "need": "beatShin"
     },
     {
