@@ -1,8 +1,9 @@
 {
-  "version": 2,
-  "name": "Sorrow County",
+  "version": 3,
+  "name": "CryMon overworld map layout",
   "anchor": "veld",
   "playerStartMap": "veld",
+  "unitTiles": 10,
   "nodes": [
     {
       "id": "veld",
@@ -36,7 +37,12 @@
       "y": 0,
       "playableMaps": [
         "cliffs"
-      ]
+      ],
+      "lengthTiles": 18,
+      "realSize": {
+        "width": 18,
+        "height": 12
+      }
     },
     {
       "id": "forest",
@@ -44,10 +50,15 @@
       "kind": "route",
       "gem": false,
       "x": 0,
-      "y": 1,
+      "y": 3,
       "playableMaps": [
         "forest"
-      ]
+      ],
+      "lengthTiles": 26,
+      "realSize": {
+        "width": 26,
+        "height": 20
+      }
     },
     {
       "id": "marsh",
@@ -55,10 +66,15 @@
       "kind": "route",
       "gem": false,
       "x": -2,
-      "y": 1,
+      "y": 3,
       "playableMaps": [
         "marsh"
-      ]
+      ],
+      "lengthTiles": 18,
+      "realSize": {
+        "width": 18,
+        "height": 13
+      }
     },
     {
       "id": "quarry",
@@ -66,7 +82,7 @@
       "kind": "cave",
       "gem": true,
       "x": 2,
-      "y": 1,
+      "y": 2,
       "playableMaps": [
         "quarry"
       ]
@@ -77,7 +93,7 @@
       "kind": "landmark",
       "gem": true,
       "x": 0,
-      "y": 2,
+      "y": 5,
       "playableMaps": [
         "grove"
       ]
@@ -88,10 +104,15 @@
       "kind": "route",
       "gem": false,
       "x": 2,
-      "y": 2,
+      "y": 5,
       "playableMaps": [
         "ruins"
-      ]
+      ],
+      "lengthTiles": 20,
+      "realSize": {
+        "width": 20,
+        "height": 13
+      }
     },
     {
       "id": "gauntlet_route",
@@ -99,14 +120,19 @@
       "kind": "route",
       "gem": false,
       "x": 0,
-      "y": 3,
+      "y": 13,
       "playableMaps": [
         "gauntlet1",
         "gauntlet2",
         "gauntlet3",
         "gauntlet4",
         "gauntlet5"
-      ]
+      ],
+      "lengthTiles": 180,
+      "realSize": {
+        "width": 16,
+        "height": 180
+      }
     },
     {
       "id": "reach",
@@ -114,7 +140,7 @@
       "kind": "landmark",
       "gem": true,
       "x": 2,
-      "y": 3,
+      "y": 7,
       "playableMaps": [
         "reach"
       ]
@@ -125,7 +151,7 @@
       "kind": "shrine",
       "gem": true,
       "x": 0,
-      "y": 4,
+      "y": 19,
       "playableMaps": [
         "gauntlet6"
       ]
@@ -136,63 +162,299 @@
       "from": "veld",
       "to": "forest",
       "direction": "down",
-      "need": null
+      "need": null,
+      "ribbon": [
+        [
+          0,
+          0
+        ],
+        [
+          0.0,
+          1.5
+        ],
+        [
+          0,
+          3
+        ]
+      ]
     },
     {
       "from": "forest",
       "to": "grove",
       "direction": "down",
-      "need": null
+      "need": null,
+      "ribbon": [
+        [
+          0,
+          3
+        ],
+        [
+          0.0,
+          4.0
+        ],
+        [
+          0,
+          5
+        ]
+      ]
     },
     {
       "from": "veld",
       "to": "camp",
       "direction": "down",
-      "need": "beatCalder"
+      "need": "beatCalder",
+      "ribbon": [
+        [
+          0,
+          0
+        ],
+        [
+          -2,
+          0
+        ]
+      ]
     },
     {
       "from": "veld",
       "to": "cliffs",
       "direction": "down",
-      "need": null
+      "need": null,
+      "ribbon": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
     },
     {
       "from": "grove",
       "to": "ruins",
       "direction": "right",
-      "need": "beatShin"
+      "need": "beatShin",
+      "ribbon": [
+        [
+          0,
+          5
+        ],
+        [
+          2,
+          5
+        ]
+      ]
     },
     {
       "from": "ruins",
       "to": "reach",
       "direction": "down",
-      "need": "hasScroll"
+      "need": "hasScroll",
+      "ribbon": [
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          7
+        ]
+      ]
     },
     {
       "from": "forest",
       "to": "marsh",
       "direction": "down",
-      "need": null
+      "need": null,
+      "ribbon": [
+        [
+          0,
+          3
+        ],
+        [
+          -1.0,
+          3.0
+        ],
+        [
+          -2,
+          3
+        ]
+      ]
     },
     {
       "from": "cliffs",
       "to": "quarry",
       "direction": "down",
-      "need": null
+      "need": null,
+      "ribbon": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          2
+        ]
+      ]
     },
     {
       "from": "grove",
       "to": "gauntlet_route",
       "direction": "down",
-      "need": "choseHeavenfall"
+      "need": "choseHeavenfall",
+      "ribbon": [
+        [
+          0,
+          5
+        ],
+        [
+          0.0,
+          9.0
+        ],
+        [
+          0,
+          13
+        ]
+      ]
     },
     {
       "from": "gauntlet_route",
       "to": "heavenfall_shrine",
       "direction": "down",
-      "need": null
+      "need": null,
+      "ribbon": [
+        [
+          0,
+          13
+        ],
+        [
+          0.0,
+          16.0
+        ],
+        [
+          0,
+          19
+        ]
+      ]
     }
   ],
+  "routeShapes": {
+    "forest": {
+      "id": "forest",
+      "mapIds": [
+        "forest"
+      ],
+      "width": 26,
+      "height": 20,
+      "lengthTiles": 26,
+      "anchors": {
+        "veld": {
+          "col": 13,
+          "row": 1,
+          "mapId": "forest"
+        },
+        "grove": {
+          "col": 13,
+          "row": 19,
+          "mapId": "forest"
+        },
+        "marsh": {
+          "col": 20,
+          "row": 9,
+          "mapId": "forest"
+        }
+      }
+    },
+    "cliffs": {
+      "id": "cliffs",
+      "mapIds": [
+        "cliffs"
+      ],
+      "width": 18,
+      "height": 12,
+      "lengthTiles": 18,
+      "anchors": {
+        "veld": {
+          "col": 9,
+          "row": 1,
+          "mapId": "cliffs"
+        },
+        "quarry": {
+          "col": 2,
+          "row": 10,
+          "mapId": "cliffs"
+        }
+      }
+    },
+    "marsh": {
+      "id": "marsh",
+      "mapIds": [
+        "marsh"
+      ],
+      "width": 18,
+      "height": 13,
+      "lengthTiles": 18,
+      "anchors": {
+        "forest": {
+          "col": 8,
+          "row": 1,
+          "mapId": "marsh"
+        }
+      }
+    },
+    "ruins": {
+      "id": "ruins",
+      "mapIds": [
+        "ruins"
+      ],
+      "width": 20,
+      "height": 13,
+      "lengthTiles": 20,
+      "anchors": {
+        "grove": {
+          "col": 0,
+          "row": 5,
+          "mapId": "ruins"
+        },
+        "reach": {
+          "col": 10,
+          "row": 12,
+          "mapId": "ruins"
+        }
+      }
+    },
+    "gauntlet_route": {
+      "id": "gauntlet_route",
+      "mapIds": [
+        "gauntlet1",
+        "gauntlet2",
+        "gauntlet3",
+        "gauntlet4",
+        "gauntlet5"
+      ],
+      "width": 16,
+      "height": 180,
+      "lengthTiles": 180,
+      "anchors": {
+        "grove": {
+          "col": 8,
+          "row": 1,
+          "mapId": "gauntlet1"
+        },
+        "gauntlet_route": {
+          "col": 8,
+          "row": 1,
+          "mapId": "gauntlet5"
+        },
+        "heavenfall_shrine": {
+          "col": 8,
+          "row": 34,
+          "mapId": "gauntlet5"
+        }
+      }
+    }
+  },
   "collapse": {
     "house": "veld",
     "gauntlet1": "gauntlet_route",
@@ -204,67 +466,142 @@
     "gauntlet": null
   },
   "terrain": {
-    "width": 46,
-    "height": 46,
-    "tileSize": 4,
+    "width": 38,
+    "height": 128,
     "tiles": [
-      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-      "WWLWWLLLWLLWLWLLLLWLLLLWLWLLWLLLWWLLLLWWLLLWWW",
-      "WWWLLLWWLLLLWWLLLWLLWLWGLLLWLLLLWLWLLWLLLWWLWW",
-      "WWLLLLLSLLLLLLLLLLLLLGGGGGLLLLLLLLLLLLLCLLLWWW",
-      "WWLWLSSSSSLLLLLLLLLLGGGGGGGLLLLLLLLLLCCCCCLLWW",
-      "WWLLLSSRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRCCLLWW",
-      "WWLWSSRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRCWWWW",
-      "WWWLLSSRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRCWLWW",
-      "WWLLLSSSSSLLLLLLLLLLGGRRRGGLLLLLLLLLLCRRRCLLWW",
-      "WWLLLLLSLLLLLLLLLLLLLGRRRGLLLLLLLLLLLLRRRLLLWW",
-      "WWLLLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLRRRLLWWW",
-      "WWLWLLLMLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLRRRLLWWW",
-      "WWWLLMMMMMLLLLLLLLLLLFRRRFLLLLLLLLLLLCRRRCWLWW",
-      "WWLLLMMRRRRRRRRRRRRRRRRRRFLLLLLLLLLLLCRRRCWLWW",
-      "WWWLMMRRRRRRRRRRRRRRRRRRRFFLLLLLLLLLCCRRRCCLWW",
-      "WWLLLMMRRRRRRRRRRRRRRRRRRFLLLLLLLLLLLCCRCCLLWW",
-      "WWLWLMMMMMLLLLLLLLLLLFRRRFLLLLLLLLLLLCCCCCLWWW",
-      "WWWLLLLMLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLLCLLWWWW",
-      "WWLWLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLLLLLLLWW",
-      "WWLLLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLLSLLLLWW",
-      "WWLLLLLLLLLLLLLLLLLLLFRRRFLLLLLLLLLLLSSSSSWLWW",
-      "WWWWLLLLLLLLLLLLLLLLLFRRRRRRRRRRRRRRRRRRSSLWWW",
-      "WWWLLLLLLLLLLLLLLLLLFFRRRRRRRRRRRRRRRRRRRSWLWW",
-      "WWLLLLLLLLLLLLLLLLLLLFRRRRRRRRRRRRRRRRRRRSLLWW",
-      "WWLLLLLLLLLLLLLLLLLLLFRRRFLLLLLLLLLLLSRRRSLWWW",
-      "WWLWLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLRRRLLLWW",
-      "WWLWLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLRRRLLWWW",
-      "WWWLLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLRRRLWLWW",
-      "WWWLLLLLLLLLLLLLLLLLLFRRRFLLLLLLLLLLLSRRRSLLWW",
-      "WWLLLLLLLLLLLLLLLLLLLFRRRFLLLLLLLLLLLSRRRSLLWW",
-      "WWLLLLLLLLLLLLLLLLLLFFRRRFFLLLLLLLLLSSRRRSSLWW",
-      "WWLWLLLLLLLLLLLLLLLLLFRRRFLLLLLLLLLLLSSRSSLWWW",
-      "WWWWLLLLLLLLLLLLLLLLLFRRRFLLLLLLLLLLLSSSSSWLWW",
-      "WWLLLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLLSLLLLWW",
-      "WWLLLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLLLLLWLWW",
-      "WWWLLLLLLLLLLLLLLLLLLLRRRLLLLLLLLLLLLLLLLLLLWW",
-      "WWLWLLLLLLLLLLLLLLLLLSRRRSLLLLLLLLLLLLLLLLLWWW",
-      "WWWLLLLLLLLLLLLLLLLLLSRRRSLLLLLLLLLLLLLLLLWLWW",
-      "WWLLLLLLLLLLLLLLLLLLSSRRRSSLLLLLLLLLLLLLLLLWWW",
-      "WWLWLLLLLLLLLLLLLLLLLSSRSSLLLLLLLLLLLLLLLLLLWW",
-      "WWLLLLLLLLLLLLLLLLLLLSSSSSLLLLLLLLLLLLLLLLLLWW",
-      "WWLWLLLWWLLLLWWLLLWLLWLWLLLLWLLLLWLWLLWLLLWWWW",
-      "WWWLLLLWLWLLWLLLWWLLLLWWLLLWLLWLWLLLLWLLLLWLWW",
-      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
-      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-    ],
-    "legend": {
-      "W": "water",
-      "L": "land",
-      "G": "grass",
-      "F": "forest",
-      "M": "marsh",
-      "C": "cliff",
-      "R": "road",
-      "S": "sand"
-    }
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+      "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
+    ]
   },
-  "generatedFrom": "content/world_map_layout.json"
+  "generatedFrom": {
+    "layout": "content/world_map_layout.json",
+    "maps": "content/maps.json",
+    "warps": "content/world.json"
+  }
 }

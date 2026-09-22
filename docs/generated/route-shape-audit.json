@@ -1,0 +1,164 @@
+{
+  "routes": {
+    "forest": {
+      "id": "forest",
+      "mapIds": [
+        "forest"
+      ],
+      "width": 26,
+      "height": 20,
+      "lengthTiles": 26,
+      "anchors": {
+        "veld": {
+          "col": 13,
+          "row": 1,
+          "mapId": "forest"
+        },
+        "grove": {
+          "col": 13,
+          "row": 19,
+          "mapId": "forest"
+        },
+        "marsh": {
+          "col": 20,
+          "row": 9,
+          "mapId": "forest"
+        }
+      }
+    },
+    "cliffs": {
+      "id": "cliffs",
+      "mapIds": [
+        "cliffs"
+      ],
+      "width": 18,
+      "height": 12,
+      "lengthTiles": 18,
+      "anchors": {
+        "veld": {
+          "col": 9,
+          "row": 1,
+          "mapId": "cliffs"
+        },
+        "quarry": {
+          "col": 2,
+          "row": 10,
+          "mapId": "cliffs"
+        }
+      }
+    },
+    "marsh": {
+      "id": "marsh",
+      "mapIds": [
+        "marsh"
+      ],
+      "width": 18,
+      "height": 13,
+      "lengthTiles": 18,
+      "anchors": {
+        "forest": {
+          "col": 8,
+          "row": 1,
+          "mapId": "marsh"
+        }
+      }
+    },
+    "ruins": {
+      "id": "ruins",
+      "mapIds": [
+        "ruins"
+      ],
+      "width": 20,
+      "height": 13,
+      "lengthTiles": 20,
+      "anchors": {
+        "grove": {
+          "col": 0,
+          "row": 5,
+          "mapId": "ruins"
+        },
+        "reach": {
+          "col": 10,
+          "row": 12,
+          "mapId": "ruins"
+        }
+      }
+    },
+    "gauntlet_route": {
+      "id": "gauntlet_route",
+      "mapIds": [
+        "gauntlet1",
+        "gauntlet2",
+        "gauntlet3",
+        "gauntlet4",
+        "gauntlet5"
+      ],
+      "width": 16,
+      "height": 180,
+      "lengthTiles": 180,
+      "anchors": {
+        "grove": {
+          "col": 8,
+          "row": 1,
+          "mapId": "gauntlet1"
+        },
+        "gauntlet_route": {
+          "col": 8,
+          "row": 1,
+          "mapId": "gauntlet5"
+        },
+        "heavenfall_shrine": {
+          "col": 8,
+          "row": 34,
+          "mapId": "gauntlet5"
+        }
+      }
+    }
+  },
+  "positions": {
+    "veld": {
+      "x": 0,
+      "y": 0
+    },
+    "camp": {
+      "x": -2,
+      "y": 0
+    },
+    "cliffs": {
+      "x": 2,
+      "y": 0
+    },
+    "forest": {
+      "x": 0,
+      "y": 3
+    },
+    "marsh": {
+      "x": -2,
+      "y": 3
+    },
+    "quarry": {
+      "x": 2,
+      "y": 2
+    },
+    "grove": {
+      "x": 0,
+      "y": 5
+    },
+    "ruins": {
+      "x": 2,
+      "y": 5
+    },
+    "gauntlet_route": {
+      "x": 0,
+      "y": 13
+    },
+    "reach": {
+      "x": 2,
+      "y": 7
+    },
+    "heavenfall_shrine": {
+      "x": 0,
+      "y": 19
+    }
+  }
+}
