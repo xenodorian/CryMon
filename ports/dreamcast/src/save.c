@@ -34,7 +34,7 @@ static u16 get_u16(const u8 *p) {
 static u16 checksum(const u8 *buf) {
     int i;
     u16 s = 0;
-    for(i = 0; i < 141; i++)
+    for(i = 0; i < 142; i++)
         s = (u16)((s + buf[i]) & 0xffff);
     return s;
 }
@@ -55,9 +55,9 @@ void save_pack(u8 *dst, const SaveLive *s) {
     dst[16] = s->mason2_map;
     dst[17] = s->reputation;
     for(i = 0; i < SAVE_ITEM_N; i++) dst[18 + i] = s->bag[i];
-    for(i = 0; i < 8; i++) dst[37 + i] = s->flags[i];
+    for(i = 0; i < 8; i++) dst[38 + i] = s->flags[i];
     for(p = 0; p < dst[7]; p++) {
-        u8 *o = dst + 45 + p * SAVE_PARTY_SLOT;
+        u8 *o = dst + 46 + p * SAVE_PARTY_SLOT;
         o[0] = s->party[p].species;
         o[1] = s->party[p].lv;
         o[2] = s->party[p].hp;
@@ -74,15 +74,15 @@ void save_pack(u8 *dst, const SaveLive *s) {
         o[14] = s->party[p].status_turns;
         o[15] = s->party[p].poison_stack;
     }
-    /* party2 @155, active_party @251, party2_n @252, executed_mask @151 */
+    /* party2 @156, active_party @252, party2_n @253, executed_mask @152 */
     {
         int n2 = s->party2_n > SAVE_PARTY_MAX ? SAVE_PARTY_MAX : s->party2_n;
-        dst[251] = s->active_party ? 1 : 0;
-        dst[252] = (u8)n2;
-        put_u16(dst + 151, (u16)(s->executed_mask & 0xffff));
-        put_u16(dst + 153, (u16)((s->executed_mask >> 16) & 0xffff));
+        dst[252] = s->active_party ? 1 : 0;
+        dst[253] = (u8)n2;
+        put_u16(dst + 152, (u16)(s->executed_mask & 0xffff));
+        put_u16(dst + 154, (u16)((s->executed_mask >> 16) & 0xffff));
         for(p = 0; p < n2; p++) {
-            u8 *o = dst + 155 + p * SAVE_PARTY_SLOT;
+            u8 *o = dst + 156 + p * SAVE_PARTY_SLOT;
             o[0] = s->party2[p].species;
             o[1] = s->party2[p].lv;
             o[2] = s->party2[p].hp;
@@ -100,7 +100,7 @@ void save_pack(u8 *dst, const SaveLive *s) {
             o[15] = s->party2[p].poison_stack;
         }
     }
-        put_u16(dst + 141, checksum(dst));
+        put_u16(dst + 142, checksum(dst));
     for(i = 0; i < SAVE_DEX_BYTES; i++) {
         dst[SAVE_DEX_SEEN + i] = s->dex_seen[i];
         dst[SAVE_DEX_CAUGHT + i] = s->dex_caught[i];
@@ -122,7 +122,7 @@ int save_unpack(const u8 *src, SaveLive *s) {
     int i, p, n;
     if(src[0] != 'C' || src[1] != 'R' || src[2] != 'Y' || src[3] != 'M') return 0;
     if(src[4] != SAVE_VERSION) return 0;
-    if(get_u16(src + 141) != checksum(src)) return 0;
+    if(get_u16(src + 142) != checksum(src)) return 0;
     s->map_id = src[5];
     s->dir = src[6];
     n = src[7];
@@ -136,9 +136,9 @@ int save_unpack(const u8 *src, SaveLive *s) {
     s->mason2_map = src[16];
     s->reputation = src[17];
     for(i = 0; i < SAVE_ITEM_N; i++) s->bag[i] = src[18 + i];
-    for(i = 0; i < 8; i++) s->flags[i] = src[37 + i];
+    for(i = 0; i < 8; i++) s->flags[i] = src[38 + i];
     for(p = 0; p < n; p++) {
-        const u8 *o = src + 45 + p * SAVE_PARTY_SLOT;
+        const u8 *o = src + 46 + p * SAVE_PARTY_SLOT;
         s->party[p].species = o[0];
         s->party[p].lv = o[1];
         s->party[p].hp = o[2];
@@ -159,11 +159,11 @@ int save_unpack(const u8 *src, SaveLive *s) {
         s->dex_seen[i] = src[SAVE_DEX_SEEN + i];
         s->dex_caught[i] = src[SAVE_DEX_CAUGHT + i];
     }
-    s->active_party = src[251] ? 1 : 0;
-    s->party2_n = src[252] > SAVE_PARTY_MAX ? SAVE_PARTY_MAX : src[252];
-    s->executed_mask = (unsigned int)get_u16(src + 151) | ((unsigned int)get_u16(src + 153) << 16);
+    s->active_party = src[252] ? 1 : 0;
+    s->party2_n = src[253] > SAVE_PARTY_MAX ? SAVE_PARTY_MAX : src[253];
+    s->executed_mask = (unsigned int)get_u16(src + 152) | ((unsigned int)get_u16(src + 154) << 16);
     for(p = 0; p < (int)s->party2_n; p++) {
-        const u8 *o = src + 155 + p * SAVE_PARTY_SLOT;
+        const u8 *o = src + 156 + p * SAVE_PARTY_SLOT;
         s->party2[p].species = o[0];
         s->party2[p].lv = o[1];
         s->party2[p].hp = o[2];

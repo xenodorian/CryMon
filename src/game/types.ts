@@ -1,6 +1,6 @@
 export type Dir = "down" | "left" | "right" | "up";
 
-export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop" | "choice" | "mercy" | "pause" | "crydex" | "townmap" | "settings";
+export type Mode = "title" | "intro" | "world" | "battle" | "ending" | "bag" | "party" | "shop" | "choice" | "mercy" | "pause" | "crydex" | "townmap" | "settings" | "backstab";
 
 export type PartyView = "list" | "act" | "stats" | "moves" | "target" | "release" | "catchSwap";
 
@@ -108,7 +108,7 @@ export interface Monster {
 
 export type StatusId = "none" | "burned" | "poisoned" | "confused" | "paralyzed" | "exhausted";
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea";
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea" | "bowieKnife";
 
 export interface ItemDef {
   id: ItemId;

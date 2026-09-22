@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=334cc94c257ae77b — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=76b8af06a6f6647f — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -498,6 +498,12 @@ static const TalkBeat TALK_SHOP_REFUSE[] = {
 static const TalkBeat TALK_HEAVENFALL_SHOP_WARN[] = {
     { "YOU REVIVED HEAVENFALL, WHO KNOWS WHAT OTHER HORRORS YOU ARE CAPABLE OF.", 0 },
 };
+static const TalkBeat TALK_DRAY_KNIFE_OFFER[] = {
+    { "I'VE HEARD OF YOUR REPUTATION. CAN I INTEREST YOU IN A KNIFE? SICKOS LIKE YOU SOMETIMES PREFER UP CLOSE AND PERSONAL ACTION.", 34 },
+};
+static const TalkBeat TALK_BACKSTAB_EXECUTE[] = {
+    { "THE BLADE IS QUICK. THEY NEVER SEE IT COMING.", 0 },
+};
 static const TalkBeat TALK_MERCY_THREATEN[] = {
     { "DON'T HURT ME, JUST TAKE IT!", 0 },
 };
@@ -705,6 +711,8 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_DRAY_OPEN,
     TALK_SHOP_REFUSE,
     TALK_HEAVENFALL_SHOP_WARN,
+    TALK_DRAY_KNIFE_OFFER,
+    TALK_BACKSTAB_EXECUTE,
     TALK_MERCY_THREATEN,
     TALK_MERCY_EXECUTE,
     TALK_GAUNTLET_LOCKED,
@@ -841,6 +849,8 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_DRAY_OPEN),
     TALK_LEN(TALK_SHOP_REFUSE),
     TALK_LEN(TALK_HEAVENFALL_SHOP_WARN),
+    TALK_LEN(TALK_DRAY_KNIFE_OFFER),
+    TALK_LEN(TALK_BACKSTAB_EXECUTE),
     TALK_LEN(TALK_MERCY_THREATEN),
     TALK_LEN(TALK_MERCY_EXECUTE),
     TALK_LEN(TALK_GAUNTLET_LOCKED),
@@ -859,5 +869,5 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_PRIESTESS_NO_SCROLL),
     TALK_LEN(TALK_SHINIGAMI_ROCK_EVENT),
 };
-#define TALK_TABLE_N 134
+#define TALK_TABLE_N 136
 

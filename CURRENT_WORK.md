@@ -1685,3 +1685,63 @@ path instead of guarding it, (2) the recurring "acorn-like sprite"
 - `check_sync --strict`, typecheck, web build, `make -C
   ports/dreamcast` all clean.
 
+## Leg 2.12: Bowie Knife + Backstab (Claude, 2026-09-22)
+
+New item + mechanic: a reputation-gated, one-of-a-kind weapon that
+lets the player kill a still-unspotted roaming trainer outright,
+skipping the battle entirely.
+
+- **Bowie Knife** (`content/items.json`): `buy:60, sell:0` (never
+  listed for sale, same trick `cageKey`/`perfectcrystal` use), not a
+  battle or field item -- it's a passive unlock, checked directly off
+  `bag.bowieKnife > 0` rather than ever being "used" from a menu.
+  Reusable, never consumed (confirmed with the user up front).
+- **Dray's one-time warning**: `openShop("dray")` (web) /
+  `POST_SHOP`'s Dray branch (Dreamcast) checks `reputation < 0 &&
+  !drayKnifeOffered` before opening the buy/sell screen, same
+  precedent as the existing Heavenfall-revival merchant warning. Shows
+  `TALK.drayKnifeOffer` ("I've heard of your reputation..."), sets the
+  one-time flag, and only then does the knife appear in his catalog
+  (`shopCatalog()`/`shop_rows()` both special-case keeper===dray +
+  flag set + not already owned -- this naturally caps it at one ever,
+  since the moment `bag.bowieKnife` goes non-zero the row disappears
+  again). Confirmed with the user: shows once ever, normal shop after.
+- **Backstab**: while carrying the knife, interacting with a roamable
+  wsoldier trainer (the Leg-2.11 "Roamer" chase/LOS system) that
+  hasn't started chasing yet opens an Approach/Backstab prompt instead
+  of normal dialogue (`canBackstab()`/`openBackstabChoice()` on web;
+  Dreamcast's `find_backstab_target()` mirrors `try_npc_script()`'s
+  own best-match proximity scan, filtered to
+  `npc_def_roamable()` + unspotted + still-fightable). Approach falls
+  through to the normal talk/battle flow unchanged. Backstab resolves
+  immediately as if the player had won the fight and chosen Execute:
+  **-25 reputation** (vs. -10 for a real Execute -- explicit user
+  request, unprovoked kill), `marks += combinedFoeLevels*10`, 2 random
+  items granted, the same permanent `executedMask` bit set (`web`:
+  `markExecuted("wsoldier", pending)`; Dreamcast: `npc_exec_bit(map_id,
+  mark)` called directly off the matched `NpcDef`, since there's no
+  battle struct to derive `trainer_kind`/`soldier_id` from), scream
+  SFX + red fade, `TALK.backstabExecute`.
+- **Save format bumped 6 -> 7**: `itemOrder` gained `bowieKnife`
+  (index 19, end of bag), `flags` gained `drayKnifeOffered`. Every
+  `save.ts`/`save.c` byte offset from `bag` onward (flags, party,
+  checksum, dexSeen/Caught, executedMask, party2, activeParty,
+  party2Count) shifted +1 to match `content/save.json`'s layout;
+  still fits in the 256-byte blob (2 spare bytes). Dreamcast's `Bag`
+  struct/`bag_field()`/`START_BAG_INIT` all updated by hand for the
+  new field (auto-baked items list vs. hand-maintained struct --
+  see the save-format section up top).
+- Verified end-to-end on web via Playwright: Dray's catalog excludes
+  the knife before the warning fires; negative reputation triggers the
+  dialogue once; the knife appears after, disappears again once
+  owned; Bram's shop never carries it; backstabbing an unspotted
+  sentry moved reputation -20 -> -45 exactly, granted the sentry's
+  combined-level*10 marks, and set its executed flag; an already-
+  chasing (spotted) sentry falls through to the normal battle flow
+  instead, confirming eligibility is LOS-gated correctly.
+- Dreamcast side compiles clean (`make -C ports/dreamcast`,
+  `verify_step.sh` all green) and was hand-traced against the web
+  logic line-for-line, but **not hardware-verified** -- no Dreamcast
+  emulator/hardware available in this sandbox, same standing caveat
+  as every other Dreamcast-only feature in this log.
+

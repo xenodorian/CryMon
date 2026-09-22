@@ -1,14 +1,14 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=334cc94c257ae77b — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=76b8af06a6f6647f — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
 
-#define SAVE_VERSION 6
+#define SAVE_VERSION 7
 #define SAVE_SIZE 256
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
-#define SAVE_FLAG_N 63
-#define SAVE_ITEM_N 19
+#define SAVE_FLAG_N 64
+#define SAVE_ITEM_N 20
 #define SAVE_FLAG_TOOK_STARTER 0
 #define SAVE_FLAG_TALKED_FATHER 1
 #define SAVE_FLAG_LOOTED_CRATE 2
@@ -72,6 +72,7 @@
 #define SAVE_FLAG_BEAT_LIEUTENANT_LEAD 60
 #define SAVE_FLAG_HEAVENFALL_REP_WARNED 61
 #define SAVE_FLAG_SAW_SHINIGAMI_ROCK 62
+#define SAVE_FLAG_DRAY_KNIFE_OFFERED 63
 
 /* Blob layout (little-endian), shared with src/game/save.ts:
    0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,
@@ -79,8 +80,8 @@
    16 mason2_map (0xFF none), 18 bag[10], 28 flags[8],
    36 party[6]*16 (byte 12 = nature), 132 checksum u16,
    134 dexSeen[4], 138 dexCaught[4]. Checksum is 0..131 only. */
-#define SAVE_DEX_SEEN 143
-#define SAVE_DEX_CAUGHT 147
+#define SAVE_DEX_SEEN 144
+#define SAVE_DEX_CAUGHT 148
 #define SAVE_DEX_BYTES 4
 #define SAVE_PARTY_NATURE 12
 

@@ -246,6 +246,14 @@ export class CryMon {
 	beatCommander = false;
 	beatLieutenantLead = false;
 	heavenfallRepWarned = false;
+	/** Dray's one-time knife-offer line (Bowie Knife), gated on negative
+	 *  reputation the first time his shop opens. Also what unlocks the
+	 *  knife in his own shopCatalog(). */
+	drayKnifeOffered = false;
+	/** Choice presented when interacting with an unspotted roamable
+	 *  trainer while carrying the Bowie Knife -- see openBackstabChoice(). */
+	backstabCur = 0;
+	pendingBackstab: { npc: unknown; pending: string; talk: string; levels: number } | null = null;
 	quarryCrateLooted = false;
 	quarryShelfSearched = false;
 	cageOpen = false;
@@ -425,6 +433,9 @@ export class CryMon {
 		this.beatCommander = false;
 		this.beatLieutenantLead = false;
 		this.heavenfallRepWarned = false;
+		this.drayKnifeOffered = false;
+		this.backstabCur = 0;
+		this.pendingBackstab = null;
 		this.quarryCrateLooted = false;
 		this.quarryShelfSearched = false;
 		this.cageOpen = false;
@@ -1270,6 +1281,11 @@ export class CryMon {
 		return ITEM_ORDER.filter((id) => {
 			if (ITEMS[id].buy <= 0) return false;
 			if (ITEMS[id].effect?.kind === "capture") return allowed.includes(id);
+			// Only Dray sells the Bowie Knife, only after his one-time
+			// reputation-warning line has fired, and only until the
+			// player actually owns one -- there's only ever one in the
+			// game (see openShop()/openBackstabChoice()).
+			if (id === "bowieKnife") return keeper === "dray" && this.drayKnifeOffered && !this.bag.bowieKnife;
 			return true;
 		});
 	}
@@ -1320,6 +1336,10 @@ export class CryMon {
 		if (this.beatHeavenfall && !this.heavenfallRepWarned) {
 			this.heavenfallRepWarned = true;
 			this.say(TALK.heavenfallShopWarn || [{ speaker: "none", text: "You revived Heavenfall, who knows what other horrors you are capable of." }]);
+		}
+		if (keep === "dray" && this.reputation < 0 && !this.drayKnifeOffered) {
+			this.drayKnifeOffered = true;
+			this.say(TALK.drayKnifeOffer || [{ speaker: "dray", text: "I've heard of your reputation. Can I interest you in a knife? Sickos like you sometimes prefer up close and personal action." }]);
 		}
 		this.mode = "shop";
 		this.shopKeep = keep;
@@ -1531,6 +1551,10 @@ export class CryMon {
 		}
 		if (this.mode === "mercy") {
 			this.updateMercy();
+			return;
+		}
+		if (this.mode === "backstab") {
+			this.updateBackstabChoice();
 			return;
 		}
 		if (this.mode === "bag") {
@@ -2265,6 +2289,11 @@ export class CryMon {
 			}
 		}
 		if (!best) return false;
+		const bestStep = matchNpcScript(best.script, flags);
+		if (bestStep && this.canBackstab(best, bestStep)) {
+			this.openBackstabChoice(best, bestStep);
+			return true;
+		}
 		return this.runNpc(best);
 	}
 	logicFlags() {
@@ -3975,6 +4004,80 @@ export class CryMon {
 		});
 		this.text("Z  choose", X(28), Y(128), "#5a7a52", FONT);
 	}
+	/** Whether npc (with its currently-matched script step) is a valid
+	 *  Backstab target: a roamable wsoldier trainer that hasn't spotted
+	 *  the player yet (no active chase), still fightable, while the
+	 *  player carries the Bowie Knife. */
+	canBackstab(npc, step) {
+		if (!this.bag.bowieKnife) return false;
+		if (!step || step.after !== "wsoldier") return false;
+		if (!this.roamableNpc(npc)) return false;
+		if (this.roamers[npc.id]?.chase) return false;
+		return true;
+	}
+	openBackstabChoice(npc, step) {
+		const kit = TRAINERS[step.pending];
+		const levels = kit ? (kit.lead?.[1] || 0) + (kit.bench || []).reduce((s, b) => s + (b[1] || 0), 0) : 1;
+		this.pendingBackstab = { npc, pending: step.pending, talk: step.talk, levels };
+		this.backstabCur = 0;
+		this.mode = "backstab";
+		this.audio.ui();
+	}
+	updateBackstabChoice() {
+		if (this.input.up() || this.input.down()) {
+			this.backstabCur = 1 - this.backstabCur;
+			this.audio.ui();
+		}
+		if (this.input.cancel()) {
+			this.mode = "world";
+			this.pendingBackstab = null;
+			this.audio.ui();
+			return;
+		}
+		if (this.input.confirm()) {
+			const pb = this.pendingBackstab;
+			this.mode = "world";
+			this.pendingBackstab = null;
+			if (!pb) return;
+			this.audio.ok();
+			if (this.backstabCur === 0) this.runNpc(pb.npc);
+			else this.resolveBackstab(pb);
+		}
+	}
+	/** Same "execute" resolution resolveMercy() reaches after a real
+	 *  battle win (permanent delete, loot, scream/red fade), but -25
+	 *  reputation instead of -10 since it's an unprovoked kill, not a
+	 *  post-fight choice. */
+	resolveBackstab(pb) {
+		const levels = pb.levels || 1;
+		this.adjustReputation(-25);
+		const gain = levels * 10;
+		this.marks += gain;
+		const a = this.randomMercyItem();
+		const b = this.randomMercyItem();
+		this.bag[a] = (this.bag[a] ?? 0) + 1;
+		this.bag[b] = (this.bag[b] ?? 0) + 1;
+		this.markExecuted("wsoldier", pb.pending);
+		this.world.encounterLock = 3;
+		this.audio.scream();
+		this.startFade("execute");
+		this.say(TALK.backstabExecute || [{ speaker: "none", text: "The blade is quick. They never see it coming." }]);
+		this.note(`Took ${gain} marks and loot.`);
+	}
+	drawBackstabChoice() {
+		this.drawWorld();
+		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.box(X(16), Y(16), X(208), Y(80));
+		this.text("BOWIE KNIFE", X(120), Y(22), "#c5cec6", FONT, "center");
+		this.text("They haven't seen you.", X(28), Y(38), "#8a8678", FONT);
+		const rows = ["Approach", "Backstab"];
+		rows.forEach((row, i) => {
+			const on = i === this.backstabCur;
+			this.text(on ? `> ${row}` : `  ${row}`, X(28), Y(56 + i * 14), on ? "#e8e4d8" : "#8a8678", FONT);
+		});
+		this.text("Z choose  X cancel", X(28), Y(88), "#5a7a52", FONT);
+	}
 
 	updateChoice() {
 		if (this.input.up() || this.input.down()) {
@@ -4084,6 +4187,7 @@ export class CryMon {
 		else if (this.mode === "shop") this.drawShop();
 		else if (this.mode === "choice") this.drawChoice();
 		else if (this.mode === "mercy") this.drawMercy();
+		else if (this.mode === "backstab") this.drawBackstabChoice();
 		else if (this.mode === "pause") this.drawPause();
 		else if (this.mode === "crydex") this.drawCryDex();
 		else if (this.mode === "townmap") this.drawTownMap();

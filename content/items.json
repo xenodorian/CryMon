@@ -18,7 +18,8 @@
     "antidote",
     "clearmind",
     "numbroot",
-    "panacea"
+    "panacea",
+    "bowieKnife"
   ],
   "defs": {
     "gem": {
@@ -263,6 +264,15 @@
         "kind": "cure",
         "status": "all"
       }
+    },
+    "bowieKnife": {
+      "id": "bowieKnife",
+      "name": "Bowie Knife",
+      "desc": "Only Dray sells these, and only to Max. Lets her end a fight before it starts -- if the mark hasn't spotted her first.",
+      "battle": false,
+      "field": false,
+      "buy": 60,
+      "sell": 0
     }
   }
 }

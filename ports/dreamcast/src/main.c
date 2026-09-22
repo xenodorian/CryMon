@@ -1923,6 +1923,7 @@ typedef struct {
     int sunbalm, warroot, smokebomb, greatcrystal, cageKey;
     int megacrystal, ultimatecrystal, perfectcrystal; /* Leg 2.5 */
     int calmdraft, burnsalve, antidote, clearmind, numbroot, panacea; /* Leg 2.11 */
+    int bowieKnife; /* Dray's one-of-a-kind Backstab item */
 } Bag;
 
 typedef struct {
@@ -1951,7 +1952,8 @@ static int *bag_field(Bag *bag, int idx) {
         case 15: return &bag->antidote;
         case 16: return &bag->clearmind;
         case 17: return &bag->numbroot;
-        default: return &bag->panacea;
+        case 18: return &bag->panacea;
+        default: return &bag->bowieKnife;
     }
 }
 
@@ -2353,6 +2355,21 @@ static void draw_mercy(int cur, const char *foe_name)
     draw_choice_row("THREATEN FOR MARKS", 1, cur, y); y += MENU_ROW_H;
     draw_choice_row("THREATEN FOR AN ITEM", 2, cur, y); y += MENU_ROW_H;
     draw_choice_row("EXECUTE", 3, cur, y);
+}
+
+/* Leg 2.12 Bowie Knife: 2-row Approach/Backstab prompt, shown instead
+ * of normal dialogue when the player carries the knife and interacts
+ * with a roamable wsoldier trainer that hasn't spotted them yet
+ * (mirrors engine.ts's drawBackstabChoice()). */
+static void draw_backstab(int cur) {
+    int y = MENU_Y + 20;
+    draw_menu_frame("BOWIE KNIFE", "A CHOOSE  B CANCEL");
+    draw_wrapped("THEY HAVEN'T SEEN YOU.",
+                 MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE,
+                 (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
+    y += 18;
+    draw_choice_row("APPROACH", 0, cur, y); y += MENU_ROW_H;
+    draw_choice_row("BACKSTAB", 1, cur, y);
 }
 
 
@@ -4330,6 +4347,71 @@ static int try_npc_script(NpcRun *R) {
     return 0;
 }
 
+/* Leg 2.12 Bowie Knife: maps an NPC_PENDING_* id to its TRAINER_KITS
+ * index, the same lookup each POST_WSOLDIER_* battle-start case does
+ * inline -- reused here to sum a Backstab target's foe levels (for
+ * the marks payout) without ever building a battle struct. -1 for a
+ * pending with no kit (shouldn't happen for a roamable wsoldier). */
+static int kit_for_pending(int pending) {
+    switch(pending) {
+        case NPC_PENDING_CROSS: return KIT_CROSS;
+        case NPC_PENDING_CONSCRIPT: return KIT_CONSCRIPT;
+        case NPC_PENDING_ENFORCER: return KIT_ENFORCER;
+        case NPC_PENDING_SENTRY: return KIT_SENTRY;
+        case NPC_PENDING_FOREST_RANGER: return KIT_FOREST_RANGER;
+        case NPC_PENDING_FOREST_SCOUT: return KIT_FOREST_SCOUT;
+        case NPC_PENDING_RUINS_KEEPER: return KIT_RUINS_KEEPER;
+        case NPC_PENDING_RUINS_WARDEN: return KIT_RUINS_WARDEN;
+        case NPC_PENDING_QUARTZ: return KIT_QUARTZ;
+        case NPC_PENDING_QUARRY_DRILLER: return KIT_QUARRY_DRILLER;
+        case NPC_PENDING_OPAL: return KIT_OPAL;
+        case NPC_PENDING_MARSH_BOG: return KIT_MARSH_BOG;
+        case NPC_PENDING_MARSH_REED: return KIT_MARSH_REED;
+        case NPC_PENDING_COMMANDER_FINAL: return KIT_COMMANDER_FINAL;
+        case NPC_PENDING_LEAD: return KIT_LIEUTENANT_LEAD;
+        case NPC_PENDING_HEAVENFALL_GRAVE: return KIT_HEAVENFALL_GRAVE;
+        default: return -1;
+    }
+}
+
+/* Leg 2.12 Bowie Knife: best-match proximity scan for a Backstab
+ * target, mirroring try_npc_script()'s own box test exactly (same
+ * NPC_DEFS[i].w/h + INTERACT_BUFFER footprint) but filtered down to
+ * roamable wsoldier trainers that are still fightable and haven't
+ * started a chase (g_roamers[i].chase) -- i.e. "hasn't spotted the
+ * player first". Only called from the manual Z/A interact path, and
+ * only while bag.bowieKnife > 0, so a knifeless player always falls
+ * straight through to normal try_npc_script() dialogue. Returns the
+ * nearest matching NPC_DEFS index, or -1. */
+static int find_backstab_target(int map_id, int ppx, int ppy, int **ft, int party_n) {
+    int i, best = -1, best_d = 0x7fffffff;
+    for(i = 0; i < NPC_DEF_N; i++) {
+        int mx, my, dx, dy, d;
+        int half_w, left, right, top, bottom;
+        int si, ebit;
+        const NpcStep *st;
+        if(NPC_DEFS[i].map_id != map_id || !npc_def_roamable(i)) continue;
+        ebit = npc_exec_bit(NPC_DEFS[i].map_id, NPC_DEFS[i].mark);
+        if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;
+        if(!g_roamers[i].inited || g_roamers[i].chase) continue;
+        si = npc_match_step(&NPC_DEFS[i], ft, party_n);
+        if(si < 0) continue;
+        st = &NPC_STEPS[si];
+        if(st->after != NPC_AFTER_WSOLDIER) continue;
+        mark_center(map_id, NPC_DEFS[i].mark, &mx, &my);
+        half_w = NPC_DEFS[i].w / 2 + INTERACT_BUFFER;
+        left = mx - half_w;
+        right = mx + half_w;
+        bottom = my + INTERACT_BUFFER;
+        top = my - NPC_DEFS[i].h - INTERACT_BUFFER;
+        if(ppx < left || ppx > right || ppy < top || ppy > bottom) continue;
+        dx = ppx - mx; dy = ppy - my;
+        d = dx * dx + dy * dy;
+        if(d <= best_d) { best_d = d; best = i; }
+    }
+    return best;
+}
+
 /* ensureSoldiers(): id/name/species/level, matching state.lua's
    patrol/scout/sentry entries (their patrol minv/maxv/axis/LOS isn't
    ported -- see the section comment above). */
@@ -4520,7 +4602,7 @@ static void roll_all_shop_stock(void) {
     for(k = 0; k < SHOP_CRYSTAL_MASK_N; k++) roll_shop_stock(k);
 }
 
-static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int rows[ITEM_COUNT]) {
+static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int dray_knife_offered, int rows[ITEM_COUNT]) {
     int n = 0, i;
     int mask = (shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N)
         ? SHOP_CRYSTAL_MASK[shop_keep_id] : SHOP_CRYSTAL_DEFAULT_MASK;
@@ -4530,6 +4612,12 @@ static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int rows[IT
             if(ITEMS[i].buy <= 0) continue;
             if(ITEM_FX[i].kind == 4 && !((mask >> i) & 1)) continue;
             if(shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N && shop_stock[shop_keep_id][i] <= 0) continue;
+            /* Bowie Knife (item index 19, matches bag_field()'s new
+               case 19): Dray-only (shop_keep_id 3, see SHOP_IDS in
+               bake_content.py), only after his one-time reputation-
+               warning line, and only until the player owns one --
+               there's only ever one in the game. */
+            if(i == 19 && (shop_keep_id != 3 || !dray_knife_offered || owned > 0)) continue;
             rows[n++] = i;
         } else if(owned > 0 && ITEMS[i].sell > 0) {
             rows[n++] = i;
@@ -4576,9 +4664,9 @@ static int shop_gift_open(int reputation, int shop_keep_id, const int *shop_free
 }
 
 static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop_keep_id,
-                      int reputation, const int *shop_free) {
+                      int reputation, const int *shop_free, int dray_knife_offered) {
     int rows[ITEM_COUNT];
-    int n = shop_rows(bag, sell_tab, shop_keep_id, rows);
+    int n = shop_rows(bag, sell_tab, shop_keep_id, dray_knife_offered, rows);
     int y = MENU_Y + 40;
     int i;
     char buf[16];
@@ -4890,6 +4978,7 @@ void main(void) {
     int beat_marsh_bog = 0, beat_marsh_reed = 0, badge_opal = 0;
     int chose_heavenfall = 0, gauntlet_unlocked = 0, beat_heavenfall = 0, heavenfall_rep_warned = 0, title_slayer = 0, title_tamer = 0, beat_commander = 0;
     int beat_lieutenant_lead = 0;
+    int dray_knife_offered = 0;
     int revived_father = 0;
     int got_chest = 0;
     int talked_tessa = 0, talked_birch = 0, talked_sable = 0;
@@ -4904,6 +4993,12 @@ void main(void) {
     int mercy_foe_levels = 0;
     /* g_executed_mask is g_executed_mask (file-static) */
         char mercy_foe_name[32];
+    /* Leg 2.12 Bowie Knife: Approach/Backstab prompt, opened instead of
+       try_npc_script()'s normal dialogue when find_backstab_target()
+       finds an eligible target (see the manual interact path below). */
+    int backstab_mode = 0, backstab_cur = 0;
+    int backstab_npc_idx = -1;
+    int backstab_levels = 0;
     int soldier_beaten[3] = { 0, 0, 0 };
     int talked_father = 0;
     int *ft[FLAG_N];
@@ -5226,6 +5321,7 @@ void main(void) {
                         bag.calmdraft = sl.bag[13]; bag.burnsalve = sl.bag[14];
                         bag.antidote = sl.bag[15]; bag.clearmind = sl.bag[16];
                         bag.numbroot = sl.bag[17]; bag.panacea = sl.bag[18];
+                        bag.bowieKnife = sl.bag[19];
                         for(pi = 0; pi < party_n; pi++) {
                             party[pi].species = sl.party[pi].species;
                             party[pi].lv = sl.party[pi].lv;
@@ -5310,6 +5406,7 @@ void main(void) {
                         mason2_done = save_flag_get(&sl, SAVE_FLAG_MASON2_DONE);
                         talked_reach = save_flag_get(&sl, SAVE_FLAG_TALKED_REACH);
                         saw_shinigami_rock = save_flag_get(&sl, SAVE_FLAG_SAW_SHINIGAMI_ROCK);
+                        dray_knife_offered = save_flag_get(&sl, SAVE_FLAG_DRAY_KNIFE_OFFERED);
                         soldier_beaten[0] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN0);
                         soldier_beaten[1] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN1);
                         soldier_beaten[2] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN2);
@@ -5374,6 +5471,7 @@ void main(void) {
                 beat_marsh_bog = 0; beat_marsh_reed = 0; badge_opal = 0;
                 chose_heavenfall = 0; beat_commander = 0;
                 beat_lieutenant_lead = 0;
+                dray_knife_offered = 0;
                 beat_heavenfall = 0; heavenfall_rep_warned = 0; gauntlet_unlocked = 0;
                 title_slayer = 0; title_tamer = 0;
                 revived_father = 0;
@@ -5470,6 +5568,7 @@ void main(void) {
                     sl.bag[13] = (unsigned char)bag.calmdraft; sl.bag[14] = (unsigned char)bag.burnsalve;
                     sl.bag[15] = (unsigned char)bag.antidote; sl.bag[16] = (unsigned char)bag.clearmind;
                     sl.bag[17] = (unsigned char)bag.numbroot; sl.bag[18] = (unsigned char)bag.panacea;
+                    sl.bag[19] = (unsigned char)bag.bowieKnife;
                     for(pi = 0; pi < party_n && pi < 6; pi++) {
                         sl.party[pi].species = (unsigned char)party[pi].species;
                         sl.party[pi].lv = (unsigned char)party[pi].lv;
@@ -5550,6 +5649,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_MASON2_DONE, mason2_done);
                     save_flag_put(&sl, SAVE_FLAG_TALKED_REACH, talked_reach);
                     save_flag_put(&sl, SAVE_FLAG_SAW_SHINIGAMI_ROCK, saw_shinigami_rock);
+                    save_flag_put(&sl, SAVE_FLAG_DRAY_KNIFE_OFFERED, dray_knife_offered);
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN0, soldier_beaten[0]);
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN1, soldier_beaten[1]);
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN2, soldier_beaten[2]);
@@ -6325,7 +6425,7 @@ void main(void) {
                close (B stands in for select here, same as the bag/
                party menus). */
             int rows[ITEM_COUNT];
-            int n_rows = shop_rows(&bag, shop_sell_tab, shop_keep_id, rows);
+            int n_rows = shop_rows(&bag, shop_sell_tab, shop_keep_id, dray_knife_offered, rows);
 
             if((b_now && !prev_b) || (start_now && !prev_start)) {
                 shop_open = 0;
@@ -6435,6 +6535,65 @@ void main(void) {
                     fade_state = FADE_OUT;
                     fade_timer = 0;
                     chip_sfx_faint();
+                    {
+                        int n = s_cat(hud_flash, 0, "NO SURVIVORS");
+                        hud_flash[n] = 0; hud_t = 90;
+                    }
+                }
+            }
+        }
+
+        else if(backstab_mode) {
+            /* draw_backstab()'s input: up/down toggles Approach/Backstab,
+               A resolves, B cancels outright (unlike mercy_mode, this
+               choice has a genuine "never mind" -- the target hasn't
+               noticed Max yet either way). Approach just closes the
+               prompt and does nothing else: the very next frame's
+               manual-interact pass re-scans and, since the target still
+               hasn't started a chase, falls through to try_npc_script()
+               for the normal talk/battle flow (matches web's
+               updateBackstabChoice(), which calls runNpc(pb.npc) on
+               Approach instead of re-deriving the dialogue itself). */
+            if(up_now && !prev_up) { backstab_cur = 1 - backstab_cur; chip_sfx_ui(); }
+            if(down_now && !prev_down) { backstab_cur = 1 - backstab_cur; chip_sfx_ui(); }
+            if(b_now && !prev_b) {
+                backstab_mode = 0;
+                backstab_npc_idx = -1;
+                chip_sfx_ui();
+            }
+            if(a_now && !prev_a) {
+                int idx = backstab_npc_idx;
+                backstab_mode = 0;
+                backstab_npc_idx = -1;
+                chip_sfx_ok();
+                if(backstab_cur == 1 && idx >= 0) {
+                    /* Resolve: same "execute" shape resolveMercy()'s
+                       Execute row reaches after a real battle win
+                       (permanent delete, loot, scream/red fade), but
+                       -25 rep instead of -10 -- unprovoked, not a
+                       post-fight choice. */
+                    int ebit = npc_exec_bit(NPC_DEFS[idx].map_id, NPC_DEFS[idx].mark);
+                    int levels = backstab_levels > 0 ? backstab_levels : 1;
+                    int ia = (int)(frand(0.0f, 1.0f) * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int ib = (int)(frand(0.0f, 1.0f) * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int *sa, *sb;
+                    reputation -= 25;
+                    if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                    marks += levels * 10;
+                    if(ia < 0) ia = 0; if(ia >= ITEM_COUNT) ia = 0;
+                    if(ib < 0) ib = 0; if(ib >= ITEM_COUNT) ib = 0;
+                    sa = bag_field(&bag, ia); sb = bag_field(&bag, ib);
+                    if(sa) (*sa)++;
+                    if(sb) (*sb)++;
+                    if(ebit >= 0 && ebit < 31) g_executed_mask |= (1u << ebit);
+                    if(g_roamers[idx].inited) g_roamers[idx].chase = 0;
+                    chip_sfx_faint();
+                    g_mercy_red_fade = 1;
+                    fade_state = FADE_OUT;
+                    fade_timer = 0;
+                    seq_lines = TALK_BACKSTAB_EXECUTE;
+                    seq_len = TALK_LEN(TALK_BACKSTAB_EXECUTE);
+                    seq_beat = 0;
                     {
                         int n = s_cat(hud_flash, 0, "NO SURVIVORS");
                         hud_flash[n] = 0; hud_t = 90;
@@ -7502,6 +7661,12 @@ void main(void) {
                                         seq_len = TALK_LEN(TALK_HEAVENFALL_SHOP_WARN);
                                         seq_beat = 0;
                                         post_action = POST_SHOP;
+                                    } else if(shop_keep_id == 3 && reputation < 0 && !dray_knife_offered) {
+                                        dray_knife_offered = 1;
+                                        seq_lines = TALK_DRAY_KNIFE_OFFER;
+                                        seq_len = TALK_LEN(TALK_DRAY_KNIFE_OFFER);
+                                        seq_beat = 0;
+                                        post_action = POST_SHOP;
                                     } else {
                                         shop_open = 1;
                                         shop_sell_tab = 0;
@@ -7603,6 +7768,33 @@ void main(void) {
                         }
                         post_action = POST_NONE;
                     }
+                }
+                else if(bag.bowieKnife > 0 &&
+                        find_backstab_target(map_id, px, py, ft, party_n) >= 0) {
+                    /* Leg 2.12 Bowie Knife: an eligible, unspotted
+                       roamable trainer is in interact range -- open the
+                       Approach/Backstab prompt instead of the normal
+                       try_npc_script() dialogue. Re-derive the target's
+                       levels here (kit_for_pending()) rather than
+                       threading them out of find_backstab_target(),
+                       matching openBackstabChoice()'s own TRAINERS[]
+                       lookup on the web side. */
+                    int idx = find_backstab_target(map_id, px, py, ft, party_n);
+                    int si2 = npc_match_step(&NPC_DEFS[idx], ft, party_n);
+                    const NpcStep *bst = &NPC_STEPS[si2];
+                    int kit = kit_for_pending(bst->pending);
+                    int lv = 1;
+                    if(kit >= 0) {
+                        int bi;
+                        lv = TRAINER_KITS[kit].lead_lv;
+                        for(bi = 0; bi < TRAINER_KITS[kit].bench_n; bi++)
+                            lv += TRAINER_KITS[kit].bench_lv[bi];
+                    }
+                    backstab_npc_idx = idx;
+                    backstab_levels = lv > 0 ? lv : 1;
+                    backstab_mode = 1;
+                    backstab_cur = 0;
+                    chip_sfx_ui();
                 }
                 else {
                     /* Scripted NPCs from content/world.json (first-match).
@@ -7770,11 +7962,13 @@ void main(void) {
                             battle_pl_enter_t, battle_pl_faint_t);
             if(shop_open)
                 draw_shop(&bag, marks, shop_sell_tab, shop_cur, shop_keep_id,
-                          reputation, shop_free);
+                          reputation, shop_free, dray_knife_offered);
             if(choice_mode)
                 draw_choice(choice_cur);
             if(mercy_mode)
                 draw_mercy(mercy_cur, mercy_foe_name);
+            if(backstab_mode)
+                draw_backstab(backstab_cur);
         }
 
         /* Post-process over whatever was just drawn, whatever it was

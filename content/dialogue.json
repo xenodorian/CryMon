@@ -1326,6 +1326,18 @@
         "text": "You revived Heavenfall, who knows what other horrors you are capable of."
       }
     ],
+    "drayKnifeOffer": [
+      {
+        "speaker": "dray",
+        "text": "I've heard of your reputation. Can I interest you in a knife? Sickos like you sometimes prefer up close and personal action."
+      }
+    ],
+    "backstabExecute": [
+      {
+        "speaker": "none",
+        "text": "The blade is quick. They never see it coming."
+      }
+    ],
     "mercyThreaten": [
       {
         "speaker": "none",
