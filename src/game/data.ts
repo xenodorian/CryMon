@@ -225,7 +225,10 @@ export const SOLID_TILES = mapsJson.solid;
 export function captureChance(level: number, str: number, hp: number, vulnerable: boolean, base = 100): number {
   let chance = base - level - str - hp;
   if (vulnerable) chance += 50;
-  if (chance < 0) return 0;
+  // NaN fails every numeric comparison, so a bad input (e.g. a corrupted
+  // mint) used to fall through both clamps below and surface as "NaN%".
+  // Treat anything non-finite as no chance at all.
+  if (!Number.isFinite(chance) || chance < 0) return 0;
   if (chance > 100) return 100;
   return chance;
 }

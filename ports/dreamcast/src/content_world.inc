@@ -1,11 +1,11 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=f1ffd8a50bd2d872 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=a83ec02fb5f7655c — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
 #define XP_PER_LEVEL 4
 #define LEVEL_XP_MUL 10
 #define LEVEL_CAP 100
-#define WILD_LEVEL_CAP 100
+#define WILD_LEVEL_CAP 50
 #define LEVEL_HP 3
 #define LEVEL_STAT 1
 #define CAPTURE_AGL 5
