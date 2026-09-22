@@ -11,8 +11,8 @@
       "label": "CryTown",
       "kind": "town",
       "gem": true,
-      "x": 4,
-      "y": 1,
+      "x": 12,
+      "y": 42,
       "cellW": 3,
       "cellH": 2,
       "playableMaps": [
@@ -29,8 +29,8 @@
       "label": "The Cliffs",
       "kind": "route",
       "gem": false,
-      "x": 7,
-      "y": 1,
+      "x": 15,
+      "y": 42,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -46,8 +46,8 @@
       "label": "The Ruins",
       "kind": "route",
       "gem": false,
-      "x": 2,
-      "y": 1,
+      "x": 10,
+      "y": 42,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -63,8 +63,8 @@
       "label": "Gauntlet",
       "kind": "route",
       "gem": false,
-      "x": 4,
-      "y": 3,
+      "x": 12,
+      "y": 44,
       "cellW": 2,
       "cellH": 18,
       "playableMaps": [
@@ -80,12 +80,27 @@
       }
     },
     {
+      "id": "weepingroad",
+      "label": "The Weeping Road",
+      "kind": "route",
+      "gem": false,
+      "x": 13,
+      "y": 20,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
       "id": "marsh",
       "label": "The Marsh",
       "kind": "route",
       "gem": false,
-      "x": 9,
-      "y": 0,
+      "x": 17,
+      "y": 41,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -101,8 +116,8 @@
       "label": "The Reach",
       "kind": "landmark",
       "gem": true,
-      "x": 0,
-      "y": 0,
+      "x": 8,
+      "y": 41,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -118,8 +133,8 @@
       "label": "Heavenfall Shrine",
       "kind": "shrine",
       "gem": true,
-      "x": 4,
-      "y": 21,
+      "x": 12,
+      "y": 62,
       "cellW": 2,
       "cellH": 2,
       "playableMaps": [
@@ -131,12 +146,27 @@
       }
     },
     {
+      "id": "malkuth",
+      "label": "MALKUTH",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 12,
+      "y": 0,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
       "id": "quarry",
       "label": "The Quarry",
       "kind": "cave",
       "gem": false,
-      "x": 11,
-      "y": 1,
+      "x": 19,
+      "y": 42,
       "cellW": 2,
       "cellH": 1,
       "playableMaps": [
@@ -148,12 +178,57 @@
       }
     },
     {
+      "id": "tau",
+      "label": "PATH OF TAU",
+      "kind": "route",
+      "gem": false,
+      "x": 13,
+      "y": 2,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "qoph",
+      "label": "PATH OF QOPH",
+      "kind": "route",
+      "gem": false,
+      "x": 19,
+      "y": 5,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "shin",
+      "label": "PATH OF SHIN",
+      "kind": "route",
+      "gem": false,
+      "x": 7,
+      "y": 5,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
       "id": "camp",
       "label": "The Camp",
       "kind": "camp",
       "gem": true,
-      "x": 13,
-      "y": 1,
+      "x": 21,
+      "y": 42,
       "cellW": 2,
       "cellH": 1,
       "playableMaps": [
@@ -165,12 +240,57 @@
       }
     },
     {
+      "id": "yesod",
+      "label": "YESOD",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 12,
+      "y": 6,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
+      "id": "netzach",
+      "label": "NETZACH",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 24,
+      "y": 12,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
+      "id": "hod",
+      "label": "HOD",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 0,
+      "y": 12,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
       "id": "forest",
       "label": "The Forest",
       "kind": "route",
       "gem": false,
-      "x": 13,
-      "y": 2,
+      "x": 21,
+      "y": 43,
       "cellW": 3,
       "cellH": 3,
       "playableMaps": [
@@ -182,12 +302,132 @@
       }
     },
     {
+      "id": "resh",
+      "label": "PATH OF RESH",
+      "kind": "route",
+      "gem": false,
+      "x": 6,
+      "y": 9,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "tzaddi",
+      "label": "PATH OF TZADDI",
+      "kind": "route",
+      "gem": false,
+      "x": 18,
+      "y": 9,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "samekh",
+      "label": "PATH OF SAMEKH",
+      "kind": "route",
+      "gem": false,
+      "x": 13,
+      "y": 11,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "peh",
+      "label": "PATH OF PEH",
+      "kind": "route",
+      "gem": false,
+      "x": 12,
+      "y": 12,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "nun",
+      "label": "PATH OF NUN",
+      "kind": "route",
+      "gem": false,
+      "x": 18,
+      "y": 15,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "kaph",
+      "label": "PATH OF KAPH",
+      "kind": "route",
+      "gem": false,
+      "x": 25,
+      "y": 17,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "ayin",
+      "label": "PATH OF AYIN",
+      "kind": "route",
+      "gem": false,
+      "x": 6,
+      "y": 15,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "mem",
+      "label": "PATH OF MEM",
+      "kind": "route",
+      "gem": false,
+      "x": 1,
+      "y": 17,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
       "id": "grove",
       "label": "The Prison",
       "kind": "landmark",
       "gem": true,
-      "x": 13,
-      "y": 5,
+      "x": 21,
+      "y": 46,
       "cellW": 3,
       "cellH": 2,
       "playableMaps": [
@@ -196,6 +436,261 @@
       "realSize": {
         "width": 26,
         "height": 21
+      }
+    },
+    {
+      "id": "tiferet",
+      "label": "TIFERET",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 12,
+      "y": 18,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
+      "id": "chesed",
+      "label": "CHESED",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 24,
+      "y": 24,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
+      "id": "gevurah",
+      "label": "GEVURAH",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 0,
+      "y": 24,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
+      "id": "yod",
+      "label": "PATH OF YOD",
+      "kind": "route",
+      "gem": false,
+      "x": 18,
+      "y": 21,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "lamed",
+      "label": "PATH OF LAMED",
+      "kind": "route",
+      "gem": false,
+      "x": 6,
+      "y": 21,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "zayin",
+      "label": "PATH OF ZAYIN",
+      "kind": "route",
+      "gem": false,
+      "x": 7,
+      "y": 23,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "he",
+      "label": "PATH OF HE",
+      "kind": "route",
+      "gem": false,
+      "x": 19,
+      "y": 23,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "gimel",
+      "label": "PATH OF GIMEL",
+      "kind": "route",
+      "gem": false,
+      "x": 13,
+      "y": 26,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "teth",
+      "label": "PATH OF TETH",
+      "kind": "route",
+      "gem": false,
+      "x": 12,
+      "y": 24,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "vau",
+      "label": "PATH OF VAU",
+      "kind": "route",
+      "gem": false,
+      "x": 25,
+      "y": 26,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "heth",
+      "label": "PATH OF HETH",
+      "kind": "route",
+      "gem": false,
+      "x": 1,
+      "y": 26,
+      "cellW": 1,
+      "cellH": 2,
+      "playableMaps": [],
+      "realSize": {
+        "width": 6,
+        "height": 24
+      }
+    },
+    {
+      "id": "binah",
+      "label": "BINAH",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 0,
+      "y": 30,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
+      "id": "chokmah",
+      "label": "CHOKMAH",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 24,
+      "y": 30,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
+      "id": "keter",
+      "label": "KETER",
+      "kind": "sephirah",
+      "gem": true,
+      "x": 12,
+      "y": 36,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 16,
+        "height": 12
+      }
+    },
+    {
+      "id": "daleth",
+      "label": "PATH OF DALETH",
+      "kind": "route",
+      "gem": false,
+      "x": 12,
+      "y": 30,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "beth",
+      "label": "PATH OF BETH",
+      "kind": "route",
+      "gem": false,
+      "x": 6,
+      "y": 33,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
+      }
+    },
+    {
+      "id": "aleph",
+      "label": "PATH OF ALEPH",
+      "kind": "route",
+      "gem": false,
+      "x": 18,
+      "y": 33,
+      "cellW": 2,
+      "cellH": 1,
+      "playableMaps": [],
+      "realSize": {
+        "width": 24,
+        "height": 6
       }
     }
   ],
@@ -259,6 +754,282 @@
       "to": "forest",
       "edge": "south",
       "need": null
+    },
+    {
+      "from": "veld",
+      "to": "weepingroad",
+      "edge": "up",
+      "need": null
+    },
+    {
+      "from": "weepingroad",
+      "to": "malkuth",
+      "edge": "up",
+      "need": null
+    },
+    {
+      "from": "yesod",
+      "to": "tau",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "tau",
+      "to": "malkuth",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "netzach",
+      "to": "qoph",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "qoph",
+      "to": "malkuth",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "hod",
+      "to": "shin",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "shin",
+      "to": "malkuth",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "netzach",
+      "to": "peh",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "peh",
+      "to": "hod",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "hod",
+      "to": "resh",
+      "edge": "right",
+      "need": null
+    },
+    {
+      "from": "resh",
+      "to": "yesod",
+      "edge": "right",
+      "need": null
+    },
+    {
+      "from": "netzach",
+      "to": "tzaddi",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "tzaddi",
+      "to": "yesod",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "tiferet",
+      "to": "samekh",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "samekh",
+      "to": "yesod",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "tiferet",
+      "to": "nun",
+      "edge": "right",
+      "need": null
+    },
+    {
+      "from": "nun",
+      "to": "netzach",
+      "edge": "right",
+      "need": null
+    },
+    {
+      "from": "tiferet",
+      "to": "ayin",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "ayin",
+      "to": "hod",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "chesed",
+      "to": "kaph",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "kaph",
+      "to": "netzach",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "chesed",
+      "to": "yod",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "yod",
+      "to": "tiferet",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "gevurah",
+      "to": "mem",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "mem",
+      "to": "hod",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "gevurah",
+      "to": "lamed",
+      "edge": "right",
+      "need": null
+    },
+    {
+      "from": "lamed",
+      "to": "tiferet",
+      "edge": "right",
+      "need": null
+    },
+    {
+      "from": "chesed",
+      "to": "teth",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "teth",
+      "to": "gevurah",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "binah",
+      "to": "zayin",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "zayin",
+      "to": "tiferet",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "binah",
+      "to": "heth",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "heth",
+      "to": "gevurah",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "chokmah",
+      "to": "he",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "he",
+      "to": "tiferet",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "chokmah",
+      "to": "vau",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "vau",
+      "to": "chesed",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "chokmah",
+      "to": "daleth",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "daleth",
+      "to": "binah",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "keter",
+      "to": "gimel",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "gimel",
+      "to": "tiferet",
+      "edge": "down",
+      "need": null
+    },
+    {
+      "from": "keter",
+      "to": "aleph",
+      "edge": "right",
+      "need": null
+    },
+    {
+      "from": "aleph",
+      "to": "chokmah",
+      "edge": "right",
+      "need": null
+    },
+    {
+      "from": "keter",
+      "to": "beth",
+      "edge": "left",
+      "need": null
+    },
+    {
+      "from": "beth",
+      "to": "binah",
+      "edge": "left",
+      "need": null
     }
   ],
   "collapse": {
@@ -272,8 +1043,8 @@
     "gauntlet": null
   },
   "terrain": {
-    "width": 20,
-    "height": 27
+    "width": 30,
+    "height": 68
   },
   "generatedFrom": {
     "layout": "content/world_map_layout.json",

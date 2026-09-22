@@ -58,6 +58,40 @@ const REGION_META = {
   gauntlet_route: { label: "Gauntlet", kind: "route", gem: false },
 };
 
+/** Tree of Life cluster (Claude, 2026-09-22): 10 Sephirot cities + 22
+ * named paths + the Weeping Road, north of CryTown. This subgraph has
+ * many non-adjacent/crossing connections (e.g. Tiferet touches 8 other
+ * cities) that the normal cardinal-adjacency packer below can't lay out
+ * as a recognizable Tree of Life shape -- it place them at fixed
+ * classical coordinates instead (see PLACE_SEPHIROT_CLUSTER below),
+ * with stairstep pixel-line connectors drawn between them since their
+ * cells don't physically touch. Coordinates: (col,row), col negative =
+ * left pillar, positive = right pillar, row increases downward (toward
+ * Malkuth/the mundane world, per the design writeup in CURRENT_WORK.md). */
+const SEPHIROT_COORDS = {
+  keter: [0, 0], chokmah: [2, 1], binah: [-2, 1],
+  chesed: [2, 2], gevurah: [-2, 2], tiferet: [0, 3],
+  netzach: [2, 4], hod: [-2, 4], yesod: [0, 5], malkuth: [0, 6],
+};
+const SEPHIROT_PATHS = [
+  ["aleph", "keter", "chokmah"], ["beth", "keter", "binah"], ["gimel", "keter", "tiferet"],
+  ["daleth", "chokmah", "binah"], ["he", "chokmah", "tiferet"], ["vau", "chokmah", "chesed"],
+  ["zayin", "binah", "tiferet"], ["heth", "binah", "gevurah"], ["teth", "chesed", "gevurah"],
+  ["yod", "chesed", "tiferet"], ["kaph", "chesed", "netzach"], ["lamed", "gevurah", "tiferet"],
+  ["mem", "gevurah", "hod"], ["nun", "tiferet", "netzach"], ["samekh", "tiferet", "yesod"],
+  ["ayin", "tiferet", "hod"], ["peh", "netzach", "hod"], ["tzaddi", "netzach", "yesod"],
+  ["qoph", "netzach", "malkuth"], ["resh", "hod", "yesod"], ["shin", "hod", "malkuth"],
+  ["tau", "yesod", "malkuth"],
+];
+for (const id of Object.keys(SEPHIROT_COORDS)) {
+  REGION_META[id] = { label: id.toUpperCase(), kind: "sephirah", gem: true };
+}
+for (const [id] of SEPHIROT_PATHS) {
+  REGION_META[id] = { label: "PATH OF " + id.toUpperCase(), kind: "route", gem: false };
+}
+REGION_META.weepingroad = { label: "The Weeping Road", kind: "route", gem: false };
+const SEPHIROT_IDS = new Set([...Object.keys(SEPHIROT_COORDS), ...SEPHIROT_PATHS.map((p) => p[0]), "weepingroad"]);
+
 function regionId(mapId) {
   if (Object.prototype.hasOwnProperty.call(COLLAPSE, mapId)) return COLLAPSE[mapId];
   if (!maps[mapId] || maps[mapId].active === false) return null;
@@ -146,6 +180,23 @@ for (const c of layout.connections ?? []) {
   regionEdges.push({ from: a, to: b, edge: exitEdge(c.from, c.fromXY), need: c.need ?? null, src: c });
 }
 
+/** Tree of Life cluster connectivity comes straight from the real
+ * warps (content/world_parts/warps.json), not world_map_layout.json --
+ * that layout file hasn't been extended for this cluster yet (tracked
+ * as a follow-up in CURRENT_WORK.md; it isn't part of check_sync
+ * --strict, only this generator and the world_graph audit read it). */
+const warpsPack = JSON.parse(fs.readFileSync("content/world_parts/warps.json", "utf8")).warps ?? [];
+const sephFilter = new Set([...SEPHIROT_IDS, "veld"]);
+for (const w of warpsPack) {
+  const a = w.from, b = w.to;
+  if (!sephFilter.has(a) || !sephFilter.has(b)) continue;
+  if (!SEPHIROT_IDS.has(a) && !SEPHIROT_IDS.has(b)) continue;
+  const key = [a, b].sort().join("|");
+  if (seen.has(key)) continue;
+  seen.add(key);
+  regionEdges.push({ from: a, to: b, edge: w.dir, need: w.need ?? null, src: { from: a, fromXY: null } });
+}
+
 const sizes = {};
 for (const id of Object.keys(REGION_META)) sizes[id] = cellSize(id);
 
@@ -222,6 +273,36 @@ for (const id of Object.keys(REGION_META)) {
     const sz = sizes[id];
     const maxY = Math.max(0, ...Object.values(boxes).map((b) => b.y + b.h));
     placeNear(id, sz.w, sz.h, 0, maxY);
+  }
+}
+
+// --- Tree of Life cluster: overwrite with manual tree-shaped coords ---
+// The BFS above already gave these ids *some* non-overlapping box (they
+// are graph-reachable via the Weeping Road), but cardinal-adjacency
+// packing can't produce a recognizable Tree of Life silhouette for a
+// subgraph this cross-connected -- replaced with fixed classical
+// coordinates instead, anchored north of CryTown's already-packed box.
+{
+  const SEPH_COL = 6;
+  const SEPH_ROW = 6;
+  const veldBox = boxes.veld;
+  const anchorX = veldBox.x + Math.floor(veldBox.w / 2);
+  const anchorY = veldBox.y;
+  const sephXY = (col, row) => ({ x: anchorX + col * SEPH_COL, y: anchorY - SEPH_ROW - row * SEPH_ROW });
+  const place = (id, cx, cy) => {
+    const sz = sizes[id] ?? { w: 1, h: 1 };
+    boxes[id] = { x: cx - Math.floor(sz.w / 2), y: cy - Math.floor(sz.h / 2), w: sz.w, h: sz.h };
+  };
+  const roadC = sephXY(0, 6);
+  place("weepingroad", anchorX, Math.round((veldBox.y + roadC.y) / 2));
+  for (const [id, [col, row]] of Object.entries(SEPHIROT_COORDS)) {
+    const c = sephXY(col, row);
+    place(id, c.x, c.y);
+  }
+  for (const [id, a, b] of SEPHIROT_PATHS) {
+    const ca = sephXY(...SEPHIROT_COORDS[a]);
+    const cb = sephXY(...SEPHIROT_COORDS[b]);
+    place(id, Math.round((ca.x + cb.x) / 2), Math.round((ca.y + cb.y) / 2));
   }
 }
 
@@ -324,11 +405,47 @@ function esc(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/** Blocky/pixelated stairstep connector for Tree of Life cluster edges
+ * whose cells don't physically touch (manual tree coordinates, not the
+ * cardinal-adjacency packing every other region uses) -- alternating
+ * horizontal/vertical steps, same silhouette as a warning-stripe
+ * diagonal, never a smooth line (this engine has no diagonal movement,
+ * so nothing here should look like it does either). */
+function stairstepPoints(x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const steps = Math.max(2, Math.round(Math.max(Math.abs(dx), Math.abs(dy)) / (CELL * 0.8)));
+  const pts = [[x1, y1]];
+  let cx = x1;
+  let cy = y1;
+  for (let i = 0; i < steps; i++) {
+    cx += dx / steps;
+    pts.push([cx, cy]);
+    cy += dy / steps;
+    pts.push([cx, cy]);
+  }
+  return pts;
+}
+
 const svg = [];
 svg.push(`<?xml version="1.0" encoding="UTF-8"?>`);
 svg.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">`);
 svg.push(`  <rect width="100%" height="100%" fill="#14283a"/>`);
 svg.push(`  <text x="${svgW / 2}" y="18" text-anchor="middle" fill="#e8f0d8" font-family="Georgia, serif" font-size="14" font-weight="bold">${esc(townMap.name)}</text>`);
+
+for (const e of regionEdgesOut) {
+  if (!SEPHIROT_IDS.has(e.from) && !SEPHIROT_IDS.has(e.to)) continue;
+  const a = boxes[e.from];
+  const b = boxes[e.to];
+  if (!a || !b) continue;
+  const ax = ox + (M + a.x + a.w / 2) * CELL;
+  const ay = oy + (M + a.y + a.h / 2) * CELL;
+  const bx = ox + (M + b.x + b.w / 2) * CELL;
+  const by = oy + (M + b.y + b.h / 2) * CELL;
+  const pts = stairstepPoints(ax, ay, bx, by);
+  const d = "M " + pts.map((p) => p.join(" ")).join(" L ");
+  svg.push(`  <path d="${d}" fill="none" stroke="#5a4a2a" stroke-width="2" stroke-linecap="square"/>`);
+}
 
 for (const [id, b] of Object.entries(boxes)) {
   const x = ox + (M + b.x) * CELL;

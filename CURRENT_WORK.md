@@ -1233,3 +1233,32 @@ ports/dreamcast` -> commit -> push -> note completed step here.
   lines so the Tree of Life silhouette actually renders on the Town
   Map screen) -- not yet started.
 
+**County-map generator upgrade (Claude, 2026-09-22, same day).**
+Extended `tools/generate-town-map.mjs`: (1) `REGION_META` entries for
+all 33 new maps; (2) cluster connectivity sourced directly from
+`content/world_parts/warps.json` (not `world_map_layout.json`, which
+still hasn't been extended for this cluster -- tracked below as an
+open follow-up, not part of `check_sync --strict`); (3) after the
+normal BFS packer runs (harmlessly auto-placing the cluster
+somewhere, since it's graph-reachable via the Weeping Road), a manual
+placement pass **overwrites** the 33 boxes with the classical Tree of
+Life coordinates (3 pillars x 7 levels, anchored north of CryTown's
+already-packed box) -- the normal cardinal-adjacency packer can't
+produce a recognizable tree shape for a subgraph this cross-connected
+(Tiferet alone touches 8 other cities); (4) a `stairstepPoints()`
+helper draws blocky alternating-H/V connector lines (matching the
+warning-stripe pixelated-diagonal reference the user gave, never a
+smooth line -- this engine has no diagonal movement) between any two
+cluster cells, since manual placement doesn't guarantee physical
+adjacency the way the rest of the map does. Rendered and visually
+verified via cairosvg -- the Tree of Life shape is unmistakable, all
+10 cities and 22 path labels legible, no overlaps, `Validation: OK`.
+
+**Known follow-up, not done today:** `content/world_map_layout.json`
+and the `tools/world_graph/` audit scripts still don't know about
+these 33 maps (the generator bypasses that file for this cluster and
+reads warps.json directly instead, per above) -- whoever extends the
+Tree of Life cluster further (adding NPCs, dialogue, real art) should
+also backfill `world_map_layout.json`'s `maps`/`connections` entries
+so `tools/world_graph/run_full_audit.py` covers it too.
+
