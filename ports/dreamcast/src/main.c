@@ -1201,9 +1201,12 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
         ws_push_mark_idle(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         /* PLACEHOLDER_ART: no real boulder art exists yet, see
            public/sprites/npc/shinigamiBoulder-*.png and CURRENT_WORK.md.
-           Seals the west gate until Shinigami is beaten; his own sprite
-           (mark '9', below) only appears from that point on. */
-        if(!beat_shin)
+           Seals the west gate until the rock-shatter event actually
+           plays (saw_shinigami_rock), not merely until Shinigami is
+           beaten -- he still has to walk into view first (see the
+           beat_shin && !saw_shinigami_rock trigger below). His own
+           sprite (mark '9', below) appears for that whole window. */
+        if(!saw_shinigami_rock)
             ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMIBOULDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         if(beat_shin && !saw_shinigami_rock)
             ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
@@ -1260,10 +1263,11 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
     else if(map_id == MAP_REACH) {
         /* Shinigami's second appearance, once freed from the Prison --
            reuses his existing GROVE sprite/frames, same character. He
-           isn't here at all until beat_shin (mirrors the GROVE branch
-           above, which hides him there once beaten -- opposite sense,
-           same flag). */
-        if(beat_shin)
+           isn't here at all until saw_shinigami_rock (not merely
+           beat_shin -- he's still standing at the boulder in VELD
+           until the rock-shatter event actually plays there; showing
+           him here any earlier would put him in two places at once). */
+        if(saw_shinigami_rock)
             ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
     }
 
@@ -4309,10 +4313,10 @@ static int actor_blocks(int map_id, int cx, int cy,
         if(!beat_calder && mark_hit(map_id, 'E', cx, cy, HIT_R2)) return 1;
         if(!has_scroll && mark_hit(map_id, '4', cx, cy, HIT_R2)) return 1;
         /* The boulder (mark 'Y') seals the sole approach to the west
-           gate until Shinigami is beaten; his own sprite (mark '9')
-           only exists from that point on (collect_npcs()) and stops
-           blocking once the rock-shatter event has played. */
-        if(!beat_shin && mark_hit(map_id, 'Y', cx, cy, HIT_R2)) return 1;
+           gate until the rock-shatter event actually plays, not merely
+           until Shinigami is beaten (see collect_npcs() above); his
+           own sprite (mark '9') takes over blocking for that window. */
+        if(!saw_shinigami_rock && mark_hit(map_id, 'Y', cx, cy, HIT_R2)) return 1;
         if(beat_shin && !saw_shinigami_rock && mark_hit(map_id, '9', cx, cy, HIT_R2)) return 1;
     }
     else if(map_id == MAP_FOREST && soldiers) {

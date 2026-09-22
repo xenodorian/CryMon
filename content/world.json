@@ -2455,6 +2455,9 @@
         },
         {
           "talk": "shinigamiReachAgain"
+        },
+        {
+          "if": "sawShinigamiRock"
         }
       ],
       "sprite": "shinigami"
@@ -2806,7 +2809,7 @@
       "sprite": "npc/shinigamiBoulder",
       "script": [
         {
-          "hideIf": "beatShinigami"
+          "hideIf": "sawShinigamiRock"
         }
       ]
     }
