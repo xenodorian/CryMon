@@ -2106,17 +2106,6 @@ export class CryMon {
 		const ahead = tileAt(this.map(), this.world.x + ox, this.world.y + oy);
 		if ((this.world.mapId === "house" || this.world.mapId === "veld") && (doorTile(here) || this.world.moving && doorTile(ahead))) this.useDoor();
 	}
-	nearbyTiles() {
-		const { x, y } = this.world;
-		const d = TILE;
-		return [
-			tileAt(this.map(), x, y),
-			tileAt(this.map(), x - d, y),
-			tileAt(this.map(), x + d, y),
-			tileAt(this.map(), x, y - d),
-			tileAt(this.map(), x, y + d)
-		];
-	}
 	useDoor() {
 		this.applyWarp("D");
 	}
@@ -2465,7 +2454,6 @@ export class CryMon {
 			}
 		}
 		if (this.runClosestNpc()) return;
-		if (this.nearbyTiles().some((ch) => doorTile(ch))) this.useDoor();
 	}
 	ensureSoldiers() {
 		if (this.soldiers.length) return;
