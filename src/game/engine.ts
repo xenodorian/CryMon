@@ -2003,6 +2003,7 @@ export class CryMon {
 			if (npc.map !== this.world.mapId || !npc.sprite) continue;
 			if (this.npcHidden(npc, blockFlags)) continue;
 			if (this.npcPassable(npc, blockFlags)) continue;
+			if (this.npcIsExecuted(npc.id)) continue;
 			for (const mark of this.npcMarks(npc)) {
 				const s = spawnOf(this.map(), mark);
 				if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 16) return true;
