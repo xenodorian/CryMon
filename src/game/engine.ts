@@ -83,7 +83,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | `shop:${string}` | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport";
+type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL" };
 const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray" };
@@ -959,6 +959,14 @@ export class CryMon {
 				const refuseAt = LOGIC.reputation?.refuseAt ?? -100;
 				if (this.reputation <= refuseAt) this.say(TALK.shopRefuse);
 				else this.openShop(keep);
+			} else if (next === "drayKnifeShop") {
+				// Complete the offer dialogue before opening Dray's one-item knife shop.
+				this.shopKeep = "dray";
+				this.shopStock.dray = { bowieKnife: 1 };
+				this.mode = "shop";
+				this.shopTab = "buy";
+				this.shopCursor = 0;
+				this.audio.ui();
 			}
 			else if (next === "mason") {
 				const kit = TRAINERS.mason;
@@ -997,8 +1005,7 @@ export class CryMon {
 			} else if (next === "mason2") {
 				const kit = LOGIC.masonRematch.battle;
 				this.startBattle(
-					mintMonster(kit.lead[0], kit.lead[1]),
-					false,
+					mintMonster(kit.lead[0], kit.lead[1]),					false,
 					kit.title,
 					"mason2",
 					null,
@@ -1337,9 +1344,11 @@ export class CryMon {
 			this.heavenfallRepWarned = true;
 			this.say(TALK.heavenfallShopWarn || [{ speaker: "none", text: "You revived Heavenfall, who knows what other horrors you are capable of." }]);
 		}
-		if (keep === "dray" && this.reputation < 0 && !this.drayKnifeOffered) {
+		if (keep === "dray" && this.reputation < 0 && !this.bag.bowieKnife) {
+			// Complete the offer dialogue before opening Dray's one-item knife shop.
 			this.drayKnifeOffered = true;
-			this.say(TALK.drayKnifeOffer || [{ speaker: "dray", text: "I've heard of your reputation. Can I interest you in a knife? Sickos like you sometimes prefer up close and personal action." }]);
+			this.say(TALK.drayKnifeOffer || [{ speaker: "dray", text: "I've heard of your reputation. Can I interest you in a knife? Sickos like you sometimes prefer up close and personal action." }], "drayKnifeShop");
+			return;
 		}
 		this.mode = "shop";
 		this.shopKeep = keep;
@@ -1997,8 +2006,7 @@ export class CryMon {
 		if (this.input.pressed("Digit5")) this.cycleParty(4);
 		if (this.input.pressed("Digit6")) this.cycleParty(5);
 		if (this.talkLock <= 0 && this.input.confirm()) this.interact();
-		if (this.input.cancel()) this.cycleParty();
-	}
+		if (this.input.cancel()) this.cycleParty();	}
 	blocked(x, y) {
 		if (this.devPassAll) return false;
 		const r = 10;
@@ -2997,8 +3005,7 @@ export class CryMon {
 			b.msg = [...lines, `${b.foeName} answers. Choose a guard.`];
 			b.msgI = 0;
 			b.phase = "msg";
-			b.afterMsg = "guard";
-			return;
+			b.afterMsg = "guard";			return;
 		}
 		if (b.phase === "resolve_guard") {
 			const selfTick = this.tickStatus(b.player);
@@ -3997,8 +4004,7 @@ export class CryMon {
 	/** Whether npc (with its currently-matched script step) is a valid
 	 *  Backstab target: a roamable wsoldier trainer that hasn't spotted
 	 *  the player yet (no active chase), still fightable, while the
-	 *  player carries the Bowie Knife. */
-	canBackstab(npc, step) {
+	 *  player carries the Bowie Knife. */	canBackstab(npc, step) {
 		if (!this.bag.bowieKnife) return false;
 		if (!step || step.after !== "wsoldier") return false;
 		if (!this.roamableNpc(npc)) return false;
@@ -4997,8 +5003,7 @@ export class CryMon {
 			this.ctx.fillRect(bx + p0 * bw, by, (p1 - p0) * bw, bh);
 			this.ctx.fillStyle = "#e8e4d8";
 			this.ctx.fillRect(bx + b.minigame / 100 * bw - 2, Y(128), 6, Y(18));
-			return;
-		}
+			return;		}
 		this.box(X(6), Y(110), X(228), Y(46));
 		const title = b.phase === "item" ? "ITEMS" : b.phase === "attack" ? "ATTACK" : "GUARD";
 		this.text(title, X(12), Y(114), "#8a8678", FONT);
