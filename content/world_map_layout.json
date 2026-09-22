@@ -1,11 +1,13 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "CryMon overworld map layout",
   "coordinateSystem": {
-    "type": "abstract map grid",
-    "origin": "CRYTOWN=(0,0)",
-    "x": "east/right increases +1",
-    "y": "south/down increases +1"
+    "type": "world-map box coordinates",
+    "origin": "top-left of the rendered world map is (0,0)",
+    "x": "right/east increases +1",
+    "y": "down/south increases +1",
+    "unit": "map pixels at the canonical 10 px per tile scale",
+    "note": "Each map is rendered as a box using its exact tile width/height. No inter-map route is inferred or drawn. Box placement is the reconstruction geometry; warp coordinates remain exact tile coordinates inside each box."
   },
   "playerMarker": {
     "mapId": "veld",
@@ -21,7 +23,11 @@
       ],
       "active": true,
       "width": 14,
-      "height": 11
+      "height": 11,
+      "worldBox": {
+        "x": 500,
+        "y": 0
+      }
     },
     "veld": {
       "label": "CRYTOWN",
@@ -31,7 +37,11 @@
       ],
       "active": true,
       "width": 30,
-      "height": 23
+      "height": 23,
+      "worldBox": {
+        "x": 400,
+        "y": 140
+      }
     },
     "camp": {
       "label": "THE CAMP",
@@ -41,7 +51,11 @@
       ],
       "active": true,
       "width": 16,
-      "height": 10
+      "height": 10,
+      "worldBox": {
+        "x": 0,
+        "y": 430
+      }
     },
     "forest": {
       "label": "THE FOREST",
@@ -51,7 +65,11 @@
       ],
       "active": true,
       "width": 26,
-      "height": 20
+      "height": 20,
+      "worldBox": {
+        "x": 400,
+        "y": 430
+      }
     },
     "cliffs": {
       "label": "THE CLIFFS",
@@ -61,7 +79,11 @@
       ],
       "active": true,
       "width": 18,
-      "height": 12
+      "height": 12,
+      "worldBox": {
+        "x": 700,
+        "y": 140
+      }
     },
     "marsh": {
       "label": "THE MARSH",
@@ -71,7 +93,11 @@
       ],
       "active": true,
       "width": 18,
-      "height": 13
+      "height": 13,
+      "worldBox": {
+        "x": 710,
+        "y": 620
+      }
     },
     "grove": {
       "label": "THE GROVE",
@@ -81,7 +107,11 @@
       ],
       "active": true,
       "width": 26,
-      "height": 21
+      "height": 21,
+      "worldBox": {
+        "x": 400,
+        "y": 690
+      }
     },
     "quarry": {
       "label": "THE QUARRY",
@@ -91,7 +121,11 @@
       ],
       "active": true,
       "width": 16,
-      "height": 13
+      "height": 13,
+      "worldBox": {
+        "x": 610,
+        "y": 500
+      }
     },
     "gauntlet1": {
       "label": "GAUNTLET 1",
@@ -101,7 +135,11 @@
       ],
       "active": true,
       "width": 16,
-      "height": 36
+      "height": 36,
+      "worldBox": {
+        "x": 0,
+        "y": 980
+      }
     },
     "ruins": {
       "label": "THE RUINS",
@@ -111,7 +149,11 @@
       ],
       "active": true,
       "width": 20,
-      "height": 13
+      "height": 13,
+      "worldBox": {
+        "x": 400,
+        "y": 980
+      }
     },
     "reach": {
       "label": "THE REACH",
@@ -121,7 +163,11 @@
       ],
       "active": true,
       "width": 20,
-      "height": 16
+      "height": 16,
+      "worldBox": {
+        "x": 400,
+        "y": 1170
+      }
     },
     "gauntlet2": {
       "label": "GAUNTLET 2",
@@ -131,7 +177,11 @@
       ],
       "active": true,
       "width": 16,
-      "height": 36
+      "height": 36,
+      "worldBox": {
+        "x": 0,
+        "y": 1360
+      }
     },
     "gauntlet3": {
       "label": "GAUNTLET 3",
@@ -141,7 +191,11 @@
       ],
       "active": true,
       "width": 16,
-      "height": 36
+      "height": 36,
+      "worldBox": {
+        "x": 0,
+        "y": 1740
+      }
     },
     "gauntlet4": {
       "label": "GAUNTLET 4",
@@ -151,7 +205,11 @@
       ],
       "active": true,
       "width": 16,
-      "height": 36
+      "height": 36,
+      "worldBox": {
+        "x": 0,
+        "y": 2120
+      }
     },
     "gauntlet5": {
       "label": "GAUNTLET 5",
@@ -161,7 +219,11 @@
       ],
       "active": true,
       "width": 16,
-      "height": 36
+      "height": 36,
+      "worldBox": {
+        "x": 0,
+        "y": 2500
+      }
     },
     "gauntlet6": {
       "label": "THE GRAVE",
@@ -171,7 +233,11 @@
       ],
       "active": true,
       "width": 16,
-      "height": 20
+      "height": 20,
+      "worldBox": {
+        "x": 0,
+        "y": 2880
+      }
     },
     "gauntlet": {
       "label": "GAUNTLET 1 (legacy duplicate)",
@@ -431,5 +497,87 @@
     "Grid coordinates are a world-map reconstruction layer, not runtime pixel coordinates.",
     "Connection records retain the exact source/destination tile marks and their 0-based tile coordinates from the canonical map arrays.",
     "The legacy `gauntlet` map is retained in mapOrder but has no active warp connection; gauntlet1 through gauntlet6 are the active chain."
-  ]
+  ],
+  "worldMap": {
+    "scalePxPerTile": 10,
+    "boxes": {
+      "house": {
+        "x": 500,
+        "y": 0
+      },
+      "veld": {
+        "x": 400,
+        "y": 140
+      },
+      "camp": {
+        "x": 0,
+        "y": 430
+      },
+      "forest": {
+        "x": 400,
+        "y": 430
+      },
+      "cliffs": {
+        "x": 700,
+        "y": 140
+      },
+      "marsh": {
+        "x": 710,
+        "y": 620
+      },
+      "grove": {
+        "x": 400,
+        "y": 690
+      },
+      "quarry": {
+        "x": 610,
+        "y": 500
+      },
+      "gauntlet1": {
+        "x": 0,
+        "y": 980
+      },
+      "ruins": {
+        "x": 400,
+        "y": 980
+      },
+      "reach": {
+        "x": 400,
+        "y": 1170
+      },
+      "gauntlet2": {
+        "x": 0,
+        "y": 1360
+      },
+      "gauntlet3": {
+        "x": 0,
+        "y": 1740
+      },
+      "gauntlet4": {
+        "x": 0,
+        "y": 2120
+      },
+      "gauntlet5": {
+        "x": 0,
+        "y": 2500
+      },
+      "gauntlet6": {
+        "x": 0,
+        "y": 2880
+      }
+    },
+    "placementBasis": [
+      "CRYTOWN's camp warp is at x=8,y=20, placing THE CAMP in the lower-left relationship to CRYTOWN.",
+      "CRYTOWN's forest warp is at x=14,y=22, placing THE FOREST directly below CRYTOWN.",
+      "CRYTOWN's cliffs warp is at x=28,y=11, placing THE CLIFFS on CRYTOWN's right side.",
+      "Subsequent boxes follow the exact source warp side/position: forest→grove and grove→ruins/reach continue downward; forest→marsh branches right; cliffs→quarry branches downward-left; grove→gauntlet1 branches left.",
+      "The gauntlet maps form a strict vertical chain."
+    ],
+    "renderRules": [
+      "Render every active map as a rectangular box using exact width and height.",
+      "Render the exact warp tile as a small gate marker inside each box.",
+      "Do not draw roads, connecting lines, arrows, or other inferred terrain between boxes.",
+      "The current location is shown by a red border around the CRYTOWN box, not by a dot."
+    ]
+  }
 }
