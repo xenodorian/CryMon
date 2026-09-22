@@ -1,0 +1,55 @@
+	isFightAfter(after: string | undefined | null): boolean {
+		if (!after) return false;
+		return (
+			after === "wsoldier" ||
+			after === "calder" ||
+			after === "soldier" ||
+			after === "cathleen" ||
+			after === "shinigami" ||
+			after === "mason" ||
+			after === "mason2"
+		);
+	}
+	npcOnWarpGate(npc): boolean {
+		const marks = this.npcMarks(npc);
+		if (!marks.length) return false;
+		const mapId = npc.map;
+		return WARPS.some((w) => w.from === mapId && marks.includes(w.tile));
+	}
+	canBackstab(npc, step) {
+		if (!(this.bag.bowieKnife > 0)) return false;
+		if (!step || !this.isFightAfter(step.after)) return false;
+		if (this.npcIsExecuted(npc.id)) return false;
+		if (this.npcOnWarpGate(npc)) return false;
+		if (this.roamableNpc(npc)) {
+			const r = this.ensureRoamer(npc);
+			if (r.chase) return false;
+			if (this.roamerLos(r.x, r.y, r.dir)) return false;
+		}
+		return true;
+	}
+	openBackstabChoice(npc, step) {
+		const kitKey =
+			step.pending ||
+			(step.after === "calder"
+				? "calder"
+				: step.after === "shinigami"
+					? "shinigami"
+					: step.after === "cathleen"
+						? "cathleen"
+						: step.after === "mason" || step.after === "mason2"
+							? "mason"
+							: step.pending);
+		const kit = kitKey ? TRAINERS[kitKey] : null;
+		const levels = kit ? (kit.lead?.[1] || 0) + (kit.bench || []).reduce((s, b) => s + (b[1] || 0), 0) : 1;
+		this.pendingBackstab = {
+			npc,
+			pending: step.pending || kitKey || "",
+			after: step.after || "",
+			talk: step.talk,
+			levels,
+		};
+		this.backstabCur = 0;
+		this.mode = "backstab";
+		this.audio.ui();
+	}

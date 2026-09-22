@@ -1,0 +1,19 @@
+		const after = pb.after || "wsoldier";
+		const pending = pb.pending || "";
+		if (after === "calder") this.markExecuted("calder", null);
+		else if (after === "soldier") this.markExecuted("soldier", pending || this.pendingSoldier);
+		else if (after === "cathleen") {
+			this.beatCathleen = true;
+			this.cathleenCaught = true;
+		} else if (after === "shinigami") this.beatShinigami = true;
+		else if (after === "mason" || after === "mason2") this.foughtMason = true;
+		else this.markExecuted("wsoldier", pending);
+		const kit = TRAINERS[pending] || (after === "calder" ? TRAINERS.calder : undefined);
+		if (kit?.grant) {
+			for (const [iid, qty] of kit.grant) {
+				this.bag[iid] = (this.bag[iid] ?? 0) + qty;
+			}
+		}
+		if (after === "calder") this.beatCalder = true;
+		else this.applyWsBeatFlags(pending);
+		if (pb.npc?.id && this.roamers[pb.npc.id]) this.roamers[pb.npc.id].chase = false;
