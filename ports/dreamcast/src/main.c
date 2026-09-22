@@ -1203,113 +1203,6 @@ static const u16 *const SHINIGAMIBOULDER_FRAMES[4] = { npc_shinigamiBoulder_1, n
    and only ever appears via his portrait (SPK_FATHER), never placed as
    a WorldSprite. */
 
-static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
-                          int mason_state, float mason_x, float mason_y, int mason_dir, int mason_frame,
-                          int anne_state, float anne_x, float anne_y, int anne_dir, int anne_frame,
-                          int cath_caught, int beat_shin, int saw_shinigami_rock,
-                          const Soldier *soldiers, const int *soldier_beaten,
-                          int beat_calder, int has_scroll) {
-    if(map_id == MAP_VELD) {
-        ws_push_mark_idle(list, n, map_id, 'K', WREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'I', MAE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'V', IVO_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'A', NELL_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'Q', PIKE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'J', BRAM_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        /* Calder and the Priestess guard the only walkable approach to
-           their gates -- once beaten (any mercy outcome; execute hides
-           them entirely via g_executed_mask, same as every other NPC),
-           they step aside one tile instead of lingering exactly on the
-           spot they used to block. Offsets are hand-picked open ground
-           next to each gate (see maps.json's VELD rows around 'E'/'4'
-           -- Calder steps south, the Priestess steps southeast onto
-           the open tile beside the gauntlet door). Matches engine.ts's
-           npcPassOffset(). */
-        ws_push_mark_idle_off(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H,
-                               0, beat_calder ? TILE : 0);
-        ws_push_mark_idle_off(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H,
-                               has_scroll ? TILE : 0, has_scroll ? TILE : 0);
-        /* PLACEHOLDER_ART: no real boulder art exists yet, see
-           public/sprites/npc/shinigamiBoulder-*.png and CURRENT_WORK.md.
-           Seals the west gate until the rock-shatter event actually
-           plays (saw_shinigami_rock), not merely until Shinigami is
-           beaten -- he still has to walk into view first (see the
-           beat_shin && !saw_shinigami_rock trigger below). His own
-           sprite (mark '9', below) appears for that whole window. */
-        if(!saw_shinigami_rock)
-            ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMIBOULDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        if(beat_shin && !saw_shinigami_rock)
-            ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
-        if(mason_state) {
-            ws_push_walker(list, n, MASON_FRAMES, mason_x, mason_y, mason_dir, mason_frame);
-            if(*n > 0) list[*n - 1].scale = SPR_SCALE_MASON;
-        }
-    }
-    else if(map_id == MAP_FOREST) {
-        int i;
-        for(i = 0; i < 3; i++) {
-            if(soldier_beaten[i]) continue;
-            ws_push_walker(list, n, SOLDIER_FRAMES, soldiers[i].x, soldiers[i].y, soldiers[i].dir,
-                            (int)soldiers[i].anim);
-        }
-        ws_push_mark_idle(list, n, map_id, '4', RANGER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, '5', SCOUT_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-    }
-    else if(map_id == MAP_GROVE) {
-        if(!beat_shin)
-            ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
-        if(!cath_caught)
-            ws_push_mark(list, n, map_id, '8', npc_cathleen, CATHLEEN_WORLD_W, CATHLEEN_WORLD_H);
-        ws_push_mark_idle(list, n, map_id, 'K', CROSS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-    }
-    else if(map_id == MAP_CAMP) {
-        ws_push_mark_idle(list, n, map_id, 'I', COMMANDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'K', CONSCRIPT_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'A', ENFORCER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-    }
-    else if(map_id == MAP_CLIFFS) {
-        ws_push_mark_idle(list, n, map_id, 'V', SENTRY_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'Y', TESSA_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        /* Treasure chest: reuses the existing crate prop art rather
-           than needing new placeholder art -- close enough visually
-           (a wooden storage box) that it doesn't need its own tag. */
-        ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
-    }
-    else if(map_id == MAP_RUINS) {
-        ws_push_mark_idle(list, n, map_id, 'J', OREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'K', BIRCH_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, 'A', SABLE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, '6', KEEPER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        ws_push_mark_idle(list, n, map_id, '7', WARDEN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-    }
-    else if(map_id == MAP_QUARRY) {
-        /* Quarry crate/shelf: same reused prop art as the CLIFFS chest
-           above, just placed on their own marks instead of HOUSE's
-           draw_props-only 'C'/'S' (see that function's HOUSE-only
-           note) so they actually draw on this map. */
-        ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
-        ws_push_mark(list, n, map_id, 'S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H);
-    }
-    else if(map_id == MAP_REACH) {
-        /* Shinigami's second appearance, once freed from the Prison --
-           reuses his existing GROVE sprite/frames, same character. He
-           isn't here at all until saw_shinigami_rock (not merely
-           beat_shin -- he's still standing at the boulder in VELD
-           until the rock-shatter event actually plays there; showing
-           him here any earlier would put him in two places at once). */
-        if(saw_shinigami_rock)
-            ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
-    }
-
-    /* Anne isn't tied to one map like the stationary VELD NPCs --
-       her second approach now meets Max wherever she is right after
-       the Cathleen fight (the GROVE, not necessarily VELD), so this
-       is unconditional instead of living inside the MAP_VELD branch
-       above. */
-    if(anne_state)
-        ws_push_walker(list, n, ANNE_FRAMES, anne_x, anne_y, anne_dir, anne_frame);
-}
-
 /* Insertion sort by cy (small n, not worth anything fancier) then
    blit back-to-front: lower feet (larger cy) draw last, i.e. on top,
    matching the usual 2D convention that standing further down the
@@ -4115,6 +4008,196 @@ static int npc_match_step(const NpcDef *d, int **ft, int party_n) {
     return -2;
 }
 
+/* Chase state for a stationary wsoldier-style trainer -- generalizes
+   the hand-written FOREST Soldier[3] patrol/chase to every NPC_DEFS
+   entry whose script leads to a wsoldier battle (mirrors engine.ts's
+   Roamer/roamers). Indexed by NPC_DEFS index, lazily positioned at
+   its mark on first touch; gate-blockers (Calder, the Priestess)
+   never have such a step, so they're excluded automatically. */
+typedef struct {
+    float x, y;
+    int chase, inited;
+} Roamer;
+static Roamer g_roamers[NPC_DEF_N];
+
+static int npc_def_roamable(int i) {
+    const NpcDef *d = &NPC_DEFS[i];
+    int k;
+    for(k = 0; k < d->stepn; k++)
+        if(NPC_STEPS[d->step0 + k].after == NPC_AFTER_WSOLDIER) return 1;
+    return 0;
+}
+
+static void roamer_ensure(int i) {
+    Roamer *r = &g_roamers[i];
+    if(!r->inited) {
+        int cx, cy;
+        mark_center(NPC_DEFS[i].map_id, NPC_DEFS[i].mark, &cx, &cy);
+        r->x = (float)cx;
+        r->y = (float)cy;
+        r->chase = 0;
+        r->inited = 1;
+    }
+}
+
+/* 4-directional line of sight from (x,y) to (ptx,pty) tiles -- mirrors
+   engine.ts's roamerLos(): these NPCs have no walk-cycle art (see
+   collect_npcs()'s idle-only draws), so unlike the FOREST soldiers'
+   single stored facing direction, a stationary guard is assumed to
+   watch every approach from its post instead of one fixed heading. */
+static int roamer_los(int map_id, float x, float y, int ptx, int pty) {
+    int stx = (int)x / TILE, sty = (int)y / TILE;
+    int dx, dy, i, max, tx, ty;
+    if(stx != ptx && sty != pty) return 0;
+    if(stx == ptx && sty == pty) return 1;
+    dx = (stx == ptx) ? 0 : (ptx > stx ? 1 : -1);
+    dy = (sty == pty) ? 0 : (pty > sty ? 1 : -1);
+    max = MAPS[map_id].cols > MAPS[map_id].rows_n ? MAPS[map_id].cols : MAPS[map_id].rows_n;
+    for(i = 1; i <= max; i++) {
+        tx = stx + dx * i;
+        ty = sty + dy * i;
+        if(tile_is_solid(tile_at(map_id, tx, ty))) return 0;
+        if(tx == ptx && ty == pty) return 1;
+    }
+    return 0;
+}
+
+static int npc_def_index_for(int map_id, char mark) {
+    int i;
+    for(i = 0; i < NPC_DEF_N; i++)
+        if(NPC_DEFS[i].map_id == map_id && NPC_DEFS[i].mark == mark) return i;
+    return -1;
+}
+
+/* Same as ws_push_mark_idle, but drawn at a roamer's live chase
+   position instead of its fixed mark once one is tracked -- matches
+   engine.ts's roamer-aware NPC draw loop. Anything not a roamable
+   NpcDef, or one the per-frame update hasn't touched yet this map
+   visit, falls straight through to the plain mark position. */
+static void ws_push_mark_idle_roam(WorldSprite *list, int *n, int map_id, char mark,
+                                    const u16 *const frames[4], u32 frame_count,
+                                    int frames_per_step, int w, int h) {
+    int f = (int)((frame_count / (u32)frames_per_step) % 4u);
+    int idx = npc_def_index_for(map_id, mark);
+    int cx, cy, ebit;
+    ebit = npc_exec_bit(map_id, mark);
+    if(ebit >= 0 && (g_executed_mask & (1u << ebit))) return;
+    if(idx >= 0 && npc_def_roamable(idx) && g_roamers[idx].inited) {
+        cx = (int)g_roamers[idx].x;
+        cy = (int)g_roamers[idx].y;
+    } else {
+        mark_center(map_id, mark, &cx, &cy);
+    }
+    ws_push(list, n, frames[f], w, h, cx, cy);
+}
+
+static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
+                          int mason_state, float mason_x, float mason_y, int mason_dir, int mason_frame,
+                          int anne_state, float anne_x, float anne_y, int anne_dir, int anne_frame,
+                          int cath_caught, int beat_shin, int saw_shinigami_rock,
+                          const Soldier *soldiers, const int *soldier_beaten,
+                          int beat_calder, int has_scroll) {
+    if(map_id == MAP_VELD) {
+        ws_push_mark_idle(list, n, map_id, 'K', WREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, 'I', MAE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, 'V', IVO_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, 'A', NELL_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, 'Q', PIKE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, 'J', BRAM_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        /* Calder and the Priestess guard the only walkable approach to
+           their gates -- once beaten (any mercy outcome; execute hides
+           them entirely via g_executed_mask, same as every other NPC),
+           they step aside one tile instead of lingering exactly on the
+           spot they used to block. Offsets are hand-picked open ground
+           next to each gate (see maps.json's VELD rows around 'E'/'4'
+           -- Calder steps south, the Priestess steps southeast onto
+           the open tile beside the gauntlet door). Matches engine.ts's
+           npcPassOffset(). */
+        ws_push_mark_idle_off(list, n, map_id, 'E', CALDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H,
+                               0, beat_calder ? TILE : 0);
+        ws_push_mark_idle_off(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H,
+                               has_scroll ? TILE : 0, has_scroll ? TILE : 0);
+        /* PLACEHOLDER_ART: no real boulder art exists yet, see
+           public/sprites/npc/shinigamiBoulder-*.png and CURRENT_WORK.md.
+           Seals the west gate until the rock-shatter event actually
+           plays (saw_shinigami_rock), not merely until Shinigami is
+           beaten -- he still has to walk into view first (see the
+           beat_shin && !saw_shinigami_rock trigger below). His own
+           sprite (mark '9', below) appears for that whole window. */
+        if(!saw_shinigami_rock)
+            ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMIBOULDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        if(beat_shin && !saw_shinigami_rock)
+            ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
+        if(mason_state) {
+            ws_push_walker(list, n, MASON_FRAMES, mason_x, mason_y, mason_dir, mason_frame);
+            if(*n > 0) list[*n - 1].scale = SPR_SCALE_MASON;
+        }
+    }
+    else if(map_id == MAP_FOREST) {
+        int i;
+        for(i = 0; i < 3; i++) {
+            if(soldier_beaten[i]) continue;
+            ws_push_walker(list, n, SOLDIER_FRAMES, soldiers[i].x, soldiers[i].y, soldiers[i].dir,
+                            (int)soldiers[i].anim);
+        }
+        ws_push_mark_idle_roam(list, n, map_id, '4', RANGER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle_roam(list, n, map_id, '5', SCOUT_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+    }
+    else if(map_id == MAP_GROVE) {
+        if(!beat_shin)
+            ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
+        if(!cath_caught)
+            ws_push_mark(list, n, map_id, '8', npc_cathleen, CATHLEEN_WORLD_W, CATHLEEN_WORLD_H);
+        ws_push_mark_idle_roam(list, n, map_id, 'K', CROSS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+    }
+    else if(map_id == MAP_CAMP) {
+        ws_push_mark_idle(list, n, map_id, 'I', COMMANDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle_roam(list, n, map_id, 'K', CONSCRIPT_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle_roam(list, n, map_id, 'A', ENFORCER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+    }
+    else if(map_id == MAP_CLIFFS) {
+        ws_push_mark_idle_roam(list, n, map_id, 'V', SENTRY_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, 'Y', TESSA_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        /* Treasure chest: reuses the existing crate prop art rather
+           than needing new placeholder art -- close enough visually
+           (a wooden storage box) that it doesn't need its own tag. */
+        ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
+    }
+    else if(map_id == MAP_RUINS) {
+        ws_push_mark_idle(list, n, map_id, 'J', OREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, 'K', BIRCH_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle(list, n, map_id, 'A', SABLE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle_roam(list, n, map_id, '6', KEEPER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        ws_push_mark_idle_roam(list, n, map_id, '7', WARDEN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+    }
+    else if(map_id == MAP_QUARRY) {
+        /* Quarry crate/shelf: same reused prop art as the CLIFFS chest
+           above, just placed on their own marks instead of HOUSE's
+           draw_props-only 'C'/'S' (see that function's HOUSE-only
+           note) so they actually draw on this map. */
+        ws_push_mark(list, n, map_id, 'C', prop_crate, PROP_CRATE_W, PROP_CRATE_H);
+        ws_push_mark(list, n, map_id, 'S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H);
+    }
+    else if(map_id == MAP_REACH) {
+        /* Shinigami's second appearance, once freed from the Prison --
+           reuses his existing GROVE sprite/frames, same character. He
+           isn't here at all until saw_shinigami_rock (not merely
+           beat_shin -- he's still standing at the boulder in VELD
+           until the rock-shatter event actually plays there; showing
+           him here any earlier would put him in two places at once). */
+        if(saw_shinigami_rock)
+            ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
+    }
+
+    /* Anne isn't tied to one map like the stationary VELD NPCs --
+       her second approach now meets Max wherever she is right after
+       the Cathleen fight (the GROVE, not necessarily VELD), so this
+       is unconditional instead of living inside the MAP_VELD branch
+       above. */
+    if(anne_state)
+        ws_push_walker(list, n, ANNE_FRAMES, anne_x, anne_y, anne_dir, anne_frame);
+}
+
 typedef struct {
     int map_id, px, py, party_n;
     int **ft;
@@ -4312,6 +4395,23 @@ static int mark_hit(int map_id, char mark, int cx, int cy, int r2) {
     return dx * dx + dy * dy <= r2;
 }
 
+/* Drop-in for mark_hit() that follows a roaming trainer to its live
+   chase position instead of its fixed mark, and isn't solid at all
+   while mid-chase (it catches the player by proximity, not by
+   blocking their tile -- same as the FOREST soldiers just above).
+   Any mark that isn't a roamable NpcDef (or hasn't been touched by
+   update_roamers() yet) falls straight through to plain mark_hit(). */
+static int roamer_hit(int map_id, char mark, int cx, int cy, int r2) {
+    int idx = npc_def_index_for(map_id, mark);
+    int dx, dy;
+    if(idx < 0 || !npc_def_roamable(idx) || !g_roamers[idx].inited)
+        return mark_hit(map_id, mark, cx, cy, r2);
+    if(g_roamers[idx].chase) return 0;
+    dx = cx - (int)g_roamers[idx].x;
+    dy = cy - (int)g_roamers[idx].y;
+    return dx * dx + dy * dy <= r2;
+}
+
 static int actor_blocks(int map_id, int cx, int cy,
                          int mason_state, float mason_x, float mason_y,
                          int anne_state, float anne_x, float anne_y,
@@ -4331,10 +4431,11 @@ static int actor_blocks(int map_id, int cx, int cy,
         }
         if(mark_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
         if(mark_hit(map_id, 'I', cx, cy, HIT_R2)) return 1;
-        if(mark_hit(map_id, 'V', cx, cy, HIT_R2)) return 1;
+        if(roamer_hit(map_id, 'V', cx, cy, HIT_R2)) return 1;
         if(mark_hit(map_id, 'A', cx, cy, HIT_R2)) return 1;
         if(mark_hit(map_id, 'Q', cx, cy, HIT_R2)) return 1;
         if(mark_hit(map_id, 'J', cx, cy, HIT_R2)) return 1;
+        if(roamer_hit(map_id, 'S', cx, cy, HIT_R2)) return 1;
         /* Calder and the Heavenfall Priestess stand directly in the
            only walkable approach to their gates (east/south) -- see
            the wall edits around VELD marks 'E'/'4' in maps.json. Each
@@ -4360,15 +4461,15 @@ static int actor_blocks(int map_id, int cx, int cy,
     else if(map_id == MAP_GROVE) {
         if(!beat_shin && mark_hit(map_id, '9', cx, cy, HIT_R2)) return 1;
         if(!cath_caught && mark_hit(map_id, '8', cx, cy, HIT_R2)) return 1;
-        if(mark_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
+        if(roamer_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
     }
     else if(map_id == MAP_CAMP) {
         if(mark_hit(map_id, 'I', cx, cy, HIT_R2)) return 1;
-        if(mark_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
-        if(mark_hit(map_id, 'A', cx, cy, HIT_R2)) return 1;
+        if(roamer_hit(map_id, 'K', cx, cy, HIT_R2)) return 1;
+        if(roamer_hit(map_id, 'A', cx, cy, HIT_R2)) return 1;
     }
     else if(map_id == MAP_CLIFFS) {
-        if(mark_hit(map_id, 'V', cx, cy, HIT_R2)) return 1;
+        if(roamer_hit(map_id, 'V', cx, cy, HIT_R2)) return 1;
         if(mark_hit(map_id, 'Y', cx, cy, HIT_R2)) return 1;
     }
     else if(map_id == MAP_RUINS) {
@@ -6639,6 +6740,73 @@ void main(void) {
                     }
                     if(soldier_los(map_id, s->x, s->y, s->dir, px, py))
                         s->chase = 1;
+                }
+            }
+
+            /* Every other wsoldier trainer (not the 3 FOREST patrol
+               soldiers above): no patrol movement -- see
+               npc_def_roamable()'s doc comment for why (no walk-cycle
+               art) -- just stationary until spotted, then close in and
+               trigger its own battle the same way walking up and
+               talking would (same TALK line via TALK_PTRS/TALK_COUNTS,
+               same npc_pending -> POST_WSOLDIER_* mapping the manual
+               interact path below uses). Matches engine.ts's
+               updateRoamers(). A beaten one (its matched step no
+               longer leads to NPC_AFTER_WSOLDIER) just freezes in
+               place, chase cleared, same as the manual path finding
+               nothing left to fight. */
+            if(!seq_lines) {
+                int i;
+                for(i = 0; i < NPC_DEF_N; i++) {
+                    const NpcDef *d = &NPC_DEFS[i];
+                    int si, ebit;
+                    const NpcStep *st;
+                    Roamer *r;
+                    if(d->map_id != map_id || !npc_def_roamable(i)) continue;
+                    ebit = npc_exec_bit(d->map_id, d->mark);
+                    if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;
+                    si = npc_match_step(d, ft, party_n);
+                    if(si < 0) continue; /* hidden */
+                    st = &NPC_STEPS[si];
+                    if(st->after != NPC_AFTER_WSOLDIER) {
+                        if(g_roamers[i].inited) g_roamers[i].chase = 0;
+                        continue;
+                    }
+                    roamer_ensure(i);
+                    r = &g_roamers[i];
+                    if(r->chase) {
+                        float dx = (float)px - r->x, dy = (float)py - r->y;
+                        float dist = f_sqrt(dx * dx + dy * dy);
+                        if(dist < ACTOR_CHASE_CATCH) {
+                            r->chase = 0;
+                            if(st->talk >= 0 && st->talk < TALK_TABLE_N) {
+                                seq_lines = TALK_PTRS[st->talk];
+                                seq_len = TALK_COUNTS[st->talk];
+                            }
+                            seq_beat = 0;
+                            if(st->pending == NPC_PENDING_CROSS) post_action = POST_WSOLDIER_GROVE;
+                            else if(st->pending == NPC_PENDING_CONSCRIPT) post_action = POST_WSOLDIER_CAMP1;
+                            else if(st->pending == NPC_PENDING_ENFORCER) post_action = POST_WSOLDIER_CAMP2;
+                            else if(st->pending == NPC_PENDING_SENTRY) post_action = POST_WSOLDIER_CLIFFS;
+                            else if(st->pending == NPC_PENDING_FOREST_RANGER) post_action = POST_WSOLDIER_RANGER;
+                            else if(st->pending == NPC_PENDING_FOREST_SCOUT) post_action = POST_WSOLDIER_SCOUT;
+                            else if(st->pending == NPC_PENDING_RUINS_KEEPER) post_action = POST_WSOLDIER_KEEPER;
+                            else if(st->pending == NPC_PENDING_RUINS_WARDEN) post_action = POST_WSOLDIER_WARDEN;
+                            else if(st->pending == NPC_PENDING_QUARTZ) post_action = POST_WSOLDIER_QUARTZ;
+                            else if(st->pending == NPC_PENDING_QUARRY_DRILLER) post_action = POST_WSOLDIER_QUARRY_DRILLER;
+                            else if(st->pending == NPC_PENDING_OPAL) post_action = POST_WSOLDIER_OPAL;
+                            else if(st->pending == NPC_PENDING_MARSH_BOG) post_action = POST_WSOLDIER_MARSH_BOG;
+                            else if(st->pending == NPC_PENDING_MARSH_REED) post_action = POST_WSOLDIER_MARSH_REED;
+                            else if(st->pending == NPC_PENDING_LEAD) post_action = POST_WSOLDIER_LEAD;
+                            break;
+                        }
+                        dx /= dist; dy /= dist;
+                        r->x += dx * ACTOR_SPD_CHASE;
+                        r->y += dy * ACTOR_SPD_CHASE;
+                        continue;
+                    }
+                    if(roamer_los(map_id, r->x, r->y, px / TILE, py / TILE))
+                        r->chase = 1;
                 }
             }
 

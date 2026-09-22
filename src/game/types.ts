@@ -215,6 +215,18 @@ export interface Soldier {
   bench?: Monster[];
 }
 
+/** Runtime chase state for a stationary wsoldier-style trainer NPC
+ *  (content/world_parts/npcs.json, any script step with after:"wsoldier")
+ *  that isn't a gate-blocker (passIf) -- keyed by npc.id in
+ *  CryMon.roamers. Lazily created at its JSON mark position; x/y only
+ *  move once chase goes true. Not persisted -- resets to its post on
+ *  reset()/reload, matching Soldier's own (also unsaved) x/y. */
+export interface Roamer {
+  x: number;
+  y: number;
+  chase: boolean;
+}
+
 export type RivalPhase = "off" | "approach" | "talk" | "done" | "leave";
 
 export interface RivalState {

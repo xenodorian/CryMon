@@ -72,6 +72,7 @@ import type {
   Mode,
   Monster,
   PartyView,
+  Roamer,
   RivalState,
   ShopTab,
   Soldier,
@@ -211,6 +212,9 @@ export class CryMon {
 	devPassAll = false;
 	soldiers: Soldier[] = [];
 	pendingSoldier: string | null = null;
+	/** Chase state for stationary wsoldier-style trainers -- see
+	 *  Roamer's own doc comment. Keyed by npc.id, lazily populated. */
+	roamers: Record<string, Roamer> = {};
 	battlesDone = 0;
 	anneGifted = false;
 	cathleenCaught = false;
@@ -461,6 +465,7 @@ export class CryMon {
 		};
 		this.soldiers = [];
 		this.pendingSoldier = null;
+		this.roamers = {};
 		this.doorLock = 0;
 		this.hudFlash = "";
 		this.hudT = 0;
@@ -1934,7 +1939,7 @@ export class CryMon {
 				if (this.rival.y > this.world.y + VIEW_H / 2 + 48) this.rival.phase = "off";
 			}
 		}
-		if (this.updateSoldiers(dt)) {
+		if (this.updateSoldiers(dt) || this.updateRoamers(dt)) {
 			this.world.moving = false;
 			this.world.frame = 0;
 			return;
@@ -2004,8 +2009,13 @@ export class CryMon {
 			if (this.npcHidden(npc, blockFlags)) continue;
 			if (this.npcPassable(npc, blockFlags)) continue;
 			if (this.npcIsExecuted(npc.id)) continue;
+			// A roamer mid-chase isn't solid -- same as FOREST's patrol
+			// soldiers (see the sol.chase check above): it catches the
+			// player by proximity, not by blocking their tile.
+			const roamer = this.roamableNpc(npc) ? this.roamers[npc.id] : null;
+			if (roamer?.chase) continue;
 			for (const mark of this.npcMarks(npc)) {
-				const s = spawnOf(this.map(), mark);
+				const s = roamer ? { x: roamer.x, y: roamer.y } : spawnOf(this.map(), mark);
 				if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 16) return true;
 			}
 		}
@@ -2225,8 +2235,9 @@ export class CryMon {
 			if (this.npcIsExecuted(npc.id)) continue;
 			if (!matchNpcScript(npc.script, flags)) continue;
 			const [poX, poY] = this.npcPassOffset(npc, flags);
+			const roamer = this.roamableNpc(npc) ? this.roamers[npc.id] : null;
 			for (const mark of this.npcMarks(npc)) {
-				const s = spawnOf(map, mark);
+				const s = roamer ? { x: roamer.x, y: roamer.y } : spawnOf(map, mark);
 				s.x += poX;
 				s.y += poY;
 				// Box test against the target's own footprint (npc.w/h,
@@ -2535,6 +2546,98 @@ export class CryMon {
 			}
 			if (this.soldierLos(sol)) {
 				sol.chase = true;
+				chasing = true;
+				this.audio.ui();
+			}
+		}
+		return chasing;
+	}
+	/** Any NPC whose script leads to a wsoldier battle is a roaming
+	 *  hostile once beaten it just stops (matchNpcScript() picks a
+	 *  different, no-battle step) -- gate-blockers (Calder, the
+	 *  Priestess) never have this step at all, so they're excluded
+	 *  automatically, no separate passIf check needed here. */
+	roamableNpc(npc) {
+		return !!npc.script?.some((s) => s.after === "wsoldier");
+	}
+	ensureRoamer(npc): Roamer {
+		let r = this.roamers[npc.id];
+		if (!r) {
+			const mark = this.npcMarks(npc)[0];
+			const s = mark ? spawnOf(this.map(), mark) : { x: 0, y: 0 };
+			r = { x: s.x, y: s.y, chase: false };
+			this.roamers[npc.id] = r;
+		}
+		return r;
+	}
+	/** These trainers have no walk-cycle art (content/sprites.json's
+	 *  `walkers` list is just max/mason/anne/soldier/shinigami), so
+	 *  unlike soldierLos() there's no single stored facing direction
+	 *  to raycast along -- a stationary guard is assumed to watch
+	 *  every approach from its post instead of one fixed heading:
+	 *  true only when the player shares its row or column with a
+	 *  clear (non-solid) line between them. */
+	roamerLos(x, y) {
+		const stx = Math.floor(x / TILE);
+		const sty = Math.floor(y / TILE);
+		const ptx = Math.floor(this.world.x / TILE);
+		const pty = Math.floor(this.world.y / TILE);
+		if (stx !== ptx && sty !== pty) return false;
+		if (stx === ptx && sty === pty) return true;
+		const dx = stx === ptx ? 0 : (ptx > stx ? 1 : -1);
+		const dy = sty === pty ? 0 : (pty > sty ? 1 : -1);
+		const map = this.map();
+		const max = Math.max(map[0]?.length ?? 0, map.length);
+		for (let i = 1; i <= max; i++) {
+			const tx = stx + dx * i;
+			const ty = sty + dy * i;
+			const row = map[ty];
+			if (!row || tx < 0 || tx >= row.length) return false;
+			const ch = row[tx] ?? "#";
+			if (solidTile(ch)) return false;
+			if (tx === ptx && ty === pty) return true;
+		}
+		return false;
+	}
+	/** Generalizes updateSoldiers() to every non-gate-blocking wsoldier
+	 *  trainer across every map instead of hardcoding the 3 FOREST
+	 *  patrol soldiers. Stationary until it spots the player (no
+	 *  patrol movement -- these NPCs never had any to begin with),
+	 *  then closes in and triggers its own battle the same way a
+	 *  manual walk-up-and-talk would (same TALK line, same
+	 *  pendingWs/"wsoldier" handoff). */
+	updateRoamers(dt) {
+		const flags = this.npcFlags();
+		let chasing = false;
+		for (const npc of NPCS) {
+			if (npc.map !== this.world.mapId || !this.roamableNpc(npc)) continue;
+			if (this.npcHidden(npc, flags) || this.npcIsExecuted(npc.id)) continue;
+			const step = matchNpcScript(npc.script, flags);
+			const canFight = step?.after === "wsoldier";
+			const r = this.ensureRoamer(npc);
+			if (!canFight) {
+				r.chase = false;
+				continue;
+			}
+			if (r.chase) {
+				chasing = true;
+				const dx = this.world.x - r.x;
+				const dy = this.world.y - r.y;
+				const dist = Math.hypot(dx, dy) || 1;
+				if (dist < 36) {
+					r.chase = false;
+					this.pendingWs = step?.pending ?? null;
+					this.say(TALK[step?.talk ?? npc.talk] || TALK.soldierSpot, "wsoldier");
+					this.audio.ok();
+					return true;
+				}
+				const sp = 112 * dt;
+				r.x += dx / dist * sp;
+				r.y += dy / dist * sp;
+				continue;
+			}
+			if (this.roamerLos(r.x, r.y)) {
+				r.chase = true;
 				chasing = true;
 				this.audio.ui();
 			}
@@ -4498,8 +4601,9 @@ export class CryMon {
 			if (this.npcHidden(npc, flags)) continue;
 			if (this.npcIsExecuted(npc.id)) continue;
 			const [poX, poY] = this.npcPassOffset(npc, flags);
+			const roamer = this.roamableNpc(npc) ? this.roamers[npc.id] : null;
 			for (const mark of this.npcMarks(npc)) {
-				const s = spawnOf(this.map(), mark);
+				const s = roamer ? { x: roamer.x, y: roamer.y } : spawnOf(this.map(), mark);
 				s.x += poX;
 				s.y += poY;
 				const base = String(npc.sprite).includes("/")
