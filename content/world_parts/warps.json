@@ -856,6 +856,38 @@
       "spawn": "2",
       "dir": "up",
       "oy": -32
+    },
+    {
+      "from": "chokmah",
+      "tile": "O",
+      "to": "daleth",
+      "spawn": "1",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "daleth",
+      "tile": "1",
+      "to": "chokmah",
+      "spawn": "O",
+      "dir": "right",
+      "ox": 40
+    },
+    {
+      "from": "daleth",
+      "tile": "2",
+      "to": "binah",
+      "spawn": "O",
+      "dir": "left",
+      "ox": -32
+    },
+    {
+      "from": "binah",
+      "tile": "O",
+      "to": "daleth",
+      "spawn": "2",
+      "dir": "right",
+      "ox": 40
     }
   ]
 }

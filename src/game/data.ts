@@ -148,6 +148,8 @@ export const HE = normalize(raw.he);
 
 export const VAU = normalize(raw.vau);
 
+export const DALETH = normalize(raw.daleth);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -194,6 +196,7 @@ export const MAPS = {
   chokmah: CHOKMAH,
   he: HE,
   vau: VAU,
+  daleth: DALETH,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;
