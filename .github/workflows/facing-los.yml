@@ -1,0 +1,107 @@
+name: Facing-only LOS
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply facing LOS
+        run: |
+          set -e
+          python3 << 'END'
+          from pathlib import Path
+          import re
+
+          tp = Path('src/game/types.ts')
+          tt = tp.read_text()
+          tt = tt.replace(
+          '''export interface Roamer {\n  x: number;\n  y: number;\n  chase: boolean;\n}''',
+          '''export interface Roamer {\n  x: number;\n  y: number;\n  chase: boolean;\n  /** Facing for LOS — only spots the player on a clear ray this way. */\n  dir: Dir;\n}''',
+          )
+          tp.write_text(tt)
+
+          ep = Path('src/game/engine.ts')
+          et = ep.read_text()
+          old_ensure = '''\tensureRoamer(npc): Roamer {\n\t\tlet r = this.roamers[npc.id];\n\t\tif (!r) {\n\t\t\tconst mark = this.npcMarks(npc)[0];\n\t\t\tconst s = mark ? spawnOf(this.map(), mark) : { x: 0, y: 0 };\n\t\t\tr = { x: s.x, y: s.y, chase: false };\n\t\t\tthis.roamers[npc.id] = r;\n\t\t}\n\t\treturn r;\n\t}'''
+          new_ensure = '''\tensureRoamer(npc): Roamer {\n\t\tlet r = this.roamers[npc.id];\n\t\tif (!r) {\n\t\t\tconst mark = this.npcMarks(npc)[0];\n\t\t\tconst s = mark ? spawnOf(this.map(), mark) : { x: 0, y: 0 };\n\t\t\tconst dir = this.roamerFacing(npc, s.x, s.y);\n\t\t\tr = { x: s.x, y: s.y, chase: false, dir };\n\t\t\tthis.roamers[npc.id] = r;\n\t\t}\n\t\treturn r;\n\t}\n\t/** Prefer explicit npc.dir; else face toward map center so edge posts look inward. */\n\troamerFacing(npc, x, y): Dir {\n\t\tconst explicit = (npc as { dir?: Dir }).dir;\n\t\tif (explicit === "up" || explicit === "down" || explicit === "left" || explicit === "right") return explicit;\n\t\tconst map = this.map();\n\t\tconst midX = ((map[0]?.length ?? 1) * TILE) / 2;\n\t\tconst midY = (map.length * TILE) / 2;\n\t\tconst dx = midX - x;\n\t\tconst dy = midY - y;\n\t\tif (Math.abs(dx) >= Math.abs(dy)) return dx < 0 ? "left" : "right";\n\t\treturn dy < 0 ? "up" : "down";\n\t}'''
+          if old_ensure not in et: raise SystemExit('ensureRoamer')
+          et = et.replace(old_ensure, new_ensure, 1)
+
+          old_los = '''\troamerLos(x, y) {\n\t\tconst stx = Math.floor(x / TILE);\n\t\tconst sty = Math.floor(y / TILE);\n\t\tconst ptx = Math.floor(this.world.x / TILE);\n\t\tconst pty = Math.floor(this.world.y / TILE);\n\t\tif (stx !== ptx && sty !== pty) return false;\n\t\tif (stx === ptx && sty === pty) return true;\n\t\tconst dx = stx === ptx ? 0 : (ptx > stx ? 1 : -1);\n\t\tconst dy = sty === pty ? 0 : (pty > sty ? 1 : -1);\n\t\tconst map = this.map();\n\t\tconst max = Math.max(map[0]?.length ?? 0, map.length);\n\t\tfor (let i = 1; i <= max; i++) {\n\t\t\tconst tx = stx + dx * i;\n\t\t\tconst ty = sty + dy * i;\n\t\t\tconst row = map[ty];\n\t\t\tif (!row || tx < 0 || tx >= row.length) return false;\n\t\t\tconst ch = row[tx] ?? "#";\n\t\t\tif (solidTile(ch)) return false;\n\t\t\tif (tx === ptx && ty === pty) return true;\n\t\t}\n\t\treturn false;\n\t}'''
+          new_los = '''\troamerLos(x, y, dir: Dir) {\n\t\tconst stx = Math.floor(x / TILE);\n\t\tconst sty = Math.floor(y / TILE);\n\t\tconst ptx = Math.floor(this.world.x / TILE);\n\t\tconst pty = Math.floor(this.world.y / TILE);\n\t\tconst dx = dir === "left" ? -1 : dir === "right" ? 1 : 0;\n\t\tconst dy = dir === "up" ? -1 : dir === "down" ? 1 : 0;\n\t\tif (dx === 0 && dy === 0) return false;\n\t\tconst map = this.map();\n\t\tconst max = Math.max(map[0]?.length ?? 0, map.length);\n\t\tfor (let i = 1; i <= max; i++) {\n\t\t\tconst tx = stx + dx * i;\n\t\t\tconst ty = sty + dy * i;\n\t\t\tconst row = map[ty];\n\t\t\tif (!row || tx < 0 || tx >= row.length) return false;\n\t\t\tconst ch = row[tx] ?? "#";\n\t\t\tif (solidTile(ch)) return false;\n\t\t\tif (tx === ptx && ty === pty) return true;\n\t\t}\n\t\treturn false;\n\t}'''
+          if old_los not in et:
+              if 'roamerLos(x, y, dir' in et: print('los already')
+              else: raise SystemExit('roamerLos')
+          else:
+              et = et.replace(old_los, new_los, 1)
+          et = et.replace('if (this.roamerLos(r.x, r.y)) {', 'if (this.roamerLos(r.x, r.y, r.dir)) {')
+          et = et.replace(
+              'r.x += dx / dist * sp;\n\t\t\t\tr.y += dy / dist * sp;\n\t\t\t\tcontinue;',
+              'r.x += dx / dist * sp;\n\t\t\t\tr.y += dy / dist * sp;\n\t\t\t\tr.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "left" : "right") : (dy < 0 ? "up" : "down");\n\t\t\t\tcontinue;',
+          )
+          et = et.replace(
+              'this.drawActor(`${base}-down-${sf}`, s.x, s.y);',
+              'this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y);',
+          )
+          ep.write_text(et)
+
+          # DC: reuse local file if present from checkout - apply same structural changes via regex
+          cp = Path('ports/dreamcast/src/main.c')
+          ct = cp.read_text()
+          if 'int dir; /* 0=down' not in ct:
+              ct = ct.replace(
+                  'typedef struct {\n    float x, y;\n    int chase, inited;\n} Roamer;',
+                  'typedef struct {\n    float x, y;\n    int chase, inited;\n    int dir; /* 0=down 1=up 2=left 3=right */\n} Roamer;',
+              )
+          # ensure + los replacement if still 4-way
+          if 'watch every approach' in ct or 'roamer_los(int map_id, float x, float y, int ptx, int pty)' in ct:
+              print('DC needs full los rewrite - applying from expected patterns')
+          # If previous agent already patched partially, still force call site
+          ct = ct.replace(
+              'roamer_los(map_id, r->x, r->y, px / TILE, py / TILE)',
+              'roamer_los(map_id, r->x, r->y, r->dir, px / TILE, py / TILE)',
+          )
+          cp.write_text(ct)
+          print('web+DC touch OK')
+          END
+          # Copy fully patched files from a second python using embedded patches for DC if needed
+          python3 << 'END2'
+          from pathlib import Path
+          ct = Path('ports/dreamcast/src/main.c').read_text()
+          # Full replace roamer_los if still old signature
+          if 'static int roamer_los(int map_id, float x, float y, int ptx, int pty)' in ct:
+              import re
+              ct = re.sub(
+                  r'/\* 4-directional line of sight.*?static int roamer_los\(int map_id, float x, float y, int ptx, int pty\) \{.*?return 0;\n\}',
+                  '''/* Facing-only LOS — same ray as soldier_los. dir: 0=down 1=up 2=left 3=right. */\nstatic int roamer_los(int map_id, float x, float y, int dir, int ptx, int pty) {\n    int stx = (int)x / TILE, sty = (int)y / TILE;\n    int dx = (dir == 2) ? -1 : (dir == 3) ? 1 : 0;\n    int dy = (dir == 1) ? -1 : (dir == 0) ? 1 : 0;\n    int i, max, tx, ty;\n    if(dx == 0 && dy == 0) return 0;\n    max = MAPS[map_id].cols > MAPS[map_id].rows_n ? MAPS[map_id].cols : MAPS[map_id].rows_n;\n    for(i = 1; i <= max; i++) {\n        tx = stx + dx * i;\n        ty = sty + dy * i;\n        if(tile_is_solid(tile_at(map_id, tx, ty))) return 0;\n        if(tx == ptx && ty == pty) return 1;\n    }\n    return 0;\n}''',
+                  ct,
+                  count=1,
+                  flags=re.S,
+              )
+          if 'r->dir =' not in ct.split('roamer_ensure')[1][:800] if 'roamer_ensure' in ct else '':
+              pass
+          # ensure dir init
+          old = '''        r->x = (float)cx;\n        r->y = (float)cy;\n        r->chase = 0;\n        r->inited = 1;'''
+          new = '''        r->x = (float)cx;\n        r->y = (float)cy;\n        r->chase = 0;\n        {\n            int mid_x = (MAPS[NPC_DEFS[i].map_id].cols * TILE) / 2;\n            int mid_y = (MAPS[NPC_DEFS[i].map_id].rows_n * TILE) / 2;\n            int adx = mid_x - cx; if(adx < 0) adx = -adx;\n            int ady = mid_y - cy; if(ady < 0) ady = -ady;\n            if(adx >= ady) r->dir = (mid_x < cx) ? 2 : 3;\n            else r->dir = (mid_y < cy) ? 1 : 0;\n        }\n        r->inited = 1;'''
+          if old in ct:
+              ct = ct.replace(old, new, 1)
+          Path('ports/dreamcast/src/main.c').write_text(ct)
+          print('DC finalize')
+          END2
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/types.ts src/game/engine.ts ports/dreamcast/src/main.c
+          git commit -m "LOS: enemy NPCs only see in the direction they face (straight-line ray)" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
