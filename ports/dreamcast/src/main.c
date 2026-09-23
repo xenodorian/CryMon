@@ -4675,6 +4675,16 @@ static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int dray_kn
             rows[n++] = i;
         }
     }
+    /* Bowie Knife (item 19) at top of Dray's buy list when present. */
+    if(!sell_tab && n > 1) {
+        int j, knife = -1;
+        for(j = 0; j < n; j++) if(rows[j] == 19) { knife = j; break; }
+        if(knife > 0) {
+            int tmp = rows[knife];
+            for(j = knife; j > 0; j--) rows[j] = rows[j - 1];
+            rows[0] = tmp;
+        }
+    }
     return n;
 }
 

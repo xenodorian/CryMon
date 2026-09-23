@@ -1332,7 +1332,7 @@ export class CryMon {
 	shopCatalog(keeper: string) {
 		const stock = LOGIC.shops?.crystalStock ?? {};
 		const allowed: string[] = stock[keeper] ?? stock.default ?? [];
-		return ITEM_ORDER.filter((id) => {
+		const list = ITEM_ORDER.filter((id) => {
 			if (ITEMS[id].buy <= 0) return false;
 			if (ITEMS[id].effect?.kind === "capture") return allowed.includes(id);
 			// Only Dray sells the Bowie Knife, only after his one-time
@@ -1342,6 +1342,11 @@ export class CryMon {
 			if (id === "bowieKnife") return keeper === "dray" && this.drayKnifeOffered && !this.bag.bowieKnife;
 			return true;
 		});
+		// Bowie Knife always leads Dray's shelf when it is in stock.
+		if (list.includes("bowieKnife")) {
+			return ["bowieKnife", ...list.filter((id) => id !== "bowieKnife")];
+		}
+		return list;
 	}
 	/** 1-10 units of every item this keeper carries. Called on every
 	 *  rest (sleepHeal) for all keepers at once, and lazily the first
