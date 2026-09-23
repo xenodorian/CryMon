@@ -2318,3 +2318,34 @@ every other multi-line TALK array in the game does). Dreamcast
 rebuilt clean from `make clean`, checked directly for `error:` per
 the standing false-green caution.
 
+## Stray brown blob on the Marsh->Quarry warp tile (Claude, 2026-09-23)
+
+User attached a screenshot of a small brown/maroon blob sitting on
+the ground next to Max on the marsh path and asked for it removed.
+Traced it to `paintTile()`'s procedural rendering for tile character
+`X`: `content/maps.json`'s marsh rows use `X` at (17,10) purely as a
+warp tile (`warps.json`: marsh `X` -> quarry) -- but `X`'s *default*
+pixel art everywhere else in the game (veld's cart, cliffs' chest) is
+a crate/chest-shaped blob, drawn safely because a real `drawProp()`
+sprite always covers it there. Marsh has no special-case prop drawn
+over its `X`, so that blob rendered bare in the middle of the path --
+not decorative litter and not safe to delete outright, since `X` is
+the live warp connecting Marsh to Quarry.
+
+Fix: added a marsh-specific override in `paintTile()` (same
+`ch === "X" && this.world.mapId === "..."` pattern already used for
+`F`'s house-only override just above it) so marsh's copy of `X`
+renders as a plain path tile instead -- the same look `=`/`O`/every
+other warp character already gets. The warp itself, its destination,
+and every other map's `X` usage are untouched. Confirmed Dreamcast's
+`draw_tile()` has no `X` case at all and already falls through to
+plain grass by default -- this was web-only, no `main.c` change
+needed.
+
+Verified via Playwright: positioned Max next to marsh's `X` tile
+before and after the fix -- before, a dark reddish-brown blob sits
+beside her matching the user's screenshot pixel-for-pixel; after, a
+plain tan path tile, indistinguishable from the rest of the corridor.
+
+`verify_step.sh` all green; web-only change (`src/game/engine.ts`).
+
