@@ -1,0 +1,112 @@
+name: Father post-revive only
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          import json
+
+          father_npc = {
+            "map": "house",
+            "mark": "B",
+            "id": "father",
+            "role": "talk",
+            "talk": "father",
+            "talkDone": "fatherAlive",
+            "script": [
+              {"hideIf": "revivedFather"},
+              {"if": "tookStarter", "talk": "fatherAfter"},
+              {"set": "talkedFather", "talk": "father"},
+            ],
+          }
+
+          for path in ["content/world.json", "content/world_parts/npcs.json"]:
+              p = Path(path)
+              data = json.loads(p.read_text())
+              npcs = [n for n in data["npcs"] if n.get("id") != "father"]
+              insert_at = 0
+              for i, n in enumerate(npcs):
+                  if n.get("map") == "house":
+                      insert_at = i + 1
+                      break
+              npcs.insert(insert_at, father_npc)
+              data["npcs"] = npcs
+              p.write_text(json.dumps(data, indent=2) + "\n")
+              print(path, "father ok")
+
+          et = Path("src/game/engine.ts").read_text()
+          if '"prop-bed-father"' not in et.split("criticalArtKeys")[1][:500] if "criticalArtKeys" in et else True:
+              et = et.replace(
+                  '"prop-bed-empty", "prop-shelf", "prop-crate"',
+                  '"prop-bed-father", "prop-bed-empty", "prop-shelf", "prop-crate"',
+                  1,
+              )
+          # beds conditional
+          et = et.replace(
+              'this.drawSprite("prop-bed-empty", bed.x - 32, bed.y - 44, 64, 56);\n\t\t\tthis.drawSprite("prop-bed-empty", mine.x - 32, mine.y - 44, 64, 56);',
+              'this.drawSprite(this.revivedFather ? "prop-bed-empty" : "prop-bed-father", bed.x - 32, bed.y - 44, 64, 56);\n\t\t\tthis.drawSprite("prop-bed-empty", mine.x - 32, mine.y - 44, 64, 56);',
+          )
+          et = et.replace(
+              'this.drawProp("prop-bed-empty", bed.x, bed.y + 8, 64, 56);\n\t\t\tthis.drawProp("prop-bed-empty", mine.x, mine.y + 8, 64, 56);',
+              'this.drawProp(this.revivedFather ? "prop-bed-empty" : "prop-bed-father", bed.x, bed.y + 8, 64, 56);\n\t\t\tthis.drawProp("prop-bed-empty", mine.x, mine.y + 8, 64, 56);',
+          )
+          # if already conditional from local, fine
+          if 'revivedFather ? "prop-bed-empty" : "prop-bed-father"' not in et:
+              # try father-only empty both cases from wrong deploy
+              et = et.replace(
+                  'this.drawSprite("prop-bed-father", bed.x - 32, bed.y - 44, 64, 56);',
+                  'this.drawSprite(this.revivedFather ? "prop-bed-empty" : "prop-bed-father", bed.x - 32, bed.y - 44, 64, 56);',
+              )
+              et = et.replace(
+                  'this.drawProp("prop-bed-father", bed.x, bed.y + 8, 64, 56);',
+                  'this.drawProp(this.revivedFather ? "prop-bed-empty" : "prop-bed-father", bed.x, bed.y + 8, 64, 56);',
+              )
+          et = et.replace(
+              "Stand next to the shelf or the crate. Press Z.",
+              "Stand next to Father, the shelf, or the crate. Press Z.",
+          )
+          Path("src/game/engine.ts").write_text(et)
+          print("engine", "conditional" if 'revivedFather ? "prop-bed-empty"' in et else "FAIL")
+
+          mc = Path("ports/dreamcast/src/main.c").read_text()
+          old = '''static void draw_props(int map_id, int cam_x, int cam_y, int looted_crate) {\n    if(map_id != MAP_HOUSE)\n        return;\n    draw_prop('B', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);\n    draw_prop('U', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);'''
+          new = '''static void draw_props(int map_id, int cam_x, int cam_y, int looted_crate, int revived_father) {\n    if(map_id != MAP_HOUSE)\n        return;\n    if(revived_father)\n        draw_prop('B', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);\n    else\n        draw_prop('B', prop_bed_father, PROP_BED_FATHER_W, PROP_BED_FATHER_H, cam_x, cam_y);\n    draw_prop('U', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);'''
+          if old in mc:
+              mc = mc.replace(old, new, 1)
+          elif 'revived_father)' in mc and 'prop_bed_father' in mc:
+              print('dc already')
+          else:
+              # already has extra param from partial?
+              if 'draw_props(int map_id, int cam_x, int cam_y, int looted_crate, int revived_father)' in mc:
+                  print('dc signature ok')
+              else:
+                  raise SystemExit('dc draw_props pattern missing')
+          mc = mc.replace(
+              'draw_props(map_id, cam_x, cam_y, looted_crate);',
+              'draw_props(map_id, cam_x, cam_y, looted_crate, revived_father);',
+          )
+          Path("ports/dreamcast/src/main.c").write_text(mc)
+          print('dc done')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/world.json content/world_parts/npcs.json src/game/engine.ts ports/dreamcast/src/main.c
+          git commit -m "Father interactable until revived; then hide NPC and use empty bed sprite" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
