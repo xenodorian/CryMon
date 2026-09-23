@@ -6934,26 +6934,8 @@ void main(void) {
                 mason_anim = 0.0f;
             }
 
-            /* Shinigami, freed in the Prison, stands beside the boulder
-               blocking CryTown's west gate. No walk-cycle cutscene --
-               he's just already there (VELD mark '9', collect_npcs()
-               above), and the moment the player's viewport reaches him
-               the rock event fires once. The boulder "exploding" is
-               narrated in TALK_SHINIGAMI_ROCK_EVENT's text only; a real
-               particle-burst animation is a marked TODO, not
-               implemented here. Matches engine.ts's maybeShinigamiRock(). */
-            if(map_id == MAP_VELD && beat_shin && !saw_shinigami_rock && !seq_lines) {
-                int sx, sy, ddx, ddy;
-                mark_center(MAP_VELD, '9', &sx, &sy);
-                ddx = sx - px; if(ddx < 0) ddx = -ddx;
-                ddy = sy - py; if(ddy < 0) ddy = -ddy;
-                if(ddx < SCREEN_W / 2 && ddy < SCREEN_H / 2) {
-                    saw_shinigami_rock = 1;
-                    seq_lines = TALK_SHINIGAMI_ROCK_EVENT;
-                    seq_len = TALK_LEN(TALK_SHINIGAMI_ROCK_EVENT);
-                    seq_beat = 0;
-                }
-            }
+            /* Shinigami rock event: only on direct interact with mark '9'
+               (baked shinigamiRock NPC talk), not viewport proximity. */
 
             /* ensureSoldiers(): lazily place the 3 FOREST soldiers at
                their patrol-origin marks the first time the map is

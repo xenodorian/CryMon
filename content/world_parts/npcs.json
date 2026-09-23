@@ -1052,9 +1052,12 @@
       "script": [
         {
           "if": "beatShinigami",
-          "hideIf": "sawShinigamiRock"
+          "hideIf": "sawShinigamiRock",
+          "talk": "shinigamiRockEvent",
+          "set": "sawShinigamiRock"
         }
-      ]
+      ],
+      "talk": "shinigamiRockEvent"
     },
     {
       "map": "veld",
