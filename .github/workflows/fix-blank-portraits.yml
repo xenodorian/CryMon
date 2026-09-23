@@ -1,0 +1,118 @@
+name: Fix blank portraits
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: pip install pillow numpy -q
+      - name: Apply fixes
+        run: |
+          python3 << 'PY'
+          import json, re
+          from pathlib import Path
+          from PIL import Image
+          import numpy as np
+
+          # 1) dialogue: system -> none; improve leadWinPlaceholder
+          dp = Path('content/dialogue.json')
+          d = json.loads(dp.read_text())
+          n = 0
+          def fix(obj):
+              global n
+              if isinstance(obj, dict):
+                  if obj.get('speaker') == 'system':
+                      obj['speaker'] = 'none'
+                      n += 1
+                  for v in obj.values():
+                      fix(v)
+              elif isinstance(obj, list):
+                  for v in obj:
+                      fix(v)
+          fix(d)
+          d['talk']['leadWinPlaceholder'] = [
+              {'speaker': 'none', 'text': 'Lieutenant Lead falls.'},
+              {'speaker': 'none', 'text': 'Thank you for playing.'},
+              {'speaker': 'none', 'text': 'More of the world opens in Leg 3.'},
+          ]
+          dp.write_text(json.dumps(d, indent=2) + '\n')
+          print('system->none', n)
+
+          # 2) sprites.json portraits
+          sp = json.loads(Path('content/sprites.json').read_text())
+          for p in ['quartz', 'opal', 'driller']:
+              if p not in sp['portraits']:
+                  sp['portraits'].append(p)
+          Path('content/sprites.json').write_text(json.dumps(sp, indent=2) + '\n')
+
+          # 3) generate missing portraits from OW
+          def make_portrait(npc_id):
+              frames = []
+              for i in range(1, 5):
+                  p = Path(f'public/sprites/npc/{npc_id}-{i}.png')
+                  if p.exists():
+                      frames.append(Image.open(p).convert('RGBA'))
+              if not frames:
+                  print('skip', npc_id); return
+              def op(im):
+                  a = np.array(im)
+                  return int((a[:, :, 3] > 32).sum())
+              base = max(frames, key=op)
+              W, H = 160, 200
+              canvas = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+              bw, bh = base.size
+              scale = min((W * 0.92) / bw, (H * 0.88) / bh) * 1.15
+              nw, nh = max(1, int(bw * scale)), max(1, int(bh * scale))
+              scaled = base.resize((nw, nh), Image.NEAREST)
+              x = (W - nw) // 2
+              y = H - nh - 8
+              canvas.paste(scaled, (x, y), scaled)
+              a = np.array(canvas)
+              rgb = a[:, :, :3].astype(int)
+              alpha = a[:, :, 3]
+              dark = (rgb.max(axis=2) < 18) & (alpha > 0)
+              a[dark, 3] = 0
+              out = Path(f'public/sprites/portraits/{npc_id}.png')
+              Image.fromarray(a).save(out, 'PNG', optimize=True)
+              print('portrait', npc_id, out.stat().st_size)
+
+          for nid in ['quartz', 'opal', 'driller']:
+              make_portrait(nid)
+
+          # 4) engine.ts drawTalk
+          et = Path('src/game/engine.ts').read_text()
+          old = '''\tdrawTalk() {\n\t\tconst beat = this.beat();\n\t\tif (!beat) return;\n\t\tif (beat.speaker !== "none") {\n\t\t\tthis.drawSprite(`port-${beat.speaker}`, X(-4), Y(6), X(120), Y(150), "top", true);'''
+          new = '''\tdrawTalk() {\n\t\tconst beat = this.beat();\n\t\tif (!beat) return;\n\t\tconst sp = beat.speaker;\n\t\tconst showPort = sp && sp !== "none" && sp !== "system";\n\t\tif (showPort) {\n\t\t\tthis.drawSprite(`port-${sp}`, X(-4), Y(6), X(120), Y(150), "top", true);'''
+          if old not in et:
+              if 'showPort' in et:
+                  print('drawTalk already patched')
+              else:
+                  raise SystemExit('drawTalk pattern missing')
+          else:
+              et = et.replace(old, new, 1)
+              et = et.replace(
+                  '''\t\t\tconst who = beat.speaker === "max" ? this.playerDisplayName() : SPEAKER_NAME[beat.speaker];\n\t\t\tthis.text(who.toUpperCase(), X(118), Y(10), "#c5cec6", FONT);''',
+                  '''\t\t\tconst who = sp === "max" ? this.playerDisplayName() : (SPEAKER_NAME[sp] || sp);\n\t\t\tif (who) this.text(String(who).toUpperCase(), X(118), Y(10), "#c5cec6", FONT);''',
+                  1,
+              )
+              Path('src/game/engine.ts').write_text(et)
+              print('drawTalk patched')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/dialogue.json content/sprites.json src/game/engine.ts public/sprites/portraits/
+          git commit -m "Fix blank talk portraits: system uses no-portrait layout; add quartz/opal/driller ports" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
