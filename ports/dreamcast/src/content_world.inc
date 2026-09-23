@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=796dd1ab543ab121 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=533321c0a82a3d9c — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -463,7 +463,7 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 126, -1, -1, 7, 14, 0, 0, -1 },
     { 34, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 133, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 134, -1, -1, 8, -1, 0, 0, -1 },
-    { 17, -1, 29, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { 17, -1, 29, 29, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 135, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, 29, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
