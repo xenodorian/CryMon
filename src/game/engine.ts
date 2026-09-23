@@ -338,7 +338,7 @@ export class CryMon {
 			"max-down-1", "max-down-2", "max-down-3", "max-down-4",
 			"max-up-1", "max-left-1", "max-right-1",
 			"quillpup-1", "quillpup-2",
-			"prop-bed-empty", "prop-shelf", "prop-crate",
+			"prop-bed-father", "prop-bed-empty", "prop-shelf", "prop-crate",
 			"prop-door", "prop-cart", "prop-stump", "prop-herb", "prop-moonstone",
 		]);
 	}
@@ -1593,7 +1593,7 @@ export class CryMon {
 				this.introI += 1;
 				if (this.introI >= INTRO.length) {
 					this.mode = "world";
-					this.note("Stand next to the shelf or the crate. Press Z.");
+					this.note("Stand next to Father, the shelf, or the crate. Press Z.");
 				}
 			}
 			return;
@@ -4582,7 +4582,7 @@ export class CryMon {
 			const mine = spawnOf(HOUSE, "U");
 			const shelf = spawnOf(HOUSE, "S");
 			const crate = spawnOf(HOUSE, "C");
-			this.drawSprite("prop-bed-empty", bed.x - 32, bed.y - 44, 64, 56);
+			this.drawSprite(this.revivedFather ? "prop-bed-empty" : "prop-bed-father", bed.x - 32, bed.y - 44, 64, 56);
 			this.drawSprite("prop-bed-empty", mine.x - 32, mine.y - 44, 64, 56);
 			this.drawSprite("prop-shelf", shelf.x - 20, shelf.y - 32, 40, 44);
 			this.drawSprite("prop-crate", crate.x - 16, crate.y - 20, 32, 32);
@@ -4902,7 +4902,7 @@ export class CryMon {
 			const mine = spawnOf(HOUSE, "U");
 			const shelf = spawnOf(HOUSE, "S");
 			const crate = spawnOf(HOUSE, "C");
-			this.drawProp("prop-bed-empty", bed.x, bed.y + 8, 64, 56);
+			this.drawProp(this.revivedFather ? "prop-bed-empty" : "prop-bed-father", bed.x, bed.y + 8, 64, 56);
 			this.drawProp("prop-bed-empty", mine.x, mine.y + 8, 64, 56);
 			this.drawProp("prop-shelf", shelf.x, shelf.y + 4, 40, 44);
 			if (!this.lootedCrate) this.drawProp("prop-crate", crate.x, crate.y + 4, 32, 32);

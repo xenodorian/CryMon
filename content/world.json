@@ -1744,6 +1744,27 @@
     },
     {
       "map": "house",
+      "mark": "B",
+      "id": "father",
+      "role": "talk",
+      "talk": "father",
+      "talkDone": "fatherAlive",
+      "script": [
+        {
+          "hideIf": "revivedFather"
+        },
+        {
+          "if": "tookStarter",
+          "talk": "fatherAfter"
+        },
+        {
+          "set": "talkedFather",
+          "talk": "father"
+        }
+      ]
+    },
+    {
+      "map": "house",
       "mark": "U",
       "id": "bed",
       "role": "heal",

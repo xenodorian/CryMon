@@ -1050,10 +1050,13 @@ static void draw_prop(char mark, const u16 *px, int w, int h, int cam_x, int cam
     blit_sprite(px, w, h, cx - cam_x - w / 2, cy - cam_y - h / 2);
 }
 
-static void draw_props(int map_id, int cam_x, int cam_y, int looted_crate) {
+static void draw_props(int map_id, int cam_x, int cam_y, int looted_crate, int revived_father) {
     if(map_id != MAP_HOUSE)
         return;
-    draw_prop('B', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);
+    if(revived_father)
+        draw_prop('B', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);
+    else
+        draw_prop('B', prop_bed_father, PROP_BED_FATHER_W, PROP_BED_FATHER_H, cam_x, cam_y);
     draw_prop('U', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);
     draw_prop('S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H, cam_x, cam_y);
     if(!looted_crate)
@@ -8086,7 +8089,7 @@ void main(void) {
         else {
             compute_camera(map_id, px, py, &cam_x, &cam_y);
             draw_map(map_id, cam_x, cam_y);
-            draw_props(map_id, cam_x, cam_y, looted_crate);
+            draw_props(map_id, cam_x, cam_y, looted_crate, revived_father);
             {
                 WorldSprite ws_list[MAX_WORLD_SPRITES];
                 int ws_n = 0;
