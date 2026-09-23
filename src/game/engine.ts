@@ -4780,6 +4780,20 @@ export class CryMon {
 			fill("#5a7a52", dx + 7, dy + 3, 1, 1);
 			return;
 		}
+		// X's default rendering below is a crate/chest-shaped blob -- fine
+		// everywhere else it's used (veld's cart, cliffs' chest), since a
+		// prop sprite always draws on top of it there. Marsh uses X as a
+		// plain warp tile to Quarry with no prop drawn over it, so that
+		// blob was left sitting bare in the middle of the path. Same
+		// plain path-tile look every other warp character (O, =, etc.)
+		// already gets.
+		if (ch === "X" && this.world.mapId === "marsh") {
+			fill("#6b5a3a");
+			fill("#8a7348", dx + 2, dy + 4, 1, 1);
+			fill("#4a3a28", dx + 9, dy + 11, 1, 1);
+			fill("#8a7348", dx + 13, dy + 6, 1, 1);
+			return;
+		}
 		if (ch === "X") {
 			fill("#3d5a38");
 			fill("#6a4030", dx + 2, dy + 6, 12, 8);
