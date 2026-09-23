@@ -1999,3 +1999,53 @@ mashing A there would -- moving away first is what actually settles
 it, exactly as intended.) `verify_step.sh` all green; web-only, no
 content/Dreamcast changes.
 
+## Button edge-detection fix, take two (Claude, 2026-09-23)
+
+User reported button pressing was broken again: multiple times a
+second the game should check for a press and fire once on detection,
+then refuse to fire again until a release is detected (also polled
+multiple times a second), at which point it's immediately ready to
+fire again -- no wall-clock timer waiting out a fixed delay before
+resetting. Turbo was explicitly exempted (its extra-tap-per-frame
+design is intentional and stays as-is).
+
+- Root cause: `Input.dir()` (`input.ts`), which backs `up()/down()/
+  left()/right()` for menu cursor navigation, still carried a
+  `performance.now()`-based auto-repeat timer (`dirHeldAt`/
+  `dirLastFire`, 55ms initial delay then a 28ms repeat interval) that
+  fired repeatedly for as long as the touch D-pad or a gamepad stick
+  stayed pushed past threshold, rather than requiring a fresh
+  release-then-repress per step. That timer had been made more
+  aggressive by an earlier, unrelated commit tightening virtual-button
+  lag, which is the most likely reason it read as "broken again."
+  Keyboard-driven menu navigation was unaffected (keys already went
+  through plain `pressed()` edge detection) -- the bug's real impact
+  was specifically the on-screen D-pad and gamepad sticks.
+- `confirm()/cancel()/start()/select()` were re-checked and were
+  already correct: keyboard via `pressed()` (true exactly once per
+  press, resets the instant `held` goes false), touch/gamepad via the
+  single-queued-tap model (`queueA()` etc., consumed once per
+  `beginFrame()`/`consumeQueuedFace()`) -- no changes needed there.
+  World movement's `axis()` is intentionally continuous (not a
+  discrete button) and was left alone.
+- Fix: removed the `dirHeldAt`/`dirLastFire` fields and the timer
+  branch from `dir()` entirely. It's now pure edge detection, the same
+  shape as `confirm()`/`cancel()`: `keys.some(pressed) || (active &&
+  !was)` -- fires exactly once when a key is pressed or the axis
+  crosses threshold, stays silent no matter how long it's held, fires
+  again only after going inactive (released) and re-crossing
+  threshold. Same principle as every other button now, everywhere.
+- Confirmed Dreamcast's `main.c` never had this pattern to begin with
+  (grepped for any repeat/held-duration timer logic, zero matches --
+  it's already pure edge detection like `up_now && !prev_up`
+  throughout). Web-only fix, no Dreamcast or content changes.
+- Verified two ways: (1) an isolated unit test dynamically importing
+  the real `Input` class from the Vite dev server inside a Playwright
+  page (no test runner is configured in this repo) -- held touch
+  D-pad input fires exactly once across 30 simulated frames, a
+  release-then-repress fires exactly once more, and a held keyboard
+  arrow key likewise fires exactly once across 30 frames; (2) a real
+  end-to-end smoke test holding the on-screen D-pad button for 0.8s
+  via actual `page.mouse` events against the running UI, confirming
+  no crash and correct single-step behavior. `npx tsc --noEmit` clean.
+

@@ -46,8 +46,6 @@ export class Input {
   private touchPad = { x: 0, y: 0 };
   private prevAxisX = 0;
   private prevAxisY = 0;
-  private dirHeldAt: Record<string, number | null> = { up: null, down: null, left: null, right: null };
-  private dirLastFire: Record<string, number> = { up: 0, down: 0, left: 0, right: 0 };
 
   private tapAQueued = 0;
   private tapBQueued = 0;
@@ -180,27 +178,20 @@ export class Input {
     return v;
   }
 
+  /** Pure edge-detection, same shape as confirm()/cancel()/etc: fires
+   *  exactly once on the frame a direction becomes active (keyboard
+   *  key pressed, or the touch D-pad/gamepad stick crossing the
+   *  threshold), then stays silent -- no matter how long it's held --
+   *  until it goes inactive (released) and becomes active again. No
+   *  wall-clock timer/auto-repeat: holding a direction moves a menu
+   *  cursor by exactly one step per physical press, same as every
+   *  other button. */
   private dir(name: "up" | "down" | "left" | "right", keys: string[], cur: number, prev: number, negative: boolean) {
     if (this.used.has("_" + name)) return false;
     const thresh = 0.5;
     const active = negative ? cur < -thresh : cur > thresh;
     const was = negative ? prev < -thresh : prev > thresh;
-    const now = performance.now();
-    let v = keys.some((k) => this.pressed(k));
-    if (active && !was) {
-      v = true;
-      this.dirHeldAt[name] = now;
-      this.dirLastFire[name] = now;
-    } else if (!active) {
-      this.dirHeldAt[name] = null;
-    } else if (this.dirHeldAt[name] != null) {
-      const held = now - (this.dirHeldAt[name] as number);
-      const since = now - this.dirLastFire[name];
-      if (held > 55 && since > 28) {
-        this.dirLastFire[name] = now;
-        v = true;
-      }
-    }
+    const v = keys.some((k) => this.pressed(k)) || (active && !was);
     if (v) this.used.add("_" + name);
     return v;
   }
