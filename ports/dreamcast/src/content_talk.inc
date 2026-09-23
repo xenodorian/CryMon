@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=533321c0a82a3d9c — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=0b49120f19336784 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
