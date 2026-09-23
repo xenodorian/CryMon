@@ -3857,7 +3857,7 @@ export class CryMon {
 				else if (who === "commanderFinal") this.beatCommander = true;
 				else if (who === "lieutenantLead") {
 					this.beatLieutenantLead = true;
-					this.say(TALK.leadWinPlaceholder || [{ speaker: "system", text: "Thank you for playing." }], "leadThanksGO");
+					this.say(TALK.leadWinPlaceholder || [{ speaker: "none", text: "Thank you for playing." }], "leadThanksGO");
 					return;
 				}
 				else if (who === "heavenfallGrave") {
