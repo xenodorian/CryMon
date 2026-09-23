@@ -635,8 +635,13 @@ export class CryMon {
 			// frame (up to the display's refresh rate) -- each system's own
 			// cooldown (talkLock, battle phase transitions) still paces how
 			// often that tap actually advances anything, same as it would
-			// for a human mashing the real button.
-			if (this.input.turboHeld) this.input.queueA();
+			// for a human mashing the real button. Held keyboard T does the
+			// same thing as holding the on-screen Turbo button -- checked
+			// here rather than folded into turboHeld itself, since that
+			// field is also what drives the on-screen button's own visual
+			// pressed state (crymon-app.tsx's TurboBtn), which shouldn't
+			// light up just because T is held.
+			if (this.input.turboHeld || this.input.held("KeyT")) this.input.queueA();
 			// stepBegin()/stepEnd() bracket each fixed-timestep tick (not each
 			// rendered frame -- see their doc comment in input.ts) so edge
 			// detection stays correct regardless of how many logic ticks a
@@ -4890,6 +4895,18 @@ export class CryMon {
 		}
 		const wf = Math.floor(this.clock * 4) % 4 + 1;
 		const flags = this.npcFlags();
+		// Depth-sorted actor draw: every character sprite (NPCs, rival, anne,
+		// forest soldiers, Cathleen, Max) is queued as a {y, draw} entry
+		// instead of drawn immediately, then the whole queue is drawn in
+		// ascending world-y order once everything's collected. In this
+		// top-down/orthographic view, a physically lower sprite (larger
+		// world.y, closer to "camera") is meant to be drawn in front of one
+		// that's higher up -- drawing strictly in a fixed list order (as
+		// before, with Max always drawn dead last) instead put Max in front
+		// of anyone she was standing above, regardless of which was really
+		// closer. Props stay outside this queue and keep drawing first
+		// (always behind every character), unchanged from before.
+		const actorQueue: { y: number; draw: () => void }[] = [];
 		// Task 4: draw map NPCs from JSON (NPCS / npc.sprite) instead of a
 		// per-map hardcoded drawActor list. Props, rivals, soldiers, and
 		// Cathleen's special overworld sprite stay special-cased.
@@ -4908,39 +4925,59 @@ export class CryMon {
 					? String(npc.sprite).split("/").pop()!
 					: String(npc.sprite);
 				const walkers = (SPRITES as { walkers?: Record<string, string> }).walkers || {};
-				if (base in walkers || npc.sprite === "shinigami") {
-					const sf = Math.floor(this.clock * 3) % 4 + 1;
-					this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y);
-				} else {
-					this.drawActor(`${base}-${wf}`, s.x, s.y);
-				}
-				this.hintZ(s.x, s.y);
+				actorQueue.push({
+					y: s.y,
+					draw: () => {
+						if (base in walkers || npc.sprite === "shinigami") {
+							const sf = Math.floor(this.clock * 3) % 4 + 1;
+							this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y);
+						} else {
+							this.drawActor(`${base}-${wf}`, s.x, s.y);
+						}
+						this.hintZ(s.x, s.y);
+					}
+				});
 			}
 		}
 		if (this.world.mapId === "veld" && this.rival.phase !== "off") {
 			const walking = this.rival.phase === "approach" || this.rival.phase === "leave";
 			const rf = walking ? this.rival.frame % 4 + 1 : 1;
-			this.drawActor(`mason-${this.rival.dir}-${rf}`, this.rival.x, this.rival.y);
-			if (this.rival.phase === "done") this.hintZ(this.rival.x, this.rival.y);
+			actorQueue.push({
+				y: this.rival.y,
+				draw: () => {
+					this.drawActor(`mason-${this.rival.dir}-${rf}`, this.rival.x, this.rival.y);
+					if (this.rival.phase === "done") this.hintZ(this.rival.x, this.rival.y);
+				}
+			});
 		}
 		if (this.anne.phase !== "off") {
 			const walking = this.anne.phase === "approach" || this.anne.phase === "approach2" || this.anne.phase === "leave";
 			const af = walking ? this.anne.frame % 4 + 1 : 1;
-			this.drawActor(`anne-${this.anne.dir}-${af}`, this.anne.x, this.anne.y);
+			actorQueue.push({ y: this.anne.y, draw: () => this.drawActor(`anne-${this.anne.dir}-${af}`, this.anne.x, this.anne.y) });
 		}
 		if (this.world.mapId === "forest") {
 			this.ensureSoldiers();
 			for (const sol of this.soldiers) {
 				const sf = sol.beaten ? 1 : sol.frame % 4 + 1;
-				this.drawActor(`soldier-${sol.dir}-${sf}`, sol.x, sol.y);
-				this.hintZ(sol.x, sol.y);
+				actorQueue.push({
+					y: sol.y,
+					draw: () => {
+						this.drawActor(`soldier-${sol.dir}-${sf}`, sol.x, sol.y);
+						this.hintZ(sol.x, sol.y);
+					}
+				});
 			}
 		}
 		if (this.world.mapId === "grove" && !this.cathleenCaught) {
-			const { cx, cy } = this.cam();
 			const c = spawnOf(GROVE, "8");
-			this.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
-			this.hintZ(c.x, c.y);
+			actorQueue.push({
+				y: c.y,
+				draw: () => {
+					const { cx, cy } = this.cam();
+					this.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
+					this.hintZ(c.x, c.y);
+				}
+			});
 		}
 		if (this.world.mapId === "cliffs" && !this.chestLooted) {
 			const chest = spawnOf(CLIFFS, "C");
@@ -4948,7 +4985,9 @@ export class CryMon {
 			this.hintZ(chest.x, chest.y);
 		}
 		const frame = this.world.moving ? this.world.frame % 4 + 1 : 1;
-		this.drawActor(`max-${this.world.dir}-${frame}`, this.world.x, this.world.y);
+		actorQueue.push({ y: this.world.y, draw: () => this.drawActor(`max-${this.world.dir}-${frame}`, this.world.x, this.world.y) });
+		actorQueue.sort((a, b) => a.y - b.y);
+		for (const entry of actorQueue) entry.draw();
 		if (this.talking()) {
 			this.drawTalk();
 			this.drawMapTitle();

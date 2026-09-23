@@ -2151,3 +2151,57 @@ that trigger the bonus.
   clean`, checked directly for `error:` per the standing false-green
   caution since `main.c` was touched this time.
 
+## Overworld sprite depth-sort + web-only Turbo on the T key (Claude, 2026-09-23)
+
+Two small, unrelated web-only asks in one pass.
+
+**Depth sort**: `drawWorld()` used to draw all overworld actors (map
+NPCs, rival, Anne, forest soldiers, Cathleen) in a fixed list order,
+then always drew Max dead last -- so she was always drawn in front of
+any NPC she happened to be standing above, even when that NPC was
+physically lower (closer to "camera" in this top-down/orthographic
+view) and should have been in front of her instead. Dreamcast's
+`main.c` already had the correct behavior here (`ws_sort_and_draw()`,
+an insertion sort by world-y with the player pushed into the same
+list as the NPCs -- see that function's own doc comment, dated from
+an earlier leg) -- this was a web-only gap. Changed `drawWorld()` to
+queue every actor as a `{y, draw}` entry instead of drawing
+immediately, then sort the queue ascending by world-y and draw in
+that order once collected -- same painter's-algorithm shape as the
+already-proven Dreamcast version, just expressed as `Array.sort`
+instead of an insertion sort. Static props (house furniture, doors,
+carts, the cliffs chest) stay outside the queue and still draw first,
+unchanged -- the ask was about character sprites overlapping each
+other, not sprites vs. the environment.
+
+Verified visually via Playwright: positioned Max a few pixels above
+vs. below Cathleen's overworld sprite (grove) and screenshotted both
+-- with Max above (should be behind), Cathleen's dark portrait
+dominates the overlap; with Max below (should be in front), Max's
+sprite dominates with only Cathleen's hood peeking out above her
+head. Confirms the sort direction is right, not just that sorting
+happens.
+
+**Turbo on T**: the on-screen Turbo button already worked by setting
+`Input.turboHeld` while held; `startLoop()` queues an extra confirm
+tap per rendered frame whenever that's true. Added `KeyT` to
+`GAME_KEYS` (so it gets the same held-key `preventDefault()`
+treatment as every other game key) and changed the check to `if
+(this.input.turboHeld || this.input.held("KeyT"))` rather than
+folding T into `turboHeld` itself -- that field also drives the
+on-screen button's own `aria-pressed` visual state, which shouldn't
+light up just because the keyboard key is held. "How to play" text
+updated to list T next to the on-screen button. No Dreamcast
+equivalent, same as Turbo itself -- there's no on-screen UI to have
+driven it there in the first place, and this is purely an
+alternate *input path* onto the exact same already-web-only feature.
+
+Verified via Playwright: approached Wren, opened her dialogue with a
+real confirm tap, held `KeyT`, and confirmed the conversation advanced
+across multiple lines with no further taps -- same fast-forward
+behavior the on-screen button already had, confirmed working.
+
+`verify_step.sh` all green; no `main.c`/content changes needed for
+either half (Dreamcast already had the correct sort, and Turbo has no
+Dreamcast surface to add a key to).
+

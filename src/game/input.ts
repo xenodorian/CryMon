@@ -14,6 +14,7 @@ const GAME_KEYS = new Set([
   "Escape",
   "KeyC",
   "KeyQ",
+  "KeyT",
   "Tab",
   "Backspace",
   "Digit1",

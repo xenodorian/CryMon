@@ -192,7 +192,7 @@ export function CryMonApp() {
               <span className="text-muted">Party</span> Tab/Q Max↔Father · 1-6 lead · X C Esc
             </li>
             <li>
-              <span className="text-muted">Turbo</span> hold the on-screen button — fast-forwards dialogue and battle messages
+              <span className="text-muted">Turbo</span> T · hold the on-screen button — fast-forwards dialogue and battle messages
             </li>
           </ul>
           <p>
