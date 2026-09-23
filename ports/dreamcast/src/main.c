@@ -4047,6 +4047,13 @@ static Roamer g_roamers[NPC_DEF_N];
 static int npc_def_roamable(int i) {
     const NpcDef *d = &NPC_DEFS[i];
     int k;
+    /* Lieutenant Lead uses the same "wsoldier" battle-trigger as every
+       roaming ambush trainer but is meant to be stationary -- he only
+       speaks or fights when the player walks up and interacts, never
+       chases. Excluded by map+mark here rather than dropping wsoldier
+       from his script, which would also break the shared battle-trigger
+       wiring. Matches engine.ts's roamableNpc(). */
+    if(d->map_id == MAP_VELD && d->mark == 'S') return 0;
     for(k = 0; k < d->stepn; k++)
         if(NPC_STEPS[d->step0 + k].after == NPC_AFTER_WSOLDIER) return 1;
     return 0;
@@ -4435,6 +4442,9 @@ static int find_backstab_target(int map_id, int ppx, int ppy, int **ft, int part
         int si, ebit;
         const NpcStep *st;
         if(NPC_DEFS[i].map_id != map_id) continue;
+        /* Lieutenant Lead: stationary and always facing the road he
+           blocks -- never eligible. Matches engine.ts's canBackstab(). */
+        if(NPC_DEFS[i].map_id == MAP_VELD && NPC_DEFS[i].mark == 'S') continue;
         if(npc_on_warp_gate(map_id, NPC_DEFS[i].mark)) continue;
         ebit = npc_exec_bit(NPC_DEFS[i].map_id, NPC_DEFS[i].mark);
         if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;
@@ -4898,7 +4908,6 @@ static void do_warp(int *map_id, int *px, int *py, int *pdir,
 #define POST_OPEN_MERCY 29
 #define POST_WSOLDIER_LEAD 30
 #define POST_WSOLDIER_HEAVENFALL_GRAVE 31
-#define POST_LEAD_GAMEOVER 32
 #define POST_HFGAMEOVER_SCREAM 33
 #define POST_PRIESTESS_TELEPORT 34
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
@@ -5369,12 +5378,13 @@ void main(void) {
                     door_lock = 20;
                 }
                 else if(fade_action == FADE_ACTION_HFGAMEOVER) {
-                    /* Shared by both Heavenfall-path wipes (BAFTER_LOSS)
-                       and beating Lead (POST_LEAD_GAMEOVER): reload the
-                       last save if one exists, else drop to the title
-                       screen -- matches web's reloadLastSaveOrTitle(),
-                       adapted to this port's title-screen state machine
-                       instead of a silent in-place reload. */
+                    /* Heavenfall-path party wipe (BAFTER_LOSS) only now --
+                       beating Lead no longer routes here (was
+                       POST_LEAD_GAMEOVER, removed). Reload the last save
+                       if one exists, else drop to the title screen --
+                       matches web's reloadLastSaveOrTitle(), adapted to
+                       this port's title-screen state machine instead of a
+                       silent in-place reload. */
                     SaveLive probe;
                     have_save = save_restore(&probe);
                     state = 0;
@@ -6205,13 +6215,13 @@ void main(void) {
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_LEAD) {
                                     /* Placeholder ending (Leg 2 wrap
                                        gate): no mercy menu, straight to
-                                       "Thank you for playing" then a
-                                       plain (non-red, no scream) fade
-                                       that reloads the last save --
-                                       matches web's leadThanksGO ->
-                                       startFade("hfGameOver") exactly.
-                                       Beating him never opens the north
-                                       road; that's Leg 3's job. */
+                                       "Thank you for playing" and back
+                                       to normal play -- no fade, no
+                                       save reload. Beating him never
+                                       opens the north road; that's Leg
+                                       3's job. Matches engine.ts (the
+                                       leadThanksGO -> reload wiring was
+                                       removed there too). */
                                     beat_lieutenant_lead = 1;
                                     marks += 20;
                                     battles++;
@@ -6220,7 +6230,7 @@ void main(void) {
                                     seq_lines = TALK_LEAD_WIN_PLACEHOLDER;
                                     seq_len = TALK_LEN(TALK_LEAD_WIN_PLACEHOLDER);
                                     seq_beat = 0;
-                                    post_action = POST_LEAD_GAMEOVER;
+                                    post_action = POST_NONE;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_HEAVENFALL_GRAVE) {
                                     if(!beat_heavenfall) {
@@ -7951,17 +7961,6 @@ void main(void) {
                                     fade_state = FADE_OUT;
                                     fade_timer = 0;
                                     fade_action = FADE_ACTION_PRIESTESS;
-                                    break;
-                                case POST_LEAD_GAMEOVER:
-                                    /* Plain black fade (no scream, no
-                                       red tint -- that's the genuine
-                                       party-wipe path, POST_HFGAMEOVER_
-                                       SCREAM below). Matches web's
-                                       leadThanksGO -> startFade(
-                                       "hfGameOver"). */
-                                    fade_state = FADE_OUT;
-                                    fade_timer = 0;
-                                    fade_action = FADE_ACTION_HFGAMEOVER;
                                     break;
                                 case POST_HFGAMEOVER_SCREAM:
                                     /* Matches web's runHeavenfallGameOverFx():

@@ -2349,3 +2349,82 @@ plain tan path tile, indistinguishable from the rest of the corridor.
 
 `verify_step.sh` all green; web-only change (`src/game/engine.ts`).
 
+## Lieutenant Lead: stationary, unbackstabbable, no more save-wiping win; dead warp gate + note removed; autosave disabled (Claude, 2026-09-23)
+
+Five requests from one screenshot: make Lieutenant Lead stationary,
+not Backstab-eligible, only speak/fight on interact; remove a leftover
+warp-gate tile and a stray "behind Shinigami" line; disable autosave
+and the automatic save-reload his win was triggering.
+
+**Root cause investigation turned up a real, separate bug along the
+way**: `npcFlags()` (`engine.ts`) -- the flags object every script
+match (`matchNpcScript`, `npcHidden`, `updateRoamers`) reads -- was
+missing `beatLieutenantLead` entirely, so his `hideIf:
+"beatLieutenantLead"` script step could never fire; he stayed
+interactable and re-fightable forever, win or not. Confirmed by
+setting the flag directly and watching him still auto-chase and
+re-open his spotted dialogue. Fixed by adding the missing key.
+Dreamcast's own flag table already had the equivalent
+(`FLAG_BEAT_LIEUTENANT_LEAD`) -- this half was web-only.
+
+**Stationary + unbackstabbable**: he shares the generic `"wsoldier"`
+battle-trigger with every roaming ambush trainer (marshBog, forest
+soldiers, etc.), and `roamableNpc()`/`npc_def_roamable()` couple
+"roamable" to that same tag -- dropping `wsoldier` from his script
+would've also broken the shared `startWsBattle()` wiring. Excluded him
+by id/mark instead: `roamableNpc()` (web) and `npc_def_roamable()`
+(Dreamcast) now return false for him specifically, and
+`canBackstab()`/`find_backstab_target()` do the same, so he can never
+be chased into or Backstabbed, while `runClosestNpc()`'s ordinary
+walk-up-and-interact path (unaffected by any of this) still handles
+his talk/battle normally. Verified via Playwright: standing next to
+him for a full second no longer auto-triggers anything; a manual
+interact still opens his normal spotted dialogue (not a Backstab
+prompt) even with the knife carried.
+
+**Save-wiping win**: his win handler passed `"leadThanksGO"` as
+`afterTalk`, which called `startFade("hfGameOver")` -- the exact same
+fade action the genuine Heavenfall party-wipe game-over uses, which on
+completion calls `reloadLastSaveOrTitle()`. Beating him was silently
+reloading (or dropping to title on) whatever the last autosave
+happened to be. Removed the `leadThanksGO` branch entirely (matching
+Dreamcast's now-`POST_NONE` `post_action`, replacing the removed
+`POST_LEAD_GAMEOVER`) -- his win text plays and the game just returns
+to normal play, same as it always should have. The real Heavenfall
+game-over path (`beginHeavenfallGameOver()`/`BAFTER_LOSS`) is
+untouched. Verified via WinAll dev mode: after his placeholder win
+text, mode stays `"world"` on the same map (not reloaded), and
+`beatLieutenantLead` is `true` -- re-interacting afterward now
+produces nothing, confirming the `npcFlags()` fix hides him for good.
+
+**Dead warp gate**: `veld`'s `O` tile (a single gap in the north
+border wall, directly above his mark) warped to `weepingroad` -- one
+of the large set of Kabbalah-named maps that are unfinished/unreachable
+placeholder content, not part of the actual demo. Removed both the
+outbound (`veld.O -> weepingroad`) and the now-orphaned return
+(`weepingroad.1 -> veld.O`) warp entries from `warps.json`, and sealed
+the map tile itself from `O` to `#` (solid wall) -- leaving it walkable
+but inert would've been worse than before. `check_sync --strict`
+correctly flagged the orphaned return warp on the first pass (missing
+reciprocal spawn), confirming both entries needed removing together.
+
+**Stray note**: `this.note("A path opened behind Shinigami.")` fires
+from an unrelated code path (the Scroll choice's Heavenfall branch,
+`gauntletUnlocked`), not from Lieutenant Lead at all -- removed the
+flavor text only, left the functional `gauntletUnlocked = true;` flag
+untouched since the user asked only about the dialogue reference.
+
+**Autosave**: `persist(manual = false)` used to write on nearly every
+warp, NPC grant, and tab-hide, so "Continue" from the title screen
+never actually resumed where the player last manually saved --
+matching the reported "loading last save is broken." Every non-manual
+call is now a no-op (`if (!manual) return false;` as the first line);
+the pause menu's explicit Save and the dev `saveNow()` hook are
+unaffected, still the only path that reaches `writeSaveBlob()`.
+Confirmed Dreamcast has no autosave path at all to begin with (its one
+`SaveLive` write block is the manual pause-menu Save) -- nothing to
+change there.
+
+`verify_step.sh` all green; Dreamcast rebuilt clean from `make clean`,
+checked directly for `error:` per the standing false-green caution.
+

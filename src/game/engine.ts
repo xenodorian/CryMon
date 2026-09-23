@@ -597,20 +597,22 @@ export class CryMon {
 		this.announceMap();
 		return true;
 	}
+	/** Autosave disabled entirely -- every non-manual call is a no-op.
+	 *  Loading last save was breaking because the game wrote over the slot
+	 *  constantly (on nearly every warp, NPC grant, etc.), so "continue"
+	 *  never actually resumed where the player expected. The pause menu's
+	 *  explicit Save (and the dev saveNow() hook) still work normally;
+	 *  they're the only path that reaches writeSaveBlob() now. */
 	persist(manual = false) {
-		if (this.mode === "title" || this.mode === "intro" || this.mode === "battle") {
-			if (!manual) return false;
-		}
+		if (!manual) return false;
 		if (this.mode === "battle") return false;
 		const ok = writeSaveBlob(packSave(this.snapshot()));
 		if (ok) {
 			this.hasSave = true;
 			this.lastAutosave = this.clock;
-			if (manual) {
-				this.note("Saved.");
-				this.audio.save();
-			}
-		} else if (manual) {
+			this.note("Saved.");
+			this.audio.save();
+		} else {
 			this.note("Save failed.");
 			this.audio.miss();
 		}
@@ -1063,15 +1065,12 @@ export class CryMon {
 				this.choiceCur = 0;
 			} else if (next === "wsoldier") {
 				this.startWsBattle(this.pendingWs);
-			} else if (next === "leadThanksGO") {
-				this.startFade("hfGameOver");
 			} else if (next === "hfGameOver") {
 				this.runHeavenfallGameOverFx();
 			} else if (next === "ending") {
 				/* 2.4: Father stays in world; Heavenfall path only unlocks gauntlet (choseHeavenfall). */
 				if (this.choseHeavenfall) {
 					this.gauntletUnlocked = true;
-					this.note("A path opened behind Shinigami.");
 				}
 			} else if (next === "creditsFinal") {
 				this.mode = "ending";
@@ -2224,6 +2223,7 @@ export class CryMon {
 				choseHeavenfall: this.choseHeavenfall,
 				revivedFather: this.revivedFather,
 				beatCommander: this.beatCommander,
+				beatLieutenantLead: this.beatLieutenantLead,
 				quarryCrateLooted: this.quarryCrateLooted,
 				quarryShelfSearched: this.quarryShelfSearched,
 		};
@@ -2645,6 +2645,13 @@ export class CryMon {
 	 *  Priestess) never have this step at all, so they're excluded
 	 *  automatically, no separate passIf check needed here. */
 	roamableNpc(npc) {
+		// Lieutenant Lead uses the same "wsoldier" battle-trigger as every
+		// roaming ambush trainer (marshBog, forest soldiers, etc.) but is
+		// meant to be stationary -- he only speaks or fights when the
+		// player walks up and interacts, never chases. Excluded by id here
+		// rather than dropping "wsoldier" from his script, which would also
+		// break the shared battle-trigger wiring (startWsBattle()).
+		if (npc.id === "lieutenantLead") return false;
 		return !!npc.script?.some((s) => s.after === "wsoldier");
 	}
 	ensureRoamer(npc): Roamer {
@@ -4129,6 +4136,8 @@ export class CryMon {
 	 *  FOREST patrol/scout/sentry aren't NPCS-table entries, so they
 	 *  never reach this check -- see canBackstabSoldier() below. */
 	canBackstab(npc, step) {
+		// Stationary and always facing the road he blocks -- never eligible.
+		if (npc.id === "lieutenantLead") return false;
 		if (!(this.bag.bowieKnife > 0)) return false;
 		if (!step || !this.isFightAfter(step.after)) return false;
 		if (this.npcIsExecuted(npc.id)) return false;
