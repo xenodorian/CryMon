@@ -1,0 +1,34 @@
+name: Fix lead fallback
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          p = Path('src/game/engine.ts')
+          t = p.read_text()
+          t2 = t.replace(
+              'TALK.leadWinPlaceholder || [{ speaker: "system", text: "Thank you for playing." }]',
+              'TALK.leadWinPlaceholder || [{ speaker: "none", text: "Thank you for playing." }]',
+          )
+          if t2 == t:
+              print('no change or already fixed')
+          else:
+              p.write_text(t2)
+              print('patched fallback')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/engine.ts
+          git commit -m "engine: leadWinPlaceholder fallback uses speaker none" || exit 0
+          git push
