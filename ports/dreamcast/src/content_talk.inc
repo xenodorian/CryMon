@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=cacae400c8351979 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=442fa8ea5abb09ab — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -512,7 +512,7 @@ static const TalkBeat TALK_MERCY_EXECUTE[] = {
     { "NO SURVIVORS, NO WITNESSES.", 1 },
 };
 static const TalkBeat TALK_GAUNTLET_LOCKED[] = {
-    { "THE HEAVENFALL PRIESTESS BARS THE WAY SOUTH. SHE WILL NOT MOVE UNLESS YOU PRESENT THE SACRED SCROLL OF RESURRECTION.", 36 },
+    { "THE HEAVENFALL PRIESTESS BARS THE WAY SOUTH. SHE WILL NOT MOVE UNLESS YOU PRESENT THE SACRED SCROLL OF RESURRECTION.", 0 },
 };
 static const TalkBeat TALK_GAUNTLET_WIPE_REGRET[] = {
     { "I CHOSE POWER OVER FATHER'S LIFE.", 1 },
@@ -521,11 +521,11 @@ static const TalkBeat TALK_GAUNTLET_WIPE_REGRET[] = {
     { "FATHER... I WISH YOU WERE STILL HERE.", 1 },
 };
 static const TalkBeat TALK_GAUNTLET_GRAVE_NEED_SCROLL[] = {
-    { "A COLD GRAVESTONE. THE RUNES ITCH FOR THE SCROLL.", 36 },
+    { "A COLD GRAVESTONE. THE RUNES ITCH FOR THE SCROLL.", 0 },
 };
 static const TalkBeat TALK_GAUNTLET_GRAVE_RISE[] = {
-    { "THE SCROLL BURNS. THE EARTH ANSWERS.", 36 },
-    { "HEAVENFALL RISES.", 36 },
+    { "THE SCROLL BURNS. THE EARTH ANSWERS.", 0 },
+    { "HEAVENFALL RISES.", 0 },
 };
 static const TalkBeat TALK_GAUNTLET_GRAVE_WIN[] = {
     { "HEAVENFALL FALLS. THE PATH OF POWER IS PAID IN FULL.", 1 },
@@ -536,14 +536,14 @@ static const TalkBeat TALK_LEAD_SPOT[] = {
     { "TURN BACK, OR FACE ME.", 35 },
 };
 static const TalkBeat TALK_LEAD_WIN_PLACEHOLDER[] = {
-    { "...", 36 },
-    { "THANK YOU FOR PLAYING.", 36 },
-    { "MORE OF THE WORLD OPENS IN LEG 3.", 36 },
+    { "LIEUTENANT LEAD FALLS.", 0 },
+    { "THANK YOU FOR PLAYING.", 0 },
+    { "MORE OF THE WORLD OPENS IN LEG 3.", 0 },
 };
 static const TalkBeat TALK_HEAVENFALL_DEVOUR[] = {
-    { "THE AIR TEARS OPEN.", 36 },
-    { "HEAVENFALL DESCENDS ON MAX WITH A HUNGER THAT HAS NO BOTTOM.", 36 },
-    { "THERE IS NO PATH HOME FROM THIS.", 36 },
+    { "THE AIR TEARS OPEN.", 0 },
+    { "HEAVENFALL DESCENDS ON MAX WITH A HUNGER THAT HAS NO BOTTOM.", 0 },
+    { "THERE IS NO PATH HOME FROM THIS.", 0 },
 };
 static const TalkBeat TALK_SHINIGAMI_REACH_SPOT[] = {
     { "THE STONE IN THE GRASS IS GONE. SHINIGAMI STANDS WHERE IT WAS.", 0 },
