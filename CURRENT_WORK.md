@@ -2049,3 +2049,77 @@ design is intentional and stays as-is).
   via actual `page.mouse` events against the running UI, confirming
   no crash and correct single-step behavior. `npx tsc --noEmit` clean.
 
+## Button edge-detection, take three: frame-vs-tick mismatch, plus warp gate footprint (Claude, 2026-09-23)
+
+User reported the prior take-two fix made things worse: buttons
+sometimes did nothing at all, other times a held menu direction
+"zipped" as if turbo were on. Also reported walk-on warp gates felt
+too precise and asked for them to cover the whole tile they sit on.
+
+Root cause of the button regression: `Input.beginFrame()`/`endFrame()`
+(which reset the per-button "used" gate and snapshot `prev` for
+`pressed()`/`dir()` edge detection) were anchored to each *rendered*
+frame, but `engine.ts`'s `startLoop()` runs a fixed-timestep
+accumulator (`STEP = 1/60s`) that can execute zero, one, or several
+logic ticks per rendered frame:
+- **Zero ticks** (a high-refresh display, where less than one STEP of
+  real time has accumulated since the last frame): `endFrame()` still
+  ran every rendered frame regardless, so it could snapshot a freshly
+  pressed key into `prev` *before* any `update()` tick ever saw it --
+  silently swallowing the press. This is the "nothing happens" half
+  of the report.
+- **Several ticks** (a catch-up burst after a stutter): `used` was
+  cleared once per extra tick via `consumeQueuedFace()`, but `prev`
+  only advanced once for the whole rendered frame, so a held key's
+  `pressed()`/`dir()` check re-passed on every extra tick within that
+  same burst -- firing a menu-cursor move once per tick instead of
+  once per real press. This is the "zips like turbo" half.
+  `verify_step.sh`'s prior take-two testing missed this because
+  Playwright + a synthetic `Input` unit test never produces a genuine
+  multi-tick catch-up burst or a sub-STEP high-refresh frame on its
+  own.
+
+Fix: replaced `beginFrame()`/`endFrame()`/`consumeQueuedFace()` with
+`stepBegin()`/`stepEnd()`, called once each per logic tick (inside
+`startLoop()`'s `while (this.acc >= STEP)` loop, wrapping each
+`update(STEP)` call) instead of once per rendered frame. `used`
+clears and the `prev`/`prevAxisX`/`prevAxisY` snapshot now always
+advance together, exactly once per tick, so a held button can only
+ever register once per real press-hold-release cycle regardless of
+the display's refresh rate relative to the fixed 60Hz logic rate.
+`pollGamepad()` and Turbo's per-frame `queueA()` stay outside the
+loop, unchanged -- both are legitimately tied to render cadence, not
+logic ticks. Verified with a true unit test against the real `Input`
+class: a simulated 5-tick catch-up burst with a key held the whole
+time fires exactly once (not five times); a key pressed with zero
+prior ticks that frame is still seen on the very next tick (not
+swallowed); a touch D-pad held across a 4-tick burst also fires
+exactly once.
+
+Warp gate size: `tryMapWarp()` used to test only the player's single
+center-anchor pixel against `tileAt()`. Since that's already
+tile-quantized (`Math.floor(x / TILE)`), it in theory already covered
+a full 32px tile -- but a single pixel test only fires the instant
+the anchor itself crosses the tile boundary, with no forgiveness for
+where within (or just short of) the tile the player actually is,
+unlike `tryDoor()`'s separate "ahead of facing direction" pre-trigger
+that doors already got. Changed it to test the player's whole r=10
+collision footprint (same box `blocked()` uses) against every warp in
+`WARPS`, firing on the first point that matches -- so every warp gate,
+not just doors, now triggers as soon as any part of the player
+overlaps its tile, with the same ~10px of give in every direction
+that movement collision already allows. Verified via Playwright: an
+isolated `setPos()` sweep across and beyond the house door's tile
+bounds confirms the trigger now extends a further ~10px past each
+edge of the tile (previously exact pixel-for-pixel only); a real
+walk-through-the-door test (real keyboard hold, `blocked()` collision
+active) still warps correctly across the whole practically-walkable
+width, unchanged.
+
+`verify_step.sh` all green; Dreamcast rebuilt clean from `make clean`
+and checked directly for `error:` (not just verify_step.sh, per the
+standing false-green caution) -- `main.c` untouched, so no changes
+there; these were web-only bugs (`main.c`'s input handling and warp
+checks are already pure edge/single-tick, with no equivalent
+frame/tick split to have this bug in the first place).
+

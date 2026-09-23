@@ -90,7 +90,22 @@ export class Input {
     };
   }
 
-  beginFrame() {
+  /** stepBegin()/stepEnd() bracket exactly one fixed-timestep logic tick
+   *  (engine.ts's update(STEP) call), not one rendered frame -- the two
+   *  aren't the same thing. A rendered frame can contain zero, one, or
+   *  several logic ticks (zero on a high-refresh display where less than
+   *  one STEP of real time has accumulated yet; several after a stutter,
+   *  catching up). Anchoring "used" (so each button fires once per press)
+   *  and the pressed()/dir() prev-state snapshot to the *tick* instead of
+   *  the *frame* is what makes edge-detection correct regardless of that
+   *  mismatch: previously prev was captured once per rendered frame,
+   *  which could swallow a real press before update() ever saw it (zero
+   *  ticks that frame) or fire the same held press again on every extra
+   *  tick of a catch-up frame (used got cleared per tick, but prev only
+   *  advanced once for the whole frame). Now both happen together, once
+   *  per tick, so a held button can only ever register once per real
+   *  press-hold-release cycle no matter the display's refresh rate. */
+  stepBegin() {
     this.used.clear();
     if (this.tapAQueued > 0) {
       this.tapA = true;
@@ -110,7 +125,7 @@ export class Input {
     } else this.tapSelect = false;
   }
 
-  endFrame() {
+  stepEnd() {
     this.prev = new Set(this.live());
     const a = this.rawAxis();
     this.prevAxisX = a.x;
@@ -224,14 +239,6 @@ export class Input {
   queueSelect() {
     this.tapSelectQueued += 1;
   }
-  consumeQueuedFace() {
-    if (this.tapAQueued > 0) { this.tapA = true; this.tapAQueued -= 1; }
-    if (this.tapBQueued > 0) { this.tapB = true; this.tapBQueued -= 1; }
-    if (this.tapStartQueued > 0) { this.tapStart = true; this.tapStartQueued -= 1; }
-    if (this.tapSelectQueued > 0) { this.tapSelect = true; this.tapSelectQueued -= 1; }
-    this.used.clear();
-  }
-
   setPad(x: number, y: number) {
     this.touchPad = { x, y };
   }

@@ -630,7 +630,6 @@ export class CryMon {
 			this.last = now;
 			dt = Math.min(dt, .1);
 			this.acc += dt;
-			this.input.beginFrame();
 			this.input.pollGamepad();
 			// Turbo button held: queue one extra confirm tap per rendered
 			// frame (up to the display's refresh rate) -- each system's own
@@ -638,15 +637,17 @@ export class CryMon {
 			// often that tap actually advances anything, same as it would
 			// for a human mashing the real button.
 			if (this.input.turboHeld) this.input.queueA();
-			let stepI = 0;
+			// stepBegin()/stepEnd() bracket each fixed-timestep tick (not each
+			// rendered frame -- see their doc comment in input.ts) so edge
+			// detection stays correct regardless of how many logic ticks a
+			// given rendered frame contains.
 			while (this.acc >= STEP) {
-				if (stepI > 0) this.input.consumeQueuedFace();
+				this.input.stepBegin();
 				this.update(STEP);
+				this.input.stepEnd();
 				this.acc -= STEP;
-				stepI += 1;
 			}
 			this.draw();
-			this.input.endFrame();
 			this.raf = requestAnimationFrame(tick);
 		};
 		this.raf = requestAnimationFrame(tick);
@@ -2709,10 +2710,20 @@ export class CryMon {
 		}
 		return chasing;
 	}
+	/** Checks the player's whole collision footprint (same r=10 box
+	 *  blocked() uses), not just the single center-anchor pixel, so a warp
+	 *  gate fires as soon as any part of the player overlaps its tile --
+	 *  matching the full tile, not a pinpoint sub-region of it. Doors get
+	 *  this same treatment now too, on top of tryDoor()'s own "ahead of
+	 *  facing direction" pre-trigger. */
 	tryMapWarp() {
 		if (this.doorLock > 0) return;
-		const ch = tileAt(this.map(), this.world.x, this.world.y);
-		this.applyWarp(ch);
+		const { x, y } = this.world;
+		const r = 10;
+		const pts: [number, number][] = [[x, y], [x - r, y], [x + r, y], [x, y - r], [x, y + r]];
+		for (const [px, py] of pts) {
+			if (this.applyWarp(tileAt(this.map(), px, py))) return;
+		}
 	}
 	warpTo(mapId, mark, dir, yOff = 0, xOff = 0) {
 		const rows = MAPS[mapId];
