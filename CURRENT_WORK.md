@@ -1807,3 +1807,36 @@ and found two separate bugs:
   `verify_step.sh` (bake, check_sync --strict, typecheck, Dreamcast
   build) all green.
 
+## Fix: shelf (Quillpup starter) stayed interactable/mashable forever (Claude, 2026-09-23)
+
+User reported that after Max takes Quillpup from the shelf, mashing
+the interact button kept popping the "shelfEmpty" dialogue box open
+and closed forever. Same root cause as the loot-pickup fix above,
+just missed there since the shelf is `role: "starter"` (grants a
+monster via `grantMonster`), not `role: "loot"` -- its script had the
+identical two-step shape (`{ifNot: tookStarter, ...}` then an
+unconditional `{talk: "shelfEmpty"}` fallback) with no `hideIf` to
+stop the fallback from matching forever. Added the same
+`{"hideIf": "tookStarter"}` first step used for the six loot NPCs.
+The shelf's furniture sprite itself stays drawn afterward (unlike
+crate/chest, it isn't a consumable that should vanish -- it's just an
+empty shelf now, same treatment the bed gets), only the interaction
+stops.
+
+Verified via Playwright: with `tookStarter` true, mashing confirm 20x
+near the shelf produces zero mode changes and never opens a dialogue
+box (previously each press reopened/closed "shelfEmpty").
+
+While rebasing this fix onto `main` (which had moved forward
+significantly from unrelated automated work -- Backstab-eligibility
+expansion, facing-only LOS, trainer level balancing, Dray shop
+fixes), also caught and fixed a real compile break already present on
+`main`: the Backstab-expansion commit used `NULL` in `main.c` without
+including `<stddef.h>`, and this is a `-nostdlib -ffreestanding`
+build with no libc -- `NULL` isn't defined anywhere else in the file.
+`verify_step.sh` was silently reporting "ALL GREEN" despite `make`
+actually failing (a pre-existing bug in that script's exit-code
+handling, not touched here). Fixed by using `0` instead of `NULL`,
+matching the rest of the file's freestanding-C convention (confirmed
+via `make -C ports/dreamcast` succeeding clean after the change).
+

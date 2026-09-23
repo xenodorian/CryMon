@@ -58,6 +58,9 @@
       ],
       "script": [
         {
+          "hideIf": "tookStarter"
+        },
+        {
           "ifNot": "tookStarter",
           "set": "tookStarter",
           "grantMonster": [

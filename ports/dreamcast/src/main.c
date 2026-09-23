@@ -6615,7 +6615,7 @@ void main(void) {
                     if(g_roamers[idx].inited) g_roamers[idx].chase = 0;
                     {
                         int bsi = npc_match_step(&NPC_DEFS[idx], ft, party_n);
-                        const NpcStep *bst = (bsi >= 0) ? &NPC_STEPS[bsi] : NULL;
+                        const NpcStep *bst = (bsi >= 0) ? &NPC_STEPS[bsi] : 0;
                         if(bst) {
                             if(bst->pending == NPC_PENDING_SENTRY) { beat_wsoldier_cliffs = 1; bag.cageKey += 1; }
                             else if(bst->pending == NPC_PENDING_CONSCRIPT) beat_wsoldier_camp1 = 1;
