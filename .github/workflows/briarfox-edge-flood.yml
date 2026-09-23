@@ -1,0 +1,91 @@
+name: Briarfox edge flood alpha
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pillow
+        run: pip install pillow numpy -q
+      - name: Edge-flood dark/navy to transparent
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          from PIL import Image
+          import numpy as np
+          from collections import deque
+
+          def is_bg(rgb, alpha):
+              if alpha < 8:
+                  return True
+              r, g, b = int(rgb[0]), int(rgb[1]), int(rgb[2])
+              mx, mn = max(r, g, b), min(r, g, b)
+              if mx <= 28:
+                  return True
+              if mx <= 45 and (b >= r - 2) and (b >= g - 2) and (mx - mn) <= 18:
+                  return True
+              if mx <= 35 and (mx - mn) <= 12:
+                  return True
+              return False
+
+          def edge_flood_clear(im):
+              a = np.array(im.convert('RGBA'))
+              h, w = a.shape[:2]
+              bg = np.zeros((h, w), dtype=bool)
+              q = deque()
+              def try_seed(y, x):
+                  if is_bg(a[y, x, :3], a[y, x, 3]) and not bg[y, x]:
+                      bg[y, x] = True
+                      q.append((y, x))
+              for x in range(w):
+                  try_seed(0, x); try_seed(h - 1, x)
+              for y in range(h):
+                  try_seed(y, 0); try_seed(y, w - 1)
+              while q:
+                  y, x = q.popleft()
+                  for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                      ny, nx = y + dy, x + dx
+                      if 0 <= ny < h and 0 <= nx < w and not bg[ny, nx]:
+                          if is_bg(a[ny, nx, :3], a[ny, nx, 3]):
+                              bg[ny, nx] = True
+                              q.append((ny, nx))
+              soft = bg.copy()
+              for y in range(h):
+                  for x in range(w):
+                      if bg[y, x]:
+                          continue
+                      r, g, b, al = map(int, a[y, x])
+                      if al < 40 and max(r, g, b) < 50:
+                          for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                              ny, nx = y + dy, x + dx
+                              if 0 <= ny < h and 0 <= nx < w and bg[ny, nx]:
+                                  soft[y, x] = True
+                                  break
+              a[soft, 3] = 0
+              a[soft, 0:3] = 0
+              return Image.fromarray(a), int(soft.sum())
+
+          src = Path('public/sprites/monsters/briarfox')
+          for i in range(1, 5):
+              im = Image.open(src / f'{i}.png')
+              cleaned, n = edge_flood_clear(im)
+              cleaned.save(src / f'{i}.png', 'PNG', optimize=True)
+              op = int((np.array(cleaned)[:, :, 3] > 32).sum())
+              print(f'frame {i}: cleared={n} opaque={op}')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add public/sprites/monsters/briarfox/
+          git status
+          git commit -m "Briarfox: edge-flood navy/dark background to transparent" || exit 0
+          git push
+      - name: Ship Pages
+        run: gh workflow run deploy-pages.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
