@@ -323,22 +323,38 @@ export class CryMon {
 		this.unsub = this.input.attach(this.canvas);
 		this.canvas.addEventListener("pointerdown", () => this.audio.unlock(), { once: true });
 		this.wireProbe();
-		this.ready = true;
 		this.visHook = () => {
 			if (document.hidden) this.persist(false);
 			else this.audio.unlock();
 		};
 		document.addEventListener("visibilitychange", this.visHook);
-		// Title draws without sprites. Never stall the cart on 272 portraits.
-		void this.loadArt();
+		await this.loadArtCritical();
+		this.ready = true;
+		void this.loadArtRest();
+	}
+	criticalArtKeys() {
+		return new Set([
+			"bg",
+			"max-down-1", "max-down-2", "max-down-3", "max-down-4",
+			"max-up-1", "max-left-1", "max-right-1",
+			"quillpup-1", "quillpup-2",
+			"prop-bed-father", "prop-bed-empty", "prop-shelf", "prop-crate",
+			"prop-door", "prop-cart", "prop-stump", "prop-herb", "prop-moonstone",
+		]);
+	}
+	async loadArtCritical() {
+		const all = artManifest();
+		const prefer = this.criticalArtKeys();
+		await this.loadArtChunk(all.filter(([k]) => prefer.has(k)));
+	}
+	async loadArtRest() {
+		const all = artManifest();
+		const prefer = this.criticalArtKeys();
+		await this.loadArtChunk(all.filter(([k]) => !prefer.has(k)));
 	}
 	async loadArt() {
-		const all = artManifest();
-		const prefer = new Set(["max-down-1", "max-down-2", "quillpup-1", "quillpup-2", "bg"]);
-		const first = all.filter(([k]) => prefer.has(k));
-		const rest = all.filter(([k]) => !prefer.has(k));
-		await this.loadArtChunk(first);
-		await this.loadArtChunk(rest);
+		await this.loadArtCritical();
+		await this.loadArtRest();
 	}
 	async loadArtChunk(list) {
 		const conc = 8;
@@ -4774,8 +4790,7 @@ export class CryMon {
 		ctx.imageSmoothingEnabled = false;
 		ctx.imageSmoothingQuality = "low";
 		if (!im || !im.width) {
-			ctx.fillStyle = "#c5cec6";
-			ctx.fillRect(x + 4, y + 4, w - 8, h - 6);
+			// Never flash a white plate — leave transparent until the asset arrives.
 			return;
 		}
 		let dw = w;

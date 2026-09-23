@@ -668,7 +668,8 @@ export function artManifest(): [string, string][] {
   const q = (p: string) => `${import.meta.env.BASE_URL}${p.replace(/^\//, "")}?v=${v}`;
   const out: [string, string][] = [];
   const dirs = ["down", "up", "left", "right"] as const;
-  // Title + battle sprites first; 1MB portraits last so the cart can paint.
+  // Critical first: extras, Max walk, house props (beds/shelf/crate) so New
+  // Game never paints white placeholder boxes in the bedroom.
   for (const pair of SPRITES.extra as [string, string][]) out.push([pair[0], q(pair[1])]);
   const maxFolder = SPRITES.walkers.max;
   if (maxFolder) {
@@ -676,13 +677,13 @@ export function artManifest(): [string, string][] {
       for (let i = 1; i <= 4; i++) out.push([`max-${d}-${i}`, q(`/sprites/${maxFolder}/${d}-${i}.png`)]);
     }
   }
+  for (const [key, rel] of Object.entries(SPRITES.props)) {
+    out.push([`prop-${key}`, q(`/sprites/${rel}`)]);
+  }
   for (const m of SPRITES.monsters) {
     for (let i = 1; i <= 4; i++) out.push([`${m}-${i}`, q(`/sprites/monsters/${m}/${i}.png`)]);
   }
   for (const it of SPRITES.items) out.push([`item-${it}`, q(`/sprites/items/${it}.png`)]);
-  for (const [key, rel] of Object.entries(SPRITES.props)) {
-    out.push([`prop-${key}`, q(`/sprites/${rel}`)]);
-  }
   for (const [id, folder] of Object.entries(SPRITES.walkers)) {
     if (id === "max") continue;
     for (const d of dirs) {
