@@ -632,6 +632,12 @@ export class CryMon {
 			this.acc += dt;
 			this.input.beginFrame();
 			this.input.pollGamepad();
+			// Turbo button held: queue one extra confirm tap per rendered
+			// frame (up to the display's refresh rate) -- each system's own
+			// cooldown (talkLock, battle phase transitions) still paces how
+			// often that tap actually advances anything, same as it would
+			// for a human mashing the real button.
+			if (this.input.turboHeld) this.input.queueA();
 			let stepI = 0;
 			while (this.acc >= STEP) {
 				if (stepI > 0) this.input.consumeQueuedFace();

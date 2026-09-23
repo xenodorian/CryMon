@@ -35,6 +35,14 @@ export class Input {
   tapB = false;
   tapStart = false;
   tapSelect = false;
+  /** Web-only Turbo button (crymon-app.tsx): held true while the on-screen
+   *  Turbo button is pressed. The game loop queues an extra confirm tap
+   *  every rendered frame while this is true (see startLoop()), so
+   *  dialogue/battle message advances fire as fast as each system's own
+   *  cooldown (talkLock, phase transitions) allows, instead of waiting on
+   *  real button mashing. No Dreamcast equivalent -- there's no on-screen
+   *  UI to drive it there. */
+  turboHeld = false;
   private touchPad = { x: 0, y: 0 };
   private prevAxisX = 0;
   private prevAxisY = 0;
@@ -66,7 +74,10 @@ export class Input {
     // focus moved to a text field doesn't get stuck "pressed" forever --
     // removing from the set is harmless no matter who has focus.
     const up = (e: KeyboardEvent) => this.keys.delete(e.code);
-    const clear = () => this.keys.clear();
+    const clear = () => {
+      this.keys.clear();
+      this.turboHeld = false;
+    };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
     window.addEventListener("blur", clear);

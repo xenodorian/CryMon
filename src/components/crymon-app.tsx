@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
-import { Download, Volume2, VolumeX } from "lucide-react";
+import { Download, Volume2, VolumeX, Zap } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CryMon } from "@/game/engine";
@@ -147,6 +147,11 @@ export function CryMonApp() {
                 gameRef.current?.input.setPad(v.x, v.y);
               }}
             />
+            <TurboBtn
+              onHold={(held) => {
+                if (gameRef.current) gameRef.current.input.turboHeld = held;
+              }}
+            />
             <div className="grid grid-cols-2 gap-2 pb-2">
               <Face label="B" onClick={() => gameRef.current?.input.queueB()} />
               <Face label="A" primary onClick={() => gameRef.current?.input.queueA()} />
@@ -186,6 +191,9 @@ export function CryMonApp() {
             <li>
               <span className="text-muted">Party</span> Tab/Q Max↔Father · 1-6 lead · X C Esc
             </li>
+            <li>
+              <span className="text-muted">Turbo</span> hold the on-screen button — fast-forwards dialogue and battle messages
+            </li>
           </ul>
           <p>
             In battle: items first, then a strike. Specials spend PP and open a timing bar. When the foe
@@ -224,6 +232,42 @@ function Dpad({ onPad }: { onPad: (v: { x: number; y: number }) => void }) {
       <PadBtn {...hold(0, 1)}>↓</PadBtn>
       <span />
     </div>
+  );
+}
+
+/** Web-only Turbo button: holds gameRef.current.input.turboHeld true for
+ *  as long as it's pressed, so the game loop queues an extra confirm tap
+ *  every rendered frame (see startLoop()'s turboHeld check) -- rapid-fire
+ *  through dialogue and battle messages without real button mashing. No
+ *  Dreamcast port equivalent (no on-screen UI there to drive it). */
+function TurboBtn({ onHold }: { onHold: (held: boolean) => void }) {
+  const [active, setActive] = useState(false);
+  const set = (held: boolean) => {
+    setActive(held);
+    onHold(held);
+  };
+  return (
+    <button
+      type="button"
+      style={{ touchAction: "manipulation" }}
+      aria-pressed={active}
+      aria-label="Turbo (hold to fast-forward dialogue and battles)"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+        set(true);
+      }}
+      onPointerUp={() => set(false)}
+      onPointerCancel={() => set(false)}
+      onPointerLeave={() => set(false)}
+      className={cn(
+        "flex size-11 flex-col items-center justify-center gap-0.5 rounded-md border text-[10px] font-medium select-none",
+        active ? "border-fg bg-fg text-bg" : "border-border bg-raised text-fg",
+      )}
+    >
+      <Zap className="size-4" />
+      Turbo
+    </button>
   );
 }
 

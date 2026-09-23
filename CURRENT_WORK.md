@@ -1963,3 +1963,39 @@ exactly as a real win would.
   Dreamcast changes needed (dev codes are web-preview-only, per the
   engine's own standing `devPassAll` doc comment).
 
+## Turbo button: web-only rapid-advance for dialogue/battle (Claude, 2026-09-23)
+
+User asked for a web-only on-screen "turbo" button that rapidly
+presses A/Z (the confirm button) to fast-forward through dialogue and
+battle messages, matching a classic turbo controller -- hold it, and
+whatever confirm() would normally do fires as fast as each system's
+own cooldown allows, instead of waiting on real button mashing.
+
+- `Input` (`input.ts`) gained a public `turboHeld` boolean. `startLoop()`
+  (`engine.ts`) queues one extra `queueA()` tap per rendered frame
+  while it's true -- reusing the exact same `tapAQueued` mechanism the
+  on-screen A button already drives, so it's paced by the display's
+  refresh rate and self-throttled downstream by each system's own gate
+  (`talkLock` for dialogue, phase transitions in battle), the same way
+  a human mashing the real button would be.
+- New `TurboBtn` component in `crymon-app.tsx` (same press-and-hold
+  pattern as the D-pad's `PadBtn`, with `setPointerCapture` so a drag
+  off the button still releases cleanly): sets `input.turboHeld` on
+  pointerdown/up/cancel/leave. Added to the "How to play" list.
+- `turboHeld` is also cleared by `Input`'s existing blur/tab-hidden
+  handler (same one that clears held keys), so alt-tabbing away or
+  losing focus mid-hold can't leave it stuck on.
+- No Dreamcast equivalent (no on-screen UI to drive it there), same
+  standing note `devPassAll` already carries for web-preview-only
+  features.
+
+Verified via Playwright (real pointer events via `page.mouse`, not a
+synthetic click): holding Turbo advances a real multi-line dialogue
+to completion without any manual confirm taps, and releasing it drops
+`aria-pressed` back to false immediately. (One thing confirmed *not*
+a bug: holding Turbo while standing next to a repeatable-dialogue NPC
+re-triggers them the instant their line closes, same as a human
+mashing A there would -- moving away first is what actually settles
+it, exactly as intended.) `verify_step.sh` all green; web-only, no
+content/Dreamcast changes.
+
