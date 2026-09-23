@@ -1909,3 +1909,57 @@ side rebuilt clean from a `make clean` (checked directly for
 found earlier this session) but remains hand-traced only -- no
 hardware/emulator available to confirm on screen.
 
+## WinAll dev code: passive mode instead of one-shot flag dump (Claude, 2026-09-23)
+
+User asked to change the WinAll dev code (web preview only, no
+Dreamcast equivalent) from an instant one-shot ("flip every trainer's
+beat-flag right now") into a persistent mode: once entered, it stays
+active for the rest of the playthrough (same lifetime as `devPassAll`
+-- not reset by New Game), and from then on, engaging any not-yet-
+beaten fightable NPC outside a Backstab skips both the pre-fight
+dialogue and the battle itself, landing straight in the mercy menu
+exactly as a real win would.
+
+- Removed `devWinAllFlags()` (the old instant flag-dump) entirely and
+  replaced it with a `devWinAllMode` boolean field, set by
+  `submitDevCode("winall")`'s outside-battle branch (the in-battle
+  "win this fight now" and in-mercy "clear battle" shortcuts are
+  unchanged, and now also flip the mode on for later).
+- Added `isMercyFightAfter()` -- narrower than the Backstab-eligibility
+  `isFightAfter()` used elsewhere, since only calder/soldier(forest)/
+  wsoldier trainers actually open mercy on a real win; cathleen/
+  shinigami/mason resolve through their own one-off win dialogue
+  instead and were left untouched (auto-opening a mercy menu they
+  never show on a real win would be a bigger behavior change than
+  "go straight to the mercy menu" asks for).
+- Added `triggerDevWinAllFight(after)`: builds the same battle object
+  a real encounter would (mirrors `advanceTalk()`'s calder/soldier/
+  wsoldier dispatch) and instantly resolves it via the existing
+  `devWinAll()` (itself unchanged, still reuses `finishWin()` so it
+  can't drift from a real win's XP/flag/mercy handling).
+- Wired the `devWinAllMode` check into every place a fight-leading
+  dialogue would otherwise be shown for a not-yet-backstabbed target:
+  `runNpc()` (manual interact and the Backstab-prompt's own Approach
+  row, both funnel through here for calder/cathleen/shinigami/
+  wsoldier NPCs), `interact()`'s FOREST branch (manual walk-up to an
+  unalerted soldier), `updateSoldiers()`'s and `updateRoamers()`'s
+  auto chase-catch (getting caught by LOS), and the Backstab choice's
+  own soldier-specific Approach branch. In every case the existing
+  canBackstab()/canBackstabSoldier() check still runs first and takes
+  priority -- WinAll never suppresses a Backstab-eligible prompt, only
+  the ordinary talk-then-battle path once Backstab isn't in play
+  (declining it via Approach still triggers the instant win, per "not
+  a backstab").
+- Verified via Playwright: entering "winall" through the real Dev
+  Codes UI no longer flips `beatCalder`/`beatSentry` instantly;
+  engaging an unbeaten Calder, an unbeaten FOREST sentry, and an
+  unbeaten Cliffs wsoldier sentry (no knife carried, so none are
+  Backstab-eligible) each skip straight to mercy mode with no
+  dialogue or battle in between; carrying the knife against the same
+  Cliffs sentry still opens the Backstab prompt as normal, and
+  choosing Approach from it (declining the Backstab) then triggers
+  the instant win into mercy, confirming the "not a backstab"
+  condition is respected. `verify_step.sh` all green; no content/
+  Dreamcast changes needed (dev codes are web-preview-only, per the
+  engine's own standing `devPassAll` doc comment).
+

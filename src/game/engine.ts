@@ -210,6 +210,13 @@ export class CryMon {
 	 *  toggle) -- never persisted, never reset on new game, no Dreamcast
 	 *  equivalent (there's no dev-code UI to drive it on that engine). */
 	devPassAll = false;
+	/** WinAll dev mode: once entered, stays passively active for the
+	 *  rest of the playthrough (same lifetime as devPassAll above) --
+	 *  every mercy-eligible trainer (calder/soldier/wsoldier) engaged
+	 *  from here on, outside a Backstab, is resolved as an instant win
+	 *  straight into the mercy menu instead of playing dialogue then a
+	 *  real battle. See triggerDevWinAllFight(). */
+	devWinAllMode = false;
 	soldiers: Soldier[] = [];
 	pendingSoldier: string | null = null;
 	/** Chase state for stationary wsoldier-style trainers -- see
@@ -2244,7 +2251,10 @@ export class CryMon {
 		let talkKey = step.talk;
 		if (step.talkIf) talkKey = flags[step.talkIf] ? step.talk : step.talkElse;
 		const lines = talkKey ? TALK[talkKey] : null;
-		if (lines) this.say(lines, step.after ?? null);
+		if (lines) {
+			if (this.devWinAllMode && this.isMercyFightAfter(step.after)) this.triggerDevWinAllFight(step.after);
+			else this.say(lines, step.after ?? null);
+		}
 		if (step.grant || step.heal || step.grantMonster || step.marks) {
 			this.audio.ok();
 			this.persist(false);
@@ -2440,7 +2450,8 @@ export class CryMon {
 					return;
 				}
 				this.pendingSoldier = sol.id;
-				this.say(TALK.soldierSpot, "soldier");
+				if (this.devWinAllMode) this.triggerDevWinAllFight("soldier");
+				else this.say(TALK.soldierSpot, "soldier");
 				return;
 			}
 		}
@@ -2539,7 +2550,8 @@ export class CryMon {
 				if (dist < 36) {
 					sol.chase = false;
 					this.pendingSoldier = sol.id;
-					this.say(TALK.soldierSpot, "soldier");
+					if (this.devWinAllMode) this.triggerDevWinAllFight("soldier");
+					else this.say(TALK.soldierSpot, "soldier");
 					this.audio.ok();
 					return true;
 				}
@@ -2672,7 +2684,8 @@ export class CryMon {
 				if (dist < 36) {
 					r.chase = false;
 					this.pendingWs = step?.pending ?? null;
-					this.say(TALK[step?.talk ?? npc.talk] || TALK.soldierSpot, "wsoldier");
+					if (this.devWinAllMode) this.triggerDevWinAllFight("wsoldier");
+					else this.say(TALK[step?.talk ?? npc.talk] || TALK.soldierSpot, "wsoldier");
 					this.audio.ok();
 					return true;
 				}
@@ -3691,19 +3704,19 @@ export class CryMon {
 	submitDevCode(raw: string): string {
 		const code = raw.trim().toLowerCase();
 		if (code === "winall") {
+			this.devWinAllMode = true;
 			if (this.mode === "battle" && this.battle) {
 				this.devWinAll();
-				return "WinAll: battle won.";
+				return "WinAll: battle won, and active for every fight from now on.";
 			}
 			if (this.mode === "mercy" && this.battle) {
 				this.mode = "world";
 				this.battle = null;
 				this.world.encounterLock = 3;
 				this.onBattleOver();
-				return "WinAll: left mercy, battle cleared.";
+				return "WinAll: left mercy, and active for every fight from now on.";
 			}
-			this.devWinAllFlags();
-			return "WinAll: all trainers cleared (use in battle to win one fight).";
+			return "WinAll: active. Every trainer you engage (not a Backstab) is now an instant win.";
 		}
 		if (code === "passall") {
 			this.devPassAll = true;
@@ -3722,29 +3735,33 @@ export class CryMon {
 		b.foeBench = [];
 		this.finishWin();
 	}
-	/** Outside battle: mark every trainer/story flag beaten so the player
-	 *  can walk the full map without grinding (dev only). */
-	devWinAllFlags() {
-		this.beatCalder = true;
-		this.beatCathleen = true;
-		this.beatShinigami = true;
-		this.beatCross = true;
-		this.beatConscript = true;
-		this.beatEnforcer = true;
-		this.beatSentry = true;
-		this.beatForestRanger = true;
-		this.beatForestScout = true;
-		this.beatRuinsKeeper = true;
-		this.beatRuinsWarden = true;
-		this.beatMarshBog = true;
-		this.beatMarshReed = true;
-		this.badgeQuartz = true;
-		this.badgeOpal = true;
-		this.beatQuarryDriller = true;
-		this.beatCommander = true;
-		this.beatLieutenantLead = true;
-		this.beatHeavenfall = true;
-		for (const sol of this.soldiers) sol.beaten = true;
+	/** Whether an `after` leads to the mercy menu on a real win -- the
+	 *  set devWinAllMode auto-resolves. Narrower than isFightAfter()
+	 *  (used for Backstab eligibility, which also covers cathleen/
+	 *  shinigami/mason -- those never open mercy even on a real win,
+	 *  so "go straight to the mercy menu" doesn't apply to them; they
+	 *  keep their own one-off win dialogue/flow untouched). */
+	isMercyFightAfter(after: string | null | undefined): after is "calder" | "soldier" | "wsoldier" {
+		return after === "calder" || after === "soldier" || after === "wsoldier";
+	}
+	/** devWinAllMode: builds the same battle a real encounter would
+	 *  (mirrors advanceTalk()'s "calder"/"soldier"/"wsoldier" dispatch)
+	 *  and instantly resolves it as a win via devWinAll(), landing
+	 *  straight in the mercy menu these three trainer types already
+	 *  open on a real win -- skips both the pre-fight dialogue and the
+	 *  battle itself. Callers set pendingSoldier/pendingWs first, same
+	 *  as they would before showing that dialogue normally. */
+	triggerDevWinAllFight(after: "calder" | "soldier" | "wsoldier") {
+		if (after === "calder") {
+			const kit = TRAINERS.calder;
+			this.startBattle(mintMonster(kit.lead[0], kit.lead[1]), false, kit.title, "calder");
+		} else if (after === "soldier") {
+			const sol = this.soldiers.find((s) => s.id === this.pendingSoldier);
+			if (sol && !sol.beaten) this.startBattle(mintMonster(sol.species, sol.level), false, `${sol.name} sends ${SPECIES[sol.species].name}`, "soldier", sol.id);
+		} else if (after === "wsoldier") {
+			this.startWsBattle(this.pendingWs);
+		}
+		if (this.mode === "battle" && this.battle) this.devWinAll();
 	}
 	finishWin() {
 		const b = this.battle;
@@ -4137,7 +4154,8 @@ export class CryMon {
 				if (pb.npc) this.runNpc(pb.npc);
 				else if (pb.after === "soldier") {
 					this.pendingSoldier = pb.pending;
-					this.say(TALK.soldierSpot, "soldier");
+					if (this.devWinAllMode) this.triggerDevWinAllFight("soldier");
+					else this.say(TALK.soldierSpot, "soldier");
 				}
 			}
 			else this.resolveBackstab(pb);
