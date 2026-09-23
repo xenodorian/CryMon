@@ -2123,3 +2123,31 @@ there; these were web-only bugs (`main.c`'s input handling and warp
 checks are already pure edge/single-tick, with no equivalent
 frame/tick split to have this bug in the first place).
 
+## Status conditions now count toward the capture-rate "vulnerable" bonus (Claude, 2026-09-23)
+
+Every capture crystal's own description text ("Base 100% minus the
+CryMon's level, strength, and current HP. Status adds +50.") already
+promised a status condition adds the same flat +50 a stat debuff
+does, but the code never actually checked status -- both
+`captureChance()` call sites in `engine.ts` (item-row % preview and
+the real catch roll) and Dreamcast's `battle_capture_chance()` in
+`main.c` fed it `foeDebuffed()`/`battle_foe_debuffed(b)`, which only
+looks at stat mods/stages, never `b.foe.status`. User asked to add
+Burned/Poisoned/Paralyzed/Confused/Exhausted to the set of states
+that trigger the bonus.
+
+- New `foeVulnerable()` (`engine.ts`) / `battle_foe_vulnerable()`
+  (`main.c`): `foeDebuffed()` OR foe has any status other than
+  `"none"`. Deliberately kept separate from `foeDebuffed()` itself
+  rather than folding status into it -- that function is also read by
+  Mana Surge's 2x-damage check (`castSpell`'s manasurge branch /
+  `main.c`'s Mana Surge cast), and status conditions widening an
+  unrelated damage-multiplier mechanic wasn't asked for. Both capture
+  call sites on both engines now pass the new function instead.
+  `captureChance()`/`capture_chance()` themselves are unchanged --
+  they already had the +50 branch on their `vulnerable` bool, it was
+  only ever being fed the wrong (stat-only) value.
+- `verify_step.sh` all green; Dreamcast rebuilt clean from `make
+  clean`, checked directly for `error:` per the standing false-green
+  caution since `main.c` was touched this time.
+

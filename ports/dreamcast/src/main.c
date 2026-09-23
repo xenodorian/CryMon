@@ -2470,8 +2470,17 @@ static int battle_self_debuffed(const Battle *b) {
     return b->mods_self_str < 0 || b->mods_self_agl < 0 || b->mods_self_spc < 0 ||
            b->stage_self_str > 0 || b->stage_self_agl > 0 || b->stage_self_spc > 0;
 }
+/* Capture-only: a stat debuff OR any status condition counts as
+   "vulnerable" for the crystal's flat +50, matching every capture
+   item's own description text ("Status adds +50"). Kept separate from
+   battle_foe_debuffed() itself, which Mana Surge's own 2x-damage check
+   also reads -- status conditions shouldn't widen that unrelated
+   mechanic just because they now count here. */
+static int battle_foe_vulnerable(const Battle *b) {
+    return battle_foe_debuffed(b) || b->foe.status != STATUS_NONE;
+}
 static int battle_capture_chance(const Battle *b, int base) {
-    return capture_chance(b->foe.lv, b->foe.str, b->foe.hp, battle_foe_debuffed(b), base);
+    return capture_chance(b->foe.lv, b->foe.str, b->foe.hp, battle_foe_vulnerable(b), base);
 }
 
 /* Cathleen's spell kit (castSpell()): the only species in data.ts with

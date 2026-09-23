@@ -2855,7 +2855,7 @@ export class CryMon {
 		if (ITEMS[id].effect?.kind === "capture") {
 			const b = this.battle;
 			if (b?.wild) {
-				const chance = captureChance(b.foe.level, b.foe.str, b.foe.hp, this.foeDebuffed(), ITEMS[id].effect.base ?? 100);
+				const chance = captureChance(b.foe.level, b.foe.str, b.foe.hp, this.foeVulnerable(), ITEMS[id].effect.base ?? 100);
 				return `${ITEMS[id].name} ${chance}% x${n}`;
 			}
 			return `${ITEMS[id].name} x${n}`;
@@ -3404,7 +3404,7 @@ export class CryMon {
 				this.bag[id] += 1;
 				b.msg = ["Crystals will not take a tamer's CryMon."];
 			} else {
-				const chance = captureChance(b.foe.level, b.foe.str, b.foe.hp, this.foeDebuffed(), fx.base ?? 100);
+				const chance = captureChance(b.foe.level, b.foe.str, b.foe.hp, this.foeVulnerable(), fx.base ?? 100);
 				if (randI(1, 100) <= chance) {
 					const caught = {
 						...b.foe,
@@ -3542,6 +3542,17 @@ export class CryMon {
 	foeDebuffed() {
 		const m = this.battle.mods, s = this.battle.stage;
 		return m.foeStr < 0 || m.foeAgl < 0 || m.foeSpc < 0 || s.foeStr > 0 || s.foeAgl > 0 || s.foeSpc > 0;
+	}
+	/** Capture-chance-only: a stat debuff OR any status condition
+	 *  (burned/poisoned/paralyzed/confused/exhausted) both count as
+	 *  "vulnerable" for the crystal's flat +50, matching every capture
+	 *  item's own description text ("Status adds +50"). Kept separate
+	 *  from foeDebuffed() itself, which Mana Surge's own 2x-damage check
+	 *  also reads -- status conditions shouldn't widen that unrelated
+	 *  mechanic just because they now count here. */
+	foeVulnerable() {
+		const status = this.battle.foe.status;
+		return this.foeDebuffed() || (!!status && status !== "none");
 	}
 	selfDebuffed() {
 		const m = this.battle.mods, s = this.battle.stage;
