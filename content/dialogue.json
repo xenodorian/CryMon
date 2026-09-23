@@ -1356,7 +1356,7 @@
     ],
     "gauntletLocked": [
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "The Heavenfall Priestess bars the way south. She will not move unless you present the sacred Scroll of Resurrection."
       }
     ],
@@ -1380,17 +1380,17 @@
     ],
     "gauntletGraveNeedScroll": [
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "A cold gravestone. The runes itch for the scroll."
       }
     ],
     "gauntletGraveRise": [
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "The scroll burns. The earth answers."
       },
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "Heavenfall rises."
       }
     ],
@@ -1416,29 +1416,29 @@
     ],
     "leadWinPlaceholder": [
       {
-        "speaker": "system",
-        "text": "..."
+        "speaker": "none",
+        "text": "Lieutenant Lead falls."
       },
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "Thank you for playing."
       },
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "More of the world opens in Leg 3."
       }
     ],
     "heavenfallDevour": [
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "The air tears open."
       },
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "Heavenfall descends on Max with a hunger that has no bottom."
       },
       {
-        "speaker": "system",
+        "speaker": "none",
         "text": "There is no path home from this."
       }
     ],

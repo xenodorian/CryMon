@@ -5014,13 +5014,15 @@ export class CryMon {
 	drawTalk() {
 		const beat = this.beat();
 		if (!beat) return;
-		if (beat.speaker !== "none") {
-			this.drawSprite(`port-${beat.speaker}`, X(-4), Y(6), X(120), Y(150), "top", true);
+		const sp = beat.speaker;
+		const showPort = sp && sp !== "none" && sp !== "system";
+		if (showPort) {
+			this.drawSprite(`port-${sp}`, X(-4), Y(6), X(120), Y(150), "top", true);
 			this.ctx.fillStyle = "rgba(18,17,14,0.45)";
 			this.ctx.fillRect(X(108), 0, VIEW_W - X(108), VIEW_H);
 			this.box(X(112), Y(6), X(122), Y(62));
-			const who = beat.speaker === "max" ? this.playerDisplayName() : SPEAKER_NAME[beat.speaker];
-			this.text(who.toUpperCase(), X(118), Y(10), "#c5cec6", FONT);
+			const who = sp === "max" ? this.playerDisplayName() : (SPEAKER_NAME[sp] || sp);
+			if (who) this.text(String(who).toUpperCase(), X(118), Y(10), "#c5cec6", FONT);
 			this.wrap(beat.text, 20).slice(0, 4).forEach((ln, i) => this.text(ln, X(118), Y(22 + i * 10), "#e8e4d8", FONT));
 			this.text("Z", X(216), Y(52), "#8a8678", FONT);
 		} else {
