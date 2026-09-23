@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=43ac7a17f171ec3e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=cacae400c8351979 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -499,7 +499,8 @@ static const TalkBeat TALK_HEAVENFALL_SHOP_WARN[] = {
     { "YOU REVIVED HEAVENFALL, WHO KNOWS WHAT OTHER HORRORS YOU ARE CAPABLE OF.", 0 },
 };
 static const TalkBeat TALK_DRAY_KNIFE_OFFER[] = {
-    { "I'VE HEARD OF YOUR REPUTATION. CAN I INTEREST YOU IN A KNIFE? SICKOS LIKE YOU SOMETIMES PREFER UP CLOSE AND PERSONAL ACTION.", 34 },
+    { "I'VE HEARD OF YOUR REPUTATION. CAN I INTEREST YOU IN A KNIFE?", 34 },
+    { "SICKOS LIKE YOU SOMETIMES PREFER UP CLOSE AND PERSONAL ACTION.", 34 },
 };
 static const TalkBeat TALK_BACKSTAB_EXECUTE[] = {
     { "THE BLADE IS QUICK. THEY NEVER SEE IT COMING.", 0 },

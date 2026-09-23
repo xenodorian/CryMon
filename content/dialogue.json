@@ -1329,7 +1329,11 @@
     "drayKnifeOffer": [
       {
         "speaker": "dray",
-        "text": "I've heard of your reputation. Can I interest you in a knife? Sickos like you sometimes prefer up close and personal action."
+        "text": "I've heard of your reputation. Can I interest you in a knife?"
+      },
+      {
+        "speaker": "dray",
+        "text": "Sickos like you sometimes prefer up close and personal action."
       }
     ],
     "backstabExecute": [

@@ -2266,3 +2266,55 @@ ArrowLeft swaps back to Max's.
 clean`, checked directly for `error:` per the standing false-green
 caution since `main.c` was touched.
 
+## Dray's knife shop was wiping his whole inventory; split his reputation spiel across two boxes (Claude, 2026-09-23)
+
+Two bugs in the same negative-reputation flow: (1) once Dray offers
+the Bowie Knife, his shop showed *only* the knife instead of the
+knife added to what he already sells, and (2) the offer line itself
+("I've heard of your reputation... Sickos like you sometimes prefer
+up close and personal action.") got cut off mid-sentence, ending at
+"Sickos like".
+
+**Inventory wipe**: the `drayKnifeShop` completion handler
+(`engine.ts`) did `this.shopStock.dray = { bowieKnife: 1 }`, replacing
+his entire rolled stock object instead of adding to it; Dreamcast's
+`POST_DRAY_KNIFE_SHOP` case had the identical bug, zeroing every
+`shop_stock[3][i]` before setting just the knife slot. Both engines
+already have a `shopCatalog()`/`shop_rows()` filter that correctly
+includes the knife once the offer's fired (`drayKnifeOffered`/
+`dray_knife_offered`) without needing this override at all -- fixed
+by dropping the wipe: web now only rolls stock if it doesn't exist
+yet (`if (!this.shopStock.dray) this.rollShopStock("dray")`) then sets
+just `.bowieKnife = 1`; Dreamcast just sets `shop_stock[3][19] = 1`
+directly, since `roll_all_shop_stock()` (called at boot/reset/rest)
+already guarantees his stock array exists with everything else
+already rolled by the time this fires. Verified via Playwright:
+Dray's buy list now shows his full normal catalog (Moss salve, Linen
+wrap, Bitterroot, Calm Draft, Burn Salve, capture crystals, etc.)
+alongside the knife, not just the knife alone.
+
+**Cut-off dialogue**: `drawTalk()`'s portrait dialogue box wraps text
+at 20 chars/line but only ever draws the first 4 wrapped lines
+(`.slice(0, 4)`) -- a fixed box-height constraint every other line of
+dialogue in the game is already written to fit inside, which this one
+line (127 chars, needs ~7 wrapped lines) blew straight through,
+silently dropping everything past "Sickos like". Rather than change
+that shared rendering constraint (touching every dialogue box in the
+game), split `drayKnifeOffer` in `content/dialogue.json` into two
+beats at the existing sentence boundary -- "I've heard of your
+reputation. Can I interest you in a knife?" then "Sickos like you
+sometimes prefer up close and personal action." -- each of which
+wraps to exactly 4 lines, fitting the box precisely. Updated
+`engine.ts`'s inline fallback array (`TALK.drayKnifeOffer || [...]`)
+to match. Verified via Playwright: the two lines now display as two
+separate boxes advanced by pressing Z, both fully visible, nothing
+truncated.
+
+`verify_step.sh` all green (content rebake picked up the split
+dialogue automatically -- no Dreamcast dialogue-system changes needed
+beyond the `main.c` stock fix, since Dreamcast's `seq_lines`/
+`TALK_LEN()` sequencing already advances beat-by-beat the same way
+every other multi-line TALK array in the game does). Dreamcast
+rebuilt clean from `make clean`, checked directly for `error:` per
+the standing false-green caution.
+

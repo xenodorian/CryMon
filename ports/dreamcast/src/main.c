@@ -7862,12 +7862,15 @@ void main(void) {
                                     }
                                     break;
                                 case POST_DRAY_KNIFE_SHOP:
-                                    /* The offer dialogue has finished. Show exactly one Bowie Knife. */
-                                    {
-                                        int si;
-                                        for(si = 0; si < ITEM_COUNT; si++) shop_stock[3][si] = 0;
-                                        shop_stock[3][19] = 1;
-                                    }
+                                    /* The offer dialogue has finished. Add the
+                                       knife to Dray's existing stock (already
+                                       rolled by roll_all_shop_stock() at boot/
+                                       reset/rest) instead of replacing it --
+                                       there's only ever one in the game, so
+                                       its own quantity is forced to 1
+                                       regardless of the roll, but every other
+                                       item he carries stays untouched. */
+                                    shop_stock[3][19] = 1;
                                     shop_open = 1;
                                     shop_sell_tab = 0;
                                     shop_cur = 0;

@@ -982,9 +982,18 @@ export class CryMon {
 				if (this.reputation <= refuseAt) this.say(TALK.shopRefuse);
 				else this.openShop(keep);
 			} else if (next === "drayKnifeShop") {
-				// Complete the offer dialogue before opening Dray's one-item knife shop.
+				// Complete the offer dialogue, then open Dray's shop with the
+				// knife added to his existing stock -- not replacing it.
+				// shopCatalog() already includes bowieKnife now that
+				// drayKnifeOffered is true, so a fresh roll picks it up on
+				// its own; if his stock was already rolled this session
+				// (e.g. visited before reputation went negative), merge the
+				// knife in rather than re-rolling everything else. Either
+				// way there's only ever one in the game, so its quantity is
+				// forced to 1 regardless of the roll.
 				this.shopKeep = "dray";
-				this.shopStock.dray = { bowieKnife: 1 };
+				if (!this.shopStock.dray) this.rollShopStock("dray");
+				this.shopStock.dray.bowieKnife = 1;
 				this.mode = "shop";
 				this.shopTab = "buy";
 				this.shopCursor = 0;
@@ -1369,7 +1378,10 @@ export class CryMon {
 		if (keep === "dray" && this.reputation < 0 && !this.bag.bowieKnife) {
 			// Complete the offer dialogue before opening Dray's one-item knife shop.
 			this.drayKnifeOffered = true;
-			this.say(TALK.drayKnifeOffer || [{ speaker: "dray", text: "I've heard of your reputation. Can I interest you in a knife? Sickos like you sometimes prefer up close and personal action." }], "drayKnifeShop");
+			this.say(TALK.drayKnifeOffer || [
+				{ speaker: "dray", text: "I've heard of your reputation. Can I interest you in a knife?" },
+				{ speaker: "dray", text: "Sickos like you sometimes prefer up close and personal action." }
+			], "drayKnifeShop");
 			return;
 		}
 		this.mode = "shop";
