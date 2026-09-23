@@ -1053,7 +1053,7 @@ static void draw_prop(char mark, const u16 *px, int w, int h, int cam_x, int cam
 static void draw_props(int map_id, int cam_x, int cam_y, int looted_crate) {
     if(map_id != MAP_HOUSE)
         return;
-    draw_prop('B', prop_bed_father, PROP_BED_FATHER_W, PROP_BED_FATHER_H, cam_x, cam_y);
+    draw_prop('B', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);
     draw_prop('U', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);
     draw_prop('S', prop_shelf, PROP_SHELF_W, PROP_SHELF_H, cam_x, cam_y);
     if(!looted_crate)

@@ -8,28 +8,6 @@
     },
     {
       "map": "house",
-      "mark": "B",
-      "id": "father",
-      "role": "talk",
-      "talk": "father",
-      "talkDone": "fatherAlive",
-      "script": [
-        {
-          "if": "revivedFather",
-          "talk": "fatherAlive"
-        },
-        {
-          "if": "tookStarter",
-          "talk": "fatherAfter"
-        },
-        {
-          "set": "talkedFather",
-          "talk": "father"
-        }
-      ]
-    },
-    {
-      "map": "house",
       "mark": "U",
       "id": "bed",
       "role": "heal",
@@ -286,7 +264,10 @@
           "if": "beatCalder",
           "talk": "calderAfter",
           "passIf": "beatCalder",
-          "passOffset": [0, 32]
+          "passOffset": [
+            0,
+            32
+          ]
         },
         {
           "talk": "calderFight",
@@ -1050,7 +1031,10 @@
           "if": "hasScroll",
           "talk": "priestessHasScroll",
           "passIf": "hasScroll",
-          "passOffset": [32, 32]
+          "passOffset": [
+            32,
+            32
+          ]
         },
         {
           "talk": "priestessNoScroll",

@@ -1744,28 +1744,6 @@
     },
     {
       "map": "house",
-      "mark": "B",
-      "id": "father",
-      "role": "talk",
-      "talk": "father",
-      "talkDone": "fatherAlive",
-      "script": [
-        {
-          "if": "revivedFather",
-          "talk": "fatherAlive"
-        },
-        {
-          "if": "tookStarter",
-          "talk": "fatherAfter"
-        },
-        {
-          "set": "talkedFather",
-          "talk": "father"
-        }
-      ]
-    },
-    {
-      "map": "house",
       "mark": "U",
       "id": "bed",
       "role": "heal",
