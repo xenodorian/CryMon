@@ -1,0 +1,55 @@
+name: Dray knife top of shop
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+
+          p = Path('src/game/engine.ts')
+          t = p.read_text()
+          old = '''\tshopCatalog(keeper: string) {\n\t\tconst stock = LOGIC.shops?.crystalStock ?? {};\n\t\tconst allowed: string[] = stock[keeper] ?? stock.default ?? [];\n\t\treturn ITEM_ORDER.filter((id) => {\n\t\t\tif (ITEMS[id].buy <= 0) return false;\n\t\t\tif (ITEMS[id].effect?.kind === "capture") return allowed.includes(id);\n\t\t\t// Only Dray sells the Bowie Knife, only after his one-time\n\t\t\t// reputation-warning line has fired, and only until the\n\t\t\t// player actually owns one -- there's only ever one in the\n\t\t\t// game (see openShop()/openBackstabChoice()).\n\t\t\tif (id === "bowieKnife") return keeper === "dray" && this.drayKnifeOffered && !this.bag.bowieKnife;\n\t\t\treturn true;\n\t\t});\n\t}'''
+          new = '''\tshopCatalog(keeper: string) {\n\t\tconst stock = LOGIC.shops?.crystalStock ?? {};\n\t\tconst allowed: string[] = stock[keeper] ?? stock.default ?? [];\n\t\tconst list = ITEM_ORDER.filter((id) => {\n\t\t\tif (ITEMS[id].buy <= 0) return false;\n\t\t\tif (ITEMS[id].effect?.kind === "capture") return allowed.includes(id);\n\t\t\t// Only Dray sells the Bowie Knife, only after his one-time\n\t\t\t// reputation-warning line has fired, and only until the\n\t\t\t// player actually owns one -- there's only ever one in the\n\t\t\t// game (see openShop()/openBackstabChoice()).\n\t\t\tif (id === "bowieKnife") return keeper === "dray" && this.drayKnifeOffered && !this.bag.bowieKnife;\n\t\t\treturn true;\n\t\t});\n\t\t// Bowie Knife always leads Dray's shelf when it is in stock.\n\t\tif (list.includes("bowieKnife")) {\n\t\t\treturn ["bowieKnife", ...list.filter((id) => id !== "bowieKnife")];\n\t\t}\n\t\treturn list;\n\t}'''
+          if old not in t:
+              if 'Bowie Knife always leads' in t:
+                  print('web already')
+              else:
+                  raise SystemExit('web pattern missing')
+          else:
+              p.write_text(t.replace(old, new, 1))
+              print('web ok')
+
+          cp = Path('ports/dreamcast/src/main.c')
+          ct = cp.read_text()
+          old_c = '''            if(i == 19 && (shop_keep_id != 3 || !dray_knife_offered || owned > 0)) continue;\n            rows[n++] = i;\n        } else if(owned > 0 && ITEMS[i].sell > 0) {\n            rows[n++] = i;\n        }\n    }\n    return n;\n}'''
+          new_c = '''            if(i == 19 && (shop_keep_id != 3 || !dray_knife_offered || owned > 0)) continue;\n            rows[n++] = i;\n        } else if(owned > 0 && ITEMS[i].sell > 0) {\n            rows[n++] = i;\n        }\n    }\n    /* Bowie Knife (item 19) at top of Dray's buy list when present. */\n    if(!sell_tab && n > 1) {\n        int j, knife = -1;\n        for(j = 0; j < n; j++) if(rows[j] == 19) { knife = j; break; }\n        if(knife > 0) {\n            int tmp = rows[knife];\n            for(j = knife; j > 0; j--) rows[j] = rows[j - 1];\n            rows[0] = tmp;\n        }\n    }\n    return n;\n}'''
+          if old_c not in ct:
+              if 'Bowie Knife (item 19) at top' in ct:
+                  print('dc already')
+              else:
+                  raise SystemExit('dc pattern missing')
+          else:
+              cp.write_text(ct.replace(old_c, new_c, 1))
+              print('dc ok')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/engine.ts ports/dreamcast/src/main.c
+          git commit -m "Dray shop: Bowie Knife at top of buy list when available" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
