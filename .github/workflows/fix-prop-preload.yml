@@ -1,0 +1,65 @@
+name: Fix prop preload
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+
+          dp = Path('src/game/data.ts')
+          dt = dp.read_text()
+          old = '''  // Title + battle sprites first; 1MB portraits last so the cart can paint.\n  for (const pair of SPRITES.extra as [string, string][]) out.push([pair[0], q(pair[1])]);\n  const maxFolder = SPRITES.walkers.max;\n  if (maxFolder) {\n    for (const d of dirs) {\n      for (let i = 1; i <= 4; i++) out.push([`max-${d}-${i}`, q(`/sprites/${maxFolder}/${d}-${i}.png`)]);\n    }\n  }\n  for (const m of SPRITES.monsters) {\n    for (let i = 1; i <= 4; i++) out.push([`${m}-${i}`, q(`/sprites/monsters/${m}/${i}.png`)]);\n  }\n  for (const it of SPRITES.items) out.push([`item-${it}`, q(`/sprites/items/${it}.png`)]);\n  for (const [key, rel] of Object.entries(SPRITES.props)) {\n    out.push([`prop-${key}`, q(`/sprites/${rel}`)]);\n  }'''
+          new = '''  // Critical first: extras, Max walk, house props (beds/shelf/crate) so New\n  // Game never paints white placeholder boxes in the bedroom.\n  for (const pair of SPRITES.extra as [string, string][]) out.push([pair[0], q(pair[1])]);\n  const maxFolder = SPRITES.walkers.max;\n  if (maxFolder) {\n    for (const d of dirs) {\n      for (let i = 1; i <= 4; i++) out.push([`max-${d}-${i}`, q(`/sprites/${maxFolder}/${d}-${i}.png`)]);\n    }\n  }\n  for (const [key, rel] of Object.entries(SPRITES.props)) {\n    out.push([`prop-${key}`, q(`/sprites/${rel}`)]);\n  }\n  for (const m of SPRITES.monsters) {\n    for (let i = 1; i <= 4; i++) out.push([`${m}-${i}`, q(`/sprites/monsters/${m}/${i}.png`)]);\n  }\n  for (const it of SPRITES.items) out.push([`item-${it}`, q(`/sprites/items/${it}.png`)]);'''
+          if old not in dt:
+              if 'house props' in dt:
+                  print('data already')
+              else:
+                  raise SystemExit('data pattern missing')
+          else:
+              dt = dt.replace(old, new, 1)
+              dp.write_text(dt)
+              print('data ok')
+
+          ep = Path('src/game/engine.ts')
+          et = ep.read_text()
+          old_boot = '''\tasync boot() {\n\t\tthis.reset();\n\t\tthis.unsub = this.input.attach(this.canvas);\n\t\tthis.canvas.addEventListener("pointerdown", () => this.audio.unlock(), { once: true });\n\t\tthis.wireProbe();\n\t\tthis.ready = true;\n\t\tthis.visHook = () => {\n\t\t\tif (document.hidden) this.persist(false);\n\t\t\telse this.audio.unlock();\n\t\t};\n\t\tdocument.addEventListener("visibilitychange", this.visHook);\n\t\t// Title draws without sprites. Never stall the cart on 272 portraits.\n\t\tvoid this.loadArt();\n\t}\n\tasync loadArt() {\n\t\tconst all = artManifest();\n\t\tconst prefer = new Set(["max-down-1", "max-down-2", "quillpup-1", "quillpup-2", "bg"]);\n\t\tconst first = all.filter(([k]) => prefer.has(k));\n\t\tconst rest = all.filter(([k]) => !prefer.has(k));\n\t\tawait this.loadArtChunk(first);\n\t\tawait this.loadArtChunk(rest);\n\t}'''
+          new_boot = '''\tasync boot() {\n\t\tthis.reset();\n\t\tthis.unsub = this.input.attach(this.canvas);\n\t\tthis.canvas.addEventListener("pointerdown", () => this.audio.unlock(), { once: true });\n\t\tthis.wireProbe();\n\t\tthis.visHook = () => {\n\t\t\tif (document.hidden) this.persist(false);\n\t\t\telse this.audio.unlock();\n\t\t};\n\t\tdocument.addEventListener("visibilitychange", this.visHook);\n\t\tawait this.loadArtCritical();\n\t\tthis.ready = true;\n\t\tvoid this.loadArtRest();\n\t}\n\tcriticalArtKeys() {\n\t\treturn new Set([\n\t\t\t"bg",\n\t\t\t"max-down-1", "max-down-2", "max-down-3", "max-down-4",\n\t\t\t"max-up-1", "max-left-1", "max-right-1",\n\t\t\t"quillpup-1", "quillpup-2",\n\t\t\t"prop-bed-father", "prop-bed-empty", "prop-shelf", "prop-crate",\n\t\t\t"prop-door", "prop-cart", "prop-stump", "prop-herb", "prop-moonstone",\n\t\t]);\n\t}\n\tasync loadArtCritical() {\n\t\tconst all = artManifest();\n\t\tconst prefer = this.criticalArtKeys();\n\t\tawait this.loadArtChunk(all.filter(([k]) => prefer.has(k)));\n\t}\n\tasync loadArtRest() {\n\t\tconst all = artManifest();\n\t\tconst prefer = this.criticalArtKeys();\n\t\tawait this.loadArtChunk(all.filter(([k]) => !prefer.has(k)));\n\t}\n\tasync loadArt() {\n\t\tawait this.loadArtCritical();\n\t\tawait this.loadArtRest();\n\t}'''
+          if old_boot not in et:
+              if 'loadArtCritical' in et:
+                  print('boot already')
+              else:
+                  raise SystemExit('boot pattern missing')
+          else:
+              et = et.replace(old_boot, new_boot, 1)
+
+          old_draw = '''\t\tif (!im || !im.width) {\n\t\t\tctx.fillStyle = "#c5cec6";\n\t\t\tctx.fillRect(x + 4, y + 4, w - 8, h - 6);\n\t\t\treturn;\n\t\t}'''
+          new_draw = '''\t\tif (!im || !im.width) {\n\t\t\t// Never flash a white plate — leave transparent until the asset arrives.\n\t\t\treturn;\n\t\t}'''
+          if old_draw in et:
+              et = et.replace(old_draw, new_draw, 1)
+              print('draw ok')
+          elif 'Never flash a white plate' in et:
+              print('draw already')
+          else:
+              raise SystemExit('draw pattern missing')
+          ep.write_text(et)
+          print('engine done')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/data.ts src/game/engine.ts
+          git commit -m "Preload house props before play; no white missing-sprite placeholders" || exit 0
+          git push
+      - name: Ship
+        run: gh workflow run deploy-pages.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
