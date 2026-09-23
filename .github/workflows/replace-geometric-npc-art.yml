@@ -1,0 +1,204 @@
+name: Replace geometric NPC art
+on:
+  workflow_dispatch:
+jobs:
+  art:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: pip install pillow numpy -q
+      - name: Generate replacement art
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+          import numpy as np
+
+          def new_canvas(w, h):
+              return Image.new("RGBA", (w, h), (0, 0, 0, 0))
+
+          def rect(d, x0, y0, x1, y1, c):
+              d.rectangle([x0, y0, x1, y1], fill=c)
+
+          def ellipse(d, box, c):
+              d.ellipse(box, fill=c)
+
+          def outline_fill(img, outline=(20, 18, 16, 255)):
+              a = np.array(img)
+              h, w = a.shape[:2]
+              op = a[:, :, 3] > 32
+              out = a.copy()
+              for y in range(h):
+                  for x in range(w):
+                      if op[y, x]:
+                          continue
+                      for dy, dx in ((0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)):
+                          ny, nx = y+dy, x+dx
+                          if 0 <= ny < h and 0 <= nx < w and op[ny, nx]:
+                              out[y, x] = outline
+                              break
+              return Image.fromarray(out)
+
+          def shade_vertical(img, top_boost=18, bot_dark=22):
+              a = np.array(img).astype(np.int16)
+              h, w = a.shape[:2]
+              for y in range(h):
+                  t = y / max(1, h - 1)
+                  delta = int(top_boost * (1 - t) - bot_dark * t)
+                  mask = a[y, :, 3] > 32
+                  a[y, mask, 0] = np.clip(a[y, mask, 0] + delta, 0, 255)
+                  a[y, mask, 1] = np.clip(a[y, mask, 1] + delta, 0, 255)
+                  a[y, mask, 2] = np.clip(a[y, mask, 2] + delta, 0, 255)
+              return Image.fromarray(a.astype(np.uint8))
+
+          SKIN = (210, 160, 120, 255)
+          SKIN_D = (170, 120, 90, 255)
+          BLACK = (18, 16, 14, 255)
+
+          def draw_humanoid_base(d, cx, foot_y, skin=SKIN, tunic=(70, 100, 70, 255), tunic_d=(50, 75, 50, 255),
+                                 leg=(45, 50, 42, 255), boot=(40, 32, 28, 255), frame=0):
+              lx = cx - 5 + (1 if frame in (1, 2) else 0)
+              rx = cx + 2 + (-1 if frame in (1, 2) else 0)
+              if frame % 2 == 1:
+                  lx -= 1; rx += 1
+              rect(d, lx, foot_y - 14, lx + 4, foot_y - 4, leg)
+              rect(d, rx, foot_y - 14, rx + 4, foot_y - 4, leg)
+              rect(d, lx - 1, foot_y - 4, lx + 5, foot_y, boot)
+              rect(d, rx - 1, foot_y - 4, rx + 5, foot_y, boot)
+              rect(d, cx - 8, foot_y - 30, cx + 8, foot_y - 14, tunic)
+              rect(d, cx - 8, foot_y - 18, cx + 8, foot_y - 14, tunic_d)
+              arm_y = foot_y - 28
+              swing = (1, 0, -1, 0)[frame % 4]
+              rect(d, cx - 11, arm_y + swing, cx - 7, arm_y + 12 + swing, tunic_d)
+              rect(d, cx + 7, arm_y - swing, cx + 11, arm_y + 12 - swing, tunic_d)
+              rect(d, cx - 11, arm_y + 11 + swing, cx - 7, arm_y + 14 + swing, skin)
+              rect(d, cx + 7, arm_y + 11 - swing, cx + 11, arm_y + 14 - swing, skin)
+              rect(d, cx - 2, foot_y - 34, cx + 2, foot_y - 30, skin)
+              ellipse(d, [cx - 7, foot_y - 48, cx + 7, foot_y - 32], skin)
+              rect(d, cx - 4, foot_y - 42, cx - 2, foot_y - 40, BLACK)
+              rect(d, cx + 2, foot_y - 42, cx + 4, foot_y - 40, BLACK)
+              rect(d, cx - 1, foot_y - 39, cx + 1, foot_y - 37, SKIN_D)
+
+          def reedguard_ow(frame):
+              im = new_canvas(48, 64); d = ImageDraw.Draw(im)
+              cx, fy = 24, 60
+              green, green_d = (72, 110, 68, 255), (48, 78, 48, 255)
+              draw_humanoid_base(d, cx, fy, tunic=green, tunic_d=green_d, frame=frame)
+              rect(d, cx - 8, fy - 50, cx + 8, fy - 44, green_d)
+              rect(d, cx - 6, fy - 54, cx + 6, fy - 48, green)
+              for i, ox in enumerate([-2, 0, 2]):
+                  rect(d, cx + ox, fy - 58 - (i % 2), cx + ox + 1, fy - 52, (90, 130, 70, 255))
+              rect(d, cx - 2, fy - 24, cx + 2, fy - 20, (200, 180, 60, 255))
+              spear_x = cx + 12
+              rect(d, spear_x, fy - 52, spear_x + 2, fy - 6, (140, 120, 80, 255))
+              rect(d, spear_x - 1, fy - 56, spear_x + 3, fy - 50, (180, 180, 190, 255))
+              return shade_vertical(outline_fill(im), 12, 16)
+
+          def bogwalker_ow(frame):
+              im = new_canvas(48, 64); d = ImageDraw.Draw(im)
+              cx, fy = 24, 60
+              mud, mud_d = (90, 78, 55, 255), (65, 55, 38, 255)
+              draw_humanoid_base(d, cx, fy, tunic=mud, tunic_d=mud_d, leg=(55, 48, 35, 255), boot=(35, 30, 22, 255), frame=frame)
+              rect(d, cx - 10, fy - 48, cx + 10, fy - 44, mud_d)
+              ellipse(d, [cx - 6, fy - 54, cx + 6, fy - 44], mud)
+              rect(d, cx - 7, fy - 32, cx + 7, fy - 28, (120, 90, 50, 255))
+              sx = cx - 13
+              rect(d, sx, fy - 50, sx + 2, fy - 8, (100, 80, 50, 255))
+              return shade_vertical(outline_fill(im), 10, 18)
+
+          def lead_ow(frame):
+              im = new_canvas(48, 64); d = ImageDraw.Draw(im)
+              cx, fy = 24, 60
+              camo, camo_d, camo_l = (70, 78, 52, 255), (50, 58, 38, 255), (95, 105, 70, 255)
+              draw_humanoid_base(d, cx, fy, tunic=camo, tunic_d=camo_d, leg=camo_d, boot=(30, 30, 28, 255), frame=frame)
+              for ox, oy in [(-4, -26), (3, -22), (-2, -18), (5, -28)]:
+                  rect(d, cx + ox, fy + oy, cx + ox + 2, fy + oy + 2, camo_l)
+              rect(d, cx - 8, fy - 50, cx + 8, fy - 44, camo_d)
+              rect(d, cx - 7, fy - 52, cx + 7, fy - 48, camo)
+              rect(d, cx - 8, fy - 46, cx + 8, fy - 44, (40, 45, 35, 255))
+              rx0, ry = cx - 2, fy - 26
+              rect(d, rx0, ry, rx0 + 16, ry + 3, (45, 48, 42, 255))
+              rect(d, rx0 + 14, ry - 1, rx0 + 18, ry + 4, (55, 55, 50, 255))
+              rect(d, rx0 + 4, ry + 3, rx0 + 7, ry + 8, (40, 40, 38, 255))
+              rect(d, rx0 + 8, ry - 2, rx0 + 11, ry, (60, 60, 55, 255))
+              return shade_vertical(outline_fill(im), 10, 16)
+
+          def fenn_ow(frame):
+              im = new_canvas(48, 64); d = ImageDraw.Draw(im)
+              cx, fy = 24, 60
+              coat, coat_d = (120, 70, 50, 255), (90, 50, 35, 255)
+              draw_humanoid_base(d, cx, fy, tunic=coat, tunic_d=coat_d, leg=(50, 40, 35, 255), boot=(35, 28, 24, 255), frame=frame)
+              rect(d, cx - 7, fy - 22, cx + 7, fy - 12, (200, 190, 160, 255))
+              rect(d, cx - 7, fy - 50, cx + 7, fy - 44, (90, 45, 35, 255))
+              rect(d, cx - 8, fy - 46, cx + 8, fy - 44, (70, 35, 28, 255))
+              rect(d, cx - 4, fy - 36, cx + 4, fy - 32, (90, 70, 50, 255))
+              return shade_vertical(outline_fill(im), 12, 14)
+
+          def quartz_ow(frame):
+              im = new_canvas(48, 64); d = ImageDraw.Draw(im)
+              cx, fy = 24, 60
+              robe, robe_d = (140, 150, 170, 255), (100, 110, 130, 255)
+              draw_humanoid_base(d, cx, fy, skin=(200, 185, 170, 255), tunic=robe, tunic_d=robe_d, leg=robe_d, boot=(60, 60, 70, 255), frame=frame)
+              d.polygon([(cx, fy - 28), (cx - 3, fy - 24), (cx, fy - 20), (cx + 3, fy - 24)], fill=(180, 220, 255, 255))
+              ellipse(d, [cx - 8, fy - 52, cx + 8, fy - 36], robe_d)
+              ellipse(d, [cx - 6, fy - 48, cx + 6, fy - 34], (200, 185, 170, 255))
+              rect(d, cx - 4, fy - 42, cx - 2, fy - 40, BLACK)
+              rect(d, cx + 2, fy - 42, cx + 4, fy - 40, BLACK)
+              return shade_vertical(outline_fill(im), 14, 12)
+
+          def opal_ow(frame):
+              im = new_canvas(48, 64); d = ImageDraw.Draw(im)
+              cx, fy = 24, 60
+              robe, robe_d = (160, 120, 150, 255), (120, 85, 115, 255)
+              draw_humanoid_base(d, cx, fy, skin=(215, 175, 150, 255), tunic=robe, tunic_d=robe_d, leg=robe_d, boot=(50, 40, 48, 255), frame=frame)
+              ellipse(d, [cx - 3, fy - 26, cx + 3, fy - 20], (255, 200, 230, 255))
+              rect(d, cx - 1, fy - 25, cx + 1, fy - 23, (255, 240, 250, 255))
+              ellipse(d, [cx - 8, fy - 52, cx + 8, fy - 36], robe_d)
+              ellipse(d, [cx - 6, fy - 48, cx + 6, fy - 34], (215, 175, 150, 255))
+              rect(d, cx - 4, fy - 42, cx - 2, fy - 40, BLACK)
+              rect(d, cx + 2, fy - 42, cx + 4, fy - 40, BLACK)
+              return shade_vertical(outline_fill(im), 14, 12)
+
+          def make_portrait(ow_frame):
+              W, H = 160, 200
+              scaled = ow_frame.resize((ow_frame.width * 3, ow_frame.height * 3), Image.NEAREST)
+              canvas = new_canvas(W, H)
+              x = (W - scaled.width) // 2
+              y = H - scaled.height - 8
+              canvas.paste(scaled, (x, y), scaled)
+              return canvas
+
+          GENERATORS = {
+              "reedguard": reedguard_ow,
+              "bogwalker": bogwalker_ow,
+              "lead": lead_ow,
+              "fenn": fenn_ow,
+              "quartz": quartz_ow,
+              "opal": opal_ow,
+          }
+          out_npc = Path("public/sprites/npc")
+          out_port = Path("public/sprites/portraits")
+          for name, gen in GENERATORS.items():
+              frames = [gen(i) for i in range(4)]
+              for i, fr in enumerate(frames, 1):
+                  fr.save(out_npc / f"{name}-{i}.png", "PNG", optimize=True)
+              make_portrait(frames[0]).save(out_port / f"{name}.png", "PNG", optimize=True)
+              print("wrote", name)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add public/sprites/npc/ public/sprites/portraits/
+          git commit -m "Replace geometric NPC art: reedguard, bogwalker, lead, fenn, quartz, opal (OW + portraits)" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
