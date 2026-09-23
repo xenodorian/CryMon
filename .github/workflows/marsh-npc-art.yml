@@ -1,0 +1,165 @@
+name: Marsh NPC art
+on:
+  workflow_dispatch:
+jobs:
+  art:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pillow numpy -q
+      - name: Generate Reedguard + Bogwalker
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+          import numpy as np
+
+          def transparent(w, h):
+              return Image.new("RGBA", (w, h), (0, 0, 0, 0))
+
+          def outline(img, col=(14, 12, 10, 255)):
+              a = np.array(img)
+              h, w = a.shape[:2]
+              op = a[:, :, 3] > 30
+              out = a.copy()
+              for y in range(h):
+                  for x in range(w):
+                      if op[y, x]:
+                          continue
+                      for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                          ny, nx = y + dy, x + dx
+                          if 0 <= ny < h and 0 <= nx < w and op[ny, nx]:
+                              out[y, x] = col
+                              break
+              return Image.fromarray(out)
+
+          OUT = (12, 10, 8, 255)
+          SKIN = (210, 168, 128, 255)
+          SKIN_D = (168, 128, 95, 255)
+          SKIN_L = (230, 192, 155, 255)
+          EYE = (18, 16, 14, 255)
+          WHITE = (235, 230, 220, 255)
+
+          def draw_char(frame, palette):
+              W, H = 96, 128
+              img = transparent(W, H)
+              d = ImageDraw.Draw(img)
+              bob = (0, 2, 0, -2)[frame % 4]
+              ll = (0, 2, 0, -2)[frame % 4]
+              rr = (0, -2, 0, 2)[frame % 4]
+              arm = (2, 0, -2, 0)[frame % 4]
+              cx = 48
+              hat, hat_l, hat_d = palette["hat"], palette["hat_l"], palette["hat_d"]
+              body, body_d, body_l = palette["body"], palette["body_d"], palette["body_l"]
+              pants, boot, boot_l = palette["pants"], palette["boot"], palette["boot_l"]
+              accent, pole, pole_l = palette["accent"], palette["pole"], palette["pole_l"]
+              blade = palette.get("blade", (200, 205, 210, 255))
+              blade_d = palette.get("blade_d", (140, 145, 150, 255))
+
+              def box(x0, y0, x1, y1, c):
+                  d.rectangle([x0, y0 + bob, x1, y1 + bob], fill=c)
+              def ell(x0, y0, x1, y1, c):
+                  d.ellipse([x0, y0 + bob, x1, y1 + bob], fill=c)
+
+              box(cx - 16 + ll, 112, cx - 4 + ll, 126, boot)
+              box(cx + 4 + rr, 112, cx + 16 + rr, 126, boot)
+              box(cx - 14 + ll, 118, cx - 6 + ll, 124, boot_l)
+              box(cx + 6 + rr, 118, cx + 14 + rr, 124, boot_l)
+              box(cx - 14 + ll, 88, cx - 4 + ll, 114, pants)
+              box(cx + 4 + rr, 88, cx + 14 + rr, 114, pants)
+              box(cx - 18, 52, cx + 18, 90, body)
+              box(cx - 18, 80, cx + 18, 90, body_d)
+              box(cx - 10, 56, cx - 2, 70, body_l)
+              box(cx + 4, 60, cx + 12, 74, body_d)
+              box(cx - 5, 64, cx + 5, 74, accent)
+              box(cx - 3, 66, cx + 3, 72, body_l)
+              box(cx - 24, 54 + arm, cx - 16, 82 + arm, body_d)
+              box(cx + 16, 54 - arm, cx + 24, 82 - arm, body_d)
+              box(cx - 24, 78 + arm, cx - 16, 86 + arm, SKIN_D)
+              box(cx + 16, 78 - arm, cx + 24, 86 - arm, SKIN_D)
+              if palette.get("weapon_side", "right") == "right":
+                  box(cx + 18, 20, cx + 24, 100, pole)
+                  box(cx + 19, 22, cx + 23, 40, pole_l)
+                  box(cx + 16, 12, cx + 26, 24, blade)
+                  box(cx + 18, 10, cx + 24, 16, blade_d)
+                  box(cx + 20, 8, cx + 22, 12, blade)
+              else:
+                  box(cx - 24, 20, cx - 18, 100, pole)
+                  box(cx - 23, 22, cx - 19, 40, pole_l)
+                  box(cx - 26, 12, cx - 16, 24, blade)
+                  box(cx - 24, 10, cx - 18, 16, blade_d)
+              box(cx - 5, 44, cx + 5, 52, SKIN)
+              ell(cx - 14, 18, cx + 14, 48, SKIN)
+              box(cx - 12, 36, cx - 4, 44, SKIN_D)
+              box(cx + 4, 36, cx + 12, 44, SKIN_D)
+              box(cx - 8, 24, cx + 8, 30, SKIN_L)
+              box(cx - 8, 32, cx - 3, 36, EYE)
+              box(cx + 3, 32, cx + 8, 36, EYE)
+              box(cx - 7, 32, cx - 5, 34, WHITE)
+              box(cx + 4, 32, cx + 6, 34, WHITE)
+              box(cx - 9, 30, cx - 2, 32, (40, 30, 25, 255))
+              box(cx + 2, 30, cx + 9, 32, (40, 30, 25, 255))
+              box(cx - 1, 36, cx + 2, 40, SKIN_D)
+              box(cx - 4, 42, cx + 4, 44, (110, 70, 60, 255))
+              if palette.get("hat_style") == "point":
+                  ell(cx - 16, 10, cx + 16, 34, hat)
+                  box(cx - 14, 14, cx + 14, 24, hat_l)
+                  box(cx - 4, 4, cx + 4, 16, hat)
+                  box(cx - 2, 2, cx + 2, 10, hat_l)
+                  box(cx - 18, 28, cx + 18, 34, hat_d)
+              else:
+                  ell(cx - 16, 12, cx + 16, 36, hat)
+                  box(cx - 14, 16, cx + 14, 26, hat_l)
+                  box(cx - 22, 28, cx + 22, 36, hat_d)
+                  box(cx - 18, 26, cx + 18, 32, hat)
+              return outline(Image.fromarray(np.array(img)), OUT)
+
+          reed_pal = dict(
+              hat=(48, 110, 58, 255), hat_l=(72, 145, 78, 255), hat_d=(32, 78, 42, 255),
+              body=(52, 120, 62, 255), body_d=(36, 88, 46, 255), body_l=(78, 150, 88, 255),
+              pants=(28, 48, 36, 255), boot=(24, 22, 18, 255), boot_l=(48, 42, 34, 255),
+              accent=(210, 185, 55, 255), pole=(140, 110, 55, 255), pole_l=(175, 140, 75, 255),
+              blade=(210, 215, 220, 255), blade_d=(150, 155, 160, 255),
+              weapon_side="right", hat_style="point",
+          )
+          bog_pal = dict(
+              hat=(88, 72, 52, 255), hat_l=(120, 100, 72, 255), hat_d=(58, 48, 34, 255),
+              body=(78, 60, 42, 255), body_d=(52, 40, 28, 255), body_l=(105, 82, 58, 255),
+              pants=(36, 30, 24, 255), boot=(28, 24, 20, 255), boot_l=(50, 44, 36, 255),
+              accent=(70, 90, 55, 255), pole=(100, 78, 48, 255), pole_l=(130, 100, 60, 255),
+              blade=(160, 150, 130, 255), blade_d=(110, 100, 85, 255),
+              weapon_side="left", hat_style="round",
+          )
+          out_npc = Path("public/sprites/npc")
+          out_port = Path("public/sprites/portraits")
+          for name, pal in [("reedguard", reed_pal), ("bogwalker", bog_pal)]:
+              frames = [draw_char(i, pal) for i in range(4)]
+              for i, fr in enumerate(frames, 1):
+                  fr.resize((48, 64), Image.NEAREST).save(out_npc / f"{name}-{i}.png", "PNG", optimize=True)
+              hi = frames[0]
+              scaled = hi.resize((hi.width * 2, hi.height * 2), Image.NEAREST)
+              W, H = 160, 200
+              canvas = transparent(W, H)
+              sx = (scaled.width - W) // 2
+              sy = max(0, scaled.height - H - 16)
+              cropped = scaled.crop((sx, sy, sx + W, min(sy + H, scaled.height)))
+              canvas.paste(cropped, (0, H - cropped.height), cropped)
+              canvas.save(out_port / f"{name}.png", "PNG", optimize=True)
+              print(name, "ok")
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add public/sprites/npc/reedguard-*.png public/sprites/npc/bogwalker-*.png public/sprites/portraits/reedguard.png public/sprites/portraits/bogwalker.png
+          git commit -m "Reedguard and Bogwalker: detailed OW walk cycles and talk portraits" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
