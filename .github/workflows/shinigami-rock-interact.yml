@@ -1,0 +1,105 @@
+name: Shinigami rock interact only
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          import json, re
+
+          for path in ['content/world.json', 'content/world_parts/npcs.json']:
+              p = Path(path)
+              data = json.loads(p.read_text())
+              npcs = data['npcs'] if isinstance(data, dict) and 'npcs' in data else data
+              for n in npcs:
+                  if n.get('id') == 'shinigamiRock':
+                      n['talk'] = 'shinigamiRockEvent'
+                      n['script'] = [{
+                          'if': 'beatShinigami',
+                          'hideIf': 'sawShinigamiRock',
+                          'talk': 'shinigamiRockEvent',
+                          'set': 'sawShinigamiRock',
+                      }]
+                      print('updated', path)
+              if isinstance(data, dict) and 'npcs' in data:
+                  p.write_text(json.dumps(data, indent=2) + '\n')
+              else:
+                  p.write_text(json.dumps(npcs, indent=2) + '\n')
+
+          et = Path('src/game/engine.ts').read_text()
+          et = et.replace('\t\tthis.maybeShinigamiRock();\n', '')
+          pat = r'\t// Shinigami, freed in the Prison[\s\S]*?\tmaybeShinigamiRock\(\) \{[\s\S]*?\t\}\n'
+          if re.search(pat, et):
+              et = re.sub(pat, '\t// Shinigami rock event: only on direct interact with shinigamiRock NPC (veld mark 9).\n', et, count=1)
+              print('removed maybeShinigamiRock')
+          elif 'maybeShinigamiRock' not in et:
+              print('already removed')
+          else:
+              raise SystemExit('could not strip maybeShinigamiRock')
+          Path('src/game/engine.ts').write_text(et)
+
+          mc = Path('ports/dreamcast/src/main.c').read_text()
+          old = '''            /* Shinigami, freed in the Prison, stands beside the boulder\n               blocking CryTown\'s west gate. No walk-cycle cutscene --\n               he\'s just already there (VELD mark \'9\', collect_npcs()\n               above), and the moment the player\'s viewport reaches him\n               the rock event fires once. The boulder "exploding" is\n               narrated in TALK_SHINIGAMI_ROCK_EVENT\'s text only; a real\n               particle-burst animation is a marked TODO, not\n               implemented here. Matches engine.ts\'s maybeShinigamiRock(). */\n            if(map_id == MAP_VELD && beat_shin && !saw_shinigami_rock && !seq_lines) {\n                int sx, sy, ddx, ddy;\n                mark_center(MAP_VELD, \'9\', &sx, &sy);\n                ddx = sx - px; if(ddx < 0) ddx = -ddx;\n                ddy = sy - py; if(ddy < 0) ddy = -ddy;\n                if(ddx < SCREEN_W / 2 && ddy < SCREEN_H / 2) {\n                    saw_shinigami_rock = 1;\n                    seq_lines = TALK_SHINIGAMI_ROCK_EVENT;\n                    seq_len = TALK_LEN(TALK_SHINIGAMI_ROCK_EVENT);\n                    seq_beat = 0;\n                }\n            }\n'''
+          new = '''            /* Shinigami rock event: only on direct interact with mark \'9\'\n               (baked shinigamiRock NPC talk), not viewport proximity. */\n'''
+          if old in mc:
+              mc = mc.replace(old, new, 1)
+              print('dc ok')
+          elif 'viewport reaches him' in mc or ('MAP_VELD && beat_shin && !saw_shinigami_rock' in mc and 'SCREEN_W / 2' in mc):
+              # line-based strip
+              lines = mc.splitlines(True)
+              out = []
+              i = 0
+              while i < len(lines):
+                  if 'MAP_VELD && beat_shin && !saw_shinigami_rock && !seq_lines' in lines[i]:
+                      # back up over comment block
+                      while out and ('Shinigami' in out[-1] or out[-1].strip().startswith('/*') or out[-1].strip().startswith('*') or out[-1].strip() == '*/' or not out[-1].strip()):
+                          if 'Shinigami, freed' in out[-1] or (out[-1].strip().startswith('/*') and i > 0):
+                              # pop comment start
+                              pass
+                          # simpler: find start of comment
+                          break
+                      # skip until closing brace of if
+                      depth = 0
+                      started = False
+                      while i < len(lines):
+                          if '{' in lines[i]:
+                              depth += lines[i].count('{')
+                              started = True
+                          if '}' in lines[i]:
+                              depth -= lines[i].count('}')
+                          i += 1
+                          if started and depth <= 0:
+                              break
+                      out.append("            /* Shinigami rock event: only on direct interact with mark '9' */\n")
+                      continue
+                  out.append(lines[i])
+                  i += 1
+              mc = ''.join(out)
+              print('dc stripped alt')
+          elif 'only on direct interact with mark' in mc:
+              print('dc already')
+          else:
+              raise SystemExit('dc pattern missing')
+          Path('ports/dreamcast/src/main.c').write_text(mc)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/world.json content/world_parts/npcs.json src/game/engine.ts ports/dreamcast/src/main.c
+          git commit -m "Shinigami rock cutscene only on direct interact, not off-screen" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
