@@ -2435,6 +2435,10 @@ export class CryMon {
 					this.say(TALK.soldierDone);
 					return;
 				}
+				if (this.canBackstabSoldier(sol)) {
+					this.openBackstabChoiceForSoldier(sol);
+					return;
+				}
 				this.pendingSoldier = sol.id;
 				this.say(TALK.soldierSpot, "soldier");
 				return;
@@ -2613,13 +2617,12 @@ export class CryMon {
 		if (Math.abs(dx) >= Math.abs(dy)) return dx < 0 ? "left" : "right";
 		return dy < 0 ? "up" : "down";
 	}
-	/** These trainers have no walk-cycle art (content/sprites.json's
-	 *  `walkers` list is just max/mason/anne/soldier/shinigami), so
-	 *  unlike soldierLos() there's no single stored facing direction
-	 *  to raycast along -- a stationary guard is assumed to watch
-	 *  every approach from its post instead of one fixed heading:
-	 *  true only when the player shares its row or column with a
-	 *  clear (non-solid) line between them. */
+	/** Facing-only LOS, same ray shape as soldierLos(): true only when
+	 *  the player is somewhere along the single straight line the
+	 *  guard's `dir` faces (roamer.dir, set at spawn via
+	 *  roamerFacing() and updated only while actively chasing), with
+	 *  no solid tile blocking the way. A guard never sees behind or to
+	 *  either side of itself. */
 	roamerLos(x, y, dir: Dir) {
 		const stx = Math.floor(x / TILE);
 		const sty = Math.floor(y / TILE);
@@ -4017,10 +4020,10 @@ export class CryMon {
 		});
 		this.text("Z  choose", X(28), Y(128), "#5a7a52", FONT);
 	}
-	/** Whether npc (with its currently-matched script step) is a valid
-	 *  Backstab target: a roamable wsoldier trainer that hasn't spotted
-	 *  the player yet (no active chase), still fightable, while the
-	 *  player carries the Bowie Knife. */	isFightAfter(after: string | undefined | null): boolean {
+	/** Whether a script step's `after` leads to an actual fight (as
+	 *  opposed to a shop, heal, or plain-talk step) -- the set of
+	 *  trainer types Backstab is offered against. */
+	isFightAfter(after: string | undefined | null): boolean {
 		if (!after) return false;
 		return (
 			after === "wsoldier" ||
@@ -4038,6 +4041,12 @@ export class CryMon {
 		const mapId = npc.map;
 		return WARPS.some((w) => w.from === mapId && marks.includes(w.tile));
 	}
+	/** Whether npc (with its currently-matched script step) is a valid
+	 *  Backstab target: a roamable wsoldier trainer that hasn't spotted
+	 *  the player yet (no active chase), still fightable, not standing
+	 *  on a warp gate tile, while the player carries the Bowie Knife.
+	 *  FOREST patrol/scout/sentry aren't NPCS-table entries, so they
+	 *  never reach this check -- see canBackstabSoldier() below. */
 	canBackstab(npc, step) {
 		if (!(this.bag.bowieKnife > 0)) return false;
 		if (!step || !this.isFightAfter(step.after)) return false;
@@ -4049,6 +4058,33 @@ export class CryMon {
 			if (this.roamerLos(r.x, r.y, r.dir)) return false;
 		}
 		return true;
+	}
+	/** The 3 FOREST patrol/scout/sentry trainers live in their own
+	 *  this.soldiers array (ensureSoldiers()), not the generic NPCS/
+	 *  script table runClosestNpc() walks -- canBackstab() never sees
+	 *  them, so interact()'s forest branch checks this directly before
+	 *  falling into its normal always-confront flow. Same three gates
+	 *  as canBackstab(): knife carried, not already dealt with, hasn't
+	 *  spotted the player (soldierLos(), same one-direction facing ray
+	 *  chase detection uses). No warp-gate check needed -- none of the
+	 *  forest soldier marks ('1'/'2'/'3') are ever a warp tile. */
+	canBackstabSoldier(sol): boolean {
+		if (!(this.bag.bowieKnife > 0)) return false;
+		if (sol.beaten || sol.chase) return false;
+		if (this.soldierLos(sol)) return false;
+		return true;
+	}
+	openBackstabChoiceForSoldier(sol) {
+		this.pendingBackstab = {
+			npc: null,
+			pending: sol.id,
+			after: "soldier",
+			talk: "soldierSpot",
+			levels: sol.level || 1,
+		};
+		this.backstabCur = 0;
+		this.mode = "backstab";
+		this.audio.ui();
 	}
 	openBackstabChoice(npc, step) {
 		const kitKey =
@@ -4093,7 +4129,17 @@ export class CryMon {
 			this.pendingBackstab = null;
 			if (!pb) return;
 			this.audio.ok();
-			if (this.backstabCur === 0) this.runNpc(pb.npc);
+			if (this.backstabCur === 0) {
+				// pb.npc is null for a forest soldier target (they aren't
+				// in the NPCS/script table runNpc() expects) -- Approach
+				// just re-runs the same "spotted" confrontation interact()
+				// would've triggered directly.
+				if (pb.npc) this.runNpc(pb.npc);
+				else if (pb.after === "soldier") {
+					this.pendingSoldier = pb.pending;
+					this.say(TALK.soldierSpot, "soldier");
+				}
+			}
 			else this.resolveBackstab(pb);
 		}
 	}
@@ -4113,22 +4159,35 @@ export class CryMon {
 		const after = pb.after || "wsoldier";
 		const pending = pb.pending || "";
 		if (after === "calder") this.markExecuted("calder", null);
-		else if (after === "soldier") this.markExecuted("soldier", pending || this.pendingSoldier);
+		else if (after === "soldier") {
+			// Forest patrol/scout/sentry live in their own this.soldiers
+			// array and share id-space with unrelated wsoldier trainers
+			// ("sentry" is also the Cliffs wsoldier's pending id) --
+			// resolve sol.beaten directly here and skip the shared
+			// TRAINERS[pending]/applyWsBeatFlags() lookups below
+			// entirely, since those are keyed by that same string for a
+			// different NPC.
+			const sol = this.soldiers.find((s) => s.id === pending);
+			if (sol) sol.beaten = true;
+			this.markExecuted("soldier", pending || this.pendingSoldier);
+		}
 		else if (after === "cathleen") {
 			this.beatCathleen = true;
 			this.cathleenCaught = true;
 		} else if (after === "shinigami") this.beatShinigami = true;
 		else if (after === "mason" || after === "mason2") this.foughtMason = true;
 		else this.markExecuted("wsoldier", pending);
-		const kit = TRAINERS[pending] || (after === "calder" ? TRAINERS.calder : undefined);
-		if (kit?.grant) {
-			for (const [iid, qty] of kit.grant) {
-				this.bag[iid] = (this.bag[iid] ?? 0) + qty;
+		if (after !== "soldier") {
+			const kit = TRAINERS[pending] || (after === "calder" ? TRAINERS.calder : undefined);
+			if (kit?.grant) {
+				for (const [iid, qty] of kit.grant) {
+					this.bag[iid] = (this.bag[iid] ?? 0) + qty;
+				}
 			}
+			if (after === "calder") this.beatCalder = true;
+			else if (after === "wsoldier") this.applyWsBeatFlags(pending);
+			if (pb.npc?.id && this.roamers[pb.npc.id]) this.roamers[pb.npc.id].chase = false;
 		}
-		if (after === "calder") this.beatCalder = true;
-		else this.applyWsBeatFlags(pending);
-		if (pb.npc?.id && this.roamers[pb.npc.id]) this.roamers[pb.npc.id].chase = false;
 
 		this.world.encounterLock = 3;
 		this.audio.scream();

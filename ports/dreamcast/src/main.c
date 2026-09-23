@@ -4281,14 +4281,58 @@ static int mercy_exec_bit(int trainer_kind, int soldier_id) {
         default: return -1; /* wild/Mason/Mason2/Shinigami/commanderFinal: no exec bit */
     }
 }
+/* Applies NPC_DEFS[idx]'s currently-matched script step's effects
+ * (grant/heal/marks/take_item/talk/after/pending) onto R, exactly as
+ * try_npc_script()'s inner loop does once it has picked a best-match
+ * index -- factored out so a direct index (already known, no
+ * proximity re-scan needed) can reuse it too. See run_npc_at() below,
+ * used by the Backstab "Approach" row so it triggers the same normal
+ * dialogue/battle immediately instead of leaving it to a re-scan that
+ * would just reopen the same Backstab prompt (the target's still
+ * unspotted). Returns 0 if idx has no currently-active step (hidden/
+ * flag-gated this frame). */
+static int apply_npc_step(NpcRun *R, int idx) {
+    int si, talk, gi;
+    const NpcStep *st;
+    si = npc_match_step(&NPC_DEFS[idx], R->ft, R->party_n);
+    if(si < 0) return 0;
+    st = &NPC_STEPS[si];
+    talk = st->talk;
+    if(st->talk_if >= 0)
+        talk = npc_flag_on(st->talk_if, R->ft, R->party_n) ? st->talk : st->talk_else;
+    if(st->set_flag >= 0) npc_flag_set(st->set_flag, R->ft);
+    for(gi = 0; gi < st->g_n; gi++) {
+        int *slot = bag_field(R->bag, st->g_item[gi]);
+        *slot += st->g_qty[gi];
+    }
+    if(st->g_sp >= 0 && *R->pn == 0) {
+        R->party[0] = mint_monster(st->g_sp, st->g_lv);
+        *R->pn = 1;
+        *R->lead = 0;
+        dex_note_caught(st->g_sp);
+    }
+    if(st->take_item >= 0) {
+        int *slot = bag_field(R->bag, st->take_item);
+        if(*slot > 0) (*slot)--;
+    }
+    if(st->heal) heal_party(R->party, *R->pn);
+    if(st->marks) *R->marks += st->marks;
+    if(talk >= 0 && talk < TALK_TABLE_N) {
+        *R->seq_lines = TALK_PTRS[talk];
+        *R->seq_len = TALK_COUNTS[talk];
+    }
+    *R->after = st->after;
+    *R->pending = st->pending;
+    return 1;
+}
+
 static int try_npc_script(NpcRun *R) {
     unsigned char used[64];
     int i, guard;
     if(NPC_DEF_N > 64) return 0;
     for(i = 0; i < NPC_DEF_N; i++) used[i] = 0;
     for(guard = 0; guard < NPC_DEF_N; guard++) {
-        int best = -1, best_d = 0x7fffffff, si, talk, gi;
-        const NpcStep *st;
+        int best = -1, best_d = 0x7fffffff;
         for(i = 0; i < NPC_DEF_N; i++) {
             int mx, my, dx, dy, d;
             int half_w, left, right, top, bottom;
@@ -4318,36 +4362,7 @@ static int try_npc_script(NpcRun *R) {
         }
         if(best < 0) return 0;
         used[best] = 1;
-        si = npc_match_step(&NPC_DEFS[best], R->ft, R->party_n);
-        if(si < 0) continue;
-        st = &NPC_STEPS[si];
-        talk = st->talk;
-        if(st->talk_if >= 0)
-            talk = npc_flag_on(st->talk_if, R->ft, R->party_n) ? st->talk : st->talk_else;
-        if(st->set_flag >= 0) npc_flag_set(st->set_flag, R->ft);
-        for(gi = 0; gi < st->g_n; gi++) {
-            int *slot = bag_field(R->bag, st->g_item[gi]);
-            *slot += st->g_qty[gi];
-        }
-        if(st->g_sp >= 0 && *R->pn == 0) {
-            R->party[0] = mint_monster(st->g_sp, st->g_lv);
-            *R->pn = 1;
-            *R->lead = 0;
-            dex_note_caught(st->g_sp);
-        }
-        if(st->take_item >= 0) {
-            int *slot = bag_field(R->bag, st->take_item);
-            if(*slot > 0) (*slot)--;
-        }
-        if(st->heal) heal_party(R->party, *R->pn);
-        if(st->marks) *R->marks += st->marks;
-        if(talk >= 0 && talk < TALK_TABLE_N) {
-            *R->seq_lines = TALK_PTRS[talk];
-            *R->seq_len = TALK_COUNTS[talk];
-        }
-        *R->after = st->after;
-        *R->pending = st->pending;
-        return 1;
+        if(apply_npc_step(R, best)) return 1;
     }
     return 0;
 }
@@ -4826,6 +4841,94 @@ static void do_warp(int *map_id, int *px, int *py, int *pdir,
     *banner_timer = MAP_BANNER_TOTAL;
 }
 
+/* post_action values -- moved to file scope (originally a run of
+   #defines partway through main()'s own locals) so npc_after_to_post_
+   action() below, a top-level function, can use them too; the
+   preprocessor doesn't care about C block scope either way, so this
+   is a pure relocation with no behavior change. */
+#define POST_NONE        0
+#define POST_CALDER      1
+#define POST_MASON       2
+#define POST_SHINIGAMI   3
+#define POST_SOLDIER     4
+#define POST_CATHLEEN    5
+#define POST_SHOP        6
+#define POST_DRAY_KNIFE_SHOP 35
+#define POST_MASON_LEAVE 7
+#define POST_ANNE_LEAVE  8
+#define POST_BED_HEAL    10
+#define POST_MASON2      11
+#define POST_OPEN_CHOICE 12
+#define POST_ENDING_FINAL 13
+#define POST_WSOLDIER_CLIFFS 14
+#define POST_WSOLDIER_CAMP1  15
+#define POST_WSOLDIER_CAMP2  16
+#define POST_WSOLDIER_GROVE  17
+#define POST_WSOLDIER_RANGER 18
+#define POST_WSOLDIER_SCOUT  19
+#define POST_WSOLDIER_KEEPER 20
+#define POST_WSOLDIER_WARDEN 21
+#define POST_WSOLDIER_QUARTZ 22
+#define POST_WSOLDIER_QUARRY_DRILLER 23
+#define POST_WSOLDIER_OPAL 24
+#define POST_WSOLDIER_MARSH_BOG 25
+#define POST_WSOLDIER_MARSH_REED 26
+#define POST_WSOLDIER_COMMANDER_FINAL 27
+#define POST_CREDITS_FINAL 28
+#define POST_OPEN_MERCY 29
+#define POST_WSOLDIER_LEAD 30
+#define POST_WSOLDIER_HEAVENFALL_GRAVE 31
+#define POST_LEAD_GAMEOVER 32
+#define POST_HFGAMEOVER_SCREAM 33
+#define POST_PRIESTESS_TELEPORT 34
+/* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
+   from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
+   title and crystal-tier stock, no separate post_action per merchant. */
+
+/* Maps an applied step's (after, pending) pair to the post_action the
+ * manual interact handler dispatches on once its dialogue closes --
+ * factored out of that handler so run_npc_at() (Backstab's Approach
+ * row) can reach the exact same post_action from a direct index
+ * instead of duplicating this switch. *shop_keep_id_out is only
+ * written for NPC_AFTER_SHOP. */
+static int npc_after_to_post_action(int npc_after, int npc_pending, int *shop_keep_id_out) {
+    switch(npc_after) {
+        case NPC_AFTER_BED_HEAL:
+            return POST_BED_HEAL;
+        case NPC_AFTER_SHOP:
+            *shop_keep_id_out = npc_pending;
+            return POST_SHOP;
+        case NPC_AFTER_CALDER:
+            return POST_CALDER;
+        case NPC_AFTER_CATHLEEN:
+            return POST_CATHLEEN;
+        case NPC_AFTER_SHINIGAMI:
+            return POST_SHINIGAMI;
+        case NPC_AFTER_WSOLDIER:
+            if(npc_pending == NPC_PENDING_CROSS) return POST_WSOLDIER_GROVE;
+            if(npc_pending == NPC_PENDING_CONSCRIPT) return POST_WSOLDIER_CAMP1;
+            if(npc_pending == NPC_PENDING_ENFORCER) return POST_WSOLDIER_CAMP2;
+            if(npc_pending == NPC_PENDING_SENTRY) return POST_WSOLDIER_CLIFFS;
+            if(npc_pending == NPC_PENDING_FOREST_RANGER) return POST_WSOLDIER_RANGER;
+            if(npc_pending == NPC_PENDING_FOREST_SCOUT) return POST_WSOLDIER_SCOUT;
+            if(npc_pending == NPC_PENDING_RUINS_KEEPER) return POST_WSOLDIER_KEEPER;
+            if(npc_pending == NPC_PENDING_RUINS_WARDEN) return POST_WSOLDIER_WARDEN;
+            if(npc_pending == NPC_PENDING_QUARTZ) return POST_WSOLDIER_QUARTZ;
+            if(npc_pending == NPC_PENDING_QUARRY_DRILLER) return POST_WSOLDIER_QUARRY_DRILLER;
+            if(npc_pending == NPC_PENDING_OPAL) return POST_WSOLDIER_OPAL;
+            if(npc_pending == NPC_PENDING_MARSH_BOG) return POST_WSOLDIER_MARSH_BOG;
+            if(npc_pending == NPC_PENDING_MARSH_REED) return POST_WSOLDIER_MARSH_REED;
+            if(npc_pending == NPC_PENDING_COMMANDER_FINAL) return POST_WSOLDIER_COMMANDER_FINAL;
+            if(npc_pending == NPC_PENDING_LEAD) return POST_WSOLDIER_LEAD;
+            if(npc_pending == NPC_PENDING_HEAVENFALL_GRAVE) return POST_WSOLDIER_HEAVENFALL_GRAVE;
+            return POST_NONE;
+        case NPC_AFTER_PRIESTESS_TELEPORT:
+            return POST_PRIESTESS_TELEPORT;
+        default:
+            return POST_NONE;
+    }
+}
+
 void main(void) {
     int state = 0; /* 0 = title screen, 1 = starting room */
     u32 frame_count = 0;
@@ -4951,44 +5054,6 @@ void main(void) {
     const TalkBeat *seq_lines = 0;
     int seq_len = 0, seq_beat = 0;
     int post_action = 0, post_soldier_id = 0;
-#define POST_NONE        0
-#define POST_CALDER      1
-#define POST_MASON       2
-#define POST_SHINIGAMI   3
-#define POST_SOLDIER     4
-#define POST_CATHLEEN    5
-#define POST_SHOP        6
-#define POST_DRAY_KNIFE_SHOP 35
-#define POST_MASON_LEAVE 7
-#define POST_ANNE_LEAVE  8
-#define POST_BED_HEAL    10
-#define POST_MASON2      11
-#define POST_OPEN_CHOICE 12
-#define POST_ENDING_FINAL 13
-#define POST_WSOLDIER_CLIFFS 14
-#define POST_WSOLDIER_CAMP1  15
-#define POST_WSOLDIER_CAMP2  16
-#define POST_WSOLDIER_GROVE  17
-#define POST_WSOLDIER_RANGER 18
-#define POST_WSOLDIER_SCOUT  19
-#define POST_WSOLDIER_KEEPER 20
-#define POST_WSOLDIER_WARDEN 21
-#define POST_WSOLDIER_QUARTZ 22
-#define POST_WSOLDIER_QUARRY_DRILLER 23
-#define POST_WSOLDIER_OPAL 24
-#define POST_WSOLDIER_MARSH_BOG 25
-#define POST_WSOLDIER_MARSH_REED 26
-#define POST_WSOLDIER_COMMANDER_FINAL 27
-#define POST_CREDITS_FINAL 28
-#define POST_OPEN_MERCY 29
-#define POST_WSOLDIER_LEAD 30
-#define POST_WSOLDIER_HEAVENFALL_GRAVE 31
-#define POST_LEAD_GAMEOVER 32
-#define POST_HFGAMEOVER_SCREAM 33
-#define POST_PRIESTESS_TELEPORT 34
-/* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
-   from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
-   title and crystal-tier stock, no separate post_action per merchant. */
 
     /* World NPC/pickup flags, matching state.lua's G.talkedWren etc.
        (see the world-NPC section comment above for what's ported vs
@@ -5025,6 +5090,12 @@ void main(void) {
        finds an eligible target (see the manual interact path below). */
     int backstab_mode = 0, backstab_cur = 0;
     int backstab_npc_idx = -1;
+    /* FOREST patrol/scout/sentry live in soldiers[]/SOLDIERS[], not
+       NPC_DEFS -- find_backstab_target() never sees them, so a
+       Backstab prompt opened on one is tracked here instead, kept
+       mutually exclusive with backstab_npc_idx (only one is ever >= 0
+       at a time). */
+    int backstab_soldier_idx = -1;
     int backstab_levels = 0;
     int soldier_beaten[3] = { 0, 0, 0 };
     int talked_father = 0;
@@ -6573,26 +6644,88 @@ void main(void) {
             /* draw_backstab()'s input: up/down toggles Approach/Backstab,
                A resolves, B cancels outright (unlike mercy_mode, this
                choice has a genuine "never mind" -- the target hasn't
-               noticed Max yet either way). Approach just closes the
-               prompt and does nothing else: the very next frame's
-               manual-interact pass re-scans and, since the target still
-               hasn't started a chase, falls through to try_npc_script()
-               for the normal talk/battle flow (matches web's
-               updateBackstabChoice(), which calls runNpc(pb.npc) on
-               Approach instead of re-deriving the dialogue itself). */
+               noticed Max yet either way). Approach immediately runs the
+               same normal talk/battle flow a manual interact would've
+               triggered (apply_npc_step()+npc_after_to_post_action() for
+               an NPC_DEFS target, or the same TALK_SOLDIER_SPOT/
+               POST_SOLDIER handoff the auto-chase catch uses for a
+               forest soldier) -- matches web's updateBackstabChoice(),
+               which calls runNpc(pb.npc) on Approach rather than leaving
+               it to a re-scan next frame (which would just reopen this
+               same prompt, since the target's still unspotted either way). */
             if(up_now && !prev_up) { backstab_cur = 1 - backstab_cur; chip_sfx_ui(); }
             if(down_now && !prev_down) { backstab_cur = 1 - backstab_cur; chip_sfx_ui(); }
             if(b_now && !prev_b) {
                 backstab_mode = 0;
                 backstab_npc_idx = -1;
+                backstab_soldier_idx = -1;
                 chip_sfx_ui();
             }
             if(a_now && !prev_a) {
                 int idx = backstab_npc_idx;
+                int sidx = backstab_soldier_idx;
                 backstab_mode = 0;
                 backstab_npc_idx = -1;
+                backstab_soldier_idx = -1;
                 chip_sfx_ok();
-                if(backstab_cur == 1 && idx >= 0) {
+                if(backstab_cur == 0) {
+                    if(idx >= 0) {
+                        int npc_after2 = 0, npc_pending2 = -1;
+                        NpcRun nr2;
+                        nr2.map_id = map_id; nr2.px = px; nr2.py = py; nr2.party_n = party_n;
+                        nr2.ft = ft; nr2.bag = &bag; nr2.marks = &marks; nr2.party = party;
+                        nr2.pn = &party_n; nr2.lead = &lead; nr2.seq_lines = &seq_lines;
+                        nr2.seq_len = &seq_len; nr2.after = &npc_after2; nr2.pending = &npc_pending2;
+                        if(apply_npc_step(&nr2, idx)) {
+                            seq_beat = 0;
+                            post_action = npc_after_to_post_action(npc_after2, npc_pending2, &shop_keep_id);
+                        }
+                    } else if(sidx >= 0) {
+                        seq_lines = TALK_SOLDIER_SPOT;
+                        seq_len = TALK_LEN(TALK_SOLDIER_SPOT);
+                        seq_beat = 0;
+                        post_action = POST_SOLDIER;
+                        post_soldier_id = sidx;
+                    }
+                }
+                else if(backstab_cur == 1 && sidx >= 0) {
+                    /* Backstab a forest soldier: same execute shape as
+                       the NPC_DEFS branch below, but soldier_beaten[]
+                       is the actual (and only) source of truth these
+                       trainers check anywhere -- see finishWin()'s web
+                       equivalent, which sets sol.beaten the same way
+                       regardless of which mercy/Backstab choice follows.
+                       Never touch npc_exec_bit()/TRAINER_KITS/beat_* via
+                       a pending lookup here: SOLDIERS[]' ids ("sentry")
+                       collide with an unrelated wsoldier's NPC_PENDING_*
+                       name-space on the web side (fixed there the same
+                       way -- kept isolated, not reused here either). */
+                    int levels = backstab_levels > 0 ? backstab_levels : 1;
+                    int ia = (int)(frand(0.0f, 1.0f) * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int ib = (int)(frand(0.0f, 1.0f) * (ITEM_COUNT > 1 ? ITEM_COUNT - 1 : 1));
+                    int *sa, *sb;
+                    reputation -= 25;
+                    if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                    marks += levels * 10;
+                    if(ia < 0) ia = 0; if(ia >= ITEM_COUNT) ia = 0;
+                    if(ib < 0) ib = 0; if(ib >= ITEM_COUNT) ib = 0;
+                    sa = bag_field(&bag, ia); sb = bag_field(&bag, ib);
+                    if(sa) (*sa)++;
+                    if(sb) (*sb)++;
+                    soldier_beaten[sidx] = 1;
+                    chip_sfx_faint();
+                    g_mercy_red_fade = 1;
+                    fade_state = FADE_OUT;
+                    fade_timer = 0;
+                    seq_lines = TALK_BACKSTAB_EXECUTE;
+                    seq_len = TALK_LEN(TALK_BACKSTAB_EXECUTE);
+                    seq_beat = 0;
+                    {
+                        int n = s_cat(hud_flash, 0, "NO SURVIVORS");
+                        hud_flash[n] = 0; hud_t = 90;
+                    }
+                }
+                else if(backstab_cur == 1 && idx >= 0) {
                     /* Resolve: same "execute" shape resolveMercy()'s
                        Execute row reaches after a real battle win
                        (permanent delete, loot, scream/red fade), but
@@ -7874,68 +8007,36 @@ void main(void) {
                     nr.pending = &npc_pending;
                     if(try_npc_script(&nr)) {
                         seq_beat = 0;
-                        switch(npc_after) {
-                            case NPC_AFTER_BED_HEAL:
-                                post_action = POST_BED_HEAL;
-                                break;
-                            case NPC_AFTER_SHOP:
-                                shop_keep_id = npc_pending;
-                                post_action = POST_SHOP;
-                                break;
-                            case NPC_AFTER_CALDER:
-                                post_action = POST_CALDER;
-                                break;
-                            case NPC_AFTER_CATHLEEN:
-                                post_action = POST_CATHLEEN;
-                                break;
-                            case NPC_AFTER_SHINIGAMI:
-                                post_action = POST_SHINIGAMI;
-                                break;
-                            case NPC_AFTER_WSOLDIER:
-                                if(npc_pending == NPC_PENDING_CROSS)
-                                    post_action = POST_WSOLDIER_GROVE;
-                                else if(npc_pending == NPC_PENDING_CONSCRIPT)
-                                    post_action = POST_WSOLDIER_CAMP1;
-                                else if(npc_pending == NPC_PENDING_ENFORCER)
-                                    post_action = POST_WSOLDIER_CAMP2;
-                                else if(npc_pending == NPC_PENDING_SENTRY)
-                                    post_action = POST_WSOLDIER_CLIFFS;
-                                else if(npc_pending == NPC_PENDING_FOREST_RANGER)
-                                    post_action = POST_WSOLDIER_RANGER;
-                                else if(npc_pending == NPC_PENDING_FOREST_SCOUT)
-                                    post_action = POST_WSOLDIER_SCOUT;
-                                else if(npc_pending == NPC_PENDING_RUINS_KEEPER)
-                                    post_action = POST_WSOLDIER_KEEPER;
-                                else if(npc_pending == NPC_PENDING_RUINS_WARDEN)
-                                    post_action = POST_WSOLDIER_WARDEN;
-                                else if(npc_pending == NPC_PENDING_QUARTZ)
-                                    post_action = POST_WSOLDIER_QUARTZ;
-                                else if(npc_pending == NPC_PENDING_QUARRY_DRILLER)
-                                    post_action = POST_WSOLDIER_QUARRY_DRILLER;
-                                else if(npc_pending == NPC_PENDING_OPAL)
-                                    post_action = POST_WSOLDIER_OPAL;
-                                else if(npc_pending == NPC_PENDING_MARSH_BOG)
-                                    post_action = POST_WSOLDIER_MARSH_BOG;
-                                else if(npc_pending == NPC_PENDING_MARSH_REED)
-                                    post_action = POST_WSOLDIER_MARSH_REED;
-                                else if(npc_pending == NPC_PENDING_COMMANDER_FINAL)
-                                    post_action = POST_WSOLDIER_COMMANDER_FINAL;
-                                else if(npc_pending == NPC_PENDING_LEAD)
-                                    post_action = POST_WSOLDIER_LEAD;
-                                else if(npc_pending == NPC_PENDING_HEAVENFALL_GRAVE)
-                                    post_action = POST_WSOLDIER_HEAVENFALL_GRAVE;
-                                break;
-                            case NPC_AFTER_PRIESTESS_TELEPORT:
-                                post_action = POST_PRIESTESS_TELEPORT;
-                                break;
-                            default:
-                                post_action = POST_NONE;
-                                break;
-                        }
+                        post_action = npc_after_to_post_action(npc_after, npc_pending, &shop_keep_id);
                     }
                     else if(map_id == MAP_FOREST) {
                         int si;
                         for(si = 0; si < 3; si++) {
+                            if(!soldier_beaten[si] &&
+                               bag.bowieKnife > 0 && !soldiers[si].chase &&
+                               soldier_los(map_id, soldiers[si].x, soldiers[si].y, soldiers[si].dir, px, py) == 0) {
+                                float ddxf = (float)px - soldiers[si].x, ddyf = (float)py - soldiers[si].y;
+                                float d2f = ddxf * ddxf + ddyf * ddyf;
+                                if(d2f <= ACTOR_CHASE_CATCH * ACTOR_CHASE_CATCH) {
+                                    /* Leg 2.12 Bowie Knife, forest soldiers:
+                                       patrol/scout/sentry live in soldiers[]/
+                                       SOLDIERS[], not NPC_DEFS, so
+                                       find_backstab_target() never reaches
+                                       them -- this is their own eligibility
+                                       check, same shape (knife carried, not
+                                       beaten, hasn't started a chase, hasn't
+                                       spotted the player via soldier_los()'s
+                                       one-direction facing ray). No warp-gate
+                                       check needed: none of marks '1'/'2'/'3'
+                                       are ever a warp tile on FOREST. */
+                                    backstab_soldier_idx = si;
+                                    backstab_levels = SOLDIERS[si].lv > 0 ? SOLDIERS[si].lv : 1;
+                                    backstab_mode = 1;
+                                    backstab_cur = 0;
+                                    chip_sfx_ui();
+                                    break;
+                                }
+                            }
                             int ddx = px - (int)soldiers[si].x, ddy = py - (int)soldiers[si].y;
                             if(soldier_beaten[si] && ddx * ddx + ddy * ddy <= 676) {
                                 seq_lines = TALK_SOLDIER_DONE;

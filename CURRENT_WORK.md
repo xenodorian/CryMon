@@ -1840,3 +1840,72 @@ handling, not touched here). Fixed by using `0` instead of `NULL`,
 matching the rest of the file's freestanding-C convention (confirmed
 via `make -C ports/dreamcast` succeeding clean after the change).
 
+## Backstab review: LOS confirmed one-direction, forest soldiers wired in, Approach loop fixed (Claude, 2026-09-23)
+
+User asked to review the repo, confirm fightable NPCs only have a
+linear (one-direction) LOS, and make sure every fightable NPC not
+standing on a warp tile can be Backstabbed. Both engines' `roamerLos`/
+`roamer_los` and `soldierLos`/`soldier_los` already ray only along a
+single stored facing direction (confirmed by an earlier, separately-
+landed automated commit) -- no change needed there beyond a stale doc
+comment on `roomerLos` that still described the old *omnidirectional*
+"shares its row or column" behavior; corrected to describe the actual
+one-direction ray.
+
+Backstab eligibility itself had a real gap: the 3 FOREST patrol/scout/
+sentry trainers live in their own `this.soldiers` array (`soldiers[]`/
+`SOLDIERS[]` on Dreamcast), not the generic NPCS/`NPC_DEFS` script
+table `canBackstab()`/`find_backstab_target()` walk -- so they could
+never be offered a Backstab at all, on either engine, despite
+`isFightAfter()`/`npc_after_is_fight()` and even `resolveBackstab()`'s
+dead `after === "soldier"` branch already anticipating it. Added
+`canBackstabSoldier()`/`openBackstabChoiceForSoldier()` (web) and an
+equivalent eligibility check + `backstab_soldier_idx` state
+(Dreamcast) wired into `interact()`'s/the manual-interact handler's
+forest branch, using the same LOS/chase/knife gates as every other
+target.
+
+Wiring this in surfaced two latent bugs that would otherwise have
+first triggered here:
+- **id collision**: forest soldier ids are `"patrol"`/`"scout"`/
+  `"sentry"`, and `"sentry"` is *also* the pending id of an unrelated
+  Cliffs wsoldier trainer. `resolveBackstab()`'s generic tail
+  (`TRAINERS[pending]`/`applyWsBeatFlags(pending)`) would have set the
+  Cliffs Sentry's `beatSentry` flag from backstabbing the *forest*
+  sentry. Isolated the `after === "soldier"` case completely --
+  resolves `sol.beaten` directly (mirroring `finishWin()`'s real
+  trainer-win behavior for forest soldiers, which never used the
+  exec-mask system those flags gate anyway) and never touches the
+  pending-keyed lookups. Dreamcast's equivalent code never had this
+  risk (it keys everything off `NPC_PENDING_*` enum values, which
+  forest soldiers were never part of), but was written the same
+  isolated way for clarity/parity.
+- **Approach reopening the same prompt forever (Dreamcast only)**:
+  the "Approach" row's A-press did nothing but close `backstab_mode`
+  -- the existing comment claimed the next interact would "fall
+  through to `try_npc_script()`", but since the target's LOS/chase
+  state is unchanged, the very next Z/A press would just re-match the
+  same target and reopen the identical Backstab prompt, forever
+  (never hardware-verified, so never caught). Fixed by making
+  Approach resolve immediately: factored `try_npc_script()`'s
+  per-target effect-application into `apply_npc_step()` and its
+  `post_action` switch into `npc_after_to_post_action()` (both now
+  reusable), and call them directly from Approach with the stored
+  target index -- exactly mirroring web's `runNpc(pb.npc)`. Also
+  relocated the `POST_*` `#define`s (previously mid-`main()`, after
+  some now-shared-function-needing locals) to file scope; a pure
+  preprocessor relocation, no behavior change, confirmed by nothing
+  in the file using them before their original definition point
+  either.
+
+Verified via Playwright: an unspotted forest sentry + knife opens the
+Backstab prompt; Approach on it opens the real "spots you" dialogue
+(not a loop); a Backstab kill on it grants the right marks, sets
+`sol.beaten`, and leaves the unrelated Cliffs `beatSentry` flag
+untouched; the existing Cliffs wsoldier Backstab flow (a real
+`beatSentry` case) still resolves correctly post-refactor. Dreamcast
+side rebuilt clean from a `make clean` (checked directly for
+`error:`, not just via `verify_step.sh`, given the false-green bug
+found earlier this session) but remains hand-traced only -- no
+hardware/emulator available to confirm on screen.
+
