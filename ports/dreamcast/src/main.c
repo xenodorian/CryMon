@@ -4412,11 +4412,12 @@ static int kit_for_pending(int pending) {
  * only while bag.bowieKnife > 0, so a knifeless player always falls
  * straight through to normal try_npc_script() dialogue. Returns the
  * nearest matching NPC_DEFS index, or -1. */
+/* Cathleen and Shinigami deliberately excluded (per request): both
+   still fight normally via the ordinary talk-then-battle path, just
+   never through Backstab -- matches engine.ts's isFightAfter(). */
 static int npc_after_is_fight(int after) {
     return after == NPC_AFTER_WSOLDIER
-        || after == NPC_AFTER_CALDER
-        || after == NPC_AFTER_CATHLEEN
-        || after == NPC_AFTER_SHINIGAMI;
+        || after == NPC_AFTER_CALDER;
 }
 
 static int npc_on_warp_gate(int map_id, char mark) {

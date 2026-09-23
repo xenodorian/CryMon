@@ -2205,3 +2205,64 @@ behavior the on-screen button already had, confirmed working.
 either half (Dreamcast already had the correct sort, and Turbo has no
 Dreamcast surface to add a key to).
 
+## No Backstab on Cathleen/Shinigami; Father's party was unreachable (Claude, 2026-09-23)
+
+Three requests: remove Backstab eligibility from Cathleen and
+Shinigami, fix Father's party (his "6 fresh capture slots") not
+appearing when he joins, and make Left/Right in the CryMon menu swap
+between Max's and Father's party lists.
+
+**Backstab**: `isFightAfter()` (`engine.ts`) / `npc_after_is_fight()`
+(`main.c`) is the sole gate `canBackstab()`/`find_backstab_target()`
+check before offering the Bowie Knife prompt. Removed `"cathleen"`
+and `"shinigami"` from web's list and `NPC_AFTER_CATHLEEN`/
+`NPC_AFTER_SHINIGAMI` from Dreamcast's -- both still fight normally
+via the ordinary talk-then-battle path, just never through Backstab.
+Verified via Playwright: approaching an unspotted Cathleen with the
+Bowie Knife carried now opens her normal `cathleenSpot` dialogue
+directly (mode stays "world", never "backstab"), where it used to
+open the Approach/Backstab prompt first.
+
+**Father's party was real, just unreachable**: `seedFatherParty()`
+was working correctly all along (verified: swapping does put
+`["mossback","quillpup"]` into `this.party`) -- the actual bug was
+that the swap trigger itself could never fire from the world screen.
+`updateWorld()` had its own `Tab`/`KeyQ` → `swapParties()` check, but
+the *outer* `update()` dispatcher already intercepts `Tab`/`KeyQ`
+several lines earlier via `this.input.select()` (which also matches
+Tab/Backspace) to open the Bag, and returns before `updateWorld()`
+ever runs that tick. The world-level swap check was 100% dead code --
+confirmed by dispatching a real synthetic `Tab` keydown from the
+world screen and watching `mode` become `"bag"`, never `"party"`.
+Removed the dead check entirely rather than trying to out-prioritize
+Bag's own (correctly documented, still-wanted) Tab/Q binding.
+
+The *in-menu* Tab/Q swap (`updateParty()`'s own separate check) was
+never affected by this and already worked correctly once you'd
+actually gotten into the party menu -- but nothing told the player
+that was the only way in, and the menu's own hint text still said
+"Left/Right settings", stale since Leg 2.3 moved Settings to the
+pause menu and never wired Left/Right to anything in the party list
+view at all.
+
+**Fix**: added `this.input.left() || this.input.right()` as an
+additional trigger alongside the existing in-menu Tab/Q check (same
+`swapParties()` call), corrected the party menu's hint text to "Z
+choose Left/Right swap party Start close", and updated the "How to
+play" panel's Party line to describe the real, working path (open
+the CryMon menu, then Left/Right) instead of the dead Tab/Q-from-
+anywhere claim. Dreamcast has no `party2`/swap mechanic at all yet
+(`revived_father` there is only a reputation/title flag) -- web-only,
+matching every other Father-party feature so far.
+
+Verified via Playwright (real dispatched keydown/keyup, not
+`page.keyboard` which Chromium's own Tab-focus-navigation seems to
+swallow before it reaches the page in headless mode): from inside the
+party menu, ArrowRight swaps to Father's party (`["mossback",
+"quillpup"]`, HUD flashes "Father's party takes the field."), and
+ArrowLeft swaps back to Max's.
+
+`verify_step.sh` all green; Dreamcast rebuilt clean from `make
+clean`, checked directly for `error:` per the standing false-green
+caution since `main.c` was touched.
+

@@ -1813,7 +1813,7 @@ export class CryMon {
 			this.closeMenu();
 			return;
 		}
-		if (this.input.pressed("Tab") || this.input.pressed("KeyQ")) {
+		if (this.input.pressed("Tab") || this.input.pressed("KeyQ") || this.input.left() || this.input.right()) {
 			this.swapParties();
 			return;
 		}
@@ -1971,10 +1971,6 @@ export class CryMon {
 				this.hudFlash = "";
 				this.talkLock = .2;
 			}
-			return;
-		}
-		if (this.input.pressed("Tab") || this.input.pressed("KeyQ")) {
-			this.swapParties();
 			return;
 		}
 		if (this.anne.phase === "leave") {
@@ -4073,14 +4069,16 @@ export class CryMon {
 	/** Whether a script step's `after` leads to an actual fight (as
 	 *  opposed to a shop, heal, or plain-talk step) -- the set of
 	 *  trainer types Backstab is offered against. */
+	/** The set of trainer types Backstab is offered against -- this
+	 *  function's only caller is canBackstab(). Cathleen and Shinigami are
+	 *  deliberately excluded (per request): both still fight normally via
+	 *  the ordinary talk-then-battle path, just never through Backstab. */
 	isFightAfter(after: string | undefined | null): boolean {
 		if (!after) return false;
 		return (
 			after === "wsoldier" ||
 			after === "calder" ||
 			after === "soldier" ||
-			after === "cathleen" ||
-			after === "shinigami" ||
 			after === "mason" ||
 			after === "mason2"
 		);
@@ -5154,7 +5152,7 @@ export class CryMon {
 			this.text("Z  release forever   X  back", X(16), Y(148), "#8f4a40", FONT);
 		} else if (this.partyView === "catchSwap") {
 			this.text("Z  release this one   X  let the new one go", X(16), Y(148), "#c5cec6", FONT);
-		} else this.text(this.partyView === "target" ? "Z  use   X  bag" : "Z  choose   Left/Right settings   Start close", X(16), Y(148), "#5a7a52", FONT);
+		} else this.text(this.partyView === "target" ? "Z  use   X  bag" : "Z  choose   Left/Right swap party   Start close", X(16), Y(148), "#5a7a52", FONT);
 		if (this.hudT > 0) this.text(this.hudFlash.slice(0, 34), X(16), Y(148), "#e8e4d8", FONT);
 	}
 	drawShop() {
