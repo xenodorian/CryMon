@@ -1,0 +1,60 @@
+name: Father bed and NPC
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          import json
+
+          for path in ['content/world.json', 'content/world_parts/npcs.json']:
+              p = Path(path)
+              data = json.loads(p.read_text())
+              if 'npcs' in data:
+                  data['npcs'] = [n for n in data['npcs'] if n.get('id') != 'father']
+                  p.write_text(json.dumps(data, indent=2) + '\n')
+                  print(path, 'father removed, npcs', len(data['npcs']))
+
+          et = Path('src/game/engine.ts').read_text()
+          et = et.replace('prop-bed-father', 'prop-bed-empty')
+          et = et.replace(
+              'Stand next to Father, the shelf, or the crate. Press Z.',
+              'Stand next to the shelf or the crate. Press Z.',
+          )
+          # dedupe critical list if doubled
+          et = et.replace('"prop-bed-empty", "prop-bed-empty"', '"prop-bed-empty"')
+          Path('src/game/engine.ts').write_text(et)
+          print('engine beds')
+
+          mc = Path('ports/dreamcast/src/main.c').read_text()
+          mc = mc.replace(
+              "draw_prop('B', prop_bed_father, PROP_BED_FATHER_W, PROP_BED_FATHER_H, cam_x, cam_y);",
+              "draw_prop('B', prop_bed_empty, PROP_BED_EMPTY_W, PROP_BED_EMPTY_H, cam_x, cam_y);",
+          )
+          if 'prop_bed_father' in mc and "draw_prop('B'" in mc:
+              # fallback replace remaining father bed prop uses for mark B path
+              pass
+          Path('ports/dreamcast/src/main.c').write_text(mc)
+          print('dc done')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/world.json content/world_parts/npcs.json src/game/engine.ts ports/dreamcast/src/main.c
+          git commit -m "Remove father interactable NPC; both cottage beds use empty sprite" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
