@@ -1,0 +1,162 @@
+name: Lead pixel art
+on:
+  workflow_dispatch:
+jobs:
+  art:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pillow numpy -q
+      - name: Generate Lead art
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw
+          import numpy as np
+
+          def transparent(w, h):
+              return Image.new("RGBA", (w, h), (0, 0, 0, 0))
+
+          def outline(img, col=(14, 12, 10, 255)):
+              a = np.array(img)
+              h, w = a.shape[:2]
+              op = a[:, :, 3] > 30
+              out = a.copy()
+              for y in range(h):
+                  for x in range(w):
+                      if op[y, x]:
+                          continue
+                      for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                          ny, nx = y + dy, x + dx
+                          if 0 <= ny < h and 0 <= nx < w and op[ny, nx]:
+                              out[y, x] = col
+                              break
+              return Image.fromarray(out)
+
+          CAMO = (58, 74, 45, 255)
+          CAMO_D = (38, 50, 32, 255)
+          CAMO_L = (92, 112, 65, 255)
+          CAMO_M = (48, 62, 38, 255)
+          HELMET = (44, 54, 38, 255)
+          HELMET_L = (72, 86, 58, 255)
+          SKIN = (205, 162, 125, 255)
+          SKIN_D = (165, 122, 92, 255)
+          SKIN_L = (228, 188, 152, 255)
+          BOOT = (32, 28, 24, 255)
+          BOOT_L = (58, 50, 42, 255)
+          GUN = (34, 36, 32, 255)
+          GUN_L = (78, 80, 72, 255)
+          GUN_M = (52, 54, 48, 255)
+          BELT = (78, 64, 42, 255)
+          OUT = (12, 10, 8, 255)
+          EYE = (18, 16, 14, 255)
+          WHITE = (235, 230, 220, 255)
+          GOLD = (195, 170, 55, 255)
+
+          def draw_hires(frame=0):
+              W, H = 96, 128
+              img = transparent(W, H)
+              d = ImageDraw.Draw(img)
+              bob = (0, 2, 0, -2)[frame % 4]
+              ll = (0, 2, 0, -2)[frame % 4]
+              rr = (0, -2, 0, 2)[frame % 4]
+              arm = (2, 0, -2, 0)[frame % 4]
+              cx = 48
+
+              def box(x0, y0, x1, y1, c):
+                  d.rectangle([x0, y0 + bob, x1, y1 + bob], fill=c)
+
+              def ell(x0, y0, x1, y1, c):
+                  d.ellipse([x0, y0 + bob, x1, y1 + bob], fill=c)
+
+              box(cx - 16 + ll, 112, cx - 4 + ll, 126, BOOT)
+              box(cx + 4 + rr, 112, cx + 16 + rr, 126, BOOT)
+              box(cx - 14 + ll, 118, cx - 6 + ll, 124, BOOT_L)
+              box(cx + 6 + rr, 118, cx + 14 + rr, 124, BOOT_L)
+              box(cx - 14 + ll, 88, cx - 4 + ll, 114, CAMO_D)
+              box(cx + 4 + rr, 88, cx + 14 + rr, 114, CAMO_D)
+              box(cx - 12 + ll, 90, cx - 6 + ll, 100, CAMO)
+              box(cx + 6 + rr, 90, cx + 12 + rr, 100, CAMO)
+              box(cx - 18, 52, cx + 18, 90, CAMO)
+              box(cx - 18, 82, cx + 18, 90, CAMO_D)
+              for ox, oy, w, h, c in [
+                  (-12, 56, 6, 4, CAMO_L),
+                  (4, 60, 7, 5, CAMO_M),
+                  (-6, 68, 5, 4, CAMO_L),
+                  (8, 72, 6, 4, CAMO_D),
+                  (-14, 74, 5, 3, CAMO_M),
+                  (2, 54, 4, 3, CAMO_L),
+              ]:
+                  box(cx + ox, oy, cx + ox + w, oy + h, c)
+              box(cx - 14, 70, cx - 4, 80, CAMO_D)
+              box(cx + 4, 70, cx + 14, 80, CAMO_D)
+              box(cx - 18, 86, cx + 18, 92, BELT)
+              box(cx - 4, 85, cx + 4, 93, GOLD)
+              box(cx - 24, 54 + arm, cx - 16, 82 + arm, CAMO_D)
+              box(cx + 16, 54 - arm, cx + 24, 82 - arm, CAMO_D)
+              box(cx - 24, 78 + arm, cx - 16, 86 + arm, SKIN_D)
+              box(cx + 16, 78 - arm, cx + 24, 86 - arm, SKIN_D)
+              box(cx - 6, 66, cx + 28, 72, GUN)
+              box(cx + 26, 64, cx + 38, 70, GUN_L)
+              box(cx + 0, 70, cx + 6, 82, GUN_M)
+              box(cx + 14, 62, cx + 20, 66, GUN_L)
+              box(cx + 18, 72, cx + 24, 80, GUN)
+              box(cx - 8, 48, cx + 8, 54, CAMO_D)
+              box(cx - 5, 44, cx + 5, 52, SKIN)
+              ell(cx - 14, 18, cx + 14, 48, SKIN)
+              box(cx - 12, 36, cx - 4, 44, SKIN_D)
+              box(cx + 4, 36, cx + 12, 44, SKIN_D)
+              box(cx - 8, 24, cx + 8, 30, SKIN_L)
+              box(cx - 8, 32, cx - 3, 36, EYE)
+              box(cx + 3, 32, cx + 8, 36, EYE)
+              box(cx - 7, 32, cx - 5, 34, WHITE)
+              box(cx + 4, 32, cx + 6, 34, WHITE)
+              box(cx - 9, 30, cx - 2, 32, (40, 30, 25, 255))
+              box(cx + 2, 30, cx + 9, 32, (40, 30, 25, 255))
+              box(cx - 1, 36, cx + 2, 40, SKIN_D)
+              box(cx - 4, 42, cx + 4, 44, (110, 70, 60, 255))
+              ell(cx - 16, 8, cx + 16, 36, HELMET)
+              box(cx - 14, 12, cx + 14, 22, HELMET_L)
+              box(cx - 18, 30, cx + 18, 36, CAMO_D)
+              box(cx - 16, 28, cx + 16, 32, HELMET)
+              box(cx - 14, 36, cx - 10, 48, (36, 34, 30, 255))
+              box(cx + 10, 36, cx + 14, 48, (36, 34, 30, 255))
+              box(cx - 10, 46, cx + 10, 48, (36, 34, 30, 255))
+              box(cx + 10, 56, cx + 16, 62, GOLD)
+              return outline(Image.fromarray(np.array(img)), OUT)
+
+          frames = [draw_hires(i) for i in range(4)]
+          out_npc = Path("public/sprites/npc")
+          out_mon = Path("public/sprites/monsters/lead")
+          out_port = Path("public/sprites/portraits")
+          out_mon.mkdir(parents=True, exist_ok=True)
+          for i, fr in enumerate(frames, 1):
+              fr.resize((48, 64), Image.NEAREST).save(out_npc / f"lead-{i}.png", "PNG", optimize=True)
+              fr.save(out_mon / f"{i}.png", "PNG", optimize=True)
+          hi = frames[0]
+          scaled = hi.resize((hi.width * 2, hi.height * 2), Image.NEAREST)
+          W, H = 160, 200
+          canvas = transparent(W, H)
+          sx = (scaled.width - W) // 2
+          sy = max(0, scaled.height - H - 20)
+          cropped = scaled.crop((sx, sy, sx + W, min(sy + H, scaled.height)))
+          canvas.paste(cropped, (0, H - cropped.height), cropped)
+          canvas.save(out_port / "lead.png", "PNG", optimize=True)
+          print("lead art written")
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add public/sprites/npc/lead-*.png public/sprites/monsters/lead/ public/sprites/portraits/lead.png
+          git commit -m "Lieutenant Lead: detailed camo OW, battle, and talk portrait art" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
