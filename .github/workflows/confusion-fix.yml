@@ -1,0 +1,238 @@
+name: Confusion duration and Wait fix
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch files
+        run: |
+          python3 -c "
+          from pathlib import Path
+          # logic.json
+          p = Path('content/logic.json')
+          t = p.read_text()
+          t = t.replace('\"confused\": {}', '\"confused\": { \"turnsMin\": 1, \"turnsMax\": 4 }', 1)
+          t = t.replace('Burned/Poisoned/Confused/Paralyzed persist', 'Burned/Poisoned/Paralyzed persist', 1)
+          if 'Confused lasts 1-4 turns' not in t:
+              t = t.replace('until their next rest (sleepHeal); Exhausted',
+                            'until their next rest (sleepHeal); Confused lasts 1-4 turns then clears (also cleared by rest); Exhausted', 1)
+          p.write_text(t)
+          print('logic ok')
+          # types
+          p = Path('src/game/types.ts')
+          t = p.read_text()
+          t = t.replace('Burned/Paralyzed countdown; unused by Poisoned/Confused.',
+                        'Burned/Paralyzed/Confused countdown; unused by Poisoned.', 1)
+          p.write_text(t)
+          print('types ok')
+          # data.ts - add confused to type and default
+          p = Path('src/game/data.ts')
+          t = p.read_text()
+          old = 'paralyzed: { turnsMin: number; turnsMax: number };\n};'
+          new = 'paralyzed: { turnsMin: number; turnsMax: number };\n  confused: { turnsMin: number; turnsMax: number };\n};'
+          if 'confused: { turnsMin: number' not in t:
+              t = t.replace(old, new, 1)
+          old2 = 'paralyzed: { turnsMin: 1, turnsMax: 5 },\n}) as StatusEffectsConfig;'
+          new2 = 'paralyzed: { turnsMin: 1, turnsMax: 5 },\n  confused: { turnsMin: 1, turnsMax: 4 },\n}) as StatusEffectsConfig;'
+          if 'confused: { turnsMin: 1, turnsMax: 4 }' not in t:
+              t = t.replace(old2, new2, 1)
+          p.write_text(t)
+          print('data ok')
+          # engine inflict
+          p = Path('src/game/engine.ts')
+          t = p.read_text()
+          old = '''} else if (status === \"poisoned\") {
+\t\t\tm.statusTurns = 0;
+\t\t\tm.poisonStack = 0;
+\t\t} else {
+\t\t\tm.statusTurns = 0;
+\t\t\tm.poisonStack = 0;
+\t\t}'''
+          new = '''} else if (status === \"poisoned\") {
+\t\t\tm.statusTurns = 0;
+\t\t\tm.poisonStack = 0;
+\t\t} else if (status === \"confused\") {
+\t\t\tconst e = STATUS_EFFECTS.confused;
+\t\t\tm.statusTurns = randI(e.turnsMin, e.turnsMax);
+\t\t\tm.poisonStack = 0;
+\t\t} else {
+\t\t\tm.statusTurns = 0;
+\t\t\tm.poisonStack = 0;
+\t\t}'''
+          if 'status === \"confused\"' not in t and 'status === "confused"' not in t:
+              t = t.replace(old.replace('\\"','\"'), new.replace('\\"','\"'), 1)
+          print('inflict done')
+          p.write_text(t)
+          "
+      - name: Patch engine wait and tick
+        run: |
+          python3 << 'END'
+          from pathlib import Path
+          p = Path('src/game/engine.ts')
+          t = p.read_text()
+          # tickStatus confused
+          old = '''		if (m.status === "paralyzed") {
+			m.statusTurns = (m.statusTurns ?? 1) - 1;
+			if (m.statusTurns <= 0) this.clearStatus(m);
+			return "";
+		}
+		return "";
+	}'''
+          new = '''		if (m.status === "paralyzed") {
+			m.statusTurns = (m.statusTurns ?? 1) - 1;
+			if (m.statusTurns <= 0) this.clearStatus(m);
+			return "";
+		}
+		if (m.status === "confused") {
+			m.statusTurns = (m.statusTurns ?? 1) - 1;
+			if (m.statusTurns <= 0) this.clearStatus(m);
+			return "";
+		}
+		return "";
+	}'''
+          if 'm.status === "confused"' not in t.split('tickStatus')[1][:800] if 'tickStatus' in t else True:
+              if old in t:
+                  t = t.replace(old, new, 1)
+                  print('tick ok')
+              else:
+                  print('tick pattern miss')
+          else:
+              print('tick already')
+          # wait before confusion
+          marker = 'const confused = this.confusionOutcome(b.player, true);'
+          wait_block = '''		if (mv.kind === "wait") {
+			b.msg = [`${b.player.name} holds.`];
+			b.msgI = 0;
+			b.phase = "msg";
+			b.afterMsg = "guard";
+			this.audio.ui();
+			return;
+		}
+'''
+          # Only insert wait-first once, in pickAttack (player)
+          idx = t.find(marker)
+          if idx > 0 and 'Wait intentionally skips' not in t[idx-800:idx]:
+              # find paralyzed block before this marker
+              insert_at = t.rfind('if (b.player.status === "paralyzed")', 0, idx)
+              if insert_at > 0:
+                  t = t[:insert_at] + wait_block + t[insert_at:]
+                  print('wait-first inserted')
+              else:
+                  print('paralyzed block not found')
+          else:
+              print('wait-first already or marker missing')
+          # remove duplicate wait after confusion if two wait blocks remain near spell
+          # Count wait blocks in pickAttack region
+          p.write_text(t)
+          t = p.read_text()
+          # Remove the later wait block that sits right before spell, if wait-first exists
+          if t.count('if (mv.kind === "wait")') >= 2:
+              # remove the second occurrence's full block before spell
+              first = t.find('if (mv.kind === "wait")')
+              second = t.find('if (mv.kind === "wait")', first + 1)
+              if second > 0:
+                  end = t.find('if (mv.kind === "spell")', second)
+                  if end > second:
+                      t = t[:second] + t[end:]
+                      print('removed dup wait')
+          p.write_text(t)
+          print('engine done')
+          END
+      - name: Patch Dreamcast
+        run: |
+          python3 << 'END'
+          from pathlib import Path
+          p = Path('ports/dreamcast/src/content_logic.inc')
+          t = p.read_text()
+          if 'STATUS_CONFUSE_TURNS_MIN' not in t:
+              t = t.replace('#define STATUS_PARALYZE_TURNS_MAX 5\n', '#define STATUS_PARALYZE_TURNS_MAX 5\n#define STATUS_CONFUSE_TURNS_MIN 1\n#define STATUS_CONFUSE_TURNS_MAX 4\n', 1)
+              p.write_text(t)
+              print('inc ok')
+          p = Path('ports/dreamcast/src/main.c')
+          t = p.read_text()
+          if 'STATUS_CONFUSED) m->status_turns = irand(STATUS_CONFUSE' not in t:
+              t = t.replace(
+                  'else if(status == STATUS_PARALYZED) m->status_turns = irand(STATUS_PARALYZE_TURNS_MIN, STATUS_PARALYZE_TURNS_MAX);\n    else m->status_turns = 0;',
+                  'else if(status == STATUS_PARALYZED) m->status_turns = irand(STATUS_PARALYZE_TURNS_MIN, STATUS_PARALYZE_TURNS_MAX);\n    else if(status == STATUS_CONFUSED) m->status_turns = irand(STATUS_CONFUSE_TURNS_MIN, STATUS_CONFUSE_TURNS_MAX);\n    else m->status_turns = 0;',
+                  1)
+              print('inflict ok')
+          old = '''    if(m->status == STATUS_PARALYZED) {
+        m->status_turns--;
+        if(m->status_turns <= 0) clear_status(m);
+        return n;
+    }
+    return n;
+}'''
+          new = '''    if(m->status == STATUS_PARALYZED) {
+        m->status_turns--;
+        if(m->status_turns <= 0) clear_status(m);
+        return n;
+    }
+    if(m->status == STATUS_CONFUSED) {
+        m->status_turns--;
+        if(m->status_turns <= 0) clear_status(m);
+        return n;
+    }
+    return n;
+}'''
+          if 'm->status == STATUS_CONFUSED' not in t.split('tick_status')[1][:600] if 'tick_status' in t else True:
+              if old in t:
+                  t = t.replace(old, new, 1)
+                  print('tick ok')
+          # wait before intercept
+          if 'mv && mv->kind == UMOVE_WAIT' not in t:
+              old = '''                        if(battle_pl_status_intercept(&battle, party, party_n, lead)) {
+                            /* paralyzed/confused -- handled inside, turn used */
+                        } else if(!mv) {
+                            /* empty */
+                        } else if(mv->kind == UMOVE_WAIT) {
+                            int n = s_cat(battle.msg[0], 0, g_player_name);
+                            n = s_cat(battle.msg[0], n, " HOLDS");
+                            battle.msg[0][n] = 0;
+                            battle.msg_n = 1;
+                            battle.msg_i = 0;
+                            battle.phase = 0;
+                            battle.after = BAFTER_GUARD;
+                        } else if(mv->kind == UMOVE_SPELL) {'''
+              new = '''                        if(mv && mv->kind == UMOVE_WAIT) {
+                            if(battle.pl.status == STATUS_PARALYZED) {
+                                if(battle_pl_status_intercept(&battle, party, party_n, lead)) { }
+                            } else {
+                                int n = s_cat(battle.msg[0], 0, g_player_name);
+                                n = s_cat(battle.msg[0], n, " HOLDS");
+                                battle.msg[0][n] = 0;
+                                battle.msg_n = 1;
+                                battle.msg_i = 0;
+                                battle.phase = 0;
+                                battle.after = BAFTER_GUARD;
+                            }
+                        } else if(battle_pl_status_intercept(&battle, party, party_n, lead)) {
+                            /* paralyzed/confused -- handled inside, turn used */
+                        } else if(!mv) {
+                            /* empty */
+                        } else if(mv->kind == UMOVE_SPELL) {'''
+              if old in t:
+                  t = t.replace(old, new, 1)
+                  print('wait ok')
+              else:
+                  print('wait pattern miss')
+          p.write_text(t)
+          print('dc done')
+          END
+      - name: Commit and push
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/logic.json src/game/types.ts src/game/data.ts src/game/engine.ts ports/dreamcast/src/content_logic.inc ports/dreamcast/src/main.c
+          git status --short
+          git commit -m "Confusion: 1-4 turn duration; Wait skips self-damage roll" || exit 0
+          git push
+      - name: Deploy Pages
+        run: gh workflow run deploy-pages.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
