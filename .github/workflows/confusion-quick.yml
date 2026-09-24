@@ -1,0 +1,20 @@
+name: Confusion quick fix
+on: workflow_dispatch
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch logic.json confused turns
+        run: |
+          python3 -c "from pathlib import Path; p=Path('content/logic.json'); t=p.read_text(); t=t.replace('\"confused\": {}', '\"confused\": { \"turnsMin\": 1, \"turnsMax\": 4 }', 1); p.write_text(t); print('ok')"
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/logic.json
+          git commit -m "Confusion: set duration 1-4 turns in logic.json" || exit 0
+          git push
