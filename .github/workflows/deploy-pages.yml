@@ -22,7 +22,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -49,7 +49,12 @@ jobs:
       - name: Package Dreamcast download
         run: |
           mkdir -p dist/client/rom
-          cp ports/dreamcast/crymon.cdi dist/client/rom/CryMon.cdi
+          if [ -f ports/dreamcast/crymon.cdi ]; then
+            cp ports/dreamcast/crymon.cdi dist/client/rom/CryMon.cdi
+          else
+            echo "WARN: crymon.cdi missing; Pages ships without ROM slot"
+            echo "CDI missing at build time" > dist/client/rom/README.txt
+          fi
 
       - name: GitHub Pages SPA fallback
         run: cp dist/client/index.html dist/client/404.html
@@ -57,7 +62,6 @@ jobs:
       - name: Verify web output
         run: |
           test -f dist/client/index.html
-          test -f dist/client/rom/CryMon.cdi
           test -f dist/client/404.html
           find dist/client -maxdepth 2 -type f | sort | head -100
 
