@@ -258,7 +258,7 @@
     "burned": { "hpPercent": 5, "turnsMin": 2, "turnsMax": 5 },
     "poisoned": { "startPercent": 1, "stepPercent": 1 },
     "paralyzed": { "turnsMin": 1, "turnsMax": 5 },
-    "confused": {},
+    "confused": { "turnsMin": 1, "turnsMax": 4 },
     "exhausted": {}
   },
   "shinyMove": {
