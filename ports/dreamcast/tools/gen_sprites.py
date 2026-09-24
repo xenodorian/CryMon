@@ -99,7 +99,7 @@ PROP_C_NAME = {
 NPC_FRAMES = [1, 2, 3, 4]
 
 # Cathleen overworld: json extra key cathleen-ow. Fallback to battle frame.
-CATHLEEN_WORLD_W, CATHLEEN_WORLD_H = 28, 28
+CATHLEEN_WORLD_W, CATHLEEN_WORLD_H = ACTOR_DST_W, ACTOR_DST_H
 
 MONSTER_FRAMES = [1, 2, 3, 4]
 MONSTER_W, MONSTER_H = 92, 92
