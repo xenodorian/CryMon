@@ -46,7 +46,7 @@ static const NatureDef NATURES[NATURE_N] = {
 #define PARTY_KEEP_LAST 1
 #define ANNE_GIFT_AFTER 1
 #define ANNE_GIFT_QTY 5
-#define SPR_SCALE_MASON 2
+#define SPR_SCALE_MASON 1
 
 /* Guard resolution -- see content/logic.json's combat block. */
 #define DODGE_DEF_RAND_MIN 0.75f
