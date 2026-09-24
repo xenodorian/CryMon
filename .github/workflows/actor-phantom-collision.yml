@@ -1,0 +1,80 @@
+name: Actor phantom collision cleanup
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply
+        run: |
+          python3 << 'PY'
+          import json
+          from pathlib import Path
+
+          maps = json.loads(Path('content/maps.json').read_text())
+          # Lead stood on solid S — invisible wall after hide. Use non-solid L.
+          maps['rows']['veld'] = [r.replace('S', 'L') if 'S' in r else r for r in maps['rows']['veld']]
+          maps.setdefault('tileArt', {})['L'] = maps['tileArt'].get('L', 'tile-grass')
+          # Grove decorative D was a walk-through hole in the wall (not a warp)
+          maps['rows']['grove'] = [r.replace('D', '#') for r in maps['rows']['grove']]
+          Path('content/maps.json').write_text(json.dumps(maps, indent=2) + '\n')
+          print('maps updated')
+
+          CORE_NO_SPRITE = {
+              'spawn', 'houseDoor', 'father', 'bed', 'shelf', 'crate',
+              'herb', 'gem', 'chest', 'cageGate', 'quarryCrate', 'quarryShelf',
+              'gravestone', 'cathleen',
+          }
+
+          for path in ['content/world.json', 'content/world_parts/npcs.json']:
+              data = json.loads(Path(path).read_text())
+              npcs = data['npcs']
+              out = []
+              removed = []
+              for n in npcs:
+                  if n.get('id') == 'lieutenantLead':
+                      n['mark'] = 'L'
+                  if n.get('id') == 'cathleen':
+                      n['sprite'] = n.get('sprite') or 'cathleen-ow'
+                      script = n.get('script') or []
+                      if not any(s.get('hideIf') == 'cathleenCaught' for s in script):
+                          n['script'] = [{'hideIf': 'cathleenCaught'}] + list(script)
+                  if n.get('id') == 'gravestone' and n.get('sprite') == '':
+                      n.pop('sprite', None)
+                  has_sprite = bool(n.get('sprite'))
+                  if has_sprite or n.get('id') in CORE_NO_SPRITE:
+                      out.append(n)
+                  else:
+                      removed.append(n.get('id'))
+              data['npcs'] = out
+              Path(path).write_text(json.dumps(data, indent=2) + '\n')
+              print(path, 'removed', removed)
+
+          et = Path('src/game/engine.ts').read_text()
+          old = '''\t\tif (this.world.mapId === "grove" && !(this.cathleenCaught || this.beatCathleen)) {\n\t\t\tconst c = spawnOf(GROVE, "8");\n\t\t\tif (Math.abs(c.x - x) < 18 && Math.abs(c.y - y) < 20) return true;\n\t\t\tif (tileAt(this.map(), x, y) === "D" || tileAt(this.map(), x, y + 8) === "D") return true;\n\t\t}\n\t\tif (this.world.mapId === "grove" && !this.beatShinigami) {\n\t\t\tconst s = spawnOf(GROVE, "9");\n\t\t\tif (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 18) return true;\n\t\t}\n'''
+          if old in et:
+              et = et.replace(old, '\t\t// Grove trainers: collision only via NPC sprite loop.\n', 1)
+              Path('src/game/engine.ts').write_text(et)
+              print('engine hardcodes removed')
+          elif 'Grove trainers: collision only via NPC sprite loop' in et:
+              print('engine already')
+          else:
+              print('WARN engine pattern')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add content/maps.json content/world.json content/world_parts/npcs.json src/game/engine.ts
+          git commit -m "Actors: no phantom solids; Lead non-solid mark; warp access only gate NPCs" || exit 0
+          git push
+      - name: Ship
+        run: |
+          gh workflow run deploy-pages.yml --ref main || true
+          gh workflow run build-dreamcast.yml --ref main || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
