@@ -2075,15 +2075,7 @@ export class CryMon {
 				if (Math.abs(sol.x - x) < 16 && Math.abs(sol.y - y) < 16) return true;
 			}
 		}
-		if (this.world.mapId === "grove" && !(this.cathleenCaught || this.beatCathleen)) {
-			const c = spawnOf(GROVE, "8");
-			if (Math.abs(c.x - x) < 18 && Math.abs(c.y - y) < 20) return true;
-			if (tileAt(this.map(), x, y) === "D" || tileAt(this.map(), x, y + 8) === "D") return true;
-		}
-		if (this.world.mapId === "grove" && !this.beatShinigami) {
-			const s = spawnOf(GROVE, "9");
-			if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 18) return true;
-		}
+		// Grove trainers: collision only via NPC sprite loop.
 		const blockFlags = this.npcFlags();
 		for (const npc of NPCS) {
 			if (npc.map !== this.world.mapId || !npc.sprite) continue;

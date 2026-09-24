@@ -365,21 +365,6 @@
       ]
     },
     {
-      "map": "veld",
-      "mark": "X",
-      "id": "cart",
-      "role": "talk",
-      "w": 56,
-      "h": 48,
-      "talk": "cart",
-      "script": [
-        {
-          "set": "readCart",
-          "talk": "cart"
-        }
-      ]
-    },
-    {
       "map": "forest",
       "mark": "1",
       "id": "soldier1",
@@ -409,6 +394,9 @@
       "talkDone": "cathleenAfter",
       "script": [
         {
+          "hideIf": "cathleenCaught"
+        },
+        {
           "ifNot": "cathleenCaught",
           "talk": "cathleenSpot",
           "after": "cathleen"
@@ -416,7 +404,8 @@
         {
           "talk": "cathleenGone"
         }
-      ]
+      ],
+      "sprite": "cathleen-ow"
     },
     {
       "map": "grove",
@@ -1006,7 +995,6 @@
       "map": "gauntlet6",
       "mark": "G",
       "id": "gravestone",
-      "sprite": "",
       "talk": "gauntletGraveNeedScroll",
       "script": [
         {
@@ -1023,7 +1011,7 @@
     },
     {
       "map": "veld",
-      "mark": "S",
+      "mark": "L",
       "id": "lieutenantLead",
       "role": "trainer",
       "sprite": "npc/lead",
