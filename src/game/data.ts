@@ -350,11 +350,13 @@ export type StatusEffectsConfig = {
   burned: { hpPercent: number; turnsMin: number; turnsMax: number };
   poisoned: { startPercent: number; stepPercent: number };
   paralyzed: { turnsMin: number; turnsMax: number };
+  confused: { turnsMin: number; turnsMax: number };
 };
 export const STATUS_EFFECTS = ((logicJson as { statusEffects?: StatusEffectsConfig }).statusEffects || {
   burned: { hpPercent: 5, turnsMin: 2, turnsMax: 5 },
   poisoned: { startPercent: 1, stepPercent: 1 },
   paralyzed: { turnsMin: 1, turnsMax: 5 },
+  confused: { turnsMin: 1, turnsMax: 4 },
 }) as StatusEffectsConfig;
 
 export type ShinyMoveConfig = { name: string; status: StatusId; maxPp: number };

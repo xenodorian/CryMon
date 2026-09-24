@@ -3471,14 +3471,22 @@ export class CryMon {
 		if (!mv) return;
 		b.pendingMods = { str: 0, agl: 0, spc: 0 };
 		b.pendingEffectText = "";
-		// Paralysis/confusion intercept before the chosen move even runs --
-		// the turn-countdown/HP-tick itself happens once per round in
-		// resolve_guard, not here, so this only checks and bypasses.
+		// Paralysis intercept before the chosen move. Confusion only rolls
+		// on a real attack (not Wait) so holding safely burns a confusion turn.
+		// Turn-countdown itself happens once per round in resolve_guard.
 		if (b.player.status === "paralyzed") {
 			b.pendingDmg = 0;
 			b.pendingLabel = `${b.player.name} is paralyzed and can't move.`;
 			b.phase = "resolve_hit";
 			this.audio.miss();
+			return;
+		}
+		if (mv.kind === "wait") {
+			b.msg = [`${b.player.name} holds.`];
+			b.msgI = 0;
+			b.phase = "msg";
+			b.afterMsg = "guard";
+			this.audio.ui();
 			return;
 		}
 		const confused = this.confusionOutcome(b.player, true);
@@ -3497,14 +3505,6 @@ export class CryMon {
 			}
 			b.phase = "resolve_hit";
 			this.audio.miss();
-			return;
-		}
-		if (mv.kind === "wait") {
-			b.msg = [`${b.player.name} holds.`];
-			b.msgI = 0;
-			b.phase = "msg";
-			b.afterMsg = "guard";
-			this.audio.ui();
 			return;
 		}
 		if (mv.kind === "spell") {
@@ -3626,6 +3626,10 @@ export class CryMon {
 			const e = STATUS_EFFECTS.paralyzed;
 			m.statusTurns = randI(e.turnsMin, e.turnsMax);
 			m.poisonStack = 0;
+		} else if (status === "confused") {
+			const e = STATUS_EFFECTS.confused;
+			m.statusTurns = randI(e.turnsMin, e.turnsMax);
+			m.poisonStack = 0;
 		} else if (status === "poisoned") {
 			m.statusTurns = 0;
 			m.poisonStack = 0;
@@ -3660,6 +3664,14 @@ export class CryMon {
 		if (m.status === "paralyzed") {
 			m.statusTurns = (m.statusTurns ?? 1) - 1;
 			if (m.statusTurns <= 0) this.clearStatus(m);
+			return "";
+		}
+		if (m.status === "confused") {
+			m.statusTurns = (m.statusTurns ?? 1) - 1;
+			if (m.statusTurns <= 0) {
+				this.clearStatus(m);
+				return " snapped out of confusion";
+			}
 			return "";
 		}
 		return "";
