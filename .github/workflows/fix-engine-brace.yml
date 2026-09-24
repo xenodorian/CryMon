@@ -1,0 +1,50 @@
+name: Fix engine brace
+on:
+  workflow_dispatch:
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove stray brace
+        run: |
+          python3 << 'PY'
+          from pathlib import Path
+          et = Path('src/game/engine.ts').read_text()
+          bad = '''\t// Shinigami rock event: only on direct interact with shinigamiRock NPC (veld mark 9).\n\t}\n\tmaybeStartMasonRematch() {'''
+          good = '''\t// Shinigami rock event: only on direct interact with shinigamiRock NPC (veld mark 9).\n\tmaybeStartMasonRematch() {'''
+          if bad not in et:
+              if 'Shinigami rock event' in et and '}\n\tmaybeStartMasonRematch' not in et.replace('\r',''):
+                  print('already fixed or different')
+              else:
+                  # try flexible
+                  import re
+                  et2, n = re.subn(
+                      r'(// Shinigami rock event: only on direct interact with shinigamiRock NPC \(veld mark 9\).\n)\t\}\n(\tmaybeStartMasonRematch)',
+                      r'\1\2',
+                      et,
+                      count=1,
+                  )
+                  if n != 1:
+                      raise SystemExit(f'pattern miss n={n}')
+                  et = et2
+                  Path('src/game/engine.ts').write_text(et)
+                  print('fixed via regex')
+          else:
+              Path('src/game/engine.ts').write_text(et.replace(bad, good, 1))
+              print('fixed')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Grok C"
+          git config user.email "76492590+xenodorian@users.noreply.github.com"
+          git add src/game/engine.ts
+          git commit -m "Fix engine.ts syntax: remove stray brace that broke vite Pages build" || exit 0
+          git push
+      - name: Deploy Pages once
+        run: gh workflow run deploy-pages.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
