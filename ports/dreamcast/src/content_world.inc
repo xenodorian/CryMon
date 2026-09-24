@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=0b49120f19336784 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=a73eaf5c4ef649b1 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -400,7 +400,7 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, 11, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
     { -1, 11, -1, 11, { 4,-1,-1 }, { 1,0,0 }, 1, -1, 0, 35, 13, 36, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 37, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, 5, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 40, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, 16, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
     { -1, 16, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 45, -1, -1, 5, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 47, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, 17, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
@@ -483,8 +483,7 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_VELD, 'E', 26, 2, 30, 32 },
     { MAP_VELD, 'M', 28, 3, 20, 20 },
     { MAP_VELD, 'G', 31, 3, 18, 18 },
-    { MAP_VELD, 'X', 34, 1, 35, 30 },
-    { MAP_GROVE, '8', 35, 2, 30, 32 },
+    { MAP_GROVE, '8', 34, 3, 30, 32 },
     { MAP_GROVE, '9', 37, 2, 30, 32 },
     { MAP_GROVE, 'K', 39, 2, 30, 32 },
     { MAP_CAMP, 'I', 41, 1, 30, 32 },
@@ -512,11 +511,11 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_MARSH, 'F', 92, 1, 30, 32 },
     { MAP_CAMP, 'S', 93, 1, 30, 32 },
     { MAP_GAUNTLET6, 'G', 94, 2, 30, 32 },
-    { MAP_VELD, 'S', 96, 2, 30, 32 },
+    { MAP_VELD, 'L', 96, 2, 30, 32 },
     { MAP_VELD, '4', 98, 2, 30, 32 },
     { MAP_VELD, '9', 100, 1, 30, 32 },
     { MAP_VELD, 'Y', 101, 1, 30, 32 },
 };
-#define NPC_DEF_N 46
+#define NPC_DEF_N 45
 #define INTERACT_BUFFER 20
 
