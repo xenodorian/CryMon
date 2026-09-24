@@ -665,8 +665,8 @@ def main() -> int:
     if data["audio"].get("battleMusicMul") is None:
         errors.append("audio.json missing battleMusicMul")
     scale = catalog.get("drawScale") or {}
-    if int(scale.get("mason") or 0) != 2:
-        errors.append("sprites.json drawScale.mason must be 2")
+    if int(scale.get("mason") or 0) != 1:
+        errors.append("sprites.json drawScale.mason must be 1 (all overworld actors use Max's height)")
 
     trainers = data["world"].get("trainers") or {}
     for k in REQUIRED_TRAINERS:
