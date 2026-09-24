@@ -4847,9 +4847,8 @@ export class CryMon {
 	drawActor(key, wx, wy) {
 		const { cx, cy } = this.cam();
 		const who = String(key).split("-")[0];
-		const scale = Number((SPRITES as { drawScale?: Record<string, number> }).drawScale?.[who] ?? 1) || 1;
-		const w = SPR_W * scale;
-		const h = SPR_H * scale;
+		const w = SPR_W;
+		const h = SPR_H;
 		this.drawSprite(key, wx - cx - w / 2, wy - cy - h + 4, w, h);
 	}
 	drawWorldHud() {
@@ -5015,7 +5014,7 @@ export class CryMon {
 				y: c.y,
 				draw: () => {
 					const { cx, cy } = this.cam();
-					this.drawSprite("cathleen-ow", c.x - cx - 36, c.y - cy - 68, 72, 72, true);
+					this.drawSprite("cathleen-ow", c.x - cx - SPR_W / 2, c.y - cy - SPR_H + 4, SPR_W, SPR_H, true);
 					this.hintZ(c.x, c.y);
 				}
 			});
