@@ -2423,7 +2423,6 @@ export class CryMon {
 		}
 	}
 	// Shinigami rock event: only on direct interact with shinigamiRock NPC (veld mark 9).
-	}
 	maybeStartMasonRematch() {
 		if (!this.mason2Map && this.beatCalder && !this.mason2Done) {
 			this.mason2Map = pickMason2Map(Math.random());
