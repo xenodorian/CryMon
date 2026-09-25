@@ -2440,3 +2440,16 @@ the gate is only behind him in space. `check_sync --strict` and
 typecheck passed. No Dreamcast toolchain in this sandbox, so the CDI
 rebuild is left to CI.
 
+## Path maps are scale models of the county sheet (Grok, 2026-09-25)
+
+The 22 path maps and the Weeping Road were straight 24×6 or 6×24 halls.
+They are now the county sheet's bands rasterized at 8 pixels per tile
+(`tools/build_sephirot.py --paths-only`, `build_scaled_path`). A band
+that is diagonal on the sheet is a stairstep corridor in the game; an
+axis-aligned band stays a rectangle. Thickness follows the sheet: the
+band is one eighth of its straight-line length, so a long path is wider
+than a short one. Warp marks are unchanged: `1` is still the A end and
+`2` the B end, and the tile the existing arrival offset steps onto is
+floor. Cities were not resized. `check_sync --strict` and typecheck
+passed. No Dreamcast toolchain here; CI rebuilds the CDI.
+

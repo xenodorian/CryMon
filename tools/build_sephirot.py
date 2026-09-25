@@ -98,6 +98,155 @@ CITY_POOL = ["D", "O", "G", "Z", "P", "Q", "L", "J", "I", "V", "A", "M", "Y"]
 assert not (set(CITY_POOL) & SOLID)
 
 OPP = {"up": "down", "down": "up", "left": "right", "right": "left"}
+STEP = {"right": (1, 0), "left": (-1, 0), "down": (0, 1), "up": (0, -1)}
+
+# County-map geometry (the Sorrow County sheet). One tile = 8 of those
+# pixels, so a path's playable grid is a scale model of its band,
+# including the stairstep diagonals. Band thickness is the sheet's
+# half-width rule: straight-line length / 8 pixels.
+COUNTY_PX = 8
+COUNTY_FRAC = {
+    "keter": (0.50, 0.145),
+    "binah": (0.22, 0.275),
+    "chokmah": (0.78, 0.275),
+    "gevurah": (0.175, 0.455),
+    "tiferet": (0.50, 0.455),
+    "chesed": (0.825, 0.455),
+    "hod": (0.22, 0.635),
+    "netzach": (0.78, 0.635),
+    "yesod": (0.50, 0.695),
+    "malkuth": (0.50, 0.835),
+}
+COUNTY_TREE = (30, 36, 780, 860)  # x, y, w, h
+
+
+def county_node(city_id):
+    fx, fy = COUNTY_FRAC[city_id]
+    x, y, w, h = COUNTY_TREE
+    return (x + fx * w, y + fy * h)
+
+
+def county_bands(x1, y1, x2, y2):
+    """Pixel rects of one county-map path band. Same rule as the sheet:
+    axis-aligned when the run is within 0.28 of an axis, otherwise the
+    blocky stairstep (this engine has no diagonal step)."""
+    import math
+    dist = math.hypot(x2 - x1, y2 - y1)
+    thick = dist / 8.0
+    dx, dy = x2 - x1, y2 - y1
+    rects = []
+    if abs(dy) < abs(dx) * 0.28:
+        rects.append((min(x1, x2), (y1 + y2) / 2 - thick / 2, abs(dx), thick))
+    elif abs(dx) < abs(dy) * 0.28:
+        rects.append(((x1 + x2) / 2 - thick / 2, min(y1, y2), thick, abs(dy)))
+    else:
+        n = max(4, int(max(abs(dx), abs(dy)) / 28))
+        pts = [(x1, y1)]
+        x, y = x1, y1
+        sx, sy = dx / n, dy / n
+        for _ in range(n):
+            x += sx
+            pts.append((x, y))
+            y += sy
+            pts.append((x, y))
+        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+            if abs(bx - ax) >= abs(by - ay):
+                if abs(bx - ax) < 0.5:
+                    continue
+                rects.append((min(ax, bx), ay - thick / 2, abs(bx - ax), thick))
+            else:
+                if abs(by - ay) < 0.5:
+                    continue
+                rects.append((ax - thick / 2, min(ay, by), thick, abs(by - ay)))
+    return rects
+
+
+def tiles_covered(rects):
+    import math
+    minx = min(r[0] for r in rects)
+    miny = min(r[1] for r in rects)
+    maxx = max(r[0] + r[2] for r in rects)
+    maxy = max(r[1] + r[3] for r in rects)
+    t0x, t0y = math.floor(minx / COUNTY_PX) - 1, math.floor(miny / COUNTY_PX) - 1
+    t1x, t1y = math.floor(maxx / COUNTY_PX) + 1, math.floor(maxy / COUNTY_PX) + 1
+    walk = set()
+    for ty in range(t0y, t1y + 1):
+        for tx in range(t0x, t1x + 1):
+            x0, y0 = tx * COUNTY_PX, ty * COUNTY_PX
+            x1, y1 = x0 + COUNTY_PX, y0 + COUNTY_PX
+            area = 0.0
+            for rx, ry, rw, rh in rects:
+                ix0, iy0 = max(x0, rx), max(y0, ry)
+                ix1, iy1 = min(x1, rx + rw), min(y1, ry + rh)
+                if ix1 > ix0 and iy1 > iy0:
+                    area += (ix1 - ix0) * (iy1 - iy0)
+            if area >= 0.35 * COUNTY_PX * COUNTY_PX:
+                walk.add((tx, ty))
+    return walk
+
+
+def grid_from_walk(walk, a_px, b_px, dir_out):
+    """Wall-bounded corridor. '1' is the end nearest city A, '2' nearest B.
+    The tile one step dir_out from '1' (and one step back from '2') is
+    floor, so the existing warp offsets still land inside the path."""
+    xs = [p[0] for p in walk]
+    ys = [p[1] for p in walk]
+    minx, maxx, miny, maxy = min(xs), max(xs), min(ys), max(ys)
+
+    def loc(tx, ty):
+        return (tx - minx + 1, ty - miny + 1)
+
+    width, height = maxx - minx + 3, maxy - miny + 3
+    grid = [["#" for _ in range(width)] for _ in range(height)]
+    for tx, ty in walk:
+        x, y = loc(tx, ty)
+        grid[y][x] = "."
+
+    def closest(px, py):
+        best, bd = None, 1e18
+        for tx, ty in walk:
+            cx, cy = (tx + 0.5) * COUNTY_PX, (ty + 0.5) * COUNTY_PX
+            d = (cx - px) ** 2 + (cy - py) ** 2
+            if d < bd:
+                bd, best = d, loc(tx, ty)
+        return best
+
+    a = closest(*a_px)
+    b = closest(*b_px)
+    if a == b:
+        raise SystemExit("path ends collapsed onto one tile")
+    ax, ay = STEP[dir_out]
+    bx, by = STEP[OPP[dir_out]]
+    for x, y in ((a[0] + ax, a[1] + ay), (b[0] + bx, b[1] + by)):
+        if not (0 <= x < width and 0 <= y < height):
+            raise SystemExit(f"arrival step off the map at {x},{y}")
+        if grid[y][x] == "#":
+            grid[y][x] = "."
+    grid[a[1]][a[0]] = "1"
+    grid[b[1]][b[0]] = "2"
+    return ["".join(r) for r in grid]
+
+
+def build_scaled_path(city_a, city_b, dir_out):
+    x1, y1 = county_node(city_a)
+    x2, y2 = county_node(city_b)
+    return grid_from_walk(tiles_covered(county_bands(x1, y1, x2, y2)), (x1, y1), (x2, y2), dir_out)
+
+
+def build_weeping_rows():
+    """The sheet's Weeping Road: a vertical band from just under Malkuth
+    down to CryTown's north edge. '1' is the CryTown end, '2' is Malkuth."""
+    mx, my = county_node("malkuth")
+    city_h = 12 * 6.5
+    road_w = 6 * 6.5 * 0.5
+    road_top = my + city_h / 2 - 8
+    # Extended to meet CryTown, same as the county sheet.
+    road_h = 172.0
+    rects = [(mx - road_w / 2, road_top, road_w, road_h)]
+    south = (mx, road_top + road_h)
+    north = (mx, road_top)
+    # Arrival on '1' steps up; arrival on '2' steps down.
+    return grid_from_walk(tiles_covered(rects), south, north, "up")
 
 
 def direction(a, b):
@@ -169,7 +318,8 @@ def build_city_rows(city_id):
 
 
 def build_corridor_rows(dir_out):
-    """Long/thin corridor. mark '1' = A end, mark '2' = B end."""
+    """Unused straight hall. Paths are now build_scaled_path() scale models
+    of the county sheet. Kept so the old shape is still visible."""
     if dir_out in ("up", "down"):
         w, h = 6, 24
         grid = [["." for _ in range(w)] for _ in range(h)]
@@ -239,8 +389,22 @@ def city_marks_cache():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--step", type=int, required=True, help="1..23")
+    ap.add_argument("--step", type=int, help="1..23")
+    ap.add_argument("--paths-only", action="store_true",
+                    help="rewrite the 22 path maps and the Weeping Road as scale models of the county sheet; do not touch cities or warps")
     args = ap.parse_args()
+    if args.paths_only:
+        maps_data = load(MAPS_JSON)
+        rows = maps_data["rows"]
+        for _n, pname, a, b in PATHS:
+            dir_out = direction(SEPHIROT[a]["coord"], SEPHIROT[b]["coord"])
+            rows[pname] = build_scaled_path(a, b, dir_out)
+        rows["weepingroad"] = build_weeping_rows()
+        save(MAPS_JSON, maps_data)
+        print("rewrote 22 path maps + weepingroad from the county sheet")
+        return
+    if args.step is None:
+        raise SystemExit("pass --step N or --paths-only")
     assert 1 <= args.step <= len(STEPS)
 
     maps_data = load(MAPS_JSON)
@@ -270,8 +434,7 @@ def main():
         ensure_map_registered(cid, SEPHIROT[cid]["name"])
 
     def ensure_corridor(pname, a, b, dir_out):
-        map_rows = build_corridor_rows(dir_out)
-        rows[pname] = map_rows
+        rows[pname] = build_scaled_path(a, b, dir_out)
         ensure_map_registered(pname, "PATH OF " + pname.upper())
 
     def add_warp_pair_if_new(pair):
@@ -320,7 +483,7 @@ def main():
         rname, va, vb = WEEPING_ROAD
         # veld already exists; malkuth must be active by step 1.
         assert vb in active_cities
-        rows[rname] = build_corridor_rows("up")
+        rows[rname] = build_weeping_rows()
         ensure_map_registered(rname, "THE WEEPING ROAD")
         _, marks_malkuth = city_cache["malkuth"]
         tile_malkuth = marks_malkuth["weeping_road"][1]
