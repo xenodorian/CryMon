@@ -266,6 +266,22 @@
       "oy": 40
     },
     {
+      "from": "veld",
+      "tile": "O",
+      "to": "weepingroad",
+      "spawn": "1",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "weepingroad",
+      "tile": "1",
+      "to": "veld",
+      "spawn": "O",
+      "dir": "down",
+      "oy": 64
+    },
+    {
       "from": "yesod",
       "tile": "G",
       "to": "tau",

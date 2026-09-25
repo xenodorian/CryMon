@@ -2428,3 +2428,15 @@ change there.
 `verify_step.sh` all green; Dreamcast rebuilt clean from `make clean`,
 checked directly for `error:` per the standing false-green caution.
 
+## CryTown north gate restored behind Lieutenant Lead (Grok, 2026-09-25)
+
+The sealed north exit is open again. `veld` row 0, column 15 (the wall
+tile directly north of Lieutenant Lead's `L` on row 1) is warp tile
+`O`. `veld.O` goes up onto `weepingroad` spawn `1` (`oy` -32, one tile
+inside the road). Coming back, `weepingroad.1` spawns on `veld.O` with
+`oy` 64, which lands on the grass one tile south of Lead, so he stays
+between the player and the gate. No `need` flag: he is still non-solid,
+the gate is only behind him in space. `check_sync --strict` and
+typecheck passed. No Dreamcast toolchain in this sandbox, so the CDI
+rebuild is left to CI.
+
