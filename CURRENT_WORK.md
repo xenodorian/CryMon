@@ -2770,3 +2770,35 @@ some species' `evolvesTo` points at it) now waits for `evolveAt2` /
 `evolveAt2 > evolveAt` and `<= levelCap`. No lines are 3-stage yet, so
 nothing changes in play until stage B.
 
+**Stage B done and pushed: lines regrouped, base stats retuned.** Each
+retuned species kept its stat shape (ratios) and was scaled to a tier
+total; rounding goes to HP. Stat totals (maxHp+str+agl+spc):
+
+| tier | line | totals |
+|---|---|---|
+| 3-stage | Quillpup -> Needleroot -> Thornhide | 66 (unchanged, user exception) / 74 / 86 |
+| 3-stage | Voltgrub -> Glimmoth -> Stormwing | 56 / 70 / 85 |
+| 3-stage | Runemote -> Charmkin -> Glyphwing | 55 / 69 / 84 |
+| 3-stage | Slatekin -> Gravelurk -> Boulderam | 58 / 71 / 86 |
+| 3-stage | Shrewbit -> Scavrat -> Plunderat | 56 / 69 / 84 |
+| 3-stage | Fenwisp -> Razorbat -> Sableclaw | 57 / 70 / 85 |
+| 2-stage | Chillnewt -> Rimewyrm | 64 / 82 |
+| 2-stage | Jolthare -> Voltbuck | 63 / 80 |
+| 2-stage | Peatling -> Mireback | 63 / 80 |
+| 2-stage | Glowcap -> Veilcap | 64 / 81 |
+| 2-stage | Cindermite -> Kilnback | 65 / 82 |
+| 2-stage | Emberling -> Ashenmaw | 66 / 83 |
+| 2-stage | Mossback -> Tortcask | 65 / 81 |
+| solo | Duskhorn, Briarfox, Frostail, CryMare, Rimeowl, Stardrop, Glasswisp | 76, 76, 77, 78, 75, 76, 76 |
+
+Starter bands: 3-stage 55-58 (+ Quillpup 66), 2-stage 63-66, solo 75-78.
+Links that changed: Needleroot -> Thornhide, Voltgrub -> Glimmoth,
+Runemote -> Charmkin -> Glyphwing, Gravelurk -> Boulderam, Fenwisp ->
+Razorbat, Mossback -> Tortcask; Briarfox and Duskhorn no longer evolve,
+Fenwisp no longer becomes Glasswisp. Cathleen, Heavenfall, Lead untouched.
+Trainer kits keep their species, so their fights shift with the new stats
+(not rebalanced). Web tested: Quillpup -> Needleroot at 12, stays through
+21, -> Thornhide at 22. Blurbs were not rewritten for the new links.
+
+Next: stage C (grass pools by stage).
+
