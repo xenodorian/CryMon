@@ -42,7 +42,16 @@ export type SpeciesId =
   | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall"
   | "peatling" | "mireback" | "glowcap" | "slatekin" | "gravelurk" | "cindermite"
   | "veilcap" | "kilnback" | "lead"
-  | "shrewbit" | "jolthare" | "voltbuck" | "chillnewt" | "rimewyrm" | "runemote" | "glyphwing" | "scavrat" | "plunderat" | "stardrop" | "rimeowl" | "voltgrub" | "charmkin";
+  | "shrewbit" | "jolthare" | "voltbuck" | "chillnewt" | "rimewyrm" | "runemote" | "glyphwing" | "scavrat" | "plunderat" | "stardrop" | "rimeowl" | "voltgrub" | "charmkin"
+  | "sparkit" | "blazelynx" | "pyrelion" | "frostfry" | "floepike" | "glacierjaw" | "pipsprout" | "vinebrute"
+  | "rootking" | "dustmole" | "tunneler" | "quakelord" | "sparkfly" | "arcwasp" | "thunderqueen" | "soottick"
+  | "gloomspider" | "widowshade" | "cardkin" | "fateweaver" | "arcanox" | "mooncalf" | "moonbull" | "eclipsaur"
+  | "pipwren" | "kestrail" | "grandroc" | "tallowisp" | "cryptlamp" | "deathknell" | "snowbell" | "icecantor"
+  | "frostchoir" | "rubblet" | "ramparth" | "towerfall" | "boltlamb" | "thunderam" | "clovercalf" | "gardenbull"
+  | "twinklet" | "geminal" | "rimecrab" | "floeclaw" | "scorchbeak" | "ashwing" | "rockhermit" | "cragsage"
+  | "grimkid" | "baphorn" | "tuftowl" | "magistowl" | "starfry" | "starwhale" | "dawnchick" | "sunhawk"
+  | "reedfawn" | "bowstag" | "motley" | "sleightfox" | "moonveil" | "bloomdoe" | "warbison" | "gallowcrow"
+  | "gravemoth" | "hornblaze" | "atlashell" | "tidewolf" | "wheelhog";
 
 export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry" | "gauntlet" | "gauntlet1" | "gauntlet2" | "gauntlet3" | "gauntlet4" | "gauntlet5" | "gauntlet6" | "malkuth" | "weepingroad" | "yesod" | "tau" | "netzach" | "qoph" | "hod" | "shin" | "peh" | "resh" | "tzaddi" | "tiferet" | "samekh" | "nun" | "ayin" | "chesed" | "kaph" | "yod" | "gevurah" | "mem" | "lamed" | "teth" | "binah" | "zayin" | "heth" | "chokmah" | "he" | "vau" | "daleth" | "keter" | "gimel" | "aleph" | "beth";
 

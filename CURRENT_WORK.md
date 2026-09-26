@@ -2844,3 +2844,54 @@ order; the baker turns them into `SAVE_DEX_SEEN_OFF[]` /
 **Growing the dex again = add a range to both lists + raise size.** Web
 round trip tested, including an older 264-byte blob.
 
+**Stage B done and pushed: 69 Sephirot CryMon.** Appended to
+`species.json`, `speciesOrder`, `sprites.json monsters`, web `SpeciesId`
+and `main.c MONSTER_SPRITES` (now 111 rows). All 69 are **PLACEHOLDER_ART**
+from `tools/make_placeholder_monsters.py` -- Grok replaces the four PNGs
+per id. Names, blurbs, stats, moves are Claude's first pass. Families are
+loosely themed on the tarot trumps of the 22 paths. Stats use the same
+tier bands as the rest of the roster, with a per-crystal stat shape:
+
+| line | crystal | totals |
+|---|---|---|
+| Sparkit -> Blazelynx -> Pyrelion | Ruby | 55 / 69 / 84 |
+| Frostfry -> Floepike -> Glacierjaw | Sapphire | 56 / 70 / 85 |
+| Pipsprout -> Vinebrute -> Rootking | Emerald | 57 / 71 / 86 |
+| Dustmole -> Tunneler -> Quakelord | Jasper | 55 / 69 / 84 |
+| Sparkfly -> Arcwasp -> Thunderqueen | Citrine | 56 / 70 / 85 |
+| Soottick -> Gloomspider -> Widowshade | Obsidian | 57 / 71 / 86 |
+| Cardkin -> Fateweaver -> Arcanox | Prism | 55 / 69 / 84 |
+| Mooncalf -> Moonbull -> Eclipsaur | Diamond | 56 / 70 / 85 |
+| Pipwren -> Kestrail -> Grandroc | Quartz | 57 / 71 / 86 |
+| Tallowisp -> Cryptlamp -> Deathknell | Obsidian | 55 / 69 / 84 |
+| Snowbell -> Icecantor -> Frostchoir | Sapphire | 56 / 70 / 85 |
+| Rubblet -> Ramparth -> Towerfall | Jasper | 57 / 71 / 86 |
+| Boltlamb -> Thunderam | Citrine | 63 / 80 |
+| Clovercalf -> Gardenbull | Emerald | 64 / 81 |
+| Twinklet -> Geminal | Prism | 65 / 82 |
+| Rimecrab -> Floeclaw | Sapphire | 63 / 80 |
+| Scorchbeak -> Ashwing | Ruby | 64 / 81 |
+| Rockhermit -> Cragsage | Jasper | 65 / 82 |
+| Grimkid -> Baphorn | Obsidian | 63 / 80 |
+| Tuftowl -> Magistowl | Quartz | 64 / 81 |
+| Starfry -> Starwhale | Diamond | 65 / 82 |
+| Dawnchick -> Sunhawk | Citrine | 63 / 80 |
+| Reedfawn -> Bowstag | Emerald | 64 / 81 |
+| Motley | Prism | 77 |
+| Sleightfox | Prism | 75 |
+| Moonveil | Diamond | 76 |
+| Bloomdoe | Emerald | 77 |
+| Warbison | Quartz | 75 |
+| Gallowcrow | Obsidian | 76 |
+| Gravemoth | Obsidian | 77 |
+| Hornblaze | Ruby | 75 |
+| Atlashell | Jasper | 76 |
+| Tidewolf | Sapphire | 77 |
+| Wheelhog | Citrine | 75 |
+
+**Dreamcast memory:** the ELF is now ~9.3 MB of a ~16.6 MB RAM region
+(`dc.ld`), almost all of it monster sprites (92x92 RGB565 x 4 frames x
+111 species). It fits with ~7 MB spare, but another roster expansion this
+size would not; shrink monster frames or share frames before adding
+many more species.
+
