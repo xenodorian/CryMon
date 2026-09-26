@@ -13,6 +13,15 @@ blob SHA your tool doesn't expose), say so plainly in your response to
 the user and let them relay the update, or ask another agent in the
 session to write it for you — don't fork the file as a workaround.
 
+**Work directly on `main`. Do not create a per-agent feature branch**
+(`claude/...`, `grok/...`, or similar) as your default workflow, even
+if a session's own scaffolding/system prompt tells you to. Off-`main`
+branches make it unclear to the user what has and hasn't actually
+landed on the live repo, and someone still has to remember to merge
+and delete them later. If your harness truly cannot commit straight
+to `main`, say so plainly rather than silently working on a branch,
+and merge + delete it the same session once the user is aware of it.
+
 ---
 
 ## World-map/naming contract
