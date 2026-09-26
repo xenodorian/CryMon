@@ -2824,7 +2824,7 @@ evolved form is found on a lower-level map than its pre-evolution
 
 **This workstream is complete.**
 
-## Sephirot grass + 69 new CryMon (Claude, 2026-09-26) -- in progress
+## Sephirot grass + 69 new CryMon (Claude, 2026-09-26)
 
 User asked for tall grass on every path into the Sephirot cities and new
 CryMon so each of those maps has 3 unique ones, and said to run
@@ -2894,4 +2894,50 @@ tier bands as the rest of the roster, with a per-crystal stat shape:
 111 species). It fits with ~7 MB spare, but another roster expansion this
 size would not; shrink monster frames or share frames before adding
 many more species.
+
+**Stage C done and pushed: grass + pools.** `tools/build_sephirot.py`
+now plants tall grass in `grid_from_walk()` (`plant_grass()`): 4x4
+checkerboarded patches of `T`, with every floor tile within 3 of a gate
+left bare. Because it lives in the generator, `--paths-only` (or any
+step rebuild) keeps the grass. Regenerated all 22 paths + the Weeping
+Road; the diff is only `.` -> `T` (checked by script). Cities untouched.
+
+Pools: 3 unique CryMon per map, none shared with any other grass map.
+Levels climb with height on the Tree: `18 + round((6.5 - avgRow) * 4)`,
+where avgRow is the mean tree row of the path's two cities (Weeping Road
+counted as 6.5), range min..min+3. CryMon fill the maps lowest-first in
+stage order (first stages, then solos, then middles, then finals), so no
+evolution is found below its pre-evolution. Rate 0.18 like the county.
+
+| map | levels | pool (crystal) |
+|---|---|---|
+| weepingroad | 18-21 | Sparkit (rub), Frostfry (sap), Pipsprout (eme) |
+| tau | 22-25 | Dustmole (jas), Sparkfly (cit), Soottick (obs) |
+| qoph | 24-27 | Cardkin (pri), Mooncalf (dia), Pipwren (qua) |
+| shin | 24-27 | Tallowisp (obs), Snowbell (sap), Rubblet (jas) |
+| resh | 26-29 | Boltlamb (cit), Clovercalf (eme), Twinklet (pri) |
+| tzaddi | 26-29 | Rimecrab (sap), Scorchbeak (rub), Rockhermit (jas) |
+| peh | 28-31 | Grimkid (obs), Tuftowl (qua), Starfry (dia) |
+| samekh | 28-31 | Dawnchick (cit), Reedfawn (eme), Motley (pri) |
+| ayin | 30-33 | Sleightfox (pri), Moonveil (dia), Bloomdoe (eme) |
+| nun | 30-33 | Warbison (qua), Gallowcrow (obs), Gravemoth (obs) |
+| kaph | 32-35 | Hornblaze (rub), Atlashell (jas), Tidewolf (sap) |
+| mem | 32-35 | Wheelhog (cit), Blazelynx (rub), Floepike (sap) |
+| lamed | 34-37 | Vinebrute (eme), Tunneler (jas), Arcwasp (cit) |
+| yod | 34-37 | Gloomspider (obs), Fateweaver (pri), Moonbull (dia) |
+| he | 36-39 | Kestrail (qua), Cryptlamp (obs), Icecantor (sap) |
+| teth | 36-39 | Ramparth (jas), Thunderam (cit), Gardenbull (eme) |
+| zayin | 36-39 | Geminal (pri), Floeclaw (sap), Ashwing (rub) |
+| gimel | 38-41 | Cragsage (jas), Baphorn (obs), Magistowl (qua) |
+| heth | 38-41 | Starwhale (dia), Sunhawk (cit), Bowstag (eme) |
+| vau | 38-41 | Pyrelion (rub), Glacierjaw (sap), Rootking (eme) |
+| daleth | 40-43 | Quakelord (jas), Thunderqueen (cit), Widowshade (obs) |
+| aleph | 42-45 | Arcanox (pri), Eclipsaur (dia), Grandroc (qua) |
+| beth | 42-45 | Deathknell (obs), Frostchoir (sap), Towerfall (jas) |
+
+Gauntlet 5's all-species pool was **not** extended with these 69 -- it
+stays the county roster; the Sephirot creatures live in the Sephirot.
+Web checked: grass renders on the Path of Aleph, and walking the Path of
+Daleth triggered a wild Lv 43 Thunderqueen from its pool.
+**This workstream is complete.**
 

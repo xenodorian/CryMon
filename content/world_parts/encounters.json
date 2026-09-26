@@ -232,6 +232,328 @@
       ],
       "levelMin": 16,
       "levelMax": 20
+    },
+    {
+      "maps": [
+        "weepingroad"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "sparkit",
+        "frostfry",
+        "pipsprout"
+      ],
+      "levelMin": 18,
+      "levelMax": 21
+    },
+    {
+      "maps": [
+        "tau"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "dustmole",
+        "sparkfly",
+        "soottick"
+      ],
+      "levelMin": 22,
+      "levelMax": 25
+    },
+    {
+      "maps": [
+        "qoph"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "cardkin",
+        "mooncalf",
+        "pipwren"
+      ],
+      "levelMin": 24,
+      "levelMax": 27
+    },
+    {
+      "maps": [
+        "shin"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "tallowisp",
+        "snowbell",
+        "rubblet"
+      ],
+      "levelMin": 24,
+      "levelMax": 27
+    },
+    {
+      "maps": [
+        "resh"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "boltlamb",
+        "clovercalf",
+        "twinklet"
+      ],
+      "levelMin": 26,
+      "levelMax": 29
+    },
+    {
+      "maps": [
+        "tzaddi"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "rimecrab",
+        "scorchbeak",
+        "rockhermit"
+      ],
+      "levelMin": 26,
+      "levelMax": 29
+    },
+    {
+      "maps": [
+        "peh"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "grimkid",
+        "tuftowl",
+        "starfry"
+      ],
+      "levelMin": 28,
+      "levelMax": 31
+    },
+    {
+      "maps": [
+        "samekh"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "dawnchick",
+        "reedfawn",
+        "motley"
+      ],
+      "levelMin": 28,
+      "levelMax": 31
+    },
+    {
+      "maps": [
+        "ayin"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "sleightfox",
+        "moonveil",
+        "bloomdoe"
+      ],
+      "levelMin": 30,
+      "levelMax": 33
+    },
+    {
+      "maps": [
+        "nun"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "warbison",
+        "gallowcrow",
+        "gravemoth"
+      ],
+      "levelMin": 30,
+      "levelMax": 33
+    },
+    {
+      "maps": [
+        "kaph"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "hornblaze",
+        "atlashell",
+        "tidewolf"
+      ],
+      "levelMin": 32,
+      "levelMax": 35
+    },
+    {
+      "maps": [
+        "mem"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "wheelhog",
+        "blazelynx",
+        "floepike"
+      ],
+      "levelMin": 32,
+      "levelMax": 35
+    },
+    {
+      "maps": [
+        "lamed"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "vinebrute",
+        "tunneler",
+        "arcwasp"
+      ],
+      "levelMin": 34,
+      "levelMax": 37
+    },
+    {
+      "maps": [
+        "yod"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "gloomspider",
+        "fateweaver",
+        "moonbull"
+      ],
+      "levelMin": 34,
+      "levelMax": 37
+    },
+    {
+      "maps": [
+        "he"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "kestrail",
+        "cryptlamp",
+        "icecantor"
+      ],
+      "levelMin": 36,
+      "levelMax": 39
+    },
+    {
+      "maps": [
+        "teth"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "ramparth",
+        "thunderam",
+        "gardenbull"
+      ],
+      "levelMin": 36,
+      "levelMax": 39
+    },
+    {
+      "maps": [
+        "zayin"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "geminal",
+        "floeclaw",
+        "ashwing"
+      ],
+      "levelMin": 36,
+      "levelMax": 39
+    },
+    {
+      "maps": [
+        "gimel"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "cragsage",
+        "baphorn",
+        "magistowl"
+      ],
+      "levelMin": 38,
+      "levelMax": 41
+    },
+    {
+      "maps": [
+        "heth"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "starwhale",
+        "sunhawk",
+        "bowstag"
+      ],
+      "levelMin": 38,
+      "levelMax": 41
+    },
+    {
+      "maps": [
+        "vau"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "pyrelion",
+        "glacierjaw",
+        "rootking"
+      ],
+      "levelMin": 38,
+      "levelMax": 41
+    },
+    {
+      "maps": [
+        "daleth"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "quakelord",
+        "thunderqueen",
+        "widowshade"
+      ],
+      "levelMin": 40,
+      "levelMax": 43
+    },
+    {
+      "maps": [
+        "aleph"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "arcanox",
+        "eclipsaur",
+        "grandroc"
+      ],
+      "levelMin": 42,
+      "levelMax": 45
+    },
+    {
+      "maps": [
+        "beth"
+      ],
+      "tile": "T",
+      "rate": 0.18,
+      "pool": [
+        "deathknell",
+        "frostchoir",
+        "towerfall"
+      ],
+      "levelMin": 42,
+      "levelMax": 45
     }
   ]
 }

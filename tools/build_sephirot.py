@@ -224,7 +224,27 @@ def grid_from_walk(walk, a_px, b_px, dir_out):
             grid[y][x] = "."
     grid[a[1]][a[0]] = "1"
     grid[b[1]][b[0]] = "2"
+    plant_grass(grid)
     return ["".join(r) for r in grid]
+
+
+GRASS_CLEAR = 3   # floor within this many tiles of a gate stays bare
+GRASS_PATCH = 4   # grass is laid in PATCH x PATCH blocks, checkerboarded
+
+
+def plant_grass(grid):
+    """Tall grass ('T', the encounter tile) on every path: checkerboarded
+    patches so a route reads as grass-and-clearings, with the tiles around
+    both gates left bare so arriving never drops you straight into grass."""
+    marks = [(x, y) for y, row in enumerate(grid) for x, ch in enumerate(row) if ch in "12"]
+    for y, row in enumerate(grid):
+        for x, ch in enumerate(row):
+            if ch != ".":
+                continue
+            if any(max(abs(x - mx), abs(y - my)) < GRASS_CLEAR for mx, my in marks):
+                continue
+            if ((x // GRASS_PATCH) + (y // GRASS_PATCH)) % 2 == 0:
+                row[x] = "T"
 
 
 def build_scaled_path(city_a, city_b, dir_out):
