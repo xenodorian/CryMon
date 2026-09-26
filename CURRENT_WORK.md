@@ -2675,7 +2675,7 @@ Re-merged; the diff is exactly those 26 letters. **Rule: after editing any
 `content/world_parts/*.json`, run `python3 tools/merge_world.py` before
 baking.**
 
-## New CryMon + 3 unique per grass map (Claude, 2026-09-26) -- in progress
+## New CryMon + 3 unique per grass map (Claude, 2026-09-26)
 
 User asked for new CryMon (simple placeholder art, Grok fills in real art
 later) and for every tall-grass map to have 3 CryMon found nowhere else.
@@ -2727,5 +2727,30 @@ stats and moves are Claude's first pass -- edit freely in `species.json`.
 row for Lieutenant Lead (species 29), so his entry was a null pointer;
 he now has his row, and the 13 new rows follow it.
 
-Next: stage 3 (reshuffle pools).
+**Stage 3 done and pushed: grass pools reshuffled.** Every grass map now
+has exactly 3 CryMon found on no other grass map (edited in
+`world_parts/encounters.json`, then `merge_world.py`). Levels and rates
+unchanged. Base forms and standalones sit in the early maps, evolved forms
+in the late ones:
+
+| map | levels | pool |
+|---|---|---|
+| Veld | 2-4 | Glimmoth, Jolthare, Shrewbit |
+| Forest | 3-5 | Quillpup, Razorbat, Duskhorn |
+| Marsh | 4-6 | Peatling, Mossback, Chillnewt |
+| Grove | 5-8 | Briarfox, Glowcap, Charmkin |
+| Cliffs | 5-7 | Frostail, Rimeowl, Stardrop |
+| Quarry | 5-7 | Slatekin, Cindermite, Voltgrub |
+| Camp | 6-9 | Emberling, Scavrat, Tortcask |
+| Ruins | 6-9 | Fenwisp, CryMare, Runemote |
+| Reach | 8-11 | Glasswisp, Glyphwing, Needleroot |
+| Gauntlet 1 | 8-11 | Mireback, Thornhide, Plunderat |
+| Gauntlet 2 | 10-13 | Sableclaw, Veilcap, Voltbuck |
+| Gauntlet 3 | 12-15 | Boulderam, Kilnback, Rimewyrm |
+| Gauntlet 4 | 14-17 | Ashenmaw, Stormwing, Gravelurk |
+| Gauntlet 5 | 16-20 | all 39 wild species (by user decision) |
+
+Cathleen, Heavenfall and Lieutenant Lead stay out of the grass. Trainer
+kits and story battles were not touched. Web checked by screenshot (wild
+Jolthare with its placeholder and badge). **This workstream is complete.**
 
