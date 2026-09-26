@@ -2504,19 +2504,27 @@ resize several Tree-of-Life path cells against the current
 title text in `content/town_map.json`, `content/world_map_layout.json`,
 and the SVG header; also fixed the generator's default so a future
 *legitimate* regen doesn't reintroduce the same bug.
-`public/maps/sorrow-county-town-map.png` still has the old title
-baked into its raster pixels -- no `imagemagick`/`convert` available
-in this sandbox to re-rasterize it; re-run the `Publish map PNG`
-workflow (`workflow_dispatch`) to refresh it from the corrected SVG.
+**Both follow-ups flagged above are now fixed too (Claude, same day):**
 
-Also flagging, not fixing: `content/town_map.json`'s node geometry
-(at least the Qoph/Shin/Peh/Zayin/He/Teth/Daleth path cells, and
-CryTown's own real width) is stale against `content/maps.json`'s
-current Tree-of-Life path sizes -- seen in the reverted regen diff
-above. The static SVG is hand-authored and unaffected, but the
-in-game pause-menu map screen (`drawTownMap()` in `engine.ts`, reads
-`content/town_map.json`) is reading stale proportions for those
-cells.
+`content/town_map.json`'s node geometry was stale against
+`content/maps.json`'s current Tree-of-Life path sizes. Fixed by
+running `generate-town-map.mjs` for real this time, then restoring
+the hand-authored `sorrow-county-town-map.svg` over its regenerated
+output afterward (diffed node-by-node first: same 44 ids before and
+after, only `realSize`/`x`/`y`/`cellW`/`cellH` changed, on exactly
+the 22 path cells plus CryTown's width -- no nodes added, removed, or
+renamed). `docs/generated/sorrow-county-town-map.md` was left as the
+generator produced it (it's a plain generated dev doc, not
+hand-authored). The in-game pause-menu map screen now reads correct
+proportions for every cell.
+
+`public/maps/sorrow-county-town-map.png` had the old title baked
+into its raster pixels. No `imagemagick` in this sandbox, so
+rasterized the corrected SVG with the pre-installed headless
+Chromium via Playwright instead (`chromium.launch({executablePath:
+"/opt/pw-browsers/chromium"})`, screenshot clipped to the SVG's own
+860x1565 `width`/`height`) rather than waiting on the `Publish map
+PNG` GitHub Action.
 
 Removed `public/maps/crytown-world-map.svg`: an orphaned predecessor
 of the county map from before the "Rename world map to Sorrow County"

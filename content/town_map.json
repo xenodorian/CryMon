@@ -20,7 +20,7 @@
         "veld"
       ],
       "realSize": {
-        "width": 30,
+        "width": 31,
         "height": 23
       }
     },
@@ -90,7 +90,7 @@
       "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
+        "width": 5,
         "height": 24
       }
     },
@@ -188,8 +188,8 @@
       "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 5,
+        "height": 17
       }
     },
     {
@@ -197,14 +197,14 @@
       "label": "PATH OF QOPH",
       "kind": "route",
       "gem": false,
-      "x": 19,
+      "x": 18,
       "y": 5,
-      "cellW": 1,
-      "cellH": 2,
+      "cellW": 3,
+      "cellH": 3,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 32,
+        "height": 26
       }
     },
     {
@@ -212,14 +212,14 @@
       "label": "PATH OF SHIN",
       "kind": "route",
       "gem": false,
-      "x": 7,
+      "x": 6,
       "y": 5,
-      "cellW": 1,
-      "cellH": 2,
+      "cellW": 3,
+      "cellH": 3,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 32,
+        "height": 26
       }
     },
     {
@@ -308,11 +308,11 @@
       "gem": false,
       "x": 6,
       "y": 9,
-      "cellW": 2,
+      "cellW": 3,
       "cellH": 1,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
+        "width": 30,
         "height": 6
       }
     },
@@ -323,11 +323,11 @@
       "gem": false,
       "x": 18,
       "y": 9,
-      "cellW": 2,
+      "cellW": 3,
       "cellH": 1,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
+        "width": 30,
         "height": 6
       }
     },
@@ -339,11 +339,11 @@
       "x": 13,
       "y": 11,
       "cellW": 1,
-      "cellH": 2,
+      "cellH": 3,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 5,
+        "height": 28
       }
     },
     {
@@ -351,14 +351,14 @@
       "label": "PATH OF PEH",
       "kind": "route",
       "gem": false,
-      "x": 12,
+      "x": 10,
       "y": 12,
-      "cellW": 2,
+      "cellW": 6,
       "cellH": 1,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 57,
+        "height": 9
       }
     },
     {
@@ -367,13 +367,13 @@
       "kind": "route",
       "gem": false,
       "x": 18,
-      "y": 15,
-      "cellW": 2,
-      "cellH": 1,
+      "y": 14,
+      "cellW": 3,
+      "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 32,
+        "height": 24
       }
     },
     {
@@ -387,8 +387,8 @@
       "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 4,
+        "height": 22
       }
     },
     {
@@ -397,13 +397,13 @@
       "kind": "route",
       "gem": false,
       "x": 6,
-      "y": 15,
-      "cellW": 2,
-      "cellH": 1,
+      "y": 14,
+      "cellW": 3,
+      "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 32,
+        "height": 24
       }
     },
     {
@@ -417,8 +417,8 @@
       "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 4,
+        "height": 22
       }
     },
     {
@@ -490,12 +490,12 @@
       "gem": false,
       "x": 18,
       "y": 21,
-      "cellW": 2,
+      "cellW": 3,
       "cellH": 1,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 34,
+        "height": 7
       }
     },
     {
@@ -505,12 +505,12 @@
       "gem": false,
       "x": 6,
       "y": 21,
-      "cellW": 2,
+      "cellW": 3,
       "cellH": 1,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 34,
+        "height": 7
       }
     },
     {
@@ -518,13 +518,13 @@
       "label": "PATH OF ZAYIN",
       "kind": "route",
       "gem": false,
-      "x": 7,
+      "x": 6,
       "y": 23,
-      "cellW": 1,
+      "cellW": 3,
       "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
+        "width": 32,
         "height": 24
       }
     },
@@ -533,13 +533,13 @@
       "label": "PATH OF HE",
       "kind": "route",
       "gem": false,
-      "x": 19,
+      "x": 18,
       "y": 23,
-      "cellW": 1,
+      "cellW": 3,
       "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
+        "width": 32,
         "height": 24
       }
     },
@@ -549,13 +549,13 @@
       "kind": "route",
       "gem": false,
       "x": 13,
-      "y": 26,
+      "y": 25,
       "cellW": 1,
-      "cellH": 2,
+      "cellH": 4,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 7,
+        "height": 36
       }
     },
     {
@@ -563,14 +563,14 @@
       "label": "PATH OF TETH",
       "kind": "route",
       "gem": false,
-      "x": 12,
+      "x": 10,
       "y": 24,
-      "cellW": 2,
+      "cellW": 7,
       "cellH": 1,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 65,
+        "height": 11
       }
     },
     {
@@ -584,8 +584,8 @@
       "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 4,
+        "height": 22
       }
     },
     {
@@ -599,8 +599,8 @@
       "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 6,
-        "height": 24
+        "width": 4,
+        "height": 22
       }
     },
     {
@@ -653,14 +653,14 @@
       "label": "PATH OF DALETH",
       "kind": "route",
       "gem": false,
-      "x": 12,
+      "x": 10,
       "y": 30,
-      "cellW": 2,
+      "cellW": 6,
       "cellH": 1,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 57,
+        "height": 10
       }
     },
     {
@@ -669,13 +669,13 @@
       "kind": "route",
       "gem": false,
       "x": 6,
-      "y": 33,
-      "cellW": 2,
-      "cellH": 1,
+      "y": 32,
+      "cellW": 3,
+      "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 32,
+        "height": 18
       }
     },
     {
@@ -684,13 +684,13 @@
       "kind": "route",
       "gem": false,
       "x": 18,
-      "y": 33,
-      "cellW": 2,
-      "cellH": 1,
+      "y": 32,
+      "cellW": 3,
+      "cellH": 2,
       "playableMaps": [],
       "realSize": {
-        "width": 24,
-        "height": 6
+        "width": 32,
+        "height": 18
       }
     }
   ],
@@ -756,14 +756,14 @@
       "need": null
     },
     {
-      "from": "veld",
-      "to": "weepingroad",
+      "from": "weepingroad",
+      "to": "malkuth",
       "edge": "up",
       "need": null
     },
     {
-      "from": "weepingroad",
-      "to": "malkuth",
+      "from": "veld",
+      "to": "weepingroad",
       "edge": "up",
       "need": null
     },
