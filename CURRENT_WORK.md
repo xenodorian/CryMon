@@ -2466,3 +2466,11 @@ bands, stairstep diagonals, Weeping Road meeting CryTown), not a fresh
 run of `tools/generate-town-map.mjs`. Regenerating that tool will
 overwrite it.
 
+## Rectangle NPC generator removed (Grok, 2026-09-26)
+
+`tools/gen_art_debt_2_0.py` is gone. Nothing else imported it. It was
+the `draw_walker_base` script that painted Bogwalker, Reedguard, Fenn,
+and the Quartz placeholder as flat rectangles. The sprites it already
+wrote are still in `public/sprites/`. It is not a way to regenerate
+them.
+
