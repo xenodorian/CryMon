@@ -221,7 +221,7 @@ by deleting it from `mapIds`.
 
 ---
 
-## Legs 1 & 2 — status: complete except one open item
+## Legs 1 & 2 — status: complete
 
 Both legs (starting town/dialogue/maps/monsters/NPCs through the full
 Leg 2 feature list — capture-rate tiers, reputation stat + father's
@@ -244,13 +244,16 @@ matters going forward:
   existing well-tested Continue flow instead of duplicating its
   load-into-live-state logic inline. Intentional simplification, not
   a bug.
-- **Only open item: 2.8's live trigger.** The Heavenfall-revival
-  reputation effect (-25 rep + one-time merchant warning) is fully
-  data-ready (`logic.json`, save flag, dialogue line) and reportedly
-  wired by another agent's in-flight work, but as of the last check
-  here the gauntlet-grave Heavenfall battle itself wasn't yet
-  triggering reliably on both engines — verify before assuming this
-  is closed.
+- **2.8's live trigger: FIXED (Claude, 2026-09-26).** Root cause: the
+  gauntlet gravestone's first script step used `"unless": "hasScroll"`,
+  a key neither engine reads (`matchNpcScript()` / the baker only know
+  `ifNot`), so the "needs the scroll" line always matched and the
+  Heavenfall battle could never start. Changed to `ifNot` in
+  `world_parts/npcs.json`. `check_sync` now fails on any unknown NPC
+  script key (`NPC_STEP_KEYS`), so this class of typo can't ship again.
+  Web verified by playing it: gravestone with scroll -> Heavenfall
+  battle -> win -> rep 0 -> -25, Heaven Slayer, first shop visit warns,
+  second does not. Dreamcast reads the same baked script (`if_not`).
 - Dreamcast title-display (`apply_player_name()`) now correctly shows
   "Heaven Slayer"/"Heaven Tamer" and persists them across save/reload,
   matching web's precedence exactly (Slayer > Tamer > revived/kindName

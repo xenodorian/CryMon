@@ -59,6 +59,10 @@ FORBIDDEN_TEXT = [
     r"CRYMON_SPRITES",
 ]
 SKIP_NAME = {".git", "node_modules", ".vercel", "backups", "__pycache__", "placeholder_sprites"}
+# Every key an NPC script step may use; engine.ts runNpc()/matchNpcScript()
+# and the Dreamcast baker only read these, anything else is dropped silently.
+NPC_STEP_KEYS = {"talk", "if", "ifNot", "hideIf", "set", "after", "grant", "grantMonster",
+                 "heal", "passIf", "passOffset", "talkIf", "talkElse", "pending", "takeItem", "marks"}
 REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross", "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "marshBog", "marshReed", "quartz"]
 REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat", "growth", "natureMoves", "shinyMove", "statStages", "statusEffects", "hypeUp", "natureTypes"]
 
@@ -327,6 +331,12 @@ def main() -> int:
                 if not isinstance(gi[1], int) or gi[1] <= 0:
                     errors.append(f"npc {nid!r}.grantItem quantity must be positive")
         for si, step in enumerate(npc.get("script") or []):
+            unknown_keys = set(step) - NPC_STEP_KEYS
+            if unknown_keys:
+                errors.append(
+                    f"npc {nid!r} script[{si}] has unknown key(s) {sorted(unknown_keys)} "
+                    f"-- both engines silently ignore them (the gravestone once used "
+                    f"'unless' instead of 'ifNot' and Heavenfall never triggered)")
             for pair in step.get("grant") or []:
                 if not isinstance(pair, list) or len(pair) != 2:
                     errors.append(f"npc {nid!r} script[{si}].grant must contain [item, qty]")
