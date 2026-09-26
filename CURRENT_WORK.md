@@ -3020,3 +3020,20 @@ same `disc_find()` / `disc_read_sectors()` pattern.
   `save.c` may not work on Flycast, or at all; needs a look (and ideally a
   real-console test) before anyone relies on Dreamcast saves.
 
+## Fix-up pass after the sanity check (Claude, 2026-09-26) -- in progress
+
+User asked to fix the sanity-pass findings in stages, pushing and noting
+each so another agent can resume. Order and status (update as you go):
+
+- [ ] **A. 3 eslint errors** (`engine.ts` `@ts-nocheck` + empty `catch {}`,
+      `src/lib/app-data/client.server.ts` empty block).
+- [ ] **B. 8 failing tests** in `scripts/grok-pwa-plugin.test.mjs`.
+- [ ] **C. Dreamcast "SAVE FAILED"** (pre-existing; bare-metal maple/VMU
+      code in `ports/dreamcast/src/save.c`). How to reproduce in the
+      sandbox is in "Sanity pass" above: Flycast built from source at
+      `/tmp/claude-0/emu/flycast` (rebuild if the container was reset:
+      clone with submodules, freetype from github.com/freetype/freetype,
+      `cmake -G Ninja -DUSE_VULKAN=OFF -DUSE_BREAKPAD=OFF`), run under
+      `Xvfb :99`, drive with `xdotool` (A = x, B = c, Start = Return,
+      arrows = d-pad), screenshot with `import -window root`.
+
