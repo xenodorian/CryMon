@@ -3038,7 +3038,20 @@ each so another agent can resume. Order and status (update as you go):
       document title. The plugin is right; the tests weren't isolated. The
       test file now `chdir`s into an empty temp dir first. No product code
       changed.
-- [ ] **C. Dreamcast "SAVE FAILED"** (pre-existing; bare-metal maple/VMU
+- [ ] **C. Dreamcast "SAVE FAILED"** -- DIAGNOSED (Claude), fix in progress.
+      Compared `save.c` against KallistiOS `hardware/maple/vmu.c` +
+      `fs/vmufs.c` + `include/dc/maple.h`. Bugs found:
+      (1) BREAD/BWRITE block id must be
+      `((blk & 0xff) << 24) | ((blk >> 8) << 16) | (phase << 8)`; save.c
+      sends the raw block number, so every read hits the wrong block.
+      (2) BWRITE must go in 4 phases of 128 bytes (length 2 + 32 words),
+      each answered with RESPONSE_OK (7), then a BSYNC (cmd 13) with
+      phase 4; save.c sends all 512 bytes in one frame.
+      (3) `maple_xfer()` accepts only RESPONSE_DATATRF (8), so even a
+      correct write (answered with OK = 7) would be reported as failure.
+      Recipient/sender addresses and the DMA setup match the working
+      controller code in main.c and are fine.
+      The original entry, kept for context: (pre-existing; bare-metal maple/VMU
       code in `ports/dreamcast/src/save.c`). How to reproduce in the
       sandbox is in "Sanity pass" above: Flycast built from source at
       `/tmp/claude-0/emu/flycast` (rebuild if the container was reset:
