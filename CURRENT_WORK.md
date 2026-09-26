@@ -2474,3 +2474,13 @@ and the Quartz placeholder as flat rectangles. The sprites it already
 wrote are still in `public/sprites/`. It is not a way to regenerate
 them.
 
+## Flat walkers replaced with generated pixel art (Grok, 2026-09-26)
+
+Bogwalker, Reedguard, and Fenn (frames 1–4 and portraits) are generated
+16-bit pixel art, keyed with the flood-plus-hole-punch plus 2px
+inner-border clamp, then fitted to 48×64 (feet down) and 160×200.
+Quartz frames 1–4 are the same new standing sprite. Frame 2 was the
+only file that script wrote, but 1, 3, and 4 were the same flat style
+and would have flashed back to it on the idle cycle. No magenta left
+in the shipped PNGs.
+
