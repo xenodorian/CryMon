@@ -2754,7 +2754,7 @@ Cathleen, Heavenfall and Lieutenant Lead stay out of the grass. Trainer
 kits and story battles were not touched. Web checked by screenshot (wild
 Jolthare with its placeholder and badge). **This workstream is complete.**
 
-## Evolution tiers: 3-stage / 2-stage / no evolution (Claude, 2026-09-26) -- in progress
+## Evolution tiers: 3-stage / 2-stage / no evolution (Claude, 2026-09-26)
 
 User asked for evolution lines by base-stat tier: lowest-stat CryMon get
 3-stage lines, middle get 2-stage lines, highest don't evolve, roughly
@@ -2800,5 +2800,27 @@ Trainer kits keep their species, so their fights shift with the new stats
 (not rebalanced). Web tested: Quillpup -> Needleroot at 12, stays through
 21, -> Thornhide at 22. Blurbs were not rewritten for the new links.
 
-Next: stage C (grass pools by stage).
+**Stage C done and pushed: grass pools ordered by stage.** Still 3 CryMon
+per grass map found on no other grass map, Gauntlet 5 still all 39. No
+evolved form is found on a lower-level map than its pre-evolution
+(checked by script). This supersedes the pool table in the "New CryMon +
+3 unique per grass map" entry above:
+
+| map | levels | pool |
+|---|---|---|
+| Veld | 2-4 | Shrewbit, Jolthare, Voltgrub |
+| Forest | 3-5 | Quillpup, Fenwisp, Glowcap |
+| Marsh | 4-6 | Peatling, Mossback, Chillnewt |
+| Grove | 5-8 | Needleroot, Briarfox, Glimmoth |
+| Cliffs | 5-7 | Frostail, Rimeowl, Razorbat |
+| Quarry | 5-7 | Slatekin, Cindermite, Stardrop |
+| Camp | 6-9 | Emberling, Scavrat, Duskhorn |
+| Ruins | 6-9 | Runemote, CryMare, Glasswisp |
+| Reach | 8-11 | Charmkin, Gravelurk, Mireback |
+| Gauntlet 1 | 8-11 | Tortcask, Veilcap, Voltbuck |
+| Gauntlet 2 | 10-13 | Rimewyrm, Ashenmaw, Kilnback |
+| Gauntlet 3 | 12-15 | Thornhide, Plunderat, Stormwing |
+| Gauntlet 4 | 14-17 | Glyphwing, Boulderam, Sableclaw |
+
+**This workstream is complete.**
 

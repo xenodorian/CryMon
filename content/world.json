@@ -161,9 +161,9 @@
       "tile": "T",
       "rate": 0.18,
       "pool": [
+        "needleroot",
         "briarfox",
-        "glowcap",
-        "charmkin"
+        "glimmoth"
       ],
       "levelMin": 5,
       "levelMax": 8
@@ -177,7 +177,7 @@
       "pool": [
         "emberling",
         "scavrat",
-        "tortcask"
+        "duskhorn"
       ],
       "levelMin": 6,
       "levelMax": 9
@@ -189,9 +189,9 @@
       "tile": "T",
       "rate": 0.18,
       "pool": [
-        "fenwisp",
+        "runemote",
         "crymare",
-        "runemote"
+        "glasswisp"
       ],
       "levelMin": 6,
       "levelMax": 9
@@ -204,8 +204,8 @@
       "rate": 0.18,
       "pool": [
         "quillpup",
-        "razorbat",
-        "duskhorn"
+        "fenwisp",
+        "glowcap"
       ],
       "levelMin": 3,
       "levelMax": 5
@@ -219,7 +219,7 @@
       "pool": [
         "frostail",
         "rimeowl",
-        "stardrop"
+        "razorbat"
       ],
       "levelMin": 5,
       "levelMax": 7
@@ -231,9 +231,9 @@
       "tile": "T",
       "rate": 0.18,
       "pool": [
-        "glimmoth",
+        "shrewbit",
         "jolthare",
-        "shrewbit"
+        "voltgrub"
       ],
       "levelMin": 2,
       "levelMax": 4,
@@ -246,9 +246,9 @@
       "tile": "T",
       "rate": 0.22,
       "pool": [
-        "glasswisp",
-        "glyphwing",
-        "needleroot"
+        "charmkin",
+        "gravelurk",
+        "mireback"
       ],
       "levelMin": 8,
       "levelMax": 11
@@ -276,7 +276,7 @@
       "pool": [
         "slatekin",
         "cindermite",
-        "voltgrub"
+        "stardrop"
       ],
       "levelMin": 5,
       "levelMax": 7
@@ -288,9 +288,9 @@
       "tile": "T",
       "rate": 0.22,
       "pool": [
-        "mireback",
-        "thornhide",
-        "plunderat"
+        "tortcask",
+        "veilcap",
+        "voltbuck"
       ],
       "levelMin": 8,
       "levelMax": 11
@@ -302,9 +302,9 @@
       "tile": "T",
       "rate": 0.22,
       "pool": [
-        "sableclaw",
-        "veilcap",
-        "voltbuck"
+        "rimewyrm",
+        "ashenmaw",
+        "kilnback"
       ],
       "levelMin": 10,
       "levelMax": 13
@@ -316,9 +316,9 @@
       "tile": "T",
       "rate": 0.22,
       "pool": [
-        "boulderam",
-        "kilnback",
-        "rimewyrm"
+        "thornhide",
+        "plunderat",
+        "stormwing"
       ],
       "levelMin": 12,
       "levelMax": 15
@@ -330,9 +330,9 @@
       "tile": "T",
       "rate": 0.22,
       "pool": [
-        "ashenmaw",
-        "stormwing",
-        "gravelurk"
+        "glyphwing",
+        "boulderam",
+        "sableclaw"
       ],
       "levelMin": 14,
       "levelMax": 17
