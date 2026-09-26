@@ -3025,8 +3025,12 @@ same `disc_find()` / `disc_read_sectors()` pattern.
 User asked to fix the sanity-pass findings in stages, pushing and noting
 each so another agent can resume. Order and status (update as you go):
 
-- [ ] **A. 3 eslint errors** (`engine.ts` `@ts-nocheck` + empty `catch {}`,
-      `src/lib/app-data/client.server.ts` empty block).
+- [x] **A. 3 eslint errors -- done.** `eslint .` = 0 errors (15 old
+      warnings left, all unused vars/exports). The two empty `catch {}`
+      blocks now say why they swallow. `engine.ts` keeps `@ts-nocheck` on
+      purpose with an `eslint-disable-next-line` + reason: removing it
+      surfaces ~815 type errors, so typing Grok's web engine is its own
+      project, not a lint fix.
 - [ ] **B. 8 failing tests** in `scripts/grok-pwa-plugin.test.mjs`.
 - [ ] **C. Dreamcast "SAVE FAILED"** (pre-existing; bare-metal maple/VMU
       code in `ports/dreamcast/src/save.c`). How to reproduce in the

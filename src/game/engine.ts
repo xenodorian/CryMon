@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- engine.ts is written untyped; dropping this surfaces ~815 type errors, so typing it is its own project (see CURRENT_WORK "Fix-up pass")
 // @ts-nocheck
 import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, ENDING_SONG, VOLUME } from "./audio";
 import { packSave, unpackSave, writeSaveBlob, readSaveBlob, saveExists, clearSave, SAVE_FLAGS, SAVE_SPECIES, DEX_WORD_N } from "./save";
@@ -4368,7 +4369,7 @@ export class CryMon {
 		], "hfGameOver");
 	}
 	runHeavenfallGameOverFx() {
-		try { this.audio.scream(); } catch {}
+		try { this.audio.scream(); } catch { /* audio can be unavailable (autoplay blocked); the fade still runs */ }
 		this.startFade("hfGameOver");
 	}
 	reloadLastSaveOrTitle() {
