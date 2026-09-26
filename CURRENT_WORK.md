@@ -2665,3 +2665,13 @@ the same math, not on hardware or an emulator.
 Also noticed, not touched: `lead` sprite looks like a screenshot of a text
 menu, and `veilcap` looks like Glowcap on an un-keyed magenta background.
 
+## Sephirot warp fix actually reaches the game now (Claude, 2026-09-26)
+
+The earlier "Sephirot gate ordering fixed" entry patched 26 `tile`/`spawn`
+letters in `content/world_parts/warps.json` but never re-ran
+`tools/merge_world.py`, so `content/world.json` (what both engines bake
+from) kept the old letters and those gates were still mismatched in game.
+Re-merged; the diff is exactly those 26 letters. **Rule: after editing any
+`content/world_parts/*.json`, run `python3 tools/merge_world.py` before
+baking.**
+
