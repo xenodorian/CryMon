@@ -239,37 +239,37 @@ export function natureOf(index: number): NatureDef {
 
 /* ------------------------------------------------------------------
  * Crystal matchups. One crystal gives a CryMon both its stat bonuses
- * (above) and its type. The ring, its reach and the multipliers all come
- * from content/logic.json, so the Dreamcast port derives the same table
- * from the same numbers instead of hardcoding a second one.
+ * (above) and its type. The `beats` pairs and the multipliers all come
+ * from content/logic.json; the Dreamcast baker turns the same pairs into
+ * NATURE_CHART instead of hardcoding a second table. A pair {atk, def}
+ * means atk splits def AND def is held by atk; anything unlisted is neutral.
  * ------------------------------------------------------------------ */
 export type NatureTypes = {
-  ring: string[];
-  beatsAhead: number;
+  beats: { atk: string; def: string; why?: string }[];
   strongMul: number;
   weakMul: number;
   strongText: string;
   weakText: string;
 };
 export const NATURE_TYPES = (logicJson.natureTypes || {
-  ring: [], beatsAhead: 0, strongMul: 1, weakMul: 1, strongText: "", weakText: "",
+  beats: [], strongMul: 1, weakMul: 1, strongText: "", weakText: "",
 }) as NatureTypes;
+
+/** +1 if crystal `atk` splits crystal `def`, -1 if split by it, 0 neutral. */
+function natureSign(atk: string, def: string): number {
+  for (const p of NATURE_TYPES.beats) {
+    if (p.atk === atk && p.def === def) return 1;
+    if (p.atk === def && p.def === atk) return -1;
+  }
+  return 0;
+}
 
 /** +1 if the attacker's crystal splits the defender's, -1 if split by it, 0 neutral. */
 export function natureMatchup(atkSpecies: SpeciesId, defSpecies: SpeciesId): number {
-  const atkIndex = speciesNature(atkSpecies);
-  const defIndex = speciesNature(defSpecies);
-  const ring = NATURE_TYPES.ring;
-  const n = ring.length;
-  if (!n) return 0;
-  const a = ring.indexOf(natureOf(atkIndex).id);
-  const d = ring.indexOf(natureOf(defIndex).id);
-  if (a < 0 || d < 0) return 0;
-  let step = (d - a) % n;
-  if (step < 0) step += n;
-  if (step >= 1 && step <= NATURE_TYPES.beatsAhead) return 1;
-  if (step >= n - NATURE_TYPES.beatsAhead) return -1;
-  return 0;
+  return natureSign(
+    natureOf(speciesNature(atkSpecies)).id,
+    natureOf(speciesNature(defSpecies)).id,
+  );
 }
 
 /** Scales a finished damage number by the matchup; `sign` says which way it went. */
@@ -499,20 +499,12 @@ export function unlockedMoves(m: Monster, includeWait = false): UnlockedMove[] {
 }
 
 export function natureMatchNames(natureId: string): { weakTo: string[]; resists: string[] } {
-  const ring = NATURE_TYPES.ring;
-  const i = ring.indexOf(natureId);
   const weakTo: string[] = [];
   const resists: string[] = [];
-  if (i < 0 || !ring.length) return { weakTo, resists };
-  const n = ring.length;
-  const ahead = NATURE_TYPES.beatsAhead;
-  for (let k = 1; k <= ahead; k++) {
-    const atk = ring[(i - k + n) % n];
-    const res = ring[(i + k) % n];
-    const atkName = NATURES.find((x) => x.id === atk)?.name ?? atk;
-    const resName = NATURES.find((x) => x.id === res)?.name ?? res;
-    weakTo.push(atkName);
-    resists.push(resName);
+  for (const n of NATURES) {
+    const sign = natureSign(n.id, natureId);
+    if (sign > 0) weakTo.push(n.name);
+    else if (sign < 0) resists.push(n.name);
   }
   return { weakTo, resists };
 }

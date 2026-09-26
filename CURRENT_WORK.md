@@ -2608,3 +2608,51 @@ box position, not door-level layout, and the Tree itself was already
 correctly shaped -- only the underlying playable maps' door order
 was wrong.
 
+## Crystal types rebuilt around elements (Claude, 2026-09-26)
+
+User asked for crystal types that read at a glance from each CryMon's art and
+name instead of the old arbitrary 7-crystal ring. **Stage 1 (data + both
+engines) is done and pushed.**
+
+New crystals (renamed in place, save-safe; Ruby and Sapphire appended):
+
+| idx | crystal | theme | str/agl/spc | CryMon |
+|---|---|---|---|---|
+| 0 | Quartz | white, neutral (plain beasts, humans) | 1/1/1 | Quillpup, Lieutenant Lead |
+| 1 | Jasper (was Hematite) | brown, earth/stone | 3/0/0 | Peatling, Mireback, Tortcask, Boulderam, Slatekin, Gravelurk |
+| 2 | Diamond | starlight, cosmic | 2/0/1 | Heavenfall |
+| 3 | Citrine (was Opal) | yellow, lightning | 0/3/0 | Stormwing, Glimmoth |
+| 4 | Obsidian (was Spinel) | black, ghost/dark | 1/2/0 | CryMare, Fenwisp, Sableclaw, Razorbat, Duskhorn |
+| 5 | Prism (was Lapis) | rainbow, magic | 0/0/3 | Cathleen, Glasswisp |
+| 6 | Emerald (was Amethyst) | green, plants | 0/1/2 | Mossback, Needleroot, Briarfox, Thornhide, Glowcap, Veilcap |
+| 7 | Ruby (new) | red, fire | 2/1/0 | Emberling, Ashenmaw, Cindermite, Kilnback |
+| 8 | Sapphire (new) | blue, ice | 1/0/2 | Frostail |
+
+Each renamed slot kept its old stat spread exactly; the two new ones use the
+two unused +3 spreads. Stat spreads and the two new secondaries (Sapphire
+Frostbite = str stage, Diamond Gravity = agl stage; Jasper got Sandblast =
+agl stage, Citrine's Bind renamed Static) are Claude's defaults, not user
+decisions -- change freely in `logic.json`.
+
+Matchups: `logic.json natureTypes.ring` + `beatsAhead` are **retired**
+(baker refuses them). `natureTypes.beats` is a list of `{atk, def, why}`
+pairs, 15 in all (fire burns plants, earth smothers fire, black swallows
+light, magic masters fire/ice/lightning, etc.). Quartz is in none.
+
+User decisions recorded: thin types are fine (more CryMon are coming); three
+evolution lines intentionally change type (Quillpup Quartz -> Needleroot
+Emerald, Duskhorn Obsidian -> Boulderam Jasper, Fenwisp Obsidian ->
+Glasswisp Prism). Warden Quartz and Warden Opal are people's names and were
+left alone.
+
+Code: baker emits `NATURE_CHART[NATURE_N][NATURE_N]` (the `ring` field on
+`NatureDef` is gone); `main.c` `nature_matchup()` reads the chart and the
+CryDex uses a new `nature_list()`; web `data.ts` `natureMatchup()` /
+`natureMatchNames()` read `beats` directly. Verified: typecheck, bake,
+`check_sync --strict`, `make`, `make cdi`.
+
+Not done yet: nothing on screen shows a crystal's color (the "at a glance"
+part). Crystal badges/tints are a later stage if the user wants them.
+Also noticed, not touched: `lead` sprite looks like a screenshot of a text
+menu, and `veilcap` looks like Glowcap on an un-keyed magenta background.
+

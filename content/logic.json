@@ -88,13 +88,15 @@
     {
       "id": "quartz",
       "name": "Quartz",
+      "theme": "white, neutral: plain beasts and humans",
       "str": 1,
       "agl": 1,
       "spc": 1
     },
     {
-      "id": "hematite",
-      "name": "Hematite",
+      "id": "jasper",
+      "name": "Jasper",
+      "theme": "brown, earth and stone",
       "str": 3,
       "agl": 0,
       "spc": 0
@@ -102,36 +104,57 @@
     {
       "id": "diamond",
       "name": "Diamond",
+      "theme": "starlight, cosmic",
       "str": 2,
       "agl": 0,
       "spc": 1
     },
     {
-      "id": "opal",
-      "name": "Opal",
+      "id": "citrine",
+      "name": "Citrine",
+      "theme": "yellow, lightning",
       "str": 0,
       "agl": 3,
       "spc": 0
     },
     {
-      "id": "spinel",
-      "name": "Spinel",
+      "id": "obsidian",
+      "name": "Obsidian",
+      "theme": "black, ghost and dark",
       "str": 1,
       "agl": 2,
       "spc": 0
     },
     {
-      "id": "lapis",
-      "name": "Lapis Lazuli",
+      "id": "prism",
+      "name": "Prism",
+      "theme": "rainbow, magic",
       "str": 0,
       "agl": 0,
       "spc": 3
     },
     {
-      "id": "amethyst",
-      "name": "Amethyst",
+      "id": "emerald",
+      "name": "Emerald",
+      "theme": "green, plants",
       "str": 0,
       "agl": 1,
+      "spc": 2
+    },
+    {
+      "id": "ruby",
+      "name": "Ruby",
+      "theme": "red, fire",
+      "str": 2,
+      "agl": 1,
+      "spc": 0
+    },
+    {
+      "id": "sapphire",
+      "name": "Sapphire",
+      "theme": "blue, ice",
+      "str": 1,
+      "agl": 0,
       "spc": 2
     }
   ],
@@ -152,17 +175,84 @@
     "keepLast": true
   },
   "natureTypes": {
-    "note": "Crystal matchups. A crystal is a property of the SPECIES, not of an individual, and several species share each crystal. The same crystal gives the species its stat bonus (always positive; a stat never goes down) and its type. Derived from the ring, not stored as a matrix. Both engines interpret this.",
-    "ring": [
-      "diamond",
-      "hematite",
-      "quartz",
-      "amethyst",
-      "lapis",
-      "opal",
-      "spinel"
+    "note": "Crystal matchups. A crystal is a property of the SPECIES, not of an individual, and several species share each crystal. The same crystal gives the species its stat bonus (always positive; a stat never goes down) and its type. Each `beats` entry means the attacker deals strongMul to the defender AND the defender deals weakMul back; every pair not listed is neutral. Quartz is deliberately in no pair (neutral to everything, both ways). Both engines interpret this; the baker emits NATURE_CHART from it.",
+    "beats": [
+      {
+        "atk": "ruby",
+        "def": "emerald",
+        "why": "Fire burns plants."
+      },
+      {
+        "atk": "ruby",
+        "def": "sapphire",
+        "why": "Fire melts ice."
+      },
+      {
+        "atk": "sapphire",
+        "def": "emerald",
+        "why": "Frost kills plants."
+      },
+      {
+        "atk": "sapphire",
+        "def": "jasper",
+        "why": "Frost cracks stone."
+      },
+      {
+        "atk": "emerald",
+        "def": "jasper",
+        "why": "Roots split rock."
+      },
+      {
+        "atk": "emerald",
+        "def": "obsidian",
+        "why": "Life overgrows the grave."
+      },
+      {
+        "atk": "jasper",
+        "def": "ruby",
+        "why": "Earth smothers fire."
+      },
+      {
+        "atk": "jasper",
+        "def": "citrine",
+        "why": "Ground soaks up lightning."
+      },
+      {
+        "atk": "citrine",
+        "def": "obsidian",
+        "why": "A lightning flash lights the dark."
+      },
+      {
+        "atk": "obsidian",
+        "def": "prism",
+        "why": "Black swallows light, so the prism shows no color."
+      },
+      {
+        "atk": "obsidian",
+        "def": "diamond",
+        "why": "The void swallows starlight."
+      },
+      {
+        "atk": "prism",
+        "def": "ruby",
+        "why": "Magic masters fire."
+      },
+      {
+        "atk": "prism",
+        "def": "sapphire",
+        "why": "Magic masters ice."
+      },
+      {
+        "atk": "prism",
+        "def": "citrine",
+        "why": "Magic masters lightning."
+      },
+      {
+        "atk": "diamond",
+        "def": "jasper",
+        "why": "A meteor craters the earth."
+      }
     ],
-    "beatsAhead": 2,
     "strongMul": 2.0,
     "weakMul": 0.5,
     "strongText": "Weakness x2",
@@ -205,45 +295,59 @@
       "maxPp": 10
     },
     {
-      "nature": "hematite",
-      "name": "Scorch",
-      "kind": "status",
-      "status": "burned",
-      "maxPp": 5
-    },
-    {
-      "nature": "diamond",
-      "name": "Blight",
-      "kind": "status",
-      "status": "poisoned",
-      "maxPp": 5
-    },
-    {
-      "nature": "opal",
-      "name": "Slow Powder",
+      "nature": "jasper",
+      "name": "Sandblast",
       "kind": "stage",
       "stat": "agl",
       "maxPp": 10
     },
     {
-      "nature": "spinel",
-      "name": "Bind",
+      "nature": "diamond",
+      "name": "Gravity",
+      "kind": "stage",
+      "stat": "agl",
+      "maxPp": 10
+    },
+    {
+      "nature": "citrine",
+      "name": "Static",
       "kind": "status",
       "status": "paralyzed",
       "maxPp": 5
     },
     {
-      "nature": "lapis",
+      "nature": "obsidian",
       "name": "Veil",
       "kind": "status",
       "status": "confused",
       "maxPp": 5
     },
     {
-      "nature": "amethyst",
+      "nature": "prism",
       "name": "Magebane",
       "kind": "stage",
       "stat": "spc",
+      "maxPp": 10
+    },
+    {
+      "nature": "emerald",
+      "name": "Blight",
+      "kind": "status",
+      "status": "poisoned",
+      "maxPp": 5
+    },
+    {
+      "nature": "ruby",
+      "name": "Scorch",
+      "kind": "status",
+      "status": "burned",
+      "maxPp": 5
+    },
+    {
+      "nature": "sapphire",
+      "name": "Frostbite",
+      "kind": "stage",
+      "stat": "str",
       "maxPp": 10
     }
   ],

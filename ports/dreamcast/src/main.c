@@ -1550,10 +1550,20 @@ static int species_nature(int species) {
     return SPECIES[species].nature;
 }
 
-static int nature_index_by_ring(int ring) {
-    int i;
-    for(i = 0; i < NATURE_N; i++) if(NATURES[i].ring == ring) return i;
-    return 0;
+/* CryDex matchup line: every crystal whose NATURE_CHART sign against `nat`
+   is `want` (+1: those crystals split `nat`; -1: `nat` holds against them),
+   comma-separated into buf. "NONE" when the list is empty (Quartz). */
+static int nature_list(char *buf, int nat, int want) {
+    int i, n = 0;
+    buf[0] = 0;
+    for(i = 0; i < NATURE_N; i++) {
+        if(NATURE_CHART[i][nat] != want) continue;
+        if(n) n = s_cat(buf, n, ", ");
+        n = s_cat(buf, n, NATURES[i].name);
+    }
+    if(!n) n = s_cat(buf, 0, "NONE");
+    buf[n] = 0;
+    return n;
 }
 
 #define UMOVE_BASIC 0
@@ -1994,32 +2004,16 @@ static void draw_crydex(int cur, int entry) {
     }
     if(entry && cur >= 0 && cur < SPECIES_N && dex_get(g_dex_caught, cur)) {
         int nat = species_nature(cur);
-        int pos = NATURES[nat].ring;
-        int k;
         draw_menu_frame("CRYDEX", "A/B BACK");
         draw_text_s(SPECIES[cur].name, MENU_X + 8, MENU_Y + 24, 0xFFFF, MENU_SCALE);
         n = s_cat(buf, 0, NATURES[nat].name);
         n = s_cat(buf, n, " CRYSTAL");        buf[n] = 0;
         draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H, rgb565(197, 206, 198), MENU_SCALE);
         draw_text_s("WEAK TO", MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 3, rgb565(143, 74, 64), MENU_SCALE);
-        n = 0;
-        buf[0] = 0;
-        for(k = 1; k <= NATURE_BEATS_AHEAD; k++) {
-            int wr = (pos - k + NATURE_RING_N) % NATURE_RING_N;
-            if(n) n = s_cat(buf, n, ", ");
-            n = s_cat(buf, n, NATURES[nature_index_by_ring(wr)].name);
-        }
-        buf[n] = 0;
+        nature_list(buf, nat, 1);
         draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 4, rgb565(232, 228, 216), MENU_SCALE);
         draw_text_s("RESISTS", MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 6, rgb565(90, 122, 82), MENU_SCALE);
-        n = 0;
-        buf[0] = 0;
-        for(k = 1; k <= NATURE_BEATS_AHEAD; k++) {
-            int rr = (pos + k) % NATURE_RING_N;
-            if(n) n = s_cat(buf, n, ", ");
-            n = s_cat(buf, n, NATURES[nature_index_by_ring(rr)].name);
-        }
-        buf[n] = 0;
+        nature_list(buf, nat, -1);
         draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 7, rgb565(232, 228, 216), MENU_SCALE);
         return;
     }
@@ -2547,19 +2541,12 @@ static int battle_cast_spell(Battle *b, int spell_id, int from_player, int *out_
 
 /* Crystal matchup between two party/foe natures. Returns +1 when the
    attacker's crystal splits the defender's, -1 when it is split by it, 0
-   for neutral. Ring position and the reach come from content/logic.json
-   via content_logic.inc, so the web port uses the same table. */
+   for neutral. NATURE_CHART is baked from content/logic.json
+   natureTypes.beats, so the web port reads the same pairs. */
 static int nature_matchup(int atk_nat, int def_nat) {
-    int a, d, step;
     if(atk_nat < 0 || atk_nat >= NATURE_N || def_nat < 0 || def_nat >= NATURE_N)
         return 0;
-    a = NATURES[atk_nat].ring;
-    d = NATURES[def_nat].ring;
-    step = d - a;
-    if(step < 0) step += NATURE_RING_N;
-    if(step >= 1 && step <= NATURE_BEATS_AHEAD) return 1;
-    if(step >= NATURE_RING_N - NATURE_BEATS_AHEAD) return -1;
-    return 0;
+    return NATURE_CHART[atk_nat][def_nat];
 }
 
 static int nature_scale_dmg(int dmg, int atk_nat, int def_nat, int *out_sign) {

@@ -471,77 +471,79 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define LOGIC_MASON2_MAP_N {len(rematch['maps'])}")
     lines.append("")
     natures = logic.get("natures") or []
-    # `ring` is the matchup order and is independent of this array's order,
-    # which is frozen by the save layout (party slot byte 12 stores the index).
+    # The array order is frozen by the save layout (party slot byte 12 once
+    # stored the index), so rename in place and append; never reorder.
+    # Matchups come from natureTypes.beats, a list of {atk, def} pairs.
     types = logic.get("natureTypes") or {}
-    ring = list(types.get("ring") or [])
+    beats = list(types.get("beats") or [])
     ids = [n["id"] for n in natures]
     if len(ids) != len(set(ids)):
         dupes = sorted({i for i in ids if ids.count(i) > 1})
         raise SystemExit(f"logic.json natures has duplicate id(s): {dupes}")
-    if natures and not ring:
+    for nat in natures:
+        for stat in ("str", "agl", "spc"):
+            v = nat.get(stat) or 0
+            if v < 0:
+                raise SystemExit(
+                    f"logic.json natures {nat.get('id')!r} has negative "
+                    f"{stat} bonus {v} -- crystal stat bonuses must never "
+                    f"be negative"
+                )
+    if "ring" in types or "beatsAhead" in types:
         raise SystemExit(
-            "logic.json natureTypes.ring is missing -- every crystal needs a "
-            "matchup position"
+            "logic.json natureTypes.ring/beatsAhead are retired -- matchups "
+            "are the natureTypes.beats pair list now"
         )
-    if ring:
-        if len(ring) != len(set(ring)):
-            dupes = sorted({i for i in ring if ring.count(i) > 1})
-            raise SystemExit(f"logic.json natureTypes.ring has duplicate id(s): {dupes}")
-        if len(ring) != len(ids):
+    chart = [[0] * len(ids) for _ in ids]
+    for pair in beats:
+        atk, dfn = pair.get("atk"), pair.get("def")
+        for who in (atk, dfn):
+            if who not in ids:
+                raise SystemExit(
+                    f"logic.json natureTypes.beats names unknown crystal {who!r} "
+                    f"(natures: {ids})"
+                )
+        if atk == dfn:
+            raise SystemExit(f"logic.json natureTypes.beats: {atk!r} cannot beat itself")
+        a, d = ids.index(atk), ids.index(dfn)
+        if chart[a][d]:
             raise SystemExit(
-                f"logic.json natureTypes.ring length {len(ring)} does not match "
-                f"natures length {len(ids)}"
+                f"logic.json natureTypes.beats lists {atk!r} vs {dfn!r} twice "
+                f"(or in both directions)"
             )
-        if sorted(ring) != sorted(ids):
-            raise SystemExit(
-                f"logic.json natureTypes.ring does not match natures ids: "
-                f"{sorted(ring)} vs {sorted(ids)}"
-            )
-        for nat in natures:
-            for stat in ("str", "agl", "spc"):
-                v = nat.get(stat) or 0
-                if v < 0:
-                    raise SystemExit(
-                        f"logic.json natures {nat.get('id')!r} has negative "
-                        f"{stat} bonus {v} -- crystal stat bonuses must never "
-                        f"be negative"
-                    )
-        strong_mul = types.get("strongMul")
-        weak_mul = types.get("weakMul")
+        chart[a][d] = 1
+        chart[d][a] = -1
+    strong_mul = types.get("strongMul")
+    weak_mul = types.get("weakMul")
+    if natures:
         if not isinstance(strong_mul, (int, float)) or strong_mul <= 0:
             raise SystemExit(f"logic.json natureTypes.strongMul must be a positive number, got {strong_mul!r}")
         if not isinstance(weak_mul, (int, float)) or weak_mul <= 0:
             raise SystemExit(f"logic.json natureTypes.weakMul must be a positive number, got {weak_mul!r}")
-        beats_ahead = types.get("beatsAhead")
-        if not isinstance(beats_ahead, int) or beats_ahead < 1 or beats_ahead * 2 >= len(ring):
-            raise SystemExit(
-                f"logic.json natureTypes.beatsAhead must be a positive int less "
-                f"than half the ring length ({len(ring)}), got {beats_ahead!r}"
-            )
-    lines.append("typedef struct { const char *name; int str, agl, spc; int ring; } NatureDef;")
+    lines.append("typedef struct { const char *name; int str, agl, spc; } NatureDef;")
     lines.append(f"#define NATURE_N {len(natures)}")
     lines.append("static const NatureDef NATURES[NATURE_N] = {")
     for nat in natures:
-        pos = ring.index(nat["id"]) if ring else 0
         lines.append(
             f'    {{ "{c_escape(dc_text(nat["name"]))}", '
             f'{int(nat.get("str") or 0)}, {int(nat.get("agl") or 0)}, '
-            f'{int(nat.get("spc") or 0)}, {pos} }},'
+            f'{int(nat.get("spc") or 0)} }},'
         )
     lines.append("};")
-    if ring:
-        lines.append("/* Crystal matchups: each crystal splits the next")
-        lines.append("   NATURE_BEATS_AHEAD around the ring and is split by the")
-        lines.append("   previous that many. Derived, not a stored matrix. */")
-        lines.append(f"#define NATURE_RING_N {len(ring)}")
-        lines.append(f"#define NATURE_BEATS_AHEAD {int(types.get('beatsAhead') or 0)}")
-        lines.append(f"#define NATURE_STRONG_MUL {float(types.get('strongMul') or 1.0)}f")
-        lines.append(f"#define NATURE_WEAK_MUL {float(types.get('weakMul') or 1.0)}f")
-        lines.append(
-            f'#define NATURE_STRONG_TEXT "{c_escape(dc_text(types.get("strongText") or ""))}"')
-        lines.append(
-            f'#define NATURE_WEAK_TEXT "{c_escape(dc_text(types.get("weakText") or ""))}"')
+    lines.append("/* Crystal matchups from logic.json natureTypes.beats:")
+    lines.append("   NATURE_CHART[atk][def] is +1 (atk splits def), -1 (def")
+    lines.append("   holds), 0 neutral. Always antisymmetric. */")
+    lines.append("static const signed char NATURE_CHART[NATURE_N][NATURE_N] = {")
+    for i, row in enumerate(chart):
+        cells = ", ".join(f"{v:2d}" for v in row)
+        lines.append(f"    {{ {cells} }}, /* {ids[i]} */")
+    lines.append("};")
+    lines.append(f"#define NATURE_STRONG_MUL {float(strong_mul or 1.0)}f")
+    lines.append(f"#define NATURE_WEAK_MUL {float(weak_mul or 1.0)}f")
+    lines.append(
+        f'#define NATURE_STRONG_TEXT "{c_escape(dc_text(types.get("strongText") or ""))}"')
+    lines.append(
+        f'#define NATURE_WEAK_TEXT "{c_escape(dc_text(types.get("weakText") or ""))}"')
     lines.append("")
     party = logic.get("party") or {}
     lines.append(f"#define PARTY_MAX {int(party.get('max') or 6)}")

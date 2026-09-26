@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=5671b7d08474e6e0 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=87a72c617d897511 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -19,22 +19,33 @@
 static const int LOGIC_MASON2_MAPS[] = { MAP_VELD, MAP_FOREST, MAP_GROVE };
 #define LOGIC_MASON2_MAP_N 3
 
-typedef struct { const char *name; int str, agl, spc; int ring; } NatureDef;
-#define NATURE_N 7
+typedef struct { const char *name; int str, agl, spc; } NatureDef;
+#define NATURE_N 9
 static const NatureDef NATURES[NATURE_N] = {
-    { "QUARTZ", 1, 1, 1, 2 },
-    { "HEMATITE", 3, 0, 0, 1 },
-    { "DIAMOND", 2, 0, 1, 0 },
-    { "OPAL", 0, 3, 0, 5 },
-    { "SPINEL", 1, 2, 0, 6 },
-    { "LAPIS LAZULI", 0, 0, 3, 4 },
-    { "AMETHYST", 0, 1, 2, 3 },
+    { "QUARTZ", 1, 1, 1 },
+    { "JASPER", 3, 0, 0 },
+    { "DIAMOND", 2, 0, 1 },
+    { "CITRINE", 0, 3, 0 },
+    { "OBSIDIAN", 1, 2, 0 },
+    { "PRISM", 0, 0, 3 },
+    { "EMERALD", 0, 1, 2 },
+    { "RUBY", 2, 1, 0 },
+    { "SAPPHIRE", 1, 0, 2 },
 };
-/* Crystal matchups: each crystal splits the next
-   NATURE_BEATS_AHEAD around the ring and is split by the
-   previous that many. Derived, not a stored matrix. */
-#define NATURE_RING_N 7
-#define NATURE_BEATS_AHEAD 2
+/* Crystal matchups from logic.json natureTypes.beats:
+   NATURE_CHART[atk][def] is +1 (atk splits def), -1 (def
+   holds), 0 neutral. Always antisymmetric. */
+static const signed char NATURE_CHART[NATURE_N][NATURE_N] = {
+    {  0,  0,  0,  0,  0,  0,  0,  0,  0 }, /* quartz */
+    {  0,  0, -1,  1,  0,  0, -1,  1, -1 }, /* jasper */
+    {  0,  1,  0,  0, -1,  0,  0,  0,  0 }, /* diamond */
+    {  0, -1,  0,  0,  1, -1,  0,  0,  0 }, /* citrine */
+    {  0,  0,  1, -1,  0,  1, -1,  0,  0 }, /* obsidian */
+    {  0,  0,  0,  1, -1,  0,  0,  1,  1 }, /* prism */
+    {  0,  1,  0,  0,  1,  0,  0, -1, -1 }, /* emerald */
+    {  0, -1,  0,  0,  0, -1,  1,  0,  1 }, /* ruby */
+    {  0,  1,  0,  0,  0, -1,  1, -1,  0 }, /* sapphire */
+};
 #define NATURE_STRONG_MUL 2.0f
 #define NATURE_WEAK_MUL 0.5f
 #define NATURE_STRONG_TEXT "WEAKNESS X2"
@@ -109,14 +120,16 @@ static const float STAT_STAGE_MULT[5] = { 1.0f, 0.7f, 0.4f, 0.1f, 0.0f };
 typedef struct { const char *name; int kind; int stat; int status; int max_pp; } NatureMove;
 #define NMOVE_KIND_STAGE 0
 #define NMOVE_KIND_STATUS 1
-#define NATURE_MOVE_N 7
+#define NATURE_MOVE_N 9
 static const NatureMove NATURE_MOVES[NATURE_N] = {
     { "PROUD ROAR", NMOVE_KIND_STAGE, 0, 0, 10 },
-    { "SCORCH", NMOVE_KIND_STATUS, 0, 1, 5 },
-    { "BLIGHT", NMOVE_KIND_STATUS, 0, 2, 5 },
-    { "SLOW POWDER", NMOVE_KIND_STAGE, 1, 0, 10 },
-    { "BIND", NMOVE_KIND_STATUS, 0, 4, 5 },
+    { "SANDBLAST", NMOVE_KIND_STAGE, 1, 0, 10 },
+    { "GRAVITY", NMOVE_KIND_STAGE, 1, 0, 10 },
+    { "STATIC", NMOVE_KIND_STATUS, 0, 4, 5 },
     { "VEIL", NMOVE_KIND_STATUS, 0, 3, 5 },
     { "MAGEBANE", NMOVE_KIND_STAGE, 2, 0, 10 },
+    { "BLIGHT", NMOVE_KIND_STATUS, 0, 2, 5 },
+    { "SCORCH", NMOVE_KIND_STATUS, 0, 1, 5 },
+    { "FROSTBITE", NMOVE_KIND_STAGE, 0, 0, 10 },
 };
 

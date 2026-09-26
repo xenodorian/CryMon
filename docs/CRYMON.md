@@ -116,9 +116,10 @@ per-monster roll.
 
 To add one:
 
-1. Append to `logic.json` `natures` (`id`, `name`, `str`, `agl`, `spc`) **and**
-   to `natureTypes.ring`. The baker refuses to bake if the two disagree, or if
-   any species names a crystal that does not exist.
+1. Append to `logic.json` `natures` (`id`, `name`, `theme`, `str`, `agl`,
+   `spc`), add its matchups to `natureTypes.beats`, and give it one
+   `natureMoves` entry. The baker refuses to bake if a `beats` pair names a
+   crystal that does not exist, or if any species does.
 2. Point species at it with `"nature": "<id>"` in `species.json`. Every species
    needs one.
 
@@ -139,16 +140,18 @@ Rules that hold:
   the moment it's detected (`saveExists()`), rather than leaving it sitting
   there offering a "Continue" that dead-ends into "No save." Bump `version`
   again for any future save-incompatible change.
-- `natureTypes.ring` is its own order and is what decides matchups, so it does
-  not have to match the array order above.
-- Matchups are **derived, not stored**: each crystal is weak to the next
-  `beatsAhead` around the ring and resists the previous `beatsAhead`. With 7
-  crystals and `beatsAhead: 2` that is exactly 2 weaknesses, 2 resistances and
-  2 neutral each, symmetric, with no blanket pick. Keep the count **odd** —
-  an even ring gives some pairs mirror matchups.
+- The crystals follow the creature's look: Ruby fire, Sapphire ice, Emerald
+  plants, Jasper earth/stone, Citrine lightning, Obsidian ghost/dark, Prism
+  magic, Diamond cosmic, Quartz neutral. Pick a new species' crystal from its
+  art and name.
+- Matchups are the **`natureTypes.beats` pair list**. `{atk, def}` means atk
+  deals `strongMul` to def **and** def deals `weakMul` back; anything unlisted
+  is neutral. Each pair carries a one-line `why` so the reason is readable.
+  Never list a pair twice or in both directions (the baker refuses). Quartz is
+  in no pair on purpose: neutral to everything, both ways.
 - `strongMul` / `weakMul` are **2.0 / 0.5**. Neither engine hardcodes them:
   web reads `NATURE_TYPES` in `data.ts`, DC reads the baked `NATURE_*` defines
-  plus the `ring` field on `NatureDef` and `nature` on `Species`.
+  plus the baked `NATURE_CHART[atk][def]` (+1/-1/0) and `nature` on `Species`.
 
 ### Bench XP / formulas
 
