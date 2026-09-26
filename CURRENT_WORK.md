@@ -2824,3 +2824,23 @@ evolved form is found on a lower-level map than its pre-evolution
 
 **This workstream is complete.**
 
+## Sephirot grass + 69 new CryMon (Claude, 2026-09-26) -- in progress
+
+User asked for tall grass on every path into the Sephirot cities and new
+CryMon so each of those maps has 3 unique ones, and said to run
+autonomously without clarifying questions. Policy chosen: the 22 Hebrew
+letter paths **and the Weeping Road** get grass (23 maps x 3 = **69 new
+CryMon**), following the tier rule (12 three-stage lines, 11 two-stage,
+11 solo). Levels climb with height on the Tree, starting just above
+Lieutenant Lead (Lv 20), who guards the way in.
+
+**Stage A done and pushed: CryDex widened to 128 species.** 42 + 69 = 111
+overflowed the 64-bit dex. `save.json` size 264 -> 280, again with no
+version bump: `dexSeenHi2` [264, 8] and `dexCaughtHi2` [272, 8]. New
+`dexSeenParts` / `dexCaughtParts` list every dex byte range in species
+order; the baker turns them into `SAVE_DEX_SEEN_OFF[]` /
+`SAVE_DEX_CAUGHT_OFF[]` for `save.c`, and web `save.ts` builds
+`DEX_SEEN_WORDS` from them (engine dex arrays are `DEX_WORD_N` words).
+**Growing the dex again = add a range to both lists + raise size.** Web
+round trip tested, including an older 264-byte blob.
+

@@ -8,6 +8,16 @@ export const SAVE_ITEMS = saveJson.itemOrder as ItemId[];
 export const SAVE_MAPS = saveJson.mapOrder as MapId[];
 export const SAVE_DIRS = saveJson.dirOrder as Dir[];
 export const SAVE_SPECIES = saveJson.speciesOrder as SpeciesId[];
+/** Blob offset of each CryDex u32 word, in species order (word w holds
+ *  species 32w..32w+31) -- from save.json dexSeenParts/dexCaughtParts. */
+function dexWords(parts: number[][]): number[] {
+	const out: number[] = [];
+	for (const [o, n] of parts) for (let i = 0; i < n; i += 4) out.push(o + i);
+	return out;
+}
+export const DEX_SEEN_WORDS = dexWords((saveJson as { dexSeenParts: number[][] }).dexSeenParts);
+export const DEX_CAUGHT_WORDS = dexWords((saveJson as { dexCaughtParts: number[][] }).dexCaughtParts);
+export const DEX_WORD_N = DEX_SEEN_WORDS.length;
 export const SAVE_KEY = "crymon.save.v1";
 
 export type SaveFlagName = (typeof SAVE_FLAGS)[number];
@@ -30,7 +40,7 @@ export interface SaveSnapshot {
 	party2?: Monster[];
 	/** 0 = Max, 1 = Father. */
 	activeParty?: number;
-	/** [species 0-31, species 32-63] u32 words. */
+	/** u32 words, species 32w..32w+31 in word w (see DEX_SEEN_WORDS). */
 	dexSeen: number[];
 	dexCaught: number[];
 }
@@ -117,10 +127,8 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 		buf[o + 15] = Math.max(0, Math.min(255, m.poisonStack ?? 0));
 	}
 	u16(buf, 142, checksum(buf));
-	u32(buf, 144, (snap.dexSeen[0] ?? 0) >>> 0);
-	u32(buf, 148, (snap.dexCaught[0] ?? 0) >>> 0);
-	u32(buf, 256, (snap.dexSeen[1] ?? 0) >>> 0);
-	u32(buf, 260, (snap.dexCaught[1] ?? 0) >>> 0);
+	DEX_SEEN_WORDS.forEach((o, w) => u32(buf, o, (snap.dexSeen[w] ?? 0) >>> 0));
+	DEX_CAUGHT_WORDS.forEach((o, w) => u32(buf, o, (snap.dexCaught[w] ?? 0) >>> 0));
 	u32(buf, 152, (snap.executedMask ?? 0) >>> 0);
 	// party2 at 156 (6 * partySlot), activeParty at 252
 	const p2 = snap.party2 ?? [];
@@ -201,8 +209,8 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 		bag,
 		flags,
 		party,
-		dexSeen: [buf.length >= 148 ? ru32(buf, 144) : 0, buf.length >= 260 ? ru32(buf, 256) : 0],
-		dexCaught: [buf.length >= 152 ? ru32(buf, 148) : 0, buf.length >= 264 ? ru32(buf, 260) : 0],
+		dexSeen: DEX_SEEN_WORDS.map((o) => (buf.length >= o + 4 ? ru32(buf, o) : 0)),
+		dexCaught: DEX_CAUGHT_WORDS.map((o) => (buf.length >= o + 4 ? ru32(buf, o) : 0)),
 		executedMask: buf.length >= 156 ? ru32(buf, 152) : 0,
 		party2: (() => {
 			if (buf.length < 254) return [];

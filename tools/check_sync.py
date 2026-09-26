@@ -639,7 +639,7 @@ def main() -> int:
         if layout.get(key) != want:
             errors.append(f"save.layout.{key} must be {want}, got {layout.get(key)!r}")
     dex_caught_end = expected_layout["dexCaught"][0] + expected_layout["dexCaught"][1]
-    for key in ("dexSeenHi", "dexCaughtHi"):
+    for key in ("dexSeenHi", "dexCaughtHi", "dexSeenHi2", "dexCaughtHi2"):
         span = layout.get(key)
         if span:
             dex_caught_end = max(dex_caught_end, int(span[0]) + int(span[1]))

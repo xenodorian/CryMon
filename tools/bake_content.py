@@ -1289,23 +1289,28 @@ def bake_save(data: dict, out: Path) -> None:
     pnat = layout.get("partyNature") or 12
     lines.append(f"#define SAVE_DEX_SEEN {int(seen[0])}")
     lines.append(f"#define SAVE_DEX_CAUGHT {int(caught[0])}")
-    seen_hi = layout.get("dexSeenHi") or [0, 0]
-    caught_hi = layout.get("dexCaughtHi") or [0, 0]
-    if int(seen_hi[1]) != int(caught_hi[1]):
-        raise SystemExit("save.json dexSeenHi and dexCaughtHi must be the same size")
+    seen_parts = save.get("dexSeenParts") or [seen]
+    caught_parts = save.get("dexCaughtParts") or [caught]
+    seen_offs = [int(o) + i for o, n in seen_parts for i in range(int(n))]
+    caught_offs = [int(o) + i for o, n in caught_parts for i in range(int(n))]
+    if len(seen_offs) != len(caught_offs):
+        raise SystemExit("save.json dexSeenParts and dexCaughtParts must cover the same byte count")
+    size = int(save.get("size") or 256)
+    if max(seen_offs + caught_offs) >= size:
+        raise SystemExit("save.json dex parts run past save.size")
     n_species = len(save.get("speciesOrder") or [])
-    dex_bits = 8 * (int(seen[1]) + int(seen_hi[1]))
-    if n_species > dex_bits:
+    if n_species > 8 * len(seen_offs):
         raise SystemExit(
-            f"save.json CryDex bits hold {dex_bits} species but speciesOrder has "
-            f"{n_species} -- grow dexSeenHi/dexCaughtHi"
+            f"save.json CryDex bits hold {8 * len(seen_offs)} species but speciesOrder has "
+            f"{n_species} -- add a range to dexSeenParts/dexCaughtParts"
         )
-    lines.append("/* CryDex: species 0..8*LO-1 in the low fields, the rest in the Hi")
-    lines.append("   fields; g_dex_* in main.c hold them back to back. */")
-    lines.append(f"#define SAVE_DEX_LO_BYTES {int(seen[1])}")
-    lines.append(f"#define SAVE_DEX_SEEN_HI {int(seen_hi[0])}")
-    lines.append(f"#define SAVE_DEX_CAUGHT_HI {int(caught_hi[0])}")
-    lines.append(f"#define SAVE_DEX_BYTES {int(seen[1]) + int(seen_hi[1])}")
+    lines.append("/* CryDex: byte i of g_dex_* in main.c (species 8i..8i+7) lives at")
+    lines.append("   SAVE_DEX_*_OFF[i] in the blob -- from save.json dex*Parts. */")
+    lines.append(f"#define SAVE_DEX_BYTES {len(seen_offs)}")
+    lines.append("static const unsigned short SAVE_DEX_SEEN_OFF[SAVE_DEX_BYTES] = { "
+                 + ", ".join(str(o) for o in seen_offs) + " };")
+    lines.append("static const unsigned short SAVE_DEX_CAUGHT_OFF[SAVE_DEX_BYTES] = { "
+                 + ", ".join(str(o) for o in caught_offs) + " };")
     lines.append(f"#define SAVE_PARTY_NATURE {int(pnat)}")
     lines.append("")
     lines.append("#endif")

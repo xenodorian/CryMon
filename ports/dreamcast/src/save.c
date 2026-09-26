@@ -102,8 +102,8 @@ void save_pack(u8 *dst, const SaveLive *s) {
     }
         put_u16(dst + 142, checksum(dst));
     for(i = 0; i < SAVE_DEX_BYTES; i++) {
-        int so = i < SAVE_DEX_LO_BYTES ? SAVE_DEX_SEEN + i : SAVE_DEX_SEEN_HI + i - SAVE_DEX_LO_BYTES;
-        int co = i < SAVE_DEX_LO_BYTES ? SAVE_DEX_CAUGHT + i : SAVE_DEX_CAUGHT_HI + i - SAVE_DEX_LO_BYTES;
+        int so = SAVE_DEX_SEEN_OFF[i];
+        int co = SAVE_DEX_CAUGHT_OFF[i];
         dst[so] = s->dex_seen[i];
         dst[co] = s->dex_caught[i];
     }
@@ -158,8 +158,8 @@ int save_unpack(const u8 *src, SaveLive *s) {
         s->party[p].poison_stack = o[15];
     }
     for(i = 0; i < SAVE_DEX_BYTES; i++) {
-        int so = i < SAVE_DEX_LO_BYTES ? SAVE_DEX_SEEN + i : SAVE_DEX_SEEN_HI + i - SAVE_DEX_LO_BYTES;
-        int co = i < SAVE_DEX_LO_BYTES ? SAVE_DEX_CAUGHT + i : SAVE_DEX_CAUGHT_HI + i - SAVE_DEX_LO_BYTES;
+        int so = SAVE_DEX_SEEN_OFF[i];
+        int co = SAVE_DEX_CAUGHT_OFF[i];
         s->dex_seen[i] = src[so];
         s->dex_caught[i] = src[co];
     }

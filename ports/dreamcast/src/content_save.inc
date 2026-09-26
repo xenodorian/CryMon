@@ -1,10 +1,10 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=ae603c00c11cc6f7 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=bf6dad0d071b6cda — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
 
 #define SAVE_VERSION 7
-#define SAVE_SIZE 264
+#define SAVE_SIZE 280
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
 #define SAVE_FLAG_N 64
@@ -82,12 +82,11 @@
    134 dexSeen[4], 138 dexCaught[4]. Checksum is 0..131 only. */
 #define SAVE_DEX_SEEN 144
 #define SAVE_DEX_CAUGHT 148
-/* CryDex: species 0..8*LO-1 in the low fields, the rest in the Hi
-   fields; g_dex_* in main.c hold them back to back. */
-#define SAVE_DEX_LO_BYTES 4
-#define SAVE_DEX_SEEN_HI 256
-#define SAVE_DEX_CAUGHT_HI 260
-#define SAVE_DEX_BYTES 8
+/* CryDex: byte i of g_dex_* in main.c (species 8i..8i+7) lives at
+   SAVE_DEX_*_OFF[i] in the blob -- from save.json dex*Parts. */
+#define SAVE_DEX_BYTES 16
+static const unsigned short SAVE_DEX_SEEN_OFF[SAVE_DEX_BYTES] = { 144, 145, 146, 147, 256, 257, 258, 259, 264, 265, 266, 267, 268, 269, 270, 271 };
+static const unsigned short SAVE_DEX_CAUGHT_OFF[SAVE_DEX_BYTES] = { 148, 149, 150, 151, 260, 261, 262, 263, 272, 273, 274, 275, 276, 277, 278, 279 };
 #define SAVE_PARTY_NATURE 12
 
 #endif

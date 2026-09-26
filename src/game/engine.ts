@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, ENDING_SONG, VOLUME } from "./audio";
-import { packSave, unpackSave, writeSaveBlob, readSaveBlob, saveExists, clearSave, SAVE_FLAGS, SAVE_SPECIES } from "./save";
+import { packSave, unpackSave, writeSaveBlob, readSaveBlob, saveExists, clearSave, SAVE_FLAGS, SAVE_SPECIES, DEX_WORD_N } from "./save";
 import {
   CAMP,
   CLIFFS,
@@ -268,10 +268,10 @@ export class CryMon {
 	mason2Done = false;
 	masonRematch = false;
 	talkedReach = false;
-	/** CryDex bits as [species 0-31, species 32-63] u32 words (save bytes
-	 *  144/148 hold the low words, 256/260 the high ones). */
-	dexSeen = [0, 0];
-	dexCaught = [0, 0];
+	/** CryDex bits as u32 words, species 32w..32w+31 in word w (blob
+	 *  offsets come from save.json dexSeenParts/dexCaughtParts). */
+	dexSeen = new Array(DEX_WORD_N).fill(0);
+	dexCaught = new Array(DEX_WORD_N).fill(0);
 	dexCursor = 0;
 	dexView = "list";
 	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" | "priestessTeleport" };
@@ -468,8 +468,8 @@ export class CryMon {
 		this.mason2Done = false;
 		this.masonRematch = false;
 		this.talkedReach = false;
-		this.dexSeen = [0, 0];
-		this.dexCaught = [0, 0];
+		this.dexSeen = new Array(DEX_WORD_N).fill(0);
+		this.dexCaught = new Array(DEX_WORD_N).fill(0);
 		this.dexCursor = 0;
 		this.dexView = "list";
 		this.fade = { phase: "off", t: 0, action: null };
@@ -539,8 +539,8 @@ export class CryMon {
 			party: (this.activeParty === 1 ? this.party2 : this.party).map((m) => ({ ...m })),
 			party2: (this.activeParty === 1 ? this.party : this.party2).map((m) => ({ ...m })),
 			activeParty: this.activeParty,
-			dexSeen: [this.dexSeen[0] >>> 0, this.dexSeen[1] >>> 0],
-			dexCaught: [this.dexCaught[0] >>> 0, this.dexCaught[1] >>> 0],
+			dexSeen: this.dexSeen.map((w) => w >>> 0),
+			dexCaught: this.dexCaught.map((w) => w >>> 0),
 		};
 	}
 	applySave(snap) {
@@ -577,8 +577,8 @@ export class CryMon {
 		this.executedMask = snap.executedMask ?? 0;
 		this.adjustReputation(0);
 		this.bag = { ...START_BAG, ...snap.bag };
-		this.dexSeen = [snap.dexSeen[0] >>> 0, snap.dexSeen[1] >>> 0];
-		this.dexCaught = [snap.dexCaught[0] >>> 0, snap.dexCaught[1] >>> 0];
+		this.dexSeen = Array.from({ length: DEX_WORD_N }, (_, w) => (snap.dexSeen[w] ?? 0) >>> 0);
+		this.dexCaught = Array.from({ length: DEX_WORD_N }, (_, w) => (snap.dexCaught[w] ?? 0) >>> 0);
 		for (const m of this.party) this.markCaught(m.species);
 		for (const k of SAVE_FLAGS) {
 			if (k.startsWith("soldierBeaten")) continue;
@@ -1277,12 +1277,12 @@ export class CryMon {
 	}
 	dexHas(words, id) {
 		const i = SAVE_SPECIES.indexOf(id);
-		if (i < 0 || i >= 64) return false;
+		if (i < 0 || i >= DEX_WORD_N * 32) return false;
 		return ((words[i >> 5] >>> (i & 31)) & 1) === 1;
 	}
 	dexMark(words, id) {
 		const i = SAVE_SPECIES.indexOf(id);
-		if (i < 0 || i >= 64) return;
+		if (i < 0 || i >= DEX_WORD_N * 32) return;
 		words[i >> 5] = (words[i >> 5] | (1 << (i & 31))) >>> 0;
 	}
 	markSeen(id) {
