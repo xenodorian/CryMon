@@ -3031,7 +3031,13 @@ each so another agent can resume. Order and status (update as you go):
       purpose with an `eslint-disable-next-line` + reason: removing it
       surfaces ~815 type errors, so typing Grok's web engine is its own
       project, not a lint fix.
-- [ ] **B. 8 failing tests** in `scripts/grok-pwa-plugin.test.mjs`.
+- [x] **B. 8 failing tests -- done.** `npm test` 195/195. Cause: the
+      Grok hosting plugin's head-injection defaults `ctx.cwd` to
+      `process.cwd()` and reads `src/lib/og/site.json` from it; run inside
+      CryMon, its `"title": "CryMon"` (correctly) won over each test's
+      document title. The plugin is right; the tests weren't isolated. The
+      test file now `chdir`s into an empty temp dir first. No product code
+      changed.
 - [ ] **C. Dreamcast "SAVE FAILED"** (pre-existing; bare-metal maple/VMU
       code in `ports/dreamcast/src/save.c`). How to reproduce in the
       sandbox is in "Sanity pass" above: Flycast built from source at

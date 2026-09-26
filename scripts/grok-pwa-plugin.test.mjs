@@ -19,6 +19,15 @@ import {
 } from "./grok-pwa-shared.mjs";
 import { renderInstallPage } from "./grok-pwa-plugin.mjs";
 
+// Run from an empty directory: injectGrokPwaHead()/normalizeHeadContext()
+// default ctx.cwd to process.cwd() and read src/lib/og/site.json and
+// public/og.* from it, so running inside a real app (CryMon's site.json has
+// "title": "CryMon") leaked that app's branding into every test that does
+// not pass its own cwd. Tests that need a workspace still pass one; repo
+// files are read via TEMPLATE_ROOT, which is absolute. node --test runs each
+// file in its own process, so this does not affect other test files.
+process.chdir(mkdtempSync(join(tmpdir(), "grok-pwa-test-cwd-")));
+
 const TEMPLATE_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 test("injects before </head>", () => {
