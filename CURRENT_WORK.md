@@ -2696,5 +2696,36 @@ bits. Web `dexSeen`/`dexCaught` are now `[lo, hi]` u32 words with
 `dexHas()`/`dexMark()` (was a single number + `dexBit()`). Web save round
 trip tested in the browser, including an old 256-byte blob.
 
-Next: stage 2 (13 new species + placeholder art), stage 3 (reshuffle pools).
+**Stage 2 done and pushed: 13 new CryMon.** Appended to `species.json`,
+`save.speciesOrder`, `sprites.json monsters`, the web `SpeciesId` union,
+and `main.c` `MONSTER_SPRITES`.
+
+| CryMon | crystal | evolves to | planned grass map |
+|---|---|---|---|
+| Shrewbit | Quartz | -- | Veld |
+| Jolthare | Citrine | Voltbuck | Veld |
+| Voltbuck | Citrine | -- | Gauntlet 2 |
+| Chillnewt | Sapphire | Rimewyrm | Marsh |
+| Rimewyrm | Sapphire | -- | Gauntlet 3 |
+| Charmkin | Prism | -- | Grove |
+| Rimeowl | Sapphire | -- | Cliffs |
+| Stardrop | Diamond | -- | Cliffs |
+| Voltgrub | Citrine | -- | Quarry |
+| Scavrat | Quartz | Plunderat | Camp |
+| Plunderat | Quartz | -- | Gauntlet 1 |
+| Runemote | Prism | Glyphwing | Ruins |
+| Glyphwing | Prism | -- | Reach |
+
+**PLACEHOLDER_ART (Grok):** all 13 have stand-in battle frames at
+`public/sprites/monsters/<id>/1..4.png` -- a blob in the crystal's color
+labeled "PLACEHOLDER <NAME>", made by `tools/make_placeholder_monsters.py`
+(refuses to overwrite existing PNGs without `--force`). Replace the four
+PNGs in place with real art; nothing else needs to change. Names, blurbs,
+stats and moves are Claude's first pass -- edit freely in `species.json`.
+
+**Pre-existing bug fixed on the way:** `main.c` `MONSTER_SPRITES` had no
+row for Lieutenant Lead (species 29), so his entry was a null pointer;
+he now has his row, and the 13 new rows follow it.
+
+Next: stage 3 (reshuffle pools).
 

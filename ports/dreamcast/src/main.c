@@ -3673,6 +3673,20 @@ static const u16 *const MONSTER_SPRITES[SPECIES_N][4] = {
     { monster_cindermite_1, monster_cindermite_2, monster_cindermite_3, monster_cindermite_4 },
     { monster_veilcap_1, monster_veilcap_2, monster_veilcap_3, monster_veilcap_4 },
     { monster_kilnback_1, monster_kilnback_2, monster_kilnback_3, monster_kilnback_4 },
+    { monster_lead_1, monster_lead_2, monster_lead_3, monster_lead_4 },
+    { monster_shrewbit_1, monster_shrewbit_2, monster_shrewbit_3, monster_shrewbit_4 },
+    { monster_jolthare_1, monster_jolthare_2, monster_jolthare_3, monster_jolthare_4 },
+    { monster_voltbuck_1, monster_voltbuck_2, monster_voltbuck_3, monster_voltbuck_4 },
+    { monster_chillnewt_1, monster_chillnewt_2, monster_chillnewt_3, monster_chillnewt_4 },
+    { monster_rimewyrm_1, monster_rimewyrm_2, monster_rimewyrm_3, monster_rimewyrm_4 },
+    { monster_runemote_1, monster_runemote_2, monster_runemote_3, monster_runemote_4 },
+    { monster_glyphwing_1, monster_glyphwing_2, monster_glyphwing_3, monster_glyphwing_4 },
+    { monster_scavrat_1, monster_scavrat_2, monster_scavrat_3, monster_scavrat_4 },
+    { monster_plunderat_1, monster_plunderat_2, monster_plunderat_3, monster_plunderat_4 },
+    { monster_stardrop_1, monster_stardrop_2, monster_stardrop_3, monster_stardrop_4 },
+    { monster_rimeowl_1, monster_rimeowl_2, monster_rimeowl_3, monster_rimeowl_4 },
+    { monster_voltgrub_1, monster_voltgrub_2, monster_voltgrub_3, monster_voltgrub_4 },
+    { monster_charmkin_1, monster_charmkin_2, monster_charmkin_3, monster_charmkin_4 },
 };
 
 static void draw_party_mon_icon(int species, int x, int y) {

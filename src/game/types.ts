@@ -41,7 +41,8 @@ export type SpeciesId =
   | "emberling" | "frostail" | "boulderam" | "stormwing"
   | "sableclaw" | "thornhide" | "glasswisp" | "ashenmaw" | "heavenfall"
   | "peatling" | "mireback" | "glowcap" | "slatekin" | "gravelurk" | "cindermite"
-  | "veilcap" | "kilnback" | "lead";
+  | "veilcap" | "kilnback" | "lead"
+  | "shrewbit" | "jolthare" | "voltbuck" | "chillnewt" | "rimewyrm" | "runemote" | "glyphwing" | "scavrat" | "plunderat" | "stardrop" | "rimeowl" | "voltgrub" | "charmkin";
 
 export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry" | "gauntlet" | "gauntlet1" | "gauntlet2" | "gauntlet3" | "gauntlet4" | "gauntlet5" | "gauntlet6" | "malkuth" | "weepingroad" | "yesod" | "tau" | "netzach" | "qoph" | "hod" | "shin" | "peh" | "resh" | "tzaddi" | "tiferet" | "samekh" | "nun" | "ayin" | "chesed" | "kaph" | "yod" | "gevurah" | "mem" | "lamed" | "teth" | "binah" | "zayin" | "heth" | "chokmah" | "he" | "vau" | "daleth" | "keter" | "gimel" | "aleph" | "beth";
 

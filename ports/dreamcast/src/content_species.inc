@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=c7077a23afc5fbc7 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=a44eda309eab29eb — do not edit. python3 tools/bake_content.py */
 
 #define SP_QUILLPUP 0
 #define SP_GLIMMOTH 1
@@ -29,7 +29,20 @@
 #define SP_VEILCAP 26
 #define SP_KILNBACK 27
 #define SP_LEAD 28
-#define SPECIES_N 29
+#define SP_SHREWBIT 29
+#define SP_JOLTHARE 30
+#define SP_VOLTBUCK 31
+#define SP_CHILLNEWT 32
+#define SP_RIMEWYRM 33
+#define SP_RUNEMOTE 34
+#define SP_GLYPHWING 35
+#define SP_SCAVRAT 36
+#define SP_PLUNDERAT 37
+#define SP_STARDROP 38
+#define SP_RIMEOWL 39
+#define SP_VOLTGRUB 40
+#define SP_CHARMKIN 41
+#define SPECIES_N 42
 
 static const SpellDef SPELLS[4] = {
     { ATK_MAG, 0.6f, 1.2f },
@@ -68,5 +81,18 @@ static const Species SPECIES[SPECIES_N] = {
     { "VEILCAP", "SPORE", "VEILBURST", 36, 9, 12, 22, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.25f, 0.65f, 0, {0,0,0,0}, 6, -1 },
     { "KILNBACK", "NIBBLE", "SLAGBURST", 38, 17, 13, 16, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.2f, 0.9f, 0, {0,0,0,0}, 7, -1 },
     { "LIEUTENANT LEAD", "BURST FIRE", "SUPPRESSING FIRE", 20, 7, 7, 3, 3, ATK_STR, ATK_STR, 1.5f, 1.0f, 1.2f, 0.9f, 0, {0,0,0,0}, 0, -1 },
+    { "SHREWBIT", "SCRATCH", "TAILWHIP", 26, 10, 15, 7, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 0.9f, 1.2f, 0, {0,0,0,0}, 0, -1 },
+    { "JOLTHARE", "ZAP", "BOLTKICK", 26, 9, 16, 11, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 3, 31 },
+    { "VOLTBUCK", "ZAP", "THUNDERHOOF", 36, 14, 19, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.2f, 0.7f, 0, {0,0,0,0}, 3, -1 },
+    { "CHILLNEWT", "FROSTLICK", "SLEETSPIT", 30, 9, 11, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 8, 33 },
+    { "RIMEWYRM", "COIL", "RIMEBREATH", 44, 15, 11, 19, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.25f, 0.65f, 0, {0,0,0,0}, 8, -1 },
+    { "RUNEMOTE", "FLICKER", "RUNEFLARE", 22, 5, 14, 18, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.1f, 0.8f, 0, {0,0,0,0}, 5, 35 },
+    { "GLYPHWING", "FLICKER", "GLYPHSTORM", 32, 8, 17, 23, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.25f, 0.7f, 0, {0,0,0,0}, 5, -1 },
+    { "SCAVRAT", "GNAW", "RANSACK", 28, 12, 13, 6, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 1.05f, 1.05f, 0, {0,0,0,0}, 0, 37 },
+    { "PLUNDERAT", "GNAW", "PILLAGE", 40, 17, 15, 7, 3, ATK_STR, ATK_STR, 0.6f, 1.2f, 1.3f, 0.6f, 0, {0,0,0,0}, 0, -1 },
+    { "STARDROP", "GLINT", "STARSHARD", 30, 12, 8, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.1f, 0.8f, 0, {0,0,0,0}, 2, -1 },
+    { "RIMEOWL", "TALON", "HAILWING", 28, 10, 14, 13, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 8, -1 },
+    { "VOLTGRUB", "BURROW", "ARCSPARK", 30, 11, 10, 14, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.05f, 1.0f, 0, {0,0,0,0}, 3, -1 },
+    { "CHARMKIN", "TWINKLE", "HEXCHARM", 24, 6, 15, 17, 3, ATK_STR, ATK_MAG, 0.6f, 1.2f, 1.0f, 0.8f, 0, {0,0,0,0}, 5, -1 },
 };
 
