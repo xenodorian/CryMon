@@ -116,8 +116,8 @@ per-monster roll.
 
 To add one:
 
-1. Append to `logic.json` `natures` (`id`, `name`, `theme`, `str`, `agl`,
-   `spc`), add its matchups to `natureTypes.beats`, and give it one
+1. Append to `logic.json` `natures` (`id`, `name`, `theme`, `colors`, `str`,
+   `agl`, `spc`; `colors` is 1-6 `#RRGGBB` badge stripes), add its matchups to `natureTypes.beats`, and give it one
    `natureMoves` entry. The baker refuses to bake if a `beats` pair names a
    crystal that does not exist, or if any species does.
 2. Point species at it with `"nature": "<id>"` in `species.json`. Every species

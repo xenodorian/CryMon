@@ -89,6 +89,7 @@
       "id": "quartz",
       "name": "Quartz",
       "theme": "white, neutral: plain beasts and humans",
+      "colors": ["#ECEAE4"],
       "str": 1,
       "agl": 1,
       "spc": 1
@@ -97,6 +98,7 @@
       "id": "jasper",
       "name": "Jasper",
       "theme": "brown, earth and stone",
+      "colors": ["#9C6236"],
       "str": 3,
       "agl": 0,
       "spc": 0
@@ -105,6 +107,7 @@
       "id": "diamond",
       "name": "Diamond",
       "theme": "starlight, cosmic",
+      "colors": ["#B9C4FF"],
       "str": 2,
       "agl": 0,
       "spc": 1
@@ -113,6 +116,7 @@
       "id": "citrine",
       "name": "Citrine",
       "theme": "yellow, lightning",
+      "colors": ["#F2C230"],
       "str": 0,
       "agl": 3,
       "spc": 0
@@ -121,6 +125,7 @@
       "id": "obsidian",
       "name": "Obsidian",
       "theme": "black, ghost and dark",
+      "colors": ["#2B2433"],
       "str": 1,
       "agl": 2,
       "spc": 0
@@ -129,6 +134,7 @@
       "id": "prism",
       "name": "Prism",
       "theme": "rainbow, magic",
+      "colors": ["#D63A3A", "#F2C230", "#3FA34D", "#3A6FD6", "#8A4FD0"],
       "str": 0,
       "agl": 0,
       "spc": 3
@@ -137,6 +143,7 @@
       "id": "emerald",
       "name": "Emerald",
       "theme": "green, plants",
+      "colors": ["#3FA34D"],
       "str": 0,
       "agl": 1,
       "spc": 2
@@ -145,6 +152,7 @@
       "id": "ruby",
       "name": "Ruby",
       "theme": "red, fire",
+      "colors": ["#D63A3A"],
       "str": 2,
       "agl": 1,
       "spc": 0
@@ -153,6 +161,7 @@
       "id": "sapphire",
       "name": "Sapphire",
       "theme": "blue, ice",
+      "colors": ["#3A6FD6"],
       "str": 1,
       "agl": 0,
       "spc": 2

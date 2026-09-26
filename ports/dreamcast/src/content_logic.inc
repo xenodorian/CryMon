@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=87a72c617d897511 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=df49ec9801a5be3e — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -31,6 +31,29 @@ static const NatureDef NATURES[NATURE_N] = {
     { "EMERALD", 0, 1, 2 },
     { "RUBY", 2, 1, 0 },
     { "SAPPHIRE", 1, 0, 2 },
+};
+#define NATURE_BADGE_MAX 6
+static const int NATURE_BADGE_N[NATURE_N] = {
+    1, /* quartz */
+    1, /* jasper */
+    1, /* diamond */
+    1, /* citrine */
+    1, /* obsidian */
+    5, /* prism */
+    1, /* emerald */
+    1, /* ruby */
+    1, /* sapphire */
+};
+static const unsigned short NATURE_BADGE[NATURE_N][NATURE_BADGE_MAX] = {
+    { 0xEF5C, 0xEF5C, 0xEF5C, 0xEF5C, 0xEF5C, 0xEF5C }, /* quartz */
+    { 0x9B06, 0x9B06, 0x9B06, 0x9B06, 0x9B06, 0x9B06 }, /* jasper */
+    { 0xBE3F, 0xBE3F, 0xBE3F, 0xBE3F, 0xBE3F, 0xBE3F }, /* diamond */
+    { 0xF606, 0xF606, 0xF606, 0xF606, 0xF606, 0xF606 }, /* citrine */
+    { 0x2926, 0x2926, 0x2926, 0x2926, 0x2926, 0x2926 }, /* obsidian */
+    { 0xD1C7, 0xF606, 0x3D09, 0x3B7A, 0x8A7A, 0x8A7A }, /* prism */
+    { 0x3D09, 0x3D09, 0x3D09, 0x3D09, 0x3D09, 0x3D09 }, /* emerald */
+    { 0xD1C7, 0xD1C7, 0xD1C7, 0xD1C7, 0xD1C7, 0xD1C7 }, /* ruby */
+    { 0x3B7A, 0x3B7A, 0x3B7A, 0x3B7A, 0x3B7A, 0x3B7A }, /* sapphire */
 };
 /* Crystal matchups from logic.json natureTypes.beats:
    NATURE_CHART[atk][def] is +1 (atk splits def), -1 (def

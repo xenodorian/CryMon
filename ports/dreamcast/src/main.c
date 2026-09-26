@@ -1550,6 +1550,34 @@ static int species_nature(int species) {
     return SPECIES[species].nature;
 }
 
+/* Crystal badge: a 12x12 diamond in the crystal's color(s) from
+   logic.json natures[].colors (vertical stripes when there are several,
+   e.g. Prism), with a light outline so dark crystals (Obsidian) still read
+   on dark boxes. (x, y) is the top-left of the 12x12 cell. */
+#define NATURE_BADGE_SIZE 12
+static void draw_nature_badge(int nat, int x, int y) {
+    int px, py, cols;
+    if(nat < 0 || nat >= NATURE_N) return;
+    cols = NATURE_BADGE_N[nat];
+    for(py = 0; py < NATURE_BADGE_SIZE; py++) {
+        for(px = 0; px < NATURE_BADGE_SIZE; px++) {
+            /* distance from center in half-pixels: 2*|p - 5.5| */
+            int dx = 2 * px - (NATURE_BADGE_SIZE - 1);
+            int dy = 2 * py - (NATURE_BADGE_SIZE - 1);
+            int d;
+            if(dx < 0) dx = -dx;
+            if(dy < 0) dy = -dy;
+            d = dx + dy;
+            if(d > NATURE_BADGE_SIZE) continue;
+            if(d > NATURE_BADGE_SIZE - 3)
+                put_pixel(x + px, y + py, rgb565(232, 228, 216));
+            else
+                put_pixel(x + px, y + py,
+                          NATURE_BADGE[nat][px * cols / NATURE_BADGE_SIZE]);
+        }
+    }
+}
+
 /* CryDex matchup line: every crystal whose NATURE_CHART sign against `nat`
    is `want` (+1: those crystals split `nat`; -1: `nat` holds against them),
    comma-separated into buf. "NONE" when the list is empty (Quartz). */
@@ -2009,6 +2037,8 @@ static void draw_crydex(int cur, int entry) {
         n = s_cat(buf, 0, NATURES[nat].name);
         n = s_cat(buf, n, " CRYSTAL");        buf[n] = 0;
         draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H, rgb565(197, 206, 198), MENU_SCALE);
+        draw_nature_badge(nat, MENU_X + 8 + text_width_s(buf, MENU_SCALE) + 4,
+                          MENU_Y + 24 + MENU_ROW_H);
         draw_text_s("WEAK TO", MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 3, rgb565(143, 74, 64), MENU_SCALE);
         nature_list(buf, nat, 1);
         draw_text_s(buf, MENU_X + 8, MENU_Y + 24 + MENU_ROW_H * 4, rgb565(232, 228, 216), MENU_SCALE);
@@ -2053,6 +2083,9 @@ static void draw_crydex(int cur, int entry) {
         }
         buf[n] = 0;
         draw_text_s(buf, MENU_X + 8, y, color, MENU_SCALE);
+        if(dex_get(g_dex_caught, idx))
+            draw_nature_badge(species_nature(idx),
+                              MENU_X + 8 + text_width_s(buf, MENU_SCALE) + 4, y);
         y += MENU_ROW_H;
     }
 }
@@ -3717,6 +3750,8 @@ static void draw_battle_status(const Battle *b) {
     }
     buf[n] = 0;
     draw_text_s(buf, BFOE_BOX_X + 4, BFOE_BOX_Y + 4, 0xFFFF, MENU_SCALE);
+    draw_nature_badge(species_nature(b->foe.species),
+                      BFOE_BOX_X - 4 - NATURE_BADGE_SIZE, BFOE_BOX_Y + 3);
 
     n = s_cat(buf, 0, b->pl.shiny ? "*" : "");
     n = s_cat(buf, n, SPECIES[b->pl.species].name);
@@ -3732,6 +3767,8 @@ static void draw_battle_status(const Battle *b) {
     }
     buf[n] = 0;
     draw_text_s(buf, BPL_BOX_X + 4, BPL_BOX_Y + 4, 0xFFFF, MENU_SCALE);
+    draw_nature_badge(species_nature(b->pl.species),
+                      BPL_BOX_X + BPL_BOX_W + 4, BPL_BOX_Y + 3);
 }
 
 static void draw_battle_menu_row(const char *label, int idx, int cur, int y) {

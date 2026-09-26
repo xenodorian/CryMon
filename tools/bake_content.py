@@ -530,6 +530,31 @@ def bake_logic(data: dict, out: Path) -> None:
             f'{int(nat.get("spc") or 0)} }},'
         )
     lines.append("};")
+    # Badge colors: 1 (solid) to NATURE_BADGE_MAX (vertical stripes) per crystal,
+    # so a CryMon's type reads at a glance in battle and the CryDex.
+    badge_max = 6
+    lines.append(f"#define NATURE_BADGE_MAX {badge_max}")
+    lines.append("static const int NATURE_BADGE_N[NATURE_N] = {")
+    badge_rows = []
+    for nat in natures:
+        cols = list(nat.get("colors") or [])
+        if not 1 <= len(cols) <= badge_max:
+            raise SystemExit(
+                f"logic.json natures {nat['id']!r} needs 1..{badge_max} `colors`, got {len(cols)}"
+            )
+        vals = []
+        for c in cols:
+            if not re.fullmatch(r"#[0-9A-Fa-f]{6}", str(c)):
+                raise SystemExit(f"logic.json natures {nat['id']!r} color {c!r} is not #RRGGBB")
+            r, g, b = int(c[1:3], 16), int(c[3:5], 16), int(c[5:7], 16)
+            vals.append(((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3))
+        lines.append(f"    {len(vals)}, /* {nat['id']} */")
+        badge_rows.append(vals + [vals[-1]] * (badge_max - len(vals)))
+    lines.append("};")
+    lines.append("static const unsigned short NATURE_BADGE[NATURE_N][NATURE_BADGE_MAX] = {")
+    for nat, vals in zip(natures, badge_rows):
+        lines.append("    { " + ", ".join(f"0x{v:04X}" for v in vals) + f" }}, /* {nat['id']} */")
+    lines.append("};")
     lines.append("/* Crystal matchups from logic.json natureTypes.beats:")
     lines.append("   NATURE_CHART[atk][def] is +1 (atk splits def), -1 (def")
     lines.append("   holds), 0 neutral. Always antisymmetric. */")

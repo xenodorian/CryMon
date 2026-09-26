@@ -70,7 +70,7 @@ export const FORMULAS = worldJson.formulas as typeof worldJson.formulas & {
   benchXpShare: number;
 };
 
-export type NatureDef = { id: string; name: string; str: number; agl: number; spc: number };
+export type NatureDef = { id: string; name: string; str: number; agl: number; spc: number; colors?: string[] };
 export const NATURES = (logicJson.natures || []) as NatureDef[];
 
 export const SPRITES = spritesJson;

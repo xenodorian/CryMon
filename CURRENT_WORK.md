@@ -2651,8 +2651,17 @@ CryDex uses a new `nature_list()`; web `data.ts` `natureMatchup()` /
 `natureMatchNames()` read `beats` directly. Verified: typecheck, bake,
 `check_sync --strict`, `make`, `make cdi`.
 
-Not done yet: nothing on screen shows a crystal's color (the "at a glance"
-part). Crystal badges/tints are a later stage if the user wants them.
+**Stage 2 (crystal badges) is done and pushed too.** Each crystal has a
+`colors` list in `logic.json natures` (one color, or up to 6 for vertical
+stripes -- Prism is a 5-color rainbow). Both engines draw it as a small
+outlined diamond: next to each battle status box (left of the foe's box,
+right of the player's on DC; right of the foe's box, left of the player's
+on web), after the crystal name in the CryDex entry, and after each caught
+row in the CryDex list. Baker emits `NATURE_BADGE[NATURE_N][6]` (RGB565) +
+`NATURE_BADGE_N`; `main.c` `draw_nature_badge()` and web
+`drawNatureBadge()` mirror each other. Web checked by screenshot (battle,
+CryDex list, CryDex entry); the DC badge shape was checked as ASCII from
+the same math, not on hardware or an emulator.
 Also noticed, not touched: `lead` sprite looks like a screenshot of a text
 menu, and `veilcap` looks like Glowcap on an un-keyed magenta background.
 

@@ -4533,7 +4533,8 @@ export class CryMon {
 			const match = natureMatchNames(nat.id);
 			this.drawMonIcon({ species: cur, shiny: false, name: s.name }, X(16), Y(28), X(72), Y(88));
 			this.text(s.name.toUpperCase(), X(96), Y(28), "#e8e4d8", FONT);
-			this.text(`${nat.name} crystal`, X(96), Y(42), "#c5cec6", FONT);
+			this.drawNatureBadge(speciesNature(cur), X(96), Y(43));
+			this.text(`${nat.name} crystal`, X(110), Y(42), "#c5cec6", FONT);
 			this.text("Weak to", X(96), Y(58), "#8f4a40", FONT);
 			this.text(match.weakTo.join(", ") || "none", X(96), Y(70), "#e8e4d8", FONT);
 			this.text("Resists", X(96), Y(86), "#5a7a52", FONT);
@@ -4569,6 +4570,10 @@ export class CryMon {
 				color = on ? "#e8e4d8" : "#8a8678";
 			}
 			this.text(`${on ? ">" : " "}${String(idx + 1).padStart(2, "0")}  ${label}`, X(16), y, color, FONT);
+			if (caught) {
+				const w = this.ctx.measureText(`${on ? ">" : " "}${String(idx + 1).padStart(2, "0")}  ${label}`).width;
+				this.drawNatureBadge(speciesNature(id), X(16) + w + X(4), y - 1, X(8));
+			}
 		}
 		const cur = ids[this.dexCursor];
 		const bit = this.dexBit(cur);
@@ -5230,6 +5235,33 @@ export class CryMon {
 		this.text("A/D tab   Z trade   X leave", X(18), Y(140), "#5a7a52", FONT);
 		if (this.hudT > 0) this.text(this.hudFlash.slice(0, 34), X(18), Y(148), "#e8e4d8", FONT);
 	}
+	/** Crystal badge: a diamond in the crystal's color(s) from logic.json
+	 *  natures[].colors (vertical stripes for Prism), light outline so dark
+	 *  crystals still read on dark boxes. Matches main.c draw_nature_badge(). */
+	drawNatureBadge(natIndex, x, y, size = X(10)) {
+		const ctx = this.ctx;
+		const cols = natureOf(natIndex).colors ?? ["#ECEAE4"];
+		const h = size / 2;
+		ctx.save();
+		ctx.beginPath();
+		ctx.moveTo(x + h, y);
+		ctx.lineTo(x + size, y + h);
+		ctx.lineTo(x + h, y + size);
+		ctx.lineTo(x, y + h);
+		ctx.closePath();
+		ctx.save();
+		ctx.clip();
+		const sw = size / cols.length;
+		cols.forEach((c, i) => {
+			ctx.fillStyle = c;
+			ctx.fillRect(x + i * sw, y, sw + 1, size);
+		});
+		ctx.restore();
+		ctx.strokeStyle = "#e8e4d8";
+		ctx.lineWidth = Math.max(1, Math.round(size / 8));
+		ctx.stroke();
+		ctx.restore();
+	}
 	hpBar(x, y, w, hp, max) {
 		const ctx = this.ctx;
 		ctx.fillStyle = "#2a2620";
@@ -5253,11 +5285,13 @@ export class CryMon {
 		this.text(`${b.foe.shiny ? "*" : ""}${b.foe.name.toUpperCase()}`, X(10), Y(9), b.foe.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(10), Y(22), X(96), b.foe.hp, b.foe.maxHp);
 		this.text(`${b.foe.hp}`, X(110), Y(20), "#8a8678", FONT);
+		this.drawNatureBadge(speciesNature(b.foe.species), X(133), Y(10));
 		if (b.foe.status && b.foe.status !== "none") this.text(b.foe.status.slice(0, 3).toUpperCase(), X(10), Y(28), "#8f4a40", FONT);
 		this.box(X(108), Y(78), X(126), Y(28));
 		this.text(`${b.player.shiny ? "*" : ""}${b.player.name.toUpperCase()} Lv${b.player.level}`, X(112), Y(80), b.player.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(112), Y(92), X(96), b.player.hp, b.player.maxHp);
 		this.text(`${b.player.hp}`, X(212), Y(90), "#8a8678", FONT);
+		this.drawNatureBadge(speciesNature(b.player.species), X(95), Y(81));
 		if (b.player.status && b.player.status !== "none") this.text(b.player.status.slice(0, 3).toUpperCase(), X(112), Y(100), "#8f4a40", FONT);
 		if (b.phase === "msg") {
 			this.box(X(6), Y(110), X(228), Y(46));
