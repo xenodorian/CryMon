@@ -30,8 +30,9 @@ export interface SaveSnapshot {
 	party2?: Monster[];
 	/** 0 = Max, 1 = Father. */
 	activeParty?: number;
-	dexSeen: number;
-	dexCaught: number;
+	/** [species 0-31, species 32-63] u32 words. */
+	dexSeen: number[];
+	dexCaught: number[];
 }
 
 const SLOT = saveJson.partySlot;
@@ -116,8 +117,10 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 		buf[o + 15] = Math.max(0, Math.min(255, m.poisonStack ?? 0));
 	}
 	u16(buf, 142, checksum(buf));
-	u32(buf, 144, snap.dexSeen >>> 0);
-	u32(buf, 148, snap.dexCaught >>> 0);
+	u32(buf, 144, (snap.dexSeen[0] ?? 0) >>> 0);
+	u32(buf, 148, (snap.dexCaught[0] ?? 0) >>> 0);
+	u32(buf, 256, (snap.dexSeen[1] ?? 0) >>> 0);
+	u32(buf, 260, (snap.dexCaught[1] ?? 0) >>> 0);
 	u32(buf, 152, (snap.executedMask ?? 0) >>> 0);
 	// party2 at 156 (6 * partySlot), activeParty at 252
 	const p2 = snap.party2 ?? [];
@@ -198,8 +201,8 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 		bag,
 		flags,
 		party,
-		dexSeen: buf.length >= 148 ? ru32(buf, 144) : 0,
-		dexCaught: buf.length >= 152 ? ru32(buf, 148) : 0,
+		dexSeen: [buf.length >= 148 ? ru32(buf, 144) : 0, buf.length >= 260 ? ru32(buf, 256) : 0],
+		dexCaught: [buf.length >= 152 ? ru32(buf, 148) : 0, buf.length >= 264 ? ru32(buf, 260) : 0],
 		executedMask: buf.length >= 156 ? ru32(buf, 152) : 0,
 		party2: (() => {
 			if (buf.length < 254) return [];
@@ -275,7 +278,9 @@ export function readSaveBlob(): Uint8Array | null {
 		const raw = localStorage.getItem(SAVE_KEY);
 		if (!raw) return null;
 		const bin = atob(raw);
-		const buf = new Uint8Array(bin.length);
+		// Blobs written before the CryDex grew past 32 species are 256 bytes;
+		// zero-pad them so species 33+ just read as unseen (no version bump).
+		const buf = new Uint8Array(Math.max(bin.length, bin.length >= 256 ? SAVE_SIZE : bin.length));
 		for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
 		return buf;
 	} catch {

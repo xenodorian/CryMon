@@ -268,8 +268,10 @@ export class CryMon {
 	mason2Done = false;
 	masonRematch = false;
 	talkedReach = false;
-	dexSeen = 0;
-	dexCaught = 0;
+	/** CryDex bits as [species 0-31, species 32-63] u32 words (save bytes
+	 *  144/148 hold the low words, 256/260 the high ones). */
+	dexSeen = [0, 0];
+	dexCaught = [0, 0];
 	dexCursor = 0;
 	dexView = "list";
 	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" | "priestessTeleport" };
@@ -466,8 +468,8 @@ export class CryMon {
 		this.mason2Done = false;
 		this.masonRematch = false;
 		this.talkedReach = false;
-		this.dexSeen = 0;
-		this.dexCaught = 0;
+		this.dexSeen = [0, 0];
+		this.dexCaught = [0, 0];
 		this.dexCursor = 0;
 		this.dexView = "list";
 		this.fade = { phase: "off", t: 0, action: null };
@@ -537,8 +539,8 @@ export class CryMon {
 			party: (this.activeParty === 1 ? this.party2 : this.party).map((m) => ({ ...m })),
 			party2: (this.activeParty === 1 ? this.party : this.party2).map((m) => ({ ...m })),
 			activeParty: this.activeParty,
-			dexSeen: this.dexSeen >>> 0,
-			dexCaught: this.dexCaught >>> 0,
+			dexSeen: [this.dexSeen[0] >>> 0, this.dexSeen[1] >>> 0],
+			dexCaught: [this.dexCaught[0] >>> 0, this.dexCaught[1] >>> 0],
 		};
 	}
 	applySave(snap) {
@@ -575,8 +577,8 @@ export class CryMon {
 		this.executedMask = snap.executedMask ?? 0;
 		this.adjustReputation(0);
 		this.bag = { ...START_BAG, ...snap.bag };
-		this.dexSeen = snap.dexSeen >>> 0;
-		this.dexCaught = snap.dexCaught >>> 0;
+		this.dexSeen = [snap.dexSeen[0] >>> 0, snap.dexSeen[1] >>> 0];
+		this.dexCaught = [snap.dexCaught[0] >>> 0, snap.dexCaught[1] >>> 0];
 		for (const m of this.party) this.markCaught(m.species);
 		for (const k of SAVE_FLAGS) {
 			if (k.startsWith("soldierBeaten")) continue;
@@ -1273,16 +1275,22 @@ export class CryMon {
 		this.dexView = "list";
 		this.audio.ui();
 	}
-	dexBit(id) {
+	dexHas(words, id) {
 		const i = SAVE_SPECIES.indexOf(id);
-		return i >= 0 && i < 32 ? (1 << i) : 0;
+		if (i < 0 || i >= 64) return false;
+		return ((words[i >> 5] >>> (i & 31)) & 1) === 1;
+	}
+	dexMark(words, id) {
+		const i = SAVE_SPECIES.indexOf(id);
+		if (i < 0 || i >= 64) return;
+		words[i >> 5] = (words[i >> 5] | (1 << (i & 31))) >>> 0;
 	}
 	markSeen(id) {
-		this.dexSeen |= this.dexBit(id);
+		this.dexMark(this.dexSeen, id);
 	}
 	markCaught(id) {
 		this.markSeen(id);
-		this.dexCaught |= this.dexBit(id);
+		this.dexMark(this.dexCaught, id);
 	}
 	updateCryDex() {
 		const n = SAVE_SPECIES.length;
@@ -1303,7 +1311,7 @@ export class CryMon {
 		}
 		if (this.input.confirm()) {
 			const id = SAVE_SPECIES[this.dexCursor];
-			if (id && (this.dexCaught & this.dexBit(id))) {
+			if (id && this.dexHas(this.dexCaught, id)) {
 				this.dexView = "entry";
 				this.audio.ui();
 			} else this.audio.miss();
@@ -4521,9 +4529,8 @@ export class CryMon {
 		let caughtN = 0;
 		let seenN = 0;
 		for (const id of ids) {
-			const bit = this.dexBit(id);
-			if (this.dexCaught & bit) caughtN++;
-			if (this.dexSeen & bit) seenN++;
+			if (this.dexHas(this.dexCaught, id)) caughtN++;
+			if (this.dexHas(this.dexSeen, id)) seenN++;
 		}
 		this.text(`CRYDEX  ${caughtN}/${ids.length} caught  ${seenN} seen`, X(16), Y(10), "#c5cec6", FONT);
 		if (this.dexView === "entry") {
@@ -4549,10 +4556,9 @@ export class CryMon {
 			const idx = start + i;
 			if (idx >= ids.length) break;
 			const id = ids[idx];
-			const bit = this.dexBit(id);
 			const on = idx === this.dexCursor;
-			const caught = !!(this.dexCaught & bit);
-			const seen = !!(this.dexSeen & bit);
+			const caught = this.dexHas(this.dexCaught, id);
+			const seen = this.dexHas(this.dexSeen, id);
 			const s = SPECIES[id];
 			const y = Y(24 + i * 12);
 			if (on) {
@@ -4576,12 +4582,11 @@ export class CryMon {
 			}
 		}
 		const cur = ids[this.dexCursor];
-		const bit = this.dexBit(cur);
 		const s = SPECIES[cur];
-		if (this.dexCaught & bit) this.text(s.blurb.slice(0, 42), X(16), Y(140), "#8a8678", FONT);
-		else if (this.dexSeen & bit) this.text("Seen in the field. Not yet yours.", X(16), Y(140), "#8a8678", FONT);
+		if (this.dexHas(this.dexCaught, cur)) this.text(s.blurb.slice(0, 42), X(16), Y(140), "#8a8678", FONT);
+		else if (this.dexHas(this.dexSeen, cur)) this.text("Seen in the field. Not yet yours.", X(16), Y(140), "#8a8678", FONT);
 		else this.text("An unknown CryMon.", X(16), Y(140), "#5a584e", FONT);
-		this.text(this.dexCaught & bit ? "Z  matchup   X  back" : "Z / X  back", X(16), Y(148), "#5a7a52", FONT);
+		this.text(this.dexHas(this.dexCaught, cur) ? "Z  matchup   X  back" : "Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 	}
 	drawStory(body, tag) {
 		if (tag === "The leaving") {

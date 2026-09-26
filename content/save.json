@@ -1,7 +1,7 @@
 {
   "version": 7,
   "magic": "CRYM",
-  "size": 256,
+  "size": 264,
   "itemOrder": [
     "salve",
     "bandage",
@@ -268,10 +268,18 @@
     "party2Count": [
       253,
       1
+    ],
+    "dexSeenHi": [
+      256,
+      4
+    ],
+    "dexCaughtHi": [
+      260,
+      4
     ]
   },
   "partySlot": 16,
-  "comment": "Little-endian blob shared by web localStorage and Dreamcast VMU. Do not fork this layout in engine.ts or main.c. version bumped 1 -> 2 for the per-species crystal schema, then 2 -> 3 (Leg 2.5) when bag grew from 10 to 13 items (megacrystal/ultimatecrystal/perfectcrystal appended), shifting flags/party/checksum/dexSeen/dexCaught all +3 bytes, then 3 -> 4 (Leg 2.7 step 1) when reputation was added at byte 17 -- that byte was unused padding between mason2Map (16) and bag (18), so nothing else shifted. Then 4 -> 5 (Leg 2.7.3) for Father's second party: executedMask at 145 (4 bytes), party2 at 149 (6 * partySlot), activeParty at 245, party2Count at 246 -- none of the original fields moved. Leg 2.11 landed status/statusTurns/poisonStack at party-slot bytes 13/14/15 of every monster (both party and party2 share partySlot=16, and only 13 of those 16 bytes were ever used -- nature at 12 was the last one), needing no version bump on its own. Then 5 -> 6 (Leg 2.11 sub-step 4) when bag grew again, 13 -> 19 items (calmdraft/burnsalve/antidote/clearmind/numbroot/panacea appended), shifting flags/party/checksum/dexSeen/dexCaught/executedMask/party2/activeParty/party2Count all +6 bytes -- still fits in the 256-byte blob with 3 bytes to spare (253-255). reputation is stored as (value + 100), 0..200, to fit an unsigned byte over its -100..100 range. Both engines reject a save whose byte 4 does not match SAVE_VERSION (save_unpack() on Dreamcast, unpackSave() on web), so an old-layout save is treated as absent rather than partially/incorrectly loaded -- deliberately not preserving old saves across this bump, per explicit instruction (testing environment, nothing in a save is precious). Checksum covers bytes 0..140; dex bits live at 143/147. heavenfallRepWarned (Leg 2 wrap gate) appended to flags at bit 61 of 64 -- still fits the existing 8-byte flags field, no version bump. Then 6 -> 7 (Dray's Bowie Knife) when bag grew again, 19 -> 20 items (bowieKnife appended), shifting flags/party/checksum/dexSeen/dexCaught/executedMask/party2/activeParty/party2Count all +1 byte -- still fits with 2 bytes spare (254-255). drayKnifeOffered appended to flags at bit 62 of 64 (the last free one), no version bump needed for that part on its own. Checksum now covers bytes 0..141; dex bits live at 144/148.",
+  "comment": "Little-endian blob shared by web localStorage and Dreamcast VMU. Do not fork this layout in engine.ts or main.c. version bumped 1 -> 2 for the per-species crystal schema, then 2 -> 3 (Leg 2.5) when bag grew from 10 to 13 items (megacrystal/ultimatecrystal/perfectcrystal appended), shifting flags/party/checksum/dexSeen/dexCaught all +3 bytes, then 3 -> 4 (Leg 2.7 step 1) when reputation was added at byte 17 -- that byte was unused padding between mason2Map (16) and bag (18), so nothing else shifted. Then 4 -> 5 (Leg 2.7.3) for Father's second party: executedMask at 145 (4 bytes), party2 at 149 (6 * partySlot), activeParty at 245, party2Count at 246 -- none of the original fields moved. Leg 2.11 landed status/statusTurns/poisonStack at party-slot bytes 13/14/15 of every monster (both party and party2 share partySlot=16, and only 13 of those 16 bytes were ever used -- nature at 12 was the last one), needing no version bump on its own. Then 5 -> 6 (Leg 2.11 sub-step 4) when bag grew again, 13 -> 19 items (calmdraft/burnsalve/antidote/clearmind/numbroot/panacea appended), shifting flags/party/checksum/dexSeen/dexCaught/executedMask/party2/activeParty/party2Count all +6 bytes -- still fits in the 256-byte blob with 3 bytes to spare (253-255). reputation is stored as (value + 100), 0..200, to fit an unsigned byte over its -100..100 range. Both engines reject a save whose byte 4 does not match SAVE_VERSION (save_unpack() on Dreamcast, unpackSave() on web), so an old-layout save is treated as absent rather than partially/incorrectly loaded -- deliberately not preserving old saves across this bump, per explicit instruction (testing environment, nothing in a save is precious). Checksum covers bytes 0..140; dex bits live at 143/147. heavenfallRepWarned (Leg 2 wrap gate) appended to flags at bit 61 of 64 -- still fits the existing 8-byte flags field, no version bump. Then 6 -> 7 (Dray's Bowie Knife) when bag grew again, 19 -> 20 items (bowieKnife appended), shifting flags/party/checksum/dexSeen/dexCaught/executedMask/party2/activeParty/party2Count all +1 byte -- still fits with 2 bytes spare (254-255). drayKnifeOffered appended to flags at bit 62 of 64 (the last free one), no version bump needed for that part on its own. Checksum now covers bytes 0..141; dex bits live at 144/148. Then size 256 -> 264 with NO version bump (species list outgrew 32 CryDex bits): dexSeenHi at 256 and dexCaughtHi at 260 hold species 32..63. Old 256-byte blobs still load: Dreamcast already reads the whole 512-byte VMU block (zero past 256) and web zero-pads a short blob in readSaveBlob(), so the new bits read as unseen. Species index i lives in the low field when i < 32, else bit (i - 32) of the Hi field.",
   "party2Offset": 156,
   "activePartyOffset": 252
 }

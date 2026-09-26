@@ -1742,11 +1742,11 @@ static Monster *g_xp_party;
 static int g_xp_party_n, g_xp_lead;
 
 static void dex_set(unsigned char *bits, int sp) {
-    if(sp < 0 || sp > 31) return;
+    if(sp < 0 || sp >= SAVE_DEX_BYTES * 8) return;
     bits[sp >> 3] |= (unsigned char)(1u << (sp & 7));
 }
 static int dex_get(const unsigned char *bits, int sp) {
-    if(sp < 0 || sp > 31) return 0;
+    if(sp < 0 || sp >= SAVE_DEX_BYTES * 8) return 0;
     return (bits[sp >> 3] >> (sp & 7)) & 1;
 }
 static void dex_note_seen(int sp) { dex_set(g_dex_seen, sp); }

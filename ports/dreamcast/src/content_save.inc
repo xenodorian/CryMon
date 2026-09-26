@@ -1,10 +1,10 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=7fa1142217b96dc0 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=c7077a23afc5fbc7 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
 
 #define SAVE_VERSION 7
-#define SAVE_SIZE 256
+#define SAVE_SIZE 264
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
 #define SAVE_FLAG_N 64
@@ -82,7 +82,12 @@
    134 dexSeen[4], 138 dexCaught[4]. Checksum is 0..131 only. */
 #define SAVE_DEX_SEEN 144
 #define SAVE_DEX_CAUGHT 148
-#define SAVE_DEX_BYTES 4
+/* CryDex: species 0..8*LO-1 in the low fields, the rest in the Hi
+   fields; g_dex_* in main.c hold them back to back. */
+#define SAVE_DEX_LO_BYTES 4
+#define SAVE_DEX_SEEN_HI 256
+#define SAVE_DEX_CAUGHT_HI 260
+#define SAVE_DEX_BYTES 8
 #define SAVE_PARTY_NATURE 12
 
 #endif

@@ -1288,7 +1288,23 @@ def bake_save(data: dict, out: Path) -> None:
     pnat = layout.get("partyNature") or 12
     lines.append(f"#define SAVE_DEX_SEEN {int(seen[0])}")
     lines.append(f"#define SAVE_DEX_CAUGHT {int(caught[0])}")
-    lines.append(f"#define SAVE_DEX_BYTES {int(seen[1])}")
+    seen_hi = layout.get("dexSeenHi") or [0, 0]
+    caught_hi = layout.get("dexCaughtHi") or [0, 0]
+    if int(seen_hi[1]) != int(caught_hi[1]):
+        raise SystemExit("save.json dexSeenHi and dexCaughtHi must be the same size")
+    n_species = len(save.get("speciesOrder") or [])
+    dex_bits = 8 * (int(seen[1]) + int(seen_hi[1]))
+    if n_species > dex_bits:
+        raise SystemExit(
+            f"save.json CryDex bits hold {dex_bits} species but speciesOrder has "
+            f"{n_species} -- grow dexSeenHi/dexCaughtHi"
+        )
+    lines.append("/* CryDex: species 0..8*LO-1 in the low fields, the rest in the Hi")
+    lines.append("   fields; g_dex_* in main.c hold them back to back. */")
+    lines.append(f"#define SAVE_DEX_LO_BYTES {int(seen[1])}")
+    lines.append(f"#define SAVE_DEX_SEEN_HI {int(seen_hi[0])}")
+    lines.append(f"#define SAVE_DEX_CAUGHT_HI {int(caught_hi[0])}")
+    lines.append(f"#define SAVE_DEX_BYTES {int(seen[1]) + int(seen_hi[1])}")
     lines.append(f"#define SAVE_PARTY_NATURE {int(pnat)}")
     lines.append("")
     lines.append("#endif")

@@ -635,6 +635,10 @@ def main() -> int:
         if layout.get(key) != want:
             errors.append(f"save.layout.{key} must be {want}, got {layout.get(key)!r}")
     dex_caught_end = expected_layout["dexCaught"][0] + expected_layout["dexCaught"][1]
+    for key in ("dexSeenHi", "dexCaughtHi"):
+        span = layout.get(key)
+        if span:
+            dex_caught_end = max(dex_caught_end, int(span[0]) + int(span[1]))
     size = int(save.get("size") or 0)
     if size < dex_caught_end:
         errors.append(f"save.size must cover dexCaught through byte {dex_caught_end - 1}, got {size}")

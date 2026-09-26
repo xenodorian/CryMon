@@ -2675,3 +2675,26 @@ Re-merged; the diff is exactly those 26 letters. **Rule: after editing any
 `content/world_parts/*.json`, run `python3 tools/merge_world.py` before
 baking.**
 
+## New CryMon + 3 unique per grass map (Claude, 2026-09-26) -- in progress
+
+User asked for new CryMon (simple placeholder art, Grok fills in real art
+later) and for every tall-grass map to have 3 CryMon found nowhere else.
+User decisions: unique **across all maps**; **Gauntlet 5 keeps its
+all-species pool** (new CryMon included); **evolved forms may spawn wild**
+in later maps. 13 grass maps x 3 = 39 slots, 26 existing wild species, so
+**13 new CryMon**. Sephirot maps have no grass.
+
+**Stage 1 done and pushed: CryDex save bits widened.** Dex seen/caught were
+4-byte bitfields (32 species max); 29 + 13 = 42 would overflow. `save.json`
+size 256 -> 264 with **no version bump**: `dexSeenHi` at 256 and
+`dexCaughtHi` at 260 hold species 32..63. Old saves still load: Dreamcast
+already reads the full 512-byte VMU block (zeros past 256) and web
+`readSaveBlob()` zero-pads a 256-byte blob. Baker emits
+`SAVE_DEX_LO_BYTES` / `SAVE_DEX_SEEN_HI` / `SAVE_DEX_CAUGHT_HI` and
+`SAVE_DEX_BYTES` = 8, and refuses to bake if `speciesOrder` outgrows the
+bits. Web `dexSeen`/`dexCaught` are now `[lo, hi]` u32 words with
+`dexHas()`/`dexMark()` (was a single number + `dexBit()`). Web save round
+trip tested in the browser, including an old 256-byte blob.
+
+Next: stage 2 (13 new species + placeholder art), stage 3 (reshuffle pools).
+
