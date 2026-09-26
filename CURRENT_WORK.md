@@ -2754,3 +2754,19 @@ Cathleen, Heavenfall and Lieutenant Lead stay out of the grass. Trainer
 kits and story battles were not touched. Web checked by screenshot (wild
 Jolthare with its placeholder and badge). **This workstream is complete.**
 
+## Evolution tiers: 3-stage / 2-stage / no evolution (Claude, 2026-09-26) -- in progress
+
+User asked for evolution lines by base-stat tier: lowest-stat CryMon get
+3-stage lines, middle get 2-stage lines, highest don't evolve, roughly
+equal counts, base stats may be retuned. Exception: **Quillpup keeps its
+stats but gets a 3-stage line.** Approved plan (no new species, all 39
+wild CryMon regrouped): 6 three-stage lines, 7 two-stage, 7 solo.
+First evolution at level 12, second at **22** (user choice).
+
+**Stage A done and pushed:** `logic.growth.evolveAt2` = 22. A species
+that is itself an evolution (`knowsHypeUp()` / `knows_hype_up()`, i.e.
+some species' `evolvesTo` points at it) now waits for `evolveAt2` /
+`LV_EVOLVE2` instead of chaining at 12. `check_sync` requires
+`evolveAt2 > evolveAt` and `<= levelCap`. No lines are 3-stage yet, so
+nothing changes in play until stage B.
+

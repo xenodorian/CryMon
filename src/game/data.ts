@@ -380,8 +380,8 @@ export const INTERACT = (logicJson.interact || {
   defaultW: 48, defaultH: 52, buffer: 16,
 }) as InteractConfig;
 
-export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number } }).growth || {
-  secondaryAt: 5, specialAt: 10, evolveAt: 10,
+export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number; evolveAt2?: number } }).growth || {
+  secondaryAt: 5, specialAt: 10, evolveAt: 10, evolveAt2: 10,
 });
 
 export type NatureMoveDef = {
@@ -566,7 +566,10 @@ export function rollShiny() {
 export function tryEvolve(m: Monster): string | null {
   const s = SPECIES[m.species];
   const to = s.evolvesTo;
-  if (!to || !SPECIES[to] || m.level < GROWTH.evolveAt) return null;
+  // A form that is itself an evolution (middle of a 3-stage line) waits
+  // for the second evolution level instead of chaining at the first one.
+  const at = knowsHypeUp(m.species) ? (GROWTH.evolveAt2 ?? GROWTH.evolveAt) : GROWTH.evolveAt;
+  if (!to || !SPECIES[to] || m.level < at) return null;
   const from = m.name;
   const ratio = m.maxHp > 0 ? m.hp / m.maxHp : 1;
   const xp = m.xp;

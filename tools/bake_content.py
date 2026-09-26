@@ -610,6 +610,7 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define LV_SECONDARY {int(growth.get('secondaryAt') or 5)}")
     lines.append(f"#define LV_SPECIAL {int(growth.get('specialAt') or 10)}")
     lines.append(f"#define LV_EVOLVE {int(growth.get('evolveAt') or 10)}")
+    lines.append(f"#define LV_EVOLVE2 {int(growth.get('evolveAt2') or growth.get('evolveAt') or 10)}")
     lines.append("")
 
     # Leg 2.11: stage-based stat drops (Proud Roar/Magebane/Slow Powder/

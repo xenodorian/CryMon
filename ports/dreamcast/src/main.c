@@ -1858,7 +1858,10 @@ static int try_evolve(Monster *m) {
     if(!m) return 0;
     s = &SPECIES[m->species];
     to = s->evolves_to;
-    if(to < 0 || to >= SPECIES_N || m->lv < LV_EVOLVE) return 0;
+    /* A form that is itself an evolution (middle of a 3-stage line) waits
+       for LV_EVOLVE2 instead of chaining at LV_EVOLVE. */
+    if(to < 0 || to >= SPECIES_N ||
+       m->lv < (knows_hype_up(m->species) ? LV_EVOLVE2 : LV_EVOLVE)) return 0;
     from = m->species;
     old_hp = m->hp;
     old_max = m->maxHp;

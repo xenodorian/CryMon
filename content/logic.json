@@ -289,10 +289,11 @@
     }
   },
   "growth": {
-    "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn shinyMove instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt, and the evolved form also learns hypeUp then.",
+    "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn shinyMove instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt when they are a first stage, or at evolveAt2 when they are already an evolved form (the middle of a 3-stage line); the evolved form also learns hypeUp then.",
     "secondaryAt": 5,
     "specialAt": 10,
-    "evolveAt": 12
+    "evolveAt": 12,
+    "evolveAt2": 22
   },
   "natureMovesNote": "Leg 2.11 redesign: these no longer deal damage. 'stage' moves knock one stat (or all 3, for shinyMove below) down a statStages step on the foe each use; 'status' moves inflict one of statusEffects on the foe each use. maxPp is battle-scoped (refills every new fight, not saved) -- see statMoveCap/statusMoveCap below for the two allowed values.",
   "natureMoves": [

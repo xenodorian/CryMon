@@ -513,6 +513,10 @@ def main() -> int:
     cap = int(formulas.get("levelCap") or 0)
     if cap < int(growth.get("evolveAt") or 10):
         errors.append("world.formulas.levelCap must be >= growth.evolveAt")
+    if int(growth.get("evolveAt2") or 0) <= int(growth.get("evolveAt") or 10):
+        errors.append("logic.growth.evolveAt2 must be > growth.evolveAt (second evolution comes later)")
+    if cap < int(growth.get("evolveAt2") or 0):
+        errors.append("world.formulas.levelCap must be >= growth.evolveAt2")
     # Encounter-table validation for live maps. Quarry is intentionally excluded here
     # while its content is still being coordinated separately.
     rows = data["maps"].get("rows") or {}

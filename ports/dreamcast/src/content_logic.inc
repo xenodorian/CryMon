@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=2c179a5a33041d5e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=f1d85c065bc23d77 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_FADE_OUT_FRAMES 16
@@ -104,6 +104,7 @@ static const signed char NATURE_CHART[NATURE_N][NATURE_N] = {
 #define LV_SECONDARY 5
 #define LV_SPECIAL 10
 #define LV_EVOLVE 12
+#define LV_EVOLVE2 22
 
 #define STAT_STR 0
 #define STAT_AGL 1
