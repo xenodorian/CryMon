@@ -347,7 +347,7 @@ const gridH = maxY + M * 2;
 const playerStartMap = layout.playerMarker?.mapId ?? "veld";
 const townMap = {
   version: 4,
-  name: layout.name ?? "Sorrow County",
+  name: "Sorrow County",
   anchor,
   playerStartMap,
   scale: SCALE,

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "CryMon overworld map layout",
+  "name": "Sorrow County",
   "coordinateSystem": {
     "type": "world-map box coordinates",
     "origin": "top-left of the rendered world map is (0,0)",
