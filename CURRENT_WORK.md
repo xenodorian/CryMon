@@ -41,7 +41,10 @@ session to write it for you — don't fork the file as a workaround.
   individual step/sub-step (not each large multi-part item — each
   *step*), commit and push to `main`. Don't batch multiple steps into
   one commit — a session that gets cut off mid-work should only lose
-  the one step in progress.
+  the one step in progress. A prompted task is not finished until that
+  work is on `main`. That includes pictures and sheets the user was
+  shown. If a file only exists under `/workspace/artifacts`, copy it
+  into the repo and push it. Do not wait to be asked.
 - **"Ship it" / "ship the build"** is a specific user trigger, distinct
   from the commit-per-step rule. It means: run the entire deployment
   pipeline now — `bake_content.py` → `gen_sprites.py` → `check_sync
@@ -2452,4 +2455,14 @@ than a short one. Warp marks are unchanged: `1` is still the A end and
 `2` the B end, and the tile the existing arrival offset steps onto is
 floor. Cities were not resized. `check_sync --strict` and typecheck
 passed. No Dreamcast toolchain here; CI rebuilds the CDI.
+
+## County sheet pushed (Grok, 2026-09-26)
+
+The Tree of Life county sheet that had only lived under
+`/workspace/artifacts` is now the player-facing map:
+`public/maps/sorrow-county-town-map.svg` and
+`public/maps/sorrow-county-town-map.png`. It is the hand layout (thick
+bands, stairstep diagonals, Weeping Road meeting CryTown), not a fresh
+run of `tools/generate-town-map.mjs`. Regenerating that tool will
+overwrite it.
 
