@@ -2941,3 +2941,50 @@ Web checked: grass renders on the Path of Aleph, and walking the Path of
 Daleth triggered a wild Lv 43 Thunderqueen from its pool.
 **This workstream is complete.**
 
+## Dreamcast: monster art streamed from disc (Claude, 2026-09-26)
+
+User asked for load/unload instead of the whole game living in RAM (the
+Sephirot half will not fit otherwise) and picked "load from disc as
+needed" over disc 1/disc 2.
+
+**Done and pushed (first slice: monster battle art).**
+- `ports/dreamcast/src/disc.{c,h}`: bare-metal disc reads via the BIOS
+  GD-ROM system calls (vector 0x8c0000bc, super-function 0), polled PIO
+  reads, TOC -> last data track, ISO9660 PVD + root-directory lookup.
+  Every constant was taken from KallistiOS source (`hardware/syscalls.c`,
+  `hardware/cdrom.c`, `fs/fs_iso9660.c`, `include/dc/syscalls.h`,
+  `include/dc/g1ata.h`), not memory. All loops have a spin budget, so a
+  failed drive returns 0 instead of hanging.
+- `gen_sprites.py` writes `ports/dreamcast/disc/MONSTERS.BIN`: one record
+  per species (sprites.json order), 4 frames of 92x92 RGB565, padded to 34
+  whole sectors so one read command loads a species. It also emits a 16x16
+  `MONSTER_ICONS[]` table and, for `STREAM=0`, the old `MONSTER_SPRITES`
+  table. **The hand-written `MONSTER_SPRITES` table in `main.c` is gone**
+  (generator owns it now; a compile-time check ties both tables to
+  `SPECIES_N`), so adding a species no longer needs a `main.c` edit.
+- `main.c`: `mon_frame(slot, species, frame)` -- slot 0 foe, slot 1 player;
+  loads on first draw of a new species; on any read failure it fills the
+  slot with the upscaled 16x16 icon so the battle is still playable. Party
+  icons use `MONSTER_ICONS`.
+- `Makefile`: `STREAM ?= 1`; `make cdi` adds `-f disc/MONSTERS.BIN`;
+  `make sprites STREAM=0 && make STREAM=0 && make cdi STREAM=0` is the
+  known-good everything-in-RAM build. CI (`build-dreamcast.yml`) now passes
+  `-f .../disc/MONSTERS.BIN` to mkdcdisc. `disc/` is gitignored (generated).
+- Result: ELF text 9.38 MB -> 1.86 MB (+145 KB of slot buffers in bss).
+
+**Verified here:** both builds compile clean; the CDI carries
+`MONSTERS.BIN`; walking the CDI's data track in Python exactly the way
+`disc.c` does (PVD at +16, root record at 156, name match, 34-sector
+records) finds the file and every byte matches. The CDI's PVD stores
+absolute extents (root at 11721 = 11702 + 19), which is what KOS assumes
+and what `disc.c` uses.
+
+**NOT verified: an actual disc read on a Dreamcast or emulator.** No
+emulator is reachable from Claude's sandbox. If battles show blocky
+upscaled icons instead of full art, the disc read failed and the fallback
+kicked in -- report that, and in the meantime ship `STREAM=0`.
+
+**Next slices (not started):** region packs -- maps/NPC art/music for the
+county vs the Sephirot loaded on crossing the Weeping Road -- using the
+same `disc_find()` / `disc_read_sectors()` pattern.
+

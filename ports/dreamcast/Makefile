@@ -18,7 +18,12 @@ CFLAGS    = $(ARCHFLAGS) -O2 -fno-builtin -ffreestanding -fomit-frame-pointer \
             -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs
 LDFLAGS   = $(ARCHFLAGS) -nostdlib -nostartfiles -nodefaultlibs -T dc.ld -Wl,--build-id=none
 
-OBJS = src/start.o src/main.o src/chip.o src/save.o
+# STREAM=1 (default): monster battle frames go to disc/MONSTERS.BIN and are
+# read off the disc at runtime (src/disc.c). STREAM=0: embed them in the ELF
+# like before -- a known-good fallback build that never touches the disc.
+STREAM ?= 1
+
+OBJS = src/start.o src/main.o src/chip.o src/save.o src/disc.o
 
 CONTENT_JSON = $(wildcard $(CONTENT)/*.json)
 CONTENT_INC  = src/content_maps.inc src/content_talk.inc \
@@ -31,12 +36,17 @@ $(CONTENT_INC): $(CONTENT_JSON) $(BAKE)
 	python3 $(BAKE) --content $(CONTENT) --out src
 
 src/sprites.h: $(SPRITES) $(CONTENT)/sprites.json tools/gen_sprites.py
-	python3 tools/gen_sprites.py $(SPRITES)
+	CRYMON_STREAM=$(STREAM) python3 tools/gen_sprites.py $(SPRITES)
+
+# Switching STREAM: `make sprites STREAM=0 && make STREAM=0 && make cdi STREAM=0`
+# (sprites.h does not notice a STREAM change on its own).
+sprites:
+	CRYMON_STREAM=$(STREAM) python3 tools/gen_sprites.py $(SPRITES)
 
 src/start.o: src/start.S
 	$(AS) $(ARCHFLAGS) -c -o $@ $<
 
-src/main.o: src/main.c src/sprites.h src/chip.h src/save.h $(CONTENT_INC)
+src/main.o: src/main.c src/sprites.h src/chip.h src/save.h src/disc.h $(CONTENT_INC)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 src/chip.o: src/chip.c src/chip.h src/content_audio.inc
@@ -45,14 +55,17 @@ src/chip.o: src/chip.c src/chip.h src/content_audio.inc
 src/save.o: src/save.c src/save.h src/content_save.inc
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+src/disc.o: src/disc.c src/disc.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 crymon.elf: $(OBJS) dc.ld
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) -lgcc
 
 cdi: crymon.elf
-	mkdcdisc -e crymon.elf -o crymon.cdi -n "CryMon" -a "CryMon" \
-		-N --allow-overwrite
+	mkdcdisc -e crymon.elf $(if $(filter 1,$(STREAM)),-f disc/MONSTERS.BIN) \
+		-o crymon.cdi -n "CryMon" -a "CryMon" -N --allow-overwrite
 
 clean:
 	rm -f $(OBJS) crymon.elf crymon.cdi
 
-.PHONY: all cdi clean
+.PHONY: all cdi clean sprites

@@ -257,15 +257,63 @@ def main():
     pixels = encode(im, CATHLEEN_WORLD_W, CATHLEEN_WORLD_H)
     emit_array(lines, 'npc_cathleen', pixels, CATHLEEN_WORLD_W, CATHLEEN_WORLD_H)
 
+    # Monster battle frames. STREAM=1 (default): written to
+    # ports/dreamcast/disc/MONSTERS.BIN, one record per species in
+    # sprites.json order (= species order), 4 frames of little-endian RGB565,
+    # padded to whole 2048-byte sectors so main.c reads a species with a
+    # single disc command. STREAM=0: embedded as C arrays like before, for a
+    # build that never touches the disc. Either way a 16x16 icon per species
+    # stays resident (party menu, and the battle fallback if a read fails);
+    # it is sampled exactly like blit_sprite_fit(frame1, 92, 92, .., 16, 16).
+    stream = os.environ.get('CRYMON_STREAM', '1') != '0'
+    frame_px = MONSTER_W * MONSTER_H
+    rec_bytes = len(MONSTER_FRAMES) * frame_px * 2
+    rec_sectors = (rec_bytes + 2047) // 2048
     lines.append('#define MONSTER_SPRITE_W %d' % MONSTER_W)
     lines.append('#define MONSTER_SPRITE_H %d' % MONSTER_H)
+    lines.append('#define MONSTER_ICON_W 16')
+    lines.append('#define MONSTER_ICON_H 16')
+    lines.append('#define MONSTER_STREAM %d' % (1 if stream else 0))
+    lines.append('#define MONSTER_REC_SECTORS %d' % rec_sectors)
+    lines.append('#define MONSTER_FILE "MONSTERS.BIN"')
     lines.append('')
+    blob = bytearray()
     for name in cat['monsters']:
+        frames = []
         for f in MONSTER_FRAMES:
             im = open_or_placeholder(root, 'monsters/%s/%d.png' % (name, f), MONSTER_W, MONSTER_H,
                                       name, manifest, 'battle sprite, frame %d/4 (all 4 may be identical)' % f)
-            pixels = encode(im, MONSTER_W, MONSTER_H)
-            emit_array(lines, 'monster_%s_%d' % (name, f), pixels, MONSTER_W, MONSTER_H)
+            frames.append(encode(im, MONSTER_W, MONSTER_H))
+        icon = [frames[0][(y * MONSTER_H // 16) * MONSTER_W + (x * MONSTER_W // 16)]
+                for y in range(16) for x in range(16)]
+        emit_array(lines, 'monster_icon_%s' % name, icon, 16, 16)
+        if stream:
+            rec = bytearray()
+            for px in frames:
+                for v in px:
+                    rec += bytes((v & 0xFF, v >> 8))
+            rec += bytes(rec_sectors * 2048 - len(rec))
+            blob += rec
+        else:
+            for f, px in zip(MONSTER_FRAMES, frames):
+                emit_array(lines, 'monster_%s_%d' % (name, f), px, MONSTER_W, MONSTER_H)
+    lines.append('/* Index = species index (sprites.json monsters order). */')
+    lines.append('static const unsigned short *const MONSTER_ICONS[] = {')
+    for name in cat['monsters']:
+        lines.append('    monster_icon_%s,' % name)
+    lines.append('};')
+    if stream:
+        disc_dir = os.path.join(HERE, '..', 'disc')
+        os.makedirs(disc_dir, exist_ok=True)
+        with open(os.path.join(disc_dir, 'MONSTERS.BIN'), 'wb') as f:
+            f.write(blob)
+        print('wrote', os.path.normpath(os.path.join(disc_dir, 'MONSTERS.BIN')), len(blob), 'bytes')
+    else:
+        lines.append('static const unsigned short *const MONSTER_SPRITES[][4] = {')
+        for name in cat['monsters']:
+            lines.append('    { ' + ', '.join('monster_%s_%d' % (name, f) for f in MONSTER_FRAMES) + ' },')
+        lines.append('};')
+    lines.append('')
 
     lines.append('#define BATTLE_BG_W %d' % BATTLE_BG_W)
     lines.append('#define BATTLE_BG_H %d' % BATTLE_BG_H)

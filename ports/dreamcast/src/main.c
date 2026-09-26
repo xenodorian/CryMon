@@ -61,6 +61,7 @@ typedef unsigned short u16;
 typedef unsigned int   u32;
 
 #include "sprites.h"
+#include "disc.h"
 #include "chip.h"
 #include "save.h"
 
@@ -3642,128 +3643,61 @@ static int try_encounter(int map_id, int px, int py, int party_n,
 
 #define BROW_H        16
 
-/* Index order matches SP_QUILLPUP..SP_CRYMARE and gen_sprites.py's
-   MONSTERS list. Used for both the foe's sprite and -- new here --
-   "Max's CryMon" (the player's own active monster; Max herself
-   already has her own walk sprite on the world map, so this is what
-   "the player's battle sprite" actually means in this game). */
-static const u16 *const MONSTER_SPRITES[SPECIES_N][4] = {
-    { monster_quillpup_1, monster_quillpup_2, monster_quillpup_3, monster_quillpup_4 },
-    { monster_glimmoth_1, monster_glimmoth_2, monster_glimmoth_3, monster_glimmoth_4 },
-    { monster_tortcask_1, monster_tortcask_2, monster_tortcask_3, monster_tortcask_4 },
-    { monster_razorbat_1, monster_razorbat_2, monster_razorbat_3, monster_razorbat_4 },
-    { monster_mossback_1, monster_mossback_2, monster_mossback_3, monster_mossback_4 },
-    { monster_briarfox_1, monster_briarfox_2, monster_briarfox_3, monster_briarfox_4 },
-    { monster_fenwisp_1, monster_fenwisp_2, monster_fenwisp_3, monster_fenwisp_4 },
-    { monster_duskhorn_1, monster_duskhorn_2, monster_duskhorn_3, monster_duskhorn_4 },
-    { monster_needleroot_1, monster_needleroot_2, monster_needleroot_3, monster_needleroot_4 },
-    { monster_cathleen_1, monster_cathleen_2, monster_cathleen_3, monster_cathleen_4 },
-    { monster_crymare_1, monster_crymare_2, monster_crymare_3, monster_crymare_4 },
-    { monster_emberling_1, monster_emberling_2, monster_emberling_3, monster_emberling_4 },
-    { monster_frostail_1, monster_frostail_2, monster_frostail_3, monster_frostail_4 },
-    { monster_boulderam_1, monster_boulderam_2, monster_boulderam_3, monster_boulderam_4 },
-    { monster_stormwing_1, monster_stormwing_2, monster_stormwing_3, monster_stormwing_4 },
-    { monster_sableclaw_1, monster_sableclaw_2, monster_sableclaw_3, monster_sableclaw_4 },
-    { monster_thornhide_1, monster_thornhide_2, monster_thornhide_3, monster_thornhide_4 },
-    { monster_glasswisp_1, monster_glasswisp_2, monster_glasswisp_3, monster_glasswisp_4 },
-    { monster_ashenmaw_1, monster_ashenmaw_2, monster_ashenmaw_3, monster_ashenmaw_4 },
-    { monster_heavenfall_1, monster_heavenfall_2, monster_heavenfall_3, monster_heavenfall_4 },
-    { monster_peatling_1, monster_peatling_2, monster_peatling_3, monster_peatling_4 },
-    { monster_mireback_1, monster_mireback_2, monster_mireback_3, monster_mireback_4 },
-    { monster_glowcap_1, monster_glowcap_2, monster_glowcap_3, monster_glowcap_4 },
-    { monster_slatekin_1, monster_slatekin_2, monster_slatekin_3, monster_slatekin_4 },
-    { monster_gravelurk_1, monster_gravelurk_2, monster_gravelurk_3, monster_gravelurk_4 },
-    { monster_cindermite_1, monster_cindermite_2, monster_cindermite_3, monster_cindermite_4 },
-    { monster_veilcap_1, monster_veilcap_2, monster_veilcap_3, monster_veilcap_4 },
-    { monster_kilnback_1, monster_kilnback_2, monster_kilnback_3, monster_kilnback_4 },
-    { monster_lead_1, monster_lead_2, monster_lead_3, monster_lead_4 },
-    { monster_shrewbit_1, monster_shrewbit_2, monster_shrewbit_3, monster_shrewbit_4 },
-    { monster_jolthare_1, monster_jolthare_2, monster_jolthare_3, monster_jolthare_4 },
-    { monster_voltbuck_1, monster_voltbuck_2, monster_voltbuck_3, monster_voltbuck_4 },
-    { monster_chillnewt_1, monster_chillnewt_2, monster_chillnewt_3, monster_chillnewt_4 },
-    { monster_rimewyrm_1, monster_rimewyrm_2, monster_rimewyrm_3, monster_rimewyrm_4 },
-    { monster_runemote_1, monster_runemote_2, monster_runemote_3, monster_runemote_4 },
-    { monster_glyphwing_1, monster_glyphwing_2, monster_glyphwing_3, monster_glyphwing_4 },
-    { monster_scavrat_1, monster_scavrat_2, monster_scavrat_3, monster_scavrat_4 },
-    { monster_plunderat_1, monster_plunderat_2, monster_plunderat_3, monster_plunderat_4 },
-    { monster_stardrop_1, monster_stardrop_2, monster_stardrop_3, monster_stardrop_4 },
-    { monster_rimeowl_1, monster_rimeowl_2, monster_rimeowl_3, monster_rimeowl_4 },
-    { monster_voltgrub_1, monster_voltgrub_2, monster_voltgrub_3, monster_voltgrub_4 },
-    { monster_charmkin_1, monster_charmkin_2, monster_charmkin_3, monster_charmkin_4 },
-    { monster_sparkit_1, monster_sparkit_2, monster_sparkit_3, monster_sparkit_4 },
-    { monster_blazelynx_1, monster_blazelynx_2, monster_blazelynx_3, monster_blazelynx_4 },
-    { monster_pyrelion_1, monster_pyrelion_2, monster_pyrelion_3, monster_pyrelion_4 },
-    { monster_frostfry_1, monster_frostfry_2, monster_frostfry_3, monster_frostfry_4 },
-    { monster_floepike_1, monster_floepike_2, monster_floepike_3, monster_floepike_4 },
-    { monster_glacierjaw_1, monster_glacierjaw_2, monster_glacierjaw_3, monster_glacierjaw_4 },
-    { monster_pipsprout_1, monster_pipsprout_2, monster_pipsprout_3, monster_pipsprout_4 },
-    { monster_vinebrute_1, monster_vinebrute_2, monster_vinebrute_3, monster_vinebrute_4 },
-    { monster_rootking_1, monster_rootking_2, monster_rootking_3, monster_rootking_4 },
-    { monster_dustmole_1, monster_dustmole_2, monster_dustmole_3, monster_dustmole_4 },
-    { monster_tunneler_1, monster_tunneler_2, monster_tunneler_3, monster_tunneler_4 },
-    { monster_quakelord_1, monster_quakelord_2, monster_quakelord_3, monster_quakelord_4 },
-    { monster_sparkfly_1, monster_sparkfly_2, monster_sparkfly_3, monster_sparkfly_4 },
-    { monster_arcwasp_1, monster_arcwasp_2, monster_arcwasp_3, monster_arcwasp_4 },
-    { monster_thunderqueen_1, monster_thunderqueen_2, monster_thunderqueen_3, monster_thunderqueen_4 },
-    { monster_soottick_1, monster_soottick_2, monster_soottick_3, monster_soottick_4 },
-    { monster_gloomspider_1, monster_gloomspider_2, monster_gloomspider_3, monster_gloomspider_4 },
-    { monster_widowshade_1, monster_widowshade_2, monster_widowshade_3, monster_widowshade_4 },
-    { monster_cardkin_1, monster_cardkin_2, monster_cardkin_3, monster_cardkin_4 },
-    { monster_fateweaver_1, monster_fateweaver_2, monster_fateweaver_3, monster_fateweaver_4 },
-    { monster_arcanox_1, monster_arcanox_2, monster_arcanox_3, monster_arcanox_4 },
-    { monster_mooncalf_1, monster_mooncalf_2, monster_mooncalf_3, monster_mooncalf_4 },
-    { monster_moonbull_1, monster_moonbull_2, monster_moonbull_3, monster_moonbull_4 },
-    { monster_eclipsaur_1, monster_eclipsaur_2, monster_eclipsaur_3, monster_eclipsaur_4 },
-    { monster_pipwren_1, monster_pipwren_2, monster_pipwren_3, monster_pipwren_4 },
-    { monster_kestrail_1, monster_kestrail_2, monster_kestrail_3, monster_kestrail_4 },
-    { monster_grandroc_1, monster_grandroc_2, monster_grandroc_3, monster_grandroc_4 },
-    { monster_tallowisp_1, monster_tallowisp_2, monster_tallowisp_3, monster_tallowisp_4 },
-    { monster_cryptlamp_1, monster_cryptlamp_2, monster_cryptlamp_3, monster_cryptlamp_4 },
-    { monster_deathknell_1, monster_deathknell_2, monster_deathknell_3, monster_deathknell_4 },
-    { monster_snowbell_1, monster_snowbell_2, monster_snowbell_3, monster_snowbell_4 },
-    { monster_icecantor_1, monster_icecantor_2, monster_icecantor_3, monster_icecantor_4 },
-    { monster_frostchoir_1, monster_frostchoir_2, monster_frostchoir_3, monster_frostchoir_4 },
-    { monster_rubblet_1, monster_rubblet_2, monster_rubblet_3, monster_rubblet_4 },
-    { monster_ramparth_1, monster_ramparth_2, monster_ramparth_3, monster_ramparth_4 },
-    { monster_towerfall_1, monster_towerfall_2, monster_towerfall_3, monster_towerfall_4 },
-    { monster_boltlamb_1, monster_boltlamb_2, monster_boltlamb_3, monster_boltlamb_4 },
-    { monster_thunderam_1, monster_thunderam_2, monster_thunderam_3, monster_thunderam_4 },
-    { monster_clovercalf_1, monster_clovercalf_2, monster_clovercalf_3, monster_clovercalf_4 },
-    { monster_gardenbull_1, monster_gardenbull_2, monster_gardenbull_3, monster_gardenbull_4 },
-    { monster_twinklet_1, monster_twinklet_2, monster_twinklet_3, monster_twinklet_4 },
-    { monster_geminal_1, monster_geminal_2, monster_geminal_3, monster_geminal_4 },
-    { monster_rimecrab_1, monster_rimecrab_2, monster_rimecrab_3, monster_rimecrab_4 },
-    { monster_floeclaw_1, monster_floeclaw_2, monster_floeclaw_3, monster_floeclaw_4 },
-    { monster_scorchbeak_1, monster_scorchbeak_2, monster_scorchbeak_3, monster_scorchbeak_4 },
-    { monster_ashwing_1, monster_ashwing_2, monster_ashwing_3, monster_ashwing_4 },
-    { monster_rockhermit_1, monster_rockhermit_2, monster_rockhermit_3, monster_rockhermit_4 },
-    { monster_cragsage_1, monster_cragsage_2, monster_cragsage_3, monster_cragsage_4 },
-    { monster_grimkid_1, monster_grimkid_2, monster_grimkid_3, monster_grimkid_4 },
-    { monster_baphorn_1, monster_baphorn_2, monster_baphorn_3, monster_baphorn_4 },
-    { monster_tuftowl_1, monster_tuftowl_2, monster_tuftowl_3, monster_tuftowl_4 },
-    { monster_magistowl_1, monster_magistowl_2, monster_magistowl_3, monster_magistowl_4 },
-    { monster_starfry_1, monster_starfry_2, monster_starfry_3, monster_starfry_4 },
-    { monster_starwhale_1, monster_starwhale_2, monster_starwhale_3, monster_starwhale_4 },
-    { monster_dawnchick_1, monster_dawnchick_2, monster_dawnchick_3, monster_dawnchick_4 },
-    { monster_sunhawk_1, monster_sunhawk_2, monster_sunhawk_3, monster_sunhawk_4 },
-    { monster_reedfawn_1, monster_reedfawn_2, monster_reedfawn_3, monster_reedfawn_4 },
-    { monster_bowstag_1, monster_bowstag_2, monster_bowstag_3, monster_bowstag_4 },
-    { monster_motley_1, monster_motley_2, monster_motley_3, monster_motley_4 },
-    { monster_sleightfox_1, monster_sleightfox_2, monster_sleightfox_3, monster_sleightfox_4 },
-    { monster_moonveil_1, monster_moonveil_2, monster_moonveil_3, monster_moonveil_4 },
-    { monster_bloomdoe_1, monster_bloomdoe_2, monster_bloomdoe_3, monster_bloomdoe_4 },
-    { monster_warbison_1, monster_warbison_2, monster_warbison_3, monster_warbison_4 },
-    { monster_gallowcrow_1, monster_gallowcrow_2, monster_gallowcrow_3, monster_gallowcrow_4 },
-    { monster_gravemoth_1, monster_gravemoth_2, monster_gravemoth_3, monster_gravemoth_4 },
-    { monster_hornblaze_1, monster_hornblaze_2, monster_hornblaze_3, monster_hornblaze_4 },
-    { monster_atlashell_1, monster_atlashell_2, monster_atlashell_3, monster_atlashell_4 },
-    { monster_tidewolf_1, monster_tidewolf_2, monster_tidewolf_3, monster_tidewolf_4 },
-    { monster_wheelhog_1, monster_wheelhog_2, monster_wheelhog_3, monster_wheelhog_4 },
-};
+/* Monster battle frames, indexed by species (sprites.json monsters order,
+   generated into sprites.h). With MONSTER_STREAM (the default build) the
+   92x92 x 4-frame battle art is NOT in RAM: it lives in MONSTERS.BIN on
+   the disc and is read into one of two slots -- 0 for the foe, 1 for the
+   player's CryMon -- the first time a species is drawn there. A read that
+   fails (no disc, drive error, an emulator without GD-ROM support) blows
+   the resident 16x16 icon up to battle size instead, so the fight stays
+   playable. `make STREAM=0` embeds every frame again (MONSTER_SPRITES). */
+typedef char monster_icon_count_matches_species[
+    (sizeof(MONSTER_ICONS) / sizeof(MONSTER_ICONS[0]) == SPECIES_N) ? 1 : -1];
+
+#if MONSTER_STREAM
+#define MON_SLOT_PX (MONSTER_REC_SECTORS * DISC_SECTOR / 2)
+static u16 g_mon_slot[2][MON_SLOT_PX] __attribute__((aligned(32)));
+static int g_mon_slot_sp[2] = { -1, -1 };
+static DiscFile g_mon_file;
+static int g_mon_file_ok = -1;     /* -1 not looked up yet */
+
+static void mon_slot_fallback(int slot, int species) {
+    const u16 *ic = MONSTER_ICONS[species];
+    u16 *dst = g_mon_slot[slot];
+    int f, x, y;
+    for(f = 0; f < 4; f++)
+        for(y = 0; y < MONSTER_SPRITE_H; y++)
+            for(x = 0; x < MONSTER_SPRITE_W; x++)
+                *dst++ = ic[(y * MONSTER_ICON_H / MONSTER_SPRITE_H) * MONSTER_ICON_W
+                            + x * MONSTER_ICON_W / MONSTER_SPRITE_W];
+}
+
+static const u16 *mon_frame(int slot, int species, int f) {
+    if(species < 0 || species >= SPECIES_N) species = 0;
+    if(g_mon_slot_sp[slot] != species) {
+        int ok = 0;
+        if(g_mon_file_ok < 0) g_mon_file_ok = disc_find(MONSTER_FILE, &g_mon_file);
+        if(g_mon_file_ok)
+            ok = disc_read_sectors(&g_mon_file, (unsigned int)species * MONSTER_REC_SECTORS,
+                                   MONSTER_REC_SECTORS, g_mon_slot[slot]);
+        if(!ok) mon_slot_fallback(slot, species);
+        g_mon_slot_sp[slot] = species;
+    }
+    return g_mon_slot[slot] + f * MONSTER_SPRITE_W * MONSTER_SPRITE_H;
+}
+#else
+typedef char monster_sprite_count_matches_species[
+    (sizeof(MONSTER_SPRITES) / sizeof(MONSTER_SPRITES[0]) == SPECIES_N) ? 1 : -1];
+static const u16 *mon_frame(int slot, int species, int f) {
+    (void)slot;
+    if(species < 0 || species >= SPECIES_N) species = 0;
+    return MONSTER_SPRITES[species][f];
+}
+#endif
 
 static void draw_party_mon_icon(int species, int x, int y) {
     if(species < 0) return;
-    blit_sprite_fit(MONSTER_SPRITES[species][0], MONSTER_SPRITE_W, MONSTER_SPRITE_H, x, y, 16, 16);
+    blit_sprite_fit(MONSTER_ICONS[species], MONSTER_ICON_W, MONSTER_ICON_H, x, y, 16, 16);
 }
 
 /* Idle-animated like the stationary world NPCs (drawBattle()'s own
@@ -3810,9 +3744,9 @@ static void draw_battle_sprites(const Battle *b, u32 frame_count,
                           : (int)(el * (u32)MONSTER_SPRITE_H / BATTLE_ANIM_ENTER_FRAMES);
     }
 
-    blit_sprite_anim(MONSTER_SPRITES[b->foe.species][f], MONSTER_SPRITE_W, MONSTER_SPRITE_H,
+    blit_sprite_anim(mon_frame(0, b->foe.species, f), MONSTER_SPRITE_W, MONSTER_SPRITE_H,
                       BFOE_SPRITE_X, BFOE_SPRITE_Y, b->foe.shiny, foe_revealed, foe_fade);
-    blit_sprite_anim(MONSTER_SPRITES[b->pl.species][f], MONSTER_SPRITE_W, MONSTER_SPRITE_H,
+    blit_sprite_anim(mon_frame(1, b->pl.species, f), MONSTER_SPRITE_W, MONSTER_SPRITE_H,
                       BPL_SPRITE_X, BPL_SPRITE_Y, b->pl.shiny, pl_revealed, pl_fade);
 }
 

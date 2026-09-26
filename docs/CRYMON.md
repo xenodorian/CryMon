@@ -356,7 +356,7 @@ No toolchain → follow “If you do not have the Dreamcast toolchain” above. 
 silently skip the bake or `gen_sprites.py`. `make` / `make cdi` are the only
 steps that wait for Claude.
 
-`content_*.inc` and `sprites.h` are generated. `MAP_*` / `SP_*` / `NATURES` /
+`content_*.inc`, `sprites.h` and `ports/dreamcast/disc/MONSTERS.BIN` are generated (monster battle art streams from the disc at runtime; see `ports/dreamcast/README.md`). `MAP_*` / `SP_*` / `NATURES` /
 `BENCH_XP_PCT` come from the bake — do not redefine them in `main.c`.
 
 ---
