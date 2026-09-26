@@ -2553,3 +2553,58 @@ both runtimes wasn't asked for in this pass.
 needed: neither `content/town_map.json` nor
 `content/world_map_layout.json` feed `tools/bake_content.py`.
 
+## Sephirot gate ordering fixed to match the county map (Claude, 2026-09-26)
+
+User ask: verify the 10 Sephirot cities' actual playable warp-gate
+positions agree with where each path sits on the county map (the
+Tree of Life diagram in `sorrow-county-town-map.svg`), not just
+which wall a gate is on but its **left-right/top-bottom order
+relative to the other gates on the same wall**.
+
+Wrote a script (used `tools/build_sephirot.py`'s own
+`edges_for_city()`/`city_marks_cache()`, not a reimplementation) to
+compare, per city, the actual in-game order of gates sharing a wall
+against the order implied by `SEPHIROT`'s tree coordinates (west to
+east by column for north/south walls, north to south by row for
+east/west walls). Found 5 real mismatches: **Gevurah**'s east wall
+had Tiferet before Chesed (Chesed is the level neighbor, Tiferet is
+further south -- backwards); **Tiferet**'s north wall had
+Keter/Chokmah/Binah in that order (should be Binah/Keter/Chokmah,
+left pillar to right pillar), its west wall had Hod before Gevurah
+(reversed), its east wall had Netzach before Chesed (reversed); and
+**Malkuth**'s north wall had Netzach/Hod/Yesod (should be
+Hod/Yesod/Netzach). Root cause: `edges_for_city()` sorted a city's
+edges alphabetically by Hebrew path name (`out.sort(key=lambda t:
+t[2])`) before handing them to `build_city_rows()`'s wall-assignment
+loop, which has nothing to do with the neighbor's actual tree
+position -- it only happened to produce the right order on cities
+where the alphabetical path order and the geometric order coincided
+(5 of the 10 cities, by luck of the names).
+
+Fixed by changing that sort key to `(wall, neighbor's column-or-row
+on the tree, path name)` -- geometric first, alphabetical only to
+break remaining ties. Verified the new order resolves all 5
+mismatches and doesn't disturb the other 7 (already-correct) cities'
+gates or gate count. Regenerated Gevurah's, Tiferet's, and Malkuth's
+grids via `city_marks_cache()` and wrote them into
+`content/maps.json` (`Malkuth`'s grid text came out byte-identical
+by coincidence -- same three letters, same columns, just reassigned
+to different paths -- so only its `content/world_parts/warps.json`
+entries needed a fix, not its grid). Patched the 26
+`tile`/`spawn` fields across 13 warp pairs (both directions of each
+changed path-city edge) to match the new letters by hand rather than
+regenerating warps.json wholesale, since `build_sephirot.py`'s
+`add_warp_pair_if_new()` only ever adds missing pairs -- it doesn't
+retire stale ones, so a blind rerun would have left the old
+mismatched pairs as dead duplicates.
+
+Ran the full pipeline after: `bake_content.py` (content pack hash
+changed, `.inc` files regenerated), `check_sync.py --strict` (OK),
+`make -C ports/dreamcast` and `make -C ports/dreamcast cdi` (both
+built clean in this sandbox -- the toolchain was actually available
+this time). `content/town_map.json` and the county-map SVG/PNG
+needed no changes: they only encode each region's overall size and
+box position, not door-level layout, and the Tree itself was already
+correctly shaped -- only the underlying playable maps' door order
+was wrong.
+

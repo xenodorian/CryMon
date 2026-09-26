@@ -257,7 +257,12 @@ def direction(a, b):
 
 
 def edges_for_city(city_id):
-    """All (other_city, dir_out_from_city, path_id) touching city_id, sorted."""
+    """All (other_city, dir_out_from_city, path_id) touching city_id, sorted
+    so that gates sharing a wall are ordered to match the neighbor's actual
+    position on the Tree of Life -- west-to-east by column on the north/south
+    walls, north-to-south by row on the east/west walls -- instead of
+    alphabetically by path name (the old key), which scrambled multi-gate
+    walls (e.g. Tiferet's north wall put Chokmah left of Binah)."""
     out = []
     for pid, pname, a, b in PATHS:
         if a == city_id:
@@ -267,7 +272,15 @@ def edges_for_city(city_id):
             out.append((a, OPP[d], pname))
     if city_id == "malkuth":
         out.append(("__weeping_road__", "down", "weeping_road"))
-    out.sort(key=lambda t: t[2])
+
+    def sort_key(entry):
+        other, dir_out, pname = entry
+        wall = WALL_FOR_DIR[dir_out]
+        coord = SEPHIROT.get(other, {}).get("coord", (0, 0))
+        along = coord[0] if wall in ("north", "south") else coord[1]
+        return (wall, along, pname)
+
+    out.sort(key=sort_key)
     return out
 
 

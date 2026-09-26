@@ -301,13 +301,13 @@
       "from": "tau",
       "tile": "2",
       "to": "malkuth",
-      "spawn": "G",
+      "spawn": "O",
       "dir": "down",
       "oy": 40
     },
     {
       "from": "malkuth",
-      "tile": "G",
+      "tile": "O",
       "to": "tau",
       "spawn": "2",
       "dir": "up",
@@ -333,13 +333,13 @@
       "from": "qoph",
       "tile": "2",
       "to": "malkuth",
-      "spawn": "D",
+      "spawn": "G",
       "dir": "down",
       "oy": 40
     },
     {
       "from": "malkuth",
-      "tile": "D",
+      "tile": "G",
       "to": "qoph",
       "spawn": "2",
       "dir": "up",
@@ -365,13 +365,13 @@
       "from": "shin",
       "tile": "2",
       "to": "malkuth",
-      "spawn": "O",
+      "spawn": "D",
       "dir": "down",
       "oy": 40
     },
     {
       "from": "malkuth",
-      "tile": "O",
+      "tile": "D",
       "to": "shin",
       "spawn": "2",
       "dir": "up",
@@ -507,7 +507,7 @@
     },
     {
       "from": "tiferet",
-      "tile": "P",
+      "tile": "O",
       "to": "nun",
       "spawn": "1",
       "dir": "right",
@@ -517,7 +517,7 @@
       "from": "nun",
       "tile": "1",
       "to": "tiferet",
-      "spawn": "P",
+      "spawn": "O",
       "dir": "left",
       "ox": -32
     },
@@ -539,7 +539,7 @@
     },
     {
       "from": "tiferet",
-      "tile": "D",
+      "tile": "J",
       "to": "ayin",
       "spawn": "1",
       "dir": "left",
@@ -549,7 +549,7 @@
       "from": "ayin",
       "tile": "1",
       "to": "tiferet",
-      "spawn": "D",
+      "spawn": "J",
       "dir": "right",
       "ox": 40
     },
@@ -621,13 +621,13 @@
       "from": "yod",
       "tile": "2",
       "to": "tiferet",
-      "spawn": "L",
+      "spawn": "D",
       "dir": "left",
       "ox": -32
     },
     {
       "from": "tiferet",
-      "tile": "L",
+      "tile": "D",
       "to": "yod",
       "spawn": "2",
       "dir": "right",
@@ -635,7 +635,7 @@
     },
     {
       "from": "gevurah",
-      "tile": "G",
+      "tile": "Z",
       "to": "mem",
       "spawn": "1",
       "dir": "down",
@@ -645,7 +645,7 @@
       "from": "mem",
       "tile": "1",
       "to": "gevurah",
-      "spawn": "G",
+      "spawn": "Z",
       "dir": "up",
       "oy": -32
     },
@@ -685,13 +685,13 @@
       "from": "lamed",
       "tile": "2",
       "to": "tiferet",
-      "spawn": "Z",
+      "spawn": "L",
       "dir": "right",
       "ox": 40
     },
     {
       "from": "tiferet",
-      "tile": "Z",
+      "tile": "L",
       "to": "lamed",
       "spawn": "2",
       "dir": "left",
@@ -717,13 +717,13 @@
       "from": "teth",
       "tile": "2",
       "to": "gevurah",
-      "spawn": "Z",
+      "spawn": "D",
       "dir": "left",
       "ox": -32
     },
     {
       "from": "gevurah",
-      "tile": "Z",
+      "tile": "D",
       "to": "teth",
       "spawn": "2",
       "dir": "right",
@@ -749,13 +749,13 @@
       "from": "zayin",
       "tile": "2",
       "to": "tiferet",
-      "spawn": "J",
+      "spawn": "G",
       "dir": "down",
       "oy": 40
     },
     {
       "from": "tiferet",
-      "tile": "J",
+      "tile": "G",
       "to": "zayin",
       "spawn": "2",
       "dir": "up",
@@ -781,13 +781,13 @@
       "from": "heth",
       "tile": "2",
       "to": "gevurah",
-      "spawn": "D",
+      "spawn": "G",
       "dir": "down",
       "oy": 40
     },
     {
       "from": "gevurah",
-      "tile": "D",
+      "tile": "G",
       "to": "heth",
       "spawn": "2",
       "dir": "up",
@@ -813,13 +813,13 @@
       "from": "he",
       "tile": "2",
       "to": "tiferet",
-      "spawn": "G",
+      "spawn": "P",
       "dir": "down",
       "oy": 40
     },
     {
       "from": "tiferet",
-      "tile": "G",
+      "tile": "P",
       "to": "he",
       "spawn": "2",
       "dir": "up",
@@ -909,13 +909,13 @@
       "from": "gimel",
       "tile": "2",
       "to": "tiferet",
-      "spawn": "O",
+      "spawn": "Z",
       "dir": "down",
       "oy": 40
     },
     {
       "from": "tiferet",
-      "tile": "O",
+      "tile": "Z",
       "to": "gimel",
       "spawn": "2",
       "dir": "up",

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=59bf77793c4b688e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=5671b7d08474e6e0 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -721,14 +721,14 @@ static const char *const map_tzaddi_rows[] = {
 };
 
 static const char *const map_tiferet_rows[] = {
-    "####O##G###J####",
+    "####G##Z###P####",
     "#..............#",
     "#..............#",
     "#..............#",
-    "D..............P",
+    "L..............D",
     "#..............#",
     "#..............#",
-    "Z..............L",
+    "J..............O",
     "#..............#",
     "#..............#",
     "#..............#",
@@ -871,18 +871,18 @@ static const char *const map_yod_rows[] = {
 };
 
 static const char *const map_gevurah_rows[] = {
-    "#######D########",
+    "#######G########",
     "#..............#",
+    "#..............#",
+    "#..............#",
+    "#..............D",
     "#..............#",
     "#..............#",
     "#..............O",
     "#..............#",
     "#..............#",
-    "#..............Z",
     "#..............#",
-    "#..............#",
-    "#..............#",
-    "#######G########",
+    "#######Z########",
 };
 
 static const char *const map_mem_rows[] = {

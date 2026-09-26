@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=59bf77793c4b688e — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=5671b7d08474e6e0 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_AUDIO_INC
 #define CONTENT_AUDIO_INC
