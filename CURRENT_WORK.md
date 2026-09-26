@@ -2982,12 +2982,41 @@ records) finds the file and every byte matches. The CDI's PVD stores
 absolute extents (root at 11721 = 11702 + 19), which is what KOS assumes
 and what `disc.c` uses.
 
-**NOT verified: an actual disc read on a Dreamcast or emulator.** No
-emulator is reachable from Claude's sandbox. If battles show blocky
-upscaled icons instead of full art, the disc read failed and the fallback
-kicked in -- report that, and in the meantime ship `STREAM=0`.
+**Verified in an emulator (Claude, same day):** Flycast built from source
+in the sandbox (HLE BIOS, Xvfb, OpenGL via llvmpipe) boots the CDI; the
+Mason battle (Quillpup vs Glimmoth, species 0/1) and a wild Shrewbit
+(species 29, ~2 MB into MONSTERS.BIN) both drew full-resolution battle
+art, i.e. the GD-ROM reads worked -- no icon fallback. Not yet tried on a
+real console.
 
 **Next slices (not started):** region packs -- maps/NPC art/music for the
 county vs the Sephirot loaded on crossing the Weeping Road -- using the
 same `disc_find()` / `disc_read_sectors()` pattern.
+
+## Sanity pass (Claude, 2026-09-26)
+
+- Checks: `check_sync --strict`, web typecheck, Dreamcast `make` + `make cdi`
+  all clean. `npm test`: 187/195 -- the 8 failures are all in
+  `scripts/grok-pwa-plugin.test.mjs` (hosting template's og:title
+  injection now sees the "CryMon" brand title); untouched since Grok's
+  export, not game code. `eslint`: 3 errors, all pre-existing
+  (`@ts-nocheck` + an empty `catch {}` in `engine.ts`, one empty block in
+  `src/lib/app-data/client.server.ts`).
+- Web play-through (Playwright, console captured): title, walking, a wild
+  battle to the end, 3-stage evolution (Quillpup -> Needleroot at 12 ->
+  Thornhide at 22), CryDex, save round trip, a Sephirot wild (Soottick
+  Lv 24 on Tau), and Leg 2.8 end to end -- all fine. Only console errors
+  were two blocked external requests from the sandbox proxy.
+- **Bug found and fixed: Leg 2.8** (gravestone `unless` -> `ifNot`; see
+  the Legs 1 & 2 section).
+- Dreamcast in Flycast: title, New Game, house (Father dialogue, shelf
+  starter, door gate), CryTown, Mason ambush + battle, wild encounter,
+  pause menu, CryDex (1/111, Quartz badge, neutral matchups) all work and
+  look right.
+- **Open, pre-existing: Dreamcast SAVE FAILED.** Pause -> Save shows "SAVE
+  FAILED" in Flycast on both today's build and `51b93e3` (before this
+  session's changes), with a fresh emulator VMU. So it isn't from the
+  save-size growth. Not diagnosed yet: the bare-metal maple/VMU code in
+  `save.c` may not work on Flycast, or at all; needs a look (and ideally a
+  real-console test) before anyone relies on Dreamcast saves.
 
