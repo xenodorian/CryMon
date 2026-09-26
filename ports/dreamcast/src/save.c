@@ -12,7 +12,6 @@ typedef unsigned int u32;
 #define MAPLE_STATE     (*(volatile u32 *)(MAPLE_BASE + 0x18))
 #define MAPLE_CMD_BREAD  11
 #define MAPLE_CMD_BWRITE 12
-#define MAPLE_CMD_MINFO  10
 #define MAPLE_RESP_DATA  8
 #define MAPLE_FUNC_MEM   0x02000000u
 #define MAPLE_DEST_VMU   0x01
@@ -187,71 +186,113 @@ int save_unpack(const u8 *src, SaveLive *s) {
     return 1;
 }
 
-static int maple_xfer(u32 dest, u32 cmd, u32 extra_words, const u32 *extra) {
+/* ----------------------------------------------------------------------
+ * VMU (memory card) block I/O over the maple bus, no KOS.
+ *
+ * Rewritten to match KallistiOS (hardware/maple/vmu.c, fs/vmufs.c,
+ * include/dc/{maple,vmufs}.h), which is where every constant below comes
+ * from. The first version of this file had four bugs that made every save
+ * fail: raw block numbers instead of the (block << 24 | ...) id, one
+ * 512-byte write instead of 4 x 128-byte phases + BSYNC, requiring a
+ * DATATRF reply from commands that answer OK, and the FAT's free /
+ * end-of-file markers swapped.
+ *
+ * Card layout (standard 128 KB VMU): root block 255 says where the FAT
+ * (one block of 256 little-endian u16s) and the directory (dir_size blocks
+ * counting DOWN from dir_loc, 16 x 32-byte entries each) live. Our save is
+ * one data file, one block long: dir entry type 0x33, name CRYMON_DAT.
+ * ---------------------------------------------------------------------- */
+
+#define MAPLE_CMD_BSYNC      13
+#define MAPLE_RESP_OK        7
+#define VMU_ROOT_BLOCK       255
+#define VMU_FAT_FREE         0xfffcu
+#define VMU_FAT_LAST         0xfffau
+#define VMU_DIR_ENTRY        32
+#define VMU_FILE_DATA        0x33
+
+/* One maple frame to the VMU, waiting for the reply. `want` is the reply
+   code that means success for this command. */
+static int maple_xfer(u32 cmd, u32 nwords, const u32 *words, u32 want) {
     volatile u32 *c = P2(vmu_cmd);
     volatile u32 *r = P2(vmu_resp);
-    u32 timeout;
-    u32 i;
-    c[0] = extra_words + 1u;
-    if(extra_words + 1u > 1u) c[0] |= 0x80000000u;
-    else c[0] |= 0x80000000u;
+    u32 timeout, i;
+    c[0] = nwords | 0x80000000u;            /* data words, port A, last frame */
     c[1] = PHYS(vmu_resp);
-    c[2] = cmd | (dest << 8) | (0u << 16) | ((extra_words + 1u) << 24);
-    for(i = 0; i < extra_words + 1u && i < 150; i++)
-        c[3 + i] = extra[i];
+    c[2] = cmd | (MAPLE_DEST_VMU << 8) | (0u << 16) | (nwords << 24);
+    for(i = 0; i < nwords; i++) c[3 + i] = words[i];
     r[0] = 0xffffffffu;
     MAPLE_DMA_ADDR = PHYS(vmu_cmd);
     MAPLE_STATE = 1;
-    for(timeout = 0; timeout < 4000000u; timeout++) {
+    for(timeout = 0; timeout < 4000000u; timeout++)
         if(MAPLE_STATE == 0) break;
-    }
     if(MAPLE_STATE != 0) return 0;
-    if((r[0] & 0xffu) != MAPLE_RESP_DATA) return 0;
-    return 1;
+    return (r[0] & 0xffu) == want;
 }
 
-static int vmu_minfo(u16 *fat_blk, u16 *dir_blk, u16 *user_blk) {
-    u32 extra[1];
-    volatile u32 *r = P2(vmu_resp);
-    extra[0] = MAPLE_FUNC_MEM;
-    if(!maple_xfer(MAPLE_DEST_VMU, MAPLE_CMD_MINFO, 0, extra)) return 0;
-    /* minfo payload after function word */
-    *fat_blk = (u16)(r[4] & 0xffffu);
-    *dir_blk = (u16)((r[4] >> 16) & 0xffffu);
-    *user_blk = (u16)(r[5] & 0xffffu);
-    return 1;
+static u32 vmu_blkid(u16 blk, u32 phase) {
+    return ((u32)(blk & 0xff) << 24) | ((u32)(blk >> 8) << 16) | (phase << 8);
 }
 
 static int vmu_read_block(u16 blk, u8 *out) {
-    u32 extra[2];
+    u32 w[2];
     volatile u32 *r = P2(vmu_resp);
     int i;
-    extra[0] = MAPLE_FUNC_MEM;
-    extra[1] = blk;
-    if(!maple_xfer(MAPLE_DEST_VMU, MAPLE_CMD_BREAD, 1, extra)) return 0;
+    w[0] = MAPLE_FUNC_MEM;
+    w[1] = vmu_blkid(blk, 0);
+    if(!maple_xfer(MAPLE_CMD_BREAD, 2, w, MAPLE_RESP_DATA)) return 0;
+    /* reply: r[1] function, r[2] block id, r[3..130] the 512 bytes */
+    if(r[1] != MAPLE_FUNC_MEM || r[2] != w[1]) return 0;
     for(i = 0; i < 128; i++) {
-        u32 w = r[3 + i];
-        out[i * 4 + 0] = (u8)(w & 0xff);
-        out[i * 4 + 1] = (u8)((w >> 8) & 0xff);
-        out[i * 4 + 2] = (u8)((w >> 16) & 0xff);
-        out[i * 4 + 3] = (u8)((w >> 24) & 0xff);
+        u32 v = r[3 + i];
+        out[i * 4 + 0] = (u8)(v & 0xff);
+        out[i * 4 + 1] = (u8)((v >> 8) & 0xff);
+        out[i * 4 + 2] = (u8)((v >> 16) & 0xff);
+        out[i * 4 + 3] = (u8)((v >> 24) & 0xff);
     }
     return 1;
 }
 
-static int vmu_write_block(u16 blk, const u8 *in) {
-    u32 extra[130];
+static int vmu_write_block_once(u16 blk, const u8 *in) {
+    u32 w[2 + 32];
+    u32 phase;
     int i;
-    extra[0] = MAPLE_FUNC_MEM;
-    extra[1] = blk;
-    for(i = 0; i < 128; i++) {
-        extra[2 + i] =
-            (u32)in[i * 4] |
-            ((u32)in[i * 4 + 1] << 8) |
-            ((u32)in[i * 4 + 2] << 16) |
-            ((u32)in[i * 4 + 3] << 24);
+    for(phase = 0; phase < 4; phase++) {
+        const u8 *src = in + phase * 128;
+        w[0] = MAPLE_FUNC_MEM;
+        w[1] = vmu_blkid(blk, phase);
+        for(i = 0; i < 32; i++)
+            w[2 + i] = (u32)src[i * 4] | ((u32)src[i * 4 + 1] << 8) |
+                       ((u32)src[i * 4 + 2] << 16) | ((u32)src[i * 4 + 3] << 24);
+        if(!maple_xfer(MAPLE_CMD_BWRITE, 2 + 32, w, MAPLE_RESP_OK)) return 0;
     }
-    return maple_xfer(MAPLE_DEST_VMU, MAPLE_CMD_BWRITE, 129, extra);
+    w[0] = MAPLE_FUNC_MEM;
+    w[1] = vmu_blkid(blk, 4);
+    return maple_xfer(MAPLE_CMD_BSYNC, 2, w, MAPLE_RESP_OK);
+}
+
+/* Real cards are sometimes busy right after a write; KOS retries too. */
+static int vmu_write_block(u16 blk, const u8 *in) {
+    int tries;
+    for(tries = 0; tries < 3; tries++)
+        if(vmu_write_block_once(blk, in)) return 1;
+    return 0;
+}
+
+static u16 le16(const u8 *p) { return (u16)(p[0] | (p[1] << 8)); }
+
+typedef struct { u16 fat_loc, dir_loc, dir_size, user_blocks; } VmuLayout;
+
+static int vmu_layout(VmuLayout *L) {
+    u8 root[512];
+    int i;
+    if(!vmu_read_block(VMU_ROOT_BLOCK, root)) return 0;
+    for(i = 0; i < 16; i++) if(root[i] != 0x55) return 0;   /* not formatted */
+    L->fat_loc = le16(root + 0x46);
+    L->dir_loc = le16(root + 0x4a);
+    L->dir_size = le16(root + 0x4c);
+    L->user_blocks = le16(root + 0x50);
+    return L->dir_size > 0 && L->dir_size <= 32 && L->user_blocks <= 256;
 }
 
 static const char SAVE_NAME[12] = {
@@ -264,45 +305,63 @@ static int name_eq(const u8 *e) {
     return 1;
 }
 
-int save_present(void) {
-    u16 fat, dir, user;
-    return vmu_minfo(&fat, &dir, &user);
+/* Walk every directory block. Returns 1 if our file exists (*file_blk set).
+   Also reports the first free entry (*free_dblk / *free_ent, -1 if none)
+   so the caller can create the file without a second pass. */
+static int vmu_find(const VmuLayout *L, u16 *file_blk, int *free_dblk, int *free_ent) {
+    u8 dir[512];
+    int d, ent;
+    *free_dblk = -1;
+    *free_ent = -1;
+    for(d = 0; d < L->dir_size; d++) {
+        u16 blk = (u16)(L->dir_loc - d);
+        if(!vmu_read_block(blk, dir)) return 0;
+        for(ent = 0; ent < 512 / VMU_DIR_ENTRY; ent++) {
+            const u8 *e = dir + ent * VMU_DIR_ENTRY;
+            if(e[0] == VMU_FILE_DATA && name_eq(e)) {
+                *file_blk = le16(e + 2);
+                return 1;
+            }
+            if(e[0] == 0x00 && *free_dblk < 0) { *free_dblk = blk; *free_ent = ent; }
+        }
+    }
+    return 0;
 }
 
-static int vmu_find_or_alloc(u16 *file_blk, u16 *fat_blk, u16 *dir_blk) {
+int save_present(void) {
+    VmuLayout L;
+    return vmu_layout(&L);
+}
+
+static int vmu_find_or_alloc(u16 *file_blk) {
+    VmuLayout L;
     u8 fat[512], dir[512];
-    int i, ent, free_blk = -1, free_ent = -1;
-    u16 user;
-    if(!vmu_minfo(fat_blk, dir_blk, &user)) return 0;
-    if(!vmu_read_block(*fat_blk, fat)) return 0;
-    if(!vmu_read_block(*dir_blk, dir)) return 0;
-    for(ent = 0; ent < 16; ent++) {
-        u8 *e = dir + ent * 32;
-        if(e[0] == 0x33 && name_eq(e)) {
-            *file_blk = (u16)(e[2] | (e[3] << 8));
-            return 1;
-        }
-        if(e[0] == 0x00 && free_ent < 0) free_ent = ent;
+    int free_dblk, free_ent, i, free_blk = -1;
+    if(!vmu_layout(&L)) return 0;
+    if(vmu_find(&L, file_blk, &free_dblk, &free_ent)) return 1;
+    if(free_dblk < 0) return 0;                      /* directory full */
+    if(!vmu_read_block(L.fat_loc, fat)) return 0;
+    for(i = L.user_blocks - 1; i >= 0; i--) {        /* VMU allocates from the top */
+        if(le16(fat + i * 2) == VMU_FAT_FREE) { free_blk = i; break; }
     }
-    for(i = 1; i < 200; i++) {
-        u16 f = (u16)(fat[i * 2] | (fat[i * 2 + 1] << 8));
-        if(f == 0xfffa) { free_blk = i; break; }
-    }
-    if(free_ent < 0 || free_blk < 0) return 0;
-    fat[free_blk * 2] = 0xfc;
-    fat[free_blk * 2 + 1] = 0xff;
+    if(free_blk < 0) return 0;                       /* card full */
+    fat[free_blk * 2] = (u8)(VMU_FAT_LAST & 0xff);
+    fat[free_blk * 2 + 1] = (u8)(VMU_FAT_LAST >> 8);
+    if(!vmu_read_block((u16)free_dblk, dir)) return 0;
     {
-        u8 *e = dir + free_ent * 32;
+        u8 *e = dir + free_ent * VMU_DIR_ENTRY;
         int k;
-        for(k = 0; k < 32; k++) e[k] = 0;
-        e[0] = 0x33;
+        for(k = 0; k < VMU_DIR_ENTRY; k++) e[k] = 0;
+        e[0] = VMU_FILE_DATA;
         e[2] = (u8)(free_blk & 0xff);
         e[3] = (u8)(free_blk >> 8);
         for(k = 0; k < 12; k++) e[4 + k] = (u8)SAVE_NAME[k];
-        e[0x18] = 1;
+        e[0x18] = 1;                                 /* size: 1 block */
     }
-    if(!vmu_write_block(*fat_blk, fat)) return 0;
-    if(!vmu_write_block(*dir_blk, dir)) return 0;
+    /* FAT first: a crash after it only leaks one block, never points the
+       directory at a block the FAT still calls free. */
+    if(!vmu_write_block(L.fat_loc, fat)) return 0;
+    if(!vmu_write_block((u16)free_dblk, dir)) return 0;
     *file_blk = (u16)free_blk;
     return 1;
 }
@@ -310,31 +369,22 @@ static int vmu_find_or_alloc(u16 *file_blk, u16 *fat_blk, u16 *dir_blk) {
 int save_store(const SaveLive *s) {
     u8 blob[SAVE_SIZE];
     u8 blk[512];
-    u16 file_blk, fat_blk, dir_blk;
+    u16 file_blk;
     int i;
     save_pack(blob, s);
-    if(!vmu_find_or_alloc(&file_blk, &fat_blk, &dir_blk)) return 0;
+    if(!vmu_find_or_alloc(&file_blk)) return 0;
     for(i = 0; i < 512; i++) blk[i] = 0;
     for(i = 0; i < SAVE_SIZE; i++) blk[i] = blob[i];
     return vmu_write_block(file_blk, blk);
 }
 
 int save_restore(SaveLive *s) {
-    u8 fat[512], dir[512], blk[512];
-    u16 fat_blk, dir_blk, user, file_blk = 0;
-    int ent, found = 0;
-    if(!vmu_minfo(&fat_blk, &dir_blk, &user)) return 0;
-    if(!vmu_read_block(dir_blk, dir)) return 0;
-    (void)fat;
-    for(ent = 0; ent < 16; ent++) {
-        u8 *e = dir + ent * 32;
-        if(e[0] == 0x33 && name_eq(e)) {
-            file_blk = (u16)(e[2] | (e[3] << 8));
-            found = 1;
-            break;
-        }
-    }
-    if(!found) return 0;
+    VmuLayout L;
+    u8 blk[512];
+    u16 file_blk = 0;
+    int free_dblk, free_ent;
+    if(!vmu_layout(&L)) return 0;
+    if(!vmu_find(&L, &file_blk, &free_dblk, &free_ent)) return 0;
     if(!vmu_read_block(file_blk, blk)) return 0;
     return save_unpack(blk, s);
 }

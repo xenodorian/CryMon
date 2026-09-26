@@ -3020,7 +3020,7 @@ same `disc_find()` / `disc_read_sectors()` pattern.
   `save.c` may not work on Flycast, or at all; needs a look (and ideally a
   real-console test) before anyone relies on Dreamcast saves.
 
-## Fix-up pass after the sanity check (Claude, 2026-09-26) -- in progress
+## Fix-up pass after the sanity check (Claude, 2026-09-26) -- done
 
 User asked to fix the sanity-pass findings in stages, pushing and noting
 each so another agent can resume. Order and status (update as you go):
@@ -3038,7 +3038,21 @@ each so another agent can resume. Order and status (update as you go):
       document title. The plugin is right; the tests weren't isolated. The
       test file now `chdir`s into an empty temp dir first. No product code
       changed.
-- [ ] **C. Dreamcast "SAVE FAILED"** -- DIAGNOSED (Claude), fix in progress.
+- [x] **C. Dreamcast "SAVE FAILED" -- FIXED (Claude).** The VMU half of
+      `ports/dreamcast/src/save.c` was rewritten to follow KOS (the four
+      bugs below, plus a fifth found while fixing: the FAT's free/last
+      markers were swapped, 0xfffc = free, 0xfffa = last block). It now
+      reads the card layout from the root block (255) like KOS, searches
+      every directory block, allocates from the top, writes FAT before
+      directory, and retries a write 3x. Verified in Flycast: save shows
+      "SAVED"; the card image holds one `CRYMON_DAT` entry -> block 199
+      (FAT 0xfffa) whose data starts `CRYM` v7; relaunching with that
+      card enables Continue and loads the game; saving again overwrites
+      in place (still 1 file, 1 block). **Follow-up, not done:** the file
+      has no VMS header (icon/description), so the Dreamcast BIOS memory
+      manager may list it oddly; games normally include one. Not yet
+      tried on a real console.
+      Diagnosis notes:
       Compared `save.c` against KallistiOS `hardware/maple/vmu.c` +
       `fs/vmufs.c` + `include/dc/maple.h`. Bugs found:
       (1) BREAD/BWRITE block id must be
