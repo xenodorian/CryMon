@@ -111,17 +111,19 @@ def spider(c, t, *, cx=64, cy=86, body=(12, 10), abdomen=(20, 16), col="#2a2430"
     lm = M(col, spec=0.3)
     sw = [0, 1, 2, 1][t]
     ax, ay = cx + body[0] + abdomen[0] * 0.6, cy - abdomen[1] * 0.35
-    # legs: 4 far (behind), 4 near
-    for side, zz in ((1, z - 10), (-1, z + 14)):
+    # legs: 4 far (behind), 4 near; each arches up to a high knee and out to a wide foot
+    dirs = [-1.0, -0.5, 0.35, 0.9]
+    for side, zz, sc in ((1, z - 10, 0.85), (-1, z + 14, 1.0)):
         for k in range(4):
-            bx0 = cx - body[0] * 0.3 + k * 4
-            by0 = cy
-            outx = (-1 if k < 2 else 1) * (leg_len * (0.55 + 0.1 * (k % 2)))
-            kx = bx0 + outx * 0.55 + side * 3
-            ky = cy - leg_len * 0.45 - (sw if (k + side) % 2 else 0)
-            fx_ = bx0 + outx + side * 4
-            fy_ = G - (1 if side < 0 else 4)
-            c.chain([(bx0, by0, leg_r * 1.3), (kx, ky, leg_r), (fx_, fy_, leg_r * 0.6)], lm, z=zz + k * 0.3)
+            bx0 = cx - body[0] * 0.2 + k * 3 + (4 if side > 0 else 0)
+            by0 = cy + 1
+            L = leg_len * sc * (1.0 if k in (0, 3) else 0.85)
+            lift = sw if (k + (side > 0)) % 2 else 0
+            kx = bx0 + dirs[k] * L * 0.45
+            ky = by0 - L * 0.42 - lift
+            fx_ = bx0 + dirs[k] * L * 1.0 + (3 if side > 0 else 0)
+            fy_ = G - (4 if side > 0 else 0)
+            c.chain([(bx0, by0, leg_r * 1.3), (kx, ky, leg_r), (fx_, fy_, leg_r * 0.55)], lm, z=zz + k * 0.3)
     g = c.group()
     c.ell(ax, ay, abdomen[0], abdomen[1], bm, z=z, g=g, rot=-12, tuft=14 if hair else 0, tuft_len=2)
     if mark:
