@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=0471b8a15f4e87e3 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=77cf5de48c08e3a9 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -314,7 +314,7 @@ static const TrainerKit TRAINER_KITS[62] = {
     { 13, 18, { 14, 33, 0, 0, 0 }, { 17, 17, 1, 1, 1 }, 2, "HERMIT OSK" },
     { 107, 31, { 109, 43, 108, 0, 0 }, { 30, 30, 31, 1, 1 }, 3, "HERMIT OSK" },
     { 50, 47, { 95, 44, 47, 56, 0 }, { 45, 46, 46, 47, 1 }, 4, "HERMIT OSK" },
-    { 15, 60, { 59, 65, 53, 18, 14 }, { 58, 58, 59, 59, 60 }, 5, "CALDER" },
+    { 15, 55, { 59, 65, 53, 18, 14 }, { 52, 52, 53, 53, 54 }, 5, "CALDER" },
 };
 #define KIT_LEG3_FIRST 16
 #define KIT_SENTRY 0

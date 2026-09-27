@@ -3770,6 +3770,10 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       Needleroot 16. Opal: Glasswisp 16, Stormwing 17. Both ports read it
       from trainers.json. `npm run test:e2e:quartz` green (it reads the
       kit marks from data), verify.sh green, DC build OK.
+- [x] H17 Calder's rematch lowered from Lv 58-60 to Lv 52-55. The
+      highest wild grass is Lv 42-45 (Aleph, Beth) and Nero is Lv 48-50,
+      so 60 needed a long grind with nowhere to do it. The optional
+      Heavenfall star is still the one Lv 55 single fight.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
