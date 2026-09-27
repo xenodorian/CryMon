@@ -205,8 +205,8 @@
         "briarfox",
         "glimmoth"
       ],
-      "levelMin": 5,
-      "levelMax": 8
+      "levelMin": 10,
+      "levelMax": 13
     },
     {
       "maps": [
@@ -219,8 +219,8 @@
         "scavrat",
         "duskhorn"
       ],
-      "levelMin": 6,
-      "levelMax": 9
+      "levelMin": 7,
+      "levelMax": 10
     },
     {
       "maps": [
@@ -233,8 +233,8 @@
         "crymare",
         "glasswisp"
       ],
-      "levelMin": 6,
-      "levelMax": 9
+      "levelMin": 13,
+      "levelMax": 15
     },
     {
       "maps": [
@@ -247,8 +247,8 @@
         "fenwisp",
         "glowcap"
       ],
-      "levelMin": 3,
-      "levelMax": 5
+      "levelMin": 9,
+      "levelMax": 11
     },
     {
       "maps": [
@@ -261,8 +261,8 @@
         "rimeowl",
         "razorbat"
       ],
-      "levelMin": 5,
-      "levelMax": 7
+      "levelMin": 4,
+      "levelMax": 6
     },
     {
       "maps": [
@@ -304,8 +304,8 @@
         "mossback",
         "chillnewt"
       ],
-      "levelMin": 4,
-      "levelMax": 6
+      "levelMin": 5,
+      "levelMax": 7
     },
     {
       "maps": [
@@ -318,8 +318,8 @@
         "cindermite",
         "stardrop"
       ],
-      "levelMin": 5,
-      "levelMax": 7
+      "levelMin": 6,
+      "levelMax": 8
     },
     {
       "maps": [
@@ -2085,16 +2085,16 @@
     "sentry": {
       "lead": [
         "emberling",
-        3
+        5
       ],
       "bench": [
         [
           "frostail",
-          3
+          5
         ],
         [
           "stormwing",
-          3
+          6
         ]
       ],
       "title": "Sentry sends Emberling",
@@ -2112,16 +2112,16 @@
     "conscript": {
       "lead": [
         "sableclaw",
-        7
+        9
       ],
       "bench": [
         [
           "boulderam",
-          8
+          9
         ],
         [
           "ashenmaw",
-          9
+          10
         ]
       ],
       "title": "Conscript sends Sableclaw",
@@ -2133,16 +2133,16 @@
     "enforcer": {
       "lead": [
         "thornhide",
-        8
+        10
       ],
       "bench": [
         [
           "glasswisp",
-          9
+          10
         ],
         [
           "duskhorn",
-          10
+          11
         ]
       ],
       "title": "Enforcer sends Thornhide",
@@ -2154,16 +2154,16 @@
     "cross": {
       "lead": [
         "crymare",
-        9
+        12
       ],
       "bench": [
         [
           "ashenmaw",
-          10
+          12
         ],
         [
           "boulderam",
-          11
+          13
         ]
       ],
       "title": "Warden sends CryMare",
@@ -2236,7 +2236,7 @@
         "name": "Patrol",
         "mark": "1",
         "species": "briarfox",
-        "level": 4,
+        "level": 10,
         "marks": 8,
         "winTalk": "soldierAfter"
       },
@@ -2245,7 +2245,7 @@
         "name": "Scout",
         "mark": "2",
         "species": "mossback",
-        "level": 4,
+        "level": 10,
         "marks": 8,
         "winTalk": "soldierAfter"
       },
@@ -2254,7 +2254,7 @@
         "name": "Sentry",
         "mark": "3",
         "species": "razorbat",
-        "level": 5,
+        "level": 11,
         "marks": 8,
         "winTalk": "soldierAfter"
       }
@@ -2262,12 +2262,12 @@
     "forestRanger": {
       "lead": [
         "briarfox",
-        5
+        11
       ],
       "bench": [
         [
           "fenwisp",
-          5
+          11
         ]
       ],
       "title": "Ranger sends Briarfox",
@@ -2279,12 +2279,12 @@
     "forestScout": {
       "lead": [
         "duskhorn",
-        5
+        11
       ],
       "bench": [
         [
           "razorbat",
-          6
+          12
         ]
       ],
       "title": "Scout sends Duskhorn",
@@ -2296,12 +2296,12 @@
     "ruinsKeeper": {
       "lead": [
         "mossback",
-        7
+        14
       ],
       "bench": [
         [
           "glasswisp",
-          7
+          14
         ]
       ],
       "title": "Keeper sends Mossback",
@@ -2313,12 +2313,12 @@
     "ruinsWarden": {
       "lead": [
         "tortcask",
-        8
+        15
       ],
       "bench": [
         [
           "ashenmaw",
-          8
+          15
         ]
       ],
       "title": "Warden sends Tortcask",
@@ -2330,12 +2330,12 @@
     "marshBog": {
       "lead": [
         "peatling",
-        3
+        6
       ],
       "bench": [
         [
           "mireback",
-          3
+          6
         ]
       ],
       "title": "Bogwalker sends Peatling",
@@ -2347,12 +2347,12 @@
     "marshReed": {
       "lead": [
         "fenwisp",
-        3
+        6
       ],
       "bench": [
         [
           "glowcap",
-          3
+          7
         ]
       ],
       "title": "Reedguard sends Fenwisp",
@@ -2398,12 +2398,12 @@
     "quarryDriller": {
       "lead": [
         "slatekin",
-        4
+        7
       ],
       "bench": [
         [
           "glowcap",
-          4
+          8
         ]
       ],
       "title": "Driller sends Slatekin",

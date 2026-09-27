@@ -5344,9 +5344,9 @@ typedef struct {
 } SoldierDef;
 
 static const SoldierDef SOLDIERS[3] = {
-    { '1', "PATROL", SP_BRIARFOX, 4 },
-    { '2', "SCOUT",  SP_MOSSBACK, 4 },
-    { '3', "SENTRY", SP_RAZORBAT, 5 },
+    { '1', "PATROL", SP_BRIARFOX, 10 },
+    { '2', "SCOUT",  SP_MOSSBACK, 10 },
+    { '3', "SENTRY", SP_RAZORBAT, 11 },
 };
 
 /* Real-time actor movement constants, ported from engine.ts's own

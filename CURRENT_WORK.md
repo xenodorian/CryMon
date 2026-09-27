@@ -3731,6 +3731,22 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       Sephirot city's hint NPC and Keter's elder get one line
       (`hint<City>Post`), and Elder Marn gets `marnPost` (after his
       letter step, so Brann's quest still works). Verified on web.
+- [x] H12 Early and mid game level curve. The road east is fixed
+      (CryTown -> Cliffs -> Marsh -> Quarry -> Camp -> Forest -> Prison,
+      then the Ruins after Shinigami), but the levels went up and down:
+      the Forest was Lv 3-5 right after the Camp's 6-9, the Marsh and
+      Quarry trainers were Lv 3-4, and the Ruins (Lv 6-9) only open after
+      Shinigami (Lv 13-15). Now:
+      - Wild: Cliffs 4-6, Marsh 5-7, Quarry 6-8, Camp 7-10, Forest 9-11,
+        Prison grounds 10-13, Ruins 13-15 (CryTown 2-4 and the Reach 13-16
+        unchanged).
+      - Trainers: Sentry 5/5/6, Bogwalker 6/6, Reedguard 6/7, Driller
+        7/8, Conscript 9/9/10, Enforcer 10/10/11, Ranger 11/11, Scout
+        11/12, Forest soldiers 10/10/11 (JSON and Dreamcast's hand-kept
+        `SOLDIERS[]`), Warden Cross 12/12/13, Ruins Keeper 14/14, Ruins
+        Warden 15/15.
+      - Cathleen (10) and Shinigami (15) stay put: check_sync pins them.
+      - Mason's rematch (Lv 6-8, hard-coded on Dreamcast) left alone.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
