@@ -3605,3 +3605,10 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       - Verified on web (Playwright): every door both ways, every NPC
         script branch above, Osk tier 1 fight, Maren/doll, Brann/Marn.
         Dreamcast: bakes, check_sync --strict, builds clean.
+- [x] H2 Level curve west of CryTown. The Reach grass was Lv 8-11 though
+      the Reach only opens with the scroll (after Shinigami at Lv 13-15).
+      Now Lv 13-16, which also leads into the haunted hall. Hall ghosts
+      eased to 15/14, 17/16/16 and Oriel's 19/18, Mourner Vesk 21 with a
+      19-21 bench, so the ramp runs grass 13-16 -> hall 15-19 -> Vesk 21
+      -> Lead 24-28. Quartz and Opal (Lv 9-10) are left for the thread
+      that owns Quartz's win/save fix; they are low for a post-scroll map.

@@ -290,8 +290,8 @@
         "gravelurk",
         "mireback"
       ],
-      "levelMin": 8,
-      "levelMax": 11
+      "levelMin": 13,
+      "levelMax": 16
     },
     {
       "maps": [
@@ -3036,12 +3036,12 @@
     "ghostSoldierA": {
       "lead": [
         "tallowisp",
-        17
+        15
       ],
       "bench": [
         [
           "soottick",
-          16
+          14
         ]
       ],
       "title": "A soldier's ghost rises",
@@ -3054,16 +3054,16 @@
     "ghostSoldierB": {
       "lead": [
         "gravemoth",
-        18
+        17
       ],
       "bench": [
         [
           "tallowisp",
-          17
+          16
         ],
         [
           "grimkid",
-          17
+          16
         ]
       ],
       "title": "A sergeant's ghost rises",
@@ -3076,12 +3076,12 @@
     "ghostOriel": {
       "lead": [
         "cryptlamp",
-        21
+        19
       ],
       "bench": [
         [
           "tallowisp",
-          19
+          18
         ]
       ],
       "title": "Oriel's bound Cryptlamp flares",
@@ -3094,24 +3094,24 @@
     "mournerVesk": {
       "lead": [
         "gallowcrow",
-        22
+        21
       ],
       "bench": [
         [
           "gravemoth",
-          21
+          19
         ],
         [
           "grimkid",
-          21
+          19
         ],
         [
           "cryptlamp",
-          22
+          20
         ],
         [
           "deathknell",
-          23
+          21
         ]
       ],
       "title": "Mourner Vesk sends Gallowcrow",
