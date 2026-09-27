@@ -3354,3 +3354,81 @@ name, implement it. Execute other fixes." Stages, each pushed:
   Still open from the audit: Nero/Generals foreshadowing before Lead is
   only Lead's win line and Cross's old hint; Leg 2's unused `endingWin*`
   text; Max's age vs. being crowned (left as is, the user's call).
+
+## Guilds, Shinigami arc, townsfolk and sidequests (Claude, 2026-09-27) -- IN PROGRESS
+
+User asked for: Nero/Generals story expansion; demo text removed; Max stays
+8; audit of the maps west of CryTown; a Shinigami narrative loop that is
+REQUIRED to finish the game; non-hostile townsfolk in CryTown and the
+Sephirot with story, hints and sidequests (fetch-and-return for CryMon,
+bring-a-CryMon for items, bounties with arrest/execute, lead lost NPCs
+home); Lieutenant Lead with 5 CryMon before he fights himself; a Heroes
+Guild (positive rep: arrest criminals, capture rare CryMon), a Thieves
+Guild (threaten/execute Heroes members for their items and CryMon), and a
+Ghost Guild led by Shinigami (any rep: pray at shrines, rob graves for
+bones, expel human and CryMon ghosts from haunted buildings).
+User decisions (asked): full scope on both engines, in stages; the
+Shinigami arc gates the north road; Heroes and Thieves are mutually
+exclusive, Ghost Guild combines with either; port Father's party to
+Dreamcast so the hard Lead fight balances the same on both.
+
+### Story spine (new lore)
+- **Nero, the Weeping King**, lost his queen and would not let her go. He
+  binds the dead so no one ever leaves him again: his army's dead soldiers
+  are bound as wailing ghosts. That's where "Weeping" comes from. The north
+  road is sealed by the **Weeping Veil**, a wall of bound dead.
+- Nero wanted Shinigami's necromancy (Warden Cross already hints at it).
+  Shinigami refused, so Nero's grave-warden **Mourner Vesk** killed his three
+  apprentices, **Ines, Tomas and Oriel**, scattered their bones and bound
+  their spirits, and chained Shinigami in the Prison. This is Shinigami's
+  "Three names. Three graves."
+- Each **General** swore to Nero for a promise about their own dead. One
+  line each, delivered in their fight and by their city's people.
+- **Ghost Guild arc (required):** Shinigami founds the guild in a crypt under
+  the Ruins. Max robs the three apprentices' graves (Ruins, Grove, Marsh)
+  for their bones, prays at three shrines (Cliffs, Quarry, Forest), and
+  clears a haunted hall in the Reach (two bound soldiers' ghosts and
+  Oriel's bound CryMon). Back at the crypt Vesk attacks (bounty fate:
+  arrest/execute). Shinigami lays the apprentices to rest and gives Max the
+  **Wraith Lantern**, which parts the Veil. The north road needs
+  `veilLifted` on top of beating Lead.
+- **Lieutenant Lead** fights with 5 CryMon, then himself (Lv ~22-26). This is
+  meant to need Heavenfall or Father's extra six; Father now steps in when
+  Max's party is wiped in battle (both engines).
+- Quartz/Opal badges currently do nothing (audit): the Heroes Guild asks
+  for both, as Shinigami's "matter to anyone official" line promised.
+
+### Guilds
+- **Heroes Guild** (CryTown hall, Captain Ardent): join needs rep > 0, both
+  badges, not a Thief. Quests: arrest Red Mallory (Forest), bring a
+  Glasswisp, arrest Silas the Fence (Quarry), bring a Stardrop. Executing a
+  bounty gets you nothing from the Heroes.
+- **Thieves Guild** (Marsh hut, Mag): join needs not a Hero. Quests: shake
+  down Heroes members Sir Aldous (CryTown), Dame Brin (Ruins) and Captain
+  Rook (Cliffs). After the fight: threaten (take their item or CryMon) or
+  execute.
+- **Ghost Guild** (Ruins crypt, Shinigami): the required arc above.
+
+### Townsfolk
+CryTown gets a crier with main-story hints plus fetch, lost-person and
+bring-a-CryMon quests. Every Sephirot city gets a lore/hint NPC and one
+sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
+
+### Engine work (generic, both engines)
+- Computed script flags: `item:<id>` (have it), `mon:<species>` (in either
+  party), `rep:pos`, `rep:neg`. New step key `takeMon`. `grantMonster` adds
+  to the party (overflow to Father's party, else the catch-swap prompt).
+- Trainer `fate`: `bounty` (arrest with Shackles / execute) and `shakedown`
+  (threaten for loot / execute), with outcome flags on the trainer.
+- Dreamcast: every saved flag without a hand-wired variable gets generic
+  storage (`FLAG_TO_SAVE`); NPC sprite frame table baked; party2 ported.
+- Save grows again (flags to 256, bag to 48, still 2 VMU blocks).
+
+### Stages
+- [x] P0 This plan.
+- [ ] S1 Engine foundations + demo text removal.
+- [ ] S2 Father's party on Dreamcast; Father steps in on a wipe (both).
+- [ ] S3 Lead's 6-CryMon fight, Weeping Veil, Ghost Guild arc, Nero/General lore.
+- [ ] S4 Heroes and Thieves Guilds.
+- [ ] S5 CryTown and Sephirot townsfolk and sidequests.
+- [ ] S6 Verification; west maps audit write-up.
