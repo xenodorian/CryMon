@@ -3917,6 +3917,8 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         to the web SpeakerId union in types.ts (one word, Grok's file).
       - Still open: npc/lead-1..4.png from b3a58ee are not valid PNGs, so
         gen_sprites.py (Dreamcast build) fails. Lead's files, left alone.
+        NEEDS THE USER'S DECISION (e.g. restore the previous Lead overworld
+        PNGs, or new art). No new CDI until this is fixed.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
@@ -4166,3 +4168,10 @@ ring) plus flash, shake, damage-number, faint, enter and status settings.
   (`fx-fight-NN.png` in the e2e artifact) so the Dreamcast effects can be
   seen from CI.
 - Dreamcast CI note (2026-09-27): the Opal warden check in checks.yml (emu_warden.py) fails the same way on the battle-effects branch and on the unrelated "Remove duplicate sprite frames" PR #39 run (fight ends after 21 presses, no battle counted). It is not caused by the battle effects. Not yet root-caused. Also, main's gen_sprites.py currently stops on four unreadable Lead overworld PNGs (another thread owns that), so the committed sprites.h here is main's plus the battle-effects block, not a fresh generate.
+
+## 2026-09-27 Evolutions read as upgrades; idle breath (Claude)
+- Grok's generated monster frames (d3eccb4) had loose, uneven padding: scavrat, tunneler, arcwasp, rimewyrm, fateweaver and towerfall drew smaller than their earlier forms, and wide canvases were stretched on the Dreamcast (it scales frames to 92x92).
+- Both ports now normalise battle frames at load, leaving the PNGs untouched: each species is padded to a square it fills by area according to its stage (three-stage 0.66/0.83/1.0, two-stage 0.76/1.0, others 0.92), feet on the bottom edge. Web: src/game/monsterFrames.ts via drawBattleMon. Dreamcast: battle_frames() in gen_sprites.py before encoding MONSTERS.BIN. Keep the two in step.
+- 87 species had four identical frames (no idle motion). Those now breathe: frames 2-4 stretch the body up 1-2 rows with the feet fixed.
+- Weakest-monster pass: without image generation (still blocked) no species was redrawn. The sizing and breath above are the pass; kilnback remains a brighter-lava take on cindermite (Grok's art), now clearly larger. Candidates for a real redraw when generation works: kilnback, gravelurk (close to slatekin), towerfall (thinner than ramparth), scavrat, tunneler.
+- Merged with the duplicate-frame deletion (5850035): still species keep only 1.png; both ports load frame 1 for the missing 2-4, and the normaliser turns those into the breath frames, so the Dreamcast stores 4 frames again for every species (MONSTER_NFRAMES all 4, MONSTERS.BIN back to 7.7MB). sprites.h in this commit is main's; the CDI build regenerates it once the unreadable npc/lead-1..4.png (owned by the duplicate-frames thread) are fixed. Branch and PR #38 retired; this work was pushed straight to main.

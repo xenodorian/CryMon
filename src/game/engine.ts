@@ -62,6 +62,7 @@ import {
   effectiveStat
 , TILE_ART } from "./data";
 import { LIGHTS, mapTheme, paintTileArt } from "./tileArt";
+import { battleFrames } from "./monsterFrames";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
 import { BattleFx } from "./battleFx";
@@ -5550,9 +5551,21 @@ export class CryMon {
 		ctx.beginPath();
 		ctx.rect(x, y + h - visH, w, visH);
 		ctx.clip();
-		this.drawSprite(key, x, y, w, h, false);
+		this.drawSprite(this.battleKey(key), x, y, w, h, false);
 		ctx.restore();
 		ctx.filter = "none";
+	}
+	/** "<species>-<n>" to its square, stage-sized battle frame (monsterFrames.ts),
+	 *  built once all four source frames have loaded; the raw frame until then. */
+	battleKey(key) {
+		const m = /^(.+)-([1-4])$/.exec(key);
+		if (!m) return key;
+		const bk = `battle:${m[1]}-${m[2]}`;
+		if (this.images[bk]) return bk;
+		const fr = battleFrames(m[1], [1, 2, 3, 4].map((i) => this.images[`${m[1]}-${i}`]));
+		if (!fr) return key;
+		fr.forEach((c, i) => (this.images[`battle:${m[1]}-${i + 1}`] = c));
+		return bk;
 	}
 	drawActor(key, wx, wy) {
 		const { cx, cy } = this.cam();

@@ -180,6 +180,66 @@ def load_catalog(sprite_root):
 def rgb565(r, g, b):
     return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
 
+# Battle frames are normalised here, in memory; the PNGs stay as drawn.
+# Generated art carries loose, uneven padding, and a wide canvas stretched
+# to 92x92 squashes the creature. Each species is padded to a square it
+# fills (by area) by its evolution stage (three-stage lines 0.66/0.83/1.0, two-stage
+# 0.76/1.0, others 0.92), standing on the bottom edge, so evolved forms
+# read as upgrades. Species whose four frames are identical get a breath:
+# frames 2-4 stretch the body up a row or two with the feet fixed. The web
+# engine does the same in monsterFrames.ts; keep the two in step.
+STAGE_FILL = {3: (0.66, 0.83, 1.0), 2: (0.76, 1.0), 1: (0.92,)}
+
+def stage_fills(sprites_json):
+    path = os.path.join(os.path.dirname(sprites_json), 'species.json')
+    sp = json.load(open(path))
+    sp = sp.get('species', sp)
+    pre = {v['evolvesTo']: k for k, v in sp.items() if v.get('evolvesTo')}
+    out = {}
+    for k in sp:
+        head = k
+        while head in pre:
+            head = pre[head]
+        chain = [head]
+        while sp[chain[-1]].get('evolvesTo'):
+            chain.append(sp[chain[-1]]['evolvesTo'])
+        out[k] = STAGE_FILL[min(3, len(chain))][min(chain.index(k), 2)]
+    return out
+
+def breathe(im, rows):
+    w, h = im.size
+    x0, top, x1, bot = im.getbbox()
+    bh = bot - top
+    out = Image.new('RGBA', (w, h))
+    src, dst = im.load(), out.load()
+    for y in range(bh + rows):
+        sy = top + min(bh - 1, y * bh // (bh + rows))
+        for x in range(x0, x1):
+            dst[x, top - rows + y] = src[x, sy]
+    return out
+
+def battle_frames(frames, fill):
+    frames = [f.convert('RGBA') for f in frames]
+    still = all(f.tobytes() == frames[0].tobytes() for f in frames[1:])
+    boxes = [f.getbbox() or (0, 0, f.width, f.height) for f in frames]
+    x0 = min(b[0] for b in boxes); y0 = min(b[1] for b in boxes)
+    x1 = max(b[2] for b in boxes); y1 = max(b[3] for b in boxes)
+    w, h = x1 - x0, y1 - y0
+    # by area, so a long low creature is not shrunk to a sliver by its width
+    side = max(max(w, h) + 2, int((w * h) ** 0.5 / (fill * 0.85) + 0.999))
+    foot = max(1, round(side * 0.02))
+    side = max(side, h + foot + 6)
+    ox, oy = (side - w) // 2, side - foot - h
+    out = []
+    for f in frames:
+        c = Image.new('RGBA', (side, side))
+        c.paste(f.crop((x0, y0, x1, y1)), (ox, oy))
+        out.append(c)
+    if still:
+        r = max(1, round(h / 48))
+        out = [out[0], breathe(out[0], r), breathe(out[0], 2 * r), breathe(out[0], r)]
+    return out
+
 def encode(im, dst_w, dst_h, resample=Image.NEAREST):
     im = im.convert('RGBA').resize((dst_w, dst_h), resample)
     px = im.load()
@@ -425,6 +485,7 @@ def main():
     # stays resident (party menu, and the battle fallback if a read fails);
     # it is sampled exactly like blit_sprite_fit(frame1, 92, 92, .., 16, 16).
     stream = os.environ.get('CRYMON_STREAM', '1') != '0'
+    fills = stage_fills(cat['json'])
     frame_px = MONSTER_W * MONSTER_H
     rec_bytes = len(MONSTER_FRAMES) * frame_px * 2
     rec_sectors = (rec_bytes + 2047) // 2048
@@ -439,15 +500,17 @@ def main():
     blob = bytearray()
     rec_off, rec_secs, nframes = [], [], []
     for name in cat['monsters']:
-        frames = []
+        ims = []
         for f in MONSTER_FRAMES:
             rel = 'monsters/%s/%d.png' % (name, f)
             if f > 1 and not os.path.exists(os.path.join(root, rel)):
-                frames.append(frames[0])  # still sprite: frame 1 stands in
+                ims.append(ims[0])  # still sprite: frame 1 stands in
                 continue
-            im = open_or_placeholder(root, rel, MONSTER_W, MONSTER_H,
-                                      name, manifest, 'battle sprite, frame %d/4' % f)
-            frames.append(encode(im, MONSTER_W, MONSTER_H))
+            ims.append(open_or_placeholder(root, rel, MONSTER_W, MONSTER_H,
+                                           name, manifest, 'battle sprite, frame %d/4' % f))
+        if name in fills:
+            ims = battle_frames(ims, fills[name])  # still sprites come back breathing
+        frames = [encode(im, MONSTER_W, MONSTER_H) for im in ims]
         if all(px == frames[0] for px in frames[1:]):
             frames = frames[:1]
         nframes.append(len(frames))
