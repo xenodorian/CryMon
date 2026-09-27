@@ -176,24 +176,56 @@ def icecantor(t):
 
 @mon("frostchoir")
 def frostchoir(t):
+    """A crown of ice with a choir of bells hanging from it; the big one leads the song."""
     c = Canvas(128, 128, seed=86)
-    cx, cy = 64, 64
+    cx = 64
     glow = Mat(["#6a9ad0", "#a0ccf2", "#d0ecff", "#f0faff", "#ffffff"], emit=True)
-    rot = t * 18
-    items = []
-    for k in range(6):
-        ang = math.radians(rot + k * 60)
-        items.append((math.sin(ang), ang))
-    for depth, ang in sorted(items):
-        x = cx + math.cos(ang) * 44
-        y = cy + math.sin(ang) * 16 + 14
-        s = 0.85 + depth * 0.15
-        bell(c, x, y + 10 * s, 11 * s, 22 * s, ICE, z=depth * 30)
-        c.ink(lambda cc, x=x, y=y, s=s: [cc.put(x - 3, y - 2, (30, 60, 110)), cc.put(x + 2, y - 2, (30, 60, 110)),
-                                          cc.put(x - 1, y + 2, (30, 60, 110)), cc.put(x, y + 3, (30, 60, 110)),
-                                          cc.put(x + 1, y + 2, (30, 60, 110))])
-    c.ell(cx, cy + 6, 10, 10, glow, z=0)
-    c.ink(lambda cc: [cc.put(cx - 3, cy + 4, (40, 80, 140)), cc.put(cx + 2, cy + 4, (40, 80, 140))])
+    bob = [0, -1, -2, -1][t]
+    ry = 24 + bob
+    # the crown: a ring of upward icicles, back half first
+    ring = []
+    for k in range(10):
+        ang = math.radians(k * 36 + t * 9)
+        ring.append((math.sin(ang), ang, k))
+    for depth, ang, k in sorted(ring):
+        x = cx + math.cos(ang) * 34
+        y = ry + math.sin(ang) * 7
+        hgt = 14 if k % 2 == 0 else 9
+        c.tri((x - 3.5, y), (x, y - hgt), (x + 3.5, y), ICE if depth > -0.3 else ICE_DARK, z=depth * 40, bevel=1.5)
+    c.ell(cx, ry + 1, 36, 7, ICE_DARK, z=-30, th=0.5)
+    c.cap(cx - 36, ry + 1, 2.6, cx + 36, ry + 1, 2.6, ICE, z=41)
+    # the hanging choir: four small bells on ice threads, swinging out of step
+    for k, (dx, L, s_) in enumerate(((-28, 30, 0.8), (-14, 44, 0.9), (14, 44, 0.9), (28, 30, 0.8))):
+        sw = [-3, 0, 3, 0][(t + k) % 4]
+        x0, y0 = cx + dx, ry + 3
+        x1, y1 = x0 + sw, y0 + L
+        c.cap(x0, y0, 0.8, x1, y1 - 18 * s_, 0.8, ICE_DARK, z=20)
+        bell(c, x1, y1, 9 * s_, 18 * s_, ICE, z=24 + k)
+        c.ell(x1 + sw * 0.4, y1 + 2, 2.2, 2.2, glow, z=36)
+        op = [1, 2, 3, 2][(t + k) % 4]
+        c.ink(lambda cc, x=x1, y=y1 - 9 * s_, op=op: [cc.put(x - 3, y - 2, (30, 60, 110)), cc.put(x + 2, y - 2, (30, 60, 110)),
+                                                       [cc.put(x - 1 + i, y + 2 + j, (30, 50, 90)) for i in range(2) for j in range(op)]])
+    # the lead bell in the middle, singing
+    sw = [-2, 0, 2, 0][t]
+    x1, y1 = cx + sw, ry + 72
+    c.cap(cx, ry + 3, 1.2, x1, y1 - 44, 1.2, ICE_DARK, z=30)
+    bell(c, x1, y1, 18, 40, ICE, z=40)
+    c.ell(x1 + sw, y1 + 4, 3.6, 3.6, glow, z=66)
+    op = [3, 5, 7, 5][t]
+    mouth = Mat(["#10203a", "#1a2e50", "#28406a", "#3a5a8a", "#4a6aa0"], soft=0.4)
+    c.ell(x1 - 2, y1 - 12, 4, op * 0.8, mouth, z=62, th=1)
+    c.ink(lambda cc: [peye(cc, x1 - 7, y1 - 24, 2.6, 3.0, iris=(60, 120, 200), pw=0.7, ph=0.7),
+                      peye(cc, x1 + 4, y1 - 24, 2.6, 3.0, iris=(60, 120, 200), pw=0.7, ph=0.7)])
+
+    def notes(cc):
+        for i in range(3):
+            px = 100 + i * 7 - ((t + i) % 4) * 2
+            py = 70 - i * 12 - ((t + i) % 4) * 3
+            for j in range(5):
+                cc.put(px + 2, py - j, (200, 236, 255))
+            cc.put(px, py, (200, 236, 255)); cc.put(px + 1, py, (200, 236, 255)); cc.put(px, py + 1, (200, 236, 255))
+            cc.put(px + 3, py - 4, (200, 236, 255))
+    c.fx(notes)
     sparks((220, 246, 255), 8, seed=86)(c, {}, t, None)
     return c
 
@@ -256,21 +288,49 @@ def orb(c, x, y, r, col, z=0):
     c.ell(x, y, r, r, m, z=z)
 
 
+def star(c, x, y, r, col, z=0, rot=0, pts=5, inner=0.45):
+    cc = hx(col)
+    m = Mat([mix(cc, (0, 0, 0), 0.35), cc, mix(cc, (255, 255, 255), 0.35), mix(cc, (255, 255, 255), 0.7), (255, 255, 255)],
+            emit=True)
+    P = []
+    for k in range(pts * 2):
+        ang = math.radians(rot - 90 + k * 180 / pts)
+        rr = r if k % 2 == 0 else r * inner
+        P.append((x + math.cos(ang) * rr, y + math.sin(ang) * rr))
+    c.poly(P, m, z=z, bevel=r * 0.35)
+
+
 @mon("twinklet")
 def twinklet(t):
     c = Canvas(128, 128, seed=88)
-    for k, (col, ph) in enumerate((("#f2c230", 0), ("#8a4fd0", 1.6))):
-        ang = t * math.pi / 2 + ph * 2
-        x = 64 + math.cos(ang) * 16
-        y = 64 + math.sin(ang) * 8
-        # trail
+    pos = []
+    for k, (col, ph) in enumerate((("#f2c230", 0), ("#9a60e0", math.pi))):
+        ang = t * math.pi / 4 + ph
+        x = 64 + math.cos(ang) * 22
+        y = 62 + math.sin(ang) * 9
+        zz = 10 + math.sin(ang) * 8
+        pos.append((x, y, col, zz))
         for j in range(1, 5):
-            a2 = ang - j * 0.35
-            orb(c, 64 + math.cos(a2) * 16, 64 + math.sin(a2) * 8, 6 - j, col, z=-j)
-        orb(c, x, y, 13, col, z=10 + math.sin(ang) * 5)
-        c.ink(lambda cc, x=x, y=y: [peye(cc, x - 4, y - 2, 1.8, 2.4, iris=(40, 20, 50), pw=0.9, ph=0.9, glint=True),
-                                    peye(cc, x + 3, y - 2, 1.8, 2.4, iris=(40, 20, 50), pw=0.9, ph=0.9, glint=True)])
-    sparks((255, 250, 220), 6, seed=88)(c, {}, t, None)
+            a2 = ang - j * 0.28
+            orb(c, 64 + math.cos(a2) * 22, 62 + math.sin(a2) * 9, 4.5 - j, col, z=zz - j * 2)
+        # a soft star with a round face in the middle; the two spin opposite ways
+        star(c, x, y, 17, col, z=zz, rot=(t * 9 if k == 0 else -t * 9))
+        orb(c, x, y, 8, col, z=zz + 6)
+    # the thread of light that ties them together
+    def thread(cc):
+        (x0, y0, *_), (x1, y1, *_) = pos
+        for j in range(1, 30):
+            f = j / 30
+            x = x0 + (x1 - x0) * f
+            y = y0 + (y1 - y0) * f + math.sin(f * math.pi) * 6
+            if not cc.alpha[int(y), int(x)] and (j + t) % 3:
+                cc.put(x, y, (255, 246, 220))
+    c.fx(thread)
+    for x, y, col, zz in pos:
+        c.ink(lambda cc, x=x, y=y: [peye(cc, x - 3, y - 1, 1.6, 2.2, iris=(40, 20, 50), pw=0.9, ph=0.9, glint=True),
+                                    peye(cc, x + 3, y - 1, 1.6, 2.2, iris=(40, 20, 50), pw=0.9, ph=0.9, glint=True),
+                                    cc.put(x, y + 3, (120, 60, 80))])
+    sparks((255, 250, 220), 8, seed=88)(c, {}, t, None)
     return c
 
 
@@ -394,6 +454,11 @@ def card(c, x, y, w, h, rot, z, suit_col, suit=0, back=False, g=None):
     col = hx(suit_col)
 
     def ink(cc):
+        if back and w > 8:
+            for u in range(-int(w) + 2, int(w) - 1):
+                for v in range(-int(h) + 2, int(h) - 1):
+                    if (u + v) % 6 == 0 or (u - v) % 6 == 0:
+                        cc.put(*P(u, v), (200, 170, 240))
         if back:
             for k in range(-2, 3):
                 cc.put(*P(k, k), (240, 220, 255))
@@ -410,23 +475,50 @@ def card(c, x, y, w, h, rot, z, suit_col, suit=0, back=False, g=None):
 
 @mon("cardkin")
 def cardkin(t):
-    c = Canvas(96, 96, seed=92)
-    G = 92
+    """A playing card on cartoon legs that flips itself over as it idles."""
+    c = Canvas(112, 112, seed=92)
+    G = 108
     bob = [0, -1, -2, -1][t]
-    flip = [0, 12, 0, -12][t]
+    sq = [1.0, 0.45, 1.0, 0.45][t]           # card width as it turns edge-on
+    back = t == 2
     limb = M("#2a2430")
-    x, y = 48, 50 + bob
-    c.cap(x - 6, y + 20, 1.8, x - 8, G - 1, 1.4, limb, z=0)
-    c.cap(x + 6, y + 20, 1.8, x + 8, G - 1, 1.4, limb, z=0)
-    c.ell(x - 9, G - 1, 3, 1.5, limb, z=1)
-    c.ell(x + 9, G - 1, 3, 1.5, limb, z=1)
-    c.cap(x - 13, y, 1.6, x - 22, y - 8 + bob, 1.2, limb, z=0)
-    c.cap(x + 13, y, 1.6, x + 22, y + 6, 1.2, limb, z=0)
-    card(c, x, y, 14 - abs(flip) * 0.3, 21, 0, 4, "#d63a3a", 0)
-    c.ink(lambda cc: [peye(cc, x - 5, y - 8, 2.2, 2.8, iris=(40, 60, 160), pw=0.8, ph=0.8),
-                      peye(cc, x + 5, y - 8, 2.2, 2.8, iris=(40, 60, 160), pw=0.8, ph=0.8),
-                      [cc.put(x - 3 + k, y + 8 + (k in (1, 2, 3)), (60, 30, 40)) for k in range(5)]])
-    sparks((255, 240, 200), 4, seed=92, spread=(4, 92, 4, 88))(c, {}, t, None)
+    glove = M("#f6f4f0", spec=0.3)
+    shoe = M("#c02a3a", spec=0.6)
+    x, y = 56, 56 + bob
+    w, h = 20 * sq, 28
+    # legs and shoes
+    for d in (-1, 1):
+        c.cap(x + d * 7, y + h - 2, 2.0, x + d * 9, G - 4, 1.6, limb, z=0)
+        c.ell(x + d * 10 - 2, G - 2, 5, 2.6, shoe, z=2)
+    # arms: one on the hip, one waving a tiny card
+    wave = [0, -3, -5, -3][t]
+    c.chain([(x - w + 1, y - 2, 1.8), (x - w - 10, y - 10 + wave, 1.6), (x - w - 14, y - 22 + wave, 1.4)], limb, z=-2)
+    c.ell(x - w - 14, y - 24 + wave, 3.2, 3.2, glove, z=0)
+    card(c, x - w - 16, y - 32 + wave, 4, 6, -20 + wave * 2, 1, "#d63a3a", 1)
+    c.chain([(x + w - 1, y + 2, 1.8), (x + w + 8, y + 8, 1.6), (x + w + 3, y + 14, 1.4)], limb, z=-2)
+    c.ell(x + w + 3, y + 15, 3.2, 3.2, glove, z=0)
+    # the card: gold rim, big pip, corner marks
+    gold = M("#e0b840", spec=0.8)
+    c.poly([(x - w - 2, y - h - 2), (x + w + 2, y - h - 2), (x + w + 2, y + h + 2), (x - w - 2, y + h + 2)], gold, z=4,
+           bevel=1.5)
+    card(c, x, y, w, h, 0, 8, "#d63a3a", 0, back=back)
+    red = M("#d63a3a", spec=0.5)
+    if not back and sq > 0.9:
+        # a large heart made of two lobes and a point
+        c.ell(x - 4, y + 8, 5.5, 5.5, red, z=12)
+        c.ell(x + 4, y + 8, 5.5, 5.5, red, z=12)
+        c.tri((x - 9.5, y + 10), (x, y + 21), (x + 9.5, y + 10), red, z=12, bevel=2)
+
+        def face(cc):
+            peye(cc, x - 6, y - 12, 2.6, 3.4, iris=(40, 60, 160), pw=0.8, ph=0.8)
+            peye(cc, x + 6, y - 12, 2.6, 3.4, iris=(40, 60, 160), pw=0.8, ph=0.8)
+            for k in range(7):
+                cc.put(x - 3 + k, y - 4 + (1 if 1 <= k <= 5 else 0), (60, 30, 40))
+            for dx, dy in ((0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1), (2, 2)):
+                cc.put(x - w + 3 + dx, y - h + 3 + dy, (200, 40, 50))
+                cc.put(x + w - 5 + dx, y + h - 5 + dy, (200, 40, 50))
+        c.ink(face)
+    sparks((255, 240, 200), 5, seed=92, spread=(4, 108, 4, 100))(c, {}, t, None)
     return c
 
 

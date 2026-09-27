@@ -143,10 +143,12 @@ def soottick(t):
     cx, cy = 66, G - 22 + bob
     for side, zz in ((1, -8), (-1, 14)):
         for k in range(4):
-            bx0 = cx - 12 + k * 7
-            fx_ = bx0 - 8 + k * 5 + side * 3
-            c.chain([(bx0, cy + 4, 2.0), (bx0 - 4 + k * 2, cy - 4 - (bob if k % 2 else 0), 1.6), (fx_, G - (0 if side < 0 else 3), 1.0)],
-                    lm, z=zz)
+            bx0 = cx - 10 + k * 7
+            spread = (k - 1.5) * 9
+            kx = bx0 + spread * 0.8 + side * 2
+            ky = cy - 10 - (1 if (k + t) % 2 else 0)
+            fx_ = bx0 + spread * 1.7 + side * 3
+            c.chain([(bx0, cy + 2, 2.2), (kx, ky, 1.8), (fx_, G - (0 if side < 0 else 3), 0.9)], lm, z=zz)
     g = c.group()
     c.ell(cx + 4, cy, 22, 17, bm, z=0, g=g)
     c.pattern(lambda x, y: ((x - cx) ** 2 / 400 + (y - cy) ** 2 / 200) % 1 < 0.12, -1, only=g)
