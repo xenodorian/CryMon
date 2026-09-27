@@ -51,6 +51,7 @@ import {
   INTERACT,
   atkStatValue,
   frand,
+  foeStrikesFirst,
   unlockedMoves,
   natureMatchNames,
   MERCY_DISMISS,
@@ -2996,6 +2997,14 @@ export class CryMon {
 			msg: [`${title}!`],
 			msgI: 0,
 			afterMsg: "item",
+			// Turn order (logic.json combat.initiative): who strikes first is
+			// rolled at the start of every round. foeFirst: the foe's strike is
+			// queued ahead of the player's; foeActed / playerActed: who has
+			// already gone this round.
+			foeFirst: false,
+			midRound: false,
+			foeActed: false,
+			playerActed: false,
 			pendingDmg: 0,
 			pendingLabel: "",
 			pendingMods: { str: 0, agl: 0, spc: 0 },
@@ -3160,6 +3169,7 @@ export class CryMon {
 						this.openParty("catchSwap");
 						return;
 					}
+					if (b.afterMsg === "item" && this.beginRound(b)) return;
 					b.phase = b.afterMsg;
 					b.msg = [];
 					b.msgI = 0;
@@ -3218,6 +3228,7 @@ export class CryMon {
 			return;
 		}
 		if (b.phase === "resolve_hit") {
+			b.playerActed = true;
 			const foeTick = this.tickStatus(b.foe);
 			let line;
 			if (b.pendingDmg > 0) {
@@ -3268,12 +3279,14 @@ export class CryMon {
 				b.afterMsg = "end_win";
 				return;
 			}
-			b.msg = [...lines, `${b.foeName} answers. Choose a guard.`];
-			b.msgI = 0;
-			b.phase = "msg";
-			b.afterMsg = "guard";			return;
+			this.foeAnswers(b, lines);
+			return;
 		}
 		if (b.phase === "resolve_guard") {
+			// The foe's strike. If it opened the round, the player's action
+			// is still owed, whatever happens next (a faint, a swap).
+			if (b.foeFirst && !b.playerActed) b.midRound = true;
+			b.foeActed = true;
 			const selfTick = this.tickStatus(b.player);
 			if (b.player.hp <= 0) {
 				this.party[this.partyIndex] = { ...b.player };
@@ -3558,6 +3571,7 @@ export class CryMon {
 				b.msgI = 0;
 				b.phase = "msg";
 				b.afterMsg = "item";
+				b.midRound = true; // back to the same menu, not a new round
 				return;
 			}
 			this.party[this.partyIndex] = { ...b.player };
@@ -3685,10 +3699,7 @@ export class CryMon {
 			return;
 		}
 		if (mv.kind === "wait") {
-			b.msg = [`${b.player.name} holds.`];
-			b.msgI = 0;
-			b.phase = "msg";
-			b.afterMsg = "guard";
+			this.foeAnswers(b, [`${b.player.name} holds.`]);
 			this.audio.ui();
 			return;
 		}
@@ -3781,6 +3792,46 @@ export class CryMon {
 	/* Leg 2.11: stage-based stat drops + real status conditions.
 	 * effStat() composes base -> statStages multiplier -> Hype Up's flat
 	 * +35%-of-base -> the pre-existing flat item mod, in that order. */
+	/** About to open the item menu. Starts a new round (rolls who strikes
+	 *  first) unless midRound says the player still owes this round's
+	 *  action: the foe struck first, or the player is back at the menu
+	 *  without acting. Returns true when the foe strikes first (it took
+	 *  over the transition). */
+	beginRound(b) {
+		if (b.midRound) {
+			b.midRound = false;
+			return false;
+		}
+		b.foeActed = false;
+		b.playerActed = false;
+		const ini = COMBAT.initiative;
+		b.foeFirst = !!ini && foeStrikesFirst(
+			this.effStat(b.player, "agl", b.stage.selfAgl, b.hypeActive.self, b.mods.selfAgl),
+			this.effStat(b.foe, "agl", b.stage.foeAgl, b.hypeActive.foe, b.mods.foeAgl),
+			frand(ini.randMin, ini.randMax),
+			frand(ini.randMin, ini.randMax),
+		);
+		if (!b.foeFirst) return false;
+		b.msg = [`${b.foe.name} is quicker. Choose a guard.`];
+		b.msgI = 0;
+		b.phase = "msg";
+		b.afterMsg = "guard";
+		return true;
+	}
+	/** After the player's action: the foe answers with a strike, or, if it
+	 *  already struck first this round, the round ends. */
+	foeAnswers(b, lines) {
+		b.playerActed = true;
+		b.msgI = 0;
+		b.phase = "msg";
+		if (b.foeActed) {
+			b.msg = lines;
+			b.afterMsg = "item";
+		} else {
+			b.msg = [...lines, `${b.foeName} answers. Choose a guard.`];
+			b.afterMsg = "guard";
+		}
+	}
 	effStat(m, stat, stageVal, hyped, flatMod) {
 		const base = stat === "str" ? m.str : stat === "agl" ? m.agl : m.spc;
 		let v = effectiveStat(base, stageVal);

@@ -317,6 +317,13 @@ export function natureMatchup(atkSpecies: SpeciesId, defSpecies: SpeciesId): num
 }
 
 /** Scales a finished damage number by the matchup; `sign` says which way it went. */
+/** Turn order: the foe strikes first when its agility times its roll beats
+ *  the player's agility times theirs (logic.json combat.initiative). Ties
+ *  go to the player. Rolls are passed in so the rule is testable. */
+export function foeStrikesFirst(playerAgl: number, foeAgl: number, playerRoll: number, foeRoll: number) {
+  return foeAgl * foeRoll > playerAgl * playerRoll;
+}
+
 export function natureScaleDmg(
   dmg: number,
   atkSpecies: SpeciesId,

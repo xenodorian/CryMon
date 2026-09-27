@@ -19,7 +19,8 @@
     "test:e2e:quartz": "node scripts/e2e-quartz.mjs",
     "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:e2e:battle": "node scripts/e2e-battle-order.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.4",

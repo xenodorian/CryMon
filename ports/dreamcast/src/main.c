@@ -3047,6 +3047,12 @@ typedef struct {
     Monster bench[KIT_BENCH_MAX];
     int bench_n;
     int catch_full;
+    /* Turn order (logic.json combat.initiative), see begin_round():
+       foe_first -- the foe won this round's roll and strikes first;
+       mid_round -- the next BAFTER_ITEM is the player's half of the same
+       round, not a new one; foe_acted -- the foe has struck this round.
+       Zeroed every frame outside battle (main loop). */
+    int foe_first, mid_round, foe_acted;
 } Battle;
 
 #define TRAINER_WILD     0
@@ -3278,6 +3284,27 @@ static int eff_agl_pl(const Battle *b) {
 static int eff_agl_foe(const Battle *b) {
     return eff_stat(b->foe.agl, b->stage_foe_agl, b->hype_foe) + b->mods_foe_agl;
 }
+/* Engine.beginRound(): roll who strikes first. Returns 1 when the foe
+   does, having set up "<FOE> IS QUICKER CHOOSE A GUARD" -> BAFTER_GUARD
+   (foe_acted is 0, so the dispatcher opens the guard menu). Ties go to
+   the player. */
+static int begin_round(Battle *b) {
+    float pl, fo;
+    int n;
+    b->foe_acted = 0;
+    b->foe_first = 0;
+    if(!INITIATIVE_ON) return 0;
+    pl = (float)eff_agl_pl(b) * frand(INITIATIVE_RAND_MIN, INITIATIVE_RAND_MAX);
+    fo = (float)eff_agl_foe(b) * frand(INITIATIVE_RAND_MIN, INITIATIVE_RAND_MAX);
+    if(!(fo > pl)) return 0;
+    b->foe_first = 1;
+    n = s_cat(b->msg[0], 0, SPECIES[b->foe.species].name);
+    n = s_cat(b->msg[0], n, " IS QUICKER CHOOSE A GUARD");
+    b->msg[0][n] = 0;
+    b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
+    return 1;
+}
+
 static void clear_status(Monster *m) {
     m->status = STATUS_NONE;
     m->status_turns = 0;
@@ -3401,6 +3428,12 @@ static void battle_apply_hit(Battle *b) {
 
     if(battle_foe_maybe_fall(b, "")) return;
 
+    /* foeAnswers(): if the foe already struck first this round, the
+       round ends here (the dispatcher starts the next one). */
+    if(b->foe_acted) {
+        b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
+        return;
+    }
     n = s_cat(b->msg[1], 0, "FOE ANSWERS CHOOSE A GUARD");
     b->msg[1][n] = 0;
     b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
@@ -3631,6 +3664,10 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
     int specials[UMOVE_MAX], nmoves_idx[UMOVE_MAX], hypes_idx[UMOVE_MAX], basics[UMOVE_MAX];
     const UMove *pick;
 
+    /* The foe's strike. If it opened the round, the player's action is
+       still owed, whatever happens next (a faint, a swap). */
+    if(b->foe_first) b->mid_round = 1;
+    b->foe_acted = 1;
     effect_text[0] = 0;
     line[0] = 0;
     self_tick_n = tick_status(&b->pl, self_tick, 0);
@@ -6529,6 +6566,7 @@ void main(void) {
         wait_vblank();
         fb_flip();
         frame_count++;
+        if(!in_battle) battle.foe_first = battle.mid_round = battle.foe_acted = 0;
         g_xp_party = party;
         g_xp_party_n = party_n;
         g_npc_bag = &bag;
@@ -7455,9 +7493,20 @@ void main(void) {
                     battle.msg_i++;
                     if(battle.msg_i >= battle.msg_n) {
                         switch(battle.after) {
-                            case BAFTER_ITEM:  battle.phase = 1; battle.cur = 0; break;
+                            case BAFTER_ITEM:
+                                battle.cur = 0;
+                                if(battle.mid_round) { battle.mid_round = 0; battle.phase = 1; }
+                                else if(!begin_round(&battle)) battle.phase = 1;
+                                break;
                             case BAFTER_ATK:   battle.phase = 2; battle.cur = 0; break;
-                            case BAFTER_GUARD: battle.phase = 3; battle.cur = 0; break;
+                            case BAFTER_GUARD:
+                                battle.cur = 0;
+                                /* The foe already struck first: the player's
+                                   action just ended the round. */
+                                if(battle.foe_acted) {
+                                    if(!begin_round(&battle)) battle.phase = 1;
+                                } else battle.phase = 3;
+                                break;
                             case BAFTER_WIN: {
                                 /* finishWin(): XP is granted regardless
                                    of trainer_kind; marks and what

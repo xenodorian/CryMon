@@ -667,6 +667,10 @@ def bake_logic(data: dict, out: Path) -> None:
 
     combat = logic.get("combat") or {}
     lines.append("/* Guard resolution -- see content/logic.json's combat block. */")
+    ini = combat.get("initiative") or {}
+    lines.append(f"#define INITIATIVE_ON {1 if ini else 0}")
+    lines.append(f"#define INITIATIVE_RAND_MIN {float(ini.get('randMin') or 1.0)}f")
+    lines.append(f"#define INITIATIVE_RAND_MAX {float(ini.get('randMax') or 1.0)}f")
     lines.append(f"#define DODGE_DEF_RAND_MIN {float(combat.get('dodgeDefenderRandMin') or 1.0)}f")
     lines.append(f"#define DODGE_DEF_RAND_MAX {float(combat.get('dodgeDefenderRandMax') or 1.0)}f")
     lines.append(f"#define GUARD_RAND_MIN {float(combat.get('guardRandMin') or 1.0)}f")

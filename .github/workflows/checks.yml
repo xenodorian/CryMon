@@ -43,6 +43,8 @@ jobs:
           npm run dev > dev.log 2>&1 &
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:8080/ && break; sleep 1; done
           E2E_OUT=e2e-out npm run test:e2e:quartz
+      - name: Battle turn order end to end (web)
+        run: npm run test:e2e:battle
       - name: Build Dreamcast CDI
         run: |
           python3 -m pip install --user Pillow python-xlib

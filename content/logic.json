@@ -319,6 +319,11 @@
       "connectedMul": 1.5,
       "fizzleMul": 1,
       "needleSpeed": 110
+    },
+    "initiative": {
+      "note": "Turn order, rolled at the start of every round: the foe strikes first when foeAgl x U(randMin, randMax) beats playerAgl x U(randMin, randMax); ties go to the player. Agility includes stages, Hype Up and item mods. When the foe goes first, the player guards first, then acts; the foe does not answer again that round. Web: Engine.beginRound()/foeAnswers(); Dreamcast: begin_round()/foe_answers().",
+      "randMin": 0.75,
+      "randMax": 1.25
     }
   },
   "growth": {

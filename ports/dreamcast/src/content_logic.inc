@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=61c13daf80c2c371 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=76eedb09071b3bd5 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_WALK_FRAC 358 /* 1/256 px per frame */
@@ -85,6 +85,9 @@ static const signed char NATURE_CHART[NATURE_N][NATURE_N] = {
 #define SPR_SCALE_MASON 1
 
 /* Guard resolution -- see content/logic.json's combat block. */
+#define INITIATIVE_ON 1
+#define INITIATIVE_RAND_MIN 0.75f
+#define INITIATIVE_RAND_MAX 1.25f
 #define DODGE_DEF_RAND_MIN 0.75f
 #define DODGE_DEF_RAND_MAX 1.25f
 #define GUARD_RAND_MIN 0.25f
