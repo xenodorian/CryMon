@@ -3565,3 +3565,43 @@ sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
         sit above the Ruins/Reach grass (Lv 6-11). The gauntlet maps
         (Lv 8-20) are the grinding route before them, and Lead (Lv 24-28)
         after. Not rebalanced here.
+
+## Overnight push: houses, balance, audio, polish (Claude, 2026-09-27)
+
+User asked (before bed) for the best game possible while they sleep, no
+approvals needed, everything noted here. Other threads own the art
+(`public/sprites`) and the Quartz win/save parity bugs; this section
+stays out of both. Toolchain note: `dockerd &` then the CI image
+`einsteinx2/dcdev-kos-toolchain:gcc-9` builds the ELF in this sandbox.
+
+- [x] H1 The six decorative houses in the Ruins and the Reach now open.
+      `build_guilds.py` SITES gained a door char per site (warps match by
+      tile char, so a map's second..fourth door is `(`, `)`, `0`; both
+      engines paint them as doors). Interiors and what's in them:
+      - Ruins NE **Old Library**: Archivist Wyn pays CryDex milestones
+        (10/25/50/80/all caught: Great x5, Mega x3, Ultimate x3,
+        Perfect x1, Perfect x3). Lark reads lore (Aven, the Sephirot,
+        the Generals once Lead is down).
+      - Ruins SW **Ruins Inn**: Hollis heals for free. Quill tracks the
+        Ghost Guild arc and says where the next grave/shrine/hall is.
+      - Ruins SE **Brann's House**: Brann, a Weeping Army deserter, sends
+        a letter to his brother Elder Marn in Malkuth; Marn writes back;
+        Brann gives Tusk (Warbison Lv28).
+      - Reach NW **Hermit's Hut**: Hermit Osk, three rematch tiers
+        (Lv17-18 any time, Lv30-31 after Lead, Lv45-47 after the ninth
+        medal), stationary post fights, crystals as prizes.
+      - Reach SW **Sage's House**: Sage Ilse explains every crystal
+        matchup (from `natureTypes.beats`) and gives an Ultimate Crystal
+        once both Reach badges are won.
+      - Reach SE **Empty House**: after joining the Ghost Guild, the ghost
+        girl Maren asks for her rag doll (pickup 'n' in the north Marsh);
+        she passes on and leaves Frost (Snowbell Lv20), rep +2.
+      - New computed script flag `dex:<n>` (at least n species caught) on
+        both engines (baker FLAG_DEX_BASE 5000, main.c npc_flag_on, web
+        computedFlags). Items brannLetter, marnReply, ragDoll. Speakers
+        88-95 share archetype portraits (Maren uses the ghost portrait).
+      - Web dev hooks `__crymon.skipTo(map)` and `__crymon.engine()` for
+        scripted QA.
+      - Verified on web (Playwright): every door both ways, every NPC
+        script branch above, Osk tier 1 fight, Maren/doll, Brann/Marn.
+        Dreamcast: bakes, check_sync --strict, builds clean.

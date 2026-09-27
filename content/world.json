@@ -113,7 +113,13 @@
     "ghostcrypt": "THE GHOST GUILD",
     "hauntedhall": "THE HAUNTED HALL",
     "heroeshall": "THE HEROES GUILD",
-    "thievesden": "THE THIEVES DEN"
+    "thievesden": "THE THIEVES DEN",
+    "ruinslibrary": "THE OLD LIBRARY",
+    "ruinsinn": "THE RUINS INN",
+    "brannhouse": "BRANN'S HOUSE",
+    "hermithut": "THE HERMIT'S HUT",
+    "sagehouse": "THE SAGE'S HOUSE",
+    "emptyhouse": "THE EMPTY HOUSE"
   },
   "mapIds": [
     "house",
@@ -179,7 +185,13 @@
     "ghostcrypt",
     "hauntedhall",
     "heroeshall",
-    "thievesden"
+    "thievesden",
+    "ruinslibrary",
+    "ruinsinn",
+    "brannhouse",
+    "hermithut",
+    "sagehouse",
+    "emptyhouse"
   ],
   "encounters": [
     {
@@ -1971,6 +1983,102 @@
       "spawn": "w",
       "dir": "down",
       "oy": 40
+    },
+    {
+      "from": "ruins",
+      "tile": "(",
+      "to": "ruinslibrary",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "ruinslibrary",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": "(",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "ruins",
+      "tile": ")",
+      "to": "ruinsinn",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "ruinsinn",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": ")",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "ruins",
+      "tile": "0",
+      "to": "brannhouse",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "brannhouse",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": "0",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": "(",
+      "to": "hermithut",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "hermithut",
+      "tile": "D",
+      "to": "reach",
+      "spawn": "(",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": ")",
+      "to": "sagehouse",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "sagehouse",
+      "tile": "D",
+      "to": "reach",
+      "spawn": ")",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": "0",
+      "to": "emptyhouse",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "emptyhouse",
+      "tile": "D",
+      "to": "reach",
+      "spawn": "0",
+      "dir": "down",
+      "oy": 40
     }
   ],
   "trainers": {
@@ -3270,6 +3378,84 @@
         "arrest": "kaelArrest",
         "execute": "kaelExecute"
       }
+    },
+    "oskOne": {
+      "lead": [
+        "boulderam",
+        18
+      ],
+      "bench": [
+        [
+          "stormwing",
+          17
+        ],
+        [
+          "rimewyrm",
+          17
+        ]
+      ],
+      "title": "Hermit Osk sends Boulderam",
+      "name": "Hermit Osk",
+      "marks": 30,
+      "winTalk": "oskOneWin",
+      "set": "beatOsk1",
+      "post": true
+    },
+    "oskTwo": {
+      "lead": [
+        "hornblaze",
+        31
+      ],
+      "bench": [
+        [
+          "tidewolf",
+          30
+        ],
+        [
+          "blazelynx",
+          30
+        ],
+        [
+          "atlashell",
+          31
+        ]
+      ],
+      "title": "Hermit Osk sends Hornblaze",
+      "name": "Hermit Osk",
+      "marks": 60,
+      "winTalk": "oskTwoWin",
+      "set": "beatOsk2",
+      "post": true
+    },
+    "oskThree": {
+      "lead": [
+        "rootking",
+        47
+      ],
+      "bench": [
+        [
+          "starwhale",
+          45
+        ],
+        [
+          "pyrelion",
+          46
+        ],
+        [
+          "glacierjaw",
+          46
+        ],
+        [
+          "thunderqueen",
+          47
+        ]
+      ],
+      "title": "Hermit Osk sends Rootking",
+      "name": "Hermit Osk",
+      "marks": 120,
+      "winTalk": "oskThreeWin",
+      "set": "beatOsk3",
+      "post": true
     }
   },
   "npcs": [
@@ -4985,6 +5171,19 @@
       "sprite": "npc/marn",
       "talk": "marnFirst",
       "script": [
+        {
+          "if": "item:brannLetter",
+          "ifNot": "gaveLetter",
+          "set": "gaveLetter",
+          "takeItem": "brannLetter",
+          "grant": [
+            [
+              "marnReply",
+              1
+            ]
+          ],
+          "talk": "marnLetter"
+        },
         {
           "ifNot": "talkedMarn",
           "set": "talkedMarn",
@@ -6737,6 +6936,377 @@
         },
         {
           "talk": "hintKeter"
+        }
+      ]
+    },
+    {
+      "map": "ruinslibrary",
+      "mark": "x",
+      "id": "wyn",
+      "role": "talk",
+      "sprite": "npc/elder",
+      "talk": "wynFirst",
+      "script": [
+        {
+          "ifNot": "talkedWyn",
+          "set": "talkedWyn",
+          "talk": "wynFirst"
+        },
+        {
+          "if": "dex:10",
+          "ifNot": "libraryDex10",
+          "set": "libraryDex10",
+          "grant": [
+            [
+              "greatcrystal",
+              5
+            ]
+          ],
+          "talk": "wynDex10"
+        },
+        {
+          "if": "dex:25",
+          "ifNot": "libraryDex25",
+          "set": "libraryDex25",
+          "grant": [
+            [
+              "megacrystal",
+              3
+            ]
+          ],
+          "talk": "wynDex25"
+        },
+        {
+          "if": "dex:50",
+          "ifNot": "libraryDex50",
+          "set": "libraryDex50",
+          "grant": [
+            [
+              "ultimatecrystal",
+              3
+            ]
+          ],
+          "talk": "wynDex50"
+        },
+        {
+          "if": "dex:80",
+          "ifNot": "libraryDex80",
+          "set": "libraryDex80",
+          "grant": [
+            [
+              "perfectcrystal",
+              1
+            ]
+          ],
+          "talk": "wynDex80"
+        },
+        {
+          "if": "dex:111",
+          "ifNot": "libraryDexAll",
+          "set": "libraryDexAll",
+          "grant": [
+            [
+              "perfectcrystal",
+              3
+            ]
+          ],
+          "talk": "wynDexAll"
+        },
+        {
+          "ifNot": "libraryDex10",
+          "talk": "wynNeed10"
+        },
+        {
+          "ifNot": "libraryDex25",
+          "talk": "wynNeed25"
+        },
+        {
+          "ifNot": "libraryDex50",
+          "talk": "wynNeed50"
+        },
+        {
+          "ifNot": "libraryDex80",
+          "talk": "wynNeed80"
+        },
+        {
+          "ifNot": "libraryDexAll",
+          "talk": "wynNeedAll"
+        },
+        {
+          "talk": "wynDone"
+        }
+      ]
+    },
+    {
+      "map": "ruinslibrary",
+      "mark": "z",
+      "id": "lark",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "larkLore",
+      "script": [
+        {
+          "if": "beatLieutenantLead",
+          "talk": "larkLore2"
+        },
+        {
+          "talk": "larkLore"
+        }
+      ]
+    },
+    {
+      "map": "ruinsinn",
+      "mark": "x",
+      "id": "hollis",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "hollisRest",
+      "script": [
+        {
+          "heal": true,
+          "talk": "hollisRest"
+        }
+      ]
+    },
+    {
+      "map": "ruinsinn",
+      "mark": "z",
+      "id": "quill",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "quillReach",
+      "script": [
+        {
+          "if": "veilLifted",
+          "talk": "quillDone"
+        },
+        {
+          "ifNot": "talkedReach",
+          "talk": "quillReach"
+        },
+        {
+          "ifNot": "joinedGhost",
+          "talk": "quillCrypt"
+        },
+        {
+          "ifNot": "robbedInes",
+          "talk": "quillInes"
+        },
+        {
+          "ifNot": "robbedTomas",
+          "talk": "quillTomas"
+        },
+        {
+          "ifNot": "robbedOriel",
+          "talk": "quillOriel"
+        },
+        {
+          "ifNot": "prayedCliffs",
+          "talk": "quillShrines"
+        },
+        {
+          "ifNot": "prayedQuarry",
+          "talk": "quillShrines"
+        },
+        {
+          "ifNot": "prayedForest",
+          "talk": "quillShrines"
+        },
+        {
+          "ifNot": "expelledOriel",
+          "talk": "quillHall"
+        },
+        {
+          "talk": "quillVesk"
+        }
+      ]
+    },
+    {
+      "map": "brannhouse",
+      "mark": "x",
+      "id": "brann",
+      "role": "talk",
+      "sprite": "npc/elder",
+      "talk": "brannAsk",
+      "script": [
+        {
+          "if": "item:marnReply",
+          "ifNot": "brannDone",
+          "set": "brannDone",
+          "takeItem": "marnReply",
+          "grantMonster": [
+            "warbison",
+            28
+          ],
+          "talk": "brannReply"
+        },
+        {
+          "if": "brannDone",
+          "talk": "brannAfter"
+        },
+        {
+          "ifNot": "brannAsked",
+          "set": "brannAsked",
+          "grant": [
+            [
+              "brannLetter",
+              1
+            ]
+          ],
+          "talk": "brannAsk"
+        },
+        {
+          "talk": "brannWait"
+        }
+      ]
+    },
+    {
+      "map": "hermithut",
+      "mark": "x",
+      "id": "osk",
+      "role": "trainer",
+      "sprite": "npc/elder",
+      "talk": "oskOne",
+      "script": [
+        {
+          "ifNot": "beatOsk1",
+          "talk": "oskOne",
+          "after": "wsoldier",
+          "pending": "oskOne"
+        },
+        {
+          "ifNot": "beatLieutenantLead",
+          "talk": "oskTwoWait"
+        },
+        {
+          "ifNot": "beatOsk2",
+          "talk": "oskTwo",
+          "after": "wsoldier",
+          "pending": "oskTwo"
+        },
+        {
+          "ifNot": "medalOfHonor",
+          "talk": "oskThreeWait"
+        },
+        {
+          "ifNot": "beatOsk3",
+          "talk": "oskThree",
+          "after": "wsoldier",
+          "pending": "oskThree"
+        },
+        {
+          "talk": "oskDone"
+        }
+      ]
+    },
+    {
+      "map": "sagehouse",
+      "mark": "x",
+      "id": "ilse",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "ilseLore",
+      "script": [
+        {
+          "ifNot": "talkedIlse",
+          "set": "talkedIlse",
+          "talk": "ilseLore"
+        },
+        {
+          "ifNot": "badgeQuartz",
+          "talk": "ilseHint"
+        },
+        {
+          "ifNot": "badgeOpal",
+          "talk": "ilseHint"
+        },
+        {
+          "ifNot": "ilseGift",
+          "set": "ilseGift",
+          "grant": [
+            [
+              "ultimatecrystal",
+              1
+            ]
+          ],
+          "talk": "ilseBadges"
+        },
+        {
+          "talk": "ilseAgain"
+        }
+      ]
+    },
+    {
+      "map": "emptyhouse",
+      "mark": "x",
+      "id": "maren",
+      "role": "talk",
+      "sprite": "ghost",
+      "talk": "marenAsk",
+      "script": [
+        {
+          "hideIf": "marenRest"
+        },
+        {
+          "showIf": "joinedGhost"
+        },
+        {
+          "if": "item:ragDoll",
+          "set": "marenRest",
+          "takeItem": "ragDoll",
+          "grantMonster": [
+            "snowbell",
+            20
+          ],
+          "rep": 2,
+          "talk": "marenRest"
+        },
+        {
+          "ifNot": "talkedMaren",
+          "set": "talkedMaren",
+          "talk": "marenAsk"
+        },
+        {
+          "talk": "marenWait"
+        }
+      ]
+    },
+    {
+      "map": "emptyhouse",
+      "mark": "z",
+      "id": "emptyQuiet",
+      "role": "talk",
+      "sprite": "grave",
+      "talk": "emptyQuiet",
+      "script": [
+        {
+          "talk": "emptyQuiet"
+        }
+      ]
+    },
+    {
+      "map": "marsh",
+      "mark": "n",
+      "id": "dollPickup",
+      "role": "talk",
+      "sprite": "npc/pickup",
+      "talk": "dollFound",
+      "script": [
+        {
+          "hideIf": "pickedDoll"
+        },
+        {
+          "showIf": "talkedMaren"
+        },
+        {
+          "set": "pickedDoll",
+          "grant": [
+            [
+              "ragDoll",
+              1
+            ]
+          ],
+          "talk": "dollFound"
         }
       ]
     }

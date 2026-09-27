@@ -347,7 +347,13 @@
     "ruins": "occupation",
     "reach": "wilds",
     "marsh": "wilds",
-    "quarry": "wilds"
+    "quarry": "wilds",
+    "ruinslibrary": "home",
+    "ruinsinn": "home",
+    "brannhouse": "home",
+    "hermithut": "home",
+    "sagehouse": "home",
+    "emptyhouse": "occupation"
   },
   "titleSong": "title",
   "battleSong": "battle",

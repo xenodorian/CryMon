@@ -108,6 +108,15 @@ SPEAKER = {
     "iona": 85,
     "rhee": 86,
     "elder": 87,
+    # Ruins / Reach house interiors (build_guilds.py SITES)
+    "wyn": 88,
+    "lark": 89,
+    "hollis": 90,
+    "quill": 91,
+    "brann": 92,
+    "osk": 93,
+    "ilse": 94,
+    "maren": 95,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -1207,8 +1216,10 @@ def leg3_pending_ids(data: dict) -> dict:
 # Computed script flags (no save bit): "item:<id>" = the bag holds one,
 # "mon:<species>" = that CryMon can be handed over (Father's party, or
 # Max's when she'd still have another), "rep:pos" / "rep:neg" =
-# reputation above / below zero. main.c npc_flag_on() decodes these ranges.
+# reputation above / below zero, "dex:<n>" = at least n species caught in
+# the CryDex. main.c npc_flag_on() decodes these ranges.
 FLAG_ITEM_BASE, FLAG_MON_BASE, FLAG_REP_POS, FLAG_REP_NEG = 2000, 3000, 4000, 4001
+FLAG_DEX_BASE = 5000
 ITEM_INDEX: dict = {}
 SPECIES_INDEX: dict = {}
 
@@ -1224,6 +1235,11 @@ def flag_id(name) -> int:
         if name[4:] not in SPECIES_INDEX:
             raise SystemExit(f"unknown species in NPC flag {name!r}")
         return FLAG_MON_BASE + SPECIES_INDEX[name[4:]]
+    if name.startswith("dex:"):
+        n = int(name[4:]) if name[4:].isdigit() else -1
+        if n < 1 or n > len(SPECIES_INDEX):
+            raise SystemExit(f"dex count out of range in NPC flag {name!r}")
+        return FLAG_DEX_BASE + n
     if name == "rep:pos":
         return FLAG_REP_POS
     if name == "rep:neg":
@@ -1271,6 +1287,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append(f"#define FLAG_MON_BASE {FLAG_MON_BASE}")
     lines.append(f"#define FLAG_REP_POS {FLAG_REP_POS}")
     lines.append(f"#define FLAG_REP_NEG {FLAG_REP_NEG}")
+    lines.append(f"#define FLAG_DEX_BASE {FLAG_DEX_BASE}")
     # FLAG_* -> SAVE_FLAG_* (or -1): main.c gives every saved flag that has no
     # hand-wired variable generic storage and saves it through this.
     save_flags = data["save"]["flags"]

@@ -171,6 +171,13 @@ export const HAUNTEDHALL = normalize(raw.hauntedhall);
 export const HEROESHALL = normalize(raw.heroeshall);
 export const THIEVESDEN = normalize(raw.thievesden);
 
+export const RUINSLIBRARY = normalize(raw.ruinslibrary);
+export const RUINSINN = normalize(raw.ruinsinn);
+export const BRANNHOUSE = normalize(raw.brannhouse);
+export const HERMITHUT = normalize(raw.hermithut);
+export const SAGEHOUSE = normalize(raw.sagehouse);
+export const EMPTYHOUSE = normalize(raw.emptyhouse);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -236,6 +243,12 @@ export const MAPS = {
   hauntedhall: HAUNTEDHALL,
   heroeshall: HEROESHALL,
   thievesden: THIEVESDEN,
+  ruinslibrary: RUINSLIBRARY,
+  ruinsinn: RUINSINN,
+  brannhouse: BRANNHOUSE,
+  hermithut: HERMITHUT,
+  sagehouse: SAGEHOUSE,
+  emptyhouse: EMPTYHOUSE,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

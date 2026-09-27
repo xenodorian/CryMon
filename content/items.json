@@ -28,7 +28,10 @@
     "wraithLantern",
     "tamWatch",
     "silverLocket",
-    "oldMap"
+    "oldMap",
+    "brannLetter",
+    "marnReply",
+    "ragDoll"
   ],
   "defs": {
     "gem": {
@@ -359,6 +362,33 @@
       "id": "oldMap",
       "name": "Old Map",
       "desc": "A hand-drawn map of the Sephirot, older than Nero's reign.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "brannLetter": {
+      "id": "brannLetter",
+      "name": "Brann's Letter",
+      "desc": "Sealed with wax. For Marn, in Malkuth.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "marnReply": {
+      "id": "marnReply",
+      "name": "Marn's Reply",
+      "desc": "A thick letter for Brann, in the Ruins.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "ragDoll": {
+      "id": "ragDoll",
+      "name": "Maren's Rag Doll",
+      "desc": "Soaked and patched. One button eye. Her name is Button.",
       "battle": false,
       "field": false,
       "buy": 0,

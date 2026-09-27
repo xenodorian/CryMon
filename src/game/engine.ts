@@ -798,6 +798,8 @@ export class CryMon {
 			skipToCliffs: () => this.skipToWorld("cliffs"),
 			skipToRuins: () => this.skipToWorld("ruins"),
 			skipToReach: () => this.skipToWorld("reach"),
+			skipTo: (mapId) => this.skipToWorld(mapId),
+			engine: () => this,
 			skipToMarsh: () => this.skipToWorld("marsh"),
 			skipToQuarry: () => this.skipToWorld("quarry"),
 			resetRun: () => {
@@ -2228,9 +2230,12 @@ export class CryMon {
 	}
 	/** Computed script flags (see bake_content.py flag_id): item:<id> = in the
 	 *  bag, mon:<species> = can be handed over (Father's party, or Max's while
-	 *  she keeps another), rep:pos / rep:neg. */
+	 *  she keeps another), rep:pos / rep:neg, dex:<n> = at least n species
+	 *  caught. */
 	computedFlags(): Record<string, boolean> {
 		const out: Record<string, boolean> = { "rep:pos": this.reputation > 0, "rep:neg": this.reputation < 0 };
+		const caughtN = SAVE_SPECIES.filter((id) => this.dexHas(this.dexCaught, id)).length;
+		for (let n = 1; n <= caughtN; n++) out[`dex:${n}`] = true;
 		for (const id of ITEM_ORDER) if ((this.bag[id] ?? 0) > 0) out[`item:${id}`] = true;
 		for (const m of this.party2) out[`mon:${m.species}`] = true;
 		if (this.party.length > 1) for (const m of this.party) out[`mon:${m.species}`] = true;
@@ -5048,9 +5053,11 @@ export class CryMon {
 		};
 		// Lowercase NPC-spot letters (build_leg3.py / build_guilds.py) paint
 		// as the tile maps.json tileArt names: interior spots are floor, and
-		// b / w are doors set into a building's wall.
-		if (ch >= "a" && ch <= "z" && TILE_ART[ch] === "tile-floor") ch = "F";
-		if (ch >= "a" && ch <= "z" && TILE_ART[ch] === "tile-door") {
+		// b / w (and ( ) 0, extra doors on one map) are doors set into a
+		// building's wall.
+		const spot = (ch >= "a" && ch <= "z") || ch === "(" || ch === ")" || ch === "0";
+		if (spot && TILE_ART[ch] === "tile-floor") ch = "F";
+		if (spot && TILE_ART[ch] === "tile-door") {
 			this.paintTile("H", dx, dy);
 			fill("#1a120c", dx + 4, dy + 4, t - 8, t - 4);
 			fill("#5a3a24", dx + 6, dy + 6, t - 12, t - 6);

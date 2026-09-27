@@ -63,7 +63,13 @@
     "ghostcrypt": "THE GHOST GUILD",
     "hauntedhall": "THE HAUNTED HALL",
     "heroeshall": "THE HEROES GUILD",
-    "thievesden": "THE THIEVES DEN"
+    "thievesden": "THE THIEVES DEN",
+    "ruinslibrary": "THE OLD LIBRARY",
+    "ruinsinn": "THE RUINS INN",
+    "brannhouse": "BRANN'S HOUSE",
+    "hermithut": "THE HERMIT'S HUT",
+    "sagehouse": "THE SAGE'S HOUSE",
+    "emptyhouse": "THE EMPTY HOUSE"
   },
   "mapIds": [
     "house",
@@ -129,6 +135,12 @@
     "ghostcrypt",
     "hauntedhall",
     "heroeshall",
-    "thievesden"
+    "thievesden",
+    "ruinslibrary",
+    "ruinsinn",
+    "brannhouse",
+    "hermithut",
+    "sagehouse",
+    "emptyhouse"
   ]
 }

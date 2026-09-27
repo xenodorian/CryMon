@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=7693235cae7c4461 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=198c5282c9c67ea5 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -64,7 +64,13 @@
 #define MAP_HAUNTEDHALL 61
 #define MAP_HEROESHALL 62
 #define MAP_THIEVESDEN 63
-#define MAP_N 64
+#define MAP_RUINSLIBRARY 64
+#define MAP_RUINSINN 65
+#define MAP_BRANNHOUSE 66
+#define MAP_HERMITHUT 67
+#define MAP_SAGEHOUSE 68
+#define MAP_EMPTYHOUSE 69
+#define MAP_N 70
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -206,7 +212,7 @@ static const char *const map_ruins_rows[] = {
     "#..................#",
     "#......6...........#",
     "#..rrr........rrr..#",
-    "#..HwH........HHH..#",
+    "#..HwH........H(H..#",
     "#..................#",
     "#..................#",
     "#..................#",
@@ -214,7 +220,7 @@ static const char *const map_ruins_rows[] = {
     "#....J........K....#",
     "#.............7....#",
     "#..rrr........rrr..#",
-    "#..HHH....A...HHH..#",
+    "#..H)H....A...H0H..#",
     "#..................#",
     "#.....i.........d..#",
     "#..................#",
@@ -228,7 +234,7 @@ static const char *const map_reach_rows[] = {
     "#.........#........#",
     "#.......Q..........#",
     "#..rrr........rrr..#",
-    "#..HHH........HwH..#",
+    "#..H(H........HwH..#",
     "#..................#",
     "#......TTTTTT......#",
     "#......TTTTTT......#",
@@ -237,7 +243,7 @@ static const char *const map_reach_rows[] = {
     "#......TTTTTT......#",
     "#..........O.......#",
     "#..rrr........rrr..#",
-    "#..HHH........HHH..#",
+    "#..H)H........H0H..#",
     "#..................#",
     "####################",
 };
@@ -246,7 +252,7 @@ static const char *const map_marsh_rows[] = {
     "##################",
     "####.........#####",
     "###....====....###",
-    "###....====....###",
+    "###....====...n###",
     "##..T..====..T..##",
     "##..T..====..T..##",
     "##.TTT.====.TTT.##",
@@ -1431,6 +1437,68 @@ static const char *const map_thievesden_rows[] = {
     "HHHHHDHHHHHH",
 };
 
+static const char *const map_ruinslibrary_rows[] = {
+    "HHHHHHHHHHHH",
+    "HCCFCCFCCFCH",
+    "HFFxFFFFzFFH",
+    "HFFFFFFFFFFH",
+    "HCCFFFFFFCCH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HHHHHDHHHHHH",
+};
+
+static const char *const map_ruinsinn_rows[] = {
+    "HHHHHHHHHHHH",
+    "HBFBFBFFFFFH",
+    "HFFFFFFxFFFH",
+    "HFFFFFFFFFFH",
+    "HFFzFFFFFFFH",
+    "HFFFFFFFFCCH",
+    "HFFFFFFFFFFH",
+    "HHHHHDHHHHHH",
+};
+
+static const char *const map_brannhouse_rows[] = {
+    "HHHHHHHHHH",
+    "HBFFFFFCCH",
+    "HFFFxFFFFH",
+    "HFFFFFFFFH",
+    "HFFFFFFzFH",
+    "HFFFFFFFFH",
+    "HHHHDHHHHH",
+};
+
+static const char *const map_hermithut_rows[] = {
+    "HHHHHHHHHH",
+    "HCFFFFFFBH",
+    "HFFFFxFFFH",
+    "HFFFFFFFFH",
+    "HFFFFFFFFH",
+    "HFFFFFFFFH",
+    "HHHHDHHHHH",
+};
+
+static const char *const map_sagehouse_rows[] = {
+    "HHHHHHHHHH",
+    "HBFFFFFCCH",
+    "HFFFxFFFFH",
+    "HFFFFFFFFH",
+    "HFFFFFFzFH",
+    "HFFFFFFFFH",
+    "HHHHDHHHHH",
+};
+
+static const char *const map_emptyhouse_rows[] = {
+    "HHHHHHHHHH",
+    "HBFFFFFCCH",
+    "HFFFxFFFFH",
+    "HFFFFFFFFH",
+    "HFFFFFFzFH",
+    "HFFFFFFFFH",
+    "HHHHDHHHHH",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 31, 23 },
@@ -1496,10 +1564,16 @@ static const Map MAPS[MAP_N] = {
     { map_hauntedhall_rows, 11, 14 },
     { map_heroeshall_rows, 12, 8 },
     { map_thievesden_rows, 12, 8 },
+    { map_ruinslibrary_rows, 12, 8 },
+    { map_ruinsinn_rows, 12, 8 },
+    { map_brannhouse_rows, 10, 7 },
+    { map_hermithut_rows, 10, 7 },
+    { map_sagehouse_rows, 10, 7 },
+    { map_emptyhouse_rows, 10, 7 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH", "MALKUTH BASE", "YESOD BASE", "NETZACH BASE", "HOD BASE", "TIFERET BASE", "CHESED BASE", "GEVURAH BASE", "BINAH BASE", "CHOKMAH BASE", "NERO'S PALACE", "THE GHOST GUILD", "THE HAUNTED HALL", "THE HEROES GUILD", "THE THIEVES DEN",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH", "MALKUTH BASE", "YESOD BASE", "NETZACH BASE", "HOD BASE", "TIFERET BASE", "CHESED BASE", "GEVURAH BASE", "BINAH BASE", "CHOKMAH BASE", "NERO'S PALACE", "THE GHOST GUILD", "THE HAUNTED HALL", "THE HEROES GUILD", "THE THIEVES DEN", "THE OLD LIBRARY", "THE RUINS INN", "BRANN'S HOUSE", "THE HERMIT'S HUT", "THE SAGE'S HOUSE", "THE EMPTY HOUSE",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NrU%k";

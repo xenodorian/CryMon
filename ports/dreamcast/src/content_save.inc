@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=7693235cae7c4461 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=198c5282c9c67ea5 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
@@ -7,8 +7,8 @@
 #define SAVE_SIZE 332
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
-#define SAVE_FLAG_N 186
-#define SAVE_ITEM_N 29
+#define SAVE_FLAG_N 203
+#define SAVE_ITEM_N 32
 #define SAVE_FLAG_TOOK_STARTER 0
 #define SAVE_FLAG_TALKED_FATHER 1
 #define SAVE_FLAG_LOOTED_CRATE 2
@@ -195,6 +195,23 @@
 #define SAVE_FLAG_IONA_FOUND 183
 #define SAVE_FLAG_IONA_HOME 184
 #define SAVE_FLAG_GAVE_ARCANOX 185
+#define SAVE_FLAG_TALKED_WYN 186
+#define SAVE_FLAG_LIBRARY_DEX10 187
+#define SAVE_FLAG_LIBRARY_DEX25 188
+#define SAVE_FLAG_LIBRARY_DEX50 189
+#define SAVE_FLAG_LIBRARY_DEX80 190
+#define SAVE_FLAG_LIBRARY_DEX_ALL 191
+#define SAVE_FLAG_BRANN_ASKED 192
+#define SAVE_FLAG_GAVE_LETTER 193
+#define SAVE_FLAG_BRANN_DONE 194
+#define SAVE_FLAG_BEAT_OSK1 195
+#define SAVE_FLAG_BEAT_OSK2 196
+#define SAVE_FLAG_BEAT_OSK3 197
+#define SAVE_FLAG_ILSE_GIFT 198
+#define SAVE_FLAG_TALKED_ILSE 199
+#define SAVE_FLAG_TALKED_MAREN 200
+#define SAVE_FLAG_PICKED_DOLL 201
+#define SAVE_FLAG_MAREN_REST 202
 
 /* Blob layout (little-endian), shared with src/game/save.ts:
    0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,
@@ -212,6 +229,6 @@ static const unsigned short SAVE_DEX_CAUGHT_OFF[SAVE_DEX_BYTES] = { 148, 149, 15
 #define SAVE_PARTY_NATURE 12
 #define SAVE_FLAG_BYTES 32
 static const unsigned short SAVE_FLAG_OFF[SAVE_FLAG_BYTES] = { 38, 39, 40, 41, 42, 43, 44, 45, 280, 281, 282, 283, 284, 285, 286, 287, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315 };
-static const unsigned short SAVE_BAG_OFF[SAVE_ITEM_N] = { 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 288, 289, 290, 291, 292, 293, 294, 295, 296 };
+static const unsigned short SAVE_BAG_OFF[SAVE_ITEM_N] = { 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299 };
 
 #endif

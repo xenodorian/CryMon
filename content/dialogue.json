@@ -87,7 +87,15 @@
     "anselm": "Brother Anselm",
     "iona": "Sister Iona",
     "rhee": "Archivist Rhee",
-    "elder": "Elder"
+    "elder": "Elder",
+    "wyn": "Archivist Wyn",
+    "lark": "Lark",
+    "hollis": "Hollis",
+    "quill": "Quill",
+    "brann": "Brann",
+    "osk": "Hermit Osk",
+    "ilse": "Sage Ilse",
+    "maren": "Maren"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
@@ -4522,6 +4530,496 @@
       {
         "speaker": "townswoman",
         "text": "Nero's palace in Keter will open for you now."
+      }
+    ],
+    "wynFirst": [
+      {
+        "speaker": "wyn",
+        "text": "Quiet, please. This is the last library in Sorrow County. The army burned the rest."
+      },
+      {
+        "speaker": "wyn",
+        "text": "I'm Archivist Wyn. I write down every CryMon anyone has ever caught."
+      },
+      {
+        "speaker": "wyn",
+        "text": "You carry a CryDex? Good. Fill it. Every time you catch more kinds, come show me."
+      },
+      {
+        "speaker": "wyn",
+        "text": "Ten kinds, twenty-five, fifty, eighty, and every last one. I pay for each."
+      }
+    ],
+    "wynDex10": [
+      {
+        "speaker": "wyn",
+        "text": "Ten kinds already. You have good eyes."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 5 Great Crystals."
+      }
+    ],
+    "wynDex25": [
+      {
+        "speaker": "wyn",
+        "text": "Twenty-five! Most trainers never see that many."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 3 Mega Crystals."
+      }
+    ],
+    "wynDex50": [
+      {
+        "speaker": "wyn",
+        "text": "Fifty kinds. Half the county's CryMon, in one girl's book."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 3 Ultimate Crystals."
+      }
+    ],
+    "wynDex80": [
+      {
+        "speaker": "wyn",
+        "text": "Eighty. I've waited forty years to read a list this long."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got a Perfect Crystal."
+      }
+    ],
+    "wynDexAll": [
+      {
+        "speaker": "wyn",
+        "text": "Every kind. Every single one."
+      },
+      {
+        "speaker": "wyn",
+        "text": "I'll copy your CryDex into the library's great book. Your name goes on the first page."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 3 Perfect Crystals."
+      }
+    ],
+    "wynNeed10": [
+      {
+        "speaker": "wyn",
+        "text": "Show me ten kinds caught. The grass here has Runemotes, Crymares and Glasswisps."
+      }
+    ],
+    "wynNeed25": [
+      {
+        "speaker": "wyn",
+        "text": "Twenty-five kinds next. Every patch of tall grass has its own three."
+      }
+    ],
+    "wynNeed50": [
+      {
+        "speaker": "wyn",
+        "text": "Fifty kinds next. The Sephirot cities north of the Veil have grass you've never seen."
+      }
+    ],
+    "wynNeed80": [
+      {
+        "speaker": "wyn",
+        "text": "Eighty kinds next. Some only grow up by evolving. Train them."
+      }
+    ],
+    "wynNeedAll": [
+      {
+        "speaker": "wyn",
+        "text": "Only a few kinds left. Look at your CryDex. The blank rows are what's missing."
+      }
+    ],
+    "wynDone": [
+      {
+        "speaker": "wyn",
+        "text": "Your name is on the first page. Come read it any time."
+      }
+    ],
+    "larkLore": [
+      {
+        "speaker": "lark",
+        "text": "I'm Lark, Wyn's helper. I read the old books so she doesn't have to."
+      },
+      {
+        "speaker": "lark",
+        "text": "This town was Aven before it was the Ruins. Nero's army came through twelve years ago, the year his queen died."
+      },
+      {
+        "speaker": "lark",
+        "text": "North of CryTown are the Sephirot. Ten cities in a tree, from Malkuth at the root to Keter at the crown."
+      },
+      {
+        "speaker": "lark",
+        "text": "Nero sits in Keter. Nobody from down here has seen him in twelve years."
+      }
+    ],
+    "larkLore2": [
+      {
+        "speaker": "lark",
+        "text": "You made it north? Then listen. Each city has a General, and each General made Nero a promise about someone they lost."
+      },
+      {
+        "speaker": "lark",
+        "text": "Harrow holds Malkuth, Ashgrove holds Yesod. Stroud, Vale, Kessler, Morrow, Crane and Blackwood hold the middle."
+      },
+      {
+        "speaker": "lark",
+        "text": "Sorrel holds Chokmah, last before the crown. The books say she was at the queen's bedside when she died."
+      }
+    ],
+    "hollisRest": [
+      {
+        "speaker": "hollis",
+        "text": "Welcome to the Ruins Inn. Only inn west of CryTown, so don't complain about the beds."
+      },
+      {
+        "speaker": "none",
+        "text": "Max rests. The CryMon sleep. Everyone wakes up healed."
+      },
+      {
+        "speaker": "hollis",
+        "text": "Free for you. The whole Ruins knows who beat the soldiers at the gate."
+      }
+    ],
+    "quillReach": [
+      {
+        "speaker": "quill",
+        "text": "I'm Quill. I walk the county and hear everything."
+      },
+      {
+        "speaker": "quill",
+        "text": "The man in white who broke out of the rock went west to the Reach. He's waiting for someone. Maybe you."
+      }
+    ],
+    "quillCrypt": [
+      {
+        "speaker": "quill",
+        "text": "Lights under the northwest house here in the Ruins. Somebody's living in the old crypt now."
+      }
+    ],
+    "quillInes": [
+      {
+        "speaker": "quill",
+        "text": "You're working for the man in white? Then you want graves."
+      },
+      {
+        "speaker": "quill",
+        "text": "There's a grave in the southeast corner of these Ruins. No name on it, fresh flowers every spring."
+      }
+    ],
+    "quillTomas": [
+      {
+        "speaker": "quill",
+        "text": "The Prison yard in the Grove has a grave by the east wall. Soldiers won't go near it."
+      }
+    ],
+    "quillOriel": [
+      {
+        "speaker": "quill",
+        "text": "There's a grave in the Marsh, down in the southwest by the reeds."
+      }
+    ],
+    "quillShrines": [
+      {
+        "speaker": "quill",
+        "text": "The three old shrines? Top of the Cliffs, the middle of the Quarry, and deep in the east of the Forest."
+      }
+    ],
+    "quillHall": [
+      {
+        "speaker": "quill",
+        "text": "The house in the northeast of the Reach. The haunted one. Three things wail in there at night."
+      }
+    ],
+    "quillVesk": [
+      {
+        "speaker": "quill",
+        "text": "You look like someone with bones in her bag. Take them back to the crypt. Be ready for a fight."
+      }
+    ],
+    "quillDone": [
+      {
+        "speaker": "quill",
+        "text": "The Veil is gone. Everybody's heard. North is where the story is now."
+      }
+    ],
+    "brannAsk": [
+      {
+        "speaker": "brann",
+        "text": "Shut the door. Are you army? No. You're a kid. Good."
+      },
+      {
+        "speaker": "brann",
+        "text": "I'm Brann. I marched for Nero for twenty years. Then I watched him keep his own dead soldiers and I ran."
+      },
+      {
+        "speaker": "brann",
+        "text": "My brother Marn lives in Malkuth, past the Veil and past Lead. I haven't written him in twelve years."
+      },
+      {
+        "speaker": "brann",
+        "text": "If you ever get north, take him this. Tell him I'm alive."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got Brann's Letter."
+      }
+    ],
+    "brannWait": [
+      {
+        "speaker": "brann",
+        "text": "Malkuth is the first city past the Weeping Road. Marn is the old man everyone goes to for advice."
+      }
+    ],
+    "brannReply": [
+      {
+        "speaker": "brann",
+        "text": "That's his writing. He still calls me Brannie. Forty-nine years old and I'm Brannie."
+      },
+      {
+        "speaker": "brann",
+        "text": "You did this for a deserter. Take Tusk. He carried me out of the army and I never had the heart to fight him again."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got Brann's Warbison."
+      }
+    ],
+    "brannAfter": [
+      {
+        "speaker": "brann",
+        "text": "Tusk is happier with you. He hates sitting still."
+      },
+      {
+        "speaker": "brann",
+        "text": "If you meet Nero, don't look at the queen's ring. He thinks she's still wearing it."
+      }
+    ],
+    "marnLetter": [
+      {
+        "speaker": "marn",
+        "text": "A letter? From Brann? My brother Brann?"
+      },
+      {
+        "speaker": "marn",
+        "text": "He's alive. Twelve years I thought Nero had him bound in the Veil."
+      },
+      {
+        "speaker": "marn",
+        "text": "Wait here. I'm writing back. Take this to him, and tell him to eat something."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got Marn's Reply."
+      }
+    ],
+    "oskOne": [
+      {
+        "speaker": "osk",
+        "text": "A child in the Reach. The scroll let you through, did it?"
+      },
+      {
+        "speaker": "osk",
+        "text": "I'm Osk. I teach fighting to anyone who can stand up after I knock them down."
+      },
+      {
+        "speaker": "osk",
+        "text": "Three things save a CryMon. Dodge, block and barrier. Speed dodges, strength blocks, magic shields."
+      },
+      {
+        "speaker": "osk",
+        "text": "Show me you know them."
+      }
+    ],
+    "oskOneWin": [
+      {
+        "speaker": "osk",
+        "text": "Good. You didn't panic. Come back when you've beaten Lieutenant Lead. I'll use my real team."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 2 Mega Crystals."
+      }
+    ],
+    "oskTwoWait": [
+      {
+        "speaker": "osk",
+        "text": "My real team is for someone who has beaten Lieutenant Lead. Go north first."
+      }
+    ],
+    "oskTwo": [
+      {
+        "speaker": "osk",
+        "text": "Lead is down? Then you've met a six-CryMon fight. Here's another."
+      }
+    ],
+    "oskTwoWin": [
+      {
+        "speaker": "osk",
+        "text": "Well done. One more lesson, when you carry the medal of the last General. Then I have nothing left to teach."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 2 Ultimate Crystals."
+      }
+    ],
+    "oskThreeWait": [
+      {
+        "speaker": "osk",
+        "text": "The last lesson is for someone holding all nine medals. Come back then."
+      }
+    ],
+    "oskThree": [
+      {
+        "speaker": "osk",
+        "text": "Nine medals. Only the King is left. Fight me like I'm him."
+      }
+    ],
+    "oskThreeWin": [
+      {
+        "speaker": "osk",
+        "text": "That's it. There's nothing I can show you that Nero won't."
+      },
+      {
+        "speaker": "osk",
+        "text": "Take these. Win."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got a Perfect Crystal and 3 Panaceas."
+      }
+    ],
+    "oskDone": [
+      {
+        "speaker": "osk",
+        "text": "Go on. Keter is waiting. I'll be here, knocking down the next one."
+      }
+    ],
+    "ilseLore": [
+      {
+        "speaker": "ilse",
+        "text": "Sit. I'm Ilse. People call me the Sage because I'm old and I talk a lot."
+      },
+      {
+        "speaker": "ilse",
+        "text": "Every CryMon carries a crystal, and every one of its kind carries the same one. The crystal is its type."
+      },
+      {
+        "speaker": "ilse",
+        "text": "Ruby is fire. It burns Emerald and melts Sapphire. Jasper smothers it."
+      },
+      {
+        "speaker": "ilse",
+        "text": "Sapphire is ice. It kills Emerald and cracks Jasper. Emerald's roots split Jasper, and life overgrows Obsidian."
+      },
+      {
+        "speaker": "ilse",
+        "text": "Jasper is earth. It soaks up Citrine lightning. Citrine lights up Obsidian's dark."
+      },
+      {
+        "speaker": "ilse",
+        "text": "Obsidian swallows Prism light and Diamond starlight. Prism magic masters fire, ice and lightning. Diamond craters Jasper."
+      },
+      {
+        "speaker": "ilse",
+        "text": "Quartz is plain. Nothing beats it and it beats nothing. Don't laugh. Plain lasts."
+      }
+    ],
+    "ilseBadges": [
+      {
+        "speaker": "ilse",
+        "text": "Both of the Reach's badges? Quartz and Opal don't give those out lightly."
+      },
+      {
+        "speaker": "ilse",
+        "text": "Here. I cut this one myself, forty years ago. It's time it caught something."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got an Ultimate Crystal."
+      }
+    ],
+    "ilseHint": [
+      {
+        "speaker": "ilse",
+        "text": "Win both of the Reach's badges, Quartz's and Opal's, and come back. I have something for you."
+      },
+      {
+        "speaker": "ilse",
+        "text": "Want the crystals again? Ruby burns, Sapphire freezes, Emerald grows, Jasper buries, Citrine strikes, Obsidian swallows, Prism masters, Diamond falls."
+      }
+    ],
+    "ilseAgain": [
+      {
+        "speaker": "ilse",
+        "text": "Hit the weakness and a fight is half as long. Walk into a resist and it's twice as long. That's all the wisdom I have."
+      }
+    ],
+    "marenAsk": [
+      {
+        "speaker": "none",
+        "text": "A cold spot moves by the bed. A girl made of mist looks up at Max."
+      },
+      {
+        "speaker": "maren",
+        "text": "You can see me? Nobody sees me. Not since the soldiers came."
+      },
+      {
+        "speaker": "maren",
+        "text": "I'm Maren. I got sick the winter the army came through. A man in grey came after. He said I had to stay."
+      },
+      {
+        "speaker": "max",
+        "text": "Mourner Vesk."
+      },
+      {
+        "speaker": "maren",
+        "text": "The soldiers threw my doll in the Marsh. I can't leave without her. Can you find her? She's by the north water."
+      }
+    ],
+    "marenWait": [
+      {
+        "speaker": "maren",
+        "text": "My doll is in the Marsh. North end, by the water. Please."
+      }
+    ],
+    "marenRest": [
+      {
+        "speaker": "maren",
+        "text": "Button! You found her!"
+      },
+      {
+        "speaker": "maren",
+        "text": "I can go now. I can feel it. Thank you."
+      },
+      {
+        "speaker": "maren",
+        "text": "Frost stayed with me the whole time. She's tired of this house. Take her with you."
+      },
+      {
+        "speaker": "none",
+        "text": "The mist is gone. A Snowbell sits on the empty bed and hops to Max."
+      }
+    ],
+    "dollFound": [
+      {
+        "speaker": "none",
+        "text": "A rag doll lies in the reeds, soaked through. A button for one eye."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got Maren's Rag Doll."
+      }
+    ],
+    "emptyQuiet": [
+      {
+        "speaker": "none",
+        "text": "The house is cold. Nobody lives here any more."
       }
     ]
   },
