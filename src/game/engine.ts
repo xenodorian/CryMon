@@ -60,7 +60,7 @@ import {
   HYPE_UP,
   effectiveStat
 , TILE_ART } from "./data";
-import { paintTileArt } from "./tileArt";
+import { LIGHTS, paintTileArt } from "./tileArt";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
 import type {
@@ -5068,6 +5068,7 @@ export class CryMon {
 		const y0 = Math.max(0, Math.floor(camy / TILE) - 1);
 		const x1 = Math.min(mw / TILE, Math.ceil((camx + VIEW_W) / TILE) + 1);
 		const y1 = Math.min(mh / TILE, Math.ceil((camy + VIEW_H) / TILE) + 1);
+		LIGHTS.length = 0;
 		for (let y = y0; y < y1; y++) {
 			const row = map[y];
 			if (!row) continue;
@@ -5234,6 +5235,8 @@ export class CryMon {
 		// building's wall.
 		const spot = (ch >= "a" && ch <= "z") || ch === "(" || ch === ")" || ch === "0";
 		if (spot && TILE_ART[ch] === "tile-floor") ch = "F";
+		// Painted ground and building tiles (tileArt.ts); falls through while they load.
+		if (tx >= 0 && paintTileArt(ctx, this.images, map, ch, dx, dy, tx, ty, performance.now(), this.world.mapId)) return;
 		if (spot && TILE_ART[ch] === "tile-door") {
 			this.paintTile("H", dx, dy);
 			fill("#1a120c", dx + 4, dy + 4, t - 8, t - 4);
@@ -5241,8 +5244,6 @@ export class CryMon {
 			fill("#c8a050", dx + t - 11, dy + t / 2, 2, 2);
 			return;
 		}
-		// Painted ground tiles (tileArt.ts); falls through while they load.
-		if (tx >= 0 && paintTileArt(ctx, this.images, map, ch, dx, dy, tx, ty, performance.now())) return;
 		if (ch === "H") {
 			fill("#2a1e16");
 			fill("#3d2c22", dx, dy, t, 1);
@@ -5648,6 +5649,7 @@ export class CryMon {
 		actorQueue.push({ y: this.world.y, draw: () => this.drawActor(`max-${this.world.dir}-${frame}`, this.world.x, this.world.y) });
 		actorQueue.sort((a, b) => a.y - b.y);
 		for (const entry of actorQueue) entry.draw();
+		this.drawAmbient();
 		if (this.talking()) {
 			this.drawTalk();
 			this.drawMapTitle();
@@ -5660,6 +5662,66 @@ export class CryMon {
 			this.wrap(this.hudFlash, 40).slice(0, 3).forEach((ln, i) => this.text(ln, X(14), Y(122 + i * 10), "#e8e4d8", FONT));
 			this.text("Z", X(218), Y(144), "#8a8678", FONT);
 		}
+	}
+	/** Map mood from sprites.json ambient: "haunt" (night tint, low fog,
+	 *  ghost motes), "veil" (grey tint, pale wisps rising off the road),
+	 *  "mist" (light drifting fog). Wall torches and lanterns (tileArt
+	 *  LIGHTS) glow on top on every map. The Dreamcast draw_ambient()
+	 *  mirrors this with the same kinds. */
+	drawAmbient() {
+		const ctx = this.ctx;
+		const kind = (SPRITES as { ambient?: Record<string, string> }).ambient?.[this.world.mapId];
+		const t = this.clock;
+		const { cx, cy } = this.cam();
+		ctx.save();
+		if (kind === "haunt" || kind === "veil" || kind === "mist") {
+			ctx.fillStyle = kind === "haunt" ? "rgba(8,12,40,0.45)" : kind === "veil" ? "rgba(50,58,78,0.32)" : "rgba(170,190,180,0.10)";
+			ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		}
+		if (kind === "haunt" || kind === "mist") {
+			// slow fog banks, anchored loosely to the world so they drift past
+			for (let i = 0; i < 7; i++) {
+				const fx = ((i * 211 + t * (10 + i * 3) - cx * 0.6) % (VIEW_W + 320) + VIEW_W + 320) % (VIEW_W + 320) - 160;
+				const fy = ((i * 137 - cy * 0.6) % (VIEW_H + 120) + VIEW_H + 120) % (VIEW_H + 120) - 60 + Math.sin(t * 0.4 + i) * 10;
+				const g = ctx.createRadialGradient(0, 0, 4, 0, 0, 150);
+				const a = kind === "haunt" ? 0.2 : 0.16;
+				g.addColorStop(0, `rgba(200,210,225,${a})`);
+				g.addColorStop(1, "rgba(200,210,225,0)");
+				ctx.save();
+				ctx.translate(fx, fy);
+				ctx.scale(1, 0.4);
+				ctx.fillStyle = g;
+				ctx.fillRect(-150, -150, 300, 300);
+				ctx.restore();
+			}
+		}
+		if (kind === "haunt" || kind === "veil") {
+			// ghost motes (haunt) drift and blink; Veil wisps rise off the road
+			const n = kind === "veil" ? 34 : 18;
+			for (let i = 0; i < n; i++) {
+				const sp = 12 + (i % 5) * 5;
+				const px = ((i * 97 + Math.sin(t * 0.7 + i) * 18 - cx * 0.2) % VIEW_W + VIEW_W) % VIEW_W;
+				const py = kind === "veil"
+					? VIEW_H - (((t * sp + i * 53) % (VIEW_H + 20)) + VIEW_H + 20) % (VIEW_H + 20)
+					: ((i * 71 + Math.cos(t * 0.5 + i) * 14 - cy * 0.2) % VIEW_H + VIEW_H) % VIEW_H;
+				const a = 0.35 + 0.35 * Math.sin(t * 2 + i * 1.7);
+				ctx.fillStyle = kind === "veil" ? `rgba(220,226,240,${a})` : `rgba(150,220,255,${a})`;
+				const s = kind === "veil" ? 2 + (i % 3) : 3;
+				ctx.fillRect(Math.round(px), Math.round(py), s, kind === "veil" ? s * 2 : s);
+			}
+		}
+		if (LIGHTS.length) {
+			ctx.globalCompositeOperation = "lighter";
+			for (const L of LIGHTS) {
+				const r = (L.kind === "torch" ? 46 : 34) + Math.sin(t * 9 + L.x) * 3;
+				const g = ctx.createRadialGradient(L.x, L.y, 2, L.x, L.y, r);
+				g.addColorStop(0, kind === "haunt" ? "rgba(255,170,80,0.42)" : "rgba(255,170,80,0.26)");
+				g.addColorStop(1, "rgba(255,140,40,0)");
+				ctx.fillStyle = g;
+				ctx.fillRect(L.x - r, L.y - r, r * 2, r * 2);
+			}
+		}
+		ctx.restore();
 	}
 	drawTalk() {
 		const beat = this.beat();

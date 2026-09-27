@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=77cf5de48c08e3a9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=c5a2afe2d11553a9 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -1578,6 +1578,13 @@ static const char *const MAP_DISPLAY_NAME[MAP_N] = {
 
 static const unsigned char MAP_BATTLE_BG[MAP_N] = {
     4, 0, 3, 3, 8, 1, 8, 3, 5, 1, 7, 7, 7, 7, 7, 7, 2, 9, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 6, 9, 9, 9, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 2, 2, 4, 4, 4, 4, 4, 4, 4, 2,
+};
+
+static const unsigned char MAP_TILE_THEME[MAP_N] = {
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 3, 3, 1, 1, 1, 1, 1, 1, 1, 3,
+};
+static const unsigned char MAP_AMBIENT[MAP_N] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 2, 2, 2, 2, 2, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1,
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NrU%k";
