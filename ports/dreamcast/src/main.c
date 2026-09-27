@@ -1604,6 +1604,7 @@ static void ws_push(WorldSprite *list, int *n, const u16 *px, int w, int h, int 
     (*n)++;
 }
 
+static int choice_pending_ws = -1;
 static int npc_exec_bit(int map_id, char mark);
 static void ws_push_mark(WorldSprite *list, int *n, int map_id, char mark, const u16 *px, int w, int h) {
     int cx, cy, ebit;
@@ -6278,7 +6279,6 @@ static void do_warp(int *map_id, int *px, int *py, int *pdir,
 #define POST_WSOLDIER_HEAVENFALL_GRAVE 31
 #define POST_HFGAMEOVER_SCREAM 33
 #define POST_PRIESTESS_TELEPORT 34
-static int choice_pending_ws = -1;
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
    from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
    title and crystal-tier stock, no separate post_action per merchant. */
@@ -6458,7 +6458,7 @@ void main(void) {
        dialogue is showing. post_action fires once the sequence
        finishes (state.lua's afterTalk/beginTalkEnd): starting a
        trainer battle or opening the shop. */
-    const TalkBeat *seq_page = 0; seq_lines = 0;
+    const TalkBeat *seq_lines = 0;
     int seq_len = 0, seq_beat = 0;
     int post_action = 0, post_soldier_id = 0;
 
