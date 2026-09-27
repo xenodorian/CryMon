@@ -4507,6 +4507,317 @@
           "pending": "nero"
         }
       ]
+    },
+    {
+      "map": "malkuth",
+      "mark": "h",
+      "id": "ada",
+      "role": "talk",
+      "sprite": "npc/ada",
+      "talk": "adaHeal",
+      "script": [
+        {
+          "heal": true,
+          "talk": "adaHeal"
+        }
+      ]
+    },
+    {
+      "map": "malkuth",
+      "mark": "v",
+      "id": "hale",
+      "role": "shop",
+      "sprite": "npc/hale",
+      "talk": "haleOpen",
+      "script": [
+        {
+          "talk": "haleOpen",
+          "after": "shop:hale"
+        }
+      ]
+    },
+    {
+      "map": "malkuth",
+      "mark": "y",
+      "id": "marn",
+      "role": "talk",
+      "sprite": "npc/marn",
+      "talk": "marnFirst",
+      "script": [
+        {
+          "ifNot": "talkedMarn",
+          "set": "talkedMarn",
+          "talk": "marnFirst"
+        },
+        {
+          "if": "hasGoldenShackles",
+          "talk": "marnGold"
+        },
+        {
+          "talk": "marnAgain"
+        }
+      ]
+    },
+    {
+      "map": "malkuth",
+      "mark": "u",
+      "id": "citizenMalkuth",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenMalkuthBefore",
+      "script": [
+        {
+          "if": "medalBronzeStar",
+          "ifNot": "citizenThankedMalkuth",
+          "set": "citizenThankedMalkuth",
+          "grant": [
+            [
+              "salve",
+              2
+            ]
+          ],
+          "talk": "citizenMalkuthAfter"
+        },
+        {
+          "if": "medalBronzeStar",
+          "talk": "citizenMalkuthDone"
+        },
+        {
+          "talk": "citizenMalkuthBefore"
+        }
+      ]
+    },
+    {
+      "map": "yesod",
+      "mark": "u",
+      "id": "citizenYesod",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenYesodBefore",
+      "script": [
+        {
+          "if": "medalPurpleHeart",
+          "ifNot": "citizenThankedYesod",
+          "set": "citizenThankedYesod",
+          "grant": [
+            [
+              "bandage",
+              2
+            ]
+          ],
+          "talk": "citizenYesodAfter"
+        },
+        {
+          "if": "medalPurpleHeart",
+          "talk": "citizenYesodDone"
+        },
+        {
+          "talk": "citizenYesodBefore"
+        }
+      ]
+    },
+    {
+      "map": "netzach",
+      "mark": "u",
+      "id": "citizenNetzach",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenNetzachBefore",
+      "script": [
+        {
+          "if": "medalPowMedal",
+          "ifNot": "citizenThankedNetzach",
+          "set": "citizenThankedNetzach",
+          "grant": [
+            [
+              "sunbalm",
+              1
+            ]
+          ],
+          "talk": "citizenNetzachAfter"
+        },
+        {
+          "if": "medalPowMedal",
+          "talk": "citizenNetzachDone"
+        },
+        {
+          "talk": "citizenNetzachBefore"
+        }
+      ]
+    },
+    {
+      "map": "hod",
+      "mark": "u",
+      "id": "citizenHod",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenHodBefore",
+      "script": [
+        {
+          "if": "medalSilverStar",
+          "ifNot": "citizenThankedHod",
+          "set": "citizenThankedHod",
+          "grant": [
+            [
+              "warroot",
+              1
+            ]
+          ],
+          "talk": "citizenHodAfter"
+        },
+        {
+          "if": "medalSilverStar",
+          "talk": "citizenHodDone"
+        },
+        {
+          "talk": "citizenHodBefore"
+        }
+      ]
+    },
+    {
+      "map": "tiferet",
+      "mark": "u",
+      "id": "citizenTiferet",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenTiferetBefore",
+      "script": [
+        {
+          "if": "medalGoldStar",
+          "ifNot": "citizenThankedTiferet",
+          "set": "citizenThankedTiferet",
+          "grant": [
+            [
+              "greatcrystal",
+              1
+            ]
+          ],
+          "talk": "citizenTiferetAfter"
+        },
+        {
+          "if": "medalGoldStar",
+          "talk": "citizenTiferetDone"
+        },
+        {
+          "talk": "citizenTiferetBefore"
+        }
+      ]
+    },
+    {
+      "map": "chesed",
+      "mark": "u",
+      "id": "citizenChesed",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenChesedBefore",
+      "script": [
+        {
+          "if": "medalLegionOfMerit",
+          "ifNot": "citizenThankedChesed",
+          "set": "citizenThankedChesed",
+          "grant": [
+            [
+              "panacea",
+              1
+            ]
+          ],
+          "talk": "citizenChesedAfter"
+        },
+        {
+          "if": "medalLegionOfMerit",
+          "talk": "citizenChesedDone"
+        },
+        {
+          "talk": "citizenChesedBefore"
+        }
+      ]
+    },
+    {
+      "map": "gevurah",
+      "mark": "u",
+      "id": "citizenGevurah",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenGevurahBefore",
+      "script": [
+        {
+          "if": "medalFlyingCross",
+          "ifNot": "citizenThankedGevurah",
+          "set": "citizenThankedGevurah",
+          "grant": [
+            [
+              "megacrystal",
+              1
+            ]
+          ],
+          "talk": "citizenGevurahAfter"
+        },
+        {
+          "if": "medalFlyingCross",
+          "talk": "citizenGevurahDone"
+        },
+        {
+          "talk": "citizenGevurahBefore"
+        }
+      ]
+    },
+    {
+      "map": "binah",
+      "mark": "u",
+      "id": "citizenBinah",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenBinahBefore",
+      "script": [
+        {
+          "if": "medalServiceCross",
+          "ifNot": "citizenThankedBinah",
+          "set": "citizenThankedBinah",
+          "grant": [
+            [
+              "ultimatecrystal",
+              1
+            ]
+          ],
+          "talk": "citizenBinahAfter"
+        },
+        {
+          "if": "medalServiceCross",
+          "talk": "citizenBinahDone"
+        },
+        {
+          "talk": "citizenBinahBefore"
+        }
+      ]
+    },
+    {
+      "map": "chokmah",
+      "mark": "u",
+      "id": "citizenChokmah",
+      "role": "talk",
+      "sprite": "npc/citizen",
+      "talk": "citizenChokmahBefore",
+      "script": [
+        {
+          "if": "medalOfHonor",
+          "ifNot": "citizenThankedChokmah",
+          "set": "citizenThankedChokmah",
+          "grant": [
+            [
+              "panacea",
+              2
+            ]
+          ],
+          "talk": "citizenChokmahAfter"
+        },
+        {
+          "if": "medalOfHonor",
+          "talk": "citizenChokmahDone"
+        },
+        {
+          "talk": "citizenChokmahBefore"
+        }
+      ]
     }
   ]
 }

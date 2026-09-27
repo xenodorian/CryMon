@@ -3330,3 +3330,27 @@ name, implement it. Execute other fixes." Stages, each pushed:
     (gravestone, Priestess) never matched on console.
   - Leg 2's `endingWin`/`endingWinHeavenfall` text is now unused (nothing
     rolls those credits); left in dialogue.json.
+- [x] T3 Malkuth and liberated cities (JSON + both engines):
+  - Malkuth now has **Ada** (heals, `adaHeal`), **Hale** (merchant,
+    keeper id `hale`, sells Shackles; web SHOP_NAMES/SHOP_FREE_FLAG,
+    Dreamcast SHOP_IDS 4 / SHOP_TITLES / shop_free[5], flag `shopFreeHale`)
+    and **Elder Marn**, who explains the Generals, the medal chain, Nero,
+    Golden Shackles and Shackles (`marnFirst`, then `marnAgain`/`marnGold`).
+  - Each General's city has a **citizen** (mark `u`): a "before" line while
+    the General holds it, then once the medal is taken a thank-you plus a
+    one-time gift (`citizenThanked<City>` flags), then a "life goes on" line.
+  - Marks `u/h/v/y` are stamped by `build_leg3.py` (grass tiles, clear of
+    gates). New placeholder sprites/portraits: ada, hale, marn, citizen (one
+    shared townsperson look). Speakers 50-53.
+  - Dreamcast draws and blocks every NPC with a baked `NPC_DEF_SPRITE[i]`
+    (baker `LEG3_SPRITE_NAMES`), not just Leg 3 posts. The new flags ride
+    the Leg 3 flag table (`LEG3_FLAG_ID/SAVE_ID`).
+  - Web `reset()` now clears every saved flag first (fields for flags with
+    no hand-written declaration exist from the start).
+  - Verified: web (Playwright) script matches for all four NPC types, Ada
+    heals to full, Hale stocks Shackles, reset clears the new flags;
+    Dreamcast (Flycast) draws Malkuth's four NPCs and plays Marn's talk
+    with portrait.
+  Still open from the audit: Nero/Generals foreshadowing before Lead is
+  only Lead's win line and Cross's old hint; Leg 2's unused `endingWin*`
+  text; Max's age vs. being crowned (left as is, the user's call).

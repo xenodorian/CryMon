@@ -1197,7 +1197,7 @@ static void ws_push_walker(WorldSprite *list, int *n, const u16 *const frames[4]
 static const u16 *const WREN_FRAMES[4]   = { npc_wren_1, npc_wren_2, npc_wren_3, npc_wren_4 };
 /* Leg 3 posts, indexed by LEG3_POSTS[].sprite (PLACEHOLDER_ART, see
    tools/make_placeholder_npcs.py). */
-static const u16 *const LEG3_SPRITES[12][4] = {
+static const u16 *const LEG3_SPRITES[16][4] = {
     { npc_weepingGuard_1, npc_weepingGuard_2, npc_weepingGuard_3, npc_weepingGuard_4 },
     { npc_royalGuard_1, npc_royalGuard_2, npc_royalGuard_3, npc_royalGuard_4 },
     { npc_harrow_1, npc_harrow_2, npc_harrow_3, npc_harrow_4 },
@@ -1210,6 +1210,12 @@ static const u16 *const LEG3_SPRITES[12][4] = {
     { npc_blackwood_1, npc_blackwood_2, npc_blackwood_3, npc_blackwood_4 },
     { npc_sorrel_1, npc_sorrel_2, npc_sorrel_3, npc_sorrel_4 },
     { npc_nero_1, npc_nero_2, npc_nero_3, npc_nero_4 },
+    /* Sephirot townsfolk (narrative fix pass): Malkuth's healer, merchant
+       and elder, and the shared freed-citizen look. */
+    { npc_ada_1, npc_ada_2, npc_ada_3, npc_ada_4 },
+    { npc_hale_1, npc_hale_2, npc_hale_3, npc_hale_4 },
+    { npc_marn_1, npc_marn_2, npc_marn_3, npc_marn_4 },
+    { npc_citizen_1, npc_citizen_2, npc_citizen_3, npc_citizen_4 },
 };
 static const u16 *const MAE_FRAMES[4]    = { npc_mae_1, npc_mae_2, npc_mae_3, npc_mae_4 };
 static const u16 *const IVO_FRAMES[4]    = { npc_ivo_1, npc_ivo_2, npc_ivo_3, npc_ivo_4 };
@@ -1339,7 +1345,7 @@ typedef struct {
 /* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals),
    in bake_content.py's SPEAKER order. Portraits are PLACEHOLDER_ART from
    tools/make_placeholder_npcs.py. */
-#define SPK_COUNT     50
+#define SPK_COUNT     54 /* 50-53: Ada, Hale, Marn, citizen */
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of
@@ -1403,6 +1409,10 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_crane, PORT_CRANE_W, PORT_CRANE_H }, /* 47 PLACEHOLDER_ART */
     { port_blackwood, PORT_BLACKWOOD_W, PORT_BLACKWOOD_H }, /* 48 PLACEHOLDER_ART */
     { port_sorrel, PORT_SORREL_W, PORT_SORREL_H }, /* 49 PLACEHOLDER_ART */
+    { port_ada, PORT_ADA_W, PORT_ADA_H }, /* 50 PLACEHOLDER_ART */
+    { port_hale, PORT_HALE_W, PORT_HALE_H }, /* 51 PLACEHOLDER_ART */
+    { port_marn, PORT_MARN_W, PORT_MARN_H }, /* 52 PLACEHOLDER_ART */
+    { port_citizen, PORT_CITIZEN_W, PORT_CITIZEN_H }, /* 53 PLACEHOLDER_ART */
 };
 
 #include "content_talk.inc"
@@ -4448,9 +4458,12 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
     {
         int li;
         for(li = 0; li < NPC_DEF_N; li++) {
-            if(NPC_DEFS[li].map_id != map_id || !leg3_post_standing(li)) continue;
+            /* Every NPC with a baked NPC_DEF_SPRITE is drawn here; Leg 3
+               posts vanish once beaten. */
+            if(NPC_DEFS[li].map_id != map_id || NPC_DEF_SPRITE[li] < 0) continue;
+            if(leg3_npc_post(li) >= 0 && !leg3_post_standing(li)) continue;
             ws_push_mark_idle(list, n, map_id, NPC_DEFS[li].mark,
-                              LEG3_SPRITES[LEG3_POSTS[leg3_npc_post(li)].sprite],
+                              LEG3_SPRITES[(int)NPC_DEF_SPRITE[li]],
                               frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         }
     }
@@ -4893,9 +4906,11 @@ static int actor_blocks(int map_id, int cx, int cy,
     {
         /* Leg 3 guards / Generals / Nero block the hall until beaten. */
         int li;
-        for(li = 0; li < NPC_DEF_N; li++)
-            if(NPC_DEFS[li].map_id == map_id && leg3_post_standing(li)
-               && mark_hit(map_id, NPC_DEFS[li].mark, cx, cy, HIT_R2)) return 1;
+        for(li = 0; li < NPC_DEF_N; li++) {
+            if(NPC_DEFS[li].map_id != map_id || NPC_DEF_SPRITE[li] < 0) continue;
+            if(leg3_npc_post(li) >= 0 && !leg3_post_standing(li)) continue;
+            if(mark_hit(map_id, NPC_DEFS[li].mark, cx, cy, HIT_R2)) return 1;
+        }
     }
     if(map_id == MAP_VELD) {
         if(mason_state == 2) {
@@ -5033,7 +5048,7 @@ static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int dray_kn
 }
 
 static const char *const SHOP_TITLES[SHOP_CRYSTAL_MASK_N] = {
-    "BRAMS STALL", "ORENS STALL", "FENNS STALL", "DRAYS STALL",
+    "BRAMS STALL", "ORENS STALL", "FENNS STALL", "DRAYS STALL", "HALES STALL",
 };
 
 /* Leg 2.10: buy prices scale with reputation. Positive: -1% per point
@@ -5491,7 +5506,7 @@ void main(void) {
     /* -100..100, see logic.json reputation. Clamped on every write. */
     int reputation = 0;
     int mason2_done = 0;
-    int shop_free[4] = { 0, 0, 0, 0 };
+    int shop_free[SHOP_CRYSTAL_MASK_N] = { 0 };
 
     /* Anne: engine.ts's maybeStartAnne() gate is battlesDone>=1 while
        on VELD (onBattleOver()/battlesDone++ fires on soldier, Mason,
@@ -5576,6 +5591,7 @@ void main(void) {
         ft[FLAG_SHOP_FREE_OREN] = &shop_free[1];
         ft[FLAG_SHOP_FREE_FENN] = &shop_free[2];
         ft[FLAG_SHOP_FREE_DRAY] = &shop_free[3];
+        ft[FLAG_SHOP_FREE_HALE] = &shop_free[4];
         ft[FLAG_BEAT_COMMANDER] = &beat_commander;
         ft[FLAG_BEAT_LIEUTENANT_LEAD] = &beat_lieutenant_lead;
         ft[FLAG_TESSA_GIFTED] = &talked_tessa;
@@ -5859,6 +5875,7 @@ void main(void) {
                         shop_free[1] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_OREN);
                         shop_free[2] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_FENN);
                         shop_free[3] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_DRAY);
+                        shop_free[4] = save_flag_get(&sl, SAVE_FLAG_SHOP_FREE_HALE);
                         beat_commander = save_flag_get(&sl, SAVE_FLAG_BEAT_COMMANDER);
                         beat_heavenfall = save_flag_get(&sl, SAVE_FLAG_BEAT_HEAVENFALL);
                         heavenfall_rep_warned = save_flag_get(&sl, SAVE_FLAG_HEAVENFALL_REP_WARNED);
@@ -5957,7 +5974,7 @@ void main(void) {
                 revived_father = 0;
                 reputation = 0;
                 apply_player_name(0, 0, 0);
-                shop_free[0] = shop_free[1] = shop_free[2] = shop_free[3] = 0;
+                shop_free[0] = shop_free[1] = shop_free[2] = shop_free[3] = shop_free[4] = 0;
                 got_chest = 0;
                 talked_tessa = 0; talked_birch = 0; talked_sable = 0;
                 cage_open = 0;
@@ -6120,6 +6137,7 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_OREN, shop_free[1]);
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_FENN, shop_free[2]);
                     save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_DRAY, shop_free[3]);
+                    save_flag_put(&sl, SAVE_FLAG_SHOP_FREE_HALE, shop_free[4]);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_COMMANDER, beat_commander);
                     save_flag_put(&sl, SAVE_FLAG_BEAT_HEAVENFALL, beat_heavenfall);
                     save_flag_put(&sl, SAVE_FLAG_HEAVENFALL_REP_WARNED, heavenfall_rep_warned);

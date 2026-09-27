@@ -36,7 +36,14 @@ TYPES_TS = ROOT / "src/game/types.ts"
 DATA_TS = ROOT / "src/game/data.ts"
 
 DOOR = "b"
-TILE_ART = {"b": "tile-door", "a": "tile-floor", "s": "tile-floor", "t": "tile-floor"}
+TILE_ART = {"b": "tile-door", "a": "tile-floor", "s": "tile-floor", "t": "tile-floor",
+            # NPC spots on a city's grass: freed citizen, and Malkuth's
+            # healer / merchant / elder (narrative fix pass).
+            "u": "tile-grass", "h": "tile-grass", "v": "tile-grass", "y": "tile-grass"}
+# (col, row) of NPC marks stamped into cities. Clear of the building and of
+# every gate's arrival tile (row 1/10, col 1/14).
+CITIZEN_AT = (3, 8)
+MALKUTH_MARKS = {"u": (5, 9), "h": (3, 8), "v": (12, 8), "y": (10, 7)}
 
 # Stamped into a 16x12 Sephirot city: roof, roof, wall with the door.
 # Rows 3-5, cols 5-10 stay clear of every gate's arrival tile (row 1/10,
@@ -95,6 +102,13 @@ def stamp_city_building(grid: list[list[str]], city_id: str) -> None:
     for dy, line in enumerate(BUILDING):
         for dx, ch in enumerate(line):
             grid[r0 + dy][c0 + dx] = ch
+    L = leg3()
+    if city_id == "malkuth":
+        for ch, (c, r) in MALKUTH_MARKS.items():
+            grid[r][c] = ch
+    elif city_id in {g["city"] for g in L["generals"]}:
+        c, r = CITIZEN_AT
+        grid[r][c] = "u"
 
 
 def stamp_rows(rows: list[str], city_id: str) -> list[str]:

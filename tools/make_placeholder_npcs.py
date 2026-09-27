@@ -27,7 +27,8 @@ BOB = [0, -1, -2, -1]
 SKIN = (222, 184, 150)
 INK = (24, 20, 16)
 
-# id -> (uniform, trim, hat): hat is "cap", "peaked" (officer) or "crown".
+# id -> (uniform, trim, hat): hat is "cap", "peaked" (officer), "crown",
+# "hood" or "none".
 STYLE = {
     "weepingGuard": ((70, 72, 78), (40, 40, 44), "cap"),
     "royalGuard": ((96, 30, 40), (200, 170, 70), "cap"),
@@ -41,6 +42,12 @@ STYLE = {
     "blackwood": ((46, 86, 50), (212, 176, 64), "peaked"),
     "sorrel": ((70, 84, 150), (230, 230, 240), "peaked"),
     "nero": ((60, 20, 70), (230, 190, 60), "crown"),
+    # Malkuth (narrative fix pass): healer, merchant, elder, and one shared
+    # townsperson look for the freed citizen in each General's city.
+    "ada": ((226, 226, 214), (60, 140, 90), "none"),
+    "hale": ((140, 96, 50), (90, 60, 30), "cap"),
+    "marn": ((96, 90, 110), (200, 200, 200), "hood"),
+    "citizen": ((120, 110, 80), (160, 140, 100), "none"),
 }
 
 
@@ -68,6 +75,10 @@ def frame(uniform, trim, hat: str, bob: int) -> Image.Image:
     if hat == "crown":
         d.polygon([(16, y + 7), (18, y - 1), (21, y + 4), (24, y - 3), (27, y + 4), (30, y - 1), (32, y + 7)],
                   fill=trim, outline=INK)
+    elif hat == "hood":
+        d.pieslice([13, y + 1, 35, y + 23], 180, 360, fill=uniform, outline=INK)
+    elif hat == "none":
+        d.rectangle([16, y + 4, 32, y + 7], fill=trim)  # hair
     else:
         d.rectangle([15, y + 3, 33, y + 8], fill=uniform, outline=INK)
         if hat == "peaked":

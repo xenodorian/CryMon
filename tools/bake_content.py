@@ -69,6 +69,10 @@ SPEAKER = {
     "crane": 47,
     "blackwood": 48,
     "sorrel": 49,
+    "ada": 50,
+    "hale": 51,
+    "marn": 52,
+    "citizen": 53,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -963,7 +967,7 @@ def bake_leg3(data: dict, lines: list[str], kit_keys: list[str]) -> None:
     lines.append("#define LEG3_KIND_GENERAL 1")
     lines.append("#define LEG3_KIND_KING 2")
     lines.append("#define LEG3_KIND_FINAL 3")
-    lines.append("/* sprite: 0 base guard, 1 royal guard, 2..10 Generals, 11 Nero, 12 none */")
+    lines.append("/* sprite: LEG3_SPRITES index (LEG3_SPRITE_NAMES in the baker), -1 none */")
     lines.append("typedef struct { int kit, kind, gen, set_flag, win_talk, marks, sprite; const char *title; } Leg3Post;")
     lines.append("static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {")
     palace_guards = set(L["palace"]["guards"])
@@ -974,9 +978,9 @@ def bake_leg3(data: dict, lines: list[str], kit_keys: list[str]) -> None:
         elif kind == 1:
             spr = 2 + gi
         elif kind == 2:
-            spr = 11
+            spr = LEG3_SPRITE_NAMES.index("nero")
         else:
-            spr = 12
+            spr = -1  # hostile Heavenfall has no overworld sprite
         title = dc_text(tr.get("title") or tr.get("name") or tid).upper()
         lines.append(
             f"    {{ {kit_keys.index(tid)}, {kind}, {gi}, FLAG_{_c_ident(tr['set'])}, "
@@ -1003,6 +1007,9 @@ def bake_leg3(data: dict, lines: list[str], kit_keys: list[str]) -> None:
     names += [f"beat{cap1(x)}" for x in L["palace"]["guards"]]
     names += ["hasGoldenShackles", "beatNero", "neroTried", "titleKingslayer", "fatherAbandoned",
               "titleGodslayer", "titleBloody", "leg3Ended"]
+    # Sephirot townsfolk (narrative fix pass): Marn's first talk and each
+    # freed citizen's one-time gift.
+    names += ["talkedMarn"] + [f"citizenThanked{g['city'].capitalize()}" for g in L["generals"]]
     save_flags = data["save"]["flags"]
     lines.append(f"#define LEG3_FLAG_N {len(names)}")
     lines.append("static const int LEG3_FLAG_ID[LEG3_FLAG_N] = { "
@@ -1091,8 +1098,14 @@ SHOP_IDS = {
     "oren": 1,
     "fenn": 2,
     "dray": 3,
+    "hale": 4,  # Malkuth (narrative fix pass)
 }
 LEG3_PENDING_BASE = 100
+# Overworld sprites main.c draws generically (LEG3_SPRITES[] there, same
+# order): the Leg 3 posts plus the Sephirot townsfolk. Any NPC whose
+# `sprite` is npc/<one of these> gets NPC_DEF_SPRITE[i] >= 0.
+LEG3_SPRITE_NAMES = ["weepingGuard", "royalGuard", "harrow", "ashgrove", "stroud", "vale", "kessler",
+                     "morrow", "crane", "blackwood", "sorrel", "nero", "ada", "hale", "marn", "citizen"]
 LEG3_PENDING: dict = {}  # filled per bake by bake_all() (leg3_pending_ids)
 PENDING_IDS = {
     "cross": 0,
@@ -1253,8 +1266,10 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
             )
         n = len(steps) - start
         marks = npc.get("marks") or [npc["mark"]]
+        spr = (npc.get("sprite") or "").removeprefix("npc/")
+        spr_i = LEG3_SPRITE_NAMES.index(spr) if spr in LEG3_SPRITE_NAMES else -1
         for mark in marks:
-            defs.append((npc["map"], mark, start, n, npc_w, npc_h))
+            defs.append((npc["map"], mark, start, n, npc_w, npc_h, spr_i))
     lines.append("static const NpcStep NPC_STEPS[] = {")
     for st in steps:
         gi = ",".join(str(x) for x in st["g_item"])
@@ -1267,10 +1282,13 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
         )
     lines.append("};")
     lines.append("static const NpcDef NPC_DEFS[] = {")
-    for mid, mark, start, n, w, h in defs:
+    for mid, mark, start, n, w, h, _s in defs:
         lines.append(f"    {{ {map_sym(mid)}, '{mark}', {start}, {n}, {w}, {h} }},")
     lines.append("};")
     lines.append(f"#define NPC_DEF_N {len(defs)}")
+    lines.append("/* LEG3_SPRITES[] index per NPC_DEFS entry (-1: drawn by hand-wired code). */")
+    lines.append("static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { "
+                 + ", ".join(str(d[6]) for d in defs) + " };")
     lines.append(f"#define INTERACT_BUFFER {round(interact_buffer * dc_scale)}")
     lines.append("")
 

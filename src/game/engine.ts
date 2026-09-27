@@ -77,8 +77,8 @@ import type {
 type ImgMap = Record<string, HTMLImageElement>;
 type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End";
 
-const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL" };
-const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray" };
+const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL", hale: "HALE'S STALL" };
+const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray", hale: "shopFreeHale" };
 const STEP = 1 / 60;
 /* Leg 3 (logic.json leg3; CURRENT_WORK.md "Leg 3 implementation"). */
 const LEG3 = LOGIC.leg3;
@@ -374,6 +374,10 @@ export class CryMon {
 		}
 	}
 	reset() {
+		// Every saved flag starts false on a new game, including ones with no
+		// hand-written field (Malkuth's talkedMarn, citizenThanked*, ...);
+		// the explicit assignments below still run after this.
+		for (const k of SAVE_FLAGS) if (!k.startsWith("soldierBeaten")) this[k] = false;
 		this.acc = 0;
 		this.shake = 0;
 		this.clock = 0;

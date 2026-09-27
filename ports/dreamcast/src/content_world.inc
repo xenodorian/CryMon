@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=2ced5e44354dca03 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=b0462e455cbfeb3d — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -366,13 +366,15 @@ static const int SHOP_CRYSTAL_MASK[] = {
     3328, /* 1: oren */
     3328, /* 2: fenn */
     3328, /* 3: dray */
+    3328, /* 4: hale */
 };
-#define SHOP_CRYSTAL_MASK_N 4
+#define SHOP_CRYSTAL_MASK_N 5
 static const int SHOP_NOT_SOLD_MASK[] = {
     1048576, /* 0: bram */
     0, /* 1: oren */
     0, /* 2: fenn */
     0, /* 3: dray */
+    0, /* 4: hale */
 };
 
 /* NPC first-match scripts from content/world.json. */
@@ -488,7 +490,18 @@ static const int SHOP_NOT_SOLD_MASK[] = {
 #define FLAG_TITLE_GODSLAYER 109
 #define FLAG_TITLE_BLOODY 110
 #define FLAG_LEG3_ENDED 111
-#define FLAG_N 112
+#define FLAG_TALKED_MARN 112
+#define FLAG_SHOP_FREE_HALE 113
+#define FLAG_CITIZEN_THANKED_MALKUTH 114
+#define FLAG_CITIZEN_THANKED_YESOD 115
+#define FLAG_CITIZEN_THANKED_NETZACH 116
+#define FLAG_CITIZEN_THANKED_HOD 117
+#define FLAG_CITIZEN_THANKED_TIFERET 118
+#define FLAG_CITIZEN_THANKED_CHESED 119
+#define FLAG_CITIZEN_THANKED_GEVURAH 120
+#define FLAG_CITIZEN_THANKED_BINAH 121
+#define FLAG_CITIZEN_THANKED_CHOKMAH 122
+#define FLAG_N 123
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -697,6 +710,38 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 128, 0, 0, -1 },
     { -1, -1, 105, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 180, -1, -1, 7, 129, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 233, -1, -1, 0, -1, 1, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 234, -1, -1, 2, 4, 0, 0, -1 },
+    { -1, 112, -1, 112, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 235, -1, -1, 0, -1, 0, 0, -1 },
+    { 104, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 237, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 236, -1, -1, 0, -1, 0, 0, -1 },
+    { 84, 114, -1, 114, { 0,-1,-1 }, { 2,0,0 }, 1, -1, 0, 239, -1, -1, 0, -1, 0, 0, -1 },
+    { 84, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 240, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 238, -1, -1, 0, -1, 0, 0, -1 },
+    { 85, 115, -1, 115, { 1,-1,-1 }, { 2,0,0 }, 1, -1, 0, 242, -1, -1, 0, -1, 0, 0, -1 },
+    { 85, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 243, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 241, -1, -1, 0, -1, 0, 0, -1 },
+    { 86, 116, -1, 116, { 5,-1,-1 }, { 1,0,0 }, 1, -1, 0, 245, -1, -1, 0, -1, 0, 0, -1 },
+    { 86, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 246, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 244, -1, -1, 0, -1, 0, 0, -1 },
+    { 87, 117, -1, 117, { 6,-1,-1 }, { 1,0,0 }, 1, -1, 0, 248, -1, -1, 0, -1, 0, 0, -1 },
+    { 87, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 249, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 247, -1, -1, 0, -1, 0, 0, -1 },
+    { 88, 118, -1, 118, { 8,-1,-1 }, { 1,0,0 }, 1, -1, 0, 251, -1, -1, 0, -1, 0, 0, -1 },
+    { 88, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 252, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 250, -1, -1, 0, -1, 0, 0, -1 },
+    { 89, 119, -1, 119, { 18,-1,-1 }, { 1,0,0 }, 1, -1, 0, 254, -1, -1, 0, -1, 0, 0, -1 },
+    { 89, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 255, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 253, -1, -1, 0, -1, 0, 0, -1 },
+    { 90, 120, -1, 120, { 10,-1,-1 }, { 1,0,0 }, 1, -1, 0, 257, -1, -1, 0, -1, 0, 0, -1 },
+    { 90, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 258, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 256, -1, -1, 0, -1, 0, 0, -1 },
+    { 91, 121, -1, 121, { 11,-1,-1 }, { 1,0,0 }, 1, -1, 0, 260, -1, -1, 0, -1, 0, 0, -1 },
+    { 91, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 261, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 259, -1, -1, 0, -1, 0, 0, -1 },
+    { 92, 122, -1, 122, { 18,-1,-1 }, { 2,0,0 }, 1, -1, 0, 263, -1, -1, 0, -1, 0, 0, -1 },
+    { 92, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 264, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 262, -1, -1, 0, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -774,8 +819,22 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_PALACEKETER, 's', 162, 2, 30, 32 },
     { MAP_PALACEKETER, 't', 164, 2, 30, 32 },
     { MAP_PALACEKETER, 'a', 166, 2, 30, 32 },
+    { MAP_MALKUTH, 'h', 168, 1, 30, 32 },
+    { MAP_MALKUTH, 'v', 169, 1, 30, 32 },
+    { MAP_MALKUTH, 'y', 170, 3, 30, 32 },
+    { MAP_MALKUTH, 'u', 173, 3, 30, 32 },
+    { MAP_YESOD, 'u', 176, 3, 30, 32 },
+    { MAP_NETZACH, 'u', 179, 3, 30, 32 },
+    { MAP_HOD, 'u', 182, 3, 30, 32 },
+    { MAP_TIFERET, 'u', 185, 3, 30, 32 },
+    { MAP_CHESED, 'u', 188, 3, 30, 32 },
+    { MAP_GEVURAH, 'u', 191, 3, 30, 32 },
+    { MAP_BINAH, 'u', 194, 3, 30, 32 },
+    { MAP_CHOKMAH, 'u', 197, 3, 30, 32 },
 };
-#define NPC_DEF_N 75
+#define NPC_DEF_N 87
+/* LEG3_SPRITES[] index per NPC_DEFS entry (-1: drawn by hand-wired code). */
+static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0, 6, 0, 0, 7, 0, 0, 8, 0, 0, 9, 0, 0, 10, 1, 1, 11, 12, 13, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15 };
 #define INTERACT_BUFFER 20
 
 
@@ -786,7 +845,7 @@ static const NpcDef NPC_DEFS[] = {
 #define LEG3_KIND_GENERAL 1
 #define LEG3_KIND_KING 2
 #define LEG3_KIND_FINAL 3
-/* sprite: 0 base guard, 1 royal guard, 2..10 Generals, 11 Nero, 12 none */
+/* sprite: LEG3_SPRITES index (LEG3_SPRITE_NAMES in the baker), -1 none */
 typedef struct { int kit, kind, gen, set_flag, win_talk, marks, sprite; const char *title; } Leg3Post;
 static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {
     { 16, 0, 0, FLAG_BEAT_BASE_MALKUTH_A, 197, 14, 0, "BASE GUARD SENDS SPARKIT" }, /* baseMalkuthA */
@@ -819,7 +878,7 @@ static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {
     { 43, 0, -1, FLAG_BEAT_PALACE_GUARD_A, 137, 34, 1, "ROYAL GUARD SENDS CRAGSAGE" }, /* palaceGuardA */
     { 44, 0, -1, FLAG_BEAT_PALACE_GUARD_B, 139, 36, 1, "ROYAL GUARD SENDS MAGISTOWL" }, /* palaceGuardB */
     { 45, 2, -1, FLAG_BEAT_NERO, 181, 80, 11, "WEEPING KING NERO SENDS DEATHKNELL" }, /* nero */
-    { 46, 3, -1, FLAG_TITLE_GODSLAYER, 191, 0, 12, "HEAVENFALL TURNS ON YOU" }, /* heavenfallFinal */
+    { 46, 3, -1, FLAG_TITLE_GODSLAYER, 191, 0, -1, "HEAVENFALL TURNS ON YOU" }, /* heavenfallFinal */
 };
 #define LEG3_GEN_N 9
 typedef struct { int medal_flag, arrested_flag, talk_arrest, talk_execute; const char *medal, *name; } Leg3Gen;
@@ -834,9 +893,9 @@ static const Leg3Gen LEG3_GENS[LEG3_GEN_N] = {
     { FLAG_MEDAL_SERVICE_CROSS, FLAG_ARRESTED_BLACKWOOD, 174, 175, "DISTINGUISHED SERVICE CROSS", "GENERAL BLACKWOOD" },
     { FLAG_MEDAL_OF_HONOR, FLAG_ARRESTED_SORREL, 178, 179, "MEDAL OF HONOR", "GENERAL SORREL" },
 };
-#define LEG3_FLAG_N 46
-static const int LEG3_FLAG_ID[LEG3_FLAG_N] = { FLAG_BEAT_BASE_MALKUTH_A, FLAG_BEAT_BASE_MALKUTH_B, FLAG_MEDAL_BRONZE_STAR, FLAG_ARRESTED_HARROW, FLAG_BEAT_BASE_YESOD_A, FLAG_BEAT_BASE_YESOD_B, FLAG_MEDAL_PURPLE_HEART, FLAG_ARRESTED_ASHGROVE, FLAG_BEAT_BASE_NETZACH_A, FLAG_BEAT_BASE_NETZACH_B, FLAG_MEDAL_POW_MEDAL, FLAG_ARRESTED_STROUD, FLAG_BEAT_BASE_HOD_A, FLAG_BEAT_BASE_HOD_B, FLAG_MEDAL_SILVER_STAR, FLAG_ARRESTED_VALE, FLAG_BEAT_BASE_TIFERET_A, FLAG_BEAT_BASE_TIFERET_B, FLAG_MEDAL_GOLD_STAR, FLAG_ARRESTED_KESSLER, FLAG_BEAT_BASE_CHESED_A, FLAG_BEAT_BASE_CHESED_B, FLAG_MEDAL_LEGION_OF_MERIT, FLAG_ARRESTED_MORROW, FLAG_BEAT_BASE_GEVURAH_A, FLAG_BEAT_BASE_GEVURAH_B, FLAG_MEDAL_FLYING_CROSS, FLAG_ARRESTED_CRANE, FLAG_BEAT_BASE_BINAH_A, FLAG_BEAT_BASE_BINAH_B, FLAG_MEDAL_SERVICE_CROSS, FLAG_ARRESTED_BLACKWOOD, FLAG_BEAT_BASE_CHOKMAH_A, FLAG_BEAT_BASE_CHOKMAH_B, FLAG_MEDAL_OF_HONOR, FLAG_ARRESTED_SORREL, FLAG_BEAT_PALACE_GUARD_A, FLAG_BEAT_PALACE_GUARD_B, FLAG_HAS_GOLDEN_SHACKLES, FLAG_BEAT_NERO, FLAG_NERO_TRIED, FLAG_TITLE_KINGSLAYER, FLAG_FATHER_ABANDONED, FLAG_TITLE_GODSLAYER, FLAG_TITLE_BLOODY, FLAG_LEG3_ENDED };
-static const int LEG3_SAVE_ID[LEG3_FLAG_N] = { 64, 65, 82, 91, 66, 67, 83, 92, 68, 69, 84, 93, 70, 71, 85, 94, 72, 73, 86, 95, 74, 75, 87, 96, 76, 77, 88, 97, 78, 79, 89, 98, 80, 81, 90, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109 };
+#define LEG3_FLAG_N 56
+static const int LEG3_FLAG_ID[LEG3_FLAG_N] = { FLAG_BEAT_BASE_MALKUTH_A, FLAG_BEAT_BASE_MALKUTH_B, FLAG_MEDAL_BRONZE_STAR, FLAG_ARRESTED_HARROW, FLAG_BEAT_BASE_YESOD_A, FLAG_BEAT_BASE_YESOD_B, FLAG_MEDAL_PURPLE_HEART, FLAG_ARRESTED_ASHGROVE, FLAG_BEAT_BASE_NETZACH_A, FLAG_BEAT_BASE_NETZACH_B, FLAG_MEDAL_POW_MEDAL, FLAG_ARRESTED_STROUD, FLAG_BEAT_BASE_HOD_A, FLAG_BEAT_BASE_HOD_B, FLAG_MEDAL_SILVER_STAR, FLAG_ARRESTED_VALE, FLAG_BEAT_BASE_TIFERET_A, FLAG_BEAT_BASE_TIFERET_B, FLAG_MEDAL_GOLD_STAR, FLAG_ARRESTED_KESSLER, FLAG_BEAT_BASE_CHESED_A, FLAG_BEAT_BASE_CHESED_B, FLAG_MEDAL_LEGION_OF_MERIT, FLAG_ARRESTED_MORROW, FLAG_BEAT_BASE_GEVURAH_A, FLAG_BEAT_BASE_GEVURAH_B, FLAG_MEDAL_FLYING_CROSS, FLAG_ARRESTED_CRANE, FLAG_BEAT_BASE_BINAH_A, FLAG_BEAT_BASE_BINAH_B, FLAG_MEDAL_SERVICE_CROSS, FLAG_ARRESTED_BLACKWOOD, FLAG_BEAT_BASE_CHOKMAH_A, FLAG_BEAT_BASE_CHOKMAH_B, FLAG_MEDAL_OF_HONOR, FLAG_ARRESTED_SORREL, FLAG_BEAT_PALACE_GUARD_A, FLAG_BEAT_PALACE_GUARD_B, FLAG_HAS_GOLDEN_SHACKLES, FLAG_BEAT_NERO, FLAG_NERO_TRIED, FLAG_TITLE_KINGSLAYER, FLAG_FATHER_ABANDONED, FLAG_TITLE_GODSLAYER, FLAG_TITLE_BLOODY, FLAG_LEG3_ENDED, FLAG_TALKED_MARN, FLAG_CITIZEN_THANKED_MALKUTH, FLAG_CITIZEN_THANKED_YESOD, FLAG_CITIZEN_THANKED_NETZACH, FLAG_CITIZEN_THANKED_HOD, FLAG_CITIZEN_THANKED_TIFERET, FLAG_CITIZEN_THANKED_CHESED, FLAG_CITIZEN_THANKED_GEVURAH, FLAG_CITIZEN_THANKED_BINAH, FLAG_CITIZEN_THANKED_CHOKMAH };
+static const int LEG3_SAVE_ID[LEG3_FLAG_N] = { 64, 65, 82, 91, 66, 67, 83, 92, 68, 69, 84, 93, 70, 71, 85, 94, 72, 73, 86, 95, 74, 75, 87, 96, 76, 77, 88, 97, 78, 79, 89, 98, 80, 81, 90, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 112, 113, 114, 115, 116, 117, 118, 119, 120 };
 #define LEG3_F_HAS_GOLDEN_SHACKLES 38
 #define LEG3_F_BEAT_NERO 39
 #define LEG3_F_NERO_TRIED 40

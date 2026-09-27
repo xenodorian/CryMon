@@ -50,7 +50,11 @@
     "crane",
     "blackwood",
     "sorrel",
-    "nero"
+    "nero",
+    "ada",
+    "hale",
+    "marn",
+    "citizen"
   ],
   "monsters": [
     "quillpup",
@@ -229,7 +233,11 @@
     "morrow",
     "crane",
     "blackwood",
-    "sorrel"
+    "sorrel",
+    "ada",
+    "hale",
+    "marn",
+    "citizen"
   ],
   "items": [
     "salve",

@@ -49,7 +49,11 @@
     "morrow": "General Morrow",
     "crane": "General Crane",
     "blackwood": "General Blackwood",
-    "sorrel": "General Sorrel"
+    "sorrel": "General Sorrel",
+    "ada": "Ada",
+    "hale": "Hale",
+    "marn": "Elder Marn",
+    "citizen": "Citizen"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
@@ -2556,6 +2560,234 @@
       {
         "speaker": "commander",
         "text": "You won. Go take your war somewhere else."
+      }
+    ],
+    "adaHeal": [
+      {
+        "speaker": "ada",
+        "text": "Sit down. Let me see those cuts."
+      },
+      {
+        "speaker": "none",
+        "text": "Ada works fast. The CryMon breathe easy again."
+      },
+      {
+        "speaker": "ada",
+        "text": "Come back after every General. I'm not going anywhere."
+      }
+    ],
+    "haleOpen": [
+      {
+        "speaker": "hale",
+        "text": "Malkuth trade's been dead since the army came. Shackles, crystals, salve. Buy or sell."
+      },
+      {
+        "speaker": "max",
+        "text": "Show me."
+      }
+    ],
+    "marnFirst": [
+      {
+        "speaker": "marn",
+        "text": "You came up the Weeping Road? Then Lead is down. Sit a minute, girl."
+      },
+      {
+        "speaker": "marn",
+        "text": "Nine Generals hold the nine cities of the Sephirot. Each one sits in a base behind two guards."
+      },
+      {
+        "speaker": "marn",
+        "text": "Each General carries a medal. The army won't open the next base for anyone who doesn't have the last one. Start here, with Harrow."
+      },
+      {
+        "speaker": "marn",
+        "text": "Above them all is Nero, the Weeping King, in his palace at Keter. Only a pair of Golden Shackles opens that gate."
+      },
+      {
+        "speaker": "marn",
+        "text": "Beat a General and it's your call what happens next. Hale sells Shackles if you want them to stand trial. Without Shackles there's only one way it goes."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll carry Shackles."
+      }
+    ],
+    "marnAgain": [
+      {
+        "speaker": "marn",
+        "text": "Medals first. Then the King. Ada will patch you up between fights."
+      }
+    ],
+    "marnGold": [
+      {
+        "speaker": "marn",
+        "text": "Golden Shackles. So it's the King now."
+      },
+      {
+        "speaker": "marn",
+        "text": "Keter sits north of Chokmah. Whatever you do in there, the whole Sephirot will hear about it."
+      }
+    ],
+    "citizenMalkuthBefore": [
+      {
+        "speaker": "citizen",
+        "text": "Harrow's soldiers watch the square. Keep your head down."
+      }
+    ],
+    "citizenMalkuthAfter": [
+      {
+        "speaker": "citizen",
+        "text": "Harrow's gone. The square's ours again. Here, take this."
+      }
+    ],
+    "citizenMalkuthDone": [
+      {
+        "speaker": "citizen",
+        "text": "Kids are playing in the square again. First time in a year."
+      }
+    ],
+    "citizenYesodBefore": [
+      {
+        "speaker": "citizen",
+        "text": "Ashgrove signs a new rule every morning. Nobody can keep up."
+      }
+    ],
+    "citizenYesodAfter": [
+      {
+        "speaker": "citizen",
+        "text": "No more rules on the wall. We tore them all down. Take this for the road."
+      }
+    ],
+    "citizenYesodDone": [
+      {
+        "speaker": "citizen",
+        "text": "We used the old rules to start cooking fires."
+      }
+    ],
+    "citizenNetzachBefore": [
+      {
+        "speaker": "citizen",
+        "text": "Half my street is in Stroud's cells."
+      }
+    ],
+    "citizenNetzachAfter": [
+      {
+        "speaker": "citizen",
+        "text": "They're home. All of them. I don't have much, but take this."
+      }
+    ],
+    "citizenNetzachDone": [
+      {
+        "speaker": "citizen",
+        "text": "My brother slept in his own bed last night."
+      }
+    ],
+    "citizenHodBefore": [
+      {
+        "speaker": "citizen",
+        "text": "..."
+      }
+    ],
+    "citizenHodAfter": [
+      {
+        "speaker": "citizen",
+        "text": "We can talk again. Thank you. Take this before I start crying."
+      }
+    ],
+    "citizenHodDone": [
+      {
+        "speaker": "citizen",
+        "text": "Listen to them. The whole city won't shut up. It's wonderful."
+      }
+    ],
+    "citizenTiferetBefore": [
+      {
+        "speaker": "citizen",
+        "text": "Don't light anything. Kessler's men think every fire is a rebellion."
+      }
+    ],
+    "citizenTiferetAfter": [
+      {
+        "speaker": "citizen",
+        "text": "We lit the ovens this morning. Real bread. Take some crystals too."
+      }
+    ],
+    "citizenTiferetDone": [
+      {
+        "speaker": "citizen",
+        "text": "The whole city smells like bread instead of smoke."
+      }
+    ],
+    "citizenChesedBefore": [
+      {
+        "speaker": "citizen",
+        "text": "Water's shut off again. Morrow's punishing somebody."
+      }
+    ],
+    "citizenChesedAfter": [
+      {
+        "speaker": "citizen",
+        "text": "The gate's open and it's staying open. Here, you earned this."
+      }
+    ],
+    "citizenChesedDone": [
+      {
+        "speaker": "citizen",
+        "text": "Nobody's been thirsty in days."
+      }
+    ],
+    "citizenGevurahBefore": [
+      {
+        "speaker": "citizen",
+        "text": "Watch the sky. Crane's birds report everything."
+      }
+    ],
+    "citizenGevurahAfter": [
+      {
+        "speaker": "citizen",
+        "text": "The birds are just birds now. Take this. It was hidden in my roof."
+      }
+    ],
+    "citizenGevurahDone": [
+      {
+        "speaker": "citizen",
+        "text": "I found a nest on my roof. Just a normal nest."
+      }
+    ],
+    "citizenBinahBefore": [
+      {
+        "speaker": "citizen",
+        "text": "We were a city once. Blackwood calls us a garrison."
+      }
+    ],
+    "citizenBinahAfter": [
+      {
+        "speaker": "citizen",
+        "text": "Binah's a city again. The patch Blackwood dropped is on the town hall door. Take this."
+      }
+    ],
+    "citizenBinahDone": [
+      {
+        "speaker": "citizen",
+        "text": "The garrison flag is gone. Somebody made a quilt out of it."
+      }
+    ],
+    "citizenChokmahBefore": [
+      {
+        "speaker": "citizen",
+        "text": "Nobody gets near the King. Sorrel makes sure of that."
+      }
+    ],
+    "citizenChokmahAfter": [
+      {
+        "speaker": "citizen",
+        "text": "Sorrel's gone. The road to Keter is open. Take this. You'll need it more than me."
+      }
+    ],
+    "citizenChokmahDone": [
+      {
+        "speaker": "citizen",
+        "text": "Everybody's watching the road to Keter now."
       }
     ]
   },

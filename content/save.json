@@ -317,7 +317,18 @@
     "fatherAbandoned",
     "titleGodslayer",
     "titleBloody",
-    "leg3Ended"
+    "leg3Ended",
+    "talkedMarn",
+    "shopFreeHale",
+    "citizenThankedMalkuth",
+    "citizenThankedYesod",
+    "citizenThankedNetzach",
+    "citizenThankedHod",
+    "citizenThankedTiferet",
+    "citizenThankedChesed",
+    "citizenThankedGevurah",
+    "citizenThankedBinah",
+    "citizenThankedChokmah"
   ],
   "layout": {
     "magic": [

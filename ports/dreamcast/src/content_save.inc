@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=2ced5e44354dca03 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=b0462e455cbfeb3d — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
@@ -7,7 +7,7 @@
 #define SAVE_SIZE 300
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
-#define SAVE_FLAG_N 110
+#define SAVE_FLAG_N 121
 #define SAVE_ITEM_N 22
 #define SAVE_FLAG_TOOK_STARTER 0
 #define SAVE_FLAG_TALKED_FATHER 1
@@ -119,6 +119,17 @@
 #define SAVE_FLAG_TITLE_GODSLAYER 107
 #define SAVE_FLAG_TITLE_BLOODY 108
 #define SAVE_FLAG_LEG3_ENDED 109
+#define SAVE_FLAG_TALKED_MARN 110
+#define SAVE_FLAG_SHOP_FREE_HALE 111
+#define SAVE_FLAG_CITIZEN_THANKED_MALKUTH 112
+#define SAVE_FLAG_CITIZEN_THANKED_YESOD 113
+#define SAVE_FLAG_CITIZEN_THANKED_NETZACH 114
+#define SAVE_FLAG_CITIZEN_THANKED_HOD 115
+#define SAVE_FLAG_CITIZEN_THANKED_TIFERET 116
+#define SAVE_FLAG_CITIZEN_THANKED_CHESED 117
+#define SAVE_FLAG_CITIZEN_THANKED_GEVURAH 118
+#define SAVE_FLAG_CITIZEN_THANKED_BINAH 119
+#define SAVE_FLAG_CITIZEN_THANKED_CHOKMAH 120
 
 /* Blob layout (little-endian), shared with src/game/save.ts:
    0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,
