@@ -61,12 +61,6 @@
     "Father is too sick to stand. His crystal sits on the shelf.",
     "Quillpup is inside it. She will take the CryMon. CryTown does not get to fall."
   ],
-  "endingWin": [
-    "Max stands at the edge of the Prison, the scroll empty in her hands.",
-    "The war isn't over. It isn't even close to over.",
-    "But for the first time since she left home, she isn't alone in it.",
-    "Thank you for playing the CryMon demo."
-  ],
   "talk": {
     "father": [
       {
@@ -2791,12 +2785,6 @@
       }
     ]
   },
-  "endingWinHeavenfall": [
-    "Max stands at the edge of camp, the sky still cracked open above her.",
-    "Heavenfall watches the horizon. The war isn't over. It isn't even close to over.",
-    "But for the first time since she left home, something ancient is watching her back.",
-    "Thank you for playing the CryMon demo."
-  ],
   "mercyDismissLines": [
     "I can't believe I was beaten by a kid.",
     "Impossible! I've never lost a battle!",

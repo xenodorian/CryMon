@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=b0462e455cbfeb3d — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=e7b250b1583a80fb — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -1081,19 +1081,6 @@ static const TalkBeat TALK_CITIZEN_CHOKMAH_AFTER[] = {
 };
 static const TalkBeat TALK_CITIZEN_CHOKMAH_DONE[] = {
     { "EVERYBODY'S WATCHING THE ROAD TO KETER NOW.", 53 },
-};
-
-static const char *const DEMO_END[] = {
-    "MAX STANDS AT THE EDGE OF THE PRISON, THE SCROLL EMPTY IN HER HANDS.",
-    "THE WAR ISN'T OVER. IT ISN'T EVEN CLOSE TO OVER.",
-    "BUT FOR THE FIRST TIME SINCE SHE LEFT HOME, SHE ISN'T ALONE IN IT.",
-    "THANK YOU FOR PLAYING THE CRYMON DEMO.",
-};
-static const char *const DEMO_END_HEAVENFALL[] = {
-    "MAX STANDS AT THE EDGE OF CAMP, THE SKY STILL CRACKED OPEN ABOVE HER.",
-    "HEAVENFALL WATCHES THE HORIZON. THE WAR ISN'T OVER. IT ISN'T EVEN CLOSE TO OVER.",
-    "BUT FOR THE FIRST TIME SINCE SHE LEFT HOME, SOMETHING ANCIENT IS WATCHING HER BACK.",
-    "THANK YOU FOR PLAYING THE CRYMON DEMO.",
 };
 
 #define TALK_LEN(arr) (int)(sizeof(arr) / sizeof((arr)[0]))

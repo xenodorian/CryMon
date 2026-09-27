@@ -62,7 +62,8 @@ SKIP_NAME = {".git", "node_modules", ".vercel", "backups", "__pycache__", "place
 # Every key an NPC script step may use; engine.ts runNpc()/matchNpcScript()
 # and the Dreamcast baker only read these, anything else is dropped silently.
 NPC_STEP_KEYS = {"talk", "if", "ifNot", "hideIf", "set", "after", "grant", "grantMonster",
-                 "heal", "passIf", "passOffset", "talkIf", "talkElse", "pending", "takeItem", "marks"}
+                 "heal", "passIf", "passOffset", "talkIf", "talkElse", "pending", "takeItem", "marks",
+                 "takeMon"}
 REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross", "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "marshBog", "marshReed", "quartz"]
 REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat", "growth", "natureMoves", "shinyMove", "statStages", "statusEffects", "hypeUp", "natureTypes"]
 
@@ -655,7 +656,7 @@ def main() -> int:
         if layout.get(key) != want:
             errors.append(f"save.layout.{key} must be {want}, got {layout.get(key)!r}")
     dex_caught_end = expected_layout["dexCaught"][0] + expected_layout["dexCaught"][1]
-    for key in ("dexSeenHi", "dexCaughtHi", "dexSeenHi2", "dexCaughtHi2", "flagsHi", "bagHi"):
+    for key in ("dexSeenHi", "dexCaughtHi", "dexSeenHi2", "dexCaughtHi2", "flagsHi", "bagHi", "flagsHi2", "bagHi2"):
         span = layout.get(key)
         if span:
             dex_caught_end = max(dex_caught_end, int(span[0]) + int(span[1]))

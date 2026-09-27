@@ -259,9 +259,12 @@ def load_pack(content: Path) -> dict:
         "save": json.loads((content / "save.json").read_text()),
         "sprites": json.loads((content / "sprites.json").read_text()) if (content / "sprites.json").is_file() else {},
     }
-    global FLAG_INDEX, TALK_KEYS_ORDER, LEG3_PENDING
+    global FLAG_INDEX, TALK_KEYS_ORDER, LEG3_PENDING, ITEM_INDEX, SPECIES_INDEX
+    ITEM_INDEX = {iid: i for i, iid in enumerate(pack["items"]["order"])}
+    SPECIES_INDEX = {s: i for i, s in enumerate(pack["save"]["speciesOrder"])}
     FLAG_INDEX = {name: i for i, name in enumerate(merged_flags(pack))}
     LEG3_PENDING = leg3_pending_ids(pack)
+    LEG3_SPRITE_NAMES[:] = generic_sprite_names(pack)
     TALK_KEYS_ORDER = [k for k, _ in talk_table(pack)]
     return pack
 
@@ -330,8 +333,6 @@ def bake_maps(data: dict, out: Path) -> None:
 
 def bake_talk(data: dict, out: Path) -> None:
     talk = data["dialogue"]["talk"]
-    ending = data["dialogue"]["endingWin"]
-    ending_heavenfall = data["dialogue"].get("endingWinHeavenfall") or ending
     table = talk_table(data)
     lines = [HEADER, "#if defined(__GNUC__)"]
     lines.append("#pragma GCC diagnostic ignored \"-Wunused-const-variable\"")
@@ -345,15 +346,6 @@ def bake_talk(data: dict, out: Path) -> None:
             text = dc_text(b["text"])
             lines.append(f'    {{ "{c_escape(text)}", {sp} }},')
         lines.append("};")
-    lines.append("")
-    lines.append("static const char *const DEMO_END[] = {")
-    for s in ending:
-        lines.append(f'    "{c_escape(dc_text(s))}",')
-    lines.append("};")
-    lines.append("static const char *const DEMO_END_HEAVENFALL[] = {")
-    for s in ending_heavenfall:
-        lines.append(f'    "{c_escape(dc_text(s))}",')
-    lines.append("};")
     lines.append("")
     lines.append("#define TALK_LEN(arr) (int)(sizeof(arr) / sizeof((arr)[0]))")
     lines.append("")
@@ -747,6 +739,18 @@ def leg3_posts(data: dict) -> list[tuple[str, int, int]]:
     p = L["palace"]
     out += [(p["guards"][0], 0, -1), (p["guards"][1], 0, -1), (p["trainer"], 2, -1)]
     out.append((L["finalHeavenfall"]["trainer"], 3, -1))
+    # Guild bounties / shakedowns (kind 4 / 5) and plain story posts such as
+    # ghosts (kind 0, "post": true): any trainer that declares them.
+    seen = {tid for tid, _k, _g in out}
+    for tid, tr in (data["world"].get("trainers") or {}).items():
+        if tid in seen or not isinstance(tr, dict):
+            continue
+        if tr.get("fate") == "bounty":
+            out.append((tid, 4, -1))
+        elif tr.get("fate") == "shakedown":
+            out.append((tid, 5, -1))
+        elif tr.get("post"):
+            out.append((tid, 0, -1))
     return out
 ARRIVE = {"masonAmbush": 1, "ensureSoldiers": 2}
 ITEM_FX = {"heal": 1, "buff": 2, "debuff": 3, "capture": 4, "flee": 5, "cleanse": 6, "cure": 7}
@@ -968,7 +972,13 @@ def bake_leg3(data: dict, lines: list[str], kit_keys: list[str]) -> None:
     lines.append("#define LEG3_KIND_KING 2")
     lines.append("#define LEG3_KIND_FINAL 3")
     lines.append("/* sprite: LEG3_SPRITES index (LEG3_SPRITE_NAMES in the baker), -1 none */")
-    lines.append("typedef struct { int kit, kind, gen, set_flag, win_talk, marks, sprite; const char *title; } Leg3Post;")
+    lines.append("#define LEG3_KIND_BOUNTY 4")
+    lines.append("#define LEG3_KIND_SHAKEDOWN 5")
+    lines.append("/* arrest/exec/threat flags: FLAG_* set by the fate menu (-1 none); loot is")
+    lines.append("   what a shakedown (threaten or execute) takes: item+qty, CryMon+level. */")
+    lines.append("typedef struct { int kit, kind, gen, set_flag, win_talk, marks, sprite; const char *title;")
+    lines.append("                 int arrest_flag, exec_flag, threat_flag, loot_item, loot_qty, loot_sp, loot_lv;")
+    lines.append("                 int talk_arrest, talk_exec, talk_threat; } Leg3Post;")
     lines.append("static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {")
     palace_guards = set(L["palace"]["guards"])
     for tid, kind, gi in posts:
@@ -982,9 +992,17 @@ def bake_leg3(data: dict, lines: list[str], kit_keys: list[str]) -> None:
         else:
             spr = -1  # hostile Heavenfall has no overworld sprite
         title = dc_text(tr.get("title") or tr.get("name") or tid).upper()
+        oc = tr.get("outcomes") or {}
+        ft_ = tr.get("fateTalk") or {}
+        loot = tr.get("loot") or [None, 0]
+        lmon = tr.get("lootMon") or [None, 0]
         lines.append(
             f"    {{ {kit_keys.index(tid)}, {kind}, {gi}, FLAG_{_c_ident(tr['set'])}, "
-            f"{talk_id(tr['winTalk'])}, {int(tr.get('marks') or 0)}, {spr}, \"{c_escape(title)}\" }}, /* {tid} */"
+            f"{talk_id(tr['winTalk'])}, {int(tr.get('marks') or 0)}, {spr}, \"{c_escape(title)}\", "
+            f"{flag_id(oc.get('arrest'))}, {flag_id(oc.get('execute'))}, {flag_id(oc.get('threaten'))}, "
+            f"{order.index(loot[0]) if loot[0] else -1}, {int(loot[1] or 0)}, "
+            f"{sp[lmon[0]] if lmon[0] else -1}, {int(lmon[1] or 0)}, "
+            f"{talk_id(ft_.get('arrest'))}, {talk_id(ft_.get('execute'))}, {talk_id(ft_.get('threaten'))} }}, /* {tid} */"
         )
     lines.append("};")
     lines.append(f"#define LEG3_GEN_N {len(L['generals'])}")
@@ -1028,6 +1046,10 @@ def bake_leg3(data: dict, lines: list[str], kit_keys: list[str]) -> None:
     lines.append(f"#define LEG3_REP_EXECUTE {int(rep_['executeGeneral'])}")
     lines.append(f"#define LEG3_REP_TRIAL {int(rep_['trialNero'])}")
     lines.append(f"#define LEG3_REP_KING_EXECUTE {int(rep_['executeNero'])}")
+    lines.append(f"#define LEG3_REP_BOUNTY_ARREST {int(rep_.get('bountyArrest', 5))}")
+    lines.append(f"#define LEG3_REP_BOUNTY_EXECUTE {int(rep_.get('bountyExecute', -10))}")
+    lines.append(f"#define LEG3_REP_THREATEN {int(rep_.get('shakedownThreaten', -3))}")
+    lines.append(f"#define LEG3_REP_SHAKEDOWN_EXECUTE {int(rep_.get('shakedownExecute', -10))}")
     lines.append(f"#define LEG3_ITEM_SHACKLES {order.index(L['shackles'])}")
     lines.append(f"#define LEG3_ITEM_GOLDEN {order.index(L['goldenShackles'])}")
     lines.append(f"#define LEG3_SP_HEAVENFALL {sp[L['finalHeavenfall']['species']]}")
@@ -1104,8 +1126,17 @@ LEG3_PENDING_BASE = 100
 # Overworld sprites main.c draws generically (LEG3_SPRITES[] there, same
 # order): the Leg 3 posts plus the Sephirot townsfolk. Any NPC whose
 # `sprite` is npc/<one of these> gets NPC_DEF_SPRITE[i] >= 0.
-LEG3_SPRITE_NAMES = ["weepingGuard", "royalGuard", "harrow", "ashgrove", "stroud", "vale", "kessler",
-                     "morrow", "crane", "blackwood", "sorrel", "nero", "ada", "hale", "marn", "citizen"]
+# main.c draws these NPC sprites with its own hand-written code; every other
+# name in sprites.json "npcs" is drawn generically from NPC_SPRITE_FRAMES.
+HAND_DRAWN_NPC_SPRITES = {"wren", "mae", "ivo", "nell", "pike", "bram", "calder", "oren", "tessa", "birch",
+                          "sable", "cross", "commander", "conscript", "enforcer", "sentry", "father", "ranger",
+                          "scout", "keeper", "warden", "bogwalker", "reedguard", "quartz", "opal", "driller",
+                          "fenn", "dray", "lead", "heavenfallPriestess", "shinigamiBoulder"}
+LEG3_SPRITE_NAMES: list = []  # filled per bake (generic_sprite_names)
+
+
+def generic_sprite_names(data: dict) -> list:
+    return [n for n in (data.get("sprites") or {}).get("npcs", []) if n not in HAND_DRAWN_NPC_SPRITES]
 LEG3_PENDING: dict = {}  # filled per bake by bake_all() (leg3_pending_ids)
 PENDING_IDS = {
     "cross": 0,
@@ -1131,9 +1162,30 @@ def leg3_pending_ids(data: dict) -> dict:
     return {tid: LEG3_PENDING_BASE + i for i, (tid, _k, _g) in enumerate(leg3_posts(data))}
 
 
+# Computed script flags (no save bit): "item:<id>" = the bag holds one,
+# "mon:<species>" = that CryMon can be handed over (Father's party, or
+# Max's when she'd still have another), "rep:pos" / "rep:neg" =
+# reputation above / below zero. main.c npc_flag_on() decodes these ranges.
+FLAG_ITEM_BASE, FLAG_MON_BASE, FLAG_REP_POS, FLAG_REP_NEG = 2000, 3000, 4000, 4001
+ITEM_INDEX: dict = {}
+SPECIES_INDEX: dict = {}
+
+
 def flag_id(name) -> int:
     if not name:
         return -1
+    if name.startswith("item:"):
+        if name[5:] not in ITEM_INDEX:
+            raise SystemExit(f"unknown item in NPC flag {name!r}")
+        return FLAG_ITEM_BASE + ITEM_INDEX[name[5:]]
+    if name.startswith("mon:"):
+        if name[4:] not in SPECIES_INDEX:
+            raise SystemExit(f"unknown species in NPC flag {name!r}")
+        return FLAG_MON_BASE + SPECIES_INDEX[name[4:]]
+    if name == "rep:pos":
+        return FLAG_REP_POS
+    if name == "rep:neg":
+        return FLAG_REP_NEG
     if name not in FLAG_INDEX:
         raise SystemExit(f"unknown NPC flag {name!r}")
     return FLAG_INDEX[name]
@@ -1173,6 +1225,15 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     for i, name in enumerate(flags):
         lines.append(f"#define FLAG_{_c_ident(name)} {i}")
     lines.append(f"#define FLAG_N {len(flags)}")
+    lines.append(f"#define FLAG_ITEM_BASE {FLAG_ITEM_BASE}")
+    lines.append(f"#define FLAG_MON_BASE {FLAG_MON_BASE}")
+    lines.append(f"#define FLAG_REP_POS {FLAG_REP_POS}")
+    lines.append(f"#define FLAG_REP_NEG {FLAG_REP_NEG}")
+    # FLAG_* -> SAVE_FLAG_* (or -1): main.c gives every saved flag that has no
+    # hand-wired variable generic storage and saves it through this.
+    save_flags = data["save"]["flags"]
+    lines.append("static const short FLAG_TO_SAVE[FLAG_N] = { "
+                 + ", ".join(str(save_flags.index(f)) if f in save_flags else "-1" for f in flags) + " };")
     lines.append("#define NPC_AFTER_NONE 0")
     lines.append("#define NPC_AFTER_BED_HEAL 1")
     lines.append("#define NPC_AFTER_SHOP 2")
@@ -1205,6 +1266,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("    int after, pending;")
     lines.append("    int heal, marks;")
     lines.append("    int take_item;")
+    lines.append("    int take_mon; /* species index handed over, -1 none */")
     lines.append("} NpcStep;")
     lines.append("typedef struct {")
     lines.append("    int map_id;")
@@ -1262,6 +1324,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
                     "heal": 1 if st.get("heal") else 0,
                     "marks": int(st.get("marks") or 0),
                     "take_item": item_i[st["takeItem"]] if st.get("takeItem") else -1,
+                    "take_mon": sp[st["takeMon"]] if st.get("takeMon") else -1,
                 }
             )
         n = len(steps) - start
@@ -1278,7 +1341,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
             f"    {{ {st['if_flag']}, {st['if_not']}, {st['hide_if']}, {st['set_flag']}, "
             f"{{ {gi} }}, {{ {gq} }}, {st['g_n']}, {st['g_sp']}, {st['g_lv']}, "
             f"{st['talk']}, {st['talk_if']}, {st['talk_else']}, {st['after']}, {st['pending']}, "
-            f"{st['heal']}, {st['marks']}, {st['take_item']} }},"
+            f"{st['heal']}, {st['marks']}, {st['take_item']}, {st['take_mon']} }},"
         )
     lines.append("};")
     lines.append("static const NpcDef NPC_DEFS[] = {")
@@ -1286,7 +1349,12 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
         lines.append(f"    {{ {map_sym(mid)}, '{mark}', {start}, {n}, {w}, {h} }},")
     lines.append("};")
     lines.append(f"#define NPC_DEF_N {len(defs)}")
-    lines.append("/* LEG3_SPRITES[] index per NPC_DEFS entry (-1: drawn by hand-wired code). */")
+    lines.append(f"#define NPC_SPRITE_N {len(LEG3_SPRITE_NAMES)}")
+    lines.append("static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {")
+    for nm in LEG3_SPRITE_NAMES:
+        lines.append("    { " + ", ".join(f"npc_{nm}_{i}" for i in range(1, 5)) + " },")
+    lines.append("};")
+    lines.append("/* NPC_SPRITE_FRAMES index per NPC_DEFS entry (-1: drawn by hand-wired code). */")
     lines.append("static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { "
                  + ", ".join(str(d[6]) for d in defs) + " };")
     lines.append(f"#define INTERACT_BUFFER {round(interact_buffer * dc_scale)}")

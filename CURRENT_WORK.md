@@ -3426,7 +3426,27 @@ sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
 
 ### Stages
 - [x] P0 This plan.
-- [ ] S1 Engine foundations + demo text removal.
+- [x] S1 Engine foundations + demo text removal.
+      - Computed script flags `item:<id>`, `mon:<species>`, `rep:pos`,
+        `rep:neg` (web `computedFlags()`; baker `flag_id` ranges 2000/3000/
+        4000/4001, decoded in main.c `npc_flag_on`). Usable in `if`,
+        `ifNot`, `hideIf` and warp `need`.
+      - New step key `takeMon` (Father's party first, never Max's last).
+        `grantMonster` now adds to the party, then Father's, else opens the
+        catch-swap prompt after the talk (web `giveMonster`, DC `g_gift_*`).
+      - Trainer `fate: "bounty" | "shakedown"` with `outcomes` {arrest,
+        execute, threaten} flags, `fateTalk`, `loot` [item, qty], `lootMon`
+        [species, lv]; trainer `post: true` = plain story fight. Both run
+        through the Leg 3 post machinery (DC kinds 4/5, `g_leg3_fate` 3/4).
+        Rep: bountyArrest +5, bountyExecute -10, shakedownThreaten -3,
+        shakedownExecute -10 (logic.json leg3.rep).
+      - Dreamcast: any saved flag without a hand-wired variable gets
+        `g_extra_flags[]` storage, saved via baked `FLAG_TO_SAVE`. NPC sprite
+        frames are baked (`NPC_SPRITE_FRAMES`): every sprites.json npc not in
+        the baker's `HAND_DRAWN_NPC_SPRITES` draws generically.
+      - Save 300 -> 332 bytes: flags to 256, bag to 48.
+      - Demo text removed: `endingWin*` gone from dialogue.json, data.ts and
+        the baker (DEMO_END); the Dreamcast ending header reads EPILOGUE.
 - [ ] S2 Father's party on Dreamcast; Father steps in on a wipe (both).
 - [ ] S3 Lead's 6-CryMon fight, Weeping Veil, Ghost Guild arc, Nero/General lore.
 - [ ] S4 Heroes and Thieves Guilds.

@@ -541,7 +541,11 @@
       "arrestGeneral": 10,
       "executeGeneral": -25,
       "trialNero": 50,
-      "executeNero": -50
+      "executeNero": -50,
+      "bountyArrest": 5,
+      "bountyExecute": -10,
+      "shakedownThreaten": -3,
+      "shakedownExecute": -10
     },
     "shackles": "shackles",
     "goldenShackles": "goldenShackles",

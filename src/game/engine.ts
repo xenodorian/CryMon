@@ -40,8 +40,6 @@ import {
   rollShiny,
   solidTile,
   spawnOf,
-  ENDING_WIN,
-  ENDING_WIN_HEAVENFALL,
   ENDING_LEG3,
   MAP_NAME,
   ENCOUNTERS,
@@ -75,7 +73,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End";
+type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL", hale: "HALE'S STALL" };
 const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray", hale: "shopFreeHale" };
@@ -402,6 +400,7 @@ export class CryMon {
 		this.moveCursor = 0;
 		this.pendingItem = null;
 		this.pendingCatch = null;
+		this.pendingGiftSwap = false;
 		this.shopTab = "buy";
 		this.shopCursor = 0;
 		const p = spawnOf(HOUSE, "P");
@@ -1079,6 +1078,8 @@ export class CryMon {
 				this.startWsBattle(this.pendingWs);
 			} else if (next === "generalFate" || next === "neroFate") {
 				this.openFate(next === "neroFate" ? "nero" : "general");
+			} else if (next === "bountyFate" || next === "shakedownFate") {
+				this.openFate(next === "bountyFate" ? "bounty" : "shakedown");
 			} else if (next === "leg3Father") {
 				this.leg3FatherReaction();
 			} else if (next === "leg3Heavenfall") {
@@ -1106,6 +1107,11 @@ export class CryMon {
 				this.endI = 0;
 			} else if (next === "priestessTeleport") {
 				this.startFade("priestessTeleport");
+			}
+			if (this.pendingGiftSwap && this.pendingCatch && this.mode === "world" && !this.talking()) {
+				// A reward CryMon with both parties full: pick who leaves.
+				this.pendingGiftSwap = false;
+				this.openParty("catchSwap");
 			}
 			this.maybeStartAnne();
 		}
@@ -2216,10 +2222,52 @@ export class CryMon {
 		// Leg 3 gates (base doors need the previous medal, the palace needs
 		// hasGoldenShackles): any other boolean flag field works as a need.
 		if (typeof this[need] === "boolean") return this[need];
+		const computed = this.computedFlags();
+		if (need.includes(":")) return !!computed[need];
 		return true;
+	}
+	/** Computed script flags (see bake_content.py flag_id): item:<id> = in the
+	 *  bag, mon:<species> = can be handed over (Father's party, or Max's while
+	 *  she keeps another), rep:pos / rep:neg. */
+	computedFlags(): Record<string, boolean> {
+		const out: Record<string, boolean> = { "rep:pos": this.reputation > 0, "rep:neg": this.reputation < 0 };
+		for (const id of ITEM_ORDER) if ((this.bag[id] ?? 0) > 0) out[`item:${id}`] = true;
+		for (const m of this.party2) out[`mon:${m.species}`] = true;
+		if (this.party.length > 1) for (const m of this.party) out[`mon:${m.species}`] = true;
+		return out;
+	}
+	/** takeMon: hand over one CryMon of this species, Father's party first,
+	 *  never Max's last one. */
+	takeMonster(species) {
+		const i2 = this.party2.findIndex((m) => m.species === species);
+		if (i2 >= 0) {
+			this.party2.splice(i2, 1);
+			return true;
+		}
+		const i = this.party.findIndex((m) => m.species === species);
+		if (i < 0 || this.party.length <= 1) return false;
+		this.party.splice(i, 1);
+		this.partyIndex = Math.min(this.partyIndex, this.party.length - 1);
+		return true;
+	}
+	/** Reward CryMon: Max's party, then Father's, else the catch-swap prompt. */
+	giveMonster(mon) {
+		this.markCaught(mon.species);
+		if (this.party.length < PARTY_MAX) {
+			this.party.push(mon);
+			return;
+		}
+		if (this.revivedFather && this.party2.length < PARTY_MAX) {
+			this.party2.push(mon);
+			this.note(`${mon.name} joins Father's party.`);
+			return;
+		}
+		this.pendingCatch = mon;
+		this.pendingGiftSwap = true;
 	}
 	npcFlags(): Record<string, boolean> {
 		return {
+			...this.computedFlags(),
 			// Every saved boolean flag is visible to NPC scripts (beatHeavenfall
 			// was missing, so the empty-grave step never matched); the explicit
 			// entries below still win where they compute something special.
@@ -2323,13 +2371,16 @@ export class CryMon {
 		if (step.takeItem && step.takeItem in this.bag) {
 			this.bag[step.takeItem] = Math.max(0, this.bag[step.takeItem] - 1);
 		}
+		if (step.takeMon) this.takeMonster(step.takeMon);
 		if (step.grantMonster) {
 			const [sp, lv] = step.grantMonster;
 			if (this.party.length === 0) {
 				this.party = [mintMonster(sp, lv)];
 				this.partyIndex = 0;
+				this.markCaught(sp);
+			} else {
+				this.giveMonster(mintMonster(sp, lv));
 			}
-			this.markCaught(sp);
 		}
 		if (step.heal) this.sleepHeal();
 		if (step.marks) this.marks += step.marks;
@@ -2815,8 +2866,8 @@ export class CryMon {
 		if (this.clock - this.lastAutosave > 4) this.persist(false);
 	}
 	endingText() {
-		if (this.leg3Ended) return this.leg3EndingText();
-		return this.choseHeavenfall ? ENDING_WIN_HEAVENFALL : ENDING_WIN;
+		// The only ending is Leg 3's epilogue (the Leg 2 demo credits are gone).
+		return this.leg3EndingText();
 	}
 	startWsBattle(who) {
 		const kit = TRAINERS[who];
@@ -4170,7 +4221,7 @@ export class CryMon {
 	 *  Heavenfall: trainers whose win runs leg3Win() instead of mercy. */
 	isLeg3Post(who) {
 		const k = TRAINERS[who];
-		return !!(k && (k.base || k.general || k.king || k.final));
+		return !!(k && (k.base || k.general || k.king || k.final || k.fate || k.post));
 	}
 	leg3General(who) {
 		return LEG3.generals.find((g) => g.trainer === who) || null;
@@ -4194,11 +4245,17 @@ export class CryMon {
 			this.say(TALK[kit.winTalk], "neroFate");
 			return;
 		}
+		if (kit.fate === "bounty" || kit.fate === "shakedown") {
+			this.fateTrainer = who;
+			this.say(TALK[kit.winTalk], kit.fate === "bounty" ? "bountyFate" : "shakedownFate");
+			return;
+		}
 		this.say(TALK[kit.winTalk]);
 	}
 	/** 3.2 / 3.4 choice after a General or Nero is beaten. */
 	fateRows() {
 		if (this.fateKind === "nero") return ["Bring Him To Trial", "Execute"];
+		if (this.fateKind === "shakedown") return ["Threaten", "Execute"];
 		return (this.bag[LEG3.shackles] ?? 0) > 0 ? ["Arrest", "Execute"] : ["Execute"];
 	}
 	openFate(kind) {
@@ -4220,6 +4277,7 @@ export class CryMon {
 			const pick = rows[this.fateCur];
 			this.mode = "world";
 			if (this.fateKind === "nero") this.resolveNero(pick !== "Execute");
+			else if (this.fateKind === "bounty" || this.fateKind === "shakedown") this.resolveOutlaw(pick);
 			else this.resolveGeneral(pick !== "Execute");
 		}
 	}
@@ -4246,6 +4304,48 @@ export class CryMon {
 			lines.push(...TALK.goldenShacklesGet);
 		}
 		this.say(lines);
+	}
+	/** Guild bounty (Arrest / Execute) or Thieves shakedown (Threaten /
+	 *  Execute): outcome flags, reputation and loot come from the trainer. */
+	resolveOutlaw(pick) {
+		const kit = TRAINERS[this.fateTrainer];
+		if (!kit) return;
+		const oc = kit.outcomes || {};
+		const R = LEG3.rep;
+		const lines = [];
+		let takeLoot = false;
+		if (pick === "Arrest") {
+			this.bag[LEG3.shackles] = Math.max(0, (this.bag[LEG3.shackles] ?? 0) - 1);
+			if (oc.arrest) this[oc.arrest] = true;
+			this.adjustReputation(R.bountyArrest ?? 5);
+			lines.push(...(TALK[kit.fateTalk?.arrest] || []));
+		} else if (pick === "Threaten") {
+			if (oc.threaten) this[oc.threaten] = true;
+			this.adjustReputation(R.shakedownThreaten ?? -3);
+			takeLoot = true;
+			lines.push(...(TALK[kit.fateTalk?.threaten] || []));
+		} else {
+			if (oc.execute) this[oc.execute] = true;
+			this.adjustReputation(kit.fate === "bounty" ? (R.bountyExecute ?? -10) : (R.shakedownExecute ?? -10));
+			this.audio.scream();
+			this.startFade("execute");
+			takeLoot = kit.fate === "shakedown";
+			if (kit.fate === "bounty" && (this.bag[LEG3.shackles] ?? 0) <= 0) lines.push(...TALK.generalArrestNoShackles);
+			lines.push(...(TALK[kit.fateTalk?.execute] || []));
+		}
+		if (takeLoot) {
+			if (kit.loot) {
+				const [id, n] = kit.loot;
+				this.bag[id] = (this.bag[id] ?? 0) + n;
+				lines.push({ speaker: "none", text: `Max takes ${n > 1 ? `${n} x ` : ""}${ITEMS[id]?.name ?? id}.` });
+			}
+			if (kit.lootMon) {
+				const mon = mintMonster(kit.lootMon[0], kit.lootMon[1]);
+				lines.push({ speaker: "none", text: `Max takes ${mon.name}.` });
+				this.giveMonster(mon);
+			}
+		}
+		this.say(lines.length ? lines : [{ speaker: "none", text: "It's done." }]);
 	}
 	/** 3.4: Nero's fate, then 3.5 (Father) and 3.6 (Heavenfall). */
 	resolveNero(trial) {
@@ -4323,14 +4423,15 @@ export class CryMon {
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 		this.box(X(16), Y(16), X(208), Y(112));
 		const name = TRAINERS[this.fateTrainer]?.name || "The General";
-		this.text(this.fateKind === "nero" ? "THE KING'S FATE" : "THE GENERAL'S FATE", X(120), Y(22), "#c5cec6", FONT, "center");
+		const heading = this.fateKind === "nero" ? "THE KING'S FATE" : this.fateKind === "general" ? "THE GENERAL'S FATE" : "AFTER THE FIGHT";
+		this.text(heading, X(120), Y(22), "#c5cec6", FONT, "center");
 		this.text(`${name} is beaten.`, X(28), Y(38), "#8a8678", FONT);
 		const rows = this.fateRows();
 		rows.forEach((row, i) => {
 			const on = i === this.fateCur;
 			this.text(on ? `> ${row}` : `  ${row}`, X(28), Y(56 + i * 14), on ? "#e8e4d8" : "#8a8678", FONT);
 		});
-		if (this.fateKind !== "nero" && rows.length === 1) this.text("No Shackles: you can't arrest.", X(28), Y(88), "#8f4a40", FONT);
+		if ((this.fateKind === "general" || this.fateKind === "bounty") && rows.length === 1) this.text("No Shackles: you can't arrest.", X(28), Y(88), "#8f4a40", FONT);
 		this.text("Z  choose", X(28), Y(112), "#5a7a52", FONT);
 	}
 	openMedals() {
