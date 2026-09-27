@@ -125,6 +125,10 @@ function Y(n: number) {
 const SPR_W = 48;
 const SPR_H = 52;
 const FONT = 16;
+const PAUSE_ROWS = ["Party", "Bag", "CryDex", "Map", "Medals", "Journal", "Settings", "Save", "Close"];
+type JournalStep = { text: string; if?: string; ifNot?: string };
+type JournalQuest = { id: string; title: string; start?: string | null; done?: string | null; doneText?: string; linear?: boolean; steps: JournalStep[] };
+const JOURNAL: JournalQuest[] = ((LOGIC as { journal?: { quests: JournalQuest[] } }).journal?.quests ?? []) as JournalQuest[];
 export class CryMon {
 	canvas: HTMLCanvasElement;
 	ctx: CanvasRenderingContext2D;
@@ -315,6 +319,7 @@ export class CryMon {
 	// pause / continue live on the shared save blob
 	titleCursor = 0;
 	pauseCursor = 0;
+	journalCursor = 0;
 	hasSave = false;
 	lastAutosave = 0;
 	visHook = null;
@@ -1194,7 +1199,7 @@ export class CryMon {
 		this.audio.ui();
 	}
 	updatePause() {
-		const rows = ["Party", "Bag", "CryDex", "Map", "Medals", "Settings", "Save", "Close"];
+		const rows = PAUSE_ROWS;
 		if (this.input.up()) {
 			this.pauseCursor = (this.pauseCursor + rows.length - 1) % rows.length;
 			this.audio.ui();
@@ -1208,14 +1213,15 @@ export class CryMon {
 			this.audio.ui();
 			return;
 		}
-		if (this.input.confirm() || (this.input.start() && this.pauseCursor === 7)) {
+		if (this.input.confirm() || (this.input.start() && this.pauseCursor === 8)) {
 			if (this.pauseCursor === 0) this.openParty();
 			else if (this.pauseCursor === 1) this.openBag();
 			else if (this.pauseCursor === 2) this.openCryDex();
 			else if (this.pauseCursor === 3) this.openTownMap();
 			else if (this.pauseCursor === 4) this.openMedals();
-			else if (this.pauseCursor === 5) this.openSettings();
-			else if (this.pauseCursor === 6) {
+			else if (this.pauseCursor === 5) this.openJournal();
+			else if (this.pauseCursor === 6) this.openSettings();
+			else if (this.pauseCursor === 7) {
 				this.mode = "world";
 				this.persist(true);
 			} else {
@@ -1735,6 +1741,10 @@ export class CryMon {
 		}
 		if (this.mode === "medals") {
 			this.updateMedals();
+			return;
+		}
+		if (this.mode === "journal") {
+			this.updateJournal();
 			return;
 		}
 		if (this.mode === "backstab") {
@@ -4518,6 +4528,77 @@ export class CryMon {
 		if ((this.fateKind === "general" || this.fateKind === "bounty") && rows.length === 1) this.text("No Shackles: you can't arrest.", X(28), Y(88), "#8f4a40", FONT);
 		this.text("Z  choose", X(28), Y(112), "#5a7a52", FONT);
 	}
+	/** Quest journal (logic.json journal; tools/build_journal.py). Started
+	 *  quests only, open ones first. Mirrors main.c journal_rows(). */
+	journalRows(): { q: JournalQuest; done: boolean }[] {
+		const f = this.npcFlags();
+		const on = (k?: string | null) => !k || !!f[k];
+		const rows = JOURNAL.filter((q) => on(q.start)).map((q) => ({ q, done: !!q.done && on(q.done) }));
+		return [...rows.filter((r) => !r.done), ...rows.filter((r) => r.done)];
+	}
+	journalHint(q: JournalQuest, done: boolean): string {
+		if (done) return q.doneText || "Done.";
+		const f = this.npcFlags();
+		if (q.linear) {
+			// The step after the last one already done (main.c journal_hint()).
+			let last = -1;
+			q.steps.forEach((s, i) => {
+				if (s.ifNot && f[s.ifNot]) last = i;
+			});
+			return q.steps[last + 1]?.text ?? "";
+		}
+		const st = q.steps.find((s) => (!s.if || f[s.if]) && !(s.ifNot && f[s.ifNot]));
+		return st?.text ?? "";
+	}
+	openJournal() {
+		this.mode = "journal";
+		this.journalCursor = 0;
+		this.audio.ui();
+	}
+	updateJournal() {
+		const n = this.journalRows().length;
+		if (n && this.input.up()) {
+			this.journalCursor = (this.journalCursor + n - 1) % n;
+			this.audio.ui();
+		}
+		if (n && this.input.down()) {
+			this.journalCursor = (this.journalCursor + 1) % n;
+			this.audio.ui();
+		}
+		if (this.input.cancel() || this.input.confirm()) {
+			this.mode = "pause";
+			this.audio.ui();
+		} else if (this.input.start()) {
+			this.mode = "world";
+			this.audio.ui();
+		}
+	}
+	drawJournal() {
+		this.drawWorld();
+		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.box(X(8), Y(6), X(224), Y(148));
+		const rows = this.journalRows();
+		const open = rows.filter((r) => !r.done).length;
+		this.text(`JOURNAL  ${open} open  ${rows.length - open} done`, X(16), Y(10), "#c5cec6", FONT);
+		if (!rows.length) return;
+		const cur = Math.min(this.journalCursor, rows.length - 1);
+		const vis = 8;
+		const start = Math.max(0, Math.min(cur - Math.floor(vis / 2), rows.length - vis));
+		rows.slice(start, start + vis).forEach((r, k) => {
+			const i = start + k;
+			const on = i === cur;
+			const y = Y(24 + k * 10.5);
+			this.text(`${on ? "> " : "  "}${r.q.title}`, X(16), y, on ? "#5a7a52" : r.done ? "#6e6a5c" : "#c5cec6", FONT);
+			if (r.done) this.text("done", X(222), y, "#5a7a52", FONT, "right");
+		});
+		this.ctx.fillStyle = "#5a5648";
+		this.ctx.fillRect(X(16), Y(110), X(208), 1);
+		const r = rows[cur];
+		this.wrap(this.journalHint(r.q, r.done), 46).slice(0, 4).forEach((line, k) => {
+			this.text(line, X(16), Y(114 + k * 9.5), "#e8e4d8", FONT);
+		});
+	}
 	openMedals() {
 		this.mode = "medals";
 		this.audio.ui();
@@ -4903,6 +4984,7 @@ export class CryMon {
 		else if (this.mode === "mercy") this.drawMercy();
 		else if (this.mode === "fate") this.drawFate();
 		else if (this.mode === "medals") this.drawMedals();
+		else if (this.mode === "journal") this.drawJournal();
 		else if (this.mode === "backstab") this.drawBackstabChoice();
 		else if (this.mode === "pause") this.drawPause();
 		else if (this.mode === "crydex") this.drawCryDex();
@@ -5007,10 +5089,9 @@ export class CryMon {
 		this.drawWorld();
 		this.box(X(64), Y(24), X(112), Y(112));
 		this.text("PAUSE", X(120), Y(30), "#e8e4d8", FONT, "center");
-		const rows = ["Party", "Bag", "CryDex", "Map", "Medals", "Settings", "Save", "Close"];
-		rows.forEach((r, i) => {
+		PAUSE_ROWS.forEach((r, i) => {
 			const on = i === this.pauseCursor;
-			this.text(on ? `> ${r}` : r, X(120), Y(44 + i * 11), on ? "#5a7a52" : "#c5cec6", FONT, "center");
+			this.text(on ? `> ${r}` : r, X(120), Y(40 + i * 10.5), on ? "#5a7a52" : "#c5cec6", FONT, "center");
 		});
 	}
 	drawCryDex() {

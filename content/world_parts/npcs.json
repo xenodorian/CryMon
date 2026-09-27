@@ -2722,7 +2722,8 @@
           "talk": "tamAfter"
         },
         {
-          "talk": "tamAsk"
+          "talk": "tamAsk",
+          "set": "tamAsked"
         }
       ]
     },
@@ -2784,7 +2785,8 @@
           "talk": "linaAfter"
         },
         {
-          "talk": "linaAsk"
+          "talk": "linaAsk",
+          "set": "linaAsked"
         }
       ]
     },
@@ -2814,7 +2816,8 @@
           "talk": "junoAfter"
         },
         {
-          "talk": "junoAsk"
+          "talk": "junoAsk",
+          "set": "junoAsked"
         }
       ]
     },
@@ -2876,7 +2879,8 @@
           "talk": "betAfter"
         },
         {
-          "talk": "betAsk"
+          "talk": "betAsk",
+          "set": "betAsked"
         }
       ]
     },
@@ -2906,7 +2910,8 @@
           "talk": "cobbAfter"
         },
         {
-          "talk": "cobbAsk"
+          "talk": "cobbAsk",
+          "set": "cobbAsked"
         }
       ]
     },
@@ -2957,7 +2962,8 @@
           "talk": "seraAfter"
         },
         {
-          "talk": "seraAsk"
+          "talk": "seraAsk",
+          "set": "seraAsked"
         }
       ]
     },
@@ -3012,7 +3018,8 @@
           "talk": "dunnAfter"
         },
         {
-          "talk": "dunnAsk"
+          "talk": "dunnAsk",
+          "set": "dunnAsked"
         }
       ]
     },
@@ -3074,7 +3081,8 @@
           "talk": "hesseAfter"
         },
         {
-          "talk": "hesseAsk"
+          "talk": "hesseAsk",
+          "set": "hesseAsked"
         }
       ]
     },
@@ -3104,7 +3112,8 @@
           "talk": "vossAfter"
         },
         {
-          "talk": "vossAsk"
+          "talk": "vossAsk",
+          "set": "vossAsked"
         }
       ]
     },
@@ -3155,7 +3164,8 @@
           "talk": "luneAfter"
         },
         {
-          "talk": "luneAsk"
+          "talk": "luneAsk",
+          "set": "luneAsked"
         }
       ]
     },
@@ -3210,7 +3220,8 @@
           "talk": "holtAfter"
         },
         {
-          "talk": "holtAsk"
+          "talk": "holtAsk",
+          "set": "holtAsked"
         }
       ]
     },
@@ -3276,7 +3287,8 @@
           "talk": "anselmAfter"
         },
         {
-          "talk": "anselmAsk"
+          "talk": "anselmAsk",
+          "set": "anselmAsked"
         }
       ]
     },
@@ -3306,7 +3318,8 @@
           "talk": "rheeAfter"
         },
         {
-          "talk": "rheeAsk"
+          "talk": "rheeAsk",
+          "set": "rheeAsked"
         }
       ]
     },
@@ -3713,7 +3726,8 @@
           "ifNot": "beatOsk1",
           "talk": "oskOne",
           "after": "wsoldier",
-          "pending": "oskOne"
+          "pending": "oskOne",
+          "set": "talkedOsk"
         },
         {
           "ifNot": "beatLieutenantLead",

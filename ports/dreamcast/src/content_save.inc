@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=aa1d908c730341de — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=11a1662419e77d95 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
@@ -7,7 +7,7 @@
 #define SAVE_SIZE 332
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
-#define SAVE_FLAG_N 203
+#define SAVE_FLAG_N 217
 #define SAVE_ITEM_N 32
 #define SAVE_FLAG_TOOK_STARTER 0
 #define SAVE_FLAG_TALKED_FATHER 1
@@ -212,6 +212,20 @@
 #define SAVE_FLAG_TALKED_MAREN 200
 #define SAVE_FLAG_PICKED_DOLL 201
 #define SAVE_FLAG_MAREN_REST 202
+#define SAVE_FLAG_TAM_ASKED 203
+#define SAVE_FLAG_LINA_ASKED 204
+#define SAVE_FLAG_JUNO_ASKED 205
+#define SAVE_FLAG_BET_ASKED 206
+#define SAVE_FLAG_COBB_ASKED 207
+#define SAVE_FLAG_SERA_ASKED 208
+#define SAVE_FLAG_DUNN_ASKED 209
+#define SAVE_FLAG_HESSE_ASKED 210
+#define SAVE_FLAG_VOSS_ASKED 211
+#define SAVE_FLAG_LUNE_ASKED 212
+#define SAVE_FLAG_HOLT_ASKED 213
+#define SAVE_FLAG_ANSELM_ASKED 214
+#define SAVE_FLAG_RHEE_ASKED 215
+#define SAVE_FLAG_TALKED_OSK 216
 
 /* Blob layout (little-endian), shared with src/game/save.ts:
    0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,

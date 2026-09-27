@@ -2170,10 +2170,10 @@ static void draw_menu_frame(const char *title, const char *footer) {
 }
 
 static void draw_pause_menu(int cur) {
-    static const char *const rows[7] = { "PARTY", "BAG", "CRYDEX", "MEDALS", "SETTINGS", "SAVE", "CLOSE" };
+    static const char *const rows[8] = { "PARTY", "BAG", "CRYDEX", "MEDALS", "JOURNAL", "SETTINGS", "SAVE", "CLOSE" };
     int i;
     draw_menu_frame("PAUSE", "A SELECT  B CLOSE");
-    for(i = 0; i < 7; i++)
+    for(i = 0; i < 8; i++)
         draw_text_s(rows[i], MENU_X + 16, MENU_Y + 24 + i * MENU_ROW_H,
                     i == cur ? rgb565(90, 122, 82) : rgb565(197, 206, 198), MENU_SCALE);
 }
@@ -4535,6 +4535,83 @@ static int npc_match_step(const NpcDef *d, int **ft, int party_n);
    whose script's hideIf matches is gone (lost townsfolk led home, the Reach
    Shinigami once he's gone to the crypt, ...). */
 static int **g_ft;
+
+/* ----------------------------------------------------------------------
+ * Quest journal (pause -> JOURNAL, menu_mode 7). Baked from logic.json
+ * journal (JOURNAL_QUESTS / JOURNAL_STEPS). Mirrors engine.ts
+ * journalRows()/drawJournal(): started quests only, open ones first.
+ * ---------------------------------------------------------------------- */
+static int journal_flag(int id) {
+    if(id < 0) return 1;
+    return (g_ft && g_party_n_ptr) ? npc_flag_on(id, g_ft, *g_party_n_ptr) : 0;
+}
+
+static int journal_rows(int *out) {
+    int i, n = 0, pass;
+    for(pass = 0; pass < 2; pass++)
+        for(i = 0; i < JOURNAL_QUEST_N; i++) {
+            const JournalQuest *q = &JOURNAL_QUESTS[i];
+            int done;
+            if(q->start >= 0 && !journal_flag(q->start)) continue;
+            done = q->done >= 0 && journal_flag(q->done);
+            if(done == pass) out[n++] = i;
+        }
+    return n;
+}
+
+static const char *journal_hint(int qi) {
+    const JournalQuest *q = &JOURNAL_QUESTS[qi];
+    int i;
+    if(q->done >= 0 && journal_flag(q->done))
+        return q->done_text[0] ? q->done_text : "DONE.";
+    if(q->linear) { /* the step after the last one already done */
+        for(i = q->nsteps - 1; i >= 0; i--)
+            if(JOURNAL_STEPS[q->step0 + i].if_not >= 0 && journal_flag(JOURNAL_STEPS[q->step0 + i].if_not))
+                break;
+        return (i + 1 < q->nsteps) ? JOURNAL_STEPS[q->step0 + i + 1].text : "";
+    }
+    for(i = 0; i < q->nsteps; i++) {
+        const JournalStep *st = &JOURNAL_STEPS[q->step0 + i];
+        if(st->if_flag >= 0 && !journal_flag(st->if_flag)) continue;
+        if(st->if_not >= 0 && journal_flag(st->if_not)) continue;
+        return st->text;
+    }
+    return "";
+}
+
+#define JOURNAL_VIS 14
+static void draw_journal(int cur) {
+    int rows[JOURNAL_QUEST_N > 0 ? JOURNAL_QUEST_N : 1];
+    int n = journal_rows(rows), i, open_n = 0, start, y;
+    char buf[48];
+    int k;
+    for(i = 0; i < n; i++)
+        if(!(JOURNAL_QUESTS[rows[i]].done >= 0 && journal_flag(JOURNAL_QUESTS[rows[i]].done))) open_n++;
+    k = s_cat(buf, 0, "JOURNAL  ");
+    k = s_cat_uint(buf, k, (unsigned)open_n);
+    k = s_cat(buf, k, " OPEN  ");
+    k = s_cat_uint(buf, k, (unsigned)(n - open_n));
+    k = s_cat(buf, k, " DONE");
+    buf[k] = 0;
+    draw_menu_frame(buf, "UP/DOWN  B BACK");
+    if(n == 0) return;
+    if(cur >= n) cur = n - 1;
+    start = cur - JOURNAL_VIS / 2;
+    if(start > n - JOURNAL_VIS) start = n - JOURNAL_VIS;
+    if(start < 0) start = 0;
+    y = MENU_Y + 24;
+    for(i = start; i < n && i < start + JOURNAL_VIS; i++, y += 16) {
+        const JournalQuest *q = &JOURNAL_QUESTS[rows[i]];
+        int done = q->done >= 0 && journal_flag(q->done);
+        u16 c = i == cur ? rgb565(90, 122, 82) : (done ? rgb565(110, 106, 92) : rgb565(197, 206, 198));
+        draw_text_s(i == cur ? ">" : " ", MENU_X + 8, y, c, 1);
+        draw_text_s(q->title, MENU_X + 20, y, c, 1);
+        if(done) draw_text_s("DONE", MENU_X + MENU_W - 48, y, rgb565(90, 122, 82), 1);
+    }
+    y = MENU_Y + 24 + JOURNAL_VIS * 16 + 8;
+    fill_rect(MENU_X + 8, y - 4, MENU_W - 16, 1, rgb565(90, 86, 72));
+    draw_wrapped(journal_hint(rows[cur]), MENU_X + 8, y + 4, rgb565(232, 228, 216), 1, 70, 14);
+}
 static int npc_def_hidden(int li) {
     if(!g_ft || !g_party_n_ptr) return 0;
     return npc_match_step(&NPC_DEFS[li], g_ft, *g_party_n_ptr) == -1;
@@ -5648,6 +5725,7 @@ void main(void) {
     int menu_mode = 0;
     int pause_cur = 0;
     int dex_cur = 0;
+    int journal_cur = 0;
     int dex_entry = 0;
     int title_cur = 0;
     int have_save = 0;
@@ -6325,18 +6403,18 @@ void main(void) {
         }
         else if(menu_mode == 3) {
             if(up_now && !prev_up) {
-                pause_cur = (pause_cur + 6) % 7;
+                pause_cur = (pause_cur + 7) % 8;
                 chip_sfx_ui();
             }
             if(down_now && !prev_down) {
-                pause_cur = (pause_cur + 1) % 7;
+                pause_cur = (pause_cur + 1) % 8;
                 chip_sfx_ui();
             }
             if(b_now && !prev_b) {
                 menu_mode = 0;
                 chip_sfx_ui();
             }
-            else if((a_now && !prev_a) || (start_now && !prev_start && pause_cur == 6)) {
+            else if((a_now && !prev_a) || (start_now && !prev_start && pause_cur == 7)) {
                 if(pause_cur == 0) {
                     menu_mode = 2;
                     party_detail = 0;
@@ -6356,9 +6434,13 @@ void main(void) {
                     menu_mode = 6; /* Leg 3 medals */
                     chip_sfx_ui();
                 } else if(pause_cur == 4) {
-                    menu_mode = 5;
+                    menu_mode = 7; /* quest journal */
+                    journal_cur = 0;
                     chip_sfx_ui();
                 } else if(pause_cur == 5) {
+                    menu_mode = 5;
+                    chip_sfx_ui();
+                } else if(pause_cur == 6) {
                     SaveLive sl;
                     int i, pi;
                     for(i = 0; i < (int)sizeof(sl); i++) ((unsigned char *)&sl)[i] = 0;
@@ -6524,6 +6606,25 @@ void main(void) {
                     menu_mode = 0;
                     chip_sfx_ui();
                 }
+            }
+        }
+        else if(menu_mode == 7) {
+            int jrows[JOURNAL_QUEST_N > 0 ? JOURNAL_QUEST_N : 1];
+            int jn = journal_rows(jrows);
+            if(up_now && !prev_up && jn > 0) {
+                journal_cur = (journal_cur + jn - 1) % jn;
+                chip_sfx_ui();
+            }
+            if(down_now && !prev_down && jn > 0) {
+                journal_cur = (journal_cur + 1) % jn;
+                chip_sfx_ui();
+            }
+            if((a_now && !prev_a) || (b_now && !prev_b)) {
+                menu_mode = 3;
+                chip_sfx_ui();
+            } else if(start_now && !prev_start) {
+                menu_mode = 0;
+                chip_sfx_ui();
             }
         }
         else if(menu_mode == 4) {
@@ -9091,6 +9192,8 @@ void main(void) {
                 draw_settings_menu();
             else if(menu_mode == 6)
                 draw_leg3_medals(bag.shackles);
+            else if(menu_mode == 7)
+                draw_journal(journal_cur);
             if(in_battle)
                 draw_battle(&battle, &bag, frame_count,
                             battle_foe_enter_t, battle_foe_faint_t,

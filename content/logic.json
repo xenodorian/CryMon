@@ -2,10 +2,20 @@
   "source": "Shared rules both engines interpret. Extend this file instead of forking engine.ts or main.c.",
   "shops": {
     "comment": "Which capture-crystal tiers each shopkeeper id sells (non-crystal items are unaffected by this list, every shop still sells the general goods). 'default' covers any shopkeeper id not listed by name, so new merchants restock the higher tiers automatically. perfectcrystal is never sold anywhere. notSoldBy (Leg 3.2): items a named keeper never stocks; Shackles are sold everywhere except Bram, the first merchant.",
-    "notSoldBy": { "shackles": ["bram"] },
+    "notSoldBy": {
+      "shackles": [
+        "bram"
+      ]
+    },
     "crystalStock": {
-      "bram": ["gem"],
-      "default": ["greatcrystal", "megacrystal", "ultimatecrystal"]
+      "bram": [
+        "gem"
+      ],
+      "default": [
+        "greatcrystal",
+        "megacrystal",
+        "ultimatecrystal"
+      ]
     }
   },
   "reputation": {
@@ -90,7 +100,9 @@
       "id": "quartz",
       "name": "Quartz",
       "theme": "white, neutral: plain beasts and humans",
-      "colors": ["#ECEAE4"],
+      "colors": [
+        "#ECEAE4"
+      ],
       "str": 1,
       "agl": 1,
       "spc": 1
@@ -99,7 +111,9 @@
       "id": "jasper",
       "name": "Jasper",
       "theme": "brown, earth and stone",
-      "colors": ["#9C6236"],
+      "colors": [
+        "#9C6236"
+      ],
       "str": 3,
       "agl": 0,
       "spc": 0
@@ -108,7 +122,9 @@
       "id": "diamond",
       "name": "Diamond",
       "theme": "starlight, cosmic",
-      "colors": ["#B9C4FF"],
+      "colors": [
+        "#B9C4FF"
+      ],
       "str": 2,
       "agl": 0,
       "spc": 1
@@ -117,7 +133,9 @@
       "id": "citrine",
       "name": "Citrine",
       "theme": "yellow, lightning",
-      "colors": ["#F2C230"],
+      "colors": [
+        "#F2C230"
+      ],
       "str": 0,
       "agl": 3,
       "spc": 0
@@ -126,7 +144,9 @@
       "id": "obsidian",
       "name": "Obsidian",
       "theme": "black, ghost and dark",
-      "colors": ["#2B2433"],
+      "colors": [
+        "#2B2433"
+      ],
       "str": 1,
       "agl": 2,
       "spc": 0
@@ -135,7 +155,13 @@
       "id": "prism",
       "name": "Prism",
       "theme": "rainbow, magic",
-      "colors": ["#D63A3A", "#F2C230", "#3FA34D", "#3A6FD6", "#8A4FD0"],
+      "colors": [
+        "#D63A3A",
+        "#F2C230",
+        "#3FA34D",
+        "#3A6FD6",
+        "#8A4FD0"
+      ],
       "str": 0,
       "agl": 0,
       "spc": 3
@@ -144,7 +170,9 @@
       "id": "emerald",
       "name": "Emerald",
       "theme": "green, plants",
-      "colors": ["#3FA34D"],
+      "colors": [
+        "#3FA34D"
+      ],
       "str": 0,
       "agl": 1,
       "spc": 2
@@ -153,7 +181,9 @@
       "id": "ruby",
       "name": "Ruby",
       "theme": "red, fire",
-      "colors": ["#D63A3A"],
+      "colors": [
+        "#D63A3A"
+      ],
       "str": 2,
       "agl": 1,
       "spc": 0
@@ -162,7 +192,9 @@
       "id": "sapphire",
       "name": "Sapphire",
       "theme": "blue, ice",
-      "colors": ["#3A6FD6"],
+      "colors": [
+        "#3A6FD6"
+      ],
       "str": 1,
       "agl": 0,
       "spc": 2
@@ -364,16 +396,35 @@
   ],
   "statStages": {
     "note": "Index = stage 0..4 (0 = no effect). Effective stat = round(base * mult[stage]); stage 4 instead sets the stat to a flat 1, ignoring mult[4]. A stage move advances the target's stage for its one stat (or, for shinyMove, all 3) by 1 per use, capped at 4 -- it never jumps straight to a higher stage.",
-    "mult": [1.0, 0.7, 0.4, 0.1, 0.0],
+    "mult": [
+      1.0,
+      0.7,
+      0.4,
+      0.1,
+      0.0
+    ],
     "maxStage": 4,
     "floorAtMaxStage": 1
   },
   "statusEffects": {
     "note": "Only one status active at a time; inflicting a new one replaces the old one. Burned/Poisoned/Confused/Paralyzed persist on the player's own CryMon until their next rest (sleepHeal); Exhausted (shinyMove only) is battle-scoped instead, like the stage moves -- see 2.11 in CURRENT_WORK.md for why.",
-    "burned": { "hpPercent": 5, "turnsMin": 2, "turnsMax": 5 },
-    "poisoned": { "startPercent": 1, "stepPercent": 1 },
-    "paralyzed": { "turnsMin": 1, "turnsMax": 5 },
-    "confused": { "turnsMin": 1, "turnsMax": 4 },
+    "burned": {
+      "hpPercent": 5,
+      "turnsMin": 2,
+      "turnsMax": 5
+    },
+    "poisoned": {
+      "startPercent": 1,
+      "stepPercent": 1
+    },
+    "paralyzed": {
+      "turnsMin": 1,
+      "turnsMax": 5
+    },
+    "confused": {
+      "turnsMin": 1,
+      "turnsMax": 4
+    },
     "exhausted": {}
   },
   "shinyMove": {
@@ -568,5 +619,502 @@
       "trainer": "heavenfallFinal",
       "species": "heavenfall"
     }
+  },
+  "journal": {
+    "note": "Quest journal (pause menu). See tools/build_journal.py for the rules.",
+    "quests": [
+      {
+        "id": "main",
+        "title": "The Weeping Army",
+        "start": null,
+        "done": "beatNero",
+        "doneText": "Nero is beaten. The Sephirot are free.",
+        "steps": [
+          {
+            "text": "Take Father's CryMon crystal from the shelf at home.",
+            "ifNot": "tookStarter"
+          },
+          {
+            "text": "Calder blocks the east road out of CryTown. Beat him to reach the Cliffs.",
+            "ifNot": "beatCalder"
+          },
+          {
+            "text": "Go east over the Cliffs, then the Marsh, the Quarry, the army camp and the Forest. The Prison is past the Forest.",
+            "ifNot": "beatCross"
+          },
+          {
+            "text": "Get past Cathleen and face Shinigami in the Prison.",
+            "ifNot": "beatShinigami"
+          },
+          {
+            "text": "The boulder west of CryTown is gone. Go through the Ruins to the Reach.",
+            "ifNot": "talkedReach"
+          },
+          {
+            "text": "Shinigami waits under the northwest house in the Ruins.",
+            "ifNot": "joinedGhost"
+          },
+          {
+            "text": "Do the Ghost Guild's work so Shinigami can part the Weeping Veil.",
+            "ifNot": "veilLifted"
+          },
+          {
+            "text": "Beat Lieutenant Lead at CryTown's north gate. He fights with six CryMon.",
+            "ifNot": "beatLieutenantLead"
+          },
+          {
+            "text": "Take the Malkuth base from General Harrow.",
+            "ifNot": "medalBronzeStar"
+          },
+          {
+            "text": "Take the Yesod base from General Ashgrove.",
+            "ifNot": "medalPurpleHeart"
+          },
+          {
+            "text": "Take the Netzach base from General Stroud.",
+            "ifNot": "medalPowMedal"
+          },
+          {
+            "text": "Take the Hod base from General Vale.",
+            "ifNot": "medalSilverStar"
+          },
+          {
+            "text": "Take the Tiferet base from General Kessler.",
+            "ifNot": "medalGoldStar"
+          },
+          {
+            "text": "Take the Chesed base from General Morrow.",
+            "ifNot": "medalLegionOfMerit"
+          },
+          {
+            "text": "Take the Gevurah base from General Crane.",
+            "ifNot": "medalFlyingCross"
+          },
+          {
+            "text": "Take the Binah base from General Blackwood.",
+            "ifNot": "medalServiceCross"
+          },
+          {
+            "text": "Take the Chokmah base from General Sorrel.",
+            "ifNot": "medalOfHonor"
+          },
+          {
+            "text": "Nine medals won. Storm Nero's palace in Keter.",
+            "ifNot": "beatNero"
+          }
+        ],
+        "linear": true
+      },
+      {
+        "id": "heavenfall",
+        "title": "The Fallen Star",
+        "start": "choseHeavenfall",
+        "done": "beatHeavenfall",
+        "doneText": "Heavenfall answered the scroll.",
+        "steps": [
+          {
+            "text": "Show the scroll to the Priestess south of CryTown and follow the gauntlet to Heavenfall's grave.",
+            "ifNot": "beatHeavenfall"
+          }
+        ]
+      },
+      {
+        "id": "ghost",
+        "title": "The Ghost Guild",
+        "start": "joinedGhost",
+        "done": "veilLifted",
+        "doneText": "The Wraith Lantern parted the Veil.",
+        "steps": [
+          {
+            "text": "Rob Ines's grave in the southeast of the Ruins.",
+            "ifNot": "robbedInes"
+          },
+          {
+            "text": "Rob Tomas's grave in the Prison yard.",
+            "ifNot": "robbedTomas"
+          },
+          {
+            "text": "Rob Oriel's grave in the southwest Marsh.",
+            "ifNot": "robbedOriel"
+          },
+          {
+            "text": "Pray at the shrine at the top of the Cliffs.",
+            "ifNot": "prayedCliffs"
+          },
+          {
+            "text": "Pray at the shrine in the Quarry.",
+            "ifNot": "prayedQuarry"
+          },
+          {
+            "text": "Pray at the shrine in the east of the Forest.",
+            "ifNot": "prayedForest"
+          },
+          {
+            "text": "Free the ghosts in the haunted hall, northeast in the Reach.",
+            "ifNot": "expelledOriel"
+          },
+          {
+            "text": "Bring the bones to Shinigami in the crypt under the Ruins.",
+            "ifNot": "beatVesk"
+          },
+          {
+            "text": "Collect the Wraith Lantern from Shinigami.",
+            "ifNot": "veilLifted"
+          }
+        ]
+      },
+      {
+        "id": "heroes",
+        "title": "The Heroes Guild",
+        "start": "joinedHeroes",
+        "done": "gaveMoonveil",
+        "doneText": "Every Heroes Guild job is done.",
+        "steps": [
+          {
+            "text": "Arrest Red Mallory in the Forest, then report to Captain Ardent.",
+            "ifNot": "paidMallory"
+          },
+          {
+            "text": "Bring Captain Ardent a Glasswisp. They live in the Ruins' grass.",
+            "ifNot": "gaveGlasswisp"
+          },
+          {
+            "text": "Arrest Silas the Fence in the Quarry, then report to Ardent.",
+            "ifNot": "paidSilas"
+          },
+          {
+            "text": "Bring Ardent a Stardrop from the Quarry's grass.",
+            "ifNot": "gaveStardrop"
+          },
+          {
+            "text": "Bring Ardent a Moonveil from the Path of Ayin.",
+            "ifNot": "gaveMoonveil"
+          }
+        ]
+      },
+      {
+        "id": "thieves",
+        "title": "The Thieves Guild",
+        "start": "joinedThieves",
+        "done": "paidRook",
+        "doneText": "Every Thieves Guild job is done.",
+        "steps": [
+          {
+            "text": "Shake down Sir Aldous in CryTown, then see Mag.",
+            "ifNot": "paidAldous"
+          },
+          {
+            "text": "Shake down Dame Brin in the Ruins, then see Mag.",
+            "ifNot": "paidBrin"
+          },
+          {
+            "text": "Shake down Captain Rook on the Cliffs, then see Mag.",
+            "ifNot": "paidRook"
+          }
+        ]
+      },
+      {
+        "id": "pike",
+        "title": "Pike's Crystal",
+        "start": "talkedPike",
+        "done": "pikeHelped",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Pike lost a crystal in the east reeds of CryTown. Find it and bring it back.",
+            "ifNot": "pikeHelped"
+          }
+        ]
+      },
+      {
+        "id": "tam",
+        "title": "Old Tam's Watch",
+        "start": "tamAsked",
+        "done": "gaveWatch",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Old Tam lost his watch by the Prison.",
+            "ifNot": "pickedWatch"
+          },
+          {
+            "text": "Give Old Tam his watch in CryTown.",
+            "ifNot": "gaveWatch"
+          }
+        ]
+      },
+      {
+        "id": "rolo",
+        "title": "Lina's Boy",
+        "start": "linaAsked",
+        "done": "roloHome",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Find Rolo on the Cliffs.",
+            "ifNot": "roloFound"
+          },
+          {
+            "text": "Tell Lina in CryTown that Rolo is home.",
+            "ifNot": "roloHome"
+          }
+        ]
+      },
+      {
+        "id": "juno",
+        "title": "A Crymare for Juno",
+        "start": "junoAsked",
+        "done": "gaveCrymare",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Bring Collector Juno in CryTown a Crymare from the Ruins' grass.",
+            "ifNot": "gaveCrymare"
+          }
+        ]
+      },
+      {
+        "id": "wyn",
+        "title": "The Library's Great Book",
+        "start": "talkedWyn",
+        "done": "libraryDexAll",
+        "doneText": "Max's name is on the first page.",
+        "steps": [
+          {
+            "text": "Catch 10 kinds of CryMon and show Archivist Wyn in the Ruins library.",
+            "ifNot": "libraryDex10"
+          },
+          {
+            "text": "Catch 25 kinds and show Wyn.",
+            "ifNot": "libraryDex25"
+          },
+          {
+            "text": "Catch 50 kinds and show Wyn.",
+            "ifNot": "libraryDex50"
+          },
+          {
+            "text": "Catch 80 kinds and show Wyn.",
+            "ifNot": "libraryDex80"
+          },
+          {
+            "text": "Catch every kind and show Wyn.",
+            "ifNot": "libraryDexAll"
+          }
+        ]
+      },
+      {
+        "id": "brann",
+        "title": "A Deserter's Letter",
+        "start": "brannAsked",
+        "done": "brannDone",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Take Brann's letter to his brother, Elder Marn, in Malkuth.",
+            "ifNot": "gaveLetter"
+          },
+          {
+            "text": "Take Marn's reply back to Brann in the Ruins.",
+            "ifNot": "brannDone"
+          }
+        ]
+      },
+      {
+        "id": "osk",
+        "title": "Hermit Osk's Lessons",
+        "start": "talkedOsk",
+        "done": "beatOsk3",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Beat Hermit Osk in his hut in the Reach.",
+            "ifNot": "beatOsk1"
+          },
+          {
+            "text": "Beat Lieutenant Lead, then fight Osk again.",
+            "ifNot": "beatLieutenantLead"
+          },
+          {
+            "text": "Beat Osk's real team.",
+            "ifNot": "beatOsk2"
+          },
+          {
+            "text": "Win all nine medals, then fight Osk one last time.",
+            "ifNot": "medalOfHonor"
+          },
+          {
+            "text": "Beat Osk's last lesson.",
+            "ifNot": "beatOsk3"
+          }
+        ]
+      },
+      {
+        "id": "maren",
+        "title": "Button",
+        "start": "talkedMaren",
+        "done": "marenRest",
+        "doneText": "Maren is at rest.",
+        "steps": [
+          {
+            "text": "Find Maren's rag doll in the north of the Marsh.",
+            "ifNot": "pickedDoll"
+          },
+          {
+            "text": "Bring the doll to Maren in the Reach's empty house.",
+            "ifNot": "marenRest"
+          }
+        ]
+      },
+      {
+        "id": "pip",
+        "title": "Pip",
+        "start": "betAsked",
+        "done": "pipHome",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Find Pip on the Path of Tau.",
+            "ifNot": "pipFound"
+          },
+          {
+            "text": "Tell Old Bet in Malkuth that Pip is home.",
+            "ifNot": "pipHome"
+          }
+        ]
+      },
+      {
+        "id": "cobb",
+        "title": "A Boltlamb for Cobb",
+        "start": "cobbAsked",
+        "done": "gaveBoltlamb",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Bring Cobb in Yesod a Boltlamb from the Path of Resh.",
+            "ifNot": "gaveBoltlamb"
+          }
+        ]
+      },
+      {
+        "id": "sera",
+        "title": "Sera's Locket",
+        "start": "seraAsked",
+        "done": "gaveLocket",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Find Sera's silver locket on the Path of Peh and bring it to her in Netzach.",
+            "ifNot": "gaveLocket"
+          }
+        ]
+      },
+      {
+        "id": "garrow",
+        "title": "Wanted: Knife-Hand Garrow",
+        "start": "dunnAsked",
+        "done": "paidGarrow",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Deal with Knife-Hand Garrow on the Path of Mem.",
+            "ifNot": "beatGarrow"
+          },
+          {
+            "text": "Collect the bounty from Dunn in Hod.",
+            "ifNot": "paidGarrow"
+          }
+        ]
+      },
+      {
+        "id": "tilly",
+        "title": "Tilly",
+        "start": "hesseAsked",
+        "done": "tillyHome",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Find Tilly on the Path of Samekh.",
+            "ifNot": "tillyFound"
+          },
+          {
+            "text": "Tell Hesse in Tiferet that Tilly is home.",
+            "ifNot": "tillyHome"
+          }
+        ]
+      },
+      {
+        "id": "voss",
+        "title": "A Wheelhog for Voss",
+        "start": "vossAsked",
+        "done": "gaveWheelhog",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Bring Voss in Chesed a Wheelhog from the Path of Mem.",
+            "ifNot": "gaveWheelhog"
+          }
+        ]
+      },
+      {
+        "id": "lune",
+        "title": "Lune's Old Map",
+        "start": "luneAsked",
+        "done": "gaveMap",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Find Lune's old map on the Path of Heth and bring it to Gevurah.",
+            "ifNot": "gaveMap"
+          }
+        ]
+      },
+      {
+        "id": "kael",
+        "title": "Wanted: Deserter Kael",
+        "start": "holtAsked",
+        "done": "paidKael",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Deal with Deserter Kael on the Path of Daleth.",
+            "ifNot": "beatKael"
+          },
+          {
+            "text": "Collect the bounty from Holt in Binah.",
+            "ifNot": "paidKael"
+          }
+        ]
+      },
+      {
+        "id": "iona",
+        "title": "Sister Iona",
+        "start": "anselmAsked",
+        "done": "ionaHome",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Find Sister Iona on the Path of Aleph.",
+            "ifNot": "ionaFound"
+          },
+          {
+            "text": "Tell Anselm in Chokmah that Iona is home.",
+            "ifNot": "ionaHome"
+          }
+        ]
+      },
+      {
+        "id": "rhee",
+        "title": "An Arcanox for Rhee",
+        "start": "rheeAsked",
+        "done": "gaveArcanox",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Bring Rhee in Keter an Arcanox from the Path of Aleph.",
+            "ifNot": "gaveArcanox"
+          }
+        ]
+      }
+    ]
   }
 }

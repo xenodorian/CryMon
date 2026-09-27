@@ -993,6 +993,7 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("};")
     lines.append("")
     bake_npc_scripts(data, items, lines)
+    bake_journal(data, lines)
     bake_leg3(data, lines, kit_keys)
     out.write_text("\n".join(lines) + "\n")
 
@@ -1289,6 +1290,35 @@ def _after_and_pending(after_raw, pending_raw) -> dict:
         "after": AFTER_IDS.get(after_raw, 0),
         "pending": PENDING_IDS.get(pending_raw or "", LEG3_PENDING.get(pending_raw or "", -1)),
     }
+
+
+def bake_journal(data: dict, lines: list[str]) -> None:
+    """logic.json journal -> JOURNAL_QUESTS / JOURNAL_STEPS (main.c menu_mode 7)."""
+    quests = (data["logic"].get("journal") or {}).get("quests") or []
+    steps = []
+    lines.append("")
+    lines.append("/* Quest journal (logic.json journal, tools/build_journal.py). A quest shows")
+    lines.append("   once start is on (-1 = always) and is done once done is on; the current")
+    lines.append("   hint is its first step whose if_not is off and if_flag (if any) is on. */")
+    lines.append("typedef struct { int if_flag, if_not; const char *text; } JournalStep;")
+    lines.append("typedef struct { const char *title; int start, done; const char *done_text; int step0, nsteps, linear; } JournalQuest;")
+    rows = []
+    for qd in quests:
+        step0 = len(steps)
+        for st in qd["steps"]:
+            steps.append((flag_id(st.get("if")), flag_id(st.get("ifNot")), dc_text(st["text"]).upper()))
+        rows.append((dc_text(qd["title"]).upper(), flag_id(qd.get("start")), flag_id(qd.get("done")),
+                     dc_text(qd.get("doneText") or "").upper(), step0, len(qd["steps"]), 1 if qd.get("linear") else 0))
+    lines.append(f"#define JOURNAL_QUEST_N {len(rows)}")
+    lines.append(f"#define JOURNAL_STEP_N {max(1, len(steps))}")
+    lines.append("static const JournalStep JOURNAL_STEPS[JOURNAL_STEP_N] = {")
+    for a, b, t in steps or [(-1, -1, "")]:
+        lines.append(f"    {{ {a}, {b}, \"{c_escape(t)}\" }},")
+    lines.append("};")
+    lines.append(f"static const JournalQuest JOURNAL_QUESTS[{max(1, len(rows))}] = {{")
+    for t, st, dn, dt, s0, n, lin in rows or [("", -1, -1, "", 0, 0, 0)]:
+        lines.append(f"    {{ \"{c_escape(t)}\", {st}, {dn}, \"{c_escape(dt)}\", {s0}, {n}, {lin} }},")
+    lines.append("};")
 
 
 def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:

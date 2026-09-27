@@ -3632,6 +3632,23 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         `BATTLE_SONGS`).
       - Verified on web: sceneSong per map and per fight (General,
         Nero, Lead, Shinigami, plain trainer, wild). Dreamcast builds.
+- [x] H4 Quest journal (pause menu -> Journal / JOURNAL) on both engines.
+      `tools/build_journal.py` writes `logic.json` `journal`: 23 quests
+      (main story, Heavenfall, Ghost Guild, Heroes, Thieves, every
+      CryTown / Sephirot / Ruins / Reach sidequest). A quest shows once its
+      `start` flag is on, reads as done on `done`, and its hint is the
+      first step whose `ifNot` flag is still off (`linear` quests, the
+      main story, show the step after the last one done so a skipped
+      optional fight never sticks). Givers that never set a flag when
+      asking now set `<name>Asked` on their fallback step (14 new save
+      flags; 217/256 used).
+      - Web: `journalRows()` / `journalHint()` / `drawJournal()`; pause
+        rows are `PAUSE_ROWS` (Journal between Medals and Settings).
+      - Dreamcast: baked `JOURNAL_QUESTS` / `JOURNAL_STEPS`,
+        `journal_rows()` / `journal_hint()` / `draw_journal()`, menu_mode
+        7, pause menu now 8 rows (JOURNAL at 4; Save 6, Close 7).
+      - Verified on web: hints follow flags, quests appear on the ask,
+        done quests sort last, screenshot of the screen. Dreamcast builds.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

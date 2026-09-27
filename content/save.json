@@ -430,7 +430,21 @@
     "talkedIlse",
     "talkedMaren",
     "pickedDoll",
-    "marenRest"
+    "marenRest",
+    "tamAsked",
+    "linaAsked",
+    "junoAsked",
+    "betAsked",
+    "cobbAsked",
+    "seraAsked",
+    "dunnAsked",
+    "hesseAsked",
+    "vossAsked",
+    "luneAsked",
+    "holtAsked",
+    "anselmAsked",
+    "rheeAsked",
+    "talkedOsk"
   ],
   "layout": {
     "magic": [
