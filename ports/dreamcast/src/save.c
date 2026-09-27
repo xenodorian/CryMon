@@ -333,58 +333,174 @@ int save_present(void) {
     return vmu_layout(&L);
 }
 
-static int vmu_find_or_alloc(u16 *file_blk) {
-    VmuLayout L;
-    u8 fat[512], dir[512];
-    int free_dblk, free_ent, i, free_blk = -1;
-    if(!vmu_layout(&L)) return 0;
-    if(vmu_find(&L, file_blk, &free_dblk, &free_ent)) return 1;
-    if(free_dblk < 0) return 0;                      /* directory full */
-    if(!vmu_read_block(L.fat_loc, fat)) return 0;
-    for(i = L.user_blocks - 1; i >= 0; i--) {        /* VMU allocates from the top */
-        if(le16(fat + i * 2) == VMU_FAT_FREE) { free_blk = i; break; }
+/* ----------------------------------------------------------------------
+ * VMS file header (what the Dreamcast BIOS file manager and the VMU show):
+ * layout from KallistiOS include/dc/vmu_pkg.h + util/vmu_pkg.c.
+ *   0x00 desc_short[16]  space padded      0x10 desc_long[32] space padded
+ *   0x30 app_id[16]      NUL padded        0x40 icon_cnt u16
+ *   0x42 icon_anim_speed 0x44 eyecatch_type 0x46 crc u16
+ *   0x48 data_len u32    0x4c reserved[20]  0x60 icon_pal[16] ARGB4444
+ *   0x80 icon bitmap 32x32 @ 4bpp (512 bytes), then the payload.
+ * crc = CRC-16/CCITT (KOS net_crc16ccitt, start 0) over header + icon +
+ * payload with the crc field zeroed. Icon art: vmu_icon.h (gen_sprites.py).
+ * The file is VMS_BLOCKS blocks, chained in the FAT, header at block 0.
+ * ---------------------------------------------------------------------- */
+#include "vmu_icon.h"
+
+#define VMS_HDR_BYTES   0x80
+#define VMS_DATA_OFF    (VMS_HDR_BYTES + 512)
+#define VMS_FILE_BYTES  (VMS_DATA_OFF + SAVE_SIZE)
+#define VMS_BLOCKS      ((VMS_FILE_BYTES + 511) / 512)
+#define VMS_MAX_BLOCKS  4
+
+static u16 crc16_ccitt(const u8 *d, int n) {
+    u16 rv = 0, tmp;
+    while(n--) {
+        tmp = (u16)((rv >> 8) ^ *d++);
+        tmp ^= tmp >> 4;
+        rv = (u16)((rv << 8) ^ (tmp << 12) ^ (tmp << 5) ^ tmp);
     }
-    if(free_blk < 0) return 0;                       /* card full */
-    fat[free_blk * 2] = (u8)(VMU_FAT_LAST & 0xff);
-    fat[free_blk * 2 + 1] = (u8)(VMU_FAT_LAST >> 8);
-    if(!vmu_read_block((u16)free_dblk, dir)) return 0;
-    {
-        u8 *e = dir + free_ent * VMU_DIR_ENTRY;
-        int k;
-        for(k = 0; k < VMU_DIR_ENTRY; k++) e[k] = 0;
-        e[0] = VMU_FILE_DATA;
-        e[2] = (u8)(free_blk & 0xff);
-        e[3] = (u8)(free_blk >> 8);
-        for(k = 0; k < 12; k++) e[4 + k] = (u8)SAVE_NAME[k];
-        e[0x18] = 1;                                 /* size: 1 block */
+    return rv;
+}
+
+static void put_text(u8 *dst, int n, const char *s, u8 pad) {
+    int i;
+    for(i = 0; i < n; i++) dst[i] = pad;
+    for(i = 0; i < n && s[i]; i++) dst[i] = (u8)s[i];
+}
+
+static void vms_build(u8 *file, const SaveLive *s) {
+    int i;
+    u16 crc;
+    for(i = 0; i < VMS_BLOCKS * 512; i++) file[i] = 0;
+    put_text(file + 0x00, 16, "CRYMON", ' ');
+    put_text(file + 0x10, 32, "CryMon save", ' ');
+    put_text(file + 0x30, 16, "CRYMON", 0);
+    file[0x40] = 1;                                    /* one icon frame */
+    file[0x48] = (u8)(SAVE_SIZE & 0xff);
+    file[0x49] = (u8)((SAVE_SIZE >> 8) & 0xff);
+    for(i = 0; i < 16; i++) put_u16(file + 0x60 + i * 2, VMU_ICON_PAL[i]);
+    for(i = 0; i < 512; i++) file[VMS_HDR_BYTES + i] = VMU_ICON[i];
+    save_pack(file + VMS_DATA_OFF, s);
+    crc = crc16_ccitt(file, VMS_FILE_BYTES);           /* crc field is 0 here */
+    put_u16(file + 0x46, crc);
+}
+
+static u16 fat_get(const u8 *fat, int i) { return le16(fat + i * 2); }
+static void fat_set(u8 *fat, int i, u16 v) { fat[i * 2] = (u8)(v & 0xff); fat[i * 2 + 1] = (u8)(v >> 8); }
+
+/* Follow a file's FAT chain into blks[]; returns how many were found. */
+static int vmu_chain(const u8 *fat, u16 first, u16 *blks, int max) {
+    int n = 0;
+    u16 b = first;
+    while(n < max && b < 256) {
+        blks[n++] = b;
+        b = fat_get(fat, b);
+        if(b == VMU_FAT_LAST || b == VMU_FAT_FREE) break;
     }
-    /* FAT first: a crash after it only leaks one block, never points the
-       directory at a block the FAT still calls free. */
-    if(!vmu_write_block(L.fat_loc, fat)) return 0;
-    if(!vmu_write_block((u16)free_dblk, dir)) return 0;
-    *file_blk = (u16)free_blk;
-    return 1;
+    return n;
+}
+
+/* Locate our directory entry: its block/index, or -1. */
+static int vmu_find_entry(const VmuLayout *L, int *dblk, int *dent, u8 *dir) {
+    int d, ent;
+    for(d = 0; d < L->dir_size; d++) {
+        u16 blk = (u16)(L->dir_loc - d);
+        if(!vmu_read_block(blk, dir)) return -1;
+        for(ent = 0; ent < 512 / VMU_DIR_ENTRY; ent++) {
+            const u8 *e = dir + ent * VMU_DIR_ENTRY;
+            if(e[0] == VMU_FILE_DATA && name_eq(e)) { *dblk = blk; *dent = ent; return 1; }
+        }
+    }
+    return 0;
 }
 
 int save_store(const SaveLive *s) {
-    u8 blob[SAVE_SIZE];
-    u8 blk[512];
-    u16 file_blk;
-    int i;
-    save_pack(blob, s);
-    if(!vmu_find_or_alloc(&file_blk)) return 0;
-    for(i = 0; i < 512; i++) blk[i] = 0;
-    for(i = 0; i < SAVE_SIZE; i++) blk[i] = blob[i];
-    return vmu_write_block(file_blk, blk);
+    VmuLayout L;
+    u8 file[VMS_BLOCKS * 512];
+    u8 fat[512], dir[512];
+    u16 blks[VMS_MAX_BLOCKS];
+    int dblk, dent, found, i, n;
+
+    vms_build(file, s);
+    if(!vmu_layout(&L)) return 0;
+    if(!vmu_read_block(L.fat_loc, fat)) return 0;
+    found = vmu_find_entry(&L, &dblk, &dent, dir);
+    if(found < 0) return 0;
+
+    if(found) {
+        u8 *e = dir + dent * VMU_DIR_ENTRY;
+        n = vmu_chain(fat, le16(e + 2), blks, VMS_MAX_BLOCKS);
+        if(n == VMS_BLOCKS && le16(e + 0x18) == VMS_BLOCKS) {
+            /* Same size as before: overwrite the blocks in place. */
+            for(i = 0; i < VMS_BLOCKS; i++)
+                if(!vmu_write_block(blks[i], file + i * 512)) return 0;
+            return 1;
+        }
+        /* Older/other-size save (e.g. the headerless 1-block format):
+           release its blocks and entry, then write a fresh file below. */
+        for(i = 0; i < n; i++) fat_set(fat, blks[i], VMU_FAT_FREE);
+        for(i = 0; i < VMU_DIR_ENTRY; i++) e[i] = 0;
+    } else {
+        /* New file: find a free directory slot. */
+        u16 unused;
+        int free_dblk, free_ent;
+        if(vmu_find(&L, &unused, &free_dblk, &free_ent)) return 0;   /* can't happen */
+        if(free_dblk < 0) return 0;                                  /* directory full */
+        dblk = free_dblk;
+        dent = free_ent;
+        if(!vmu_read_block((u16)dblk, dir)) return 0;
+    }
+
+    /* Allocate VMS_BLOCKS free blocks from the top, as the BIOS does. */
+    n = 0;
+    for(i = L.user_blocks - 1; i >= 0 && n < VMS_BLOCKS; i--)
+        if(fat_get(fat, i) == VMU_FAT_FREE) blks[n++] = (u16)i;
+    if(n < VMS_BLOCKS) return 0;                                     /* card full */
+    for(i = 0; i < VMS_BLOCKS; i++)
+        fat_set(fat, blks[i], i + 1 < VMS_BLOCKS ? blks[i + 1] : VMU_FAT_LAST);
+    {
+        u8 *e = dir + dent * VMU_DIR_ENTRY;
+        int k;
+        for(k = 0; k < VMU_DIR_ENTRY; k++) e[k] = 0;
+        e[0] = VMU_FILE_DATA;
+        e[2] = (u8)(blks[0] & 0xff);
+        e[3] = (u8)(blks[0] >> 8);
+        for(k = 0; k < 12; k++) e[4 + k] = (u8)SAVE_NAME[k];
+        e[0x18] = VMS_BLOCKS;                            /* size in blocks */
+        e[0x1a] = 0;                                     /* header at block 0 */
+    }
+    /* Data into the (still free) blocks first, then FAT, then directory:
+       a crash part-way leaves either the old state or a leaked block,
+       never a directory entry pointing at unwritten data. */
+    for(i = 0; i < VMS_BLOCKS; i++)
+        if(!vmu_write_block(blks[i], file + i * 512)) return 0;
+    if(!vmu_write_block(L.fat_loc, fat)) return 0;
+    return vmu_write_block((u16)dblk, dir);
 }
 
 int save_restore(SaveLive *s) {
     VmuLayout L;
-    u8 blk[512];
-    u16 file_blk = 0;
-    int free_dblk, free_ent;
+    u8 fat[512], dir[512];
+    u8 file[VMS_MAX_BLOCKS * 512];
+    u16 blks[VMS_MAX_BLOCKS];
+    int dblk, dent, n, i;
+    u16 crc_saved;
     if(!vmu_layout(&L)) return 0;
-    if(!vmu_find(&L, &file_blk, &free_dblk, &free_ent)) return 0;
-    if(!vmu_read_block(file_blk, blk)) return 0;
-    return save_unpack(blk, s);
+    if(vmu_find_entry(&L, &dblk, &dent, dir) != 1) return 0;
+    if(!vmu_read_block(L.fat_loc, fat)) return 0;
+    n = vmu_chain(fat, le16(dir + dent * VMU_DIR_ENTRY + 2), blks, VMS_MAX_BLOCKS);
+    if(n < 1) return 0;
+    for(i = 0; i < n; i++)
+        if(!vmu_read_block(blks[i], file + i * 512)) return 0;
+    /* Headerless 1-block saves written before the VMS header existed start
+       "CRYM" + version byte (< 0x20). The VMS header's desc_short is the
+       printable "CRYMON  ...", so byte 4 ('O') tells the two apart. */
+    if(file[0] == 'C' && file[1] == 'R' && file[2] == 'Y' && file[3] == 'M' && file[4] < 0x20)
+        return save_unpack(file, s);
+    if(n < VMS_BLOCKS) return 0;
+    crc_saved = le16(file + 0x46);
+    file[0x46] = file[0x47] = 0;
+    if(crc16_ccitt(file, VMS_FILE_BYTES) != crc_saved) return 0;
+    return save_unpack(file + VMS_DATA_OFF, s);
 }

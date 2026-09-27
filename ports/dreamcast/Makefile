@@ -52,7 +52,10 @@ src/main.o: src/main.c src/sprites.h src/chip.h src/save.h src/disc.h $(CONTENT_
 src/chip.o: src/chip.c src/chip.h src/content_audio.inc
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-src/save.o: src/save.c src/save.h src/content_save.inc
+# vmu_icon.h (memory-card save icon) is written by gen_sprites.py with sprites.h.
+src/vmu_icon.h: src/sprites.h
+
+src/save.o: src/save.c src/save.h src/vmu_icon.h src/content_save.inc
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 src/disc.o: src/disc.c src/disc.h
