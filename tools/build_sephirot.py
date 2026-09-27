@@ -309,15 +309,41 @@ WALL_FOR_DIR = {"up": "north", "down": "south", "left": "west", "right": "east"}
 CITY_W, CITY_H = 16, 12
 
 
+def existing_gate_letters(city_id):
+    """path name -> gate letter already used by this city's warps.
+
+    Positions come from the geometry below, but the letters are only
+    labels, so reuse whatever the committed warps already say. Without
+    this, a re-run hands out CITY_POOL letters in the new geometric edge
+    order, the rows change letters and every existing warp to them breaks
+    (warps.json is only ever appended to). Paths with no warp yet get the
+    next unused pool letter."""
+    try:
+        warps = json.loads(WARPS_JSON.read_text())["warps"]
+    except (OSError, ValueError, KeyError):
+        return {}
+    out = {}
+    for w in warps:
+        if w.get("from") != city_id:
+            continue
+        to = w.get("to")
+        if to == WEEPING_ROAD[0]:
+            out["weeping_road"] = w["tile"]
+        elif to in PATH_BY_ID:
+            out[to] = w["tile"]
+    return out
+
+
 def build_city_rows(city_id):
     edges = edges_for_city(city_id)
     marks = {}  # path_name -> (wall, mark_char)
-    pool_i = 0
+    prefer = existing_gate_letters(city_id)
+    used = {prefer[pname] for _o, _d, pname in edges if pname in prefer}
+    free = [c for c in CITY_POOL if c not in used]
     by_wall = {"north": [], "south": [], "east": [], "west": []}
     for other, dir_out, pname in edges:
         wall = WALL_FOR_DIR[dir_out]
-        ch = CITY_POOL[pool_i]
-        pool_i += 1
+        ch = prefer.get(pname) or free.pop(0)
         marks[pname] = (wall, ch)
         by_wall[wall].append((pname, ch))
 

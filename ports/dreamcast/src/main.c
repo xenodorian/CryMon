@@ -930,6 +930,7 @@ static void draw_tile(int map_id, char ch, int dx, int dy) {
                 fill_rect(dx, dy, t, t, rgb565(107, 90, 58));
                 return;
             }
+            /* fall through - HOUSE floor uses the 'P' color */
         case 'P':
             fill_rect(dx, dy, t, t, rgb565(106, 82, 56));
             return;
@@ -1483,7 +1484,8 @@ static void draw_map_banner(int map_id, int timer) {
    -- there's no inventory/party HUD overlay in the reference, but
    there's also no way to see this port's bag/party menus without
    opening them, so this stays as a quick-glance confirmation. */
-static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_scroll, int reputation) {
+static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_scroll, int reputation,
+                     const char *lead_name, int lead_lv) {
     int y = 2;
     {
         char rep_buf[20];
@@ -1507,11 +1509,15 @@ static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_s
         draw_text_s(g_player_name, 4, y, 0xFFFF, DIALOGUE_SCALE);
         y += DIALOGUE_LINE_H;
     }
-    if(got_shelf) {
-        const char *label = "QUILLPUP LV";
-        draw_text_s(label, 4, y, 0xFFFF, DIALOGUE_SCALE);
-        draw_glyph(4 + text_width_s(label, DIALOGUE_SCALE), y,
-                   font_09[3], 0xFFFF, DIALOGUE_SCALE);
+    if(got_shelf && lead_name) {
+        /* Current lead, like the web HUD (this used to be a hard-coded
+           "QUILLPUP LV3" left over from the first port). */
+        char lead_buf[32];
+        int n = s_cat(lead_buf, 0, lead_name);
+        n = s_cat(lead_buf, n, " LV");
+        n = s_cat_uint(lead_buf, n, (unsigned)lead_lv);
+        lead_buf[n] = 0;
+        draw_text_s(lead_buf, 4, y, 0xFFFF, DIALOGUE_SCALE);
         y += DIALOGUE_LINE_H;
     }
     if(looted_crate) {
@@ -8630,7 +8636,8 @@ void main(void) {
                         MAX_SPRITE_W, MAX_SPRITE_H, px, py);
                 ws_sort_and_draw(ws_list, ws_n, cam_x, cam_y);
             }
-            draw_hud(got_shelf, looted_crate, bag.bandage, has_scroll, reputation);
+            draw_hud(got_shelf, looted_crate, bag.bandage, has_scroll, reputation,
+                     party_n > 0 ? SPECIES[party[lead].species].name : 0, party_n > 0 ? party[lead].lv : 0);
             if(seq_lines)
                 draw_dialogue_box(&seq_lines[seq_beat]);
             else if(hud_t > 0)
