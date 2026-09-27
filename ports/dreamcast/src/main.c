@@ -6278,6 +6278,7 @@ static void do_warp(int *map_id, int *px, int *py, int *pdir,
 #define POST_WSOLDIER_HEAVENFALL_GRAVE 31
 #define POST_HFGAMEOVER_SCREAM 33
 #define POST_PRIESTESS_TELEPORT 34
+static int choice_pending_ws = -1;
 /* Every shopkeeper reuses POST_SHOP/draw_shop() -- shop_keep_id (set
    from the NpcStep's pending slot, see NPC_AFTER_SHOP above) picks the
    title and crystal-tier stock, no separate post_action per merchant. */
