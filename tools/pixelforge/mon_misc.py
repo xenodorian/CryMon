@@ -144,16 +144,37 @@ def snowbell(t):
     c = Canvas(128, 128, seed=84)
     swing = [-4, 0, 4, 0][t]
     x, y = 64, 96
-    c.cap(x - 12, 40, 2.4, x + 12, 40, 2.4, ICE_DARK, z=-2)
-    bell(c, x + swing * 0.4, y, 24, 46, ICE, z=0)
-    c.ell(x + swing, y + 4, 4, 4, ICE_DARK, z=24)
-    c.ink(lambda cc: [peye(cc, x - 8 + swing * 0.4, y - 24, 3.0, 3.4, iris=(60, 120, 200), pw=0.7, ph=0.7),
-                      peye(cc, x + 6 + swing * 0.4, y - 24, 3.0, 3.4, iris=(60, 120, 200), pw=0.7, ph=0.7),
-                      [cc.put(x - 2 + k + swing * 0.4, y - 16 + (k in (0, 4)) * -1, (40, 70, 120)) for k in range(5)]])
+    bx = x + swing * 0.4
+    SNOW = M("#f4f8ff", spec=0.3)
+    RIB = M("#c83a4a", spec=0.3)
+    # hanging loop and a snow drift on the crown
+    c.ell(bx, 44, 6, 6, ICE_DARK, z=-2, th=2)
+    bell(c, bx, y, 24, 46, ICE, z=0)
+    c.ell(bx - 3, 53, 12, 5, SNOW, z=14)
+    c.ell(bx + 6, 52, 7, 4, SNOW, z=15)
+    # ribbon bow round the shoulder
+    c.cap(bx - 11, 60, 2.0, bx + 11, 60, 2.0, RIB, z=18)
+    c.tri((bx + 8, 60), (bx + 15, 55), (bx + 15, 65), RIB, z=20, bevel=1)
+    c.tri((bx + 8, 60), (bx + 1, 55), (bx + 1, 65), RIB, z=20, bevel=1)
+    c.ell(bx + 8, 60, 2.2, 2.2, RIB, z=22)
+    c.cap(bx + 9, 62, 1.2, bx + 12 + swing * 0.3, 70, 1.0, RIB, z=19)
+    # icicles off the lip and a swinging clapper
+    for k in range(6):
+        ix = bx - 18 + k * 7.2
+        L = 4 + (k * 5) % 4
+        c.tri((ix - 1.6, y + 1), (ix, y + 1 + L), (ix + 1.6, y + 1), ICE_DARK if k % 2 else ICE, z=26, bevel=0.6)
+    c.ell(x + swing * 1.2, y + 5, 4, 4, ICE_DARK, z=24)
+    c.ink(lambda cc: [peye(cc, bx - 8, y - 24, 3.0, 3.4, iris=(60, 120, 200), pw=0.7, ph=0.7),
+                      peye(cc, bx + 6, y - 24, 3.0, 3.4, iris=(60, 120, 200), pw=0.7, ph=0.7),
+                      [cc.put(bx - 13 + k, y - 18, (240, 170, 190)) for k in range(3)],
+                      [cc.put(bx + 10 + k, y - 18, (240, 170, 190)) for k in range(3)],
+                      [cc.put(bx - 2 + k, y - 16 + (k in (0, 4)) * -1, (40, 70, 120)) for k in range(5)],
+                      [cc.put(bx + dx, y - 6 + dy, (230, 244, 255)) for dx, dy in
+                       ((-12, 0), (-14, 0), (-10, 0), (-12, -2), (-12, 2), (-13, -1), (-11, 1), (-13, 1), (-11, -1))]])
 
     def snow(cc):
-        for i in range(8):
-            px = 20 + (i * 37 + t * 5) % 90
+        for i in range(10):
+            px = 14 + (i * 37 + t * 5) % 100
             py = 10 + (i * 23 + t * 6) % 110
             if not cc.alpha[int(py), int(px)]:
                 sparkle(cc, px, py, (220, 240, 255), 1 if i % 3 == 0 else 0)
