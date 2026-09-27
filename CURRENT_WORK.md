@@ -32,7 +32,10 @@ session stops, pick up at the first step not marked DONE.
    36341811561: "fight over after 21 presses", no badgeOpal, +0 marks, 0 battles).
    Doc-only commits, so this is a flaky Dreamcast/harness issue, not a content change.
    `main` Checks stays red until step 3 is fixed.
-2. **Full Dreamcast trainer sweep -- TODO.**
+2. **Full Dreamcast trainer sweep -- IN PROGRESS.** First manual `sweep.yml` run (36342511707):
+   web 71/71 maps and 64/64 trainer fights PASS. Dreamcast half never ran: `make` in the
+   toolchain container tried to re-bake (no python3 there). Fixed `sweep.yml` to bake on
+   the host first (as `checks.yml` does); re-triggered. Result goes here.
 3. **Opal fight bug root cause -- DONE.** Not a game bug. Reproduced locally (1 fail in 7
    Flycast runs): the fight, win and mercy menu all worked ("LET THEM GO. +1 REP"), but
    `emu_warden.py pause_save()` pressed Down 7 times blind and one press was dropped, so

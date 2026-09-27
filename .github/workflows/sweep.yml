@@ -40,6 +40,9 @@ jobs:
         if: always()
         run: |
           python3 -m pip install --user Pillow python-xlib
+          # Bake on the host first: the toolchain image has no python3, so
+          # make must find content_*.inc already newer than content/*.json.
+          python3 tools/bake_content.py --content content --out ports/dreamcast/src
           python3 ports/dreamcast/tools/gen_sprites.py public/sprites
           docker run --rm -v "$GITHUB_WORKSPACE:/src" -w /src einsteinx2/dcdev-kos-toolchain:gcc-9 sh -lc 'export PATH=/opt/toolchains/dc/sh-elf/bin:/opt/toolchains/dc/bin:$PATH; make -C ports/dreamcast clean && make -C ports/dreamcast'
           docker run --rm -v "$GITHUB_WORKSPACE:/src" ubuntu:24.04 bash -lc 'set -e; apt-get update -qq; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq git meson ninja-build pkg-config build-essential libisofs-dev >/dev/null; git clone -q --depth 1 https://gitlab.com/simulant/mkdcdisc.git /tmp/mkdcdisc; meson setup /tmp/mkdcdisc/build /tmp/mkdcdisc >/dev/null; meson compile -C /tmp/mkdcdisc/build >/dev/null; /tmp/mkdcdisc/build/mkdcdisc -e /src/ports/dreamcast/crymon.elf -f /src/ports/dreamcast/disc/MONSTERS.BIN -o /src/ports/dreamcast/test.cdi -n "CryMon" -a "xenodorian" -N --allow-overwrite'
