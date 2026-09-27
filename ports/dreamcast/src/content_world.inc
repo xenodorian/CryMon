@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=e566a55373bd8c45 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=0471b8a15f4e87e3 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -261,11 +261,11 @@ static const TrainerKit TRAINER_KITS[62] = {
     { 7, 11, { 3, 0, 0, 0, 0 }, { 12, 1, 1, 1, 1 }, 1, "SCOUT" },
     { 4, 14, { 17, 0, 0, 0, 0 }, { 14, 1, 1, 1, 1 }, 1, "KEEPER" },
     { 2, 15, { 18, 0, 0, 0, 0 }, { 15, 1, 1, 1, 1 }, 1, "WARDEN" },
-    { 4, 9, { 8, 0, 0, 0, 0 }, { 10, 1, 1, 1, 1 }, 1, "QUARTZ" },
+    { 4, 15, { 8, 0, 0, 0, 0 }, { 16, 1, 1, 1, 1 }, 1, "QUARTZ" },
     { 23, 7, { 22, 0, 0, 0, 0 }, { 8, 1, 1, 1, 1 }, 1, "DRILLER" },
     { 20, 6, { 21, 0, 0, 0, 0 }, { 6, 1, 1, 1, 1 }, 1, "BOGWALKER" },
     { 6, 6, { 22, 0, 0, 0, 0 }, { 7, 1, 1, 1, 1 }, 1, "REEDGUARD" },
-    { 17, 10, { 14, 0, 0, 0, 0 }, { 11, 1, 1, 1, 1 }, 1, "OPAL" },
+    { 17, 16, { 14, 0, 0, 0, 0 }, { 17, 1, 1, 1, 1 }, 1, "OPAL" },
     { 13, 17, { 7, 15, 0, 0, 0 }, { 16, 16, 1, 1, 1 }, 2, "COMMANDER" },
     { 15, 22, { 14, 13, 7, 10, 28 }, { 22, 23, 23, 24, 26 }, 5, "LIEUTENANT LEAD" },
     { 19, 20, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0, "HEAVENFALL" },

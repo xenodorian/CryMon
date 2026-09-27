@@ -3766,6 +3766,10 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       - Old Fenwick in the Marsh (mark `m`): show him a Chillnewt for 3
         Linen Wraps. Flags `fenwickAsked`, `showedChillnewt`.
       - Both species live in that map's own grass. Verified on web.
+- [x] H16 Quartz and Opal raised for the late game. Quartz: Mossback 15,
+      Needleroot 16. Opal: Glasswisp 16, Stormwing 17. Both ports read it
+      from trainers.json. `npm run test:e2e:quartz` green (it reads the
+      kit marks from data), verify.sh green, DC build OK.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

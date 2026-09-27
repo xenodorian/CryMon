@@ -2364,12 +2364,12 @@
     "quartz": {
       "lead": [
         "mossback",
-        9
+        15
       ],
       "bench": [
         [
           "needleroot",
-          10
+          16
         ]
       ],
       "title": "Quartz sends Mossback",
@@ -2381,12 +2381,12 @@
     "opal": {
       "lead": [
         "glasswisp",
-        10
+        16
       ],
       "bench": [
         [
           "stormwing",
-          11
+          17
         ]
       ],
       "title": "Opal sends Glasswisp",
