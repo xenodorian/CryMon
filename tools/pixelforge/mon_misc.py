@@ -110,7 +110,21 @@ def deathknell(t):
     g = bell(c, x + swing * 0.3, y, 30, 56, black, z=0)
     c.ell(x + swing * 0.6, y + 4, 5, 5, IRON, z=30)      # clapper
     # skull face etched
-    ghost_face(c, x + swing * 0.3 - 1, y - 32, s=1.3, col=(200, 40, 50))
+    # a bone skull set into the bronze, eye sockets burning red
+    fx_, fy_ = x + swing * 0.3 - 1, y - 30
+    bone = M("#d8d0bc", spec=0.3)
+    c.ell(fx_, fy_, 11, 10, bone, decal=True, only=g)
+    c.ell(fx_, fy_ + 9, 7, 4, bone, decal=True, only=g)
+    sock = Mat(["#300808", "#601010", "#a01818", "#e03020", "#ff8060"], emit=True)
+    glow = [2.4, 2.8, 3.2, 2.8][t]
+    c.ell(fx_ - 4.5, fy_ + 1, glow, glow * 1.1, sock, decal=True, only=g)
+    c.ell(fx_ + 4.5, fy_ + 1, glow, glow * 1.1, sock, decal=True, only=g)
+
+    def teeth(cc):
+        cc.put(fx_, fy_ + 5, (40, 20, 24))
+        for k in range(-4, 5, 2):
+            cc.put(fx_ + k, fy_ + 9, (60, 50, 50))
+    c.ink(teeth)
 
     def rings(cc):
         n = [1, 2, 3, 2][t]
@@ -351,6 +365,9 @@ def wisp_body(c, x, y, h, col, z=0, lean=0, t=0):
 def geminal(t):
     c = Canvas(128, 128, seed=89)
     bob = [0, -2, -3, -1][t]
+    # each spirit wears the star it grew from, spinning behind its head
+    star(c, 40, 22 + bob, 13, "#f2c230", z=-20, rot=t * 9)
+    star(c, 88, 22 - bob, 13, "#9a60e0", z=-20, rot=-t * 9)
     warm = wisp_body(c, 44, 70 + bob, 70, "#f2a040", z=0, lean=-1, t=t)
     cool = wisp_body(c, 84, 70 - bob, 70, "#6a9af0", z=0, lean=1, t=(t + 2) % 4)
     # joined hands
@@ -942,6 +959,13 @@ def eclipsaur(t):
         disc = Mat(["#050508", "#0a0a12", "#12121e", "#1a1a2a", "#24243a"], spec=0.2)
         c.ell(hx_, hy_, r + 3, r + 3, corona, z=40)
         c.ell(hx_, hy_, r, r, disc, z=46)
+        # two pinprick eyes of starlight, and a thin crescent of light on the rim
+        glint = [1, 1, 0, 1][t]
+        c.ink(lambda cc: [cc.put(hx_ - r * 0.4, hy_ - 2, (230, 236, 255)), cc.put(hx_ + r * 0.25, hy_ - 2, (230, 236, 255)),
+                          cc.put(hx_ - r * 0.4, hy_ - 1, (150, 160, 230)) if glint else None,
+                          cc.put(hx_ + r * 0.25, hy_ - 1, (150, 160, 230)) if glint else None,
+                          [cc.put(hx_ + math.cos(math.radians(a)) * (r - 1), hy_ + math.sin(math.radians(a)) * (r - 1),
+                                  (120, 130, 200)) for a in range(120, 240, 6)]])
 
         def fx(cc):
             for k in range(16):
