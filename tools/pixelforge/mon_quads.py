@@ -350,10 +350,23 @@ def _helmet(c, a, t):
     c.pattern(lambda x, y: ((x - hx_ - 4) ** 2 + (y - hy_ + hry * 0.7) ** 2) < 5, -2, only=g)
 
 
-quad("dustmole", seed=26, body=(44, 28), leg=6, leg_r=4.4, head=(14, 13), neck=0, head_dy=10,
-     head_type="mole", snout=8, fur="#6a5040", belly="#a88c70", eye="#000000", eye_kind="none",
+quad("dustmole", seed=26, body=(38, 30), leg=5, leg_r=4.4, head=(14, 13), neck=0, head_dy=8,
+     head_type="mole", snout=7, fur="#6a5040", belly="#a88c70", eye="#000000", eye_kind="none",
      ears="none", tail="short", tail_len=0.6, feet="claw", horn_col="#f0e0d0", nose_col="#e89a9a",
-     extras=[lambda c, a, t, m: _dust(c, a, t), lambda c, a, t, m: _shovels(c, a, t, 0.7)])
+     extras=[lambda c, a, t, m: _dust(c, a, t), lambda c, a, t, m: _shovels(c, a, t, 0.7),
+             lambda c, a, t, m: _star_nose(c, a, t)])
+
+
+def _star_nose(c, a, t):
+    """A ring of pink feelers around the nose that flex in and out while it sniffs."""
+    pink = M("#f0a0a8", spec=0.3)
+    x0, y0 = a["nose"]
+    flex = [0, 1, 2, 1][t]
+    for k in range(9):
+        ang = math.radians(100 + k * 20)
+        L = 5 + flex * 0.6 + (k % 2)
+        c.cap(x0, y0, 1.6, x0 + math.cos(ang) * L, y0 + math.sin(ang) * L * 0.9, 1.0, pink, z=70)
+    c.ell(x0 - 1, y0, 2.4, 2.4, M("#d87080", spec=0.5), z=72)
 
 
 def _dust(c, a, t, n=6):
@@ -383,10 +396,35 @@ def _shovels(c, a, t, big=1.0):
             c.cap(x - 3 + j * 3, G - 6, 2.0 * big, x - 8 + j * 3, G, 1.2 * big, claw, z=z)
 
 
-quad("tunneler", seed=27, body=(56, 32), leg=8, leg_r=5.5, head=(15, 14), neck=0, head_dy=10,
+quad("tunneler", seed=27, body=(56, 34), leg=8, leg_r=5.5, head=(15, 14), neck=0, head_dy=12,
      head_type="mole", snout=10, fur="#5a4034", belly="#98785c", eye="#000000", eye_kind="none",
      ears="none", tail="short", tail_len=0.6, feet="claw", nose_col="#e89a9a",
-     extras=[lambda c, a, t, m: _dust(c, a, t), lambda c, a, t, m: _shovels(c, a, t)])
+     extras=[lambda c, a, t, m: _dust(c, a, t), lambda c, a, t, m: _spades(c, a, t),
+             lambda c, a, t, m: _back_rubble(c, a, t)])
+
+
+def _spades(c, a, t):
+    """Front paws grown into flat digging blades, raised and scraping in turn."""
+    blade = M("#b8a488", spec=0.6)
+    edge = M("#f4ecdc", spec=0.8)
+    G = a["G"]
+    for k, (x, z) in enumerate(((a["bx"] - a["rx"] * 0.62, 34), (a["bx"] - a["rx"] * 0.42, -8))):
+        lift = [0, 2, 4, 2][(t + k * 2) % 4]
+        y = G - 4 - lift
+        c.poly([(x + 4, y - 12), (x - 10, y - 8), (x - 16, y + 2), (x - 6, y + 4), (x + 5, y - 2)], blade, z=z, bevel=2)
+        c.cap(x - 16, y + 2, 1.0, x - 6, y + 4, 1.0, edge, z=z + 1)
+        for j in range(3):
+            c.cap(x - 4 - j * 4, y - 6 + j, 0.5, x - 8 - j * 4, y + 2 + j * 0.5, 0.5, M("#a89478"), z=z + 1, decal=True)
+
+
+def _back_rubble(c, a, t):
+    """Dirt and stones riding on its back from the last tunnel."""
+    dirt = M("#7a5a3c", tex="grain", tex_amp=0.8)
+    rock = M("#9a8a78", tex="grain", tex_amp=0.6, spec=0.2)
+    bx, by, rx, ry = a["bx"], a["by"], a["rx"], a["ry"]
+    for i, (dx, r) in enumerate(((-10, 5), (2, 7), (14, 4.5), (22, 3.5))):
+        c.poly([(bx + dx - r, by - ry * 0.85), (bx + dx - r * 0.4, by - ry * 0.85 - r * 1.3), (bx + dx + r * 0.7, by - ry * 0.85 - r),
+                (bx + dx + r, by - ry * 0.8)], rock, z=40, bevel=1.5)
 
 quad("quakelord", seed=28, body=(76, 42), leg=10, leg_r=7.5, head=(18, 16), neck=0, head_dy=12,
      head_type="mole", snout=12, fur="#4a3a30", belly="#8a7058", eye="#000000", eye_kind="none",

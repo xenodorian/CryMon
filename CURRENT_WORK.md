@@ -3783,3 +3783,10 @@ own files; redraw them only if the user says so.
 ### Deep pass batch 3: NPC walkers (Claude, 2026-09-27)
 - tools/pixelforge/npcs.py: adult proportions closer to the hand-drawn walkers (smaller head, neck, tapered torso with fold shading), arms bent at the elbow with cuffs, idle now breathes, swings the arms and turns the head a little. Beards sit on the jaw instead of covering the eyes.
 - Rebuilt all code-drawn walkers and props. Lead and Max untouched.
+
+### Deep pass batch 4: weakest monsters (Claude, 2026-09-27)
+- Dustmole now has a star-shaped pink nose that flexes as it sniffs; Tunneler has flat digging blades and rubble on its back, so the two no longer look alike.
+- Cardkin is a gold-rimmed card with a heart, gloves and shoes, and flips to its patterned back as it idles. Fateweaver card backs got the same lattice.
+- Twinklet is two spinning stars joined by a thread of light (was two plain orbs).
+- Frostchoir is an ice crown with a choir of bells hanging from it and a singing lead bell (was six loose cones).
+- Soottick legs arch up to a knee instead of hanging straight down.
