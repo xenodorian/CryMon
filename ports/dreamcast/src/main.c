@@ -4323,7 +4323,7 @@ static int try_encounter(int map_id, int px, int py, int party_n,
 /* Monster battle frames, indexed by species (sprites.json monsters order,
    generated into sprites.h). With MONSTER_STREAM (the default build) the
    92x92 x 4-frame battle art is NOT in RAM: it lives in MONSTERS.BIN on
-   the disc and is read into one of two slots -- 0 for the foe, 1 for the
+   the disc (1 frame for a still species, MONSTER_NFRAMES) and is read into one of two slots -- 0 for the foe, 1 for the
    player's CryMon -- the first time a species is drawn there. A read that
    fails (no disc, drive error, an emulator without GD-ROM support) blows
    the resident 16x16 icon up to battle size instead, so the fight stays
@@ -4355,11 +4355,13 @@ static const u16 *mon_frame(int slot, int species, int f) {
         int ok = 0;
         if(g_mon_file_ok < 0) g_mon_file_ok = disc_find(MONSTER_FILE, &g_mon_file);
         if(g_mon_file_ok)
-            ok = disc_read_sectors(&g_mon_file, (unsigned int)species * MONSTER_REC_SECTORS,
-                                   MONSTER_REC_SECTORS, g_mon_slot[slot]);
+            ok = disc_read_sectors(&g_mon_file, MONSTER_REC_OFF[species],
+                                   MONSTER_REC_SECS[species], g_mon_slot[slot]);
         if(!ok) mon_slot_fallback(slot, species);
         g_mon_slot_sp[slot] = species;
     }
+    /* A still species stores only frame 1 (MONSTER_NFRAMES == 1). */
+    if(f >= MONSTER_NFRAMES[species]) f = 0;
     return g_mon_slot[slot] + f * MONSTER_SPRITE_W * MONSTER_SPRITE_H;
 }
 #else

@@ -747,8 +747,13 @@ export function artManifest(): [string, string][] {
   for (const [key, rel] of Object.entries(SPRITES.props)) {
     out.push([`prop-${key}`, q(`/sprites/${rel}`)]);
   }
+  // stillFrames: sprites whose 4 frames were identical ship only frame 1;
+  // keys 2-4 load that same file so the frame cycle still finds an image.
+  const still = (SPRITES as { stillFrames?: { monsters?: string[]; npcs?: string[] } }).stillFrames;
+  const stillMon = new Set(still?.monsters ?? []);
+  const stillNpc = new Set(still?.npcs ?? []);
   for (const m of SPRITES.monsters) {
-    for (let i = 1; i <= 4; i++) out.push([`${m}-${i}`, q(`/sprites/monsters/${m}/${i}.png`)]);
+    for (let i = 1; i <= 4; i++) out.push([`${m}-${i}`, q(`/sprites/monsters/${m}/${stillMon.has(m) ? 1 : i}.png`)]);
   }
   for (const it of SPRITES.items) out.push([`item-${it}`, q(`/sprites/items/${it}.png`)]);
   for (const [id, folder] of Object.entries(SPRITES.walkers)) {
@@ -758,7 +763,7 @@ export function artManifest(): [string, string][] {
     }
   }
   for (const n of SPRITES.npcs) {
-    for (let i = 1; i <= 4; i++) out.push([`${n}-${i}`, q(`/sprites/npc/${n}-${i}.png`)]);
+    for (let i = 1; i <= 4; i++) out.push([`${n}-${i}`, q(`/sprites/npc/${n}-${stillNpc.has(n) ? 1 : i}.png`)]);
   }
   for (const p of SPRITES.portraits) out.push([`port-${p}`, q(`/sprites/portraits/${p}.png`)]);
   return out;

@@ -90,11 +90,12 @@ def sprite_gaps(catalog: dict) -> list[str]:
         for d in dirs:
             for i in range(1, 5):
                 need(f"{folder}/{d}-{i}.png")
+    still = catalog.get("stillFrames") or {}
     for n in catalog.get("npcs") or []:
-        for i in range(1, 5):
+        for i in range(1, 2 if n in (still.get("npcs") or []) else 5):
             need(f"npc/{n}-{i}.png")
     for m in catalog.get("monsters") or []:
-        for i in range(1, 5):
+        for i in range(1, 2 if m in (still.get("monsters") or []) else 5):
             need(f"monsters/{m}/{i}.png")
     for p in catalog.get("portraits") or []:
         need(f"portraits/{p}.png")
@@ -120,11 +121,14 @@ def catalog_rels(catalog: dict) -> set[str]:
         for d in dirs:
             for i in range(1, 5):
                 rels.add(f"{folder}/{d}-{i}.png")
+    # stillFrames sprites ship frame 1 only; a leftover 2-4.png is flagged
+    # as extra so the list and the files cannot drift apart.
+    still = catalog.get("stillFrames") or {}
     for n in catalog.get("npcs") or []:
-        for i in range(1, 5):
+        for i in range(1, 2 if n in (still.get("npcs") or []) else 5):
             rels.add(f"npc/{n}-{i}.png")
     for m in catalog.get("monsters") or []:
-        for i in range(1, 5):
+        for i in range(1, 2 if m in (still.get("monsters") or []) else 5):
             rels.add(f"monsters/{m}/{i}.png")
     for p in catalog.get("portraits") or []:
         rels.add(f"portraits/{p}.png")

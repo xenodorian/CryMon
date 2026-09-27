@@ -3898,6 +3898,19 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       trainers.json retune was needed; nothing changed in content.
       Still true from before: most early trainers read as pushovers with
       the default grind (6 wild fights per area). Left as is.
+- [x] H28 Still sprites ship one frame (user asked, 2026-09-27). 86
+      monsters and 70 NPC sprites had 4 pixel-identical frames; frames 2-4
+      were deleted (468 PNGs) and the names listed in sprites.json
+      `stillFrames` (Lead left alone). 4-frame support stays: to animate
+      one later, add its 2-4.png and drop it from `stillFrames`
+      (check_sync flags a mismatch either way).
+      - Web (Grok's area, minimal): data.ts spriteList() loads frame 1 for
+        keys 2-4 of a stillFrames sprite. Engine untouched.
+      - Dreamcast: gen_sprites.py aliases identical/missing NPC frames to
+        frame 1 (#define) and stores 1 frame per still monster in
+        MONSTERS.BIN (MONSTER_NFRAMES / MONSTER_REC_OFF / MONSTER_REC_SECS);
+        main.c mon_frame() reads the variable record and maps frames 2-4
+        to 1. MONSTERS.BIN 7.7 MB to 3.3 MB.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

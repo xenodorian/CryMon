@@ -297,10 +297,22 @@ def main():
     lines.append('#define NPC_SPRITE_H %d' % ACTOR_DST_H)
     lines.append('')
     for name, pattern in cat['npcs'].items():
+        first = None
         for f in NPC_FRAMES:
+            # Still sprites (sprites.json stillFrames) ship only frame 1, and
+            # a frame identical to frame 1 is not stored twice: frames 2-4
+            # alias frame 1's array so main.c's 4-frame tables still work.
+            if f > 1 and not os.path.exists(os.path.join(root, pattern % f)):
+                lines.append('#define npc_%s_%d npc_%s_1' % (name, f, name))
+                continue
             im = open_or_placeholder(root, pattern % f, ACTOR_DST_W, ACTOR_DST_H,
                                       name, manifest, 'world sprite, idle frame %d/4' % f)
             pixels = encode(im, ACTOR_DST_W, ACTOR_DST_H)
+            if f == 1:
+                first = pixels
+            elif pixels == first:
+                lines.append('#define npc_%s_%d npc_%s_1' % (name, f, name))
+                continue
             emit_array(lines, 'npc_%s_%d' % (name, f), pixels, ACTOR_DST_W, ACTOR_DST_H)
 
     for name, reldir in cat['walkers'].items():
@@ -319,9 +331,11 @@ def main():
 
     # Monster battle frames. STREAM=1 (default): written to
     # ports/dreamcast/disc/MONSTERS.BIN, one record per species in
-    # sprites.json order (= species order), 4 frames of little-endian RGB565,
-    # padded to whole 2048-byte sectors so main.c reads a species with a
-    # single disc command. STREAM=0: embedded as C arrays like before, for a
+    # sprites.json order (= species order), 4 frames of little-endian RGB565
+    # (1 frame for a species whose frames are all identical, e.g. listed in
+    # sprites.json stillFrames with only 1.png), padded to whole 2048-byte
+    # sectors so main.c reads a species with a single disc command.
+    # MONSTER_REC_OFF / MONSTER_REC_SECS / MONSTER_NFRAMES locate each record. STREAM=0: embedded as C arrays like before, for a
     # build that never touches the disc. Either way a 16x16 icon per species
     # stays resident (party menu, and the battle fallback if a read fails);
     # it is sampled exactly like blit_sprite_fit(frame1, 92, 92, .., 16, 16).
@@ -338,12 +352,20 @@ def main():
     lines.append('#define MONSTER_FILE "MONSTERS.BIN"')
     lines.append('')
     blob = bytearray()
+    rec_off, rec_secs, nframes = [], [], []
     for name in cat['monsters']:
         frames = []
         for f in MONSTER_FRAMES:
-            im = open_or_placeholder(root, 'monsters/%s/%d.png' % (name, f), MONSTER_W, MONSTER_H,
-                                      name, manifest, 'battle sprite, frame %d/4 (all 4 may be identical)' % f)
+            rel = 'monsters/%s/%d.png' % (name, f)
+            if f > 1 and not os.path.exists(os.path.join(root, rel)):
+                frames.append(frames[0])  # still sprite: frame 1 stands in
+                continue
+            im = open_or_placeholder(root, rel, MONSTER_W, MONSTER_H,
+                                      name, manifest, 'battle sprite, frame %d/4' % f)
             frames.append(encode(im, MONSTER_W, MONSTER_H))
+        if all(px == frames[0] for px in frames[1:]):
+            frames = frames[:1]
+        nframes.append(len(frames))
         icon = [frames[0][(y * MONSTER_H // 16) * MONSTER_W + (x * MONSTER_W // 16)]
                 for y in range(16) for x in range(16)]
         emit_array(lines, 'monster_icon_%s' % name, icon, 16, 16)
@@ -352,16 +374,27 @@ def main():
             for px in frames:
                 for v in px:
                     rec += bytes((v & 0xFF, v >> 8))
-            rec += bytes(rec_sectors * 2048 - len(rec))
+            secs = (len(rec) + 2047) // 2048
+            rec += bytes(secs * 2048 - len(rec))
+            rec_off.append(len(blob) // 2048)
+            rec_secs.append(secs)
             blob += rec
         else:
             for f, px in zip(MONSTER_FRAMES, frames):
                 emit_array(lines, 'monster_%s_%d' % (name, f), px, MONSTER_W, MONSTER_H)
+            for f in MONSTER_FRAMES[len(frames):]:
+                lines.append('#define monster_%s_%d monster_%s_1' % (name, f, name))
     lines.append('/* Index = species index (sprites.json monsters order). */')
     lines.append('static const unsigned short *const MONSTER_ICONS[] = {')
     for name in cat['monsters']:
         lines.append('    monster_icon_%s,' % name)
     lines.append('};')
+    lines.append('/* Frames stored per species: 1 = still (every frame is frame 1). */')
+    lines.append('static const unsigned char MONSTER_NFRAMES[] = { ' + ', '.join(map(str, nframes)) + ' };')
+    if stream:
+        lines.append('/* MONSTERS.BIN record start sector and length per species. */')
+        lines.append('static const unsigned short MONSTER_REC_OFF[] = { ' + ', '.join(map(str, rec_off)) + ' };')
+        lines.append('static const unsigned char MONSTER_REC_SECS[] = { ' + ', '.join(map(str, rec_secs)) + ' };')
     if stream:
         disc_dir = os.path.join(HERE, '..', 'disc')
         os.makedirs(disc_dir, exist_ok=True)
