@@ -1,0 +1,53 @@
+name: Checks
+
+# Fast gates on every push and PR (BUG_LOG BUG-005/006/008/009):
+# content bake is in sync, web typecheck/lint/unit tests, and a real
+# browser run of both crystal wardens through win, save, reload and
+# Continue, with the web save blob read back by the Dreamcast save.c.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Bake is in sync with content/*.json
+        run: |
+          python3 tools/bake_content.py --content content --out ports/dreamcast/src
+          git diff --exit-code -- 'ports/dreamcast/src/content_*.inc'
+          python3 tools/check_sync.py --strict
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
+      - name: Browser
+        run: npx playwright install --with-deps chromium
+      - name: Crystal wardens end to end (web + Dreamcast save readback)
+        run: |
+          npm run dev > dev.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:8080/ && break; sleep 1; done
+          E2E_OUT=e2e-out npm run test:e2e:quartz
+      - name: Upload e2e artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e
+          path: |
+            e2e-out
+            dev.log
+          if-no-files-found: ignore

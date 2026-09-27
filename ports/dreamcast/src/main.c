@@ -874,6 +874,46 @@ static char tile_at(int map_id, int col, int row) {
     return m->rows[row][col];
 }
 
+/* Shared save blob stores positions in web pixels: 32 per tile. */
+#define SAVE_TILE_PX 32
+
+/* BUG-014: a loaded position must be on the map and on a walkable,
+   non-door tile; otherwise move to the nearest such tile centre,
+   breadth-first. Mirrors engine.ts rescueStandPos(). */
+static void rescue_stand_pos(int map_id, int *px, int *py) {
+    static unsigned short q[128 * 128];
+    static unsigned char seen[128 * 128];
+    const Map *m = &MAPS[map_id];
+    int cols = m->cols, rows = m->rows_n, head = 0, tail = 0, i;
+    int tx = *px / TILE, ty = *py / TILE;
+    char ch = tile_at(map_id, tx, ty);
+    if(*px >= 0 && *py >= 0 && !tile_is_solid(ch) && ch != 'D') return;
+    if(cols > 128 || rows > 128) return;
+    if(tx < 0) tx = 0;
+    if(tx >= cols) tx = cols - 1;
+    if(ty < 0) ty = 0;
+    if(ty >= rows) ty = rows - 1;
+    for(i = 0; i < cols * rows; i++) seen[i] = 0;
+    q[tail++] = (unsigned short)(ty * cols + tx);
+    seen[ty * cols + tx] = 1;
+    while(head < tail) {
+        int cur = q[head++], cx = cur % cols, cy = cur / cols, d;
+        static const int DX[4] = { 0, 0, 1, -1 }, DY[4] = { 1, -1, 0, 0 };
+        ch = tile_at(map_id, cx, cy);
+        if(!tile_is_solid(ch) && ch != 'D') {
+            *px = cx * TILE + TILE / 2;
+            *py = cy * TILE + TILE / 2;
+            return;
+        }
+        for(d = 0; d < 4; d++) {
+            int nx = cx + DX[d], ny = cy + DY[d];
+            if(nx < 0 || ny < 0 || nx >= cols || ny >= rows || seen[ny * cols + nx]) continue;
+            seen[ny * cols + nx] = 1;
+            q[tail++] = (unsigned short)(ny * cols + nx);
+        }
+    }
+}
+
 /* First occurrence of mark, row-major, matching data.spawnOf's
    row:find() scan order. Every call site below only asks for marks
    known to exist on that map (checked against the grids above), so
@@ -2489,7 +2529,8 @@ static void draw_mercy(int cur, const char *foe_name)
     draw_menu_frame("AFTER THE FIGHT", "A CHOOSE");
     if(foe_name && foe_name[0]) {
         int i = 0;
-        while(i < 40 && foe_name[i]) { sub[i] = foe_name[i]; i++; }
+        while(i < 32 && foe_name[i]) { sub[i] = foe_name[i]; i++; }
+        i = s_cat(sub, i, " IS BEATEN."); /* web: "<name> is beaten." */
         sub[i] = 0;
         draw_wrapped(sub, MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE,
                      (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
@@ -4782,6 +4823,28 @@ static int npc_exec_bit(int map_id, char mark) {
  * which of the 3 forest patrol soldiers it was -- soldier_id (their
  * index in soldiers[], 0-2) does, and lines up directly with
  * npc_exec_bit()'s forest marks '1'/'2'/'3' -> bits 1/2/3. */
+/* TRAINER_WSOLDIER_* -> KIT_* (the kit that battle was built from), -1 if none. */
+static int wsoldier_kit(int trainer_kind) {
+    switch(trainer_kind) {
+        case TRAINER_WSOLDIER_CLIFFS: return KIT_SENTRY;
+        case TRAINER_WSOLDIER_CAMP1: return KIT_CONSCRIPT;
+        case TRAINER_WSOLDIER_CAMP2: return KIT_ENFORCER;
+        case TRAINER_WSOLDIER_GROVE: return KIT_CROSS;
+        case TRAINER_WSOLDIER_RANGER: return KIT_FOREST_RANGER;
+        case TRAINER_WSOLDIER_SCOUT: return KIT_FOREST_SCOUT;
+        case TRAINER_WSOLDIER_KEEPER: return KIT_RUINS_KEEPER;
+        case TRAINER_WSOLDIER_WARDEN: return KIT_RUINS_WARDEN;
+        case TRAINER_WSOLDIER_QUARTZ: return KIT_QUARTZ;
+        case TRAINER_WSOLDIER_QUARRY_DRILLER: return KIT_QUARRY_DRILLER;
+        case TRAINER_WSOLDIER_OPAL: return KIT_OPAL;
+        case TRAINER_WSOLDIER_MARSH_BOG: return KIT_MARSH_BOG;
+        case TRAINER_WSOLDIER_MARSH_REED: return KIT_MARSH_REED;
+        case TRAINER_WSOLDIER_COMMANDER_FINAL: return KIT_COMMANDER_FINAL;
+        case TRAINER_WSOLDIER_LEAD: return KIT_LIEUTENANT_LEAD;
+        case TRAINER_WSOLDIER_HEAVENFALL_GRAVE: return KIT_HEAVENFALL_GRAVE;
+        default: return -1;
+    }
+}
 static int mercy_exec_bit(int trainer_kind, int soldier_id) {
     switch(trainer_kind) {
         case TRAINER_CALDER: return 0;
@@ -6007,8 +6070,11 @@ void main(void) {
                         dex_clear();
                         map_id = sl.map_id;
                         if(map_id < 0 || map_id >= MAP_N) map_id = MAP_HOUSE;
-                        px = sl.x;
-                        py = sl.y;
+                        /* Save x/y are web pixels (32px tiles, the shared
+                           blob's unit); this port walks a TILE-px grid. */
+                        px = (int)sl.x * TILE / SAVE_TILE_PX;
+                        py = (int)sl.y * TILE / SAVE_TILE_PX;
+                        rescue_stand_pos(map_id, &px, &py);
                         pdir = sl.dir;
                         if(pdir < 0 || pdir > 3) pdir = 0;
                         marks = sl.marks;
@@ -6308,8 +6374,8 @@ void main(void) {
                         if(rep > 200) rep = 200;
                         sl.reputation = (unsigned char)rep;
                     }
-                    sl.x = (unsigned short)px;
-                    sl.y = (unsigned short)py;
+                    sl.x = (unsigned short)((px * SAVE_TILE_PX + TILE / 2) / TILE);
+                    sl.y = (unsigned short)((py * SAVE_TILE_PX + TILE / 2) / TILE);
                     sl.marks = (unsigned short)marks;
                     sl.bag[0] = (unsigned char)bag.salve; sl.bag[1] = (unsigned char)bag.bandage;
                     sl.bag[2] = (unsigned char)bag.bitterroot; sl.bag[3] = (unsigned char)bag.dust;
@@ -6703,6 +6769,7 @@ void main(void) {
                                        Shinigami/Anne chain now). */
                                     beat_calder = 1;
                                     marks += 18;
+                                    battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
                                     seq_lines = TALK_CALDER_WIN;
@@ -6723,6 +6790,9 @@ void main(void) {
                                     if(!mason2_done && mason2_map < 0) {
                                         mason2_map = LOGIC_MASON2_MAPS[irand(0, LOGIC_MASON2_MAP_N - 1)];
                                     }
+                                    /* Mercy menu after the win line, like the web
+                                       (and mercy_exec_bit's Calder bit 0). */
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_CLIFFS) {
                                     beat_wsoldier_cliffs = 1;
@@ -8730,10 +8800,12 @@ void main(void) {
                                         mercy_foe_levels = lv > 0 ? lv : 1;
                                     }
                                     {
-                                        const char *nm = "Trainer";
-                                        if(battle.trainer_kind == TRAINER_CALDER) nm = "Calder";
-                                        else if(battle.trainer_kind == TRAINER_SHINIGAMI) nm = "Shinigami";
-                                        else nm = "Trainer";
+                                        /* Kit `name` from world.json, same as web's foeName. */
+                                        const char *nm = "TRAINER";
+                                        int wk = wsoldier_kit(battle.trainer_kind);
+                                        if(battle.trainer_kind == TRAINER_CALDER) nm = "CALDER";
+                                        else if(battle.trainer_kind == TRAINER_SHINIGAMI) nm = "SHINIGAMI";
+                                        else if(wk >= 0) nm = TRAINER_KITS[wk].name;
                                         int i; for(i = 0; i < 31 && nm[i]; i++) mercy_foe_name[i] = nm[i];
                                         mercy_foe_name[i] = 0;
                                     }

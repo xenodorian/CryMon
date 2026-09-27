@@ -906,6 +906,7 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("typedef struct {")
     lines.append("    int lead_sp, lead_lv;")
     lines.append("    int bench_sp[KIT_BENCH_MAX], bench_lv[KIT_BENCH_MAX], bench_n;")
+    lines.append("    const char *name; /* kit `name`, DC text (mercy menu header) */")
     lines.append("} TrainerKit;")
     lines.append(f"static const TrainerKit TRAINER_KITS[{len(kit_keys)}] = {{")
     for k in kit_keys:
@@ -915,7 +916,8 @@ def bake_world(data: dict, out: Path) -> None:
         pad = benches + [["quillpup", 1]] * (bench_max - len(benches))
         lines.append(
             f"    {{ {sp[lead_sp]}, {int(lead_lv)}, "
-            f"{{ {', '.join(str(sp[b[0]]) for b in pad)} }}, {{ {', '.join(str(int(b[1])) for b in pad)} }}, {len(benches)} }},"
+            f"{{ {', '.join(str(sp[b[0]]) for b in pad)} }}, {{ {', '.join(str(int(b[1])) for b in pad)} }}, {len(benches)}, "
+            f"\"{c_escape(dc_text(t.get('name') or k))}\" }},"
         )
     lines.append("};")
     lines.append(f"#define KIT_LEG3_FIRST {len(base_keys)}")

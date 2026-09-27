@@ -73,7 +73,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End";
+type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End" | "mercy";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL", hale: "HALE'S STALL" };
 const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray", hale: "shopFreeHale" };
@@ -132,6 +132,13 @@ export class CryMon {
 	audio = new Chip();
 	images: ImgMap = {};
 	ready = false;
+	/** BUG-016/017: art load bookkeeping. ready flips after the critical
+	 *  chunk; artDone after everything. Missing files are listed, warned
+	 *  once, and readable through window.__crymon.artStatus(). */
+	artTotal = 0;
+	artLoaded = 0;
+	artMissing: string[] = [];
+	artDone = false;
 	mode: Mode = "title";
 	introI = 0;
 	endI = 0;
@@ -352,6 +359,10 @@ export class CryMon {
 		const all = artManifest();
 		const prefer = this.criticalArtKeys();
 		await this.loadArtChunk(all.filter(([k]) => !prefer.has(k)));
+		this.artDone = true;
+		if (this.artMissing.length) {
+			console.warn(`CryMon: ${this.artMissing.length} art file(s) failed to load:`, this.artMissing);
+		}
 	}
 	async loadArt() {
 		await this.loadArtCritical();
@@ -359,16 +370,22 @@ export class CryMon {
 	}
 	async loadArtChunk(list) {
 		const conc = 8;
+		this.artTotal += list.length;
 		for (let i = 0; i < list.length; i += conc) {
 			const chunk = list.slice(i, i + conc);
 			const loaded = await Promise.all(chunk.map(async ([k, src]) => {
 				try {
-					return [k, await loadImg(src)];
+					return [k, await loadImg(src), src];
 				} catch {
-					return [k, null];
+					return [k, null, src];
 				}
 			}));
-			for (const [k, im] of loaded) if (im) this.images[k] = im;
+			for (const [k, im, src] of loaded) {
+				if (im) {
+					this.images[k] = im;
+					this.artLoaded += 1;
+				} else this.artMissing.push(`${k} (${src})`);
+			}
 		}
 	}
 	reset() {
@@ -599,6 +616,7 @@ export class CryMon {
 			if (this.soldiers[1]) this.soldiers[1].beaten = !!snap.flags.soldierBeaten1;
 			if (this.soldiers[2]) this.soldiers[2].beaten = !!snap.flags.soldierBeaten2;
 		}
+		this.rescueStandPos();
 		this.rival.phase = this.foughtMason ? "off" : "off";
 		this.anne.phase = "off";
 		this.mode = "world";
@@ -607,6 +625,41 @@ export class CryMon {
 		this.battle = null;
 		this.announceMap();
 		return true;
+	}
+	/** BUG-014: a loaded position must be on the map and on a walkable,
+	 *  non-door tile. If it is not (old or foreign save, map edit since
+	 *  the save), move to the nearest such tile centre, breadth-first.
+	 *  Dreamcast main.c rescue_stand_pos() does the same on its grid. */
+	rescueStandPos() {
+		const map = this.map();
+		const ok = (tx, ty) => {
+			const ch = map[ty]?.[tx];
+			return ch != null && !solidTile(ch) && !doorTile(ch);
+		};
+		const tx0 = Math.floor(this.world.x / TILE);
+		const ty0 = Math.floor(this.world.y / TILE);
+		if (ok(tx0, ty0)) return;
+		const rows = map.length;
+		const cols = Math.max(...map.map((r) => r.length));
+		const sx = Math.max(0, Math.min(cols - 1, tx0));
+		const sy = Math.max(0, Math.min(rows - 1, ty0));
+		const seen = new Set([sy * cols + sx]);
+		const q = [[sx, sy]];
+		while (q.length) {
+			const [tx, ty] = q.shift();
+			if (ok(tx, ty)) {
+				this.world.x = tx * TILE + TILE / 2;
+				this.world.y = ty * TILE + TILE / 2;
+				return;
+			}
+			for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
+				const nx = tx + dx;
+				const ny = ty + dy;
+				if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || seen.has(ny * cols + nx)) continue;
+				seen.add(ny * cols + nx);
+				q.push([nx, ny]);
+			}
+		}
 	}
 	/** Autosave disabled entirely -- every non-manual call is a no-op.
 	 *  Loading last save was breaking because the game wrote over the slot
@@ -970,6 +1023,13 @@ export class CryMon {
 				try { localStorage.removeItem("crymon.save.v1"); } catch { /* ignore */ }
 				this.hasSave = false;
 			},
+			artStatus: () => ({
+				ready: this.ready,
+				done: this.artDone,
+				total: this.artTotal,
+				loaded: this.artLoaded,
+				missing: [...this.artMissing],
+			}),
 			debug: () => ({
 				mode: this.mode,
 				cur: this.titleCursor,
@@ -1082,6 +1142,9 @@ export class CryMon {
 				this.choiceCur = 0;
 			} else if (next === "wsoldier") {
 				this.startWsBattle(this.pendingWs);
+			} else if (next === "mercy") {
+				this.mode = "mercy";
+				this.mercyCur = 0;
 			} else if (next === "generalFate" || next === "neroFate") {
 				this.openFate(next === "neroFate" ? "nero" : "general");
 			} else if (next === "bountyFate" || next === "shakedownFate") {
@@ -3963,7 +4026,7 @@ export class CryMon {
 				if (!this.mason2Done && !this.mason2Map) this.mason2Map = pickMason2Map(Math.random());
 				this.marks += kit.marks ?? 18;
 				this.audio.ok();
-				this.openMercy(b);
+				this.openMercy(b, TALK[kit.winTalk]);
 				return;
 			}
 			if (b.trainer === "soldier") {
@@ -3971,7 +4034,7 @@ export class CryMon {
 				if (sol) sol.beaten = true;
 				this.marks += sol?.marks ?? 8;
 				this.audio.ok();
-				this.openMercy(b);
+				this.openMercy(b, TALK[sol?.winTalk ?? "soldierAfter"]);
 				return;
 			}
 			if (b.trainer === "wsoldier") {
@@ -4023,9 +4086,11 @@ export class CryMon {
 					return;
 				}
 				this.marks += kit?.marks ?? 12;
-				// Win talk deferred; mercy menu first (not mason/shinigami).
+				// Win talk first, then the mercy menu (same order as the
+				// Dreamcast port). onBattleOver() already ran above, so
+				// openMercy() must not count this battle a second time.
 				this.audio.ok();
-				this.openMercy(b);
+				this.openMercy(b, TALK[kit?.winTalk], false);
 				return;
 			}
 			if (b.trainer === "shinigami") {
@@ -4143,16 +4208,22 @@ export class CryMon {
 		return n;
 	}
 	/** Open Leg 2.9 mercy menu after a human trainer win (not Mason/Shinigami). */
-	openMercy(b) {
+	openMercy(b, winLines = null, countBattle = true) {
 		this.mercyCur = 0;
 		this.mercyTrainer = b.trainer;
 		this.mercySoldierId = b.soldierId;
 		this.mercyFoeLevels = this.foePartyLevels(b);
 		this.mercyFoeName = b.foeName || "Trainer";
-		this.mode = "mercy";
 		this.battle = null;
 		this.world.encounterLock = 3;
-		this.onBattleOver();
+		if (countBattle) this.onBattleOver();
+		// The kit's winTalk plays first; advanceTalk()'s "mercy" opens the menu.
+		if (winLines?.length) {
+			this.mode = "world";
+			this.say(winLines, "mercy");
+			return;
+		}
+		this.mode = "mercy";
 	}
 	updateMercy() {
 		if (this.input.up()) {
