@@ -3883,6 +3883,21 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       - NOT done (stopped at the user's request): re-running
         tools/balance_sim.py with turn order modeled and retuning the
         early game. The sim still assumes the player always goes first.
+        (Done later in H27.)
+- [x] H26 Main CI fix: the Quartz/Opal e2e was flaky (Opal lost about 1
+      run in 40, CI run 36322735037). The test buffed a Quillpup lead to
+      Lv 40 / 200 stats, it evolved on its first XP, the re-mint threw the
+      buff away, and a faster Stormwing could win on paralysis. The test
+      now uses a final-form lead (Sableclaw). Test-only change; quartz and
+      battle-order e2e, gates, typecheck, lint and unit tests pass.
+- [x] H27 Balance sim models speed turn order (tools/balance_sim.py reads
+      logic.json combat.initiative; `--no-initiative` gives the old rule).
+      Result: turn order makes fights slightly harder (Calder hpLost 4% to
+      12%, Nero 34% to 44%, Hollow Warden 27% to 38%) and creates no walls,
+      with the default profile or with `--policy loyal --grind 2`. So no
+      trainers.json retune was needed; nothing changed in content.
+      Still true from before: most early trainers read as pushovers with
+      the default grind (6 wild fights per area). Left as is.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

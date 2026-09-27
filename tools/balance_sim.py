@@ -93,6 +93,7 @@ class Rules:
         self.f = world["formulas"]
         self.growth = logic["growth"]
         self.combat = logic["combat"]
+        self.initiative = self.combat.get("initiative")
         self.natures = {n["id"]: n for n in logic["natures"]}
         nt = logic["natureTypes"]
         self.strong, self.weak = nt["strongMul"], nt["weakMul"]
@@ -183,29 +184,30 @@ def fight(r, rng, party, kit, conn=1.5):
     total_hp = sum(m["maxHp"] for m in party)
     order = sorted(range(len(party)), key=lambda i: -(party[i]["str"] + party[i]["spc"] + party[i]["maxHp"]))
     gmin, gmax = r.combat["guardRandMin"], r.combat["guardRandMax"]
+    ini = r.initiative
     fi = 0
-    for rounds in range(400):
-        alive = [i for i in order if party[i]["hp"] > 0]
-        if not alive:
-            return False, 1.0
-        li = alive[0]
+
+    def player_strike(li):
+        """The lead hits. Returns 'won' when the last foe falls, 'ko' on a KO."""
+        nonlocal fi
         p, foe = party[li], foes[fi]
         use_sp = p.get("pp", 0) > 0
         if use_sp:
             p["pp"] -= 1
         foe["hp"] -= attack(r, rng, p, foe, use_sp, conn)
-        if foe["hp"] <= 0:
-            for i, m in enumerate(party):
-                if m["hp"] > 0:
-                    r.gain_xp(m, foe["lv"], 1.0 if i == li else r.f["benchXpShare"])
-                    pp = m.get("pp", 0)
-                    party[i] = r.evolve(m)
-                    party[i].setdefault("pp", pp)
-            fi += 1
-            if fi >= len(foes):
-                lost = (start_hp - sum(m["hp"] for m in party)) / max(1, total_hp)
-                return True, max(0.0, lost)
-            continue
+        if foe["hp"] > 0:
+            return None
+        for i, m in enumerate(party):
+            if m["hp"] > 0:
+                r.gain_xp(m, foe["lv"], 1.0 if i == li else r.f["benchXpShare"])
+                pp = m.get("pp", 0)
+                party[i] = r.evolve(m)
+                party[i].setdefault("pp", pp)
+        fi += 1
+        return "won" if fi >= len(foes) else "ko"
+
+    def foe_strike(li):
+        p, foe = party[li], foes[fi]
         f_sp = foe["pp"] > 0 and rng.random() < 0.28
         if f_sp:
             foe["pp"] -= 1
@@ -219,6 +221,30 @@ def fight(r, rng, party, kit, conn=1.5):
                 foe["hp"] = 1  # keep it simple: parries never finish a foe
         else:
             p["hp"] = max(0, p["hp"] - dmg)
+
+    def lead():
+        alive = [i for i in order if party[i]["hp"] > 0]
+        return alive[0] if alive else None
+
+    for rounds in range(400):
+        li = lead()
+        if li is None:
+            return False, 1.0
+        # Speed turn order (logic.json combat.initiative); ties go to the player.
+        foe_first = ini is not None and (
+            foes[fi]["agl"] * rng.uniform(ini["randMin"], ini["randMax"])
+            > party[li]["agl"] * rng.uniform(ini["randMin"], ini["randMax"]))
+        if foe_first:
+            foe_strike(li)
+            li = lead()  # a fallen lead's replacement still acts this round
+            if li is None:
+                return False, 1.0
+        res = player_strike(li)
+        if res == "won":
+            lost = (start_hp - sum(m["hp"] for m in party)) / max(1, total_hp)
+            return True, max(0.0, lost)
+        if res is None and not foe_first:
+            foe_strike(li)
     return False, 1.0
 
 
@@ -309,6 +335,7 @@ def main():
     ap.add_argument("--policy", choices=["best", "loyal"], default="best",
                     help="best: swap in stronger catches; loyal: keep the first six forever")
     ap.add_argument("--boss-hp", type=float, help="try an hpMul on every General and Nero (overrides the data)")
+    ap.add_argument("--no-initiative", action="store_true", help="old rule: the player always acts first")
     ap.add_argument("--csv")
     a = ap.parse_args()
     global skill_best_guard, POLICY
@@ -316,6 +343,8 @@ def main():
     logic = load("content/logic.json")
     mode = a.level_up or logic["growth"].get("levelUpStats", "flat")
     r = Rules(mode)
+    if a.no_initiative:
+        r.initiative = None
     if a.boss_hp:
         for tid, kit in r.trainers.items():
             if tid.startswith("general") or tid == "nero":
