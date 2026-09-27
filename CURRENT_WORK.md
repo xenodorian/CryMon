@@ -3684,6 +3684,14 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       - QA note: `/tmp/claude-0/emu/mkcdi.sh` now pins the disc serial
         (`-s IND-777777`) so the VMU save file name stays the same
         between builds.
+- [x] H7 Lieutenant Lead eased from Lv 24-28 to Lv 22-26 (Sableclaw 22,
+      Stormwing 22, Boulderam 23, Duskhorn 23, Crymare 24, Lead 26). He
+      still fights with six, which is the wall (Father's six or
+      Heavenfall help). At 24-28 he sat above everything that follows
+      him: the Weeping Road (Lv 18-21), Tau (22-25) and the Malkuth base
+      (19-22). Now the ramp runs Vesk 21 -> Lead 22-26 -> Tau 22-25.
+      Also smoke-tested every NPC on web with early and late-game flags
+      (talk, script, no page errors): all clean.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

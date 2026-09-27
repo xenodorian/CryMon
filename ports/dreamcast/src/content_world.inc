@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=a2c388bb48b51baf — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=ce272d0748b9079b — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -267,7 +267,7 @@ static const TrainerKit TRAINER_KITS[62] = {
     { 6, 3, { 22, 0, 0, 0, 0 }, { 3, 1, 1, 1, 1 }, 1, "REEDGUARD" },
     { 17, 10, { 14, 0, 0, 0, 0 }, { 11, 1, 1, 1, 1 }, 1, "OPAL" },
     { 13, 17, { 7, 15, 0, 0, 0 }, { 16, 16, 1, 1, 1 }, 2, "COMMANDER" },
-    { 15, 24, { 14, 13, 7, 10, 28 }, { 24, 25, 25, 26, 28 }, 5, "LIEUTENANT LEAD" },
+    { 15, 22, { 14, 13, 7, 10, 28 }, { 22, 23, 23, 24, 26 }, 5, "LIEUTENANT LEAD" },
     { 19, 20, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0, "HEAVENFALL" },
     { 42, 19, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0, "BASE GUARD" },
     { 48, 20, { 45, 0, 0, 0, 0 }, { 19, 1, 1, 1, 1 }, 1, "BASE GUARD" },
