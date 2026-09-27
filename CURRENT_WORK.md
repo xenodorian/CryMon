@@ -4084,3 +4084,9 @@ refuses to redraw them.
 - Dreamcast trainer sweep (emu_warden.py --quick): 41/61 passed on the first run; the failures looked at (commanderFinal, generalSorrel, forestScout) were the harness stopping too early and pass after the talk-box and typed-line fixes. calderPost needs more than 300 presses (a long 6-monster fight, not stuck). The full DC rerun with the tuned harness was not finished when work was wrapped up; `.github/workflows/sweep.yml` runs both ports nightly and on demand, so its first run is the real DC result.
 - Stopped here on the owner's request. No code changes in progress.
 
+## NPC walkers and portraits are generated pixel art (Grok, 2026-09-27)
+
+Every code-drawn person now has a generated walker (48x64, four identical
+frames) and a 160x200 portrait. Grave, shrine, and the pickup pouch are
+generated props. Max, Lead, the older finished sprites, the map tiles,
+the item icons, and the torch and lantern frames were left as they were.
