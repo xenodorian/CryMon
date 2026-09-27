@@ -3727,4 +3727,14 @@ Dreamcast toolchain is not in the cloud session; CI builds the CDI.
 Not touched: Max, Lead (user art, still broken, needs the user),
 all finished monsters.
 
-Next: NPC overworld sprites (35), portraits (32), then a quality pass.
+**Batch 2: all 35 NPC walkers and 32 portraits** replaced
+(`public/sprites/npc/<id>-1..4.png`, `public/sprites/portraits/<id>.png`).
+Each person is described once in `tools/pixelforge/people.py` (skin, hair,
+outfit, hat, beard, extras such as tears/medals/cape/spear) and drawn two
+ways: `npcs.py` (48x64 front-facing walker, breathing idle) and
+`portraits.py` (160x200 bust). grave, shrine and pickup are props in
+`npcs.py`. Townsfolk still borrow the archetype portraits through
+portraitAlias; that mapping is unchanged.
+Run: `build.py npcs --all`, `build.py portraits --all`.
+
+Next: check the art in the running game, then a quality pass.
