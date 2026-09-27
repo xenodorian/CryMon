@@ -3310,3 +3310,23 @@ name, implement it. Execute other fixes." Stages, each pushed:
   - Father's finale lines open with Max walking home, so the scene isn't
     set in the throne room.
   - New keys for T2: `gauntletGraveEmpty`, `priestessSpent`, `leadNotYet`.
+- [x] T2 Flow (JSON + both engines):
+  - Beating Heavenfall at the grave no longer rolls the credits and dumps
+    the player to the title (web `creditsFinal`, Dreamcast
+    POST_CREDITS_FINAL). The grave then says it's empty
+    (`gauntletGraveEmpty`) instead of offering the fight again.
+  - Reviving Father spends the scroll (`hasScroll = false` on both
+    engines). The Priestess turns that player away (`priestessSpent`), so
+    one scroll wakes one of the dead. Heavenfall path unchanged.
+  - Lieutenant Lead won't fight until `beatShinigami` (`leadNotYet`), so
+    Leg 3 can't be reached before the scroll choice.
+  - The camp Commander is now an optional fight after the scroll choice
+    (Father or Heavenfall version of his lines; `commanderAfter` once
+    beaten; stationary like Lead; mercy menu after, no credits). His kit
+    went from Lv12 to Lv17/16 to fit that point in the game.
+  - Web `npcFlags()` now exposes every saved boolean flag (beatHeavenfall
+    was missing). Dreamcast `ft[]` gained `has_scroll` and
+    `beat_heavenfall`, which were missing, so any script keyed on them
+    (gravestone, Priestess) never matched on console.
+  - Leg 2's `endingWin`/`endingWinHeavenfall` text is now unused (nothing
+    rolls those credits); left in dialogue.json.

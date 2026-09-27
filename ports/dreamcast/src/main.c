@@ -4363,6 +4363,7 @@ static int npc_def_roamable(int i) {
        from his script, which would also break the shared battle-trigger
        wiring. Matches engine.ts's roamableNpc(). */
     if(d->map_id == MAP_VELD && d->mark == 'S') return 0;
+    if(d->map_id == MAP_CAMP && d->mark == 'I') return 0; /* Commander holds his post */
     /* Leg 3 guards / Generals / Nero hold their post in the hall. */
     for(k = 0; k < d->stepn; k++)
         if(NPC_STEPS[d->step0 + k].pending >= NPC_PENDING_LEG3_FIRST) return 0;
@@ -5587,6 +5588,10 @@ void main(void) {
         ft[FLAG_SAW_SHINIGAMI_ROCK] = &saw_shinigami_rock;
         ft[FLAG_QUARRY_CRATE_LOOTED] = &quarry_crate_looted;
         ft[FLAG_QUARRY_SHELF_SEARCHED] = &quarry_shelf_searched;
+        /* Were missing: NPC scripts keyed on these never matched on
+           Dreamcast (gravestone, Priestess, Lead gate). */
+        ft[FLAG_HAS_SCROLL] = &has_scroll;
+        ft[FLAG_BEAT_HEAVENFALL] = &beat_heavenfall;
         for(fi = 0; fi < LEG3_FLAG_N; fi++) ft[LEG3_FLAG_ID[fi]] = &g_leg3_flags[fi];
     }
 
@@ -6575,7 +6580,9 @@ void main(void) {
                                     seq_lines = TALK_COMMANDER_FINAL_WIN;
                                     seq_len = TALK_LEN(TALK_COMMANDER_FINAL_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_CREDITS_FINAL;
+                                    /* Optional camp fight now, not the end
+                                       of the game: mercy menu like web. */
+                                    post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_LEAD) {
                                     /* Placeholder ending (Leg 2 wrap
@@ -6611,7 +6618,7 @@ void main(void) {
                                     seq_lines = TALK_GAUNTLET_GRAVE_WIN;
                                     seq_len = TALK_LEN(TALK_GAUNTLET_GRAVE_WIN);
                                     seq_beat = 0;
-                                    post_action = POST_CREDITS_FINAL;
+                                    post_action = POST_NONE; /* Leg 3 continues; no credits */
                                 }
                                 else if(battle.trainer_kind == TRAINER_LEG3) {
                                     const Leg3Post *lp = &LEG3_POSTS[g_leg3_post];
@@ -7290,6 +7297,7 @@ void main(void) {
                 if(chose_heavenfall) gauntlet_unlocked = 1;
                 if(choice_cur == 0) {
                     revived_father = 1;
+                    has_scroll = 0; /* spent on Father (see engine.ts updateChoice) */
                     apply_player_name(1, title_slayer, title_tamer);
                     reputation += LOGIC_REP_FATHER_REVIVE;
                     if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;

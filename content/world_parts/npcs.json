@@ -454,6 +454,22 @@
       "talk": "commander",
       "script": [
         {
+          "if": "beatCommander",
+          "talk": "commanderAfter"
+        },
+        {
+          "if": "revivedFather",
+          "talk": "commanderFinalSpotFather",
+          "after": "wsoldier",
+          "pending": "commanderFinal"
+        },
+        {
+          "if": "choseHeavenfall",
+          "talk": "commanderFinalSpotHeavenfall",
+          "after": "wsoldier",
+          "pending": "commanderFinal"
+        },
+        {
           "talk": "commander"
         }
       ]
@@ -998,6 +1014,10 @@
       "talk": "gauntletGraveNeedScroll",
       "script": [
         {
+          "if": "beatHeavenfall",
+          "talk": "gauntletGraveEmpty"
+        },
+        {
           "talk": "gauntletGraveNeedScroll",
           "ifNot": "hasScroll"
         },
@@ -1022,6 +1042,10 @@
           "hideIf": "beatLieutenantLead"
         },
         {
+          "ifNot": "beatShinigami",
+          "talk": "leadNotYet"
+        },
+        {
           "talk": "leadSpot",
           "after": "wsoldier",
           "pending": "lieutenantLead"
@@ -1044,6 +1068,11 @@
             32,
             32
           ]
+        },
+        {
+          "if": "revivedFather",
+          "talk": "priestessSpent",
+          "after": "priestessTeleport"
         },
         {
           "talk": "priestessNoScroll",

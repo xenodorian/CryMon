@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=7061db22760f4246 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=2ced5e44354dca03 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -974,6 +974,9 @@ static const TalkBeat TALK_GUARD_CHOKMAH_SPOT_B[] = {
 static const TalkBeat TALK_GUARD_CHOKMAH_WIN_B[] = {
     { "SORREL'S THROUGH THERE. GOOD LUCK. YOU'LL NEED MORE THAN LUCK.", 38 },
 };
+static const TalkBeat TALK_COMMANDER_AFTER[] = {
+    { "YOU WON. GO TAKE YOUR WAR SOMEWHERE ELSE.", 18 },
+};
 
 static const char *const DEMO_END[] = {
     "MAX STANDS AT THE EDGE OF THE PRISON, THE SCROLL EMPTY IN HER HANDS.",
@@ -1223,6 +1226,7 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_GUARD_CHOKMAH_WIN_A,
     TALK_GUARD_CHOKMAH_SPOT_B,
     TALK_GUARD_CHOKMAH_WIN_B,
+    TALK_COMMANDER_AFTER,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -1457,6 +1461,7 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_GUARD_CHOKMAH_WIN_A),
     TALK_LEN(TALK_GUARD_CHOKMAH_SPOT_B),
     TALK_LEN(TALK_GUARD_CHOKMAH_WIN_B),
+    TALK_LEN(TALK_COMMANDER_AFTER),
 };
-#define TALK_TABLE_N 232
+#define TALK_TABLE_N 233
 

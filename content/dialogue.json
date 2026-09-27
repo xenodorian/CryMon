@@ -2551,6 +2551,12 @@
         "speaker": "weepingGuard",
         "text": "Sorrel's through there. Good luck. You'll need more than luck."
       }
+    ],
+    "commanderAfter": [
+      {
+        "speaker": "commander",
+        "text": "You won. Go take your war somewhere else."
+      }
     ]
   },
   "endingWinHeavenfall": [

@@ -2216,6 +2216,10 @@ export class CryMon {
 	}
 	npcFlags(): Record<string, boolean> {
 		return {
+			// Every saved boolean flag is visible to NPC scripts (beatHeavenfall
+			// was missing, so the empty-grave step never matched); the explicit
+			// entries below still win where they compute something special.
+			...Object.fromEntries(SAVE_FLAGS.filter((k) => typeof this[k] === "boolean").map((k) => [k, this[k]])),
 			...Object.fromEntries(LEG3_FLAGS.map((k) => [k, !!this[k]])),
 			tookStarter: this.tookStarter,
 			talkedFather: this.talkedFather,
@@ -2673,7 +2677,7 @@ export class CryMon {
 		// player walks up and interacts, never chases. Excluded by id here
 		// rather than dropping "wsoldier" from his script, which would also
 		// break the shared battle-trigger wiring (startWsBattle()).
-		if (npc.id === "lieutenantLead") return false;
+		if (npc.id === "lieutenantLead" || npc.id === "commander") return false;
 		// Leg 3 base guards, Generals and Nero hold their post (they block
 		// the hall you have to walk through), so they never roam or chase.
 		if (npc.script?.some((s) => s.pending && this.isLeg3Post(s.pending))) return false;
@@ -3946,7 +3950,8 @@ export class CryMon {
 					this.marks += kit?.marks ?? 12;
 					this.audio.ok();
 					this.note("The world will know you as Heaven Slayer.");
-					this.say(TALK.gauntletGraveWin || [{ speaker: "max", text: "Heavenfall falls." }], "creditsFinal");
+					// No credits here any more: Leg 3 continues past the grave.
+					this.say(TALK.gauntletGraveWin || [{ speaker: "max", text: "Heavenfall falls." }]);
 					return;
 				}
 				this.marks += kit?.marks ?? 12;
@@ -4576,6 +4581,9 @@ export class CryMon {
 			this.choseHeavenfall = this.choiceCur === 1;
 			if (this.choiceCur === 0) {
 				this.revivedFather = true;
+				// The scroll wakes one of the dead: spent on Father, it can't
+				// raise Heavenfall too (the Priestess turns this player away).
+				this.hasScroll = false;
 				this.adjustReputation(LOGIC.reputation?.fatherRevive ?? 25);
 				this.seedFatherParty();
 				this.warpTo("house", "P", "up");
