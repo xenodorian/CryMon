@@ -135,3 +135,27 @@ Current save format is v6, 256 bytes. Do not change offsets or reorder map IDs w
 ## Coordination notes
 
 Keep this file short. Record only active work, durable contracts, important recent fixes, and blockers. Detailed archaeology belongs in git history. When a task is fully verified, replace its temporary working note with a one- or two-line durable result.
+
+### Move / growth redesign (queued — Grok, 2026-09-27)
+
+**Not implemented yet.** Design contract for a future growth pass. Current live values remain `secondaryAt: 5`, `specialAt: 10`, `evolveAt: 12`, `evolveAt2: 22`, special PP ~3, mixed secondary PP.
+
+| Level | Rule |
+|------:|------|
+| — | **Secondary moves:** all **10 PP** (stage and status; shinies too) |
+| — | **Special moves:** all **5 PP** (was ~3) |
+| **15** | **First evolution** (`evolveAt` → 15) |
+| **15** | Species **with** a second stage: learn **Hype Up** at 15 (same gate as first evo, not only “on evolve”) |
+| **15** | Species **without** a second stage: learn **Attack Swap** — deals the same damage as their **basic** move, then the player chooses another party CryMon to switch in |
+| **20** | **All** CryMon learn a move that deals **basic-tier damage** and also applies a **debuff, status, or self-buff** (per-species definition TBD) |
+| **25** | Species with a **third** stage evolve (`evolveAt2` → 25) |
+| **30** | **All** CryMon learn a **new special** that also applies a **debuff, status, or self-buff** (per-species definition TBD) |
+
+**Implied engine work when implementing:**
+- `content/logic.json` `growth` + `natureMoves` / `shinyMove` `maxPp` + per-species `specialPp`
+- `unlockedMoves()` gates; new move kinds for Attack Swap and the Lv20 / Lv30 signatures
+- Switch-on-hit flow for Attack Swap (web + Dreamcast)
+- Content pass: define the Lv20 and Lv30 effects per species (or by nature)
+
+Do not partially ship without updating both engines and save/docs if PP or learnsets change mid-playthrough.
+
