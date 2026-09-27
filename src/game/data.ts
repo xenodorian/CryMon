@@ -178,6 +178,8 @@ export const HERMITHUT = normalize(raw.hermithut);
 export const SAGEHOUSE = normalize(raw.sagehouse);
 export const EMPTYHOUSE = normalize(raw.emptyhouse);
 
+export const HOLLOW = normalize(raw.hollow);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -249,6 +251,7 @@ export const MAPS = {
   hermithut: HERMITHUT,
   sagehouse: SAGEHOUSE,
   emptyhouse: EMPTYHOUSE,
+  hollow: HOLLOW,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=c5a2afe2d11553a9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=22cd2eb4004253df — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_AUDIO_INC
 #define CONTENT_AUDIO_INC
@@ -2548,7 +2548,7 @@ static const ChipSong CHIP_SFX[SFX_N] = {
     { sfx_scream_tr, 2, 0 },
 };
 
-#define MAP_SONG_N 70
+#define MAP_SONG_N 71
 static const int MAP_SONG[MAP_SONG_N] = {
     SONG_HOME,
     SONG_OVERWORLD,
@@ -2620,6 +2620,7 @@ static const int MAP_SONG[MAP_SONG_N] = {
     SONG_GUILD,
     SONG_HOME,
     SONG_CRYPT,
+    SONG_WILDS,
 };
 #define SONG_ID_TITLE SONG_TITLE
 #define SONG_ID_BATTLE SONG_BATTLE

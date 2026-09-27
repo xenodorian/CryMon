@@ -35,6 +35,7 @@ COUNTY = [
     ("toMalkuth", 0, 140, 0, "MALKUTH", False, []),
     ("weepingroad", 0, 140, 24, "WEEPING ROAD", False, ["weepingroad"]),
     ("reach", 0, 34, 24, "REACH", True, ["reach"]),
+    ("hollow", 0, 34, 0, "HOLLOW", False, ["hollow"]),
     ("ruins", 0, 60, 50, "RUINS", False, ["ruins"]),
     ("veld", 0, 140, 50, "CRYTOWN", True, ["veld", "house"]),
     ("cliffs", 0, 222, 50, "CLIFFS", False, ["cliffs"]),
@@ -48,7 +49,7 @@ COUNTY = [
     ("shrine", 0, 70, 128, "HEAVENFALL", True, ["gauntlet6"]),
 ]
 COUNTY_LINKS = [
-    ("toMalkuth", "weepingroad"), ("weepingroad", "veld"), ("veld", "ruins"), ("ruins", "reach"),
+    ("toMalkuth", "weepingroad"), ("weepingroad", "veld"), ("veld", "ruins"), ("ruins", "reach"), ("reach", "hollow"),
     ("veld", "cliffs"), ("cliffs", "marsh"), ("marsh", "quarry"), ("quarry", "camp"),
     ("camp", "forest"), ("forest", "grove"), ("veld", "gauntlet"), ("gauntlet", "shrine"),
 ]

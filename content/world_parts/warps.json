@@ -1328,6 +1328,24 @@
       "spawn": "0",
       "dir": "down",
       "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": "<",
+      "to": "hollow",
+      "spawn": ">",
+      "dir": "left",
+      "ox": -32,
+      "need": "leg3Ended",
+      "failTalk": "hollowLocked"
+    },
+    {
+      "from": "hollow",
+      "tile": ">",
+      "to": "reach",
+      "spawn": "<",
+      "dir": "right",
+      "ox": 40
     }
   ]
 }

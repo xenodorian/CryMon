@@ -106,7 +106,8 @@
     "brannhouse",
     "hermithut",
     "sagehouse",
-    "emptyhouse"
+    "emptyhouse",
+    "hollow"
   ],
   "dirOrder": [
     "down",
@@ -449,7 +450,12 @@
     "dagnyAsked",
     "showedCindermite",
     "fenwickAsked",
-    "showedChillnewt"
+    "showedChillnewt",
+    "metHollowKeeper",
+    "beatHollowRanger",
+    "beatHollowShade",
+    "beatHollowWarden",
+    "hollowRewarded"
   ],
   "layout": {
     "magic": [

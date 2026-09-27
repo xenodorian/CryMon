@@ -1,11 +1,11 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=c5a2afe2d11553a9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=22cd2eb4004253df — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
 #define XP_PER_LEVEL 4
 #define LEVEL_XP_MUL 10
 #define LEVEL_CAP 100
-#define WILD_LEVEL_CAP 50
+#define WILD_LEVEL_CAP 60
 #define LEVEL_HP 3
 #define LEVEL_STAT 1
 #define CAPTURE_AGL 5
@@ -193,6 +193,8 @@ static const WarpDef WARPS[] = {
     { MAP_SAGEHOUSE, MAP_REACH, 'D', ')', 0, 0, 0, -1 },
     { MAP_REACH, MAP_EMPTYHOUSE, '0', 'D', 1, 0, 0, -1 },
     { MAP_EMPTYHOUSE, MAP_REACH, 'D', '0', 0, 0, 0, -1 },
+    { MAP_REACH, MAP_HOLLOW, '<', '>', 2, 1111, 0, 508 },
+    { MAP_HOLLOW, MAP_REACH, '>', '<', 3, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
 
@@ -243,8 +245,9 @@ static const EncDef ENCOUNTERS[] = {
     { MAP_DALETH, 'T', 18, { 53,56,59,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 3, 40, 43, -1 },
     { MAP_ALEPH, 'T', 18, { 62,65,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 3, 42, 45, -1 },
     { MAP_BETH, 'T', 18, { 71,74,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 3, 42, 45, -1 },
+    { MAP_HOLLOW, 'T', 20, { 58,58,58,105,105,105,70,70,70,74,74,74,44,44,44,65,95,71,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }, 18, 45, 55, -1 },
 };
-#define ENC_N 37
+#define ENC_N 38
 
 #define KIT_BENCH_MAX 5
 typedef struct {
@@ -252,7 +255,7 @@ typedef struct {
     int bench_sp[KIT_BENCH_MAX], bench_lv[KIT_BENCH_MAX], bench_n;
     const char *name; /* kit `name`, DC text (mercy menu header) */
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[62] = {
+static const TrainerKit TRAINER_KITS[65] = {
     { 11, 5, { 12, 14, 0, 0, 0 }, { 5, 6, 1, 1, 1 }, 2, "SENTRY" },
     { 15, 9, { 13, 18, 0, 0, 0 }, { 9, 10, 1, 1, 1 }, 2, "CONSCRIPT" },
     { 16, 10, { 17, 7, 0, 0, 0 }, { 10, 11, 1, 1, 1 }, 2, "ENFORCER" },
@@ -315,6 +318,9 @@ static const TrainerKit TRAINER_KITS[62] = {
     { 107, 31, { 109, 43, 108, 0, 0 }, { 30, 30, 31, 1, 1 }, 3, "HERMIT OSK" },
     { 50, 47, { 95, 44, 47, 56, 0 }, { 45, 46, 46, 47, 1 }, 4, "HERMIT OSK" },
     { 15, 55, { 59, 65, 53, 18, 14 }, { 52, 52, 53, 53, 54 }, 5, "CALDER" },
+    { 105, 50, { 109, 97, 0, 0, 0 }, { 48, 49, 1, 1, 1 }, 2, "LOST RANGER" },
+    { 71, 52, { 106, 70, 74, 0, 0 }, { 50, 51, 51, 1, 1 }, 3, "HOLLOW SHADE" },
+    { 56, 55, { 50, 47, 44, 68, 0 }, { 53, 53, 54, 54, 1 }, 4, "HOLLOW WARDEN" },
 };
 #define KIT_LEG3_FIRST 16
 #define KIT_SENTRY 0
@@ -379,6 +385,9 @@ static const TrainerKit TRAINER_KITS[62] = {
 #define KIT_OSK_TWO 59
 #define KIT_OSK_THREE 60
 #define KIT_CALDER_POST 61
+#define KIT_HOLLOW_RANGER 62
+#define KIT_HOLLOW_SHADE 63
+#define KIT_HOLLOW_WARDEN 64
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
@@ -663,13 +672,18 @@ static const int SHOP_NOT_SOLD_MASK[] = {
 #define FLAG_SHOWED_CINDERMITE 221
 #define FLAG_FENWICK_ASKED 222
 #define FLAG_SHOWED_CHILLNEWT 223
-#define FLAG_N 224
+#define FLAG_MET_HOLLOW_KEEPER 224
+#define FLAG_BEAT_HOLLOW_RANGER 225
+#define FLAG_BEAT_HOLLOW_SHADE 226
+#define FLAG_BEAT_HOLLOW_WARDEN 227
+#define FLAG_HOLLOW_REWARDED 228
+#define FLAG_N 229
 #define FLAG_ITEM_BASE 2000
 #define FLAG_MON_BASE 3000
 #define FLAG_REP_POS 4000
 #define FLAG_REP_NEG 4001
 #define FLAG_DEX_BASE 5000
-static const short FLAG_TO_SAVE[FLAG_N] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, 36, 62, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221 };
+static const short FLAG_TO_SAVE[FLAG_N] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, 36, 62, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226 };
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -1158,6 +1172,18 @@ static const NpcStep NPC_STEPS[] = {
     { 3032, 223, -1, 223, { 1,-1,-1 }, { 3,0,0 }, 1, -1, 0, 506, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
     { 223, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 507, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
     { -1, -1, -1, 222, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 505, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, 224, -1, 224, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 509, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { 228, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 512, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { 227, -1, -1, 228, { 11,-1,-1 }, { 3,0,0 }, 1, -1, 0, 511, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 510, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, 225, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 513, -1, -1, 7, 146, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 515, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, 226, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 516, -1, -1, 7, 147, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 518, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { 227, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 522, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, 225, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 519, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, 226, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 519, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 520, -1, -1, 7, 148, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -1315,8 +1341,12 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_MARSH, 'n', 437, 3, 30, 32 },
     { MAP_QUARRY, 'm', 440, 3, 30, 32 },
     { MAP_MARSH, 'm', 443, 3, 30, 32 },
+    { MAP_HOLLOW, 'i', 446, 4, 30, 32 },
+    { MAP_HOLLOW, 'f', 450, 2, 30, 32 },
+    { MAP_HOLLOW, 'j', 452, 2, 30, 32 },
+    { MAP_HOLLOW, 'd', 454, 4, 30, 32 },
 };
-#define NPC_DEF_N 155
+#define NPC_DEF_N 159
 #define NPC_SPRITE_N 72
 static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_bogwalker_1, npc_bogwalker_2, npc_bogwalker_3, npc_bogwalker_4 },
@@ -1393,7 +1423,7 @@ static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_shinigami_1, npc_shinigami_2, npc_shinigami_3, npc_shinigami_4 },
 };
 /* NPC_SPRITE_FRAMES index per NPC_DEFS entry (-1: drawn by hand-wired code). */
-static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 71, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, -1, 7, -1, 71, -1, 8, 8, 10, 8, 8, 11, 8, 8, 12, 8, 8, 13, 8, 8, 14, 8, 8, 15, 8, 8, 16, 8, 8, 17, 8, 8, 18, 9, 9, 19, 20, 21, 22, 23, 23, 23, 23, 23, 23, 23, 23, 23, 71, 26, 26, 26, 27, 27, 27, 25, 25, 25, 28, 30, 29, 31, 32, 33, 34, 35, 36, 43, 42, 44, 46, 46, 45, 47, 49, 49, 48, 50, 42, 51, 53, 52, 55, 55, 54, 56, 42, 57, 59, 58, 61, 61, 60, 62, 38, 37, 38, 37, 38, 37, 38, 37, 38, 39, 63, 64, 65, 66, 67, 68, 69, 70, 26, 42, 38, 37 };
+static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 71, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, -1, 7, -1, 71, -1, 8, 8, 10, 8, 8, 11, 8, 8, 12, 8, 8, 13, 8, 8, 14, 8, 8, 15, 8, 8, 16, 8, 8, 17, 8, 8, 18, 9, 9, 19, 20, 21, 22, 23, 23, 23, 23, 23, 23, 23, 23, 23, 71, 26, 26, 26, 27, 27, 27, 25, 25, 25, 28, 30, 29, 31, 32, 33, 34, 35, 36, 43, 42, 44, 46, 46, 45, 47, 49, 49, 48, 50, 42, 51, 53, 52, 55, 55, 54, 56, 42, 57, 59, 58, 61, 61, 60, 62, 38, 37, 38, 37, 38, 37, 38, 37, 38, 39, 63, 64, 65, 66, 67, 68, 69, 70, 26, 42, 38, 37, -1, -1, 25, -1 };
 #define INTERACT_BUFFER 20
 
 
@@ -1402,8 +1432,8 @@ static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -
    hint is its first step whose if_not is off and if_flag (if any) is on. */
 typedef struct { int if_flag, if_not; const char *text; } JournalStep;
 typedef struct { const char *title; int start, done; const char *done_text; int step0, nsteps, linear; } JournalQuest;
-#define JOURNAL_QUEST_N 26
-#define JOURNAL_STEP_N 74
+#define JOURNAL_QUEST_N 27
+#define JOURNAL_STEP_N 79
 static const JournalStep JOURNAL_STEPS[JOURNAL_STEP_N] = {
     { -1, 0, "TAKE FATHER'S CRYMON CRYSTAL FROM THE SHELF AT HOME." },
     { -1, 4, "CALDER BLOCKS THE EAST ROAD OUT OF CRYTOWN. BEAT HIM TO REACH THE CLIFFS." },
@@ -1424,6 +1454,11 @@ static const JournalStep JOURNAL_STEPS[JOURNAL_STEP_N] = {
     { -1, 92, "TAKE THE CHOKMAH BASE FROM GENERAL SORREL." },
     { -1, 105, "NINE MEDALS WON. STORM NERO'S PALACE IN KETER." },
     { -1, 219, "CALDER IS WAITING AT CRYTOWN'S EAST GATE. HE WANTS ONE MORE FIGHT." },
+    { -1, 224, "THE BRAMBLES WEST OF THE REACH HAVE DIED BACK. SOMETHING WAITS IN THE HOLLOW." },
+    { -1, 225, "BEAT THE LOST RANGER IN THE HOLLOW, WEST OF THE REACH." },
+    { -1, 226, "BEAT THE HOLLOW SHADE BY THE SOUTH GRASS." },
+    { -1, 227, "BEAT THE HOLLOW WARDEN IN THE WEST." },
+    { -1, 228, "GO BACK TO THE KEEPER BY THE HOLLOW'S ENTRANCE." },
     { -1, 62, "SHOW THE SCROLL TO THE PRIESTESS SOUTH OF CRYTOWN AND FOLLOW THE GAUNTLET TO HEAVENFALL'S GRAVE." },
     { -1, 124, "ROB INES'S GRAVE IN THE SOUTHEAST OF THE RUINS." },
     { -1, 125, "ROB TOMAS'S GRAVE IN THE PRISON YARD." },
@@ -1480,33 +1515,34 @@ static const JournalStep JOURNAL_STEPS[JOURNAL_STEP_N] = {
     { -1, 186, "TELL ANSELM IN CHOKMAH THAT IONA IS HOME." },
     { -1, 187, "BRING RHEE IN KETER AN ARCANOX FROM THE PATH OF ALEPH." },
 };
-static const JournalQuest JOURNAL_QUESTS[26] = {
+static const JournalQuest JOURNAL_QUESTS[27] = {
     { "THE WEEPING ARMY", -1, 105, "NERO IS BEATEN. THE SEPHIROT ARE FREE.", 0, 18, 1 },
-    { "AFTER THE WAR", 111, 219, "CALDER WENT TO JOIN THE NEW GUARD IN MALKUTH.", 18, 1, 0 },
-    { "THE FALLEN STAR", 51, 62, "HEAVENFALL ANSWERED THE SCROLL.", 19, 1, 0 },
-    { "THE GHOST GUILD", 123, 136, "THE WRAITH LANTERN PARTED THE VEIL.", 20, 9, 0 },
-    { "THE HEROES GUILD", 137, 149, "EVERY HEROES GUILD JOB IS DONE.", 29, 5, 0 },
-    { "THE THIEVES GUILD", 138, 161, "EVERY THIEVES GUILD JOB IS DONE.", 34, 3, 0 },
-    { "PIKE'S CRYSTAL", 13, 12, "", 37, 1, 0 },
-    { "OLD TAM'S WATCH", 205, 163, "", 38, 2, 0 },
-    { "LINA'S BOY", 206, 165, "", 40, 2, 0 },
-    { "A CRYMARE FOR JUNO", 207, 166, "", 42, 1, 0 },
-    { "THE FUSE-EATER", 220, 221, "", 43, 1, 0 },
-    { "COLD WATER", 222, 223, "", 44, 1, 0 },
-    { "THE LIBRARY'S GREAT BOOK", 188, 193, "MAX'S NAME IS ON THE FIRST PAGE.", 45, 5, 0 },
-    { "A DESERTER'S LETTER", 194, 196, "", 50, 2, 0 },
-    { "HERMIT OSK'S LESSONS", 218, 199, "", 52, 5, 0 },
-    { "BUTTON", 202, 204, "MAREN IS AT REST.", 57, 2, 0 },
-    { "PIP", 208, 168, "", 59, 2, 0 },
-    { "A BOLTLAMB FOR COBB", 209, 169, "", 61, 1, 0 },
-    { "SERA'S LOCKET", 210, 171, "", 62, 1, 0 },
-    { "WANTED, KNIFE-HAND GARROW", 211, 175, "", 63, 2, 0 },
-    { "TILLY", 212, 177, "", 65, 2, 0 },
-    { "A WHEELHOG FOR VOSS", 213, 178, "", 67, 1, 0 },
-    { "LUNE'S OLD MAP", 214, 180, "", 68, 1, 0 },
-    { "WANTED, DESERTER KAEL", 215, 184, "", 69, 2, 0 },
-    { "SISTER IONA", 216, 186, "", 71, 2, 0 },
-    { "AN ARCANOX FOR RHEE", 217, 187, "", 73, 1, 0 },
+    { "AFTER THE WAR", 111, 219, "CALDER WENT TO JOIN THE NEW GUARD IN MALKUTH.", 18, 2, 0 },
+    { "THE HOLLOW", 224, 228, "THE KEEPER GAVE MAX THREE ULTIMATE CAPTURE CRYSTALS.", 20, 4, 0 },
+    { "THE FALLEN STAR", 51, 62, "HEAVENFALL ANSWERED THE SCROLL.", 24, 1, 0 },
+    { "THE GHOST GUILD", 123, 136, "THE WRAITH LANTERN PARTED THE VEIL.", 25, 9, 0 },
+    { "THE HEROES GUILD", 137, 149, "EVERY HEROES GUILD JOB IS DONE.", 34, 5, 0 },
+    { "THE THIEVES GUILD", 138, 161, "EVERY THIEVES GUILD JOB IS DONE.", 39, 3, 0 },
+    { "PIKE'S CRYSTAL", 13, 12, "", 42, 1, 0 },
+    { "OLD TAM'S WATCH", 205, 163, "", 43, 2, 0 },
+    { "LINA'S BOY", 206, 165, "", 45, 2, 0 },
+    { "A CRYMARE FOR JUNO", 207, 166, "", 47, 1, 0 },
+    { "THE FUSE-EATER", 220, 221, "", 48, 1, 0 },
+    { "COLD WATER", 222, 223, "", 49, 1, 0 },
+    { "THE LIBRARY'S GREAT BOOK", 188, 193, "MAX'S NAME IS ON THE FIRST PAGE.", 50, 5, 0 },
+    { "A DESERTER'S LETTER", 194, 196, "", 55, 2, 0 },
+    { "HERMIT OSK'S LESSONS", 218, 199, "", 57, 5, 0 },
+    { "BUTTON", 202, 204, "MAREN IS AT REST.", 62, 2, 0 },
+    { "PIP", 208, 168, "", 64, 2, 0 },
+    { "A BOLTLAMB FOR COBB", 209, 169, "", 66, 1, 0 },
+    { "SERA'S LOCKET", 210, 171, "", 67, 1, 0 },
+    { "WANTED, KNIFE-HAND GARROW", 211, 175, "", 68, 2, 0 },
+    { "TILLY", 212, 177, "", 70, 2, 0 },
+    { "A WHEELHOG FOR VOSS", 213, 178, "", 72, 1, 0 },
+    { "LUNE'S OLD MAP", 214, 180, "", 73, 1, 0 },
+    { "WANTED, DESERTER KAEL", 215, 184, "", 74, 2, 0 },
+    { "SISTER IONA", 216, 186, "", 76, 2, 0 },
+    { "AN ARCANOX FOR RHEE", 217, 187, "", 78, 1, 0 },
 };
 
 /* Pause-menu Map (logic.json mapScreen). Nodes are dots with a label under
@@ -1515,13 +1551,14 @@ static const JournalQuest JOURNAL_QUESTS[26] = {
 typedef struct { int page, x, y, gem; const char *label; } MapScreenNode;
 typedef struct { int a, b; const char *label; } MapScreenLink;
 #define MAPSCREEN_PAGE_N 2
-#define MAPSCREEN_NODE_N 23
-#define MAPSCREEN_LINK_N 34
+#define MAPSCREEN_NODE_N 24
+#define MAPSCREEN_LINK_N 35
 static const char *const MAPSCREEN_PAGE_TITLE[MAPSCREEN_PAGE_N] = { "SORROW COUNTY", "THE SEPHIROT" };
 static const MapScreenNode MAPSCREEN_NODES[MAPSCREEN_NODE_N] = {
     { 0, 140, 0, 0, "MALKUTH" },
     { 0, 140, 24, 0, "WEEPING ROAD" },
     { 0, 34, 24, 1, "REACH" },
+    { 0, 34, 0, 0, "HOLLOW" },
     { 0, 60, 50, 0, "RUINS" },
     { 0, 140, 50, 1, "CRYTOWN" },
     { 0, 222, 50, 0, "CLIFFS" },
@@ -1545,45 +1582,46 @@ static const MapScreenNode MAPSCREEN_NODES[MAPSCREEN_NODE_N] = {
 };
 static const MapScreenLink MAPSCREEN_LINKS[MAPSCREEN_LINK_N] = {
     { 0, 1, "" },
-    { 1, 4, "" },
-    { 4, 3, "" },
-    { 3, 2, "" },
-    { 4, 5, "" },
+    { 1, 5, "" },
+    { 5, 4, "" },
+    { 4, 2, "" },
+    { 2, 3, "" },
     { 5, 6, "" },
     { 6, 7, "" },
     { 7, 8, "" },
     { 8, 9, "" },
     { 9, 10, "" },
-    { 4, 11, "" },
-    { 11, 12, "" },
-    { 22, 21, "PATH OF TAU" },
-    { 22, 20, "PATH OF QOPH" },
-    { 19, 22, "PATH OF SHIN" },
-    { 19, 20, "PATH OF PEH" },
-    { 19, 21, "PATH OF RESH" },
-    { 20, 21, "PATH OF TZADDI" },
-    { 18, 21, "PATH OF SAMEKH" },
-    { 20, 18, "PATH OF NUN" },
-    { 19, 18, "PATH OF AYIN" },
-    { 17, 20, "PATH OF KAPH" },
-    { 17, 18, "PATH OF YOD" },
-    { 16, 19, "PATH OF MEM" },
-    { 16, 18, "PATH OF LAMED" },
-    { 17, 16, "PATH OF TETH" },
-    { 14, 18, "PATH OF ZAYIN" },
-    { 14, 16, "PATH OF HETH" },
-    { 15, 18, "PATH OF HE" },
-    { 17, 15, "PATH OF VAU" },
-    { 14, 15, "PATH OF DALETH" },
-    { 13, 18, "PATH OF GIMEL" },
-    { 15, 13, "PATH OF ALEPH" },
-    { 14, 13, "PATH OF BETH" },
+    { 10, 11, "" },
+    { 5, 12, "" },
+    { 12, 13, "" },
+    { 23, 22, "PATH OF TAU" },
+    { 23, 21, "PATH OF QOPH" },
+    { 20, 23, "PATH OF SHIN" },
+    { 20, 21, "PATH OF PEH" },
+    { 20, 22, "PATH OF RESH" },
+    { 21, 22, "PATH OF TZADDI" },
+    { 19, 22, "PATH OF SAMEKH" },
+    { 21, 19, "PATH OF NUN" },
+    { 20, 19, "PATH OF AYIN" },
+    { 18, 21, "PATH OF KAPH" },
+    { 18, 19, "PATH OF YOD" },
+    { 17, 20, "PATH OF MEM" },
+    { 17, 19, "PATH OF LAMED" },
+    { 18, 17, "PATH OF TETH" },
+    { 15, 19, "PATH OF ZAYIN" },
+    { 15, 17, "PATH OF HETH" },
+    { 16, 19, "PATH OF HE" },
+    { 18, 16, "PATH OF VAU" },
+    { 15, 16, "PATH OF DALETH" },
+    { 14, 19, "PATH OF GIMEL" },
+    { 16, 14, "PATH OF ALEPH" },
+    { 15, 14, "PATH OF BETH" },
 };
-static const short MAP_WHERE[70] = { 4, 4, 9, 10, 8, 5, 3, 2, 6, 7, 11, 11, 11, 11, 11, 11, 12, 22, 1, 21, 1012, 20, 1013, 19, 1014, 1015, 1016, 1017, 18, 1018, 1019, 1020, 17, 1021, 1022, 16, 1023, 1024, 1025, 14, 1026, 1027, 15, 1028, 1029, 1030, 13, 1031, 1032, 1033, 22, 21, 20, 19, 18, 17, 16, 14, 15, 13, 3, 2, 4, 6, 3, 3, 3, 2, 2, 2 };
+static const short MAP_WHERE[71] = { 5, 5, 10, 11, 9, 6, 4, 2, 7, 8, 12, 12, 12, 12, 12, 12, 13, 23, 1, 22, 1013, 21, 1014, 20, 1015, 1016, 1017, 1018, 19, 1019, 1020, 1021, 18, 1022, 1023, 17, 1024, 1025, 1026, 15, 1027, 1028, 16, 1029, 1030, 1031, 14, 1032, 1033, 1034, 23, 22, 21, 20, 19, 18, 17, 15, 16, 14, 4, 2, 5, 7, 4, 4, 4, 2, 2, 2, 3 };
 
 /* ---- Leg 3: bases, Generals, Nero, endings (logic.json leg3) ---- */
 #define NPC_PENDING_LEG3_FIRST 100
-#define LEG3_POST_N 46
+#define LEG3_POST_N 49
 #define LEG3_KIND_GUARD 0
 #define LEG3_KIND_GENERAL 1
 #define LEG3_KIND_KING 2
@@ -1643,9 +1681,12 @@ static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {
     { 59, 0, -1, FLAG_BEAT_OSK2, 471, 60, 0, "HERMIT OSK SENDS HORNBLAZE", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* oskTwo */
     { 60, 0, -1, FLAG_BEAT_OSK3, 474, 120, 0, "HERMIT OSK SENDS ROOTKING", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* oskThree */
     { 61, 0, -1, FLAG_BEAT_CALDER_POST, 487, 250, 0, "CALDER SENDS SABLECLAW", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* calderPost */
+    { 62, 0, -1, FLAG_BEAT_HOLLOW_RANGER, 514, 90, 0, "THE LOST RANGER SENDS GALLOWCROW", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* hollowRanger */
+    { 63, 0, -1, FLAG_BEAT_HOLLOW_SHADE, 517, 110, 0, "THE HOLLOW SHADE SENDS DEATHKNELL", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* hollowShade */
+    { 64, 0, -1, FLAG_BEAT_HOLLOW_WARDEN, 521, 150, 0, "THE HOLLOW WARDEN SENDS THUNDERQUEEN", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* hollowWarden */
 };
 static const int LEG3_POST_SONG[LEG3_POST_N] = {
-    -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 14, 14, -1, -1, -1, 13, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 14
+    -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 14, 14, -1, -1, -1, 13, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 14, -1, -1, 14
 };
 #define SONG_FOR_LEAD 13
 #define SONG_FOR_COMMANDER_FINAL 13

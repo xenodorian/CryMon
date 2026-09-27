@@ -3774,6 +3774,28 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       highest wild grass is Lv 42-45 (Aleph, Beth) and Nero is Lv 48-50,
       so 60 needed a long grind with nowhere to do it. The optional
       Heavenfall star is still the one Lv 55 single fight.
+- [x] H18 The Hollow, a post-game wild area west of the Reach
+      (`tools/build_hollow.py` owns the map and wiring; NPCs, kits,
+      dialogue and flags are authored JSON).
+      - Gate: the Reach's west edge `<`, needs `leg3Ended`, else
+        `hollowLocked`. Exit back is `>` (grass art, not a door).
+      - Grass: Lv 45-55. Common Gloomspider, Gallowcrow, Cryptlamp,
+        Frostchoir, Pyrelion (3 pool slots each); rare Eclipsaur,
+        Starwhale, Deathknell (1 slot each). `wildLevelCap` 50 -> 60.
+      - Keeper (mark i, keeper sprite) explains the place. Lost Ranger
+        (f, Lv 48-50), Hollow Shade (j, Lv 50-52), Hollow Warden (d,
+        Lv 53-55, final-boss song, fights only after the other two).
+        Beating all three and going back to the Keeper gives 3 Ultimate
+        Capture Crystals. No new art: generic ranger/ghost/warden/keeper.
+      - Flags: metHollowKeeper, beatHollowRanger, beatHollowShade,
+        beatHollowWarden, hollowRewarded (227 of 256 used).
+      - Journal: new quest "The Hollow"; "After the War" points to it.
+        Map screen: HOLLOW node above REACH.
+      - Battle background bg-forest, map song "wilds".
+      - Verified on web (gate, all fights, reward, journal, wild levels,
+        walk out) and on Dreamcast (gate open, wild Starwhale Lv 55).
+- [x] H19 Web HUD: "SCROLL" drew on top of the lead's HP when the lead
+      line was long. It now starts after the measured lead text.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

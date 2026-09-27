@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=c5a2afe2d11553a9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=22cd2eb4004253df — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -70,7 +70,8 @@
 #define MAP_HERMITHUT 67
 #define MAP_SAGEHOUSE 68
 #define MAP_EMPTYHOUSE 69
-#define MAP_N 70
+#define MAP_HOLLOW 70
+#define MAP_N 71
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -238,7 +239,7 @@ static const char *const map_reach_rows[] = {
     "#..................#",
     "#......TTTTTT......#",
     "#......TTTTTT......#",
-    "#........Y.........D",
+    "<........Y.........D",
     "#......TTTTTT......#",
     "#......TTTTTT......#",
     "#..........O.......#",
@@ -1499,6 +1500,27 @@ static const char *const map_emptyhouse_rows[] = {
     "HHHHDHHHHH",
 };
 
+static const char *const map_hollow_rows[] = {
+    "##########################",
+    "#####....TTTT....#########",
+    "####..TTTTTTTT..f.########",
+    "###..TTTT##TTTT....#######",
+    "##..TTT####..TTT....######",
+    "##..TT##WWW#...TT....#####",
+    "#...TT#WWWW##..TTT....####",
+    "#..TTT#WWW##..TTTTT....###",
+    "#..TTT##W##..TT##TTT.....#",
+    "#...TTT....TTT####TT..i..>",
+    "#....TTTTTTTT####..TT....#",
+    "##....TTTT..###...TTT....#",
+    "###..d...........TTTT...##",
+    "####....TTTTTTT....TT..###",
+    "#####..TTTTTTTTT..j...####",
+    "######...TTTTT......######",
+    "########..........########",
+    "##########################",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 31, 23 },
@@ -1570,21 +1592,22 @@ static const Map MAPS[MAP_N] = {
     { map_hermithut_rows, 10, 7 },
     { map_sagehouse_rows, 10, 7 },
     { map_emptyhouse_rows, 10, 7 },
+    { map_hollow_rows, 26, 18 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH", "MALKUTH BASE", "YESOD BASE", "NETZACH BASE", "HOD BASE", "TIFERET BASE", "CHESED BASE", "GEVURAH BASE", "BINAH BASE", "CHOKMAH BASE", "NERO'S PALACE", "THE GHOST GUILD", "THE HAUNTED HALL", "THE HEROES GUILD", "THE THIEVES DEN", "THE OLD LIBRARY", "THE RUINS INN", "BRANN'S HOUSE", "THE HERMIT'S HUT", "THE SAGE'S HOUSE", "THE EMPTY HOUSE",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH", "MALKUTH BASE", "YESOD BASE", "NETZACH BASE", "HOD BASE", "TIFERET BASE", "CHESED BASE", "GEVURAH BASE", "BINAH BASE", "CHOKMAH BASE", "NERO'S PALACE", "THE GHOST GUILD", "THE HAUNTED HALL", "THE HEROES GUILD", "THE THIEVES DEN", "THE OLD LIBRARY", "THE RUINS INN", "BRANN'S HOUSE", "THE HERMIT'S HUT", "THE SAGE'S HOUSE", "THE EMPTY HOUSE", "THE HOLLOW",
 };
 
 static const unsigned char MAP_BATTLE_BG[MAP_N] = {
-    4, 0, 3, 3, 8, 1, 8, 3, 5, 1, 7, 7, 7, 7, 7, 7, 2, 9, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 6, 9, 9, 9, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 2, 2, 4, 4, 4, 4, 4, 4, 4, 2,
+    4, 0, 3, 3, 8, 1, 8, 3, 5, 1, 7, 7, 7, 7, 7, 7, 2, 9, 7, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 6, 9, 9, 9, 4, 4, 4, 4, 4, 4, 4, 4, 4, 6, 2, 2, 4, 4, 4, 4, 4, 4, 4, 2, 3,
 };
 
 static const unsigned char MAP_TILE_THEME[MAP_N] = {
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 3, 3, 1, 1, 1, 1, 1, 1, 1, 3,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 5, 0, 5, 0, 5, 0, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 3, 3, 1, 1, 1, 1, 1, 1, 1, 3, 0,
 };
 static const unsigned char MAP_AMBIENT[MAP_N] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 2, 2, 2, 2, 2, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 2, 2, 2, 2, 2, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0,
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NrU%k";

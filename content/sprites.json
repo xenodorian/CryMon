@@ -954,7 +954,8 @@
     "ghostcrypt": "bg-crypt",
     "hauntedhall": "bg-crypt",
     "heroeshall": "bg-indoor",
-    "thievesden": "bg-indoor"
+    "thievesden": "bg-indoor",
+    "hollow": "bg-forest"
   },
   "tileTheme": {
     "house": "wood",

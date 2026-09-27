@@ -1408,6 +1408,84 @@
       "winTalk": "calderPostWin",
       "set": "beatCalderPost",
       "post": true
+    },
+    "hollowRanger": {
+      "lead": [
+        "gallowcrow",
+        50
+      ],
+      "bench": [
+        [
+          "tidewolf",
+          48
+        ],
+        [
+          "sunhawk",
+          49
+        ]
+      ],
+      "title": "The Lost Ranger sends Gallowcrow",
+      "name": "Lost Ranger",
+      "marks": 90,
+      "winTalk": "hollowRangerWin",
+      "set": "beatHollowRanger",
+      "post": true
+    },
+    "hollowShade": {
+      "lead": [
+        "deathknell",
+        52
+      ],
+      "bench": [
+        [
+          "gravemoth",
+          50
+        ],
+        [
+          "cryptlamp",
+          51
+        ],
+        [
+          "frostchoir",
+          51
+        ]
+      ],
+      "title": "The Hollow Shade sends Deathknell",
+      "name": "Hollow Shade",
+      "marks": 110,
+      "winTalk": "hollowShadeWin",
+      "set": "beatHollowShade",
+      "post": true
+    },
+    "hollowWarden": {
+      "lead": [
+        "thunderqueen",
+        55
+      ],
+      "bench": [
+        [
+          "rootking",
+          53
+        ],
+        [
+          "glacierjaw",
+          53
+        ],
+        [
+          "pyrelion",
+          54
+        ],
+        [
+          "grandroc",
+          54
+        ]
+      ],
+      "title": "The Hollow Warden sends Thunderqueen",
+      "name": "Hollow Warden",
+      "marks": 150,
+      "winTalk": "hollowWardenWin",
+      "set": "beatHollowWarden",
+      "post": true
     }
   }
 }

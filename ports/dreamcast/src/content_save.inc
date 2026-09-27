@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=c5a2afe2d11553a9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=22cd2eb4004253df — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
@@ -7,7 +7,7 @@
 #define SAVE_SIZE 332
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
-#define SAVE_FLAG_N 222
+#define SAVE_FLAG_N 227
 #define SAVE_ITEM_N 32
 #define SAVE_FLAG_TOOK_STARTER 0
 #define SAVE_FLAG_TALKED_FATHER 1
@@ -231,6 +231,11 @@
 #define SAVE_FLAG_SHOWED_CINDERMITE 219
 #define SAVE_FLAG_FENWICK_ASKED 220
 #define SAVE_FLAG_SHOWED_CHILLNEWT 221
+#define SAVE_FLAG_MET_HOLLOW_KEEPER 222
+#define SAVE_FLAG_BEAT_HOLLOW_RANGER 223
+#define SAVE_FLAG_BEAT_HOLLOW_SHADE 224
+#define SAVE_FLAG_BEAT_HOLLOW_WARDEN 225
+#define SAVE_FLAG_HOLLOW_REWARDED 226
 
 /* Blob layout (little-endian), shared with src/game/save.ts:
    0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,

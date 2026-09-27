@@ -554,6 +554,35 @@
       ],
       "levelMin": 42,
       "levelMax": 45
+    },
+    {
+      "maps": [
+        "hollow"
+      ],
+      "tile": "T",
+      "rate": 0.2,
+      "pool": [
+        "gloomspider",
+        "gloomspider",
+        "gloomspider",
+        "gallowcrow",
+        "gallowcrow",
+        "gallowcrow",
+        "cryptlamp",
+        "cryptlamp",
+        "cryptlamp",
+        "frostchoir",
+        "frostchoir",
+        "frostchoir",
+        "pyrelion",
+        "pyrelion",
+        "pyrelion",
+        "eclipsaur",
+        "starwhale",
+        "deathknell"
+      ],
+      "levelMin": 45,
+      "levelMax": 55
     }
   ]
 }

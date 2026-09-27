@@ -69,7 +69,8 @@
     "brannhouse": "BRANN'S HOUSE",
     "hermithut": "THE HERMIT'S HUT",
     "sagehouse": "THE SAGE'S HOUSE",
-    "emptyhouse": "THE EMPTY HOUSE"
+    "emptyhouse": "THE EMPTY HOUSE",
+    "hollow": "THE HOLLOW"
   },
   "mapIds": [
     "house",
@@ -141,6 +142,7 @@
     "brannhouse",
     "hermithut",
     "sagehouse",
-    "emptyhouse"
+    "emptyhouse",
+    "hollow"
   ]
 }

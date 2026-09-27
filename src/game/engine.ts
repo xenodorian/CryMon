@@ -5494,8 +5494,10 @@ export class CryMon {
 			const repCol = r > 0 ? "#6a9e6a" : r < 0 ? "#c05050" : "#8a8678";
 			this.text(repStr, statsX + 168, 12, repCol, FONT);
 		}
-		this.text(lead ? `${lead.name} Lv${lead.level}  ${lead.hp}/${lead.maxHp}` : "No CryMon yet", 16, 28, "#8a8678", FONT);
-		if (this.hasScroll) this.text("SCROLL", statsX + 112, 28, "#c5cec6", FONT);
+		const leadStr = lead ? `${lead.name} Lv${lead.level}  ${lead.hp}/${lead.maxHp}` : "No CryMon yet";
+		this.text(leadStr, 16, 28, "#8a8678", FONT);
+		// After the lead line, never on top of it (a long name with 3-digit HP reaches past statsX + 112).
+		if (this.hasScroll) this.text("SCROLL", Math.max(statsX + 112, 16 + Math.ceil(this.ctx.measureText(leadStr).width) + 12), 28, "#c5cec6", FONT);
 	}
 	drawMapTitle() {
 		const name = MAP_NAME[this.world.mapId] ?? this.world.mapId.toUpperCase();

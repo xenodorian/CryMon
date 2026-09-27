@@ -74,7 +74,14 @@ def main_story(logic):
 QUESTS_AFTER_MAIN = [
     q("postgame", "After the War", [
         s("Calder is waiting at CryTown's east gate. He wants one more fight.", "beatCalderPost"),
+        s("The brambles west of the Reach have died back. Something waits in the Hollow.", "metHollowKeeper"),
     ], start="leg3Ended", done="beatCalderPost", done_text="Calder went to join the new guard in Malkuth."),
+    q("hollow", "The Hollow", [
+        s("Beat the Lost Ranger in the Hollow, west of the Reach.", "beatHollowRanger"),
+        s("Beat the Hollow Shade by the south grass.", "beatHollowShade"),
+        s("Beat the Hollow Warden in the west.", "beatHollowWarden"),
+        s("Go back to the Keeper by the Hollow's entrance.", "hollowRewarded"),
+    ], start="metHollowKeeper", done="hollowRewarded", done_text="The Keeper gave Max three Ultimate Capture Crystals."),
     q("heavenfall", "The Fallen Star", [
         s("Show the scroll to the Priestess south of CryTown and follow the gauntlet to Heavenfall's grave.", "beatHeavenfall"),
     ], start="choseHeavenfall", done="beatHeavenfall", done_text="Heavenfall answered the scroll."),

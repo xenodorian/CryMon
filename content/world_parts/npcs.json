@@ -3985,6 +3985,104 @@
           "set": "fenwickAsked"
         }
       ]
+    },
+    {
+      "map": "hollow",
+      "mark": "i",
+      "id": "hollowKeeper",
+      "role": "talk",
+      "sprite": "npc/keeper",
+      "talk": "hollowKeeperMeet",
+      "script": [
+        {
+          "ifNot": "metHollowKeeper",
+          "set": "metHollowKeeper",
+          "talk": "hollowKeeperMeet"
+        },
+        {
+          "if": "hollowRewarded",
+          "talk": "hollowKeeperDone"
+        },
+        {
+          "if": "beatHollowWarden",
+          "set": "hollowRewarded",
+          "grant": [
+            [
+              "ultimatecrystal",
+              3
+            ]
+          ],
+          "talk": "hollowKeeperReward"
+        },
+        {
+          "talk": "hollowKeeperHint"
+        }
+      ]
+    },
+    {
+      "map": "hollow",
+      "mark": "f",
+      "id": "hollowRanger",
+      "role": "talk",
+      "sprite": "npc/ranger",
+      "talk": "hollowRangerFight",
+      "script": [
+        {
+          "ifNot": "beatHollowRanger",
+          "talk": "hollowRangerFight",
+          "after": "wsoldier",
+          "pending": "hollowRanger"
+        },
+        {
+          "talk": "hollowRangerAfter"
+        }
+      ]
+    },
+    {
+      "map": "hollow",
+      "mark": "j",
+      "id": "hollowShade",
+      "role": "talk",
+      "sprite": "npc/ghost",
+      "talk": "hollowShadeFight",
+      "script": [
+        {
+          "ifNot": "beatHollowShade",
+          "talk": "hollowShadeFight",
+          "after": "wsoldier",
+          "pending": "hollowShade"
+        },
+        {
+          "talk": "hollowShadeAfter"
+        }
+      ]
+    },
+    {
+      "map": "hollow",
+      "mark": "d",
+      "id": "hollowWarden",
+      "role": "talk",
+      "sprite": "npc/warden",
+      "talk": "hollowWardenFight",
+      "script": [
+        {
+          "if": "beatHollowWarden",
+          "talk": "hollowWardenAfter"
+        },
+        {
+          "ifNot": "beatHollowRanger",
+          "talk": "hollowWardenWait"
+        },
+        {
+          "ifNot": "beatHollowShade",
+          "talk": "hollowWardenWait"
+        },
+        {
+          "talk": "hollowWardenFight",
+          "after": "wsoldier",
+          "pending": "hollowWarden"
+        }
+      ]
     }
   ]
 }

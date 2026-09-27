@@ -5215,6 +5215,136 @@
         "speaker": "townsman",
         "text": "I fish on the warm side of the marsh now. The Chillnewts can have the rest."
       }
+    ],
+    "hollowLocked": [
+      {
+        "speaker": "none",
+        "text": "Thick brambles choke the western path. Past them, something hums in the dark."
+      },
+      {
+        "speaker": "max",
+        "text": "Not now. There's still a war to finish."
+      }
+    ],
+    "hollowKeeperMeet": [
+      {
+        "speaker": "keeper",
+        "text": "So the brambles finally let someone through."
+      },
+      {
+        "speaker": "keeper",
+        "text": "This is the Hollow. When the Sephirot bled light during the war, the runoff pooled here."
+      },
+      {
+        "speaker": "keeper",
+        "text": "The CryMon drank it. They're stronger than anything on the paths. Some you won't see anywhere else this big."
+      },
+      {
+        "speaker": "keeper",
+        "text": "Three fighters came here to train and never left. Beat them all and come back to me."
+      }
+    ],
+    "hollowKeeperHint": [
+      {
+        "speaker": "keeper",
+        "text": "The Ranger and the Shade first. The Warden won't fight anyone who hasn't."
+      }
+    ],
+    "hollowKeeperReward": [
+      {
+        "speaker": "keeper",
+        "text": "You beat the Warden. Nobody's done that in the years I've kept this place."
+      },
+      {
+        "speaker": "keeper",
+        "text": "Take these. Something rare lives in this grass. Don't let it get away."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 3 Ultimate Capture Crystals."
+      }
+    ],
+    "hollowKeeperDone": [
+      {
+        "speaker": "keeper",
+        "text": "The grass is quieter since you came. Or maybe the monsters just learned your name."
+      }
+    ],
+    "hollowRangerFight": [
+      {
+        "speaker": "ranger",
+        "text": "I followed a Gallowcrow in here three winters ago. It's mine now. I'm its, too."
+      },
+      {
+        "speaker": "max",
+        "text": "You could leave."
+      },
+      {
+        "speaker": "ranger",
+        "text": "Leave? Out there nothing hits back this hard. Show me."
+      }
+    ],
+    "hollowRangerWin": [
+      {
+        "speaker": "ranger",
+        "text": "Ha. Three winters, and you walk in and do that."
+      }
+    ],
+    "hollowRangerAfter": [
+      {
+        "speaker": "ranger",
+        "text": "The Shade is by the south grass. Don't look it in the eyes. Or do. It doesn't care."
+      }
+    ],
+    "hollowShadeFight": [
+      {
+        "speaker": "ghost",
+        "text": "You're warm. Nothing in the Hollow is warm."
+      },
+      {
+        "speaker": "ghost",
+        "text": "Stay. Fight. It's the only thing that still feels like anything."
+      }
+    ],
+    "hollowShadeWin": [
+      {
+        "speaker": "ghost",
+        "text": "That felt like something. Thank you."
+      }
+    ],
+    "hollowShadeAfter": [
+      {
+        "speaker": "ghost",
+        "text": "The Warden waits in the west. It remembers when this place was a garden."
+      }
+    ],
+    "hollowWardenWait": [
+      {
+        "speaker": "warden",
+        "text": "The Ranger. The Shade. Then me. That's the order the Hollow keeps."
+      }
+    ],
+    "hollowWardenFight": [
+      {
+        "speaker": "warden",
+        "text": "You beat them both. Then you've earned the last fight in this county."
+      },
+      {
+        "speaker": "warden",
+        "text": "I kept this garden before the light fell in. Now I keep what grew from it."
+      }
+    ],
+    "hollowWardenWin": [
+      {
+        "speaker": "warden",
+        "text": "The garden chose well. Go back to the Keeper."
+      }
+    ],
+    "hollowWardenAfter": [
+      {
+        "speaker": "warden",
+        "text": "Walk the grass as long as you like. It will always give you a fight."
+      }
     ]
   },
   "mercyDismissLines": [

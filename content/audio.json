@@ -639,7 +639,8 @@
     "ghostcrypt": "crypt",
     "hauntedhall": "crypt",
     "heroeshall": "guild",
-    "thievesden": "guild"
+    "thievesden": "guild",
+    "hollow": "wilds"
   },
   "titleSong": "title",
   "battleSong": "battle",
@@ -663,6 +664,7 @@
     "generalCrane": "general",
     "generalBlackwood": "general",
     "generalSorrel": "general",
-    "calderPost": "finalboss"
+    "calderPost": "finalboss",
+    "hollowWarden": "finalboss"
   }
 }

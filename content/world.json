@@ -21,9 +21,9 @@
       "shiny": "1/shinyDenom",
       "benchXp": "lead full XP; other living party members floor(xp * benchXpShare)",
       "nature": "on mint: +str/+agl/+spc from logic.json natures[i]; hardy is 0; stored in party slot byte 12",
-      "wildLevelCap": "hard ceiling on any wild-encounter mint, applied after levelBonusIfTyGt and shiny doubling -- no encounter table currently rolls anywhere near it, this is a safety clamp"
+      "wildLevelCap": "hard ceiling on any wild-encounter mint, applied after levelBonusIfTyGt and shiny doubling. The Hollow (post-game) rolls up to 55; this is a safety clamp"
     },
-    "wildLevelCap": 50,
+    "wildLevelCap": 60,
     "captureAgl": 5,
     "captureVulnerable": 25,
     "xpBase": 6,
@@ -119,7 +119,8 @@
     "brannhouse": "BRANN'S HOUSE",
     "hermithut": "THE HERMIT'S HUT",
     "sagehouse": "THE SAGE'S HOUSE",
-    "emptyhouse": "THE EMPTY HOUSE"
+    "emptyhouse": "THE EMPTY HOUSE",
+    "hollow": "THE HOLLOW"
   },
   "mapIds": [
     "house",
@@ -191,7 +192,8 @@
     "brannhouse",
     "hermithut",
     "sagehouse",
-    "emptyhouse"
+    "emptyhouse",
+    "hollow"
   ],
   "encounters": [
     {
@@ -748,6 +750,35 @@
       ],
       "levelMin": 42,
       "levelMax": 45
+    },
+    {
+      "maps": [
+        "hollow"
+      ],
+      "tile": "T",
+      "rate": 0.2,
+      "pool": [
+        "gloomspider",
+        "gloomspider",
+        "gloomspider",
+        "gallowcrow",
+        "gallowcrow",
+        "gallowcrow",
+        "cryptlamp",
+        "cryptlamp",
+        "cryptlamp",
+        "frostchoir",
+        "frostchoir",
+        "frostchoir",
+        "pyrelion",
+        "pyrelion",
+        "pyrelion",
+        "eclipsaur",
+        "starwhale",
+        "deathknell"
+      ],
+      "levelMin": 45,
+      "levelMax": 55
     }
   ],
   "warps": [
@@ -2079,6 +2110,24 @@
       "spawn": "0",
       "dir": "down",
       "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": "<",
+      "to": "hollow",
+      "spawn": ">",
+      "dir": "left",
+      "ox": -32,
+      "need": "leg3Ended",
+      "failTalk": "hollowLocked"
+    },
+    {
+      "from": "hollow",
+      "tile": ">",
+      "to": "reach",
+      "spawn": "<",
+      "dir": "right",
+      "ox": 40
     }
   ],
   "trainers": {
@@ -3489,6 +3538,84 @@
       "marks": 250,
       "winTalk": "calderPostWin",
       "set": "beatCalderPost",
+      "post": true
+    },
+    "hollowRanger": {
+      "lead": [
+        "gallowcrow",
+        50
+      ],
+      "bench": [
+        [
+          "tidewolf",
+          48
+        ],
+        [
+          "sunhawk",
+          49
+        ]
+      ],
+      "title": "The Lost Ranger sends Gallowcrow",
+      "name": "Lost Ranger",
+      "marks": 90,
+      "winTalk": "hollowRangerWin",
+      "set": "beatHollowRanger",
+      "post": true
+    },
+    "hollowShade": {
+      "lead": [
+        "deathknell",
+        52
+      ],
+      "bench": [
+        [
+          "gravemoth",
+          50
+        ],
+        [
+          "cryptlamp",
+          51
+        ],
+        [
+          "frostchoir",
+          51
+        ]
+      ],
+      "title": "The Hollow Shade sends Deathknell",
+      "name": "Hollow Shade",
+      "marks": 110,
+      "winTalk": "hollowShadeWin",
+      "set": "beatHollowShade",
+      "post": true
+    },
+    "hollowWarden": {
+      "lead": [
+        "thunderqueen",
+        55
+      ],
+      "bench": [
+        [
+          "rootking",
+          53
+        ],
+        [
+          "glacierjaw",
+          53
+        ],
+        [
+          "pyrelion",
+          54
+        ],
+        [
+          "grandroc",
+          54
+        ]
+      ],
+      "title": "The Hollow Warden sends Thunderqueen",
+      "name": "Hollow Warden",
+      "marks": 150,
+      "winTalk": "hollowWardenWin",
+      "set": "beatHollowWarden",
       "post": true
     }
   },
@@ -7476,6 +7603,104 @@
         {
           "talk": "fenwickAsk",
           "set": "fenwickAsked"
+        }
+      ]
+    },
+    {
+      "map": "hollow",
+      "mark": "i",
+      "id": "hollowKeeper",
+      "role": "talk",
+      "sprite": "npc/keeper",
+      "talk": "hollowKeeperMeet",
+      "script": [
+        {
+          "ifNot": "metHollowKeeper",
+          "set": "metHollowKeeper",
+          "talk": "hollowKeeperMeet"
+        },
+        {
+          "if": "hollowRewarded",
+          "talk": "hollowKeeperDone"
+        },
+        {
+          "if": "beatHollowWarden",
+          "set": "hollowRewarded",
+          "grant": [
+            [
+              "ultimatecrystal",
+              3
+            ]
+          ],
+          "talk": "hollowKeeperReward"
+        },
+        {
+          "talk": "hollowKeeperHint"
+        }
+      ]
+    },
+    {
+      "map": "hollow",
+      "mark": "f",
+      "id": "hollowRanger",
+      "role": "talk",
+      "sprite": "npc/ranger",
+      "talk": "hollowRangerFight",
+      "script": [
+        {
+          "ifNot": "beatHollowRanger",
+          "talk": "hollowRangerFight",
+          "after": "wsoldier",
+          "pending": "hollowRanger"
+        },
+        {
+          "talk": "hollowRangerAfter"
+        }
+      ]
+    },
+    {
+      "map": "hollow",
+      "mark": "j",
+      "id": "hollowShade",
+      "role": "talk",
+      "sprite": "npc/ghost",
+      "talk": "hollowShadeFight",
+      "script": [
+        {
+          "ifNot": "beatHollowShade",
+          "talk": "hollowShadeFight",
+          "after": "wsoldier",
+          "pending": "hollowShade"
+        },
+        {
+          "talk": "hollowShadeAfter"
+        }
+      ]
+    },
+    {
+      "map": "hollow",
+      "mark": "d",
+      "id": "hollowWarden",
+      "role": "talk",
+      "sprite": "npc/warden",
+      "talk": "hollowWardenFight",
+      "script": [
+        {
+          "if": "beatHollowWarden",
+          "talk": "hollowWardenAfter"
+        },
+        {
+          "ifNot": "beatHollowRanger",
+          "talk": "hollowWardenWait"
+        },
+        {
+          "ifNot": "beatHollowShade",
+          "talk": "hollowWardenWait"
+        },
+        {
+          "talk": "hollowWardenFight",
+          "after": "wsoldier",
+          "pending": "hollowWarden"
         }
       ]
     }
