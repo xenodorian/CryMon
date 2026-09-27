@@ -166,6 +166,14 @@ def icecantor(t):
     c = Canvas(128, 128, seed=85)
     x, y = 64, 100
     bell(c, x, y, 28, 62, ICE, z=0)
+    # an icicle fringe hanging off the lip, and a frost crown on top
+    for k in range(9):
+        ix = x - 26 + k * 6.5
+        L = 5 + (k * 7) % 5
+        c.tri((ix - 2, y + 1), (ix, y + 1 + L), (ix + 2, y + 1), ICE_DARK if k % 2 else ICE, z=40, bevel=0.8)
+    for k in range(5):
+        cx_ = x - 10 + k * 5
+        c.tri((cx_ - 2, y - 62), (cx_, y - 70 - (k % 2) * 4), (cx_ + 2, y - 62), ICE, z=20, bevel=0.8)
     # singing mouth, open wider each frame
     op = [3, 5, 7, 5][t]
     mouth = Mat(["#10203a", "#1a2e50", "#28406a", "#3a5a8a", "#4a6aa0"], soft=0.4)
