@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=11a1662419e77d95 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=64492e2da0f1f522 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -1961,6 +1961,24 @@ static const TalkBeat TALK_DOLL_FOUND[] = {
 static const TalkBeat TALK_EMPTY_QUIET[] = {
     { "THE HOUSE IS COLD. NOBODY LIVES HERE ANY MORE.", 0 },
 };
+static const TalkBeat TALK_POST_GAME_HOME[] = {
+    { "SOME TIME LATER.", 0 },
+    { "MAX WAKES UP IN HER OWN BED IN CRYTOWN. THE WAR IS OVER. THE ROADS ARE STILL OPEN.", 0 },
+    { "SAVE TO KEEP PLAYING. CALDER HAS BEEN ASKING FOR MAX AT THE EAST GATE.", 0 },
+};
+static const TalkBeat TALK_CALDER_POST_FIGHT[] = {
+    { "THE ARMY'S GONE. NO CAMP, NO ORDERS, NO PAY.", 9 },
+    { "YOU LOOK LOST.", 1 },
+    { "I'VE BEEN TRAINING ON THIS ROAD EVERY DAY SINCE YOU WALKED PAST ME. ONE MORE FIGHT. A REAL ONE.", 9 },
+    { "FINE. DON'T DIE STUPID.", 1 },
+};
+static const TalkBeat TALK_CALDER_POST_WIN[] = {
+    { "CALDER DROPS TO ONE KNEE, GRINNING.", 0 },
+    { "THAT'S TWICE. I'LL STOP COUNTING NOW.", 9 },
+};
+static const TalkBeat TALK_CALDER_POST_DONE[] = {
+    { "I'M HEADING TO MALKUTH. HALE SAYS THE NEW GUARD NEEDS PEOPLE WHO CAN TAKE A HIT.", 9 },
+};
 
 #define TALK_LEN(arr) (int)(sizeof(arr) / sizeof((arr)[0]))
 
@@ -2450,6 +2468,10 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_MAREN_REST,
     TALK_DOLL_FOUND,
     TALK_EMPTY_QUIET,
+    TALK_POST_GAME_HOME,
+    TALK_CALDER_POST_FIGHT,
+    TALK_CALDER_POST_WIN,
+    TALK_CALDER_POST_DONE,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -2937,6 +2959,10 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_MAREN_REST),
     TALK_LEN(TALK_DOLL_FOUND),
     TALK_LEN(TALK_EMPTY_QUIET),
+    TALK_LEN(TALK_POST_GAME_HOME),
+    TALK_LEN(TALK_CALDER_POST_FIGHT),
+    TALK_LEN(TALK_CALDER_POST_WIN),
+    TALK_LEN(TALK_CALDER_POST_DONE),
 };
-#define TALK_TABLE_N 485
+#define TALK_TABLE_N 489
 

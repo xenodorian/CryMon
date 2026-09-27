@@ -1374,6 +1374,40 @@
       "winTalk": "oskThreeWin",
       "set": "beatOsk3",
       "post": true
+    },
+    "calderPost": {
+      "lead": [
+        "sableclaw",
+        60
+      ],
+      "bench": [
+        [
+          "widowshade",
+          58
+        ],
+        [
+          "eclipsaur",
+          58
+        ],
+        [
+          "quakelord",
+          59
+        ],
+        [
+          "ashenmaw",
+          59
+        ],
+        [
+          "stormwing",
+          60
+        ]
+      ],
+      "title": "Calder sends Sableclaw",
+      "name": "Calder",
+      "marks": 250,
+      "winTalk": "calderPostWin",
+      "set": "beatCalderPost",
+      "post": true
     }
   }
 }

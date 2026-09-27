@@ -3662,6 +3662,28 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         off the screen.
       - Settings: "200% IS..." drew a blank for "%" (no glyph) and ran off
         the panel; now "200 IS TWICE THE OLD MAX".
+- [x] H6 Post-game (JSON + both engines).
+      - After the Leg 3 epilogue the game no longer drops to the title.
+        Max wakes at home (party healed) and `postGameHome` tells the
+        player to save and that Calder is asking for her. Web: fade
+        action `homecoming`; Dreamcast: `FADE_ACTION_HOMECOMING`. The
+        Bloody ending (Max is dead) still goes to the title.
+      - Calder rematch: new `post` trainer `calderPost` (Sableclaw Lv60,
+        Widowshade/Eclipsaur Lv58, Quakelord/Ashenmaw Lv59, Stormwing
+        Lv60, 250 marks, song `finalboss`). Two steps added to the front
+        of Calder's script (`leg3Ended` -> fight, then `calderPostDone`).
+        If he was executed he stays gone. New flag `beatCalderPost`.
+      - Journal quest "After the War" (start `leg3Ended`).
+      - Dreamcast bug fixed: the talk hit test ignored the step-aside
+        offset, so Calder (after his first fight) and the Priestess
+        (with the scroll) could only be talked to from their old tile.
+        Now matches web's `npcPassOffset()`.
+      - Verified: web (fight, win, flag, marks, journal, ending ->
+        home + lines) and Dreamcast in Flycast (dialogue and the Lv60
+        fight start from a real save).
+      - QA note: `/tmp/claude-0/emu/mkcdi.sh` now pins the disc serial
+        (`-s IND-777777`) so the VMU save file name stays the same
+        between builds.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

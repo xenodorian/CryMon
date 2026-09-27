@@ -5049,6 +5049,17 @@ static int try_npc_script(NpcRun *R) {
                 if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;
             }
             mark_center(R->map_id, NPC_DEFS[i].mark, &mx, &my);
+            /* Gate-blockers that stepped aside are talked to where they
+               now stand (same offsets as the draw in ws_push_mark_idle_off
+               and engine.ts's npcPassOffset()). */
+            if(R->map_id == MAP_VELD && NPC_DEFS[i].mark == 'E'
+               && npc_flag_on(FLAG_BEAT_CALDER, R->ft, R->party_n))
+                my += TILE;
+            else if(R->map_id == MAP_VELD && NPC_DEFS[i].mark == '4'
+                    && npc_flag_on(FLAG_HAS_SCROLL, R->ft, R->party_n)) {
+                mx += TILE;
+                my += TILE;
+            }
             /* Box test against the target's own footprint (NPC_DEFS[i].w/h,
                already scaled to this port's tile size by the baker) plus
                INTERACT_BUFFER on every side, feet-anchored the same way
@@ -5786,6 +5797,7 @@ void main(void) {
 #define FADE_ACTION_LOSS 2
 #define FADE_ACTION_HFGAMEOVER 3
 #define FADE_ACTION_PRIESTESS 4
+#define FADE_ACTION_HOMECOMING 5
 
     /* Active dialogue sequence: seq_lines/seq_len name the current
        TALK_* array, seq_beat indexes into it. seq_lines == 0 means no
@@ -6105,6 +6117,21 @@ void main(void) {
                     last_tx = -1;
                     last_ty = -1;
                     door_lock = 20;
+                }
+                else if(fade_action == FADE_ACTION_HOMECOMING) {
+                    heal_party(party, party_n);
+                    map_id = MAP_HOUSE;
+                    find_mark(MAP_HOUSE, 'U', &col, &row);
+                    px = (col + 1) * TILE + TILE / 2;
+                    py = row * TILE + TILE / 2;
+                    pdir = 1;
+                    last_tx = -1;
+                    last_ty = -1;
+                    door_lock = 20;
+                    seq_lines = TALK_POST_GAME_HOME;
+                    seq_len = TALK_LEN(TALK_POST_GAME_HOME);
+                    seq_beat = 0;
+                    post_action = 0;
                 }
                 else if(fade_action == FADE_ACTION_PRIESTESS) {
                     /* The Heavenfall Priestess turning Max away without
@@ -7858,7 +7885,16 @@ void main(void) {
                 ending_i++;
                 if(ending_i >= g_leg3_end_n) {
                     g_leg3_ending = 0;
-                    state = 0;
+                    /* After the war Max wakes up at home and can keep
+                       playing; only the Bloody ending (Max is dead) goes
+                       back to the title. Matches web's "homecoming" fade. */
+                    if(g_leg3_flags[LEG3_F_LEG3_ENDED] && !g_leg3_flags[LEG3_F_TITLE_BLOODY]) {
+                        fade_state = FADE_OUT;
+                        fade_timer = 0;
+                        fade_action = FADE_ACTION_HOMECOMING;
+                    }
+                    else
+                        state = 0;
                 }
             }
         }

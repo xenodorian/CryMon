@@ -282,6 +282,17 @@
       "talkDone": "calderAfter",
       "script": [
         {
+          "if": "leg3Ended",
+          "ifNot": "beatCalderPost",
+          "talk": "calderPostFight",
+          "after": "wsoldier",
+          "pending": "calderPost"
+        },
+        {
+          "if": "beatCalderPost",
+          "talk": "calderPostDone"
+        },
+        {
           "if": "beatCalder",
           "talk": "calderAfter",
           "passIf": "beatCalder",

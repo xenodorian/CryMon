@@ -5021,6 +5021,54 @@
         "speaker": "none",
         "text": "The house is cold. Nobody lives here any more."
       }
+    ],
+    "postGameHome": [
+      {
+        "speaker": "none",
+        "text": "Some time later."
+      },
+      {
+        "speaker": "none",
+        "text": "Max wakes up in her own bed in CryTown. The war is over. The roads are still open."
+      },
+      {
+        "speaker": "none",
+        "text": "Save to keep playing. Calder has been asking for Max at the east gate."
+      }
+    ],
+    "calderPostFight": [
+      {
+        "speaker": "calder",
+        "text": "The army's gone. No camp, no orders, no pay."
+      },
+      {
+        "speaker": "max",
+        "text": "You look lost."
+      },
+      {
+        "speaker": "calder",
+        "text": "I've been training on this road every day since you walked past me. One more fight. A real one."
+      },
+      {
+        "speaker": "max",
+        "text": "Fine. Don't die stupid."
+      }
+    ],
+    "calderPostWin": [
+      {
+        "speaker": "none",
+        "text": "Calder drops to one knee, grinning."
+      },
+      {
+        "speaker": "calder",
+        "text": "That's twice. I'll stop counting now."
+      }
+    ],
+    "calderPostDone": [
+      {
+        "speaker": "calder",
+        "text": "I'm heading to Malkuth. Hale says the new guard needs people who can take a hit."
+      }
     ]
   },
   "mercyDismissLines": [

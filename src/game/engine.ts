@@ -284,7 +284,7 @@ export class CryMon {
 	dexCaught = new Array(DEX_WORD_N).fill(0);
 	dexCursor = 0;
 	dexView = "list";
-	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" | "priestessTeleport" };
+	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" | "priestessTeleport" | "homecoming" };
 	pendingWs = null;
 	choiceCur = 0;
 	shopKeep: string = "bram";
@@ -1722,7 +1722,14 @@ export class CryMon {
 				this.audio.ui();
 				this.endI += 1;
 				if (this.endI >= this.endingText().length) {
-					this.reset();
+					// After the war Max wakes up at home and can keep playing;
+					// only the Bloody ending (Max is dead) goes back to the title.
+					if (this.leg3Ended && !this.titleBloody) {
+						this.mode = "world";
+						this.startFade("homecoming");
+					} else {
+						this.reset();
+					}
 				}
 			}
 			return;
@@ -2562,7 +2569,7 @@ export class CryMon {
 		const spec = LOGIC.arrivals[name];
 		if (spec && "spawn" in spec && spec.spawn.actor === "mason") this.spawnMasonApproach(false);
 	}
-	startFade(action: "bed" | "loss" | "execute" | "priestessTeleport") {
+	startFade(action: "bed" | "loss" | "execute" | "priestessTeleport" | "homecoming") {
 		this.fade = { phase: "out", t: 0, action };
 	}
 	applyFadeHold() {
@@ -2584,6 +2591,17 @@ export class CryMon {
 		}
 		if (this.fade.action === "hfGameOver") {
 			this.reloadLastSaveOrTitle();
+		}
+		if (this.fade.action === "homecoming") {
+			this.sleepHeal();
+			const mark = spawnOf(HOUSE, LOGIC.partyWipe.mark);
+			this.world.mapId = LOGIC.partyWipe.map;
+			this.world.x = mark.x + TILE;
+			this.world.y = mark.y;
+			this.world.dir = LOGIC.partyWipe.dir;
+			this.doorLock = 0.4;
+			this.announceMap();
+			this.say(TALK.postGameHome);
 		}
 		if (this.fade.action === "priestessTeleport") {
 			const mark = spawnOf(HOUSE, LOGIC.partyWipe.mark);

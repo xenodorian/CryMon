@@ -72,6 +72,9 @@ def main_story(logic):
 
 
 QUESTS_AFTER_MAIN = [
+    q("postgame", "After the War", [
+        s("Calder is waiting at CryTown's east gate. He wants one more fight.", "beatCalderPost"),
+    ], start="leg3Ended", done="beatCalderPost", done_text="Calder went to join the new guard in Malkuth."),
     q("heavenfall", "The Fallen Star", [
         s("Show the scroll to the Priestess south of CryTown and follow the gauntlet to Heavenfall's grave.", "beatHeavenfall"),
     ], start="choseHeavenfall", done="beatHeavenfall", done_text="Heavenfall answered the scroll."),

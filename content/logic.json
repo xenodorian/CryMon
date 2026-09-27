@@ -706,6 +706,19 @@
         "linear": true
       },
       {
+        "id": "postgame",
+        "title": "After the War",
+        "start": "leg3Ended",
+        "done": "beatCalderPost",
+        "doneText": "Calder went to join the new guard in Malkuth.",
+        "steps": [
+          {
+            "text": "Calder is waiting at CryTown's east gate. He wants one more fight.",
+            "ifNot": "beatCalderPost"
+          }
+        ]
+      },
+      {
         "id": "heavenfall",
         "title": "The Fallen Star",
         "start": "choseHeavenfall",
