@@ -3565,3 +3565,51 @@ sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
         sit above the Ruins/Reach grass (Lv 6-11). The gauntlet maps
         (Lv 8-20) are the grinding route before them, and Lead (Lv 24-28)
         after. Not rebalanced here.
+
+## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
+
+Asked for: verify the Quartz win, save and reload on web and Dreamcast
+(BUG_LOG BUG-002/003), then, with the user asleep, fix what differed and
+sweep the rest of BUG_LOG. Evidence and screenshots from the first pass:
+/mnt/project-files/quartz-verify/ (project shared folder, not in git).
+
+Fixed:
+- Web: mercy trainers (Calder, forest soldiers, wsoldier kits like Quartz
+  and Opal) now say their kit `winTalk` before the mercy menu, same order
+  as Dreamcast. Before, the win line never played. `openMercy(b, lines,
+  countBattle)` + TalkAfter "mercy".
+- Web: wsoldier wins counted as two battles (onBattleOver ran in finishWin
+  and again in openMercy). Now one, same as Dreamcast.
+- Dreamcast: mercy header said "Trainer" for every wsoldier. Kit `name`
+  from world.json is now baked into TrainerKit (bake_content.py) and the
+  header reads "QUARTZ IS BEATEN.", like web's "Quartz is beaten.".
+- Dreamcast: Calder's win skipped the mercy menu and did not count a
+  battle (web did both; main.c already had Calder's execute bit).
+- Save x/y: the blob is documented as shared, but Dreamcast wrote its own
+  20px-tile pixels while web writes 32px-tile pixels. Dreamcast now
+  converts to web pixels on save and back on load (SAVE_TILE_PX). Old
+  Dreamcast saves will load at a scaled position; the rescue below keeps
+  that on a walkable tile.
+- BUG-014: both ports move a loaded position that is off-map, solid or a
+  door to the nearest walkable tile.
+- BUG-016/017 (web): art load failures are listed, warned once, and
+  exposed as window.__crymon.artStatus().
+- package-lock.json was out of sync, so `npm ci` failed. Regenerated.
+- BUG-004 (Opal missing) was stale; Opal works on both ports.
+
+Added:
+- `npm run test:e2e:quartz` (scripts/e2e-quartz.mjs): needs `npm run dev`.
+  Fights Quartz and Opal for real (buffed lead, no WinAll), checks win
+  line then mercy, badge, marks from the kit, one battle, save, reload,
+  Continue, win line after reload, no missing art, and the wall rescue.
+  If a C compiler exists it feeds each save to the Dreamcast save.c
+  (ports/dreamcast/tools/save_host_check.c) and requires a byte-identical
+  repack.
+- `.github/workflows/checks.yml` on every push/PR: bake-in-sync diff,
+  check_sync --strict, typecheck, lint, unit tests, the e2e above.
+
+Dreamcast build: verified locally with the CI image
+(einsteinx2/dcdev-kos-toolchain:gcc-9, dockerd works in the Claude cloud
+container); no emulator run. Still open in BUG_LOG: 007 (emulator boot
+test), 010/012 (NPC render vs interaction geometry), 013 (checksum skips
+dex bytes, needs a save version bump), 015 (save key name).
