@@ -6,15 +6,15 @@ Live coordination document for all CryMon agents. Read before changing the repo;
 
 - Work directly on `main` unless the user explicitly asks for a branch. Multiple agents push concurrently.
 - Claude's PR #39 was successfully merged into `main` as `bb43ff26`.
-- Current `main` is `27e18272`, two commits beyond that merge: `9ad1beb1` (Calder post-game rematch persistence) and `27e18272` (emulator harness/display fix).
+- Current `main` is `34fc8419` after the Lead asset cleanup and successful Dreamcast CDI rebuild.
 - PR #40 (livelier battle hit effects) is **open and not merged**. Do not treat it as current mainline work.
-- The tracked Dreamcast CDI/ELF are stale relative to current source. A fresh full Dreamcast build is required before claiming current `main` is deployment-verified.
+- The current Dreamcast ELF/CDI were freshly rebuilt from the cleaned Lead assets by CI; emulator/e2e verification is still separate.
 - Latest NPC/state audit found no current regression. Shinigami gating, Lieutenant Lead's fight/walk-away choice, Dreamcast dialogue pagination, and Calder persistence are present in current `main`.
 - Current generated Dreamcast content was rebaked after recent dialogue changes. Do not hand-edit generated `.inc` files; regenerate them from source.
 
 ## Immediate work queue
 
-1. **Fresh Dreamcast deployment verification.** From freshly fetched `main`: `bake_content.py` → `gen_sprites.py` → `check_sync.py --strict` → web typecheck → Dreamcast build → CDI → emulator/e2e verification. Do not claim success without actual output.
+1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.
 2. **Complete the two-port sweep after the fresh build.** Web currently passes 70/70 maps and 61/61 trainers. The last Dreamcast trainer sweep was incomplete; the full rerun is still required.
 3. **Continue regional dialogue/NPC audits.** NPCs should act from their story role and current state; avoid redundant exposition for characters who already know Max.
 4. **PR #40:** review before merging if requested; it is not current mainline work.
@@ -72,6 +72,7 @@ Current save format is v6, 256 bytes. Do not change offsets or reorder map IDs w
 ### NPC/state
 - **Shinigami:** generic boulder sprite is hidden until `cathleenCaught`, remains while imprisoned, and is removed after `beatShinigami`. Dreamcast must not draw a duplicate generic walker.
 - **Lieutenant Lead:** interaction offers Fight or Walk Away. Fight sets `beatLieutenantLead`; walk-away does not.
+- **Lead art cleanup (2026-09-27):** all corrupt/truncated Lead overworld source/install files were removed. `public/sprites/npc/lead-1..4.png` now resolve to a valid transparent 48x64 military-officer asset; battle frames and portrait were structurally valid and retained. CI regenerated `sprites.h`/CDI successfully.
 - NPC/state audit covered 164 NPCs / 461 script steps: unknown keys/flags, invalid `after`, contradictory conditions, dead steps, and source-vs-generated script discrepancies; no current discrepancy found.
 - **Dreamcast dialogue pagination:** long wrapped dialogue is paginated instead of clipped; page state resets when a new sequence begins.
 
