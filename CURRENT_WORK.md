@@ -3862,6 +3862,27 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
   missing. If you want unique Hollow art, add npc/hollowKeeper etc. and
   change the `sprite` of hollowKeeper / hollowRanger / hollowShade /
   hollowWarden in content/world_parts/npcs.json.
+- [x] H25 Speed-based turn order, both ports (logic.json
+      combat.initiative). Each round the side with the higher agility x
+      U(0.75, 1.25) strikes first; ties go to the player; stages, Hype Up
+      and item mods count. When the foe is quicker it strikes ("<foe> is
+      quicker. Choose a guard."), the player then acts, and the foe does
+      not answer again that round. A lead knocked out by that first strike
+      still gets its round: the next CryMon jumps in and acts.
+      - Web: Engine.beginRound() / foeAnswers(), flags foeFirst,
+        midRound, foeActed, playerActed; data.ts foeStrikesFirst().
+      - Dreamcast: begin_round() in the BAFTER_ITEM / BAFTER_GUARD
+        dispatch, Battle.foe_first / mid_round / foe_acted (zeroed every
+        frame outside battle), baked INITIATIVE_* defines.
+      - Tests: `npm run test:e2e:battle` (scripts/e2e-battle-order.mjs,
+        18 checks, added to CI), all pass. Quartz/Opal web e2e pass.
+        Dreamcast: emu_warden.py harness passes for Quartz and Opal, and
+        a foe-first round was stepped through by hand in Flycast
+        (quicker line, guard, player acts, no second foe strike, next
+        round rolls again).
+      - NOT done (stopped at the user's request): re-running
+        tools/balance_sim.py with turn order modeled and retuning the
+        early game. The sim still assumes the player always goes first.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
