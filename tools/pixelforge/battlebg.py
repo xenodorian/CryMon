@@ -494,8 +494,44 @@ def indoor():
     return grounded(img, 84, lambda im: stand_spots(im, "#1a0e08", 0.35, top="#8a6038", rim="#4a2e1c", side=False), 22)
 
 
+def hollow():
+    """The Hollow: a dusk wood where the Sephirot light pooled. Shafts fall
+    through twisted trees onto glowing pools; motes of light drift up."""
+    N = Noise(19)
+    img = ramp([(0, "#1a1030"), (0.5, "#3a2458"), (1, "#5a3a6a")], YY / 80)
+    for x0, w in ((52, 7), (118, 10), (182, 6)):
+        m = (np.abs(XX - x0 - (YY - 40) * 0.2) < w + YY * 0.05) & (YY < 120)
+        img[m] = lerp(img[m], hexc("#d8c8ff"), 0.16)
+    trees_row(img, 12, 74, 26, 44, "#221a30", "#32284a", 4, (10, 16), trunk="#1a1422")
+    g = N.fbm(30, 10, 4)
+    ground = ramp([(0, "#1e2a24"), (0.5, "#2e3e2e"), (1, "#3e5238")], g * 0.8 + (YY - 78) / 220)
+    m = YY > 78
+    img[m] = ground[m]
+    tufts = m & (N.fbm(3, 2, 2) > 0.74)
+    img[tufts] = lerp(img[tufts], hexc("#5a7a4a"), 0.6)
+    glowcap = m & (N.fbm(2, 2, 2) > 0.9) & (N.fbm(40, 20, 2) > 0.6)
+    img[glowcap] = hexc("#9ae0c8")
+    # pools of fallen light, bright rims, soft glow around them
+    for cx, cy, rx, ry in ((40, 132, 26, 6), (132, 96, 18, 4), (214, 124, 16, 5)):
+        d = ((XX - cx) / rx) ** 2 + ((YY - cy) / ry) ** 2
+        img[:] = lerp(img, hexc("#8a6ad0"), np.clip(1 - d / 4, 0, 1) * 0.4)
+        pool = d < 1
+        img[pool] = ramp([(0, "#fff0ff"), (0.5, "#c8a8ff"), (1, "#7a5ac0")], np.clip(d[pool], 0, 1))
+    r = np.random.default_rng(19)
+    for _ in range(40):
+        x, y = r.uniform(0, W), r.uniform(10, 150)
+        d = np.hypot(XX - x, YY - y)
+        img[:] = lerp(img, hexc("#f0e0ff"), np.clip(1 - d / 2.2, 0, 1) * 0.8)
+    # gnarled foreground roots framing the bottom corners
+    for cx, cy, rr in ((-14, 170, 40), (254, 172, 36)):
+        dd = ((XX - cx) / rr) ** 2 + ((YY - cy) / (rr * 0.6)) ** 2
+        root = (dd < 1) & (N.fbm(5, 3, 2) > 0.3 + dd * 0.3)
+        img[root] = hexc("#140e1a")
+    return grounded(img, 78, lambda im: stand_spots(im, "#0a0612", 0.45, top="#3e5238", rim="#1e2a24", side=False), 24)
+
+
 SCENES = {"forest": forest, "marsh": marsh, "cliffs": cliffs, "ruins": ruins, "road": road, "crypt": crypt,
-          "sephirot": sephirot, "palace": palace, "indoor": indoor}
+          "sephirot": sephirot, "palace": palace, "indoor": indoor, "hollow": hollow}
 
 
 def build(preview=None):

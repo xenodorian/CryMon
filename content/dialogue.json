@@ -95,7 +95,11 @@
     "brann": "Brann",
     "osk": "Hermit Osk",
     "ilse": "Sage Ilse",
-    "maren": "Maren"
+    "maren": "Maren",
+    "hollowKeeper": "Keeper",
+    "hollowRanger": "Lost Ranger",
+    "hollowShade": "Hollow Shade",
+    "hollowWarden": "Hollow Warden"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
@@ -5272,23 +5276,23 @@
     ],
     "hollowKeeperMeet": [
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "So the brambles finally let someone through."
       },
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "This is the Hollow. When the Sephirot bled light during the war, the runoff pooled here."
       },
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "The CryMon drank it. They're stronger than anything on the paths. Some you won't see anywhere else this big."
       },
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "Three fighters came here to train and never left. Beat them all and come back to me."
       },
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "Sit by my fire whenever you need it. Your CryMon look like they could use it now."
       }
     ],
@@ -5298,7 +5302,7 @@
         "text": "The Keeper's fire warms the party back to full."
       },
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "The Ranger and the Shade first. The Warden won't fight anyone who hasn't."
       }
     ],
@@ -5308,11 +5312,11 @@
         "text": "The Keeper's fire warms the party back to full."
       },
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "You beat the Warden. Nobody's done that in the years I've kept this place."
       },
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "Take these. Something rare lives in this grass. Don't let it get away."
       },
       {
@@ -5326,13 +5330,13 @@
         "text": "The Keeper's fire warms the party back to full."
       },
       {
-        "speaker": "keeper",
+        "speaker": "hollowKeeper",
         "text": "The grass is quieter since you came. Or maybe the monsters just learned your name."
       }
     ],
     "hollowRangerFight": [
       {
-        "speaker": "ranger",
+        "speaker": "hollowRanger",
         "text": "I followed a Gallowcrow in here three winters ago. It's mine now. I'm its, too."
       },
       {
@@ -5340,69 +5344,69 @@
         "text": "You could leave."
       },
       {
-        "speaker": "ranger",
+        "speaker": "hollowRanger",
         "text": "Leave? Out there nothing hits back this hard. Show me."
       }
     ],
     "hollowRangerWin": [
       {
-        "speaker": "ranger",
+        "speaker": "hollowRanger",
         "text": "Ha. Three winters, and you walk in and do that."
       }
     ],
     "hollowRangerAfter": [
       {
-        "speaker": "ranger",
+        "speaker": "hollowRanger",
         "text": "The Shade is by the south grass. Don't look it in the eyes. Or do. It doesn't care."
       }
     ],
     "hollowShadeFight": [
       {
-        "speaker": "ghost",
+        "speaker": "hollowShade",
         "text": "You're warm. Nothing in the Hollow is warm."
       },
       {
-        "speaker": "ghost",
+        "speaker": "hollowShade",
         "text": "Stay. Fight. It's the only thing that still feels like anything."
       }
     ],
     "hollowShadeWin": [
       {
-        "speaker": "ghost",
+        "speaker": "hollowShade",
         "text": "That felt like something. Thank you."
       }
     ],
     "hollowShadeAfter": [
       {
-        "speaker": "ghost",
+        "speaker": "hollowShade",
         "text": "The Warden waits in the west. It remembers when this place was a garden."
       }
     ],
     "hollowWardenWait": [
       {
-        "speaker": "warden",
+        "speaker": "hollowWarden",
         "text": "The Ranger. The Shade. Then me. That's the order the Hollow keeps."
       }
     ],
     "hollowWardenFight": [
       {
-        "speaker": "warden",
+        "speaker": "hollowWarden",
         "text": "You beat them both. Then you've earned the last fight in this county."
       },
       {
-        "speaker": "warden",
+        "speaker": "hollowWarden",
         "text": "I kept this garden before the light fell in. Now I keep what grew from it."
       }
     ],
     "hollowWardenWin": [
       {
-        "speaker": "warden",
+        "speaker": "hollowWarden",
         "text": "The garden chose well. Go back to the Keeper."
       }
     ],
     "hollowWardenAfter": [
       {
-        "speaker": "warden",
+        "speaker": "hollowWarden",
         "text": "Walk the grass as long as you like. It will always give you a fight."
       }
     ]

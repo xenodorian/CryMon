@@ -101,7 +101,11 @@
     "brann",
     "osk",
     "ilse",
-    "maren"
+    "maren",
+    "hollowKeeper",
+    "hollowRanger",
+    "hollowShade",
+    "hollowWarden"
   ],
   "monsters": [
     "quillpup",
@@ -328,7 +332,11 @@
     "brann",
     "osk",
     "ilse",
-    "maren"
+    "maren",
+    "hollowKeeper",
+    "hollowRanger",
+    "hollowShade",
+    "hollowWarden"
   ],
   "items": [
     "salve",
@@ -879,6 +887,10 @@
     [
       "fx-lantern-4",
       "/sprites/fx/lantern-4.png"
+    ],
+    [
+      "bg-hollow",
+      "/sprites/bg/hollow.png"
     ]
   ],
   "drawScale": {
@@ -955,7 +967,7 @@
     "hauntedhall": "bg-crypt",
     "heroeshall": "bg-indoor",
     "thievesden": "bg-indoor",
-    "hollow": "bg-forest"
+    "hollow": "bg-hollow"
   },
   "tileTheme": {
     "house": "wood",
@@ -1002,6 +1014,7 @@
     "gauntlet3": "veil",
     "gauntlet4": "veil",
     "gauntlet5": "veil",
-    "marsh": "mist"
+    "marsh": "mist",
+    "hollow": "glow"
   }
 }

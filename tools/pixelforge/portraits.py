@@ -111,8 +111,8 @@ def bust(p):
     if "satchel" in ex:
         c.cap(40, sh_y, 3, 120, 200, 3, pm("#6a4426"), z=26)
     if "bird" in ex:
-        c.ell(128, sh_y - 14, 14, 12, pm("#e6e6e6"), z=40)
-        c.ell(120, sh_y - 28, 9, 9, pm("#e6e6e6"), z=42)
+        c.ell(128, sh_y - 14, 14, 12, pm(p.get("bird_col", "#e6e6e6")), z=40)
+        c.ell(120, sh_y - 28, 9, 9, pm(p.get("bird_col", "#e6e6e6")), z=42)
         c.tri((110, sh_y - 28), (104, sh_y - 25), (111, sh_y - 24), pm("#e8a030"), z=44, bevel=1)
     if "lantern" in ex:
         c.ell(30, 184, 12, 14, Mat(["#6a50a0", "#9a80e0", "#c8b0ff", "#f0e6ff", "#ffffff"], emit=True), z=40)

@@ -1255,7 +1255,8 @@ static int draw_building_art(int map_id, const Map *m, int row, int col, int dx,
 /* Map mood from MAP_AMBIENT (sprites.json ambient), after the actors and
    before the HUD, as drawAmbient() in engine.ts: 1 haunt (night tint,
    drifting fog rows, blinking ghost motes), 2 veil (grey tint, pale wisps
-   rising), 3 mist (light fog rows). Then a warm glow around each wall
+   rising), 3 mist (light fog rows), 4 glow (the Hollow: violet dusk, motes
+   of light floating up slowly). Then a warm glow around each wall
    light drawn this frame. */
 static void draw_ambient(int map_id, int cam_x, int cam_y, u32 t) {
     int mood = MAP_AMBIENT[map_id];
@@ -1263,8 +1264,8 @@ static void draw_ambient(int map_id, int cam_x, int cam_y, u32 t) {
     if(mood) {
         /* per-channel mix toward a tint: keep/16 of the pixel, plus fog
            rows that lift toward pale grey in slow bands */
-        static const u8 tr[4] = { 0, 8, 50, 170 }, tg[4] = { 0, 12, 58, 190 }, tb[4] = { 0, 40, 78, 180 };
-        const u32 keep = mood == 1 ? 9u : mood == 2 ? 11u : 15u;
+        static const u8 tr[5] = { 0, 8, 50, 170, 46 }, tg[5] = { 0, 12, 58, 190, 22 }, tb[5] = { 0, 40, 78, 180, 80 };
+        const u32 keep = mood == 1 ? 9u : mood == 2 ? 11u : mood == 4 ? 12u : 15u;
         const u32 cr = (u32)(tr[mood] >> 3) * (16u - keep), cg = (u32)(tg[mood] >> 2) * (16u - keep),
                   cb = (u32)(tb[mood] >> 3) * (16u - keep);
         int y;
@@ -1279,7 +1280,7 @@ static void draw_ambient(int map_id, int cam_x, int cam_y, u32 t) {
                 u32 b = ((((u32)c & 0x1Fu) * keep) + cb) >> 4;
                 /* fog banks: two crossing slow waves, dithered, lifting
                    0..4/16 toward pale grey (none on the Veil) */
-                if(mood != 2) {
+                if(mood == 1 || mood == 3) {
                     int wx = x + cam_x / 2 + 4800;
                     /* power-of-two periods: the SH4 has no divide unit */
                     int p1 = (wy + ((wx * 23) >> 5)) & 127, p2 = (wy * 2 + 4096 - ((wx * 19) >> 5)) & 127;
@@ -1295,16 +1296,19 @@ static void draw_ambient(int map_id, int cam_x, int cam_y, u32 t) {
                 row[x] = (u16)((r << 11) | (g << 5) | b);
             }
         }
-        if(mood == 1 || mood == 2) {
-            int n = mood == 2 ? 30 : 16;
+        if(mood == 1 || mood == 2 || mood == 4) {
+            int n = mood == 2 ? 30 : mood == 4 ? 22 : 16;
             for(i = 0; i < n; i++) {
                 int sp = 1 + (i % 4);
                 int x = ((i * 67 - cam_x / 5) % SCREEN_W + SCREEN_W) % SCREEN_W;
                 int y;
                 u16 col;
-                if(mood == 2) {
-                    y = SCREEN_H - (int)((t * (u32)sp / 2u + (u32)i * 37u) % (u32)(SCREEN_H + 10));
-                    col = ((t / 8u + (u32)i) & 3u) ? rgb565(220, 226, 240) : rgb565(160, 168, 190);
+                if(mood == 2 || mood == 4) {
+                    y = SCREEN_H - (int)((t * (u32)sp / (mood == 4 ? 4u : 2u) + (u32)i * 37u) % (u32)(SCREEN_H + 10));
+                    if(mood == 4)
+                        col = ((t / 8u + (u32)i) & 3u) ? rgb565(230, 200, 255) : rgb565(170, 140, 220);
+                    else
+                        col = ((t / 8u + (u32)i) & 3u) ? rgb565(220, 226, 240) : rgb565(160, 168, 190);
                     put_pixel(x, y, col);
                     put_pixel(x, y + 1, col);
                     if(i & 1) put_pixel(x, y + 2, rgb565(120, 128, 150));
@@ -1698,7 +1702,7 @@ typedef struct {
 /* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals),
    in bake_content.py's SPEAKER order. Portraits are PLACEHOLDER_ART from
    tools/make_placeholder_npcs.py. */
-#define SPK_COUNT     96 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds; 65-87: townsfolk; 88-95: Ruins/Reach houses */
+#define SPK_COUNT     100 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds; 65-87: townsfolk; 88-95: Ruins/Reach houses; 96-99: the Hollow */
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of
@@ -1811,6 +1815,11 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_osk, PORT_OSK_W, PORT_OSK_H }, /* 93 osk */
     { port_ilse, PORT_ILSE_W, PORT_ILSE_H }, /* 94 ilse */
     { port_maren, PORT_MAREN_W, PORT_MAREN_H }, /* 95 maren */
+    /* 96-99: the Hollow (post-game). */
+    { port_hollowKeeper, PORT_HOLLOWKEEPER_W, PORT_HOLLOWKEEPER_H }, /* 96 hollowKeeper */
+    { port_hollowRanger, PORT_HOLLOWRANGER_W, PORT_HOLLOWRANGER_H }, /* 97 hollowRanger */
+    { port_hollowShade, PORT_HOLLOWSHADE_W, PORT_HOLLOWSHADE_H }, /* 98 hollowShade */
+    { port_hollowWarden, PORT_HOLLOWWARDEN_W, PORT_HOLLOWWARDEN_H }, /* 99 hollowWarden */
 };
 
 #include "content_talk.inc"
