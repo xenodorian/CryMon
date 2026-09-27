@@ -4040,3 +4040,12 @@ Ambience: sprites.json ambient sets a mood per map. haunt (Ghost Guild, Haunted 
 Dreamcast headroom after the town tiles and ambience (CI build c2cf2c9): code 98KB, read-only data 5.44MB, bss 194KB; the loaded image ends 5.79MB into the 16MB main RAM, leaving 10.2MB for the stack and disc reads. No trimming needed. The ambient pass is one loop over the frame with shifts and masks only (no divides) and runs only on the 12 moody maps.
 The Hollow art: the Keeper (hooded old man with lantern and staff), the Lost Ranger (leather coat, bow, a black Gallowcrow on the shoulder), the Hollow Shade (violet ghost) and the Hollow Warden (white-bearded knight in moss-green armor) get their own walkers and portraits (people.py looks; bird_col lets a look recolor the bird). New speaker ids hollowKeeper/hollowRanger/hollowShade/hollowWarden (96-99) so their lines show those portraits on both engines; display names Keeper, Lost Ranger, Hollow Shade, Hollow Warden. New battle backdrop bg-hollow (dusk wood, light shafts, glowing pools, floating motes) and ambient mood glow (violet dusk tint, motes of light floating up) on web and Dreamcast. Checked the Dreamcast drawing in Flycast for CryTown, Malkuth, a base, the palace, the Haunted Hall, the Ghost Guild, the Weeping Road, the Ruins Inn and the Marsh: tiles, torches, fog and wisps all draw right.
 The Hollow's ground: tools/pixelforge/tiles_hollow.py regrades the overworld grass, tall grass, canopy and water to the Hollow's dusk (teal grass with glowcaps, lilac tips on the tall grass, violet light on the water) as tiles/h-*.png. sprites.json tileTheme hollow picks them on web (tileArt.ts) and Dreamcast (draw_tile_art, HAVE_HOLLOW_TILES). Also fixed on Dreamcast: NPC mark letters and the < > edge warps drew as flat green squares instead of painted grass; tile_cat now covers every tile-grass char but X, same as the web.
+
+## Crystal hit bursts match the real natures (Grok, 2026-09-27)
+
+The battle flash was named ruby, citrine, sapphire, emerald, jasper,
+obsidian and prism. None of those are crystals. The engine asks for
+`fx-<species nature>`, and the natures are quartz, hematite, diamond,
+opal, spinel, lapis, amethyst. Those seven bursts are AI pixel art now.
+Torch and lantern frames are unchanged. `tools/pixelforge/hitfx.py`
+refuses to redraw them.

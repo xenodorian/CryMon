@@ -513,20 +513,36 @@
       "/sprites/tiles/water-4.png"
     ],
     [
-      "fx-citrine-1",
-      "/sprites/fx/citrine-1.png"
+      "fx-quartz-1",
+      "/sprites/fx/quartz-1.png"
     ],
     [
-      "fx-citrine-2",
-      "/sprites/fx/citrine-2.png"
+      "fx-quartz-2",
+      "/sprites/fx/quartz-2.png"
     ],
     [
-      "fx-citrine-3",
-      "/sprites/fx/citrine-3.png"
+      "fx-quartz-3",
+      "/sprites/fx/quartz-3.png"
     ],
     [
-      "fx-citrine-4",
-      "/sprites/fx/citrine-4.png"
+      "fx-quartz-4",
+      "/sprites/fx/quartz-4.png"
+    ],
+    [
+      "fx-hematite-1",
+      "/sprites/fx/hematite-1.png"
+    ],
+    [
+      "fx-hematite-2",
+      "/sprites/fx/hematite-2.png"
+    ],
+    [
+      "fx-hematite-3",
+      "/sprites/fx/hematite-3.png"
+    ],
+    [
+      "fx-hematite-4",
+      "/sprites/fx/hematite-4.png"
     ],
     [
       "fx-diamond-1",
@@ -545,116 +561,100 @@
       "/sprites/fx/diamond-4.png"
     ],
     [
-      "fx-emerald-1",
-      "/sprites/fx/emerald-1.png"
+      "fx-opal-1",
+      "/sprites/fx/opal-1.png"
     ],
     [
-      "fx-emerald-2",
-      "/sprites/fx/emerald-2.png"
+      "fx-opal-2",
+      "/sprites/fx/opal-2.png"
     ],
     [
-      "fx-emerald-3",
-      "/sprites/fx/emerald-3.png"
+      "fx-opal-3",
+      "/sprites/fx/opal-3.png"
     ],
     [
-      "fx-emerald-4",
-      "/sprites/fx/emerald-4.png"
+      "fx-opal-4",
+      "/sprites/fx/opal-4.png"
     ],
     [
-      "fx-jasper-1",
-      "/sprites/fx/jasper-1.png"
+      "fx-spinel-1",
+      "/sprites/fx/spinel-1.png"
     ],
     [
-      "fx-jasper-2",
-      "/sprites/fx/jasper-2.png"
+      "fx-spinel-2",
+      "/sprites/fx/spinel-2.png"
     ],
     [
-      "fx-jasper-3",
-      "/sprites/fx/jasper-3.png"
+      "fx-spinel-3",
+      "/sprites/fx/spinel-3.png"
     ],
     [
-      "fx-jasper-4",
-      "/sprites/fx/jasper-4.png"
+      "fx-spinel-4",
+      "/sprites/fx/spinel-4.png"
     ],
     [
-      "fx-obsidian-1",
-      "/sprites/fx/obsidian-1.png"
+      "fx-lapis-1",
+      "/sprites/fx/lapis-1.png"
     ],
     [
-      "fx-obsidian-2",
-      "/sprites/fx/obsidian-2.png"
+      "fx-lapis-2",
+      "/sprites/fx/lapis-2.png"
     ],
     [
-      "fx-obsidian-3",
-      "/sprites/fx/obsidian-3.png"
+      "fx-lapis-3",
+      "/sprites/fx/lapis-3.png"
     ],
     [
-      "fx-obsidian-4",
-      "/sprites/fx/obsidian-4.png"
+      "fx-lapis-4",
+      "/sprites/fx/lapis-4.png"
     ],
     [
-      "fx-prism-1",
-      "/sprites/fx/prism-1.png"
+      "fx-amethyst-1",
+      "/sprites/fx/amethyst-1.png"
     ],
     [
-      "fx-prism-2",
-      "/sprites/fx/prism-2.png"
+      "fx-amethyst-2",
+      "/sprites/fx/amethyst-2.png"
     ],
     [
-      "fx-prism-3",
-      "/sprites/fx/prism-3.png"
+      "fx-amethyst-3",
+      "/sprites/fx/amethyst-3.png"
     ],
     [
-      "fx-prism-4",
-      "/sprites/fx/prism-4.png"
+      "fx-amethyst-4",
+      "/sprites/fx/amethyst-4.png"
     ],
     [
-      "fx-quartz-1",
-      "/sprites/fx/quartz-1.png"
+      "fx-torch-1",
+      "/sprites/fx/torch-1.png"
     ],
     [
-      "fx-quartz-2",
-      "/sprites/fx/quartz-2.png"
+      "fx-torch-2",
+      "/sprites/fx/torch-2.png"
     ],
     [
-      "fx-quartz-3",
-      "/sprites/fx/quartz-3.png"
+      "fx-torch-3",
+      "/sprites/fx/torch-3.png"
     ],
     [
-      "fx-quartz-4",
-      "/sprites/fx/quartz-4.png"
+      "fx-torch-4",
+      "/sprites/fx/torch-4.png"
     ],
     [
-      "fx-ruby-1",
-      "/sprites/fx/ruby-1.png"
+      "fx-lantern-1",
+      "/sprites/fx/lantern-1.png"
     ],
     [
-      "fx-ruby-2",
-      "/sprites/fx/ruby-2.png"
+      "fx-lantern-2",
+      "/sprites/fx/lantern-2.png"
     ],
     [
-      "fx-ruby-3",
-      "/sprites/fx/ruby-3.png"
+      "fx-lantern-3",
+      "/sprites/fx/lantern-3.png"
     ],
     [
-      "fx-ruby-4",
-      "/sprites/fx/ruby-4.png"
-    ],
-    [
-      "fx-sapphire-1",
-      "/sprites/fx/sapphire-1.png"
-    ],
-    [
-      "fx-sapphire-2",
-      "/sprites/fx/sapphire-2.png"
-    ],
-    [
-      "fx-sapphire-3",
-      "/sprites/fx/sapphire-3.png"
-    ],
-    [
-      "fx-sapphire-4",
-      "/sprites/fx/sapphire-4.png"
+      "fx-lantern-4",
+      "/sprites/fx/lantern-4.png"
     ],
     [
       "bg-forest",
@@ -855,38 +855,6 @@
     [
       "tile-bed",
       "/sprites/tiles/bed.png"
-    ],
-    [
-      "fx-torch-1",
-      "/sprites/fx/torch-1.png"
-    ],
-    [
-      "fx-torch-2",
-      "/sprites/fx/torch-2.png"
-    ],
-    [
-      "fx-torch-3",
-      "/sprites/fx/torch-3.png"
-    ],
-    [
-      "fx-torch-4",
-      "/sprites/fx/torch-4.png"
-    ],
-    [
-      "fx-lantern-1",
-      "/sprites/fx/lantern-1.png"
-    ],
-    [
-      "fx-lantern-2",
-      "/sprites/fx/lantern-2.png"
-    ],
-    [
-      "fx-lantern-3",
-      "/sprites/fx/lantern-3.png"
-    ],
-    [
-      "fx-lantern-4",
-      "/sprites/fx/lantern-4.png"
     ],
     [
       "bg-hollow",
