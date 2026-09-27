@@ -349,7 +349,20 @@
     "antidote",
     "clearmind",
     "numbroot",
-    "panacea"
+    "panacea",
+    "bowieKnife",
+    "shackles",
+    "goldenShackles",
+    "boneInes",
+    "boneTomas",
+    "boneOriel",
+    "wraithLantern",
+    "tamWatch",
+    "silverLocket",
+    "oldMap",
+    "brannLetter",
+    "marnReply",
+    "ragDoll"
   ],
   "props": {
     "bed-father": "props/bed-father.png",
