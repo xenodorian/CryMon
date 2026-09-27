@@ -121,11 +121,11 @@ tools/gen_ai_art.py). Never commit the token.
 ======================================================================
 Scanned 2026-09-27 for the magenta placeholder tag.
 
-A. Broken user art (ASK the user before touching):
-   public/sprites/npc/lead-1..4.png (Lieutenant Lead). All four frames
-   are a cropped dark bar, not a figure, on both engines. Came from
-   commit cfe5903 "Lieutenant Lead: apply user-cut sprite assets".
-   The user may want to re-cut it themselves.
+A. Lieutenant Lead overworld art: RESOLVED 2026-09-27.
+   public/sprites/npc/lead-1..4.png now use the validated 48x64 RGBA
+   Lead overworld source. Obsolete/corrupt Lead base64 installers were
+   removed from tools/. Do not regenerate these frames from the old
+   one-off generators.
 
 B. Placeholder monsters (82), public/sprites/monsters/<id>/:
    arcanox arcwasp ashwing atlashell baphorn blazelynx bloomdoe
