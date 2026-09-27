@@ -297,25 +297,25 @@
     "wrenFirst": [
       {
         "speaker": "wren",
-        "text": "You're too young for this road. Take the salve. Calder's still out there."
+        "text": "Max, you're really going out there with your father's CryMon?"
       },
       {
         "speaker": "max",
-        "text": "I'm going anyway."
+        "text": "I'm going to free CryTown. Someone has to start."
       },
       {
         "speaker": "wren",
-        "text": "Then keep that hound fed. Ivo and Nell are close by."
+        "text": "Then take this salve. Calder still watches the road, and don't forget to keep that hound fed."
       }
     ],
     "wrenBeat": [
       {
         "speaker": "wren",
-        "text": "You beat Calder. I heard about the letter he carried. They know your name."
+        "text": "You beat Calder. I heard about the letter he carried. They know your name now."
       },
       {
         "speaker": "max",
-        "text": "Then they know I'm coming."
+        "text": "Good. I'm going north."
       }
     ],
     "wrenCart": [
@@ -341,15 +341,19 @@
     "maeFirst": [
       {
         "speaker": "mae",
-        "text": "You're Max. I watched you leave the house."
+        "text": "Max, you're really going?"
       },
       {
         "speaker": "max",
-        "text": "Were you following me?"
+        "text": "I'm taking Dad's CryMon and getting CryTown free."
       },
       {
         "speaker": "mae",
-        "text": "No. Take the wrap. Wren can heal you properly. I just didn't want the road to feel empty."
+        "text": "Then take this bandage. Don't try to be brave about every cut. Wren can patch you up properly."
+      },
+      {
+        "speaker": "max",
+        "text": "Thanks, Mae. I'll remember."
       }
     ],
     "maeAgain": [
@@ -365,15 +369,19 @@
     "ivoFirst": [
       {
         "speaker": "ivo",
-        "text": "Camp took my CryMon. Chew this bitterroot. Calder's still out there."
+        "text": "Heard you're taking your father's CryMon against the Army."
       },
       {
         "speaker": "max",
-        "text": "I'm going after them anyway."
+        "text": "I'm freeing CryTown. I have to get through the Prison first."
       },
       {
         "speaker": "ivo",
-        "text": "Then don't give him a clean fight."
+        "text": "Then take this bitterroot. And when Calder comes at you, don't give him a fair fight."
+      },
+      {
+        "speaker": "max",
+        "text": "I won't."
       }
     ],
     "ivoAgain": [
@@ -389,21 +397,33 @@
     "nellFirst": [
       {
         "speaker": "nell",
-        "text": "Too young. Use this anyway. Reeds hide a stone."
+        "text": "Max, off to fight the Army?"
       },
       {
         "speaker": "max",
-        "text": "I can handle a crystal."
+        "text": "I'm getting CryTown free. Dad's CryMon is coming with me."
+      },
+      {
+        "speaker": "nell",
+        "text": "Then take this salve. And check the reeds by the pond. There's a crystal out there if you need another."
+      },
+      {
+        "speaker": "max",
+        "text": "I'll look. Thanks, Nell."
       }
     ],
     "nellBonus": [
       {
         "speaker": "nell",
-        "text": "That moth wasn't yours yesterday. Another salve."
+        "text": "That little moth wasn't yours yesterday. Another salve for the road."
       },
       {
         "speaker": "max",
-        "text": "I caught it fair."
+        "text": "I'm starting to collect strays."
+      },
+      {
+        "speaker": "nell",
+        "text": "Just don't let them collect you."
       }
     ],
     "nellAgain": [
@@ -419,31 +439,43 @@
     "pikeFirst": [
       {
         "speaker": "pike",
-        "text": "I dropped a moonstone in the reeds. Don't tell Wren."
+        "text": "Max, before you head out—could you help me with something?"
       },
       {
         "speaker": "max",
-        "text": "I won't tell Wren."
+        "text": "Sure. I'm trying to get CryTown free, but I can spare a minute."
+      },
+      {
+        "speaker": "pike",
+        "text": "I dropped a moonstone in the reeds. Don't tell Wren I lost it."
+      },
+      {
+        "speaker": "max",
+        "text": "I won't. Where should I look?"
       }
     ],
     "pikeHelp": [
       {
         "speaker": "pike",
-        "text": "You found it? Keep the stone. Take this wrap."
+        "text": "You found it? Keep the moonstone. You could use it more than I can."
       },
       {
         "speaker": "max",
-        "text": "I was only looking."
+        "text": "You sure? I was only looking for it."
+      },
+      {
+        "speaker": "pike",
+        "text": "I'm sure. Take this wrap too. You're going to need it."
       }
     ],
     "pikeDone": [
       {
         "speaker": "pike",
-        "text": "The cliffs are just rocks. The war is the scary part."
+        "text": "So you're still going. The cliffs are just rocks. The war is the scary part."
       },
       {
         "speaker": "max",
-        "text": "I know."
+        "text": "That's the part I'm here for."
       }
     ],
     "pikeHint": [
@@ -517,7 +549,15 @@
     "calderFight": [
       {
         "speaker": "calder",
-        "text": "No one gets past this point. The Weeping Army holds the road beyond it."
+        "text": "So it's true. You're taking your father's CryMon against the Weeping Army."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm getting CryTown free. I'm not stopping at the gate."
+      },
+      {
+        "speaker": "calder",
+        "text": "Then you'll need to get past me first."
       },
       {
         "speaker": "max",
@@ -713,11 +753,11 @@
     "bramOpen": [
       {
         "speaker": "bram",
-        "text": "Marks for moss, wraps, stones. Buy or sell."
+        "text": "Heading out, Max? Then stock up. Marks for moss, wraps, stones. Buy or sell."
       },
       {
         "speaker": "max",
-        "text": "I have cuts. I need stones."
+        "text": "I'm freeing CryTown. What do you have for the road?"
       }
     ],
     "anneGift": [
@@ -3799,11 +3839,11 @@
       },
       {
         "speaker": "crier",
-        "text": "He fights with six CryMon. Nobody beats him alone. If your father's old CryMon were back, that would be a fair fight."
+        "text": "He fights with six CryMon. Nobody beats him alone. Max, if you're heading north, you'll need to be ready."
       },
       {
         "speaker": "crier",
-        "text": "Some say a Scroll of Resurrection can bring back the dead. Some say worse things can too."
+        "text": "And if you've heard the old stories, a Scroll of Resurrection may be more important than any road."
       }
     ],
     "crierNorth": [
@@ -3819,11 +3859,19 @@
     "tamAsk": [
       {
         "speaker": "tam",
-        "text": "My watch. My father's watch. I dropped it at the old Prison, past the Forest, when I went to see my son."
+        "text": "Max, if you're heading toward the Prison, could you do an old man a favor?"
+      },
+      {
+        "speaker": "tam",
+        "text": "My father's watch. I dropped it at the old Prison when I went to see my son."
       },
       {
         "speaker": "tam",
         "text": "My knees won't take me that far anymore. Bring it back and I'll give you my old Voltbuck. She's wasted on me."
+      },
+      {
+        "speaker": "max",
+        "text": "I'll bring it back if I find it."
       }
     ],
     "tamWatchFound": [
@@ -3863,11 +3911,19 @@
     "linaAsk": [
       {
         "speaker": "lina",
-        "text": "Have you seen my boy, Rolo? He ran off after a Rimeowl, out the east gate onto the Cliffs."
+        "text": "Max, you're going east anyway, aren't you? Have you seen my boy, Rolo?"
+      },
+      {
+        "speaker": "max",
+        "text": "I'm heading out to fight the Army, but I'll keep an eye out. What happened?"
       },
       {
         "speaker": "lina",
-        "text": "He's only seven. Please find him."
+        "text": "He ran after a Rimeowl onto the Cliffs. He's only seven. Please find him and bring him home."
+      },
+      {
+        "speaker": "max",
+        "text": "I will."
       }
     ],
     "roloFound": [
@@ -3901,11 +3957,7 @@
       },
       {
         "speaker": "max",
-        "text": "He won't do it alone next time."
-      },
-      {
-        "speaker": "none",
-        "text": "Max got a Mega Crystal."
+        "text": "Keep him close this time. I've got enough trouble on the road."
       }
     ],
     "linaAfter": [
@@ -3917,11 +3969,19 @@
     "junoAsk": [
       {
         "speaker": "juno",
-        "text": "Collector Juno. I study CryMon. I've never seen a Crymare up close."
+        "text": "Max, you're collecting CryMon for the road, aren't you?"
+      },
+      {
+        "speaker": "max",
+        "text": "I'm taking Dad's CryMon to free CryTown. Why?"
       },
       {
         "speaker": "juno",
-        "text": "They live in the Ruins' grass. Bring me one and I'll pay you in Ultimate Crystals."
+        "text": "Because I study CryMon, and I've never seen a Crymare up close. They live in the Ruins' grass. Bring me one and I'll pay you in Ultimate Crystals."
+      },
+      {
+        "speaker": "max",
+        "text": "If I find one, I'll bring it back."
       }
     ],
     "junoThanks": [
@@ -3936,6 +3996,10 @@
       {
         "speaker": "max",
         "text": "You really like Crymare."
+      },
+      {
+        "speaker": "juno",
+        "text": "I like understanding what I'm looking at. Go save the town; I'll take care of the rest."
       },
       {
         "speaker": "none",
