@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=19742ed5e7dac8c7 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=9bf95e2d9a8f6016 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -96,7 +96,8 @@ static const TalkBeat TALK_WREN_FIRST[] = {
 };
 static const TalkBeat TALK_WREN_BEAT[] = {
     { "YOU BEAT CALDER. I HEARD ABOUT THE LETTER HE CARRIED. THEY KNOW YOUR NAME NOW.", 4 },
-    { "GOOD. I'M GOING NORTH.", 1 },
+    { "GOOD. IF THEY KNOW MY NAME, THEY'LL KNOW CRYTOWN ISN'T STAYING UNDER THE ARMY.", 1 },
+    { "THEN GO CAREFULLY. GETTING FREE IS ONE THING. STAYING FREE IS ANOTHER.", 4 },
 };
 static const TalkBeat TALK_WREN_CART[] = {
     { "YOU FOUND THEIR LETTER. THEY ALREADY KNEW YOUR NAME.", 4 },
@@ -113,8 +114,9 @@ static const TalkBeat TALK_MAE_FIRST[] = {
     { "THANKS, MAE. I'LL REMEMBER.", 1 },
 };
 static const TalkBeat TALK_MAE_AGAIN[] = {
-    { "I'LL BE HERE. THE WAR DRUMS HAVEN'T STOPPED.", 5 },
-    { "I HEAR THEM.", 1 },
+    { "YOU'RE STILL GOING, AREN'T YOU? THE WAR DRUMS HAVEN'T STOPPED.", 5 },
+    { "NOT UNTIL CRYTOWN IS FREE.", 1 },
+    { "THEN COME BACK IN ONE PIECE. THAT'S ALL I'M ASKING.", 5 },
 };
 static const TalkBeat TALK_IVO_FIRST[] = {
     { "HEARD YOU'RE TAKING YOUR FATHER'S CRYMON AGAINST THE ARMY.", 6 },
@@ -123,8 +125,9 @@ static const TalkBeat TALK_IVO_FIRST[] = {
     { "I WON'T.", 1 },
 };
 static const TalkBeat TALK_IVO_AGAIN[] = {
-    { "HIT FIRST. RUN IF THE BAT FOLDS YOU.", 6 },
-    { "I DON'T RUN YET.", 1 },
+    { "STILL STANDING? GOOD. HIT FIRST, RUN IF THE BAT FOLDS YOU.", 6 },
+    { "I MADE IT PAST CALDER.", 1 },
+    { "THEN YOU'VE ALREADY LEARNED THE IMPORTANT PART, DON'T FIGHT THE ARMY ON THEIR TERMS.", 6 },
 };
 static const TalkBeat TALK_NELL_FIRST[] = {
     { "MAX, OFF TO FIGHT THE ARMY?", 7 },
@@ -138,8 +141,9 @@ static const TalkBeat TALK_NELL_BONUS[] = {
     { "JUST DON'T LET THEM COLLECT YOU.", 7 },
 };
 static const TalkBeat TALK_NELL_AGAIN[] = {
-    { "THE POND KEEPS SECRETS. THE WAR DRUMS HAVEN'T STOPPED.", 7 },
-    { "I HEAR THEM.", 1 },
+    { "THE POND KEEPS ITS SECRETS, BUT THE TOWN DOESN'T. EVERYONE'S TALKING ABOUT WHAT YOU'RE DOING.", 7 },
+    { "LET THEM TALK. I'M STILL GOING.", 1 },
+    { "THEN TAKE CARE OF YOURSELF. THE ROAD WON'T.", 7 },
 };
 static const TalkBeat TALK_PIKE_FIRST[] = {
     { "MAX, BEFORE YOU HEAD OUT.COULD YOU HELP ME WITH SOMETHING?", 8 },
@@ -154,7 +158,8 @@ static const TalkBeat TALK_PIKE_HELP[] = {
 };
 static const TalkBeat TALK_PIKE_DONE[] = {
     { "SO YOU'RE STILL GOING. THE CLIFFS ARE JUST ROCKS. THE WAR IS THE SCARY PART.", 8 },
-    { "THAT'S THE PART I'M HERE FOR.", 1 },
+    { "THAT'S THE PART I'M HERE FOR. CALDER'S BEHIND ME NOW.", 1 },
+    { "THEN MAYBE THERE'S HOPE FOR THE REST OF US.", 8 },
 };
 static const TalkBeat TALK_PIKE_HINT[] = {
     { "IN THE TALL GRASS BY THE WATER.", 8 },
@@ -1496,6 +1501,7 @@ static const TalkBeat TALK_TAM_THANKS[] = {
 };
 static const TalkBeat TALK_TAM_AFTER[] = {
     { "TICK, TICK. THANKS AGAIN, MAX.", 66 },
+    { "KEEP IT WOUND. YOU'VE GOT A FEW GOOD YEARS LEFT IN YOU.", 1 },
 };
 static const TalkBeat TALK_LINA_ASK[] = {
     { "MAX, YOU'RE GOING EAST ANYWAY, AREN'T YOU? HAVE YOU SEEN MY BOY, ROLO?", 67 },
@@ -1510,6 +1516,8 @@ static const TalkBeat TALK_ROLO_FOUND[] = {
 };
 static const TalkBeat TALK_ROLO_HOME[] = {
     { "I'M GOING TO CATCH MY OWN CRYMON ONE DAY. LIKE YOU!", 68 },
+    { "START BY STAYING WHERE YOUR MOTHER CAN FIND YOU.", 1 },
+    { "AW. FINE.", 68 },
 };
 static const TalkBeat TALK_LINA_THANKS[] = {
     { "ROLO! DON'T YOU EVER DO THAT AGAIN.", 67 },
@@ -1519,6 +1527,8 @@ static const TalkBeat TALK_LINA_THANKS[] = {
 };
 static const TalkBeat TALK_LINA_AFTER[] = {
     { "ROLO HASN'T LEFT MY SIGHT SINCE. THANK YOU AGAIN.", 67 },
+    { "GOOD. I DON'T WANT TO RESCUE HIM TWICE.", 1 },
+    { "NEITHER DO I.", 67 },
 };
 static const TalkBeat TALK_JUNO_ASK[] = {
     { "MAX, YOU'RE COLLECTING CRYMON FOR THE ROAD, AREN'T YOU?", 69 },
@@ -1535,6 +1545,8 @@ static const TalkBeat TALK_JUNO_THANKS[] = {
 };
 static const TalkBeat TALK_JUNO_AFTER[] = {
     { "MY CRYMARE IS DOING WELL. I'M WRITING A BOOK ABOUT HER.", 69 },
+    { "MAKE SURE YOU PUT IN THE PART WHERE SHE COST ME AN AFTERNOON IN THE RUINS.", 1 },
+    { "I WILL. PROBABLY IN THE DEDICATION.", 69 },
 };
 static const TalkBeat TALK_BET_ASK[] = {
     { "MY GRANDSON PIP WENT OUT ON THE TAU ROAD TO SEE THE SOLDIERS. HE NEVER CAME BACK.", 72 },
@@ -3189,3 +3201,4 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_HOLLOW_WARDEN_AFTER),
 };
 #define TALK_TABLE_N 523
+
