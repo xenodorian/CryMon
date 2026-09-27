@@ -122,6 +122,8 @@ SPEAKER = {
     "hollowRanger": 97,
     "hollowShade": 98,
     "hollowWarden": 99,
+    # County side quests (no Dreamcast portrait yet: PLACEHOLDER_ART, name-only lines)
+    "dagny": 100,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol

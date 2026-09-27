@@ -291,6 +291,7 @@ export class CryMon {
 	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" | "priestessTeleport" | "homecoming" };
 	pendingWs = null;
 	choiceCur = 0;
+	choiceKind = null;
 	shopKeep: string = "bram";
 	/** Per-keeper, per-item units left on the shelf (1-10, rolled fresh
 	 *  by rollShopStock()). Never persisted -- session/rest-scoped, not
@@ -1150,6 +1151,7 @@ export class CryMon {
 			} else if (next === "choice") {
 				this.mode = "choice";
 				this.choiceCur = 0;
+				this.choiceKind = this.pendingWs === "lieutenantLead" ? "lieutenantLead" : null;
 			} else if (next === "wsoldier") {
 				this.startWsBattle(this.pendingWs);
 			} else if (next === "mercy") {
@@ -2455,8 +2457,9 @@ export class CryMon {
 		if (step.talkIf) talkKey = flags[step.talkIf] ? step.talk : step.talkElse;
 		const lines = talkKey ? TALK[talkKey] : null;
 		if (lines) {
+			if (step.pending === "lieutenantLead" && step.after === "wsoldier") this.choiceKind = "lieutenantLead";
 			if (this.devWinAllMode && this.isMercyFightAfter(step.after)) this.triggerDevWinAllFight(step.after);
-			else this.say(lines, step.after ?? null);
+			else this.say(lines, step.pending === "lieutenantLead" && step.after === "wsoldier" ? "choice" : (step.after ?? null));
 		}
 		if (step.grant || step.heal || step.grantMonster || step.marks) {
 			this.audio.ok();
@@ -4899,6 +4902,18 @@ export class CryMon {
 		}
 		if (this.input.confirm()) {
 			this.audio.ok();
+			if (this.choiceKind === "lieutenantLead") {
+				const fight = this.choiceCur === 0;
+				this.mode = "world";
+				this.choiceKind = null;
+				if (fight) {
+					this.startWsBattle(this.pendingWs);
+				} else {
+					this.pendingWs = null;
+					this.say([{ speaker: "lead", text: "Then turn back." }]);
+				}
+				return;
+			}
 			this.mode = "world";
 			this.choseHeavenfall = this.choiceCur === 1;
 			if (this.choiceCur === 0) {
@@ -5811,17 +5826,30 @@ export class CryMon {
 		this.drawWorld();
 		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		if (this.choiceKind === "lieutenantLead") {
+			this.box(X(20), Y(24), X(200), Y(96));
+			this.text("LIEUTENANT LEAD", X(120), Y(32), "#c5cec6", FONT, "center");
+			this.text("He waits for your answer.", X(32), Y(48), "#8a8678", FONT);
+			const rows = ["Fight", "Walk Away"];
+			rows.forEach((row, i) => {
+				const on = i === this.choiceCur;
+				this.text(on ? "> " + row : "  " + row, X(32), Y(68 + i * 16), on ? "#e8e4d8" : "#8a8678", FONT);
+			});
+			this.text("Z  choose", X(32), Y(102), "#5a7a52", FONT);
+			return;
+		}
 		this.box(X(20), Y(24), X(200), Y(112));
 		this.text("SCROLL OF RESURRECTION", X(120), Y(32), "#c5cec6", FONT, "center");
 		this.text("It can wake one of the dead.", X(32), Y(48), "#8a8678", FONT);
 		const rows = ["Resurrect Father", "Resurrect Heavenfall"];
 		rows.forEach((row, i) => {
 			const on = i === this.choiceCur;
-			this.text(on ? `> ${row}` : `  ${row}`, X(32), Y(68 + i * 16), on ? "#e8e4d8" : "#8a8678", FONT);
+			this.text(on ? "> " + row : "  " + row, X(32), Y(68 + i * 16), on ? "#e8e4d8" : "#8a8678", FONT);
 		});
 		this.text(this.choiceCur === 0 ? "He comes back as he was. Human, and hers." : "Its grave waits past the Priestess. Vast and unknown.", X(32), Y(108), "#8a8678", FONT);
 		this.text("Z  choose", X(32), Y(122), "#5a7a52", FONT);
 	}
+
 	drawBag() {
 		this.drawWorld();
 		this.ctx.fillStyle = "rgba(18,17,14,0.55)";

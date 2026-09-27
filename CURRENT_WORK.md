@@ -3911,6 +3911,12 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         MONSTERS.BIN (MONSTER_NFRAMES / MONSTER_REC_OFF / MONSTER_REC_SECS);
         main.c mon_frame() reads the variable record and maps frames 2-4
         to 1. MONSTERS.BIN 7.7 MB to 3.3 MB.
+      - Merge fix: Foreman Dagny (new speaker in dialogue.json) had no
+        Dreamcast speaker id, which broke the bake. Added SPEAKER 100 with no
+        portrait (PLACEHOLDER_ART, main.c skips a null portrait) and "dagny"
+        to the web SpeakerId union in types.ts (one word, Grok's file).
+      - Still open: npc/lead-1..4.png from b3a58ee are not valid PNGs, so
+        gen_sprites.py (Dreamcast build) fails. Lead's files, left alone.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
@@ -4118,3 +4124,12 @@ Every code-drawn person now has a generated walker (48x64, four identical
 frames) and a 160x200 portrait. Grave, shrine, and the pickup pouch are
 generated props. Max, Lead, the older finished sprites, the map tiles,
 the item icons, and the torch and lantern frames were left as they were.
+
+## Shinigami stays off the boulder until the Grove fight (Grok, 2026-09-27)
+
+`shinigamiRock` had `if`, `hideIf`, and the talk on one step. A step that
+talks does not hide the sprite, and a `hideIf` that is still false is
+skipped, so he stood by the boulder from the first visit. He now stays
+hidden until `beatShinigami`, then leaves once `sawShinigamiRock` is set.
+The boulder is unchanged. Dreamcast no longer draws him a second time on
+top of the generic walker.

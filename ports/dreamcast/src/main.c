@@ -609,12 +609,51 @@ static int word_len(const char *s) {
     return n;
 }
 
-/* Word-wraps s (space-separated, uppercase-and-punctuation-free like
-   every TALK string below) into lines of at most max_chars columns,
-   greedily packing words, and draws each line left-aligned at x
-   starting at y with line_h pixels between line tops. Used for the
-   dialogue box, whose longest ported line (data.TALK.shelf's second
-   beat) wraps to exactly 3 lines -- the box is sized for that. */
+/* Word-wrap into a fixed number of visible lines per dialogue page.
+   The Dreamcast text strip is only 40px tall, so at the 9px line spacing
+   used here it safely fits THREE 8px glyph rows. Older code kept drawing
+   every wrapped line, which meant a fourth line was rendered below the
+   framebuffer/text strip and got clipped. Long beats are now split into
+   sequential pages; A advances the page before advancing to the next beat. */
+#define WRAP_BUF_MAX 40
+#define DIALOGUE_LINES_PER_PAGE 3
+
+static int wrapped_line_count(const char *s, int max_chars) {
+    int lines = 0, buf_len = 0;
+    const char *p = s;
+
+    if(!s || !*s) return 1;
+
+    for(;;) {
+        int wlen = word_len(p);
+        int need = wlen + (buf_len > 0 ? 1 : 0);
+
+        if(buf_len > 0 && buf_len + need > max_chars) {
+            lines++;
+            buf_len = 0;
+        }
+
+        if(buf_len > 0)
+            buf_len++;
+        {
+            int i;
+            for(i = 0; i < wlen && buf_len < WRAP_BUF_MAX; i++)
+                buf_len++;
+        }
+
+        p += wlen;
+        if(*p != ' ')
+            break;
+        p++;
+    }
+    return lines + 1;
+}
+
+static int wrapped_page_count(const char *s, int max_chars) {
+    int lines = wrapped_line_count(s, max_chars);
+    return (lines + DIALOGUE_LINES_PER_PAGE - 1) / DIALOGUE_LINES_PER_PAGE;
+}
+
 #define WRAP_BUF_MAX 40
 static void draw_wrapped(const char *s, int x, int y, u16 color, int scale,
                           int max_chars, int line_h) {
@@ -650,6 +689,51 @@ static void draw_wrapped(const char *s, int x, int y, u16 color, int scale,
 
     buf[buf_len] = 0;
     draw_text_s(buf, x, y + line * line_h, color, scale);
+}
+
+
+static void draw_wrapped_page(const char *s, int x, int y, u16 color, int scale,
+                              int max_chars, int line_h, int page) {
+    char buf[WRAP_BUF_MAX + 1];
+    int buf_len = 0;
+    int line = 0;
+    const char *p = s;
+    int first_line = page * DIALOGUE_LINES_PER_PAGE;
+    int last_line = first_line + DIALOGUE_LINES_PER_PAGE;
+
+    if(page < 0) page = 0;
+    first_line = page * DIALOGUE_LINES_PER_PAGE;
+    last_line = first_line + DIALOGUE_LINES_PER_PAGE;
+
+    for(;;) {
+        int wlen = word_len(p);
+        int need = wlen + (buf_len > 0 ? 1 : 0);
+
+        if(buf_len > 0 && buf_len + need > max_chars) {
+            buf[buf_len] = 0;
+            if(line >= first_line && line < last_line)
+                draw_text_s(buf, x, y + (line - first_line) * line_h, color, scale);
+            line++;
+            buf_len = 0;
+        }
+
+        if(buf_len > 0)
+            buf[buf_len++] = ' ';
+        {
+            int i;
+            for(i = 0; i < wlen && buf_len < WRAP_BUF_MAX; i++)
+                buf[buf_len++] = p[i];
+        }
+
+        p += wlen;
+        if(*p != ' ')
+            break;
+        p++;
+    }
+
+    buf[buf_len] = 0;
+    if(line >= first_line && line < last_line)
+        draw_text_s(buf, x, y + (line - first_line) * line_h, color, scale);
 }
 
 /* ----------------------------------------------------------------------
@@ -1558,6 +1642,7 @@ static void ws_push(WorldSprite *list, int *n, const u16 *px, int w, int h, int 
     (*n)++;
 }
 
+static int choice_pending_ws = -1;
 static int npc_exec_bit(int map_id, char mark);
 static void ws_push_mark(WorldSprite *list, int *n, int map_id, char mark, const u16 *px, int w, int h) {
     int cx, cy, ebit;
@@ -1718,6 +1803,9 @@ typedef struct {
     unsigned char speaker;
 } TalkBeat;
 
+/* Current wrapped page within seq_lines[seq_beat]. */
+static int seq_page = 0;
+
 #define SPK_NONE      0
 #define SPK_MAX       1
 #define SPK_ANNE      2
@@ -1754,7 +1842,7 @@ typedef struct {
 /* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals),
    in bake_content.py's SPEAKER order. Portraits are PLACEHOLDER_ART from
    tools/make_placeholder_npcs.py. */
-#define SPK_COUNT     100 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds; 65-87: townsfolk; 88-95: Ruins/Reach houses; 96-99: the Hollow */
+#define SPK_COUNT     101 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds; 65-87: townsfolk; 88-95: Ruins/Reach houses; 96-99: the Hollow; 100: Dagny */
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of
@@ -1872,6 +1960,7 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_hollowRanger, PORT_HOLLOWRANGER_W, PORT_HOLLOWRANGER_H }, /* 97 hollowRanger */
     { port_hollowShade, PORT_HOLLOWSHADE_W, PORT_HOLLOWSHADE_H }, /* 98 hollowShade */
     { port_hollowWarden, PORT_HOLLOWWARDEN_W, PORT_HOLLOWWARDEN_H }, /* 99 hollowWarden */
+    { 0, 0, 0 }, /* 100 dagny: PLACEHOLDER_ART, no portrait yet */
 };
 
 #include "content_talk.inc"
@@ -1907,20 +1996,20 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
    buffer, so nothing crops -- and every NPC sits flush against the
    right edge instead of the old dead-center placement. Vertical
    centering is unchanged. */
-static void draw_dialogue_box(const TalkBeat *beat) {
+static void draw_dialogue_box(const TalkBeat *beat, int page) {
     if(beat->speaker != SPK_NONE) {
         const Portrait *p = &SPEAKER_PORTRAIT[beat->speaker];
         int px = (beat->speaker == SPK_MAX)
                      ? PORTRAIT_BOX_X
                      : PORTRAIT_BOX_X + PORTRAIT_BOX_W - p->w;
-        blit_sprite(p->px, p->w, p->h, px, PORTRAIT_BOX_Y + (PORTRAIT_BOX_H - p->h) / 2);
+        if(p->px) blit_sprite(p->px, p->w, p->h, px, PORTRAIT_BOX_Y + (PORTRAIT_BOX_H - p->h) / 2);
         if(beat->speaker == SPK_MAX && g_player_renamed)
             draw_text_s(g_player_name, 8, DIALOGUE_TEXT_Y - DIALOGUE_LINE_H,
                         rgb565(197, 206, 198), DIALOGUE_SCALE);
     }
-    draw_wrapped(beat->text, 8, DIALOGUE_TEXT_Y + 8,
-                 0xFFFF, DIALOGUE_SCALE,
-                 DIALOGUE_MAX_CHARS, DIALOGUE_LINE_H);
+    draw_wrapped_page(beat->text, 8, DIALOGUE_TEXT_Y + 8,
+                       0xFFFF, DIALOGUE_SCALE,
+                       DIALOGUE_MAX_CHARS, DIALOGUE_LINE_H, page);
 }
 
 /* HUD toast (state.lua's G.hud/note()): a small one-line banner near
@@ -2959,6 +3048,16 @@ static void draw_choice_row(const char *label, int idx, int cur, int y) {
 
 static void draw_choice(int cur) {
     int y = MENU_Y + 24;
+    if(choice_pending_ws == NPC_PENDING_LEAD) {
+        draw_menu_frame("LIEUTENANT LEAD", "A CHOOSE");
+        draw_wrapped("HE WAITS FOR YOUR ANSWER.",
+                     MENU_X + 8, y, rgb565(197, 206, 198), MENU_SCALE,
+                     (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
+        y += 24;
+        draw_choice_row("FIGHT", 0, cur, y); y += MENU_ROW_H;
+        draw_choice_row("WALK AWAY", 1, cur, y);
+        return;
+    }
 
     draw_menu_frame("SCROLL OF RESURRECTION", "A CHOOSE");
     draw_wrapped("IT CAN WAKE ONE OF THE DEAD.",
@@ -5391,8 +5490,9 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
            sprite (mark '9', below) appears for that whole window. */
         if(!saw_shinigami_rock)
             ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMIBOULDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        if(beat_shin && !saw_shinigami_rock)
-            ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
+        /* Shinigami himself (mark '9') is a generic walker. His script
+           showIf beat_shin / hideIf saw_shinigami_rock is what draws him,
+           so he is not pushed here a second time. */
         if(mason_state) {
             ws_push_walker(list, n, MASON_FRAMES, mason_x, mason_y, mason_dir, mason_frame);
             if(*n > 0) list[*n - 1].scale = SPR_SCALE_MASON;
@@ -6733,7 +6833,7 @@ void main(void) {
                     last_tx = -1;
                     last_ty = -1;
                     door_lock = 20;
-                    seq_lines = TALK_POST_GAME_HOME;
+                    seq_page = 0; seq_lines = TALK_POST_GAME_HOME;
                     seq_len = TALK_LEN(TALK_POST_GAME_HOME);
                     seq_beat = 0;
                     post_action = 0;
@@ -6991,7 +7091,7 @@ void main(void) {
                 enc_lock = 8; last_tx = -1; last_ty = -1;
                 menu_mode = 0; party_cur = 0; party_detail = 0; bag_cur = 0; heal_item = -1;
                 hud_flash[0] = 0; hud_t = 0; map_banner_timer = 0;
-                seq_lines = 0; seq_len = 0; seq_beat = 0;
+                seq_page = 0; seq_lines = 0; seq_len = 0; seq_beat = 0;
                 post_action = POST_NONE; post_soldier_id = 0;
                 talked_wren = talked_mae = talked_ivo = talked_nell = 0;
                 talked_pike = pike_helped = nell_bonus = 0;
@@ -7552,7 +7652,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_CALDER_WIN;
+                                    seq_page = 0; seq_lines = TALK_CALDER_WIN;
                                     seq_len = TALK_LEN(TALK_CALDER_WIN);
                                     seq_beat = 0;
                                     /* Mason's rematch unlocks the
@@ -7581,7 +7681,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_WSOLDIER_CLIFFS_WIN;
+                                    seq_page = 0; seq_lines = TALK_WSOLDIER_CLIFFS_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_CLIFFS_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7592,7 +7692,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_WSOLDIER_CAMP1_WIN;
+                                    seq_page = 0; seq_lines = TALK_WSOLDIER_CAMP1_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_CAMP1_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7603,7 +7703,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_WSOLDIER_CAMP2_WIN;
+                                    seq_page = 0; seq_lines = TALK_WSOLDIER_CAMP2_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_CAMP2_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7614,7 +7714,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_WSOLDIER_GROVE_WIN;
+                                    seq_page = 0; seq_lines = TALK_WSOLDIER_GROVE_WIN;
                                     seq_len = TALK_LEN(TALK_WSOLDIER_GROVE_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7625,7 +7725,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_FOREST_RANGER_WIN;
+                                    seq_page = 0; seq_lines = TALK_FOREST_RANGER_WIN;
                                     seq_len = TALK_LEN(TALK_FOREST_RANGER_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7636,7 +7736,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_FOREST_SCOUT_WIN;                                    seq_len = TALK_LEN(TALK_FOREST_SCOUT_WIN);
+                                    seq_page = 0; seq_lines = TALK_FOREST_SCOUT_WIN;                                    seq_len = TALK_LEN(TALK_FOREST_SCOUT_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
                                 }
@@ -7646,7 +7746,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_RUINS_KEEPER_WIN;
+                                    seq_page = 0; seq_lines = TALK_RUINS_KEEPER_WIN;
                                     seq_len = TALK_LEN(TALK_RUINS_KEEPER_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7657,7 +7757,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_RUINS_WARDEN_WIN;
+                                    seq_page = 0; seq_lines = TALK_RUINS_WARDEN_WIN;
                                     seq_len = TALK_LEN(TALK_RUINS_WARDEN_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7668,7 +7768,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_QUARTZ_WIN;
+                                    seq_page = 0; seq_lines = TALK_QUARTZ_WIN;
                                     seq_len = TALK_LEN(TALK_QUARTZ_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7679,7 +7779,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_QUARRY_DRILLER_WIN;
+                                    seq_page = 0; seq_lines = TALK_QUARRY_DRILLER_WIN;
                                     seq_len = TALK_LEN(TALK_QUARRY_DRILLER_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7690,7 +7790,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_OPAL_WIN;
+                                    seq_page = 0; seq_lines = TALK_OPAL_WIN;
                                     seq_len = TALK_LEN(TALK_OPAL_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7701,7 +7801,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_MARSH_BOG_WIN;
+                                    seq_page = 0; seq_lines = TALK_MARSH_BOG_WIN;
                                     seq_len = TALK_LEN(TALK_MARSH_BOG_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7712,7 +7812,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_MARSH_REED_WIN;
+                                    seq_page = 0; seq_lines = TALK_MARSH_REED_WIN;
                                     seq_len = TALK_LEN(TALK_MARSH_REED_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7723,7 +7823,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_COMMANDER_FINAL_WIN;
+                                    seq_page = 0; seq_lines = TALK_COMMANDER_FINAL_WIN;
                                     seq_len = TALK_LEN(TALK_COMMANDER_FINAL_WIN);
                                     seq_beat = 0;
                                     /* Optional camp fight now, not the end
@@ -7740,7 +7840,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_LEAD_WIN_PLACEHOLDER;
+                                    seq_page = 0; seq_lines = TALK_LEAD_WIN_PLACEHOLDER;
                                     seq_len = TALK_LEN(TALK_LEAD_WIN_PLACEHOLDER);
                                     seq_beat = 0;
                                     post_action = POST_NONE;
@@ -7756,7 +7856,7 @@ void main(void) {
                                     apply_player_name(revived_father, title_slayer, title_tamer);
                                     marks += 30; battles++;
                                     in_battle = 0; enc_lock = 3;
-                                    seq_lines = TALK_GAUNTLET_GRAVE_WIN;
+                                    seq_page = 0; seq_lines = TALK_GAUNTLET_GRAVE_WIN;
                                     seq_len = TALK_LEN(TALK_GAUNTLET_GRAVE_WIN);
                                     seq_beat = 0;
                                     post_action = POST_NONE; /* Leg 3 continues; no credits */
@@ -7768,7 +7868,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_PTRS[lp->win_talk];
+                                    seq_page = 0; seq_lines = TALK_PTRS[lp->win_talk];
                                     seq_len = TALK_COUNTS[lp->win_talk];
                                     seq_beat = 0;
                                     if(lp->kind == LEG3_KIND_GENERAL) post_action = POST_LEG3_GENERAL_FATE;
@@ -7788,7 +7888,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_SOLDIER_AFTER;
+                                    seq_page = 0; seq_lines = TALK_SOLDIER_AFTER;
                                     seq_len = TALK_LEN(TALK_SOLDIER_AFTER);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_MERCY;
@@ -7803,7 +7903,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_MASON_WIN;
+                                    seq_page = 0; seq_lines = TALK_MASON_WIN;
                                     seq_len = TALK_LEN(TALK_MASON_WIN);
                                     seq_beat = 0;
                                     post_action = POST_MASON_LEAVE;
@@ -7820,7 +7920,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_MASON_WIN2;
+                                    seq_page = 0; seq_lines = TALK_MASON_WIN2;
                                     seq_len = TALK_LEN(TALK_MASON_WIN2);
                                     seq_beat = 0;
                                     post_action = POST_MASON_LEAVE;
@@ -7843,7 +7943,7 @@ void main(void) {
                                     battles++;
                                     in_battle = 0;
                                     enc_lock = 3;
-                                    seq_lines = TALK_SHINIGAMI_WIN;
+                                    seq_page = 0; seq_lines = TALK_SHINIGAMI_WIN;
                                     seq_len = TALK_LEN(TALK_SHINIGAMI_WIN);
                                     seq_beat = 0;
                                     post_action = POST_OPEN_CHOICE;
@@ -7854,7 +7954,7 @@ void main(void) {
                                     battles++;
                                     if(battle.foe.species == SP_CATHLEEN) {
                                         beat_cathleen = 1;
-                                        seq_lines = TALK_CATHLEEN_AFTER;
+                                        seq_page = 0; seq_lines = TALK_CATHLEEN_AFTER;
                                         seq_len = TALK_LEN(TALK_CATHLEEN_AFTER);
                                         seq_beat = 0;
                                         in_battle = 0;
@@ -7958,13 +8058,13 @@ void main(void) {
                                     g_leg3_flags[LEG3_F_TITLE_BLOODY] = 1;
                                     leg3_sync_title();
                                     apply_player_name(revived_father, title_slayer, title_tamer);
-                                    seq_lines = TALK_PTRS[LEG3_TALK_HF_END_BLOODY];
+                                    seq_page = 0; seq_lines = TALK_PTRS[LEG3_TALK_HF_END_BLOODY];
                                     seq_len = TALK_COUNTS[LEG3_TALK_HF_END_BLOODY];
                                     seq_beat = 0;
                                     post_action = POST_LEG3_END;
                                 }
                                 else if(chose_heavenfall) {
-                                    seq_lines = TALK_HEAVENFALL_DEVOUR;
+                                    seq_page = 0; seq_lines = TALK_HEAVENFALL_DEVOUR;
                                     seq_len = TALK_LEN(TALK_HEAVENFALL_DEVOUR);
                                     seq_beat = 0;
                                     post_action = POST_HFGAMEOVER_SCREAM;
@@ -8188,7 +8288,7 @@ void main(void) {
                         hud_flash[n] = 0; hud_t = HUD_NOTE_FRAMES;
                     }
                     if(talk >= 0) {
-                        seq_lines = TALK_PTRS[talk];
+                        seq_page = 0; seq_lines = TALK_PTRS[talk];
                         seq_len = TALK_COUNTS[talk];
                     }
                     post_action = POST_NONE;
@@ -8196,7 +8296,7 @@ void main(void) {
                     if(g_leg3_fate_cur == 0) {
                         g_leg3_flags[LEG3_F_NERO_TRIED] = 1;
                         reputation += LEG3_REP_TRIAL;
-                        seq_lines = TALK_PTRS[LEG3_TALK_NERO_TRIAL];
+                        seq_page = 0; seq_lines = TALK_PTRS[LEG3_TALK_NERO_TRIAL];
                         seq_len = TALK_COUNTS[LEG3_TALK_NERO_TRIAL];
                         post_action = POST_LEG3_FATHER;
                     } else {
@@ -8210,7 +8310,7 @@ void main(void) {
                         g_leg3_scream_timer = 0;
                         leg3_sync_title();
                         apply_player_name(revived_father, title_slayer, title_tamer);
-                        seq_lines = TALK_PTRS[LEG3_TALK_NERO_EXECUTE];
+                        seq_page = 0; seq_lines = TALK_PTRS[LEG3_TALK_NERO_EXECUTE];
                         seq_len = TALK_COUNTS[LEG3_TALK_NERO_EXECUTE];
                         post_action = POST_LEG3_CROWNED;
                     }
@@ -8222,7 +8322,7 @@ void main(void) {
                         bag.shackles--;
                         leg3_set(g->arrested_flag, 1);
                         reputation += LEG3_REP_ARREST;
-                        seq_lines = TALK_PTRS[g->talk_arrest];
+                        seq_page = 0; seq_lines = TALK_PTRS[g->talk_arrest];
                         seq_len = TALK_COUNTS[g->talk_arrest];
                     } else {
                         reputation += LEG3_REP_EXECUTE;
@@ -8231,7 +8331,7 @@ void main(void) {
                         fade_state = FADE_OUT;
                         fade_timer = 0;
                         fade_action = 0;
-                        seq_lines = TALK_PTRS[g->talk_execute];
+                        seq_page = 0; seq_lines = TALK_PTRS[g->talk_execute];
                         seq_len = TALK_COUNTS[g->talk_execute];
                     }
                     n = s_cat(hud_flash, 0, "TOOK THE ");
@@ -8363,9 +8463,13 @@ void main(void) {
                         if(apply_npc_step(&nr2, idx)) {
                             seq_beat = 0;
                             post_action = npc_after_to_post_action(npc_after2, npc_pending2, &shop_keep_id);
+                            if(npc_after2 == NPC_AFTER_WSOLDIER && npc_pending2 == NPC_PENDING_LEAD) {
+                                choice_pending_ws = npc_pending2;
+                                post_action = POST_OPEN_CHOICE;
+                            }
                         }
                     } else if(sidx >= 0) {
-                        seq_lines = TALK_SOLDIER_SPOT;
+                        seq_page = 0; seq_lines = TALK_SOLDIER_SPOT;
                         seq_len = TALK_LEN(TALK_SOLDIER_SPOT);
                         seq_beat = 0;
                         post_action = POST_SOLDIER;
@@ -8401,7 +8505,7 @@ void main(void) {
                     g_mercy_red_fade = 1;
                     fade_state = FADE_OUT;
                     fade_timer = 0;
-                    seq_lines = TALK_BACKSTAB_EXECUTE;
+                    seq_page = 0; seq_lines = TALK_BACKSTAB_EXECUTE;
                     seq_len = TALK_LEN(TALK_BACKSTAB_EXECUTE);
                     seq_beat = 0;
                     {
@@ -8453,7 +8557,7 @@ void main(void) {
                     g_mercy_red_fade = 1;
                     fade_state = FADE_OUT;
                     fade_timer = 0;
-                    seq_lines = TALK_BACKSTAB_EXECUTE;
+                    seq_page = 0; seq_lines = TALK_BACKSTAB_EXECUTE;
                     seq_len = TALK_LEN(TALK_BACKSTAB_EXECUTE);
                     seq_beat = 0;
                     {
@@ -8477,6 +8581,24 @@ void main(void) {
             if(up_now && !prev_up) choice_cur = 1 - choice_cur;
             if(down_now && !prev_down) choice_cur = 1 - choice_cur;
             if(a_now && !prev_a) {
+                if(choice_pending_ws == NPC_PENDING_LEAD) {
+                    choice_mode = 0;
+                    if(choice_cur == 0) {
+                        choice_pending_ws = -1;
+                        post_action = POST_WSOLDIER_LEAD;
+                        seq_page = 0;
+                        seq_lines = TALK_LEAD_SPOT;
+                        seq_len = TALK_LEN(TALK_LEAD_SPOT);
+                        seq_beat = 0;
+                    } else {
+                        choice_pending_ws = -1;
+                        seq_page = 0;
+                        seq_lines = 0;
+                        seq_len = 0;
+                        seq_beat = 0;
+                        post_action = POST_NONE;
+                    }
+                } else {
                 choice_mode = 0;
                 chose_heavenfall = choice_cur;
                 if(chose_heavenfall) gauntlet_unlocked = 1;
@@ -8501,15 +8623,16 @@ void main(void) {
                     pdir = 1; /* facing up, toward father */
                     door_lock = 20;
                     map_banner_timer = MAP_BANNER_TOTAL;
-                    seq_lines = TALK_CHOICE_FATHER;
+                    seq_page = 0; seq_lines = TALK_CHOICE_FATHER;
                     seq_len = TALK_LEN(TALK_CHOICE_FATHER);
                 }
                 else {
-                    seq_lines = TALK_CHOICE_HEAVENFALL;
+                    seq_page = 0; seq_lines = TALK_CHOICE_HEAVENFALL;
                     seq_len = TALK_LEN(TALK_CHOICE_HEAVENFALL);
                 }
                 seq_beat = 0;
                 post_action = POST_ENDING_FINAL;
+                }
             }
         }
         else if(g_leg3_ending) {
@@ -8650,12 +8773,12 @@ void main(void) {
                 if(dist < ACTOR_REACH_DIST) {
                     mason_state = 2;
                     if(mason_rematch) {
-                        seq_lines = TALK_MASON_FIGHT2;
+                        seq_page = 0; seq_lines = TALK_MASON_FIGHT2;
                         seq_len = TALK_LEN(TALK_MASON_FIGHT2);
                         post_action = POST_MASON2;
                     }
                     else {
-                        seq_lines = TALK_MASON_FIGHT;
+                        seq_page = 0; seq_lines = TALK_MASON_FIGHT;
                         seq_len = TALK_LEN(TALK_MASON_FIGHT);
                         post_action = POST_MASON;
                     }
@@ -8677,7 +8800,7 @@ void main(void) {
                     if(!anne_gifted) {
                         anne_gifted = 1;
                         bag.gem += ANNE_GIFT_QTY;
-                        seq_lines = TALK_ANNE_GIFT;
+                        seq_page = 0; seq_lines = TALK_ANNE_GIFT;
                         seq_len = TALK_LEN(TALK_ANNE_GIFT);
                         seq_beat = 0;
                         post_action = POST_ANNE_LEAVE;
@@ -8692,7 +8815,7 @@ void main(void) {
                            scroll (POST_OPEN_CHOICE, see
                            TRAINER_SHINIGAMI's win branch). */
                         anne2_told = 1;
-                        seq_lines = TALK_ANNE_RETURN;
+                        seq_page = 0; seq_lines = TALK_ANNE_RETURN;
                         seq_len = TALK_LEN(TALK_ANNE_RETURN);
                         seq_beat = 0;
                         post_action = POST_ANNE_LEAVE;
@@ -8737,7 +8860,7 @@ void main(void) {
                         float dist = f_sqrt(dx * dx + dy * dy);
                         if(dist < ACTOR_CHASE_CATCH) {
                             s->chase = 0;
-                            seq_lines = TALK_SOLDIER_SPOT;
+                            seq_page = 0; seq_lines = TALK_SOLDIER_SPOT;
                             seq_len = TALK_LEN(TALK_SOLDIER_SPOT);
                             seq_beat = 0;
                             post_action = POST_SOLDIER;
@@ -8805,7 +8928,7 @@ void main(void) {
                         if(dist < ACTOR_CHASE_CATCH) {
                             r->chase = 0;
                             if(st->talk >= 0 && st->talk < TALK_TABLE_N) {
-                                seq_lines = TALK_PTRS[st->talk];
+                                seq_page = 0; seq_lines = TALK_PTRS[st->talk];
                                 seq_len = TALK_COUNTS[st->talk];
                             }
                             seq_beat = 0;
@@ -8938,7 +9061,7 @@ void main(void) {
                                 else if(w->dir == 2) px = col * TILE + TILE / 2 + TILE;
                                 else if(w->dir == 3) px = col * TILE + TILE / 2 - TILE;
                                 door_lock = 20;
-                                seq_lines = TALK_PTRS[w->fail_talk];
+                                seq_page = 0; seq_lines = TALK_PTRS[w->fail_talk];
                                 seq_len = TALK_COUNTS[w->fail_talk];
                                 seq_beat = 0;
                             }
@@ -8962,12 +9085,19 @@ void main(void) {
 
             if(a_now && !prev_a && !hud_dismissed_now && fade_state == FADE_NONE) {
                 if(seq_lines) {
-                    /* Advance to the next beat; close the box (and
-                       fire any queued post_action -- beginTalkEnd())
-                       after the last one. */
-                    seq_beat++;
+                    /* A long beat may occupy multiple dialogue boxes.
+                       Keep the same beat active until all its wrapped
+                       pages have been shown; only then advance to the
+                       next TalkBeat/post_action. */
+                    if(seq_page + 1 < wrapped_page_count(seq_lines[seq_beat].text,
+                                                          DIALOGUE_MAX_CHARS)) {
+                        seq_page++;
+                    } else {
+                        seq_page = 0;
+                        seq_beat++;
+                    }
                     if(seq_beat >= seq_len) {
-                        seq_lines = 0;
+                        seq_page = 0; seq_lines = 0;
                         seq_len = 0;
                         seq_beat = 0;
 
@@ -9525,20 +9655,20 @@ void main(void) {
                                     break;
                                 case POST_SHOP:
                                     if(reputation <= LOGIC_REP_REFUSE_AT) {
-                                        seq_lines = TALK_SHOP_REFUSE;
+                                        seq_page = 0; seq_lines = TALK_SHOP_REFUSE;
                                         seq_len = TALK_LEN(TALK_SHOP_REFUSE);
                                         seq_beat = 0;
                                         post_action = POST_NONE;
                                     } else if(beat_heavenfall && !heavenfall_rep_warned) {
                                         heavenfall_rep_warned = 1;
-                                        seq_lines = TALK_HEAVENFALL_SHOP_WARN;
+                                        seq_page = 0; seq_lines = TALK_HEAVENFALL_SHOP_WARN;
                                         seq_len = TALK_LEN(TALK_HEAVENFALL_SHOP_WARN);
                                         seq_beat = 0;
                                         post_action = POST_SHOP;
                                     } else if(shop_keep_id == 3 && reputation < 0 && *bag_field(&bag, 19) <= 0) {
                                         /* The offer is followed by a dedicated one-item shop. */
                                         dray_knife_offered = 1;
-                                        seq_lines = TALK_DRAY_KNIFE_OFFER;
+                                        seq_page = 0; seq_lines = TALK_DRAY_KNIFE_OFFER;
                                         seq_len = TALK_LEN(TALK_DRAY_KNIFE_OFFER);
                                         seq_beat = 0;
                                         post_action = POST_DRAY_KNIFE_SHOP;
@@ -9645,13 +9775,13 @@ void main(void) {
                                     g_leg3_fate_cur = 0;
                                     break;
                                 case POST_LEG3_CROWNED:
-                                    seq_lines = TALK_PTRS[LEG3_TALK_NERO_CROWNED];
+                                    seq_page = 0; seq_lines = TALK_PTRS[LEG3_TALK_NERO_CROWNED];
                                     seq_len = TALK_COUNTS[LEG3_TALK_NERO_CROWNED];
                                     seq_beat = 0;
                                     g_leg3_next = POST_LEG3_FATHER;
                                     break;
                                 case POST_LEG3_GOLDEN:
-                                    seq_lines = TALK_PTRS[LEG3_TALK_GOLDEN_SHACKLES_GET];
+                                    seq_page = 0; seq_lines = TALK_PTRS[LEG3_TALK_GOLDEN_SHACKLES_GET];
                                     seq_len = TALK_COUNTS[LEG3_TALK_GOLDEN_SHACKLES_GET];
                                     seq_beat = 0;
                                     break;
@@ -9672,7 +9802,7 @@ void main(void) {
                                     else {
                                         talk = leg3_heavenfall_step(party, &party_n, &lead, reputation, &nxt);
                                     }
-                                    seq_lines = TALK_PTRS[talk];
+                                    seq_page = 0; seq_lines = TALK_PTRS[talk];
                                     seq_len = TALK_COUNTS[talk];
                                     seq_beat = 0;
                                     g_leg3_next = nxt;
@@ -9684,7 +9814,7 @@ void main(void) {
                                         g_leg3_flags[LEG3_F_TITLE_BLOODY] = 1;
                                         leg3_sync_title();
                                         apply_player_name(revived_father, title_slayer, title_tamer);
-                                        seq_lines = TALK_PTRS[LEG3_TALK_HF_END_BLOODY];
+                                        seq_page = 0; seq_lines = TALK_PTRS[LEG3_TALK_HF_END_BLOODY];
                                         seq_len = TALK_COUNTS[LEG3_TALK_HF_END_BLOODY];
                                         seq_beat = 0;
                                         g_leg3_next = POST_LEG3_END;
@@ -9769,6 +9899,10 @@ void main(void) {
                     if(try_npc_script(&nr)) {
                         seq_beat = 0;
                         post_action = npc_after_to_post_action(npc_after, npc_pending, &shop_keep_id);
+                        if(npc_after == NPC_AFTER_WSOLDIER && npc_pending == NPC_PENDING_LEAD) {
+                            choice_pending_ws = npc_pending;
+                            post_action = POST_OPEN_CHOICE;
+                        }
                     }
                     else if(map_id == MAP_FOREST) {
                         int si;
@@ -9800,7 +9934,7 @@ void main(void) {
                             }
                             int ddx = px - (int)soldiers[si].x, ddy = py - (int)soldiers[si].y;
                             if(soldier_beaten[si] && ddx * ddx + ddy * ddy <= 676) {
-                                seq_lines = TALK_SOLDIER_DONE;
+                                seq_page = 0; seq_lines = TALK_SOLDIER_DONE;
                                 seq_len = TALK_LEN(TALK_SOLDIER_DONE);
                                 seq_beat = 0;
                                 break;
@@ -9863,7 +9997,7 @@ void main(void) {
             draw_hud(got_shelf, looted_crate, bag.bandage, has_scroll, reputation,
                      party_n > 0 ? SPECIES[party[lead].species].name : 0, party_n > 0 ? party[lead].lv : 0);
             if(seq_lines)
-                draw_dialogue_box(&seq_lines[seq_beat]);
+                draw_dialogue_box(&seq_lines[seq_beat], seq_page);
             else if(hud_t > 0)
                 draw_hud_toast(hud_flash);
             draw_map_title(map_id);

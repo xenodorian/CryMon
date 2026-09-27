@@ -99,7 +99,8 @@
     "hollowKeeper": "Keeper",
     "hollowRanger": "Lost Ranger",
     "hollowShade": "Hollow Shade",
-    "hollowWarden": "Hollow Warden"
+    "hollowWarden": "Hollow Warden",
+    "dagny": "Foreman Dagny"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
@@ -297,25 +298,29 @@
     "wrenFirst": [
       {
         "speaker": "wren",
-        "text": "Too young. Take the salve. Calder's still out there."
+        "text": "Max, you're really going out there with your father's CryMon?"
       },
       {
         "speaker": "max",
-        "text": "I'm not too young."
+        "text": "I'm going to free CryTown. Someone has to start."
       },
       {
         "speaker": "wren",
-        "text": "Ivo and Nell are close by. Keep that hound fed."
+        "text": "Then take this salve. Calder still watches the road, and don't forget to keep that hound fed."
       }
     ],
     "wrenBeat": [
       {
         "speaker": "wren",
-        "text": "You beat Calder. I heard about the letter he carried. They know your name."
+        "text": "You beat Calder. I heard about the letter he carried. They know your name now."
       },
       {
         "speaker": "max",
-        "text": "Then they know I'm coming."
+        "text": "Good. If they know my name, they'll know CryTown isn't staying under the Army."
+      },
+      {
+        "speaker": "wren",
+        "text": "Then go carefully. Getting free is one thing. Staying free is another."
       }
     ],
     "wrenCart": [
@@ -341,109 +346,157 @@
     "maeFirst": [
       {
         "speaker": "mae",
-        "text": "You're Max. I watched you leave the house."
+        "text": "Max, you're really going?"
       },
       {
         "speaker": "max",
-        "text": "Don't follow me."
+        "text": "I'm taking Dad's CryMon and getting CryTown free."
       },
       {
         "speaker": "mae",
-        "text": "I won't. Take the wrap. Wren heals. I just didn't want the path empty."
+        "text": "Then take this bandage. Don't try to be brave about every cut. Wren can patch you up properly."
+      },
+      {
+        "speaker": "max",
+        "text": "Thanks, Mae. I'll remember."
       }
     ],
     "maeAgain": [
       {
         "speaker": "mae",
-        "text": "I'll be here. The war drums haven't stopped."
+        "text": "You're still going, aren't you? The war drums haven't stopped."
       },
       {
         "speaker": "max",
-        "text": "I hear them."
+        "text": "Not until CryTown is free."
+      },
+      {
+        "speaker": "mae",
+        "text": "Then come back in one piece. That's all I'm asking."
       }
     ],
     "ivoFirst": [
       {
         "speaker": "ivo",
-        "text": "Camp took my CryMon. Chew this. Calder's still out there."
+        "text": "Heard you're taking your father's CryMon against the Army."
       },
       {
         "speaker": "max",
-        "text": "I'm going after them anyway."
+        "text": "I'm freeing CryTown. I have to get through the Prison first."
       },
       {
         "speaker": "ivo",
-        "text": "Don't give him a clean fight."
+        "text": "Then take this bitterroot. And when Calder comes at you, don't give him a fair fight."
+      },
+      {
+        "speaker": "max",
+        "text": "I won't."
       }
     ],
     "ivoAgain": [
       {
         "speaker": "ivo",
-        "text": "Hit first. Run if the bat folds you."
+        "text": "Still standing? Good. Hit first, run if the bat folds you."
       },
       {
         "speaker": "max",
-        "text": "I don't run yet."
+        "text": "I made it past Calder."
+      },
+      {
+        "speaker": "ivo",
+        "text": "Then you've already learned the important part: don't fight the Army on their terms."
       }
     ],
     "nellFirst": [
       {
         "speaker": "nell",
-        "text": "Too young. Drink this anyway. Reeds hide a stone."
+        "text": "Max, off to fight the Army?"
       },
       {
         "speaker": "max",
-        "text": "I can hold a crystal."
+        "text": "I'm getting CryTown free. Dad's CryMon is coming with me."
+      },
+      {
+        "speaker": "nell",
+        "text": "Then take this salve. And check the reeds by the pond. There's a crystal out there if you need another."
+      },
+      {
+        "speaker": "max",
+        "text": "I'll look. Thanks, Nell."
       }
     ],
     "nellBonus": [
       {
         "speaker": "nell",
-        "text": "That moth wasn't yours yesterday. Another salve."
+        "text": "That little moth wasn't yours yesterday. Another salve for the road."
       },
       {
         "speaker": "max",
-        "text": "I caught it fair."
+        "text": "I'm starting to collect strays."
+      },
+      {
+        "speaker": "nell",
+        "text": "Just don't let them collect you."
       }
     ],
     "nellAgain": [
       {
         "speaker": "nell",
-        "text": "The pond keeps secrets. The war drums haven't stopped."
+        "text": "The pond keeps its secrets, but the town doesn't. Everyone's talking about what you're doing."
       },
       {
         "speaker": "max",
-        "text": "I hear them."
+        "text": "Let them talk. I'm still going."
+      },
+      {
+        "speaker": "nell",
+        "text": "Then take care of yourself. The road won't."
       }
     ],
     "pikeFirst": [
       {
         "speaker": "pike",
-        "text": "I dropped a moonstone in the reeds. Don't tell Wren."
+        "text": "Max, before you head out—could you help me with something?"
       },
       {
         "speaker": "max",
-        "text": "I won't tell Wren."
+        "text": "Sure. I'm trying to get CryTown free, but I can spare a minute."
+      },
+      {
+        "speaker": "pike",
+        "text": "I dropped a moonstone in the reeds. Don't tell Wren I lost it."
+      },
+      {
+        "speaker": "max",
+        "text": "I won't. Where should I look?"
       }
     ],
     "pikeHelp": [
       {
         "speaker": "pike",
-        "text": "You found it? Keep the stone. Take this wrap."
+        "text": "You found it? Keep the moonstone. You could use it more than I can."
       },
       {
         "speaker": "max",
-        "text": "I was only looking."
+        "text": "You sure? I was only looking for it."
+      },
+      {
+        "speaker": "pike",
+        "text": "I'm sure. Take this wrap too. You're going to need it."
       }
     ],
     "pikeDone": [
       {
         "speaker": "pike",
-        "text": "The cliffs are just rocks. The war is the scary part."
+        "text": "So you're still going. The cliffs are just rocks. The war is the scary part."
       },
       {
         "speaker": "max",
-        "text": "I know."
+        "text": "That's the part I'm here for. Calder's behind me now."
+      },
+      {
+        "speaker": "pike",
+        "text": "Then maybe there's hope for the rest of us."
       }
     ],
     "pikeHint": [
@@ -517,7 +570,15 @@
     "calderFight": [
       {
         "speaker": "calder",
-        "text": "No one gets past this point. This is a military camp for the Weeping Army."
+        "text": "So it's true. You're taking your father's CryMon against the Weeping Army."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm getting CryTown free. I'm not stopping at the gate."
+      },
+      {
+        "speaker": "calder",
+        "text": "Then you'll need to get past me first."
       },
       {
         "speaker": "max",
@@ -548,16 +609,20 @@
         "text": "So you're the one who dropped Calder."
       },
       {
-        "speaker": "commander",
-        "text": "CryTown sends an eight year old into our own camp. Pathetic little rat."
+        "speaker": "max",
+        "text": "And I'm the one coming through this camp."
       },
       {
         "speaker": "commander",
-        "text": "Get back on the road before we feed you to the Prison ourselves."
+        "text": "CryTown sends an eight-year-old into an Army camp and expects us to take her seriously?"
       },
       {
         "speaker": "max",
-        "text": "I'm already going there."
+        "text": "You already took me seriously enough to put Calder in my way."
+      },
+      {
+        "speaker": "commander",
+        "text": "Then get on with it."
       }
     ],
     "forestEnter": [
@@ -595,19 +660,23 @@
     "cathleenSpot": [
       {
         "speaker": "cathleen",
-        "text": "You walked the path to the door. I am what stands in front of it."
+        "text": "You reached Shinigami's door. I was ordered to make sure he never leaves."
       },
       {
         "speaker": "max",
-        "text": "You're a CryMon. Why guard a door?"
+        "text": "By the Weeping Army?"
       },
       {
         "speaker": "cathleen",
-        "text": "I am Cathleen. I guard Shinigami's door, and I carry its key."
+        "text": "By men who wanted his necromancy for themselves."
+      },
+      {
+        "speaker": "max",
+        "text": "Then you're guarding the wrong side of the door."
       },
       {
         "speaker": "cathleen",
-        "text": "Neither leaves without a fight."
+        "text": "Perhaps. But I was given a duty, and I will not abandon it."
       }
     ],
     "cathleenAfter": [
@@ -633,15 +702,19 @@
       },
       {
         "speaker": "max",
-        "text": "I can free you. I need your power for it."
+        "text": "I can get you out. I need your power to bring my father back."
       },
       {
         "speaker": "shinigami",
-        "text": "I don't bargain. I run. Stand aside or don't."
+        "text": "Then we have a bargain, if you can survive the bargain."
+      },
+      {
+        "speaker": "max",
+        "text": "Open the door."
       },
       {
         "speaker": "shinigami",
-        "text": "CryMare will move you either way."
+        "text": "CryMare first. Talking later."
       }
     ],
     "shinigamiAfter": [
@@ -713,11 +786,11 @@
     "bramOpen": [
       {
         "speaker": "bram",
-        "text": "Marks for moss, wraps, stones. Buy or sell."
+        "text": "Heading out, Max? Then stock up. Marks for moss, wraps, stones. Buy or sell."
       },
       {
         "speaker": "max",
-        "text": "I have cuts. I need stones."
+        "text": "I'm freeing CryTown. What do you have for the road?"
       }
     ],
     "anneGift": [
@@ -817,23 +890,23 @@
     "sentrySpot": [
       {
         "speaker": "sentry",
-        "text": "A Weeping Army sentry blocks the rocks."
-      },
-      {
-        "speaker": "sentry",
-        "text": "Nothing up here but wind and a dead man's CryMon."
-      },
-      {
-        "speaker": "sentry",
-        "text": "We burn the fields so CryTown starves before it fights back."
+        "text": "Weeping Army sentry. Turn back."
       },
       {
         "speaker": "max",
-        "text": "You're monsters."
+        "text": "I'm looking for the prisoners."
       },
       {
         "speaker": "sentry",
-        "text": "We're winning. That's all we are."
+        "text": "You're looking at the place we send people who won't obey."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll make sure I leave standing."
+      },
+      {
+        "speaker": "sentry",
+        "text": "We burn the fields so CryTown starves before it fights back. Remember that when you crawl home."
       }
     ],
     "sentryWin": [
@@ -849,19 +922,19 @@
     "conscriptSpot": [
       {
         "speaker": "conscript",
-        "text": "Don't. Please. They'll whip me if I let you past."
+        "text": "Please. Don't make me fight you."
       },
       {
         "speaker": "max",
-        "text": "They made you do this?"
+        "text": "Then step aside."
       },
       {
         "speaker": "conscript",
-        "text": "They took my village first. Then they took me."
+        "text": "They'll punish me if I do. They took my village, then took me."
       },
       {
         "speaker": "max",
-        "text": "I'm sorry. I still have to fight you."
+        "text": "I'm sorry. I still have to get through."
       }
     ],
     "conscriptWin": [
@@ -873,15 +946,15 @@
     "enforcerSpot": [
       {
         "speaker": "enforcer",
-        "text": "Another rat from CryTown. Good. I was bored."
+        "text": "Another CryTown rat. Good. I needed something to break up the day."
       },
       {
         "speaker": "max",
-        "text": "I don't want to fight you."
+        "text": "You don't have to enjoy this."
       },
       {
         "speaker": "enforcer",
-        "text": "Nobody ever does. That's why it's fun."
+        "text": "I enjoy it enough for both of us."
       }
     ],
     "enforcerWin": [
@@ -893,69 +966,65 @@
     "crossSpot": [
       {
         "speaker": "cross",
-        "text": "Warden Cross. The Weeping Army posted me here for a reason."
+        "text": "Warden Cross. I was ordered to keep Shinigami contained."
       },
       {
         "speaker": "max",
-        "text": "To guard a prisoner?"
+        "text": "He isn't yours to keep."
       },
       {
         "speaker": "cross",
-        "text": "To guard a weapon. The generals wanted his necromancy."
-      },
-      {
-        "speaker": "cross",
-        "text": "For the front line."
-      },
-      {
-        "speaker": "cross",
-        "text": "An army of the dead, if he'd ever cooperated."
+        "text": "The Army wanted his necromancy. I wanted to make sure nobody got it."
       },
       {
         "speaker": "max",
-        "text": "He didn't. Now he never will."
+        "text": "Then you chose a side."
+      },
+      {
+        "speaker": "cross",
+        "text": "I chose my orders. Fight."
       }
     ],
     "crossWin": [
       {
         "speaker": "none",
-        "text": "Cross falls. Whatever he was guarding is already gone."
+        "text": "Cross falls. The prisoner's door stands open behind him."
       }
     ],
     "orenOpen": [
       {
         "speaker": "oren",
-        "text": "Marks for whatever survived the ruins. Buy or sell."
+        "text": "Marks for what survived the Ruins. Buy or sell."
       },
       {
         "speaker": "max",
-        "text": "What happened here?"
+        "text": "Who left anything worth selling?"
       },
       {
         "speaker": "oren",
-        "text": "The Weeping Army did. I sell what they left behind."
+        "text": "The Army. They took the people and left the rubble. I make a living from what's left."
       }
     ],
     "tessaFirst": [
       {
         "speaker": "tessa",
-        "text": "You fought through the sentry? That's more than most manage."
+        "text": "You beat the sentry. I saw it from the cage."
       },
       {
         "speaker": "max",
-        "text": "I had to."
+        "text": "You're safe now."
       },
       {
         "speaker": "tessa",
-        "text": "The Weeping Army watches these cliffs for ships. More of them are coming."
+        "text": "Not yet. The Army watches these cliffs for ships, and more soldiers are coming."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll make sure they have a problem waiting for them."
       },
       {
         "speaker": "tessa",
-        "text": "Take this. You'll need it more than I will."
-      },
-      {
-        "speaker": "none",
-        "text": "Tessa presses a Greater Crystal into Max's hand."
+        "text": "Take this. You'll need it before they arrive."
       }
     ],
     "tessaAgain": [
@@ -967,19 +1036,15 @@
     "birchFirst": [
       {
         "speaker": "birch",
-        "text": "You came from the Prison? Then Shinigami's really gone."
+        "text": "You came from the Prison? Then Shinigami really is free."
       },
       {
         "speaker": "max",
-        "text": "He is."
+        "text": "He is. And I intend to make use of what he gave me."
       },
       {
         "speaker": "birch",
-        "text": "Good. Take this, for surviving him."
-      },
-      {
-        "speaker": "none",
-        "text": "Birch presses a Sunbalm into Max's hand."
+        "text": "Then take this. Surviving that place deserves something."
       }
     ],
     "birchAgain": [
@@ -991,19 +1056,15 @@
     "sableFirst": [
       {
         "speaker": "sable",
-        "text": "The Weeping Army calls this place dead ground. They're not wrong."
+        "text": "The Army calls this dead ground. They'd like us to forget what stood here."
       },
       {
         "speaker": "max",
-        "text": "Why stay?"
+        "text": "I don't intend to forget."
       },
       {
         "speaker": "sable",
-        "text": "Someone has to remember what stood here before them. Take this."
-      },
-      {
-        "speaker": "none",
-        "text": "Sable presses a Warroot into Max's palm."
+        "text": "Good. Take this warroot. You'll need strength for the road north."
       }
     ],
     "sableAgain": [
@@ -1103,29 +1164,29 @@
       },
       {
         "speaker": "max",
-        "text": "I am not turning around."
+        "text": "I can't. CryTown is behind me, and the Prison is ahead."
       }
     ],
     "forestRangerWin": [
       {
         "speaker": "ranger",
-        "text": "You are tougher than you look. Keep moving."
+        "text": "You held your ground. Keep moving, then. The Ruins won't be kinder."
       }
     ],
     "forestScoutSpot": [
       {
         "speaker": "scout",
-        "text": "The trees hide more than CryMon. They hide soldiers too."
+        "text": "The trees hide more than CryMon. Army patrols use this path too."
       },
       {
         "speaker": "max",
-        "text": "Then I will keep my eyes open."
+        "text": "Then I'll watch for both."
       }
     ],
     "forestScoutWin": [
       {
         "speaker": "scout",
-        "text": "You made it through. The ruins are worse."
+        "text": "You made it through. The Ruins are ahead. Keep your guard up; the Army left more behind than soldiers."
       }
     ],
     "ruinsKeeperSpot": [
@@ -1235,43 +1296,43 @@
     "quartzSpot": [
       {
         "speaker": "quartz",
-        "text": "The crystals remember everyone who passes through the Reach."
+        "text": "The Reach tests everyone who comes this far. Stand your ground, and I'll see what you're made of."
       },
       {
         "speaker": "max",
-        "text": "Then remember me."
+        "text": "Then let's get it over with."
       }
     ],
     "quartzWin": [
       {
         "speaker": "quartz",
-        "text": "The Reach is yours to cross. Carry its mark carefully."
+        "text": "You earned the Quartz Badge. Carry it with care; the next trainer won't be gentler."
       }
     ],
     "opalSpot": [
       {
         "speaker": "opal",
-        "text": "Another crystal answers the Reach. Stand, if you mean to pass."
+        "text": "Quartz may have tested your nerve. I test whether you turn back when it hurts."
       },
       {
         "speaker": "max",
-        "text": "I mean to. I will not turn back."
+        "text": "I didn't come this far to turn back."
       }
     ],
     "opalWin": [
       {
         "speaker": "opal",
-        "text": "The stone keeps your name. Walk on."
+        "text": "The Opal Badge is yours. The Reach has nothing left to prove to you."
       }
     ],
     "quarryDrillerSpot": [
       {
         "speaker": "driller",
-        "text": "The quarry pays in stone, not sympathy. Prove you can take a hit."
+        "text": "The quarry pays in stone, not sympathy. Show me you can take a hit and keep working."
       },
       {
         "speaker": "max",
-        "text": "I have taken worse."
+        "text": "I've been doing that since CryTown."
       }
     ],
     "quarryDrillerWin": [
@@ -1480,6 +1541,10 @@
       {
         "speaker": "lead",
         "text": "Turn back, or meet all six of mine."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm not turning back."
       }
     ],
     "leadWinPlaceholder": [
@@ -1537,31 +1602,27 @@
       },
       {
         "speaker": "shinigami",
-        "text": "The rock at CryTown's west wall. I broke it on my way out."
+        "text": "I broke the rock at CryTown's west wall on my way out. This is the Reach."
       },
       {
         "speaker": "shinigami",
-        "text": "This is the Reach. Quartz and Opal guard the crystal badges. The Heroes in CryTown won't look at you without both."
-      },
-      {
-        "speaker": "shinigami",
-        "text": "But that's not why I waited for you."
-      },
-      {
-        "speaker": "shinigami",
-        "text": "Nero took three people from me. I mean to lay them to rest. Come find me under the old house in the Ruins. The northwest one."
+        "text": "Quartz and Opal guard the two crystal badges. The Heroes Guild will want both before it trusts you."
       },
       {
         "speaker": "max",
-        "text": "Why would I help you?"
+        "text": "And the people you mentioned?"
       },
       {
         "speaker": "shinigami",
-        "text": "Because the road north is walled with his dead. I'm the only one who knows how to open it."
+        "text": "Nero took them from me. Their bones are scattered through the county. Find me under the old house in the Ruins."
       },
       {
-        "speaker": "none",
-        "text": "Shinigami walks off toward the Ruins."
+        "speaker": "max",
+        "text": "Why should I help you?"
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Because the road north is sealed by my enemy's dead. Help me free mine, and I'll help you pass his."
       }
     ],
     "shinigamiReachAgain": [
@@ -1635,7 +1696,7 @@
       },
       {
         "speaker": "max",
-        "text": "He will see me."
+        "text": "Then open the door and let him tell me that himself."
       }
     ],
     "royalGuardWinA": [
@@ -1648,6 +1709,10 @@
       {
         "speaker": "royalGuard",
         "text": "One step closer and you die."
+      },
+      {
+        "speaker": "max",
+        "text": "I've heard that from every gate on the way here."
       }
     ],
     "royalGuardWinB": [
@@ -1707,19 +1772,23 @@
     "harrowSpot": [
       {
         "speaker": "harrow",
-        "text": "General Harrow. I held Malkuth back when it was still worth holding."
+        "text": "General Harrow. Malkuth was mine before Nero's war reached this far."
       },
       {
         "speaker": "harrow",
-        "text": "The King keeps my brothers from the old war in the Veil. As long as I serve, they stand guard forever."
+        "text": "He keeps my old comrades in the Veil. As long as I serve him, I can still hear them."
       },
       {
         "speaker": "max",
-        "text": "It's still worth holding. Just not by you."
+        "text": "You can hear them. They can't live."
       },
       {
         "speaker": "harrow",
-        "text": "Brave words from a child with one hound. Guards, stay out of this one."
+        "text": "You sound like someone who hasn't lost enough yet."
+      },
+      {
+        "speaker": "max",
+        "text": "I've lost my father. I'm still fighting."
       }
     ],
     "harrowWin": [
@@ -1763,19 +1832,23 @@
     "ashgroveSpot": [
       {
         "speaker": "ashgrove",
-        "text": "General Ashgrove. You shouldn't be in here. Nobody told me you'd be in here."
+        "text": "General Ashgrove. I know why you're here."
       },
       {
         "speaker": "ashgrove",
-        "text": "He kept my wife's voice. I hear her every night. I'd sign anything for that."
+        "text": "Nero kept my wife's voice. Every night I hear her call my name, and every night I keep serving him for one more word."
       },
       {
         "speaker": "max",
-        "text": "Nobody tells you much, do they?"
+        "text": "That's not your wife. It's a chain."
       },
       {
         "speaker": "ashgrove",
-        "text": "They told me to hold Yesod. So I'm holding it."
+        "text": "Maybe. But you don't know what you'd accept to hear your father again."
+      },
+      {
+        "speaker": "max",
+        "text": "I do. That's why I'm going to take my father back without becoming you."
       }
     ],
     "ashgroveWin": [
@@ -1819,19 +1892,23 @@
     "stroudSpot": [
       {
         "speaker": "stroud",
-        "text": "General Stroud. Every cell in this base has a name scratched in the wall."
+        "text": "General Stroud. Every cell here has a name scratched into it."
       },
       {
         "speaker": "stroud",
-        "text": "The King keeps my son's ghost in a cell of its own. As long as I serve, my boy stays."
-      },
-      {
-        "speaker": "stroud",
-        "text": "I'll scratch yours in tonight."
+        "text": "My son's name is one of them. Nero keeps his ghost here. If I leave, I lose the only place I can hear him."
       },
       {
         "speaker": "max",
-        "text": "Open the cells, and you can walk out of this room."
+        "text": "You keep other people's families locked up to hear your own."
+      },
+      {
+        "speaker": "stroud",
+        "text": "You think that makes me a monster?"
+      },
+      {
+        "speaker": "max",
+        "text": "I think it makes you responsible for what you do next."
       }
     ],
     "stroudWin": [
@@ -1875,19 +1952,23 @@
     "valeSpot": [
       {
         "speaker": "vale",
-        "text": "General Vale. Hear how quiet Hod is? I did that."
+        "text": "General Vale. Hear how quiet Hod is?"
       },
       {
         "speaker": "vale",
-        "text": "My daughter drowned in the river. Nero lets her sing to me. Quiet is the only way I can hear her."
+        "text": "My daughter drowned in the river. Nero lets me hear her singing when the city is silent."
       },
       {
         "speaker": "max",
-        "text": "I heard it from the road. That's why I'm here."
+        "text": "So you made everyone else silent for one voice."
       },
       {
         "speaker": "vale",
-        "text": "Then you'll be quiet too."
+        "text": "What would you sacrifice to hear your dead again?"
+      },
+      {
+        "speaker": "max",
+        "text": "Not a city. Not a child. Not my soul."
       }
     ],
     "valeWin": [
@@ -1931,19 +2012,23 @@
     "kesslerSpot": [
       {
         "speaker": "kessler",
-        "text": "General Kessler. Tiferet burned once. Smell that? I kept a little of it going."
+        "text": "General Kessler. Tiferet burned once. I made sure I remembered the smell."
       },
       {
         "speaker": "kessler",
-        "text": "Fire took my whole family. Nero bound them where no fire can reach them again."
+        "text": "Fire took my family. Nero bound them beyond death, where no fire can touch them."
       },
       {
         "speaker": "max",
-        "text": "I could smell it from the road."
+        "text": "And you burn everyone else to keep from remembering the loss."
       },
       {
         "speaker": "kessler",
-        "text": "Good. Then you know what I do to people who argue."
+        "text": "You think you understand grief because you lost your father?"
+      },
+      {
+        "speaker": "max",
+        "text": "No. I understand what grief can make a person do."
       }
     ],
     "kesslerWin": [
@@ -1987,19 +2072,23 @@
     "morrowSpot": [
       {
         "speaker": "morrow",
-        "text": "General Morrow. Chesed drinks when I open the gates. Not before."
+        "text": "General Morrow. Chesed drinks when I open the gates."
       },
       {
         "speaker": "morrow",
-        "text": "My brother died of thirst in the old war. Nero keeps him. I keep the water."
+        "text": "My brother died of thirst in the old war. Nero keeps him. I keep the water so I can pretend I still have power over something."
       },
       {
         "speaker": "max",
-        "text": "Then I'll open them myself."
+        "text": "You have power over whether children drink."
       },
       {
         "speaker": "morrow",
-        "text": "The key's on my belt. Come and take it."
+        "text": "You'd throw away that power?"
+      },
+      {
+        "speaker": "max",
+        "text": "I'd use it to keep people alive."
       }
     ],
     "morrowWin": [
@@ -2043,19 +2132,23 @@
     "craneSpot": [
       {
         "speaker": "crane",
-        "text": "General Crane. My birds saw you leave CryTown. They've watched every step since."
+        "text": "General Crane. My birds saw you leave CryTown and every road you've taken since."
       },
       {
         "speaker": "crane",
-        "text": "My birds are my old squad. Nero bound them into feathers so they'd never leave me."
+        "text": "They were my old squad. Nero bound them into feathers so they would never leave me."
       },
       {
         "speaker": "max",
-        "text": "Then they watched me win."
+        "text": "They didn't choose that."
       },
       {
         "speaker": "crane",
-        "text": "They watched you get lucky. Watch this."
+        "text": "Neither did I."
+      },
+      {
+        "speaker": "max",
+        "text": "You still choose what you do with them."
       }
     ],
     "craneWin": [
@@ -2095,19 +2188,23 @@
     "blackwoodSpot": [
       {
         "speaker": "blackwood",
-        "text": "General Blackwood. Binah was a garrison before it was a city. It'll be one again."
+        "text": "General Blackwood. Binah was a garrison before it was a city."
       },
       {
         "speaker": "blackwood",
-        "text": "Three kings died on my watch. Nero is the one who refuses to."
+        "text": "Three kings died on my watch. Nero is the one who refuses to die, and I have spent years mistaking that for duty."
       },
       {
         "speaker": "max",
-        "text": "It's a city. It stays one."
+        "text": "You know what he's doing is wrong."
       },
       {
         "speaker": "blackwood",
-        "text": "Soldier's talk. Let's see you back it up."
+        "text": "Knowing is not the same as being willing to lose everything."
+      },
+      {
+        "speaker": "max",
+        "text": "Then lose this post first."
       }
     ],
     "blackwoodWin": [
@@ -2147,19 +2244,23 @@
     "sorrelSpot": [
       {
         "speaker": "sorrel",
-        "text": "General Sorrel. I am the last wall between you and the King."
+        "text": "General Sorrel. I am the last wall between you and Nero."
       },
       {
         "speaker": "sorrel",
-        "text": "I stood at the queen's deathbed with him. I'm the one who told him to keep her."
+        "text": "I stood beside him when the queen died. I was the one who told him to keep her close, even after death."
       },
       {
         "speaker": "max",
-        "text": "Eight walls came down before you."
+        "text": "And you've spent twelve years helping him keep the whole country trapped with her."
       },
       {
         "speaker": "sorrel",
-        "text": "They were soldiers. I am his friend. I do not break."
+        "text": "I thought grief would pass if we had enough time."
+      },
+      {
+        "speaker": "max",
+        "text": "It didn't. So I'm ending what you helped build."
       }
     ],
     "sorrelWin": [
@@ -2207,15 +2308,19 @@
       },
       {
         "speaker": "nero",
-        "text": "Every soldier, every General, every soul in this land stays with me. And you walked through my Veil."
+        "text": "Every soldier, every General, every soul in this land stays with me. Even the dead."
       },
       {
         "speaker": "max",
-        "text": "They wanted to leave. You wouldn't let them."
+        "text": "You call that keeping them. I call it refusing to let anyone go."
       },
       {
         "speaker": "nero",
-        "text": "Then come and take my crown, and see who stays with you."
+        "text": "You came all this way for a dead father. Don't pretend you are different from me."
+      },
+      {
+        "speaker": "max",
+        "text": "I came to bring him back. Not to make him mine."
       }
     ],
     "neroWin": [
@@ -2447,11 +2552,11 @@
     "guardMalkuthSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Malkuth base. Turn around, kid. This is soldier business."
+        "text": "Malkuth base. Turn around. Civilians don't belong here."
       },
       {
         "speaker": "max",
-        "text": "I'm making it my business."
+        "text": "I'm not a civilian anymore."
       }
     ],
     "guardMalkuthWinA": [
@@ -2463,7 +2568,11 @@
     "guardMalkuthSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Hey! How'd you get past Pell?"
+        "text": "You slipped past Pell? That won't happen twice."
+      },
+      {
+        "speaker": "max",
+        "text": "Then make this attempt count."
       }
     ],
     "guardMalkuthWinB": [
@@ -2475,11 +2584,11 @@
     "guardYesodSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Yesod base. Papers. You got papers?"
+        "text": "Yesod base. State your business."
       },
       {
         "speaker": "max",
-        "text": "I've got a CryMon."
+        "text": "I'm here for Ashgrove."
       }
     ],
     "guardYesodWinA": [
@@ -2491,7 +2600,11 @@
     "guardYesodSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Ashgrove said nobody gets through. Ashgrove says a lot of things."
+        "text": "Ashgrove ordered this door sealed. He doesn't change orders."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll make him change this one."
       }
     ],
     "guardYesodWinB": [
@@ -2503,11 +2616,11 @@
     "guardNetzachSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "You smell like the road. Prisoners come in the back door."
+        "text": "Netzach base. Prisoners use the rear entrance."
       },
       {
         "speaker": "max",
-        "text": "I'm not a prisoner."
+        "text": "I'm not here to enter as a prisoner."
       }
     ],
     "guardNetzachWinA": [
@@ -2519,7 +2632,11 @@
     "guardNetzachSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Keys stay with Stroud. You don't get past me for them."
+        "text": "Stroud keeps the keys. Nobody reaches his cells without him."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll start with Stroud."
       }
     ],
     "guardNetzachWinB": [
@@ -2531,11 +2648,11 @@
     "guardHodSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Shh. Vale likes it quiet in here."
+        "text": "Quiet. Vale hates noise."
       },
       {
         "speaker": "max",
-        "text": "Then this is going to be loud."
+        "text": "Then he won't like me."
       }
     ],
     "guardHodWinA": [
@@ -2547,7 +2664,11 @@
     "guardHodSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "No talking in the hall. Vale's rule."
+        "text": "No talking in the hall. That's Vale's rule."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm not here to talk."
       }
     ],
     "guardHodWinB": [
@@ -2559,11 +2680,11 @@
     "guardTiferetSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Careful. The floor's still warm from the last fire."
+        "text": "Careful. The floor is still warm from the last fire."
       },
       {
         "speaker": "max",
-        "text": "Then stand still and I won't push you onto it."
+        "text": "Then stand aside before someone gets burned."
       }
     ],
     "guardTiferetWinA": [
@@ -2575,7 +2696,11 @@
     "guardTiferetSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "You're the one burning through our bases? Not this one."
+        "text": "You're the one tearing through our bases. Not this one."
+      },
+      {
+        "speaker": "max",
+        "text": "That's what the others said."
       }
     ],
     "guardTiferetWinB": [
@@ -2587,11 +2712,11 @@
     "guardChesedSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "You want water, you wait in line with the rest."
+        "text": "Water line's outside. The base is closed."
       },
       {
         "speaker": "max",
-        "text": "I'm not here for water."
+        "text": "I'm here for Morrow."
       }
     ],
     "guardChesedWinA": [
@@ -2604,6 +2729,10 @@
       {
         "speaker": "weepingGuard",
         "text": "Gate's locked. General's orders."
+      },
+      {
+        "speaker": "max",
+        "text": "Then tell him I'm coming through anyway."
       }
     ],
     "guardChesedWinB": [
@@ -2615,11 +2744,11 @@
     "guardGevurahSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "The birds said you were coming. I didn't believe them."
+        "text": "The birds said you were coming. Crane has been watching the road."
       },
       {
         "speaker": "max",
-        "text": "Believe them now."
+        "text": "Then he already knows I'm not turning back."
       }
     ],
     "guardGevurahWinA": [
@@ -2631,7 +2760,11 @@
     "guardGevurahSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Look up. Crane sees everything you do."
+        "text": "Look up. Crane sees everything."
+      },
+      {
+        "speaker": "max",
+        "text": "Then let him watch me beat him."
       }
     ],
     "guardGevurahWinB": [
@@ -2647,7 +2780,7 @@
       },
       {
         "speaker": "max",
-        "text": "CryTown. Unit of one."
+        "text": "CryTown. One person, one CryMon, and no intention of stopping."
       }
     ],
     "guardBinahWinA": [
@@ -2659,7 +2792,11 @@
     "guardBinahSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Blackwood trained me himself. You won't get past."
+        "text": "Blackwood trained me himself. You won't pass."
+      },
+      {
+        "speaker": "max",
+        "text": "Then he trained you to lose slowly."
       }
     ],
     "guardBinahWinB": [
@@ -2671,11 +2808,11 @@
     "guardChokmahSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Nobody reaches the King. That's the whole point of Chokmah."
+        "text": "Nobody reaches the King. That's the point of Chokmah."
       },
       {
         "speaker": "max",
-        "text": "I'm not trying to reach him. Yet."
+        "text": "Then you're the last thing between me and him."
       }
     ],
     "guardChokmahWinA": [
@@ -2688,6 +2825,10 @@
       {
         "speaker": "weepingGuard",
         "text": "Last door before the King. Last chance to walk away."
+      },
+      {
+        "speaker": "max",
+        "text": "I walked away from CryTown once. Never again."
       }
     ],
     "guardChokmahWinB": [
@@ -2699,7 +2840,11 @@
     "commanderAfter": [
       {
         "speaker": "commander",
-        "text": "You won. Go take your war somewhere else."
+        "text": "You won. The camp is yours to cross. Take your war somewhere else."
+      },
+      {
+        "speaker": "max",
+        "text": "That's exactly what I'm doing."
       }
     ],
     "adaHeal": [
@@ -2729,27 +2874,27 @@
     "marnFirst": [
       {
         "speaker": "marn",
-        "text": "You came up the Weeping Road? Then Lead is down. Sit a minute, girl."
+        "text": "You came up the Weeping Road. Then Lieutenant Lead is finally down."
+      },
+      {
+        "speaker": "max",
+        "text": "He was the last wall before the Sephirot."
       },
       {
         "speaker": "marn",
-        "text": "They say Nero still talks to his dead queen. That's why the army weeps. Every soldier he loses, he keeps."
+        "text": "Then sit. You need to understand what comes next."
       },
       {
         "speaker": "marn",
-        "text": "Nine Generals hold the nine cities of the Sephirot. Each one sits in a base behind two guards."
+        "text": "Nine Generals hold nine cities from Malkuth to Chokmah. Each carries a medal that opens the next base."
       },
       {
         "speaker": "marn",
-        "text": "Each General carries a medal. The army won't open the next base for anyone who doesn't have the last one. Start here, with Harrow."
+        "text": "At the crown is Keter. Nero waits there, and Golden Shackles open his palace."
       },
       {
         "speaker": "marn",
-        "text": "Above them all is Nero, the Weeping King, in his palace at Keter. Only a pair of Golden Shackles opens that gate."
-      },
-      {
-        "speaker": "marn",
-        "text": "Beat a General and it's your call what happens next. Hale sells Shackles if you want them to stand trial. Without Shackles there's only one way it goes."
+        "text": "If you beat a General, you can arrest them with Shackles or kill them. If you're carrying a cause bigger than yourself, think about what you want the people to inherit."
       },
       {
         "speaker": "max",
@@ -2937,69 +3082,53 @@
     "ghostJoin": [
       {
         "speaker": "shinigami",
-        "text": "You came. Good. This crypt is the Ghost Guild now. So far it has one member."
+        "text": "You came. Good. Then I'll tell you why the Veil exists."
       },
       {
         "speaker": "shinigami",
-        "text": "Listen. Twelve years ago Nero, the Weeping King, lost his queen. He couldn't let her go."
-      },
-      {
-        "speaker": "shinigami",
-        "text": "So he learned to keep the dead. Every soldier who dies for him is bound and made to wail. That's why they call it the Weeping Army."
-      },
-      {
-        "speaker": "shinigami",
-        "text": "The road north of CryTown is walled with them. The Weeping Veil. Nothing living gets through."
-      },
-      {
-        "speaker": "shinigami",
-        "text": "He wanted my necromancy to bind more. I said no. So his grave-warden, Mourner Vesk, killed my three apprentices. Ines. Tomas. Oriel."
-      },
-      {
-        "speaker": "shinigami",
-        "text": "Vesk scattered their bones and bound their spirits so they would weep forever. Then Nero chained me in the Prison."
+        "text": "Nero lost his queen twelve years ago. He refused to let death take her, so he learned to bind the dead. Every soldier who falls for him becomes part of the army that never leaves."
       },
       {
         "speaker": "max",
-        "text": "Three names. Three graves."
+        "text": "And your three apprentices?"
       },
       {
         "speaker": "shinigami",
-        "text": "Now you know. Here's the work. Dig up their bones. Ines is in the Ruins, Tomas in the Prison yard, Oriel in the Marsh."
+        "text": "Vesk killed them and scattered their bones. Nero chained me after I refused to raise more dead for him."
       },
       {
         "speaker": "shinigami",
-        "text": "Pray at the three old shrines, on the Cliffs, in the Quarry and in the Forest, so their spirits can find the way."
+        "text": "If you want the Veil opened, bring Ines, Tomas and Oriel home. Their bones are in the Ruins, the Prison yard and the Marsh."
       },
       {
         "speaker": "shinigami",
-        "text": "And the old hall in the Reach is haunted with Vesk's work. Oriel's CryMon is bound in there. Free it."
+        "text": "Pray at the three old shrines. Free Oriel's CryMon from the haunted hall. Then I can make the lantern."
+      },
+      {
+        "speaker": "max",
+        "text": "And the lantern gets me north?"
       },
       {
         "speaker": "shinigami",
-        "text": "Do all that, and I can make a lantern that parts the Veil."
-      },
-      {
-        "speaker": "none",
-        "text": "Max joined the Ghost Guild."
+        "text": "Through the Veil. Lieutenant Lead will still be waiting."
       }
     ],
     "ghostNeedBones": [
       {
         "speaker": "shinigami",
-        "text": "Bones first. Ines in the Ruins, Tomas in the Prison yard, Oriel in the Marsh. Dig. They won't mind."
+        "text": "Bring the three home first. Ines in the Ruins, Tomas in the Prison yard, Oriel in the Marsh."
       }
     ],
     "ghostNeedPrayers": [
       {
         "speaker": "shinigami",
-        "text": "You still owe the shrines a prayer. The Cliffs, the Quarry, the Forest. They show the dead the way home."
+        "text": "The shrines matter. Cliffs, Quarry, Forest. Pray at each one so the dead can find the way back."
       }
     ],
     "ghostNeedHall": [
       {
         "speaker": "shinigami",
-        "text": "Oriel's CryMon is still bound in the Reach's haunted hall. Free it."
+        "text": "Oriel's CryMon is still trapped in the Reach's haunted hall. Free it, or the rite cannot begin."
       }
     ],
     "ghostRite": [
@@ -3109,7 +3238,7 @@
     "ghostAfter": [
       {
         "speaker": "shinigami",
-        "text": "The Veil is only the first of Nero's dead. Every General keeps someone. Remember that when you meet them."
+        "text": "The Veil is only the first wall Nero built from the dead. Every General has his own reason for serving him. Remember that when you meet them."
       }
     ],
     "graveInes": [
@@ -3281,15 +3410,15 @@
     "ardentBadges": [
       {
         "speaker": "ardent",
-        "text": "Captain Ardent, Heroes Guild. We hunt outlaws and keep rare CryMon out of the wrong hands."
+        "text": "Captain Ardent, Heroes Guild. We protect travelers and rare CryMon from people who would exploit them."
+      },
+      {
+        "speaker": "max",
+        "text": "Then why do you need me?"
       },
       {
         "speaker": "ardent",
-        "text": "We only take proven trainers. Bring me the Quartz Badge and the Opal Badge from the Reach."
-      },
-      {
-        "speaker": "ardent",
-        "text": "And keep your name clean. We don't take anyone the town talks about."
+        "text": "Because the Reach has two badges, and I only trust proven trainers. Bring me Quartz and Opal, and keep your name clean."
       }
     ],
     "ardentRepLow": [
@@ -3315,15 +3444,11 @@
       },
       {
         "speaker": "ardent",
-        "text": "First job. Red Mallory robs travelers in the Forest, past the Camp. Bring her in."
+        "text": "First job: Red Mallory is robbing travelers in the Forest. Bring her in alive. Use Shackles."
       },
       {
-        "speaker": "ardent",
-        "text": "Use Shackles. We want her in a cell, not a grave."
-      },
-      {
-        "speaker": "none",
-        "text": "Max joined the Heroes Guild."
+        "speaker": "max",
+        "text": "Alive. Understood."
       }
     ],
     "ardentQuestMallory": [
@@ -3335,21 +3460,21 @@
     "ardentPaidMallory": [
       {
         "speaker": "ardent",
-        "text": "Mallory's in a cell. Good work. Here's your pay, and a Mega Crystal from the guild vault."
+        "text": "Mallory is in a cell. Good. You brought her in alive, as ordered."
       },
       {
         "speaker": "ardent",
-        "text": "Next: the Ruins have a Glasswisp nest. Poachers sell them for glass. Catch one and bring it here so we can keep it safe."
+        "text": "Here's your pay. Next: the Ruins have a Glasswisp nest. Bring one here alive."
       }
     ],
     "ardentMalloryDead": [
       {
         "speaker": "ardent",
-        "text": "Dead. That's not what I asked for."
+        "text": "You killed Mallory. That's not what I asked for."
       },
       {
         "speaker": "ardent",
-        "text": "Here's half pay. Next job: catch a Glasswisp in the Ruins and bring it to me. Alive, this time."
+        "text": "I'll pay half. Next time, listen when I say alive."
       }
     ],
     "ardentQuestGlasswisp": [
@@ -3361,15 +3486,15 @@
     "ardentGotGlasswisp": [
       {
         "speaker": "none",
-        "text": "Max hands over the Glasswisp. Ardent's squire carries it off to the guild's garden."
+        "text": "Max hands over the Glasswisp. Ardent's squire carries it to the guild garden."
       },
       {
         "speaker": "ardent",
-        "text": "It'll be safe here. Take these Panaceas."
+        "text": "It will be safe here. Take these Panaceas."
       },
       {
         "speaker": "ardent",
-        "text": "Next: Silas the Fence. He buys stolen CryMon at the Quarry. Arrest him."
+        "text": "Next: Silas the Fence in the Quarry. Arrest him."
       }
     ],
     "ardentQuestSilas": [
@@ -3381,21 +3506,21 @@
     "ardentPaidSilas": [
       {
         "speaker": "ardent",
-        "text": "Silas is behind bars and his buyers are scattering. Take this Ultimate Crystal."
+        "text": "Silas is behind bars. His buyers are scattering."
       },
       {
         "speaker": "ardent",
-        "text": "Next: a Stardrop from the Quarry. The fences have been selling them to Nero's soldiers."
+        "text": "Take this Ultimate Crystal. Next: a Stardrop from the Quarry. The Army is buying them for its soldiers."
       }
     ],
     "ardentSilasDead": [
       {
         "speaker": "ardent",
-        "text": "You killed him. The guild pays less for bodies."
+        "text": "You killed Silas. The guild pays less for a body than an arrest."
       },
       {
         "speaker": "ardent",
-        "text": "Next: catch a Stardrop in the Quarry and bring it here."
+        "text": "Next time, remember what you joined us to do."
       }
     ],
     "ardentQuestStardrop": [
@@ -3461,19 +3586,19 @@
     "magJoin": [
       {
         "speaker": "mag",
-        "text": "Mag. I run this den. Don't care what the town says about you. Nobody here has a good name."
+        "text": "Mag. I run this den. Nobody here cares what the town calls you."
+      },
+      {
+        "speaker": "max",
+        "text": "And what do you want from me?"
       },
       {
         "speaker": "mag",
-        "text": "The Heroes Guild strut around with rare CryMon and fat purses. We lighten them."
+        "text": "The Heroes Guild hoards rare CryMon and coin. We take from them."
       },
       {
         "speaker": "mag",
-        "text": "First mark: Sir Aldous, in CryTown. Beat him, then scare him or finish him. Either way, take his stuff."
-      },
-      {
-        "speaker": "none",
-        "text": "Max joined the Thieves Guild."
+        "text": "First mark: Sir Aldous in CryTown. Beat him, then take what you came for."
       }
     ],
     "magHero": [
@@ -3491,11 +3616,11 @@
     "magPaidAldous": [
       {
         "speaker": "mag",
-        "text": "Aldous is crying to Ardent. Nice. Here's your cut, and some Smoke Bombs."
+        "text": "Aldous is complaining to Ardent already. Good."
       },
       {
         "speaker": "mag",
-        "text": "Next: Dame Brin. She guards the Ruins like she owns them."
+        "text": "Here's your cut. Next mark: Dame Brin in the Ruins. She guards the place like it belongs to her."
       }
     ],
     "magQuestBrin": [
@@ -3507,11 +3632,11 @@
     "magPaidBrin": [
       {
         "speaker": "mag",
-        "text": "Brin won't be back for a while. Three Great Crystals for you."
+        "text": "Brin won't be bothering us for a while. Three Great Crystals."
       },
       {
         "speaker": "mag",
-        "text": "Last mark is the big one. Captain Rook, up on the Cliffs. Ardent's right hand."
+        "text": "Last mark: Captain Rook on the Cliffs. Ardent's right hand."
       }
     ],
     "magQuestRook": [
@@ -3603,17 +3728,29 @@
     "brinIdle": [
       {
         "speaker": "brin",
-        "text": "Dame Brin, Heroes Guild. Keep off the graves. Somebody has been digging."
+        "text": "Dame Brin, Heroes Guild. Keep off the graves."
+      },
+      {
+        "speaker": "max",
+        "text": "Someone's been digging them up."
+      },
+      {
+        "speaker": "brin",
+        "text": "Exactly. And until I know who, I don't trust anyone near them."
       }
     ],
     "brinSpot": [
       {
         "speaker": "brin",
-        "text": "Mag sent you. I can tell."
+        "text": "Mag sent you. I can tell by the look on your face."
+      },
+      {
+        "speaker": "max",
+        "text": "He wants your CryMon."
       },
       {
         "speaker": "brin",
-        "text": "Come on, then."
+        "text": "Then Mag can come ask me himself. Let's settle this."
       }
     ],
     "brinWin": [
@@ -3641,21 +3778,29 @@
     "rookIdle": [
       {
         "speaker": "rook",
-        "text": "Captain Rook. I watch the Cliffs for Nero's scouts."
+        "text": "Captain Rook. I watch these cliffs for Nero's scouts."
+      },
+      {
+        "speaker": "max",
+        "text": "Then you know the north road."
       },
       {
         "speaker": "rook",
-        "text": "If you want to get past the Veil on the north road, you need someone who knows the dead. Try the old house in the Ruins."
+        "text": "I know enough to tell you not to face the Veil alone. The old house in the Ruins is where you want to start."
       }
     ],
     "rookSpot": [
       {
         "speaker": "rook",
-        "text": "So Mag finally sent someone who might win."
+        "text": "Mag sent you. So the Thieves Guild finally found someone willing to do its dirty work."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm here to beat you, not join you."
       },
       {
         "speaker": "rook",
-        "text": "Might."
+        "text": "Good. I was worried you'd brought a speech."
       }
     ],
     "rookWin": [
@@ -3683,17 +3828,25 @@
     "malloryIdle": [
       {
         "speaker": "mallory",
-        "text": "Nice day for a walk. Keep walking, kid."
+        "text": "Keep walking, kid. The road's safer if you don't ask questions."
+      },
+      {
+        "speaker": "max",
+        "text": "I have plenty of questions."
       }
     ],
     "mallorySpot": [
       {
         "speaker": "mallory",
-        "text": "A Heroes badge. Ardent sent a kid after me?"
+        "text": "A Heroes badge. Ardent really sent a child after me?"
       },
       {
         "speaker": "max",
-        "text": "Ardent sent me after a thief."
+        "text": "He sent me to bring you in alive."
+      },
+      {
+        "speaker": "mallory",
+        "text": "Then you'd better be ready to keep your word."
       }
     ],
     "malloryWin": [
@@ -3717,11 +3870,15 @@
     "silasIdle": [
       {
         "speaker": "silas",
-        "text": "Buying or selling? No? Then I don't know you."
+        "text": "Silas. I buy and sell rare CryMon. If you have business, speak."
+      },
+      {
+        "speaker": "max",
+        "text": "The Heroes Guild says you buy stolen CryMon."
       },
       {
         "speaker": "silas",
-        "text": "Stardrops go for good money in the Quarry. If you ever catch one, I'm paying."
+        "text": "The Heroes Guild says a lot. Bring me a Stardrop and we'll talk about business."
       }
     ],
     "silasSpot": [
@@ -3795,11 +3952,11 @@
       },
       {
         "speaker": "crier",
-        "text": "He fights with six CryMon. Nobody beats him alone. If your father's old team were back, that would be a fair fight."
+        "text": "He fights with six CryMon. Nobody beats him alone. Max, if you're heading north, you'll need to be ready."
       },
       {
         "speaker": "crier",
-        "text": "Some say a Scroll of Resurrection can bring back the dead. Some say worse things can too."
+        "text": "And if you've heard the old stories, a Scroll of Resurrection may be more important than any road."
       }
     ],
     "crierNorth": [
@@ -3815,11 +3972,19 @@
     "tamAsk": [
       {
         "speaker": "tam",
-        "text": "My watch. My father's watch. I dropped it at the old Prison, past the Forest, when I went to see my son."
+        "text": "Max, if you're heading toward the Prison, could you do an old man a favor?"
+      },
+      {
+        "speaker": "tam",
+        "text": "My father's watch. I dropped it at the old Prison when I went to see my son."
       },
       {
         "speaker": "tam",
         "text": "My knees won't take me that far anymore. Bring it back and I'll give you my old Voltbuck. She's wasted on me."
+      },
+      {
+        "speaker": "max",
+        "text": "I'll bring it back if I find it."
       }
     ],
     "tamWatchFound": [
@@ -3842,6 +4007,10 @@
         "text": "A deal's a deal. Take my Voltbuck. Treat her better than I could."
       },
       {
+        "speaker": "max",
+        "text": "I will. Thank you, Tam."
+      },
+      {
         "speaker": "none",
         "text": "Max got a Voltbuck."
       }
@@ -3850,16 +4019,28 @@
       {
         "speaker": "tam",
         "text": "Tick, tick. Thanks again, Max."
+      },
+      {
+        "speaker": "max",
+        "text": "Keep it wound. You've got a few good years left in you."
       }
     ],
     "linaAsk": [
       {
         "speaker": "lina",
-        "text": "Have you seen my boy, Rolo? He ran off after a Rimeowl, out the east gate onto the Cliffs."
+        "text": "Max, you're going east anyway, aren't you? Have you seen my boy, Rolo?"
+      },
+      {
+        "speaker": "max",
+        "text": "I'm heading out to fight the Army, but I'll keep an eye out. What happened?"
       },
       {
         "speaker": "lina",
-        "text": "He's only seven. Please find him."
+        "text": "He ran after a Rimeowl onto the Cliffs. He's only seven. Please find him and bring him home."
+      },
+      {
+        "speaker": "max",
+        "text": "I will."
       }
     ],
     "roloFound": [
@@ -3869,17 +4050,29 @@
       },
       {
         "speaker": "max",
-        "text": "Your mom's looking for you. Come on, stay behind me."
+        "text": "Your mother is worried sick. The Rimeowl can wait."
       },
       {
-        "speaker": "none",
-        "text": "Rolo follows Max back toward CryTown."
+        "speaker": "rolo",
+        "text": "But—"
+      },
+      {
+        "speaker": "max",
+        "text": "Stay behind me. We'll talk about it on the way home."
       }
     ],
     "roloHome": [
       {
         "speaker": "rolo",
         "text": "I'm going to catch my own CryMon one day. Like you!"
+      },
+      {
+        "speaker": "max",
+        "text": "Start by staying where your mother can find you."
+      },
+      {
+        "speaker": "rolo",
+        "text": "Aw. Fine."
       }
     ],
     "linaThanks": [
@@ -3892,6 +4085,10 @@
         "text": "Thank you, Max. Take this. It's the best crystal we have."
       },
       {
+        "speaker": "max",
+        "text": "Keep him close this time. I've got enough trouble on the road."
+      },
+      {
         "speaker": "none",
         "text": "Max got a Mega Crystal."
       }
@@ -3900,16 +4097,32 @@
       {
         "speaker": "lina",
         "text": "Rolo hasn't left my sight since. Thank you again."
+      },
+      {
+        "speaker": "max",
+        "text": "Good. I don't want to rescue him twice."
+      },
+      {
+        "speaker": "lina",
+        "text": "Neither do I."
       }
     ],
     "junoAsk": [
       {
         "speaker": "juno",
-        "text": "Collector Juno. I study CryMon. I've never seen a Crymare up close."
+        "text": "Max, you're collecting CryMon for the road, aren't you?"
+      },
+      {
+        "speaker": "max",
+        "text": "I'm taking Dad's CryMon to free CryTown. Why?"
       },
       {
         "speaker": "juno",
-        "text": "They live in the Ruins' grass. Bring me one and I'll pay you in Ultimate Crystals."
+        "text": "Because I study CryMon, and I've never seen a Crymare up close. They live in the Ruins' grass. Bring me one and I'll pay you in Ultimate Crystals."
+      },
+      {
+        "speaker": "max",
+        "text": "If I find one, I'll bring it back."
       }
     ],
     "junoThanks": [
@@ -3922,6 +4135,14 @@
         "text": "Here. One Ultimate Crystal, as promised."
       },
       {
+        "speaker": "max",
+        "text": "You really like Crymare."
+      },
+      {
+        "speaker": "juno",
+        "text": "I like understanding what I'm looking at. Go save the town; I'll take care of the rest."
+      },
+      {
         "speaker": "none",
         "text": "Max got an Ultimate Crystal."
       }
@@ -3930,6 +4151,14 @@
       {
         "speaker": "juno",
         "text": "My Crymare is doing well. I'm writing a book about her."
+      },
+      {
+        "speaker": "max",
+        "text": "Make sure you put in the part where she cost me an afternoon in the Ruins."
+      },
+      {
+        "speaker": "juno",
+        "text": "I will. Probably in the dedication."
       }
     ],
     "betAsk": [
@@ -4691,33 +4920,41 @@
     "larkLore": [
       {
         "speaker": "lark",
-        "text": "I'm Lark, Wyn's helper. I read the old books so she doesn't have to."
+        "text": "I'm Lark, Wyn's helper. The old books are safer than the streets."
       },
       {
         "speaker": "lark",
-        "text": "This town was Aven before it was the Ruins. Nero's army came through twelve years ago, the year his queen died."
+        "text": "Before the war, these lands were towns along the Sephirot. Nero's queen died twelve years ago, and the Army marched north from here."
       },
       {
         "speaker": "lark",
-        "text": "North of CryTown are the Sephirot. Ten cities in a tree, from Malkuth at the root to Keter at the crown."
+        "text": "There are nine General-held cities below Keter, from Malkuth at the root to Chokmah near the crown. Nero rules from Keter itself."
+      },
+      {
+        "speaker": "max",
+        "text": "So the road ends with him."
       },
       {
         "speaker": "lark",
-        "text": "Nero sits in Keter. Nobody from down here has seen him in twelve years."
+        "text": "If you survive all nine Generals, yes."
       }
     ],
     "larkLore2": [
       {
         "speaker": "lark",
-        "text": "You made it north? Then listen. Each city has a General, and each General made Nero a promise about someone they lost."
+        "text": "You made it north. Then you know the books were right: every General had someone or something they couldn't let go."
       },
       {
         "speaker": "lark",
-        "text": "Harrow holds Malkuth, Ashgrove holds Yesod. Stroud, Vale, Kessler, Morrow, Crane and Blackwood hold the middle."
+        "text": "Harrow, Ashgrove, Stroud, Vale, Kessler, Morrow, Crane, Blackwood and Sorrel. Nine walls between CryTown and Nero."
+      },
+      {
+        "speaker": "max",
+        "text": "And Sorrel is the last."
       },
       {
         "speaker": "lark",
-        "text": "Sorrel holds Chokmah, last before the crown. The books say she was at the queen's bedside when she died."
+        "text": "The last General before the crown. After her, only Keter."
       }
     ],
     "hollisRest": [
@@ -4799,23 +5036,27 @@
     "brannAsk": [
       {
         "speaker": "brann",
-        "text": "Shut the door. Are you army? No. You're a kid. Good."
+        "text": "Shut the door. Are you Army?"
+      },
+      {
+        "speaker": "max",
+        "text": "No. I'm from CryTown. I'm trying to free it."
       },
       {
         "speaker": "brann",
-        "text": "I'm Brann. I marched for Nero for twenty years. Then I watched him keep his own dead soldiers and I ran."
+        "text": "Then we're on the same side. I'm Brann. I marched for Nero for twenty years before I saw what he did to the dead."
       },
       {
         "speaker": "brann",
-        "text": "My brother Marn lives in Malkuth, past the Veil and past Lead. I haven't written him in twelve years."
+        "text": "My brother Marn lives in Malkuth. I haven't spoken to him in twelve years."
       },
       {
         "speaker": "brann",
-        "text": "If you ever get north, take him this. Tell him I'm alive."
+        "text": "If you reach him, tell him I'm alive. Take this letter."
       },
       {
-        "speaker": "none",
-        "text": "Max got Brann's Letter."
+        "speaker": "max",
+        "text": "I will."
       }
     ],
     "brannWait": [
@@ -4827,15 +5068,19 @@
     "brannReply": [
       {
         "speaker": "brann",
-        "text": "That's his writing. He still calls me Brannie. Forty-nine years old and I'm Brannie."
+        "text": "That's Marn's handwriting. He still calls me Brannie."
+      },
+      {
+        "speaker": "max",
+        "text": "He wanted to know you were alive."
       },
       {
         "speaker": "brann",
-        "text": "You did this for a deserter. Take Tusk. He carried me out of the army and I never had the heart to fight him again."
+        "text": "You carried a deserter's letter through the war. Take Tusk. He got me out once; now he's yours."
       },
       {
-        "speaker": "none",
-        "text": "Max got Brann's Warbison."
+        "speaker": "max",
+        "text": "I'll take care of him."
       }
     ],
     "brannAfter": [
@@ -4869,19 +5114,19 @@
     "oskOne": [
       {
         "speaker": "osk",
-        "text": "A child in the Reach. The scroll let you through, did it?"
+        "text": "A child in the Reach who made it this far. Good. I'm Osk."
       },
       {
         "speaker": "osk",
-        "text": "I'm Osk. I teach fighting to anyone who can stand up after I knock them down."
+        "text": "I teach three things: dodge, block, barrier. Speed avoids a hit, strength meets it, magic protects against it."
+      },
+      {
+        "speaker": "max",
+        "text": "Show me."
       },
       {
         "speaker": "osk",
-        "text": "Three things save a CryMon. Dodge, block and barrier. Speed dodges, strength blocks, magic shields."
-      },
-      {
-        "speaker": "osk",
-        "text": "Show me you know them."
+        "text": "Gladly."
       }
     ],
     "oskOneWin": [
@@ -4903,7 +5148,15 @@
     "oskTwo": [
       {
         "speaker": "osk",
-        "text": "Lead is down? Then you've met a six-CryMon fight. Here's another."
+        "text": "Lead is down? Then you've learned what six CryMon can do when a trainer stops holding back."
+      },
+      {
+        "speaker": "max",
+        "text": "I learned enough to keep moving."
+      },
+      {
+        "speaker": "osk",
+        "text": "Good. Then learn more."
       }
     ],
     "oskTwoWin": [
@@ -4925,7 +5178,15 @@
     "oskThree": [
       {
         "speaker": "osk",
-        "text": "Nine medals. Only the King is left. Fight me like I'm him."
+        "text": "Nine medals. Only Nero remains."
+      },
+      {
+        "speaker": "max",
+        "text": "Then train me for the last fight."
+      },
+      {
+        "speaker": "osk",
+        "text": "Fight me as if the King were standing here. No mercy, no excuses."
       }
     ],
     "oskThreeWin": [
@@ -4951,31 +5212,27 @@
     "ilseLore": [
       {
         "speaker": "ilse",
-        "text": "Sit. I'm Ilse. People call me the Sage because I'm old and I talk a lot."
+        "text": "Sit. I'm Ilse. People call me the Sage because I've been explaining crystals longer than you've been alive."
       },
       {
         "speaker": "ilse",
-        "text": "Every CryMon carries a crystal, and every one of its kind carries the same one. The crystal is its type."
+        "text": "Each CryMon carries a crystal type, and the type decides what harms or resists it."
       },
       {
         "speaker": "ilse",
-        "text": "Ruby is fire. It burns Emerald and melts Sapphire. Jasper smothers it."
+        "text": "Ruby burns, Sapphire freezes, Emerald grows, Jasper buries, Citrine strikes, Obsidian swallows, Prism masters fire, ice and lightning, and Diamond breaks Jasper."
       },
       {
         "speaker": "ilse",
-        "text": "Sapphire is ice. It kills Emerald and cracks Jasper. Emerald's roots split Jasper, and life overgrows Obsidian."
+        "text": "Quartz is plain. It neither wins nor loses by type."
+      },
+      {
+        "speaker": "max",
+        "text": "And if I learn the matchups?"
       },
       {
         "speaker": "ilse",
-        "text": "Jasper is earth. It soaks up Citrine lightning. Citrine lights up Obsidian's dark."
-      },
-      {
-        "speaker": "ilse",
-        "text": "Obsidian swallows Prism light and Diamond starlight. Prism magic masters fire, ice and lightning. Diamond craters Jasper."
-      },
-      {
-        "speaker": "ilse",
-        "text": "Quartz is plain. Nothing beats it and it beats nothing. Don't laugh. Plain lasts."
+        "text": "Half the battle is knowing what not to hit."
       }
     ],
     "ilseBadges": [
@@ -5011,15 +5268,15 @@
     "marenAsk": [
       {
         "speaker": "none",
-        "text": "A cold spot moves by the bed. A girl made of mist looks up at Max."
+        "text": "A cold spot moves beside the bed. A girl made of mist looks up at Max."
       },
       {
         "speaker": "maren",
-        "text": "You can see me? Nobody sees me. Not since the soldiers came."
+        "text": "You can see me? Nobody has since the soldiers came."
       },
       {
         "speaker": "maren",
-        "text": "I'm Maren. I got sick the winter the army came through. A man in grey came after. He said I had to stay."
+        "text": "I'm Maren. I got sick the winter the Army came through. A man in grey came after. He said I had to stay."
       },
       {
         "speaker": "max",
@@ -5027,7 +5284,11 @@
       },
       {
         "speaker": "maren",
-        "text": "The soldiers threw my doll in the Marsh. I can't leave without her. Can you find her? She's by the north water."
+        "text": "Yes. The soldiers threw my doll into the Marsh. I can't leave without it."
+      },
+      {
+        "speaker": "max",
+        "text": "I'll find it."
       }
     ],
     "marenWait": [
@@ -5039,19 +5300,19 @@
     "marenRest": [
       {
         "speaker": "maren",
-        "text": "Button! You found her!"
+        "text": "Button! You found her."
+      },
+      {
+        "speaker": "max",
+        "text": "You can go now?"
       },
       {
         "speaker": "maren",
-        "text": "I can go now. I can feel it. Thank you."
+        "text": "I can. And Frost can leave too. She stayed because I couldn't."
       },
       {
-        "speaker": "maren",
-        "text": "Frost stayed with me the whole time. She's tired of this house. Take her with you."
-      },
-      {
-        "speaker": "none",
-        "text": "The mist is gone. A Snowbell sits on the empty bed and hops to Max."
+        "speaker": "max",
+        "text": "Then come with me, Frost."
       }
     ],
     "dollFound": [
@@ -5201,26 +5462,34 @@
     "marnPost": [
       {
         "speaker": "marn",
-        "text": "Twelve years of war, and a girl from CryTown ended it. Malkuth won't forget you."
+        "text": "Twelve years of war, and a girl from CryTown broke its grip. Malkuth won't forget you."
+      },
+      {
+        "speaker": "max",
+        "text": "Then help me make sure the freedom lasts."
       }
     ],
     "dagnyAsk": [
       {
-        "speaker": "townswoman",
+        "speaker": "dagny",
         "text": "Foreman Dagny. Something in this quarry keeps chewing through my blasting fuses."
       },
       {
-        "speaker": "townswoman",
-        "text": "The miners swear it's a Cindermite. Catch one in the grass here and show me. I want to see what I'm up against."
+        "speaker": "max",
+        "text": "Cindermite."
+      },
+      {
+        "speaker": "dagny",
+        "text": "You know it? Catch one in the grass and show me. I want proof before I change the whole crew's routine."
       }
     ],
     "dagnyThanks": [
       {
-        "speaker": "townswoman",
+        "speaker": "dagny",
         "text": "So that's the little fuse-eater. Smaller than I thought. Meaner, too."
       },
       {
-        "speaker": "townswoman",
+        "speaker": "dagny",
         "text": "Keep it. Take these for your trouble."
       },
       {
@@ -5230,18 +5499,22 @@
     ],
     "dagnyAfter": [
       {
-        "speaker": "townswoman",
+        "speaker": "dagny",
         "text": "We wrap the fuses in wet cloth now. The Cindermites hate it."
       }
     ],
     "fenwickAsk": [
       {
         "speaker": "townsman",
-        "text": "Old Fenwick. I've fished this marsh for forty years."
+        "text": "Old Fenwick. Forty years fishing this marsh, and now something freezes my lines solid."
+      },
+      {
+        "speaker": "max",
+        "text": "A Chillnewt."
       },
       {
         "speaker": "townsman",
-        "text": "Something cold lives under the reeds now. Freezes my lines solid. Catch whatever it is and show me."
+        "text": "If that's what it is, catch one and show me. Then I'll know what I'm dealing with."
       }
     ],
     "fenwickThanks": [
@@ -5261,7 +5534,7 @@
     "fenwickAfter": [
       {
         "speaker": "townsman",
-        "text": "I fish on the warm side of the marsh now. The Chillnewts can have the rest."
+        "text": "I fish on the warm side now. The Chillnewts can have the cold water."
       }
     ],
     "hollowLocked": [
@@ -5281,19 +5554,19 @@
       },
       {
         "speaker": "hollowKeeper",
-        "text": "This is the Hollow. When the Sephirot bled light during the war, the runoff pooled here."
+        "text": "This is the Hollow. Sephirot light spilled here during the war and changed everything that drank it."
       },
       {
         "speaker": "hollowKeeper",
-        "text": "The CryMon drank it. They're stronger than anything on the paths. Some you won't see anywhere else this big."
+        "text": "Three fighters stayed to test themselves against what grew here. Beat the Ranger, the Shade and the Warden, then come back."
+      },
+      {
+        "speaker": "max",
+        "text": "And you?"
       },
       {
         "speaker": "hollowKeeper",
-        "text": "Three fighters came here to train and never left. Beat them all and come back to me."
-      },
-      {
-        "speaker": "hollowKeeper",
-        "text": "Sit by my fire whenever you need it. Your CryMon look like they could use it now."
+        "text": "I keep the fire. If you survive the grass, you'll be welcome beside it."
       }
     ],
     "hollowKeeperHint": [
