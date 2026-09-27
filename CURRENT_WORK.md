@@ -55,6 +55,11 @@ session stops, pick up at the first step not marked DONE.
    regions no earlier audit touched. Findings and proposed rewrites:
    `docs/DIALOGUE_AUDIT_2026-09-27.md` (4 state bugs, 4 redundant-exposition items).
    Nothing in `content/` changed yet. Do not apply without the user's approval.
+6. **Move / growth redesign -- TODO (added by user request).** Spec is Grok's
+   "Move / growth redesign" table at the end of this file. Open questions before code:
+   what Hype Up does (not defined), the per-species Lv20 and Lv30 effects (marked TBD),
+   and whether existing saves past Lv12/22 need a migration when evolve levels move to
+   15/25 (a Lv13 CryMon that already evolved stays evolved?).
 
 ## Standing repository rules
 
