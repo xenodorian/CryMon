@@ -578,6 +578,42 @@
     [
       "fx-sapphire-4",
       "/sprites/fx/sapphire-4.png"
+    ],
+    [
+      "bg-forest",
+      "/sprites/bg/forest.png"
+    ],
+    [
+      "bg-marsh",
+      "/sprites/bg/marsh.png"
+    ],
+    [
+      "bg-cliffs",
+      "/sprites/bg/cliffs.png"
+    ],
+    [
+      "bg-ruins",
+      "/sprites/bg/ruins.png"
+    ],
+    [
+      "bg-road",
+      "/sprites/bg/road.png"
+    ],
+    [
+      "bg-crypt",
+      "/sprites/bg/crypt.png"
+    ],
+    [
+      "bg-sephirot",
+      "/sprites/bg/sephirot.png"
+    ],
+    [
+      "bg-palace",
+      "/sprites/bg/palace.png"
+    ],
+    [
+      "bg-indoor",
+      "/sprites/bg/indoor.png"
     ]
   ],
   "drawScale": {
@@ -612,5 +648,76 @@
     "osk": "elder",
     "ilse": "townswoman",
     "maren": "ghost"
+  },
+  "battleBgMap": {
+    "house": "bg-indoor",
+    "forest": "bg-forest",
+    "grove": "bg-forest",
+    "camp": "bg-ruins",
+    "cliffs": "bg-cliffs",
+    "ruins": "bg-ruins",
+    "reach": "bg-forest",
+    "marsh": "bg-marsh",
+    "quarry": "bg-cliffs",
+    "ruinslibrary": "bg-indoor",
+    "ruinsinn": "bg-indoor",
+    "brannhouse": "bg-indoor",
+    "hermithut": "bg-indoor",
+    "sagehouse": "bg-indoor",
+    "emptyhouse": "bg-crypt",
+    "gauntlet": "bg-road",
+    "gauntlet1": "bg-road",
+    "gauntlet2": "bg-road",
+    "gauntlet3": "bg-road",
+    "gauntlet4": "bg-road",
+    "gauntlet5": "bg-road",
+    "gauntlet6": "bg-crypt",
+    "malkuth": "bg-sephirot",
+    "weepingroad": "bg-road",
+    "yesod": "bg-sephirot",
+    "tau": "bg-sephirot",
+    "netzach": "bg-sephirot",
+    "qoph": "bg-sephirot",
+    "hod": "bg-sephirot",
+    "shin": "bg-sephirot",
+    "peh": "bg-sephirot",
+    "resh": "bg-sephirot",
+    "tzaddi": "bg-sephirot",
+    "tiferet": "bg-sephirot",
+    "samekh": "bg-sephirot",
+    "nun": "bg-sephirot",
+    "ayin": "bg-sephirot",
+    "chesed": "bg-sephirot",
+    "kaph": "bg-sephirot",
+    "yod": "bg-sephirot",
+    "gevurah": "bg-sephirot",
+    "mem": "bg-sephirot",
+    "lamed": "bg-sephirot",
+    "teth": "bg-sephirot",
+    "binah": "bg-sephirot",
+    "zayin": "bg-sephirot",
+    "heth": "bg-sephirot",
+    "chokmah": "bg-sephirot",
+    "he": "bg-sephirot",
+    "vau": "bg-sephirot",
+    "daleth": "bg-sephirot",
+    "keter": "bg-palace",
+    "gimel": "bg-sephirot",
+    "aleph": "bg-sephirot",
+    "beth": "bg-sephirot",
+    "basemalkuth": "bg-indoor",
+    "baseyesod": "bg-indoor",
+    "basenetzach": "bg-indoor",
+    "basehod": "bg-indoor",
+    "basetiferet": "bg-indoor",
+    "basechesed": "bg-indoor",
+    "basegevurah": "bg-indoor",
+    "basebinah": "bg-indoor",
+    "basechokmah": "bg-indoor",
+    "palaceketer": "bg-palace",
+    "ghostcrypt": "bg-crypt",
+    "hauntedhall": "bg-crypt",
+    "heroeshall": "bg-indoor",
+    "thievesden": "bg-indoor"
   }
 }

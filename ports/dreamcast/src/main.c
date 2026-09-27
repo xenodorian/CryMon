@@ -4263,7 +4263,16 @@ static void draw_battle_guard_menu(int cur) {
    boxes/sprites/content box, all of which are individually small so
    the background (and both battle sprites) stay visible around them
    -- see the section comment above. */
+static int battle_bg_map = 0;   /* map the fight is on; set by the main loop */
+
 static void draw_battle_bg(void) {
+#ifdef HAVE_AREA_BG
+    int k = (battle_bg_map >= 0 && battle_bg_map < MAP_N) ? MAP_BATTLE_BG[battle_bg_map] : 0;
+    if(k > 0) {
+        blit_sprite_2x(AREA_BG[k - 1], AREA_BG_W, AREA_BG_H, 0, 0);
+        return;
+    }
+#endif
     blit_sprite(battle_bg, BATTLE_BG_W, BATTLE_BG_H, 0, 0);
 }
 
@@ -9423,10 +9432,12 @@ void main(void) {
                 draw_journal(journal_cur);
             else if(menu_mode == 8)
                 draw_map_screen(map_page, map_id, frame_count);
-            if(in_battle)
+            if(in_battle) {
+                battle_bg_map = map_id;
                 draw_battle(&battle, &bag, frame_count,
                             battle_foe_enter_t, battle_foe_faint_t,
                             battle_pl_enter_t, battle_pl_faint_t);
+            }
             if(shop_open)
                 draw_shop(&bag, marks, shop_sell_tab, shop_cur, shop_keep_id,
                           reputation, shop_free, dray_knife_offered);
