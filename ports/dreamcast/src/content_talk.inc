@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=47a4d7883ad3e8f1 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4b5e6d8de4931d24 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -2020,6 +2020,30 @@ static const TalkBeat TALK_HINT_KETER_POST[] = {
 static const TalkBeat TALK_MARN_POST[] = {
     { "TWELVE YEARS OF WAR, AND A GIRL FROM CRYTOWN ENDED IT. MALKUTH WON'T FORGET YOU.", 52 },
 };
+static const TalkBeat TALK_DAGNY_ASK[] = {
+    { "FOREMAN DAGNY. SOMETHING IN THIS QUARRY KEEPS CHEWING THROUGH MY BLASTING FUSES.", 71 },
+    { "THE MINERS SWEAR IT'S A CINDERMITE. CATCH ONE IN THE GRASS HERE AND SHOW ME. I WANT TO SEE WHAT I'M UP AGAINST.", 71 },
+};
+static const TalkBeat TALK_DAGNY_THANKS[] = {
+    { "SO THAT'S THE LITTLE FUSE-EATER. SMALLER THAN I THOUGHT. MEANER, TOO.", 71 },
+    { "KEEP IT. TAKE THESE FOR YOUR TROUBLE.", 71 },
+    { "MAX GOT 2 SUNBALM.", 0 },
+};
+static const TalkBeat TALK_DAGNY_AFTER[] = {
+    { "WE WRAP THE FUSES IN WET CLOTH NOW. THE CINDERMITES HATE IT.", 71 },
+};
+static const TalkBeat TALK_FENWICK_ASK[] = {
+    { "OLD FENWICK. I'VE FISHED THIS MARSH FOR FORTY YEARS.", 70 },
+    { "SOMETHING COLD LIVES UNDER THE REEDS NOW. FREEZES MY LINES SOLID. CATCH WHATEVER IT IS AND SHOW ME.", 70 },
+};
+static const TalkBeat TALK_FENWICK_THANKS[] = {
+    { "A CHILLNEWT! SO YOU'RE THE ONE STEALING MY BAIT.", 70 },
+    { "HERE. LINEN WRAPS. I KEEP MORE THAN I NEED.", 70 },
+    { "MAX GOT 3 LINEN WRAPS.", 0 },
+};
+static const TalkBeat TALK_FENWICK_AFTER[] = {
+    { "I FISH ON THE WARM SIDE OF THE MARSH NOW. THE CHILLNEWTS CAN HAVE THE REST.", 70 },
+};
 
 #define TALK_LEN(arr) (int)(sizeof(arr) / sizeof((arr)[0]))
 
@@ -2526,6 +2550,12 @@ static const TalkBeat *const TALK_PTRS[] = {
     TALK_HINT_CHOKMAH_POST,
     TALK_HINT_KETER_POST,
     TALK_MARN_POST,
+    TALK_DAGNY_ASK,
+    TALK_DAGNY_THANKS,
+    TALK_DAGNY_AFTER,
+    TALK_FENWICK_ASK,
+    TALK_FENWICK_THANKS,
+    TALK_FENWICK_AFTER,
 };
 static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_FATHER),
@@ -3030,6 +3060,12 @@ static const int TALK_COUNTS[] = {
     TALK_LEN(TALK_HINT_CHOKMAH_POST),
     TALK_LEN(TALK_HINT_KETER_POST),
     TALK_LEN(TALK_MARN_POST),
+    TALK_LEN(TALK_DAGNY_ASK),
+    TALK_LEN(TALK_DAGNY_THANKS),
+    TALK_LEN(TALK_DAGNY_AFTER),
+    TALK_LEN(TALK_FENWICK_ASK),
+    TALK_LEN(TALK_FENWICK_THANKS),
+    TALK_LEN(TALK_FENWICK_AFTER),
 };
-#define TALK_TABLE_N 502
+#define TALK_TABLE_N 508
 

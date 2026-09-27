@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=47a4d7883ad3e8f1 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4b5e6d8de4931d24 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -268,7 +268,7 @@ static const char *const map_marsh_rows[] = {
     "##..T..====..T..##",
     "##.d...====..rrr##",
     "##.....====..HwH##",
-    "###...F........###",
+    "###...F.m......###",
     "##################",
 };
 
@@ -280,7 +280,7 @@ static const char *const map_quarry_rows[] = {
     "#..^^^^..TTT...#",
     "#..^^^^..TTT...#",
     "G........TTT...J",
-    "#...C.S........#",
+    "#...C.S.....m..#",
     "#..............#",
     "#....^^^^....f.#",
     "#....^^^^......#",

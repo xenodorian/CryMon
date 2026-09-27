@@ -887,6 +887,32 @@
         ]
       },
       {
+        "id": "dagny",
+        "title": "The Fuse-Eater",
+        "start": "dagnyAsked",
+        "done": "showedCindermite",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Catch a Cindermite in the Quarry's grass and show Foreman Dagny.",
+            "ifNot": "showedCindermite"
+          }
+        ]
+      },
+      {
+        "id": "fenwick",
+        "title": "Cold Water",
+        "start": "fenwickAsked",
+        "done": "showedChillnewt",
+        "doneText": "",
+        "steps": [
+          {
+            "text": "Catch a Chillnewt in the Marsh's grass and show Old Fenwick.",
+            "ifNot": "showedChillnewt"
+          }
+        ]
+      },
+      {
         "id": "wyn",
         "title": "The Library's Great Book",
         "start": "talkedWyn",

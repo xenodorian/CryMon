@@ -3760,6 +3760,12 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       hard-coded 358). B stays "cycle lead" on web, so it was not used.
       "How to play" lists it. Web measured 43 px walking vs 78 px running
       over the same half second.
+- [x] H15 Two county side quests (JSON only; journal entries too).
+      - Foreman Dagny in the Quarry (mark `m`): show her a Cindermite
+        (you keep it) for 2 Sunbalm. Flags `dagnyAsked`, `showedCindermite`.
+      - Old Fenwick in the Marsh (mark `m`): show him a Chillnewt for 3
+        Linen Wraps. Flags `fenwickAsked`, `showedChillnewt`.
+      - Both species live in that map's own grass. Verified on web.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

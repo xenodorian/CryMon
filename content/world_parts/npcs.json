@@ -3925,6 +3925,66 @@
           "talk": "dollFound"
         }
       ]
+    },
+    {
+      "map": "quarry",
+      "mark": "m",
+      "id": "dagny",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "dagnyAsk",
+      "script": [
+        {
+          "if": "mon:cindermite",
+          "ifNot": "showedCindermite",
+          "set": "showedCindermite",
+          "grant": [
+            [
+              "sunbalm",
+              2
+            ]
+          ],
+          "talk": "dagnyThanks"
+        },
+        {
+          "if": "showedCindermite",
+          "talk": "dagnyAfter"
+        },
+        {
+          "talk": "dagnyAsk",
+          "set": "dagnyAsked"
+        }
+      ]
+    },
+    {
+      "map": "marsh",
+      "mark": "m",
+      "id": "fenwick",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "fenwickAsk",
+      "script": [
+        {
+          "if": "mon:chillnewt",
+          "ifNot": "showedChillnewt",
+          "set": "showedChillnewt",
+          "grant": [
+            [
+              "bandage",
+              3
+            ]
+          ],
+          "talk": "fenwickThanks"
+        },
+        {
+          "if": "showedChillnewt",
+          "talk": "fenwickAfter"
+        },
+        {
+          "talk": "fenwickAsk",
+          "set": "fenwickAsked"
+        }
+      ]
     }
   ]
 }

@@ -5155,6 +5155,66 @@
         "speaker": "marn",
         "text": "Twelve years of war, and a girl from CryTown ended it. Malkuth won't forget you."
       }
+    ],
+    "dagnyAsk": [
+      {
+        "speaker": "townswoman",
+        "text": "Foreman Dagny. Something in this quarry keeps chewing through my blasting fuses."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The miners swear it's a Cindermite. Catch one in the grass here and show me. I want to see what I'm up against."
+      }
+    ],
+    "dagnyThanks": [
+      {
+        "speaker": "townswoman",
+        "text": "So that's the little fuse-eater. Smaller than I thought. Meaner, too."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "Keep it. Take these for your trouble."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 2 Sunbalm."
+      }
+    ],
+    "dagnyAfter": [
+      {
+        "speaker": "townswoman",
+        "text": "We wrap the fuses in wet cloth now. The Cindermites hate it."
+      }
+    ],
+    "fenwickAsk": [
+      {
+        "speaker": "townsman",
+        "text": "Old Fenwick. I've fished this marsh for forty years."
+      },
+      {
+        "speaker": "townsman",
+        "text": "Something cold lives under the reeds now. Freezes my lines solid. Catch whatever it is and show me."
+      }
+    ],
+    "fenwickThanks": [
+      {
+        "speaker": "townsman",
+        "text": "A Chillnewt! So you're the one stealing my bait."
+      },
+      {
+        "speaker": "townsman",
+        "text": "Here. Linen wraps. I keep more than I need."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 3 Linen Wraps."
+      }
+    ],
+    "fenwickAfter": [
+      {
+        "speaker": "townsman",
+        "text": "I fish on the warm side of the marsh now. The Chillnewts can have the rest."
+      }
     ]
   },
   "mercyDismissLines": [

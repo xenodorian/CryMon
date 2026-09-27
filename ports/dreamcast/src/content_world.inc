@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=47a4d7883ad3e8f1 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=4b5e6d8de4931d24 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -659,13 +659,17 @@ static const int SHOP_NOT_SOLD_MASK[] = {
 #define FLAG_RHEE_ASKED 217
 #define FLAG_TALKED_OSK 218
 #define FLAG_BEAT_CALDER_POST 219
-#define FLAG_N 220
+#define FLAG_DAGNY_ASKED 220
+#define FLAG_SHOWED_CINDERMITE 221
+#define FLAG_FENWICK_ASKED 222
+#define FLAG_SHOWED_CHILLNEWT 223
+#define FLAG_N 224
 #define FLAG_ITEM_BASE 2000
 #define FLAG_MON_BASE 3000
 #define FLAG_REP_POS 4000
 #define FLAG_REP_NEG 4001
 #define FLAG_DEX_BASE 5000
-static const short FLAG_TO_SAVE[FLAG_N] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, 36, 62, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217 };
+static const short FLAG_TO_SAVE[FLAG_N] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -1, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, 36, 62, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221 };
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -1148,6 +1152,12 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, 203, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
     { -1, -1, -204, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
     { -1, -1, -1, 203, { 31,-1,-1 }, { 1,0,0 }, 1, -1, 0, 483, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { 3025, 221, -1, 221, { 5,-1,-1 }, { 2,0,0 }, 1, -1, 0, 503, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { 221, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 504, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, -1, -1, 220, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 502, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { 3032, 223, -1, 223, { 1,-1,-1 }, { 3,0,0 }, 1, -1, 0, 506, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { 223, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 507, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
+    { -1, -1, -1, 222, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 505, -1, -1, 0, -1, 0, 0, { -1, -1, -1 }, 0, -1, 0 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -1303,8 +1313,10 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_EMPTYHOUSE, 'x', 431, 5, 30, 32 },
     { MAP_EMPTYHOUSE, 'z', 436, 1, 30, 32 },
     { MAP_MARSH, 'n', 437, 3, 30, 32 },
+    { MAP_QUARRY, 'm', 440, 3, 30, 32 },
+    { MAP_MARSH, 'm', 443, 3, 30, 32 },
 };
-#define NPC_DEF_N 153
+#define NPC_DEF_N 155
 #define NPC_SPRITE_N 37
 static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_lead_1, npc_lead_2, npc_lead_3, npc_lead_4 },
@@ -1346,7 +1358,7 @@ static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_shinigami_1, npc_shinigami_2, npc_shinigami_3, npc_shinigami_4 },
 };
 /* NPC_SPRITE_FRAMES index per NPC_DEFS entry (-1: drawn by hand-wired code). */
-static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 36, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 36, -1, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 1, 7, 1, 1, 8, 1, 1, 9, 1, 1, 10, 1, 1, 11, 2, 2, 12, 13, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 36, 19, 19, 19, 20, 20, 20, 18, 18, 18, 21, 23, 22, 24, 25, 26, 27, 28, 29, 30, 35, 32, 33, 33, 31, 31, 33, 33, 32, 30, 35, 31, 34, 30, 33, 33, 31, 30, 35, 32, 34, 30, 31, 31, 32, 32, 31, 30, 31, 30, 31, 30, 31, 30, 31, 32, 32, 30, 31, 30, 32, 32, 31, 18, 19, 35 };
+static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 36, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 36, -1, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 1, 7, 1, 1, 8, 1, 1, 9, 1, 1, 10, 1, 1, 11, 2, 2, 12, 13, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 36, 19, 19, 19, 20, 20, 20, 18, 18, 18, 21, 23, 22, 24, 25, 26, 27, 28, 29, 30, 35, 32, 33, 33, 31, 31, 33, 33, 32, 30, 35, 31, 34, 30, 33, 33, 31, 30, 35, 32, 34, 30, 31, 31, 32, 32, 31, 30, 31, 30, 31, 30, 31, 30, 31, 32, 32, 30, 31, 30, 32, 32, 31, 18, 19, 35, 31, 30 };
 #define INTERACT_BUFFER 20
 
 
@@ -1355,8 +1367,8 @@ static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -
    hint is its first step whose if_not is off and if_flag (if any) is on. */
 typedef struct { int if_flag, if_not; const char *text; } JournalStep;
 typedef struct { const char *title; int start, done; const char *done_text; int step0, nsteps, linear; } JournalQuest;
-#define JOURNAL_QUEST_N 24
-#define JOURNAL_STEP_N 72
+#define JOURNAL_QUEST_N 26
+#define JOURNAL_STEP_N 74
 static const JournalStep JOURNAL_STEPS[JOURNAL_STEP_N] = {
     { -1, 0, "TAKE FATHER'S CRYMON CRYSTAL FROM THE SHELF AT HOME." },
     { -1, 4, "CALDER BLOCKS THE EAST ROAD OUT OF CRYTOWN. BEAT HIM TO REACH THE CLIFFS." },
@@ -1401,6 +1413,8 @@ static const JournalStep JOURNAL_STEPS[JOURNAL_STEP_N] = {
     { -1, 164, "FIND ROLO ON THE CLIFFS." },
     { -1, 165, "TELL LINA IN CRYTOWN THAT ROLO IS HOME." },
     { -1, 166, "BRING COLLECTOR JUNO IN CRYTOWN A CRYMARE FROM THE RUINS' GRASS." },
+    { -1, 221, "CATCH A CINDERMITE IN THE QUARRY'S GRASS AND SHOW FOREMAN DAGNY." },
+    { -1, 223, "CATCH A CHILLNEWT IN THE MARSH'S GRASS AND SHOW OLD FENWICK." },
     { -1, 189, "CATCH 10 KINDS OF CRYMON AND SHOW ARCHIVIST WYN IN THE RUINS LIBRARY." },
     { -1, 190, "CATCH 25 KINDS AND SHOW WYN." },
     { -1, 191, "CATCH 50 KINDS AND SHOW WYN." },
@@ -1431,7 +1445,7 @@ static const JournalStep JOURNAL_STEPS[JOURNAL_STEP_N] = {
     { -1, 186, "TELL ANSELM IN CHOKMAH THAT IONA IS HOME." },
     { -1, 187, "BRING RHEE IN KETER AN ARCANOX FROM THE PATH OF ALEPH." },
 };
-static const JournalQuest JOURNAL_QUESTS[24] = {
+static const JournalQuest JOURNAL_QUESTS[26] = {
     { "THE WEEPING ARMY", -1, 105, "NERO IS BEATEN. THE SEPHIROT ARE FREE.", 0, 18, 1 },
     { "AFTER THE WAR", 111, 219, "CALDER WENT TO JOIN THE NEW GUARD IN MALKUTH.", 18, 1, 0 },
     { "THE FALLEN STAR", 51, 62, "HEAVENFALL ANSWERED THE SCROLL.", 19, 1, 0 },
@@ -1442,20 +1456,22 @@ static const JournalQuest JOURNAL_QUESTS[24] = {
     { "OLD TAM'S WATCH", 205, 163, "", 38, 2, 0 },
     { "LINA'S BOY", 206, 165, "", 40, 2, 0 },
     { "A CRYMARE FOR JUNO", 207, 166, "", 42, 1, 0 },
-    { "THE LIBRARY'S GREAT BOOK", 188, 193, "MAX'S NAME IS ON THE FIRST PAGE.", 43, 5, 0 },
-    { "A DESERTER'S LETTER", 194, 196, "", 48, 2, 0 },
-    { "HERMIT OSK'S LESSONS", 218, 199, "", 50, 5, 0 },
-    { "BUTTON", 202, 204, "MAREN IS AT REST.", 55, 2, 0 },
-    { "PIP", 208, 168, "", 57, 2, 0 },
-    { "A BOLTLAMB FOR COBB", 209, 169, "", 59, 1, 0 },
-    { "SERA'S LOCKET", 210, 171, "", 60, 1, 0 },
-    { "WANTED, KNIFE-HAND GARROW", 211, 175, "", 61, 2, 0 },
-    { "TILLY", 212, 177, "", 63, 2, 0 },
-    { "A WHEELHOG FOR VOSS", 213, 178, "", 65, 1, 0 },
-    { "LUNE'S OLD MAP", 214, 180, "", 66, 1, 0 },
-    { "WANTED, DESERTER KAEL", 215, 184, "", 67, 2, 0 },
-    { "SISTER IONA", 216, 186, "", 69, 2, 0 },
-    { "AN ARCANOX FOR RHEE", 217, 187, "", 71, 1, 0 },
+    { "THE FUSE-EATER", 220, 221, "", 43, 1, 0 },
+    { "COLD WATER", 222, 223, "", 44, 1, 0 },
+    { "THE LIBRARY'S GREAT BOOK", 188, 193, "MAX'S NAME IS ON THE FIRST PAGE.", 45, 5, 0 },
+    { "A DESERTER'S LETTER", 194, 196, "", 50, 2, 0 },
+    { "HERMIT OSK'S LESSONS", 218, 199, "", 52, 5, 0 },
+    { "BUTTON", 202, 204, "MAREN IS AT REST.", 57, 2, 0 },
+    { "PIP", 208, 168, "", 59, 2, 0 },
+    { "A BOLTLAMB FOR COBB", 209, 169, "", 61, 1, 0 },
+    { "SERA'S LOCKET", 210, 171, "", 62, 1, 0 },
+    { "WANTED, KNIFE-HAND GARROW", 211, 175, "", 63, 2, 0 },
+    { "TILLY", 212, 177, "", 65, 2, 0 },
+    { "A WHEELHOG FOR VOSS", 213, 178, "", 67, 1, 0 },
+    { "LUNE'S OLD MAP", 214, 180, "", 68, 1, 0 },
+    { "WANTED, DESERTER KAEL", 215, 184, "", 69, 2, 0 },
+    { "SISTER IONA", 216, 186, "", 71, 2, 0 },
+    { "AN ARCANOX FOR RHEE", 217, 187, "", 73, 1, 0 },
 };
 
 /* Pause-menu Map (logic.json mapScreen). Nodes are dots with a label under

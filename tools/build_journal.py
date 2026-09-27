@@ -113,6 +113,10 @@ QUESTS_AFTER_MAIN = [
     ], start="linaAsked", done="roloHome"),
     q("juno", "A Crymare for Juno", [s("Bring Collector Juno in CryTown a Crymare from the Ruins' grass.", "gaveCrymare")],
       start="junoAsked", done="gaveCrymare"),
+    q("dagny", "The Fuse-Eater", [s("Catch a Cindermite in the Quarry's grass and show Foreman Dagny.", "showedCindermite")],
+      start="dagnyAsked", done="showedCindermite"),
+    q("fenwick", "Cold Water", [s("Catch a Chillnewt in the Marsh's grass and show Old Fenwick.", "showedChillnewt")],
+      start="fenwickAsked", done="showedChillnewt"),
     q("wyn", "The Library's Great Book", [
         s("Catch 10 kinds of CryMon and show Archivist Wyn in the Ruins library.", "libraryDex10"),
         s("Catch 25 kinds and show Wyn.", "libraryDex25"),
