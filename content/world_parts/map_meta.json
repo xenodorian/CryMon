@@ -59,7 +59,11 @@
     "basegevurah": "GEVURAH BASE",
     "basebinah": "BINAH BASE",
     "basechokmah": "CHOKMAH BASE",
-    "palaceketer": "NERO'S PALACE"
+    "palaceketer": "NERO'S PALACE",
+    "ghostcrypt": "THE GHOST GUILD",
+    "hauntedhall": "THE HAUNTED HALL",
+    "heroeshall": "THE HEROES GUILD",
+    "thievesden": "THE THIEVES DEN"
   },
   "mapIds": [
     "house",
@@ -121,6 +125,10 @@
     "basegevurah",
     "basebinah",
     "basechokmah",
-    "palaceketer"
+    "palaceketer",
+    "ghostcrypt",
+    "hauntedhall",
+    "heroeshall",
+    "thievesden"
   ]
 }

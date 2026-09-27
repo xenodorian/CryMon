@@ -166,6 +166,11 @@ export const BASE_BINAH = normalize(raw.basebinah);
 export const BASE_CHOKMAH = normalize(raw.basechokmah);
 export const PALACE_KETER = normalize(raw.palaceketer);
 
+export const GHOSTCRYPT = normalize(raw.ghostcrypt);
+export const HAUNTEDHALL = normalize(raw.hauntedhall);
+export const HEROESHALL = normalize(raw.heroeshall);
+export const THIEVESDEN = normalize(raw.thievesden);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -227,6 +232,10 @@ export const MAPS = {
   basebinah: BASE_BINAH,
   basechokmah: BASE_CHOKMAH,
   palaceketer: PALACE_KETER,
+  ghostcrypt: GHOSTCRYPT,
+  hauntedhall: HAUNTEDHALL,
+  heroeshall: HEROESHALL,
+  thievesden: THIEVESDEN,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

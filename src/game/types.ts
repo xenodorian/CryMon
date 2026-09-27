@@ -12,7 +12,7 @@ export type SpeakerId =
   | "oren" | "tessa" | "birch" | "sable"
   | "cross" | "commander" | "conscript" | "enforcer" | "sentry"
   | "father" | "heavenfall" | "ranger" | "scout" | "keeper" | "warden"
-  | "bogwalker" | "reedguard" | "quartz" | "opal" | "driller" | "fenn" | "dray" | "lead" | "system" | "none" | "heavenfallPriestess" | "weepingGuard" | "royalGuard" | "nero" | "harrow" | "ashgrove" | "stroud" | "vale" | "kessler" | "morrow" | "crane" | "blackwood" | "sorrel" | "ada" | "hale" | "marn" | "citizen";
+  | "bogwalker" | "reedguard" | "quartz" | "opal" | "driller" | "fenn" | "dray" | "lead" | "system" | "none" | "heavenfallPriestess" | "weepingGuard" | "royalGuard" | "nero" | "harrow" | "ashgrove" | "stroud" | "vale" | "kessler" | "morrow" | "crane" | "blackwood" | "sorrel" | "ada" | "hale" | "marn" | "citizen" | "ghost" | "vesk";
 
 export interface TalkBeat {
   speaker: SpeakerId;
@@ -53,7 +53,7 @@ export type SpeciesId =
   | "reedfawn" | "bowstag" | "motley" | "sleightfox" | "moonveil" | "bloomdoe" | "warbison" | "gallowcrow"
   | "gravemoth" | "hornblaze" | "atlashell" | "tidewolf" | "wheelhog";
 
-export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry" | "gauntlet" | "gauntlet1" | "gauntlet2" | "gauntlet3" | "gauntlet4" | "gauntlet5" | "gauntlet6" | "malkuth" | "weepingroad" | "yesod" | "tau" | "netzach" | "qoph" | "hod" | "shin" | "peh" | "resh" | "tzaddi" | "tiferet" | "samekh" | "nun" | "ayin" | "chesed" | "kaph" | "yod" | "gevurah" | "mem" | "lamed" | "teth" | "binah" | "zayin" | "heth" | "chokmah" | "he" | "vau" | "daleth" | "keter" | "gimel" | "aleph" | "beth" | "basemalkuth" | "baseyesod" | "basenetzach" | "basehod" | "basetiferet" | "basechesed" | "basegevurah" | "basebinah" | "basechokmah" | "palaceketer" | "basemalkuth" | "baseyesod" | "basenetzach" | "basehod" | "basetiferet" | "basechesed" | "basegevurah" | "basebinah" | "basechokmah" | "palaceketer";
+export type MapId = "house" | "veld" | "forest" | "grove" | "camp" | "cliffs" | "ruins" | "reach" | "marsh" | "quarry" | "gauntlet" | "gauntlet1" | "gauntlet2" | "gauntlet3" | "gauntlet4" | "gauntlet5" | "gauntlet6" | "malkuth" | "weepingroad" | "yesod" | "tau" | "netzach" | "qoph" | "hod" | "shin" | "peh" | "resh" | "tzaddi" | "tiferet" | "samekh" | "nun" | "ayin" | "chesed" | "kaph" | "yod" | "gevurah" | "mem" | "lamed" | "teth" | "binah" | "zayin" | "heth" | "chokmah" | "he" | "vau" | "daleth" | "keter" | "gimel" | "aleph" | "beth" | "basemalkuth" | "baseyesod" | "basenetzach" | "basehod" | "basetiferet" | "basechesed" | "basegevurah" | "basebinah" | "basechokmah" | "palaceketer" | "basemalkuth" | "baseyesod" | "basenetzach" | "basehod" | "basetiferet" | "basechesed" | "basegevurah" | "basebinah" | "basechokmah" | "palaceketer" | "ghostcrypt" | "hauntedhall" | "heroeshall" | "thievesden";
 
 export type SpellId = "firebolt" | "icebeam" | "lightning" | "manasurge";
 
@@ -118,7 +118,7 @@ export interface Monster {
 
 export type StatusId = "none" | "burned" | "poisoned" | "confused" | "paralyzed" | "exhausted";
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea" | "bowieKnife" | "shackles" | "goldenShackles";
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea" | "bowieKnife" | "shackles" | "goldenShackles" | "boneInes" | "boneTomas" | "boneOriel" | "wraithLantern";
 
 export interface ItemDef {
   id: ItemId;

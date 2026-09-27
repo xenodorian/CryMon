@@ -53,7 +53,9 @@
     "ada": "Ada",
     "hale": "Hale",
     "marn": "Elder Marn",
-    "citizen": "Citizen"
+    "citizen": "Citizen",
+    "ghost": "Ghost",
+    "vesk": "Mourner Vesk"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
@@ -1429,11 +1431,11 @@
       },
       {
         "speaker": "lead",
-        "text": "No one leaves CryTown while I stand here."
+        "text": "No one leaves CryTown while I stand here. Past me is the Veil, and past the Veil is the King."
       },
       {
         "speaker": "lead",
-        "text": "Turn back, or face me."
+        "text": "Turn back, or meet all six of mine."
       }
     ],
     "leadWinPlaceholder": [
@@ -1451,15 +1453,15 @@
       },
       {
         "speaker": "lead",
-        "text": "Nine Generals. Nine cities. And the Weeping King, Nero, in Keter over all of them."
+        "text": "Nine Generals. Nine cities. And Nero, the Weeping King, in Keter over all of them."
       },
       {
         "speaker": "lead",
-        "text": "Go on. They'll finish what I couldn't."
+        "text": "Doesn't matter. You'll never get through the Veil. Nobody living does."
       },
       {
         "speaker": "none",
-        "text": "The north road to the Sephirot is open."
+        "text": "Lead limps off up the road and disappears into the pale wall."
       }
     ],
     "heavenfallDevour": [
@@ -1483,23 +1485,31 @@
       },
       {
         "speaker": "shinigami",
-        "text": "The rock at CryTown's western wall. I broke it myself, on my way out here."
+        "text": "The rock at CryTown's west wall. I broke it on my way out."
       },
       {
         "speaker": "shinigami",
-        "text": "This is the Reach. That stone you're looking for hums with old crystal -- it's what wakes CryMon like these."
+        "text": "This is the Reach. Quartz and Opal guard the crystal badges. The Heroes in CryTown won't look at you without both."
       },
       {
         "speaker": "shinigami",
-        "text": "Quartz guards one badge past here. Opal guards the other. Beat them both if you mean to matter to anyone official."
+        "text": "But that's not why I waited for you."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Nero took three people from me. I mean to lay them to rest. Come find me under the old house in the Ruins. The northwest one."
       },
       {
         "speaker": "max",
-        "text": "Wild CryMon out here hit harder than CryTown ever did."
+        "text": "Why would I help you?"
       },
       {
         "speaker": "shinigami",
-        "text": "Good. Get stronger, or get left behind."
+        "text": "Because the road north is walled with his dead. I'm the only one who knows how to open it."
+      },
+      {
+        "speaker": "none",
+        "text": "Shinigami walks off toward the Ruins."
       }
     ],
     "shinigamiReachAgain": [
@@ -1648,6 +1658,10 @@
         "text": "General Harrow. I held Malkuth back when it was still worth holding."
       },
       {
+        "speaker": "harrow",
+        "text": "The King keeps my brothers from the old war in the Veil. As long as I serve, they stand guard forever."
+      },
+      {
         "speaker": "max",
         "text": "It's still worth holding. Just not by you."
       },
@@ -1694,6 +1708,10 @@
       {
         "speaker": "ashgrove",
         "text": "General Ashgrove. You shouldn't be in here. Nobody told me you'd be in here."
+      },
+      {
+        "speaker": "ashgrove",
+        "text": "He kept my wife's voice. I hear her every night. I'd sign anything for that."
       },
       {
         "speaker": "max",
@@ -1745,6 +1763,10 @@
       },
       {
         "speaker": "stroud",
+        "text": "The King keeps my son's ghost in a cell of its own. As long as I serve, my boy stays."
+      },
+      {
+        "speaker": "stroud",
         "text": "I'll scratch yours in tonight."
       },
       {
@@ -1790,6 +1812,10 @@
       {
         "speaker": "vale",
         "text": "General Vale. Hear how quiet Hod is? I did that."
+      },
+      {
+        "speaker": "vale",
+        "text": "My daughter drowned in the river. Nero lets her sing to me. Quiet is the only way I can hear her."
       },
       {
         "speaker": "max",
@@ -1840,6 +1866,10 @@
         "text": "General Kessler. Tiferet burned once. Smell that? I kept a little of it going."
       },
       {
+        "speaker": "kessler",
+        "text": "Fire took my whole family. Nero bound them where no fire can reach them again."
+      },
+      {
         "speaker": "max",
         "text": "I could smell it from the road."
       },
@@ -1886,6 +1916,10 @@
       {
         "speaker": "morrow",
         "text": "General Morrow. Chesed drinks when I open the gates. Not before."
+      },
+      {
+        "speaker": "morrow",
+        "text": "My brother died of thirst in the old war. Nero keeps him. I keep the water."
       },
       {
         "speaker": "max",
@@ -1936,6 +1970,10 @@
         "text": "General Crane. My birds saw you leave CryTown. They've watched every step since."
       },
       {
+        "speaker": "crane",
+        "text": "My birds are my old squad. Nero bound them into feathers so they'd never leave me."
+      },
+      {
         "speaker": "max",
         "text": "Then they watched me win."
       },
@@ -1984,6 +2022,10 @@
         "text": "General Blackwood. Binah was a garrison before it was a city. It'll be one again."
       },
       {
+        "speaker": "blackwood",
+        "text": "Three kings died on my watch. Nero is the one who refuses to."
+      },
+      {
         "speaker": "max",
         "text": "It's a city. It stays one."
       },
@@ -2030,6 +2072,10 @@
       {
         "speaker": "sorrel",
         "text": "General Sorrel. I am the last wall between you and the King."
+      },
+      {
+        "speaker": "sorrel",
+        "text": "I stood at the queen's deathbed with him. I'm the one who told him to keep her."
       },
       {
         "speaker": "max",
@@ -2081,21 +2127,25 @@
       },
       {
         "speaker": "nero",
-        "text": "You took my Generals and my cities. You will not take my crown."
-      },
-      {
-        "speaker": "max",
-        "text": "I don't want your crown. I want you gone."
+        "text": "Twelve years ago I held my queen while she died. I swore no one would ever leave me again."
       },
       {
         "speaker": "nero",
-        "text": "Then come and take it from me."
+        "text": "Every soldier, every General, every soul in this land stays with me. And you walked through my Veil."
+      },
+      {
+        "speaker": "max",
+        "text": "They wanted to leave. You wouldn't let them."
+      },
+      {
+        "speaker": "nero",
+        "text": "Then come and take my crown, and see who stays with you."
       }
     ],
     "neroWin": [
       {
         "speaker": "none",
-        "text": "Nero's last CryMon falls. The throne room goes quiet."
+        "text": "Nero's last CryMon falls. Outside the palace, the wailing goes quiet, one voice at a time."
       },
       {
         "speaker": "nero",
@@ -2110,6 +2160,10 @@
       {
         "speaker": "none",
         "text": "Max locks the Golden Shackles on Nero's wrists."
+      },
+      {
+        "speaker": "none",
+        "text": "Across the Sephirot, the bound dead go quiet at last."
       },
       {
         "speaker": "none",
@@ -2136,6 +2190,10 @@
       {
         "speaker": "none",
         "text": "The throne room fills with screaming. Then it stops."
+      },
+      {
+        "speaker": "none",
+        "text": "His queen's ring rolls across the floor and stops at Max's feet."
       }
     ],
     "neroCrowned": [
@@ -2587,6 +2645,10 @@
       },
       {
         "speaker": "marn",
+        "text": "They say Nero still talks to his dead queen. That's why the army weeps. Every soldier he loses, he keeps."
+      },
+      {
+        "speaker": "marn",
         "text": "Nine Generals hold the nine cities of the Sephirot. Each one sits in a base behind two guards."
       },
       {
@@ -2782,6 +2844,350 @@
       {
         "speaker": "citizen",
         "text": "Everybody's watching the road to Keter now."
+      }
+    ],
+    "ghostJoin": [
+      {
+        "speaker": "shinigami",
+        "text": "You came. Good. This crypt is the Ghost Guild now. So far it has one member."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Listen. Twelve years ago Nero, the Weeping King, lost his queen. He couldn't let her go."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "So he learned to keep the dead. Every soldier who dies for him is bound and made to wail. That's why they call it the Weeping Army."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "The road north of CryTown is walled with them. The Weeping Veil. Nothing living gets through."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "He wanted my necromancy to bind more. I said no. So his grave-warden, Mourner Vesk, killed my three apprentices. Ines. Tomas. Oriel."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Vesk scattered their bones and bound their spirits so they would weep forever. Then Nero chained me in the Prison."
+      },
+      {
+        "speaker": "max",
+        "text": "Three names. Three graves."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Now you know. Here's the work. Dig up their bones. Ines is in the Ruins, Tomas in the Prison yard, Oriel in the Marsh."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Pray at the three old shrines, on the Cliffs, in the Quarry and in the Forest, so their spirits can find the way."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "And the old hall in the Reach is haunted with Vesk's work. Oriel's CryMon is bound in there. Free it."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Do all that, and I can make a lantern that parts the Veil."
+      },
+      {
+        "speaker": "none",
+        "text": "Max joined the Ghost Guild."
+      }
+    ],
+    "ghostNeedBones": [
+      {
+        "speaker": "shinigami",
+        "text": "Bones first. Ines in the Ruins, Tomas in the Prison yard, Oriel in the Marsh. Dig. They won't mind."
+      }
+    ],
+    "ghostNeedPrayers": [
+      {
+        "speaker": "shinigami",
+        "text": "You still owe the shrines a prayer. The Cliffs, the Quarry, the Forest. They show the dead the way home."
+      }
+    ],
+    "ghostNeedHall": [
+      {
+        "speaker": "shinigami",
+        "text": "Oriel's CryMon is still bound in the Reach's haunted hall. Free it."
+      }
+    ],
+    "ghostRite": [
+      {
+        "speaker": "shinigami",
+        "text": "Bones. Prayers. The hall is quiet. Stand back."
+      },
+      {
+        "speaker": "none",
+        "text": "Shinigami sets the three bundles on the crypt floor and begins to chant."
+      },
+      {
+        "speaker": "none",
+        "text": "The candles gutter. Someone is coming down the stairs."
+      },
+      {
+        "speaker": "vesk",
+        "text": "I heard a dead man singing. I thought I'd bound them all."
+      },
+      {
+        "speaker": "vesk",
+        "text": "Mourner Vesk, grave-warden to the Weeping King. Those bones belong to His Majesty."
+      },
+      {
+        "speaker": "max",
+        "text": "They belong in the ground."
+      },
+      {
+        "speaker": "vesk",
+        "text": "Then you can join them."
+      }
+    ],
+    "veskWin": [
+      {
+        "speaker": "none",
+        "text": "Vesk's last CryMon drops. The candles steady."
+      },
+      {
+        "speaker": "vesk",
+        "text": "You think a lantern will save you? The King keeps every soul. He'll keep yours."
+      }
+    ],
+    "veskArrest": [
+      {
+        "speaker": "max",
+        "text": "You'll answer for Ines, Tomas and Oriel."
+      },
+      {
+        "speaker": "none",
+        "text": "Max locks the Shackles on Vesk. Shinigami watches and says nothing."
+      }
+    ],
+    "veskExecute": [
+      {
+        "speaker": "shinigami",
+        "text": "Do it."
+      },
+      {
+        "speaker": "none",
+        "text": "Vesk goes still. For once, nothing weeps."
+      }
+    ],
+    "ghostLanternArrest": [
+      {
+        "speaker": "shinigami",
+        "text": "You let the law have him. That's better than I would have done."
+      },
+      {
+        "speaker": "none",
+        "text": "Shinigami lays the bones in a single grave. Three small lights rise out of the ground and drift up the stairs, into the open air."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "They're free. Take this. The Wraith Lantern. It burns with what they left behind."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Hold it up at the north road. The Veil will part for it. Lead won't, though. You'll have to beat him yourself."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got the Wraith Lantern."
+      }
+    ],
+    "ghostLanternExecute": [
+      {
+        "speaker": "shinigami",
+        "text": "Quick. Clean. Vesk never gave them that much."
+      },
+      {
+        "speaker": "none",
+        "text": "Shinigami lays the bones in a single grave. Three small lights rise out of the ground and drift up the stairs, into the open air."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "They're free. Take this. The Wraith Lantern. It burns with what they left behind."
+      },
+      {
+        "speaker": "shinigami",
+        "text": "Hold it up at the north road. The Veil will part for it. Lead won't, though. You'll have to beat him yourself."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got the Wraith Lantern."
+      }
+    ],
+    "ghostAfter": [
+      {
+        "speaker": "shinigami",
+        "text": "The Veil is only the first of Nero's dead. Every General keeps someone. Remember that when you meet them."
+      }
+    ],
+    "graveInes": [
+      {
+        "speaker": "none",
+        "text": "A small stone with no name. Someone carved a needle and thread into it."
+      }
+    ],
+    "graveInesRob": [
+      {
+        "speaker": "none",
+        "text": "Max digs until her hands hurt. Wrapped in old cloth: the bones of Ines, the seamstress."
+      },
+      {
+        "speaker": "max",
+        "text": "Sorry. I'm taking you home."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got Ines's Bones. Robbing a grave doesn't do her name any good."
+      }
+    ],
+    "graveTomas": [
+      {
+        "speaker": "none",
+        "text": "A small stone with no name. Someone carved a hammer into it."
+      }
+    ],
+    "graveTomasRob": [
+      {
+        "speaker": "none",
+        "text": "Max digs until her hands hurt. Wrapped in old cloth: the bones of Tomas, the smith."
+      },
+      {
+        "speaker": "max",
+        "text": "Sorry. I'm taking you home."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got Tomas's Bones. Robbing a grave doesn't do her name any good."
+      }
+    ],
+    "graveOriel": [
+      {
+        "speaker": "none",
+        "text": "A small stone with no name. Someone carved a small bird into it."
+      }
+    ],
+    "graveOrielRob": [
+      {
+        "speaker": "none",
+        "text": "Max digs until her hands hurt. Wrapped in old cloth: the bones of Oriel, the bird keeper."
+      },
+      {
+        "speaker": "max",
+        "text": "Sorry. I'm taking you home."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got Oriel's Bones. Robbing a grave doesn't do her name any good."
+      }
+    ],
+    "graveEmpty": [
+      {
+        "speaker": "none",
+        "text": "The grave is open. Max already has what was down there."
+      }
+    ],
+    "shrineIdle": [
+      {
+        "speaker": "none",
+        "text": "An old stone shrine. The offering bowl is dry."
+      }
+    ],
+    "shrinePray": [
+      {
+        "speaker": "none",
+        "text": "Max kneels and says the three names. Ines. Tomas. Oriel."
+      },
+      {
+        "speaker": "none",
+        "text": "The wind drops for a moment, then picks up again."
+      }
+    ],
+    "shrineDone": [
+      {
+        "speaker": "none",
+        "text": "The shrine is quiet. The prayer was heard."
+      }
+    ],
+    "cryptLocked": [
+      {
+        "speaker": "none",
+        "text": "Stairs lead down into the dark under the old house. A cold draft pushes Max back."
+      }
+    ],
+    "hauntedLocked": [
+      {
+        "speaker": "none",
+        "text": "The hall doors won't open. Something on the other side is holding them shut."
+      }
+    ],
+    "veilBlocks": [
+      {
+        "speaker": "none",
+        "text": "A wall of pale, weeping faces fills the north road. They reach for Max's CryMon."
+      },
+      {
+        "speaker": "max",
+        "text": "Nothing living gets through that."
+      },
+      {
+        "speaker": "none",
+        "text": "Maybe someone who knows the dead would know what this is."
+      }
+    ],
+    "ghostSoldierASpot": [
+      {
+        "speaker": "ghost",
+        "text": "Stay... stay with the King... nobody leaves..."
+      },
+      {
+        "speaker": "max",
+        "text": "You already left. Let go."
+      }
+    ],
+    "ghostSoldierAWin": [
+      {
+        "speaker": "none",
+        "text": "The ghost lets out one long breath and fades."
+      }
+    ],
+    "ghostSoldierBSpot": [
+      {
+        "speaker": "ghost",
+        "text": "Sergeant, Third Weeping Company. I died at the Reach. I'm still on watch."
+      },
+      {
+        "speaker": "max",
+        "text": "The watch is over."
+      }
+    ],
+    "ghostSoldierBWin": [
+      {
+        "speaker": "ghost",
+        "text": "...Relieved. Finally."
+      },
+      {
+        "speaker": "none",
+        "text": "The sergeant salutes, and is gone."
+      }
+    ],
+    "ghostOrielSpot": [
+      {
+        "speaker": "none",
+        "text": "A Cryptlamp floats in the dark, chained to nothing. It was Oriel's."
+      },
+      {
+        "speaker": "none",
+        "text": "It doesn't know its keeper is dead."
+      }
+    ],
+    "ghostOrielWin": [
+      {
+        "speaker": "none",
+        "text": "The chain breaks. The Cryptlamp's light goes calm, then out."
       }
     ]
   },

@@ -271,7 +271,9 @@
       "to": "weepingroad",
       "spawn": "1",
       "dir": "up",
-      "oy": -32
+      "oy": -32,
+      "need": "veilLifted",
+      "failTalk": "veilBlocks"
     },
     {
       "from": "weepingroad",
@@ -1160,6 +1162,74 @@
       "tile": "D",
       "to": "keter",
       "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "ruins",
+      "tile": "w",
+      "to": "ghostcrypt",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "talkedReach",
+      "failTalk": "cryptLocked"
+    },
+    {
+      "from": "ghostcrypt",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": "w",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": "w",
+      "to": "hauntedhall",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "joinedGhost",
+      "failTalk": "hauntedLocked"
+    },
+    {
+      "from": "hauntedhall",
+      "tile": "D",
+      "to": "reach",
+      "spawn": "w",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "veld",
+      "tile": "w",
+      "to": "heroeshall",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "heroeshall",
+      "tile": "D",
+      "to": "veld",
+      "spawn": "w",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "marsh",
+      "tile": "w",
+      "to": "thievesden",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "thievesden",
+      "tile": "D",
+      "to": "marsh",
+      "spawn": "w",
       "dir": "down",
       "oy": 40
     }

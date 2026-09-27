@@ -717,18 +717,14 @@
       "id": "shinigamiFree",
       "role": "talk",
       "talk": "shinigamiReachSpot",
-      "talkDone": "shinigamiReachAgain",
+      "talkDone": "shinigamiReachSpot",
       "script": [
         {
-          "ifNot": "talkedReach",
+          "hideIf": "talkedReach"
+        },
+        {
           "set": "talkedReach",
           "talk": "shinigamiReachSpot"
-        },
-        {
-          "talk": "shinigamiReachAgain"
-        },
-        {
-          "if": "sawShinigamiRock"
         }
       ],
       "sprite": "shinigami"
@@ -1988,6 +1984,286 @@
         },
         {
           "talk": "citizenChokmahBefore"
+        }
+      ]
+    },
+    {
+      "map": "ghostcrypt",
+      "mark": "x",
+      "id": "shinigamiGuild",
+      "role": "talk",
+      "sprite": "shinigami",
+      "talk": "ghostJoin",
+      "script": [
+        {
+          "ifNot": "joinedGhost",
+          "set": "joinedGhost",
+          "talk": "ghostJoin"
+        },
+        {
+          "if": "veilLifted",
+          "talk": "ghostAfter"
+        },
+        {
+          "if": "beatVesk",
+          "set": "veilLifted",
+          "takeItem": [
+            "boneInes",
+            "boneTomas",
+            "boneOriel"
+          ],
+          "grant": [
+            [
+              "wraithLantern",
+              1
+            ]
+          ],
+          "talkIf": "arrestedVesk",
+          "talk": "ghostLanternArrest",
+          "talkElse": "ghostLanternExecute"
+        },
+        {
+          "ifNot": "item:boneInes",
+          "talk": "ghostNeedBones"
+        },
+        {
+          "ifNot": "item:boneTomas",
+          "talk": "ghostNeedBones"
+        },
+        {
+          "ifNot": "item:boneOriel",
+          "talk": "ghostNeedBones"
+        },
+        {
+          "ifNot": "prayedCliffs",
+          "talk": "ghostNeedPrayers"
+        },
+        {
+          "ifNot": "prayedQuarry",
+          "talk": "ghostNeedPrayers"
+        },
+        {
+          "ifNot": "prayedForest",
+          "talk": "ghostNeedPrayers"
+        },
+        {
+          "ifNot": "expelledOriel",
+          "talk": "ghostNeedHall"
+        },
+        {
+          "talk": "ghostRite",
+          "after": "wsoldier",
+          "pending": "mournerVesk"
+        }
+      ]
+    },
+    {
+      "map": "ruins",
+      "mark": "d",
+      "id": "graveInes",
+      "role": "talk",
+      "sprite": "grave",
+      "talk": "graveInes",
+      "script": [
+        {
+          "if": "robbedInes",
+          "talk": "graveEmpty"
+        },
+        {
+          "if": "joinedGhost",
+          "set": "robbedInes",
+          "grant": [
+            [
+              "boneInes",
+              1
+            ]
+          ],
+          "rep": -3,
+          "talk": "graveInesRob"
+        },
+        {
+          "talk": "graveInes"
+        }
+      ]
+    },
+    {
+      "map": "grove",
+      "mark": "d",
+      "id": "graveTomas",
+      "role": "talk",
+      "sprite": "grave",
+      "talk": "graveTomas",
+      "script": [
+        {
+          "if": "robbedTomas",
+          "talk": "graveEmpty"
+        },
+        {
+          "if": "joinedGhost",
+          "set": "robbedTomas",
+          "grant": [
+            [
+              "boneTomas",
+              1
+            ]
+          ],
+          "rep": -3,
+          "talk": "graveTomasRob"
+        },
+        {
+          "talk": "graveTomas"
+        }
+      ]
+    },
+    {
+      "map": "marsh",
+      "mark": "d",
+      "id": "graveOriel",
+      "role": "talk",
+      "sprite": "grave",
+      "talk": "graveOriel",
+      "script": [
+        {
+          "if": "robbedOriel",
+          "talk": "graveEmpty"
+        },
+        {
+          "if": "joinedGhost",
+          "set": "robbedOriel",
+          "grant": [
+            [
+              "boneOriel",
+              1
+            ]
+          ],
+          "rep": -3,
+          "talk": "graveOrielRob"
+        },
+        {
+          "talk": "graveOriel"
+        }
+      ]
+    },
+    {
+      "map": "cliffs",
+      "mark": "f",
+      "id": "shrineCliffs",
+      "role": "talk",
+      "sprite": "shrine",
+      "talk": "shrineIdle",
+      "script": [
+        {
+          "if": "prayedCliffs",
+          "talk": "shrineDone"
+        },
+        {
+          "if": "joinedGhost",
+          "set": "prayedCliffs",
+          "rep": 1,
+          "talk": "shrinePray"
+        },
+        {
+          "talk": "shrineIdle"
+        }
+      ]
+    },
+    {
+      "map": "quarry",
+      "mark": "f",
+      "id": "shrineQuarry",
+      "role": "talk",
+      "sprite": "shrine",
+      "talk": "shrineIdle",
+      "script": [
+        {
+          "if": "prayedQuarry",
+          "talk": "shrineDone"
+        },
+        {
+          "if": "joinedGhost",
+          "set": "prayedQuarry",
+          "rep": 1,
+          "talk": "shrinePray"
+        },
+        {
+          "talk": "shrineIdle"
+        }
+      ]
+    },
+    {
+      "map": "forest",
+      "mark": "f",
+      "id": "shrineForest",
+      "role": "talk",
+      "sprite": "shrine",
+      "talk": "shrineIdle",
+      "script": [
+        {
+          "if": "prayedForest",
+          "talk": "shrineDone"
+        },
+        {
+          "if": "joinedGhost",
+          "set": "prayedForest",
+          "rep": 1,
+          "talk": "shrinePray"
+        },
+        {
+          "talk": "shrineIdle"
+        }
+      ]
+    },
+    {
+      "map": "hauntedhall",
+      "mark": "s",
+      "id": "ghostSoldierA",
+      "role": "trainer",
+      "sprite": "ghost",
+      "talk": "ghostSoldierASpot",
+      "script": [
+        {
+          "hideIf": "expelledGhostA"
+        },
+        {
+          "talk": "ghostSoldierASpot",
+          "after": "wsoldier",
+          "pending": "ghostSoldierA"
+        }
+      ]
+    },
+    {
+      "map": "hauntedhall",
+      "mark": "t",
+      "id": "ghostSoldierB",
+      "role": "trainer",
+      "sprite": "ghost",
+      "talk": "ghostSoldierBSpot",
+      "script": [
+        {
+          "hideIf": "expelledGhostB"
+        },
+        {
+          "talk": "ghostSoldierBSpot",
+          "after": "wsoldier",
+          "pending": "ghostSoldierB"
+        }
+      ]
+    },
+    {
+      "map": "hauntedhall",
+      "mark": "a",
+      "id": "ghostOriel",
+      "role": "trainer",
+      "sprite": "ghost",
+      "talk": "ghostOrielSpot",
+      "script": [
+        {
+          "hideIf": "expelledOriel"
+        },
+        {
+          "talk": "ghostOrielSpot",
+          "after": "wsoldier",
+          "pending": "ghostOriel"
         }
       ]
     }

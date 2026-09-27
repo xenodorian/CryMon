@@ -3460,7 +3460,28 @@ sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
       - Dreamcast Bag gained `extra[48]` (items 22+ need no named field;
         save/load loop over them) and main.c now provides freestanding
         memset/memcpy, which GCC emits for the bigger struct.
-- [ ] S3 Lead's 6-CryMon fight, Weeping Veil, Ghost Guild arc, Nero/General lore.
+- [x] S3 Lead's 6-CryMon fight, Weeping Veil, Ghost Guild arc, Nero/General lore.
+      Done:
+      - tools/build_guilds.py (new): SITES stamp doors 'w' + interiors
+        (ghostcrypt, hauntedhall, heroeshall, thievesden) and MARKS put
+        graves 'd' (ruins/grove/marsh) and shrines 'f' (cliffs/quarry/forest).
+        Run it, then merge_world.
+      - North road: veld O -> weepingroad needs veilLifted (failTalk
+        veilBlocks). Beating Lead alone no longer opens it.
+      - Arc: Reach Shinigami (talkedReach, then hidden) -> crypt Shinigami
+        (shinigamiGuild, joinedGhost) -> rob 3 graves (bone items, rep -3
+        each) + pray at 3 shrines (rep +1 each) + expel 3 haunted-hall
+        ghosts (post: true trainers) -> ghostRite -> Mourner Vesk (bounty
+        fate) -> Wraith Lantern, veilLifted.
+      - Lead: 5 CryMon + himself (Lv24-28); DC fills the bench from his kit.
+      - Lore: ghostJoin tale, General "why I serve" lines, Nero lines, Marn.
+      - Engine: `rep` step key, takeItem lists, NPC grants for items not in
+        START_BAG (web), generic NPC hideIf on DC (npc_def_hidden, g_ft),
+        GENERIC_WALKER_SPRITES / HAND_DRAWN_NPC_IDS in the baker, web
+        paintTile maps lowercase floor/door aliases via TILE_ART, DC
+        draw_tile 'w' door, 'x'/'z' floor. Speakers ghost 54, vesk 55.
+      - Verified on web (Playwright): whole arc, arrest and execute paths,
+        Lead team. Dreamcast: builds; emulator pass is in S6.
 - [ ] S4 Heroes and Thieves Guilds.
 - [ ] S5 CryTown and Sephirot townsfolk and sidequests.
 - [ ] S6 Verification; west maps audit write-up.

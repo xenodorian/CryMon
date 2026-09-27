@@ -48,6 +48,12 @@ STYLE = {
     "hale": ((140, 96, 50), (90, 60, 30), "cap"),
     "marn": ((96, 90, 110), (200, 200, 200), "hood"),
     "citizen": ((120, 110, 80), (160, 140, 100), "none"),
+    # Ghost Guild arc: grave-warden Vesk, a bound ghost, and two props drawn
+    # as objects rather than people ("grave" / "shrine" shapes).
+    "vesk": ((34, 30, 36), (120, 110, 130), "hood"),
+    "ghost": ((196, 206, 222), (150, 164, 190), "ghost"),
+    "grave": ((128, 124, 118), (84, 80, 76), "grave"),
+    "shrine": ((150, 120, 90), (190, 60, 50), "shrine"),
 }
 
 
@@ -62,6 +68,15 @@ def frame(uniform, trim, hat: str, bob: int) -> Image.Image:
     im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
     y = 6 + bob
+    if hat in ("grave", "shrine"):
+        return prop(im, d, uniform, trim, hat)
+    if hat == "ghost":
+        d.ellipse([12, y + 4, 36, y + 28], fill=uniform + (200,), outline=trim)
+        d.polygon([(12, y + 16), (36, y + 16), (36, y + 50), (30, y + 44), (24, y + 52), (18, y + 44), (12, y + 50)],
+                  fill=uniform + (200,), outline=trim)
+        d.ellipse([18, y + 12, 22, y + 17], fill=INK)
+        d.ellipse([26, y + 12, 30, y + 17], fill=INK)
+        return tag(im, d)
     # legs, body, arms
     d.rectangle([17, y + 40, 22, y + 55], fill=INK)
     d.rectangle([26, y + 40, 31, y + 55], fill=INK)
@@ -84,10 +99,28 @@ def frame(uniform, trim, hat: str, bob: int) -> Image.Image:
         if hat == "peaked":
             d.rectangle([13, y + 7, 35, y + 9], fill=INK)
             d.rectangle([22, y + 4, 26, y + 6], fill=trim)
-    # tag
+    return tag(im, d)
+
+
+def tag(im, d):
     d.rectangle([0, H - 9, W - 1, H - 1], fill=(24, 20, 16, 230))
     d.text((2, H - 10), "PH", fill=(255, 0, 255, 255), font=font(8))
     return im
+
+
+def prop(im, d, body, trim, kind: str):
+    """Still objects (no bob): a headstone, or a small roofed shrine."""
+    if kind == "grave":
+        d.rectangle([8, 48, 40, 54], fill=(92, 70, 48), outline=INK)  # dirt
+        d.rounded_rectangle([14, 16, 34, 50], radius=8, fill=body, outline=INK)
+        d.line([(24, 24), (24, 38)], fill=trim, width=2)
+        d.line([(19, 29), (29, 29)], fill=trim, width=2)
+    else:
+        d.polygon([(8, 22), (24, 8), (40, 22)], fill=trim, outline=INK)  # roof
+        d.rectangle([12, 22, 36, 50], fill=body, outline=INK)
+        d.rectangle([19, 30, 29, 42], fill=INK)  # niche
+        d.ellipse([21, 34, 27, 40], fill=(240, 200, 90))  # candle
+    return tag(im, d)
 
 
 def portrait(uniform, trim, hat: str) -> Image.Image:

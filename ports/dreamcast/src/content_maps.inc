@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=e7b250b1583a80fb — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=2a4bafe3d98bf863 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -60,7 +60,11 @@
 #define MAP_BASEBINAH 57
 #define MAP_BASECHOKMAH 58
 #define MAP_PALACEKETER 59
-#define MAP_N 60
+#define MAP_GHOSTCRYPT 60
+#define MAP_HAUNTEDHALL 61
+#define MAP_HEROESHALL 62
+#define MAP_THIEVESDEN 63
+#define MAP_N 64
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -87,7 +91,7 @@ static const char *const map_veld_rows[] = {
     "##....M......=====....**.....#",
     "##.V.TTT......===......TTT...#",
     "##.rrr........===.......rrr..#",
-    "###HHH.X...J.=====......HHH.H#",
+    "###HwH.X...J.=====......HHH.H#",
     "PY9..TTT......===..........Ec#",
     "##............===...........H#",
     "##...TTT.....=====......TTT..#",
@@ -120,7 +124,7 @@ static const char *const map_forest_rows[] = {
     "##..........===.....m...##",
     "##...TTT...=====...TTT..##",
     "##...TTT...=====...TTT..##",
-    "##..........===.........##",
+    "##..........===.......f.##",
     "##..........===.........##",
     "##...TTT....===....TTT..##",
     "##...TTT....===....TTT..##",
@@ -156,7 +160,7 @@ static const char *const map_grove_rows[] = {
     "##..........===..TTT....##",
     "##.........=====.......g##",
     "##..........===..TTT....##",
-    "##...........9..........##",
+    "##...........9.......d..##",
     "###..........G.........###",
     "##########################",
 };
@@ -177,7 +181,7 @@ static const char *const map_camp_rows[] = {
 static const char *const map_cliffs_rows[] = {
     "##################",
     "#................#",
-    "#................#",
+    "#..............f.#",
     "#................#",
     "#.TTT.......TTT..#",
     "#................L",
@@ -202,7 +206,7 @@ static const char *const map_ruins_rows[] = {
     "#..................#",
     "#......6...........#",
     "#..rrr........rrr..#",
-    "#..HHH........HHH..#",
+    "#..HwH........HHH..#",
     "#..................#",
     "#..................#",
     "#..................#",
@@ -212,7 +216,7 @@ static const char *const map_ruins_rows[] = {
     "#..rrr........rrr..#",
     "#..HHH....A...HHH..#",
     "#..................#",
-    "#..................#",
+    "#...............d..#",
     "#..................#",
     "#....TTTTTTTT......#",
     "#....TTTTTTTT......#",
@@ -224,7 +228,7 @@ static const char *const map_reach_rows[] = {
     "#.........#........#",
     "#.......Q..........#",
     "#..rrr........rrr..#",
-    "#..HHH........HHH..#",
+    "#..HHH........HwH..#",
     "#..................#",
     "#......TTTTTT......#",
     "#......TTTTTT......#",
@@ -256,8 +260,8 @@ static const char *const map_marsh_rows[] = {
     "##.TTT.====.TTT.##",
     "##..T..====..T..##",
     "##..T..====..T..##",
-    "##.....====.....##",
-    "##.....====.....##",
+    "##.d...====..rrr##",
+    "##.....====..HwH##",
     "###...F........###",
     "##################",
 };
@@ -272,7 +276,7 @@ static const char *const map_quarry_rows[] = {
     "G........TTT...J",
     "#...C.S........#",
     "#..............#",
-    "#....^^^^......#",
+    "#....^^^^....f.#",
     "#....^^^^......#",
     "#..............#",
     "################",
@@ -1377,6 +1381,56 @@ static const char *const map_palaceketer_rows[] = {
     "HHHHHDHHHHH",
 };
 
+static const char *const map_ghostcrypt_rows[] = {
+    "HHHHHHHHHHHH",
+    "HFFFFFFFFFFH",
+    "HFFxFFFFzFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HHHHHDHHHHHH",
+};
+
+static const char *const map_hauntedhall_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_heroeshall_rows[] = {
+    "HHHHHHHHHHHH",
+    "HFFFFFFFFFFH",
+    "HFFxFFFFzFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HHHHHDHHHHHH",
+};
+
+static const char *const map_thievesden_rows[] = {
+    "HHHHHHHHHHHH",
+    "HFFFFFFFFFFH",
+    "HFFxFFFFzFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HHHHHDHHHHHH",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 31, 23 },
@@ -1438,10 +1492,14 @@ static const Map MAPS[MAP_N] = {
     { map_basebinah_rows, 11, 16 },
     { map_basechokmah_rows, 11, 16 },
     { map_palaceketer_rows, 11, 16 },
+    { map_ghostcrypt_rows, 12, 8 },
+    { map_hauntedhall_rows, 11, 14 },
+    { map_heroeshall_rows, 12, 8 },
+    { map_thievesden_rows, 12, 8 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH", "MALKUTH BASE", "YESOD BASE", "NETZACH BASE", "HOD BASE", "TIFERET BASE", "CHESED BASE", "GEVURAH BASE", "BINAH BASE", "CHOKMAH BASE", "NERO'S PALACE",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH", "MALKUTH BASE", "YESOD BASE", "NETZACH BASE", "HOD BASE", "TIFERET BASE", "CHESED BASE", "GEVURAH BASE", "BINAH BASE", "CHOKMAH BASE", "NERO'S PALACE", "THE GHOST GUILD", "THE HAUNTED HALL", "THE HEROES GUILD", "THE THIEVES DEN",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NrU%k";

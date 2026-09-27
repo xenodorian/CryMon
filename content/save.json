@@ -24,7 +24,11 @@
     "panacea",
     "bowieKnife",
     "shackles",
-    "goldenShackles"
+    "goldenShackles",
+    "boneInes",
+    "boneTomas",
+    "boneOriel",
+    "wraithLantern"
   ],
   "mapOrder": [
     "house",
@@ -86,7 +90,11 @@
     "basegevurah",
     "basebinah",
     "basechokmah",
-    "palaceketer"
+    "palaceketer",
+    "ghostcrypt",
+    "hauntedhall",
+    "heroeshall",
+    "thievesden"
   ],
   "dirOrder": [
     "down",
@@ -328,7 +336,21 @@
     "citizenThankedChesed",
     "citizenThankedGevurah",
     "citizenThankedBinah",
-    "citizenThankedChokmah"
+    "citizenThankedChokmah",
+    "joinedGhost",
+    "robbedInes",
+    "robbedTomas",
+    "robbedOriel",
+    "prayedCliffs",
+    "prayedQuarry",
+    "prayedForest",
+    "expelledGhostA",
+    "expelledGhostB",
+    "expelledOriel",
+    "beatVesk",
+    "arrestedVesk",
+    "executedVesk",
+    "veilLifted"
   ],
   "layout": {
     "magic": [

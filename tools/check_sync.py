@@ -63,7 +63,7 @@ SKIP_NAME = {".git", "node_modules", ".vercel", "backups", "__pycache__", "place
 # and the Dreamcast baker only read these, anything else is dropped silently.
 NPC_STEP_KEYS = {"talk", "if", "ifNot", "hideIf", "set", "after", "grant", "grantMonster",
                  "heal", "passIf", "passOffset", "talkIf", "talkElse", "pending", "takeItem", "marks",
-                 "takeMon"}
+                 "takeMon", "rep"}
 REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross", "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "marshBog", "marshReed", "quartz"]
 REQUIRED_LOGIC = ["anneGift", "party", "runtimeFlags", "natures", "combat", "growth", "natureMoves", "shinyMove", "statStages", "statusEffects", "hypeUp", "natureTypes"]
 
@@ -346,7 +346,8 @@ def main() -> int:
                 if not isinstance(pair[1], int) or pair[1] <= 0:
                     errors.append(f"npc {nid!r} script[{si}].grant quantity must be positive")
             if step.get("takeItem") is not None:
-                check_item_ref(step["takeItem"], f"npc {nid!r} script[{si}].takeItem")
+                for _ti in (step["takeItem"] if isinstance(step["takeItem"], list) else [step["takeItem"]]):
+                    check_item_ref(_ti, f"npc {nid!r} script[{si}].takeItem")
 
     for tid, trainer in (data["world"].get("trainers") or {}).items():
         if not isinstance(trainer, dict):

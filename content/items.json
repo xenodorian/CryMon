@@ -21,7 +21,11 @@
     "panacea",
     "bowieKnife",
     "shackles",
-    "goldenShackles"
+    "goldenShackles",
+    "boneInes",
+    "boneTomas",
+    "boneOriel",
+    "wraithLantern"
   ],
   "defs": {
     "gem": {
@@ -289,6 +293,42 @@
       "id": "goldenShackles",
       "name": "Golden Shackles",
       "desc": "Cuffs fit for a king. They open the palace in Keter.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "boneInes": {
+      "id": "boneInes",
+      "name": "Ines's Bones",
+      "desc": "Wrapped in old cloth. Shinigami's apprentice, the seamstress.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "boneTomas": {
+      "id": "boneTomas",
+      "name": "Tomas's Bones",
+      "desc": "Wrapped in old cloth. Shinigami's apprentice, the smith.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "boneOriel": {
+      "id": "boneOriel",
+      "name": "Oriel's Bones",
+      "desc": "Wrapped in old cloth. Shinigami's apprentice, who kept birds.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "wraithLantern": {
+      "id": "wraithLantern",
+      "name": "Wraith Lantern",
+      "desc": "Burns with what three freed spirits left behind. The Weeping Veil parts for it.",
       "battle": false,
       "field": false,
       "buy": 0,

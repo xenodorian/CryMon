@@ -73,6 +73,8 @@ SPEAKER = {
     "hale": 51,
     "marn": 52,
     "citizen": 53,
+    "ghost": 54,
+    "vesk": 55,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -1132,11 +1134,18 @@ HAND_DRAWN_NPC_SPRITES = {"wren", "mae", "ivo", "nell", "pike", "bram", "calder"
                           "sable", "cross", "commander", "conscript", "enforcer", "sentry", "father", "ranger",
                           "scout", "keeper", "warden", "bogwalker", "reedguard", "quartz", "opal", "driller",
                           "fenn", "dray", "lead", "heavenfallPriestess", "shinigamiBoulder"}
+# NPC ids main.c draws by hand even though their sprite is generic-capable
+# (Shinigami at the Reach keeps his hand-wired saw_shinigami_rock logic).
+HAND_DRAWN_NPC_IDS = {"shinigamiFree"}
+# Walker sprites (sprites.json "walkers") that also get a generic slot, for
+# NPCs outside their hand-wired map (Shinigami in the Ghost Guild crypt).
+GENERIC_WALKER_SPRITES = ["shinigami"]
 LEG3_SPRITE_NAMES: list = []  # filled per bake (generic_sprite_names)
 
 
 def generic_sprite_names(data: dict) -> list:
-    return [n for n in (data.get("sprites") or {}).get("npcs", []) if n not in HAND_DRAWN_NPC_SPRITES]
+    names = [n for n in (data.get("sprites") or {}).get("npcs", []) if n not in HAND_DRAWN_NPC_SPRITES]
+    return names + [n for n in GENERIC_WALKER_SPRITES if n not in names]
 LEG3_PENDING: dict = {}  # filled per bake by bake_all() (leg3_pending_ids)
 PENDING_IDS = {
     "cross": 0,
@@ -1265,8 +1274,9 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append("    int talk, talk_if, talk_else;")
     lines.append("    int after, pending;")
     lines.append("    int heal, marks;")
-    lines.append("    int take_item;")
+    lines.append("    int take_item[3], take_n; /* takeItem: one id or a list of up to 3 */")
     lines.append("    int take_mon; /* species index handed over, -1 none */")
+    lines.append("    int rep;      /* reputation change (step key `rep`) */")
     lines.append("} NpcStep;")
     lines.append("typedef struct {")
     lines.append("    int map_id;")
@@ -1323,7 +1333,8 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
                     **_after_and_pending(st.get("after"), st.get("pending")),
                     "heal": 1 if st.get("heal") else 0,
                     "marks": int(st.get("marks") or 0),
-                    "take_item": item_i[st["takeItem"]] if st.get("takeItem") else -1,
+                    "take_item": ([item_i[x] for x in (st["takeItem"] if isinstance(st.get("takeItem"), list) else [st["takeItem"]])] if st.get("takeItem") else []),
+                    "rep": int(st.get("rep") or 0),
                     "take_mon": sp[st["takeMon"]] if st.get("takeMon") else -1,
                 }
             )
@@ -1331,6 +1342,8 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
         marks = npc.get("marks") or [npc["mark"]]
         spr = (npc.get("sprite") or "").removeprefix("npc/")
         spr_i = LEG3_SPRITE_NAMES.index(spr) if spr in LEG3_SPRITE_NAMES else -1
+        if npc["id"] in HAND_DRAWN_NPC_IDS:
+            spr_i = -1
         for mark in marks:
             defs.append((npc["map"], mark, start, n, npc_w, npc_h, spr_i))
     lines.append("static const NpcStep NPC_STEPS[] = {")
@@ -1341,7 +1354,9 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
             f"    {{ {st['if_flag']}, {st['if_not']}, {st['hide_if']}, {st['set_flag']}, "
             f"{{ {gi} }}, {{ {gq} }}, {st['g_n']}, {st['g_sp']}, {st['g_lv']}, "
             f"{st['talk']}, {st['talk_if']}, {st['talk_else']}, {st['after']}, {st['pending']}, "
-            f"{st['heal']}, {st['marks']}, {st['take_item']}, {st['take_mon']} }},"
+            f"{st['heal']}, {st['marks']}, "
+            f"{{ {', '.join(str(x) for x in (st['take_item'] + [-1, -1, -1])[:3])} }}, {len(st['take_item'][:3])}, "
+            f"{st['take_mon']}, {st['rep']} }},"
         )
     lines.append("};")
     lines.append("static const NpcDef NPC_DEFS[] = {")

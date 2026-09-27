@@ -364,16 +364,37 @@
       "set": "beatHeavenfall"
     },
     "lieutenantLead": {
-      "title": "Lieutenant Lead bars the road",
+      "title": "Lieutenant Lead sends Sableclaw",
       "name": "Lieutenant Lead",
       "winTalk": "leadWinPlaceholder",
       "set": "beatLieutenantLead",
       "marks": 20,
       "lead": [
-        "lead",
-        20
+        "sableclaw",
+        24
       ],
-      "bench": []
+      "bench": [
+        [
+          "stormwing",
+          24
+        ],
+        [
+          "boulderam",
+          25
+        ],
+        [
+          "duskhorn",
+          25
+        ],
+        [
+          "crymare",
+          26
+        ],
+        [
+          "lead",
+          28
+        ]
+      ]
     },
     "baseMalkuthA": {
       "lead": [
@@ -929,6 +950,102 @@
       "winTalk": "hfEndGodslayer",
       "set": "titleGodslayer",
       "final": true
+    },
+    "ghostSoldierA": {
+      "lead": [
+        "tallowisp",
+        17
+      ],
+      "bench": [
+        [
+          "soottick",
+          16
+        ]
+      ],
+      "title": "A soldier's ghost rises",
+      "name": "Soldier's Ghost",
+      "marks": 0,
+      "winTalk": "ghostSoldierAWin",
+      "set": "expelledGhostA",
+      "post": true
+    },
+    "ghostSoldierB": {
+      "lead": [
+        "gravemoth",
+        18
+      ],
+      "bench": [
+        [
+          "tallowisp",
+          17
+        ],
+        [
+          "grimkid",
+          17
+        ]
+      ],
+      "title": "A sergeant's ghost rises",
+      "name": "Sergeant's Ghost",
+      "marks": 0,
+      "winTalk": "ghostSoldierBWin",
+      "set": "expelledGhostB",
+      "post": true
+    },
+    "ghostOriel": {
+      "lead": [
+        "cryptlamp",
+        21
+      ],
+      "bench": [
+        [
+          "tallowisp",
+          19
+        ]
+      ],
+      "title": "Oriel's bound Cryptlamp flares",
+      "name": "Bound Cryptlamp",
+      "marks": 0,
+      "winTalk": "ghostOrielWin",
+      "set": "expelledOriel",
+      "post": true
+    },
+    "mournerVesk": {
+      "lead": [
+        "gallowcrow",
+        22
+      ],
+      "bench": [
+        [
+          "gravemoth",
+          21
+        ],
+        [
+          "grimkid",
+          21
+        ],
+        [
+          "cryptlamp",
+          22
+        ],
+        [
+          "deathknell",
+          23
+        ]
+      ],
+      "title": "Mourner Vesk sends Gallowcrow",
+      "name": "Mourner Vesk",
+      "marks": 40,
+      "winTalk": "veskWin",
+      "set": "beatVesk",
+      "fate": "bounty",
+      "outcomes": {
+        "arrest": "arrestedVesk",
+        "execute": "executedVesk"
+      },
+      "fateTalk": {
+        "arrest": "veskArrest",
+        "execute": "veskExecute"
+      }
     }
   }
 }

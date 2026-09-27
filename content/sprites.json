@@ -54,7 +54,11 @@
     "ada",
     "hale",
     "marn",
-    "citizen"
+    "citizen",
+    "vesk",
+    "ghost",
+    "grave",
+    "shrine"
   ],
   "monsters": [
     "quillpup",
@@ -237,7 +241,9 @@
     "ada",
     "hale",
     "marn",
-    "citizen"
+    "citizen",
+    "ghost",
+    "vesk"
   ],
   "items": [
     "salve",

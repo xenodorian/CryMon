@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=e7b250b1583a80fb — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=2a4bafe3d98bf863 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
@@ -7,8 +7,8 @@
 #define SAVE_SIZE 332
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
-#define SAVE_FLAG_N 121
-#define SAVE_ITEM_N 22
+#define SAVE_FLAG_N 135
+#define SAVE_ITEM_N 26
 #define SAVE_FLAG_TOOK_STARTER 0
 #define SAVE_FLAG_TALKED_FATHER 1
 #define SAVE_FLAG_LOOTED_CRATE 2
@@ -130,6 +130,20 @@
 #define SAVE_FLAG_CITIZEN_THANKED_GEVURAH 118
 #define SAVE_FLAG_CITIZEN_THANKED_BINAH 119
 #define SAVE_FLAG_CITIZEN_THANKED_CHOKMAH 120
+#define SAVE_FLAG_JOINED_GHOST 121
+#define SAVE_FLAG_ROBBED_INES 122
+#define SAVE_FLAG_ROBBED_TOMAS 123
+#define SAVE_FLAG_ROBBED_ORIEL 124
+#define SAVE_FLAG_PRAYED_CLIFFS 125
+#define SAVE_FLAG_PRAYED_QUARRY 126
+#define SAVE_FLAG_PRAYED_FOREST 127
+#define SAVE_FLAG_EXPELLED_GHOST_A 128
+#define SAVE_FLAG_EXPELLED_GHOST_B 129
+#define SAVE_FLAG_EXPELLED_ORIEL 130
+#define SAVE_FLAG_BEAT_VESK 131
+#define SAVE_FLAG_ARRESTED_VESK 132
+#define SAVE_FLAG_EXECUTED_VESK 133
+#define SAVE_FLAG_VEIL_LIFTED 134
 
 /* Blob layout (little-endian), shared with src/game/save.ts:
    0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,
@@ -147,6 +161,6 @@ static const unsigned short SAVE_DEX_CAUGHT_OFF[SAVE_DEX_BYTES] = { 148, 149, 15
 #define SAVE_PARTY_NATURE 12
 #define SAVE_FLAG_BYTES 32
 static const unsigned short SAVE_FLAG_OFF[SAVE_FLAG_BYTES] = { 38, 39, 40, 41, 42, 43, 44, 45, 280, 281, 282, 283, 284, 285, 286, 287, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315 };
-static const unsigned short SAVE_BAG_OFF[SAVE_ITEM_N] = { 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 288, 289 };
+static const unsigned short SAVE_BAG_OFF[SAVE_ITEM_N] = { 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 288, 289, 290, 291, 292, 293 };
 
 #endif

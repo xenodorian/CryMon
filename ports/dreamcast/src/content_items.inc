@@ -1,6 +1,6 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=e7b250b1583a80fb — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=2a4bafe3d98bf863 — do not edit. python3 tools/bake_content.py */
 
-#define ITEM_COUNT 22
+#define ITEM_COUNT 26
 static const ItemDef ITEMS[ITEM_COUNT] = {
     { "MOSS SALVE", 10, 5 },
     { "LINEN WRAP", 6, 3 },
@@ -24,5 +24,9 @@ static const ItemDef ITEMS[ITEM_COUNT] = {
     { "BOWIE KNIFE", 60, 0 },
     { "SHACKLES", 40, 20 },
     { "GOLDEN SHACKLES", 0, 0 },
+    { "INES'S BONES", 0, 0 },
+    { "TOMAS'S BONES", 0, 0 },
+    { "ORIEL'S BONES", 0, 0 },
+    { "WRAITH LANTERN", 0, 0 },
 };
 

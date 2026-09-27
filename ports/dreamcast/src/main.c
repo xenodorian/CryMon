@@ -952,9 +952,12 @@ static void draw_tile(int map_id, char ch, int dx, int dy) {
             return;
         case 'D':
         case 'b': /* Leg 3 base / palace door in a Sephirot city */
+        case 'w': /* guild hall / haunted hall door (build_guilds.py) */
             fill_rect(dx, dy, t, t, rgb565(26, 18, 12));
             return;
         case 'a': /* Leg 3 interiors: General / guard spots are floor */
+        case 'x': /* guild interiors: master / member spots */
+        case 'z':
         case 's':
         case 't':
             fill_rect(dx, dy, t, t, rgb565(107, 90, 58));
@@ -1340,7 +1343,7 @@ typedef struct {
 /* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals),
    in bake_content.py's SPEAKER order. Portraits are PLACEHOLDER_ART from
    tools/make_placeholder_npcs.py. */
-#define SPK_COUNT     54 /* 50-53: Ada, Hale, Marn, citizen */
+#define SPK_COUNT     56 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk */
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of
@@ -1408,6 +1411,8 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_hale, PORT_HALE_W, PORT_HALE_H }, /* 51 PLACEHOLDER_ART */
     { port_marn, PORT_MARN_W, PORT_MARN_H }, /* 52 PLACEHOLDER_ART */
     { port_citizen, PORT_CITIZEN_W, PORT_CITIZEN_H }, /* 53 PLACEHOLDER_ART */
+    { port_ghost, PORT_GHOST_W, PORT_GHOST_H }, /* 54 PLACEHOLDER_ART */
+    { port_vesk, PORT_VESK_W, PORT_VESK_H }, /* 55 PLACEHOLDER_ART */
 };
 
 #include "content_talk.inc"
@@ -4151,6 +4156,7 @@ near_mark(int map_id, char mark, int px, int py, int radius_sq) {
    frame in main() next to g_xp_party. */
 static Bag *g_npc_bag;
 static const int *g_npc_rep;
+static int *g_npc_rep_w; /* same variable, writable, for the `rep` step key */
 static Monster g_gift_mon;       /* reward CryMon waiting for a party slot */
 static int g_gift_pending = 0;
 
@@ -4419,6 +4425,16 @@ static int leg3_heavenfall_step(Monster *party, int *party_n, int *lead, int rep
     return LEG3_TALK_HF_END_HOSTILE;
 }
 
+static int npc_match_step(const NpcDef *d, int **ft, int party_n);
+/* main()'s flag table, for the draw/block passes: a generically drawn NPC
+   whose script's hideIf matches is gone (lost townsfolk led home, the Reach
+   Shinigami once he's gone to the crypt, ...). */
+static int **g_ft;
+static int npc_def_hidden(int li) {
+    if(!g_ft || !g_party_n_ptr) return 0;
+    return npc_match_step(&NPC_DEFS[li], g_ft, *g_party_n_ptr) == -1;
+}
+
 static int npc_match_step(const NpcDef *d, int **ft, int party_n) {
     int i;
     for(i = 0; i < d->stepn; i++) {
@@ -4546,6 +4562,7 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
                posts vanish once beaten. */
             if(NPC_DEFS[li].map_id != map_id || NPC_DEF_SPRITE[li] < 0) continue;
             if(leg3_npc_post(li) >= 0 && !leg3_post_standing(li)) continue;
+            if(npc_def_hidden(li)) continue;
             ws_push_mark_idle(list, n, map_id, NPC_DEFS[li].mark,
                               NPC_SPRITE_FRAMES[(int)NPC_DEF_SPRITE[li]],
                               frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
@@ -4642,7 +4659,8 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
            beat_shin -- he's still standing at the boulder in VELD
            until the rock-shatter event actually plays there; showing
            him here any earlier would put him in two places at once). */
-        if(saw_shinigami_rock)
+        /* ...and gone again once he's sent Max to the crypt (talkedReach). */
+        if(saw_shinigami_rock && !(g_ft && *g_ft[FLAG_TALKED_REACH]))
             ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
     }
 
@@ -4740,9 +4758,14 @@ static int apply_npc_step(NpcRun *R, int idx) {
         int *slot = bag_field(R->bag, st->g_item[gi]);
         *slot += st->g_qty[gi];
     }
-    if(st->take_item >= 0) {
-        int *slot = bag_field(R->bag, st->take_item);
+    for(gi = 0; gi < st->take_n; gi++) {
+        int *slot = bag_field(R->bag, st->take_item[gi]);
         if(*slot > 0) (*slot)--;
+    }
+    if(st->rep && g_npc_rep_w) {
+        *g_npc_rep_w += st->rep;
+        if(*g_npc_rep_w > LOGIC_REP_MAX) *g_npc_rep_w = LOGIC_REP_MAX;
+        if(*g_npc_rep_w < LOGIC_REP_MIN) *g_npc_rep_w = LOGIC_REP_MIN;
     }
     if(st->take_mon >= 0) {
         /* Father's party first; never Max's last CryMon (web takeMonster). */
@@ -5014,6 +5037,7 @@ static int actor_blocks(int map_id, int cx, int cy,
         for(li = 0; li < NPC_DEF_N; li++) {
             if(NPC_DEFS[li].map_id != map_id || NPC_DEF_SPRITE[li] < 0) continue;
             if(leg3_npc_post(li) >= 0 && !leg3_post_standing(li)) continue;
+            if(npc_def_hidden(li)) continue;
             if(mark_hit(map_id, NPC_DEFS[li].mark, cx, cy, HIT_R2)) return 1;
         }
     }
@@ -5730,9 +5754,11 @@ void main(void) {
         g_xp_party_n = party_n;
         g_npc_bag = &bag;
         g_npc_rep = &reputation;
+        g_npc_rep_w = &reputation;
         g_npc_party2 = party2;
         g_npc_party2_n = &party2_n;
         g_party_n_ptr = &party_n;
+        g_ft = ft;
         g_lead_ptr = &lead;
         g_active_party_ptr = &active_party;
         g_revived_ptr = &revived_father;
@@ -6787,15 +6813,10 @@ void main(void) {
                                     post_action = POST_OPEN_MERCY;
                                 }
                                 else if(battle.trainer_kind == TRAINER_WSOLDIER_LEAD) {
-                                    /* Placeholder ending (Leg 2 wrap
-                                       gate): no mercy menu, straight to
-                                       "Thank you for playing" and back
-                                       to normal play -- no fade, no
-                                       save reload. Beating him never
-                                       opens the north road; that's Leg
-                                       3's job. Matches engine.ts (the
-                                       leadThanksGO -> reload wiring was
-                                       removed there too). */
+                                    /* No mercy menu: his win talk, then
+                                       back to normal play. The north road
+                                       still needs the Wraith Lantern
+                                       (veilLifted), like engine.ts. */
                                     beat_lieutenant_lead = 1;
                                     marks += 20;
                                     battles++;
@@ -8418,10 +8439,9 @@ void main(void) {
                                     in_battle = 1;
                                     break;
                                 case POST_WSOLDIER_LEAD:
-                                    /* Lead fights as himself -- a
-                                       single pseudo-species foe, no
-                                       bench (KIT_LIEUTENANT_LEAD.
-                                       bench_n is baked 0). */
+                                    /* Lead sends five CryMon first and
+                                       fights as himself last (his kit's
+                                       bench ends with the lead species). */
                                     battle.foe = mint_monster(TRAINER_KITS[KIT_LIEUTENANT_LEAD].lead_sp, TRAINER_KITS[KIT_LIEUTENANT_LEAD].lead_lv);
                                     battle.wild = 0;
                                     battle.trainer_kind = TRAINER_WSOLDIER_LEAD;
@@ -8438,7 +8458,9 @@ void main(void) {
                                     battle.stage_foe_str = battle.stage_foe_agl = battle.stage_foe_spc = 0;
                                     battle.hype_self = battle.hype_foe = 0;
                                     battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
-                                    battle.bench_n = 0;
+                                    { int bi; for(bi = 0; bi < TRAINER_KITS[KIT_LIEUTENANT_LEAD].bench_n; bi++)
+                                          battle.bench[bi] = mint_monster(TRAINER_KITS[KIT_LIEUTENANT_LEAD].bench_sp[bi], TRAINER_KITS[KIT_LIEUTENANT_LEAD].bench_lv[bi]); }
+                                    battle.bench_n = TRAINER_KITS[KIT_LIEUTENANT_LEAD].bench_n;
                                     battle.grew = 0;
                                     /* Was missing: fell through into the
                                        grave case and fought Heavenfall. */

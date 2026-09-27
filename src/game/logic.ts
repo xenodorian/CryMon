@@ -30,7 +30,12 @@ export type NpcStep = {
 	pending?: string;
 	heal?: boolean;
 	marks?: number;
-	takeItem?: string;
+	/** One item id, or up to 3 taken at once. */
+	takeItem?: string | string[];
+	/** Hand over one CryMon of this species (see engine takeMonster). */
+	takeMon?: string;
+	/** Reputation change applied when the step runs. */
+	rep?: number;
 	passIf?: string;
 	/** [dx, dy] pixel offset applied to a passIf NPC's drawn/interact
 	 *  position once passIf's flag is true -- a gate-blocker steps

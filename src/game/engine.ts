@@ -59,7 +59,7 @@ import {
   STATUS_EFFECTS,
   HYPE_UP,
   effectiveStat
-, TOWN_MAP } from "./data";
+, TOWN_MAP, TILE_ART } from "./data";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
 import type {
@@ -73,7 +73,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End";
+type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL", hale: "HALE'S STALL" };
 const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray", hale: "shopFreeHale" };
@@ -2365,12 +2365,13 @@ export class CryMon {
 		if (step.set) this.setNpcFlag(step.set);
 		if (step.grant) {
 			for (const [id, n] of step.grant) {
-				if (id in this.bag) this.bag[id] += n;
+				this.bag[id] = (this.bag[id] ?? 0) + n;
 			}
 		}
-		if (step.takeItem && step.takeItem in this.bag) {
-			this.bag[step.takeItem] = Math.max(0, this.bag[step.takeItem] - 1);
+		for (const id of step.takeItem ? (Array.isArray(step.takeItem) ? step.takeItem : [step.takeItem]) : []) {
+			if (id in this.bag) this.bag[id] = Math.max(0, this.bag[id] - 1);
 		}
+		if (step.rep) this.adjustReputation(step.rep);
 		if (step.takeMon) this.takeMonster(step.takeMon);
 		if (step.grantMonster) {
 			const [sp, lv] = step.grantMonster;
@@ -3996,7 +3997,8 @@ export class CryMon {
 				else if (who === "commanderFinal") this.beatCommander = true;
 				else if (who === "lieutenantLead") {
 					this.beatLieutenantLead = true;
-					this.say(TALK.leadWinPlaceholder || [{ speaker: "none", text: "Thank you for playing." }], "leadThanksGO");
+					this.marks += kit?.marks ?? 20;
+					this.say(TALK.leadWinPlaceholder, null);
 					return;
 				}
 				else if (who === "heavenfallGrave") {
@@ -5044,6 +5046,17 @@ export class CryMon {
 			ctx.fillStyle = c;
 			ctx.fillRect(x, y, w, h);
 		};
+		// Lowercase NPC-spot letters (build_leg3.py / build_guilds.py) paint
+		// as the tile maps.json tileArt names: interior spots are floor, and
+		// b / w are doors set into a building's wall.
+		if (ch >= "a" && ch <= "z" && TILE_ART[ch] === "tile-floor") ch = "F";
+		if (ch >= "a" && ch <= "z" && TILE_ART[ch] === "tile-door") {
+			this.paintTile("H", dx, dy);
+			fill("#1a120c", dx + 4, dy + 4, t - 8, t - 4);
+			fill("#5a3a24", dx + 6, dy + 6, t - 12, t - 6);
+			fill("#c8a050", dx + t - 11, dy + t / 2, 2, 2);
+			return;
+		}
 		if (ch === "H") {
 			fill("#2a1e16");
 			fill("#3d2c22", dx, dy, t, 1);
