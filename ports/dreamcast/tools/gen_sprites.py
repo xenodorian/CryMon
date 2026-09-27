@@ -105,6 +105,10 @@ MONSTER_FRAMES = [1, 2, 3, 4]
 MONSTER_W, MONSTER_H = 92, 92
 
 BATTLE_BG_SRC = 'battle-bg.png'
+TILE_NAMES = (['grass-%d' % i for i in range(1, 5)] + ['dirt-%d' % i for i in range(1, 5)] +
+              ['water-%d' % i for i in range(1, 5)] + ['dirt2-1', 'dirt2-2'] +
+              ['%s-%d' % (k, i) for k in ('tallgrass', 'tree', 'tree-s', 'cliff') for i in (1, 2)] +
+              ['%s-%s' % (k, d) for k in ('dirtedge', 'shore') for d in 'nesw'])
 BATTLE_BG_W, BATTLE_BG_H = 320, 240
 
 ITEM_ICON_W, ITEM_ICON_H = 14, 14
@@ -364,6 +368,19 @@ def main():
     im = Image.open(os.path.join(root, cat['bg']))
     pixels = encode(im, BATTLE_BG_W, BATTLE_BG_H)
     emit_array(lines, 'battle_bg', pixels, BATTLE_BG_W, BATTLE_BG_H)
+
+    # Painted overworld ground tiles (tools/pixelforge/tiles.py), scaled from
+    # 32px to the port's 20px TILE. main.c's draw_tile_art() uses them when
+    # HAVE_TILE_ART is defined and keeps its flat tiles otherwise.
+    tile_dir = os.path.join(root, 'tiles')
+    if all(os.path.exists(os.path.join(tile_dir, n + '.png')) for n in TILE_NAMES):
+        lines.append('#define HAVE_TILE_ART 1')
+        lines.append('#define TILE_ART_PX 20')
+        for n in TILE_NAMES:
+            im = Image.open(os.path.join(tile_dir, n + '.png'))
+            edge = 'edge' in n or 'shore' in n
+            pixels = encode(im, 20, 20, Image.BOX if edge else Image.LANCZOS)
+            emit_array(lines, 'tile_' + n.replace('-', '_'), pixels, 20, 20)
 
     lines.append('#define ITEM_ICON_W %d' % ITEM_ICON_W)
     lines.append('#define ITEM_ICON_H %d' % ITEM_ICON_H)

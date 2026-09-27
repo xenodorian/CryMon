@@ -1056,6 +1056,80 @@ static void draw_tile(int map_id, char ch, int dx, int dy) {
     }
 }
 
+#ifdef HAVE_TILE_ART
+/* Painted ground tiles (sprites.h, from public/sprites/tiles), same
+   grouping, variant hash and edge rules as src/game/tileArt.ts. Chars
+   not listed keep draw_tile()'s flat look. */
+enum { TC_NONE, TC_GRASS, TC_TALL, TC_DIRT, TC_DIRT2, TC_TREE, TC_WATER, TC_CLIFF };
+static u32 tile_anim_tick;
+
+static int tile_cat(char ch) {
+    const char *p;
+    if(ch == 'T') return TC_TALL;
+    if(ch == '#') return TC_TREE;
+    if(ch == 'W') return TC_WATER;
+    if(ch == '^') return TC_CLIFF;
+    if(ch == ',') return TC_DIRT2;
+    for(p = "=ZY3O89"; *p; p++) if(*p == ch) return TC_DIRT;
+    for(p = ".KVAQMGLJ124567I"; *p; p++) if(*p == ch) return TC_GRASS;
+    return TC_NONE;
+}
+
+static u32 tile_hash(int x, int y) {
+    u32 h = (u32)x * 374761393u + (u32)y * 668265263u;
+    h = (h ^ (h >> 13)) * 1274126177u;
+    return h ^ (h >> 16);
+}
+
+static int tile_cat_at(const Map *m, int row, int col) {
+    if(row < 0 || row >= m->rows_n || col < 0 || col >= m->cols) return -1;
+    return tile_cat(m->rows[row][col]);
+}
+
+/* Returns 1 when it drew the tile. */
+static int draw_tile_art(const Map *m, int row, int col, int dx, int dy) {
+    static const unsigned short *const grass[4] = { tile_grass_1, tile_grass_2, tile_grass_3, tile_grass_4 };
+    static const unsigned short *const dirt[4] = { tile_dirt_1, tile_dirt_2, tile_dirt_3, tile_dirt_4 };
+    static const unsigned short *const water[4] = { tile_water_1, tile_water_2, tile_water_3, tile_water_4 };
+    static const unsigned short *const dedge[4] = { tile_dirtedge_n, tile_dirtedge_e, tile_dirtedge_s, tile_dirtedge_w };
+    static const unsigned short *const shore[4] = { tile_shore_n, tile_shore_e, tile_shore_s, tile_shore_w };
+    static const int nb[4][2] = { { 0, -1 }, { 1, 0 }, { 0, 1 }, { -1, 0 } };
+    int cat = tile_cat(m->rows[row][col]);
+    u32 h = tile_hash(col, row);
+    const unsigned short *px;
+    int k;
+
+    switch(cat) {
+        case TC_GRASS: { u32 r = h % 16u; px = grass[r < 7 ? 0 : r < 13 ? 1 : r < 15 ? 2 : 3]; break; }
+        case TC_TALL:  px = (h & 1u) ? tile_tallgrass_2 : tile_tallgrass_1; break;
+        case TC_DIRT:  px = dirt[h % 4u]; break;
+        case TC_DIRT2: px = (h & 1u) ? tile_dirt2_2 : tile_dirt2_1; break;
+        case TC_CLIFF: px = (h & 1u) ? tile_cliff_2 : tile_cliff_1; break;
+        case TC_WATER: px = water[(tile_anim_tick / 20u) % 4u]; break;
+        case TC_TREE: {
+            int below = tile_cat_at(m, row + 1, col);
+            int edge = below >= 0 && below != TC_TREE;
+            if(edge) px = (h & 1u) ? tile_tree_s_2 : tile_tree_s_1;
+            else px = (h & 1u) ? tile_tree_2 : tile_tree_1;
+            break;
+        }
+        default: return 0;
+    }
+    blit_sprite(px, TILE_ART_PX, TILE_ART_PX, dx, dy);
+    if(cat == TC_DIRT || cat == TC_DIRT2 || cat == TC_WATER) {
+        for(k = 0; k < 4; k++) {
+            int n = tile_cat_at(m, row + nb[k][1], col + nb[k][0]);
+            if(n < 0) continue;
+            if(cat == TC_WATER && n != TC_WATER)
+                blit_sprite(shore[k], TILE_ART_PX, TILE_ART_PX, dx, dy);
+            else if(cat != TC_WATER && (n == TC_GRASS || n == TC_TALL))
+                blit_sprite(dedge[k], TILE_ART_PX, TILE_ART_PX, dx, dy);
+        }
+    }
+    return 1;
+}
+#endif
+
 /* Keeps the player roughly centered, clamped to the map's edges; a
    map no bigger than the screen (HOUSE) instead gets a fixed,
    centered offset (possibly negative), which is what actually
@@ -1110,9 +1184,16 @@ static void draw_map(int map_id, int cam_x, int cam_y) {
         vram_clear();
     }
 
+#ifdef HAVE_TILE_ART
+    tile_anim_tick++;
+#endif
     for(row = row0; row < row1; row++)
-        for(col = col0; col < col1; col++)
+        for(col = col0; col < col1; col++) {
+#ifdef HAVE_TILE_ART
+            if(draw_tile_art(m, row, col, col * TILE - cam_x, row * TILE - cam_y)) continue;
+#endif
             draw_tile(map_id, m->rows[row][col], col * TILE - cam_x, row * TILE - cam_y);
+        }
 }
 
 /* Props are center-anchored on their mark's tile center, matching the
