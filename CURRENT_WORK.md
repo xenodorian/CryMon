@@ -4135,3 +4135,9 @@ skipped, so he stood by the boulder from the first visit. He now stays
 hidden until `beatShinigami`, then leaves once `sawShinigamiRock` is set.
 The boulder is unchanged. Dreamcast no longer draws him a second time on
 top of the generic walker.
+## 2026-09-27 Evolutions read as upgrades; idle breath (Claude)
+- Grok's generated monster frames (d3eccb4) had loose, uneven padding: scavrat, tunneler, arcwasp, rimewyrm, fateweaver and towerfall drew smaller than their earlier forms, and wide canvases were stretched on the Dreamcast (it scales frames to 92x92).
+- Both ports now normalise battle frames at load, leaving the PNGs untouched: each species is padded to a square it fills by area according to its stage (three-stage 0.66/0.83/1.0, two-stage 0.76/1.0, others 0.92), feet on the bottom edge. Web: src/game/monsterFrames.ts via drawBattleMon. Dreamcast: battle_frames() in gen_sprites.py before encoding MONSTERS.BIN. Keep the two in step.
+- 87 species had four identical frames (no idle motion). Those now breathe: frames 2-4 stretch the body up 1-2 rows with the feet fixed.
+- Weakest-monster pass: without image generation (still blocked) no species was redrawn. The sizing and breath above are the pass; kilnback remains a brighter-lava take on cindermite (Grok's art), now clearly larger. Candidates for a real redraw when generation works: kilnback, gravelurk (close to slatekin), towerfall (thinner than ramparth), scavrat, tunneler.
+- Merged with the duplicate-frame deletion (5850035): still species keep only 1.png; both ports load frame 1 for the missing 2-4, and the normaliser turns those into the breath frames, so the Dreamcast stores 4 frames again for every species (MONSTER_NFRAMES all 4, MONSTERS.BIN back to 7.7MB). sprites.h in this commit is main's; the CDI build regenerates it once the unreadable npc/lead-1..4.png (owned by the duplicate-frames thread) are fixed. Branch and PR #38 retired; this work was pushed straight to main.
