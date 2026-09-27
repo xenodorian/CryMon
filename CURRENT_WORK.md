@@ -3796,6 +3796,18 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         walk out) and on Dreamcast (gate open, wild Starwhale Lv 55).
 - [x] H19 Web HUD: "SCROLL" drew on top of the lead's HP when the lead
       line was long. It now starts after the measured lead text.
+- [x] H20 Story beats in the main arc (dialogue.json only).
+      - Each General's win now shows the dead they kept being let go:
+        Harrow's old column, Ashgrove's wife's voice, Stroud's son,
+        Vale's daughter's song, Kessler's family, Morrow's brother at the
+        water, Crane's birds that don't come back. Blackwood (keeps no one,
+        serves the king who won't die) and Sorrel (the queen is Nero's)
+        stay as they were, which keeps them distinct.
+      - Lead's win: Max asks who Nero keeps for him. "Nobody. I just
+        follow orders. I think that's worse."
+      - Nero's win: the queen appears behind the throne, touches his
+        shoulder and goes, before he asks to be finished or chained.
+        Matches the execute line (her ring rolls to Max's feet).
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

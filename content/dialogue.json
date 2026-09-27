@@ -1500,6 +1500,14 @@
         "text": "Doesn't matter. You'll never get through the Veil. Nobody living does."
       },
       {
+        "speaker": "max",
+        "text": "Who does he keep for you?"
+      },
+      {
+        "speaker": "lead",
+        "text": "Nobody. I just follow orders. I think that's worse."
+      },
+      {
         "speaker": "none",
         "text": "Lead limps off up the road and disappears into the pale wall."
       }
@@ -1718,6 +1726,10 @@
       {
         "speaker": "harrow",
         "text": "Thirty years a soldier, beaten by a farm girl. Go on, then."
+      },
+      {
+        "speaker": "none",
+        "text": "Out past the walls, a column of old soldiers lowers their spears. Then they're gone."
       }
     ],
     "harrowArrest": [
@@ -1770,6 +1782,10 @@
       {
         "speaker": "ashgrove",
         "text": "I only signed the orders. I never went out there myself."
+      },
+      {
+        "speaker": "none",
+        "text": "A woman's voice says his name once, very softly. Then the room is quiet."
       }
     ],
     "ashgroveArrest": [
@@ -1822,6 +1838,10 @@
       {
         "speaker": "stroud",
         "text": "Take them. The cells were full anyway."
+      },
+      {
+        "speaker": "none",
+        "text": "In the last cell, a boy's ghost looks up at his father, smiles, and fades."
       }
     ],
     "stroudArrest": [
@@ -1874,6 +1894,10 @@
       {
         "speaker": "vale",
         "text": "Hm. I didn't think you'd make any noise at all."
+      },
+      {
+        "speaker": "none",
+        "text": "Far off, a girl's song rises over the river, then trails away."
       }
     ],
     "valeArrest": [
@@ -1926,6 +1950,10 @@
       {
         "speaker": "kessler",
         "text": "Fire always goes out eventually. Didn't think it would be mine."
+      },
+      {
+        "speaker": "none",
+        "text": "In the smoke, a family stands hand in hand. None of them look back at him."
       }
     ],
     "kesslerArrest": [
@@ -1978,6 +2006,10 @@
       {
         "speaker": "morrow",
         "text": "They'll drink today. Tomorrow somebody else will own the gate."
+      },
+      {
+        "speaker": "none",
+        "text": "A thin young man kneels at the running water, drinks, and is gone."
       }
     ],
     "morrowArrest": [
@@ -2025,7 +2057,7 @@
     "craneWin": [
       {
         "speaker": "none",
-        "text": "Crane's birds scatter out the high windows."
+        "text": "Crane's birds scatter out the high windows. Not one of them comes back."
       },
       {
         "speaker": "crane",
@@ -2188,8 +2220,20 @@
         "text": "Nero's last CryMon falls. Outside the palace, the wailing goes quiet, one voice at a time."
       },
       {
+        "speaker": "none",
+        "text": "A woman in a pale gown stands behind the throne. The queen."
+      },
+      {
         "speaker": "nero",
-        "text": "Well? Finish it, or chain me. I will not beg."
+        "text": "No. Not yet. Stay."
+      },
+      {
+        "speaker": "none",
+        "text": "She rests a hand on his shoulder, the way she must have once. Then she is gone, like all the rest."
+      },
+      {
+        "speaker": "nero",
+        "text": "She's gone. Well? Finish it, or chain me. I will not beg."
       }
     ],
     "neroTrial": [
