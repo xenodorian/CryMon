@@ -3812,3 +3812,8 @@ own files; redraw them only if the user says so.
 - Twinklet is two spinning stars joined by a thread of light (was two plain orbs).
 - Frostchoir is an ice crown with a choir of bells hanging from it and a singing lead bell (was six loose cones).
 - Soottick legs arch up to a knee instead of hanging straight down.
+
+### Painted overworld tiles (Claude, 2026-09-27)
+- New tools/pixelforge/tiles.py draws 30 seamless 32x32 ground tiles into public/sprites/tiles/: grass (4 variants, some with flowers), tall grass, dirt and dark dirt, forest canopy plus a forest-edge tile with trunks and shadow, animated water (4 frames), boulder cliffs, and edge overlays (grass fringe on paths, shoreline on water).
+- Web: new src/game/tileArt.ts. Engine.paintTile() now tries the painted tile first and falls back to the old flat colors for anything it does not cover (houses, roofs, floors, props) or while images load. drawMap() passes tile coords and the map so variants and edges follow the neighbors.
+- sprites.json extra lists the tile files so the art check and loader see them. The Dreamcast port still draws its own tiles; wiring these in there is a follow-up.

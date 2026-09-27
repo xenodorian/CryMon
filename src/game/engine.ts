@@ -60,6 +60,7 @@ import {
   HYPE_UP,
   effectiveStat
 , TOWN_MAP, TILE_ART } from "./data";
+import { paintTileArt } from "./tileArt";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
 import type {
@@ -5084,7 +5085,7 @@ export class CryMon {
 			for (let x = x0; x < x1; x++) {
 				const ch = row[x];
 				if (!ch) continue;
-				this.paintTile(ch, x * TILE - camx, y * TILE - camy);
+				this.paintTile(ch, x * TILE - camx, y * TILE - camy, x, y, map);
 			}
 		}
 	}
@@ -5218,7 +5219,7 @@ export class CryMon {
 			cy: this.world.y - VIEW_H / 2
 		};
 	}
-	paintTile(ch, dx, dy) {
+	paintTile(ch, dx, dy, tx = -1, ty = -1, map = null) {
 		const ctx = this.ctx;
 		const t = TILE;
 		const fill = (c, x = dx, y = dy, w = t, h = t) => {
@@ -5238,6 +5239,8 @@ export class CryMon {
 			fill("#c8a050", dx + t - 11, dy + t / 2, 2, 2);
 			return;
 		}
+		// Painted ground tiles (tileArt.ts); falls through while they load.
+		if (tx >= 0 && paintTileArt(ctx, this.images, map, ch, dx, dy, tx, ty, performance.now())) return;
 		if (ch === "H") {
 			fill("#2a1e16");
 			fill("#3d2c22", dx, dy, t, 1);
