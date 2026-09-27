@@ -1638,7 +1638,9 @@ static void draw_dialogue_box(const TalkBeat *beat) {
    reached from plain world state, not mid-dialogue). No background
    panel, same as the dialogue box above -- just outlined text. */
 static void draw_hud_toast(const char *text) {
-    draw_text_s(text, 26, 10, 0xFFFF, DIALOGUE_SCALE);
+    /* Centered under the HUD column (up to five rows from y=2), not on
+       top of it: "SAVED" used to overprint the lead's name. */
+    draw_text_center_s(text, SCREEN_W / 2, 2 + 5 * DIALOGUE_LINE_H + 4, 0xFFFF, DIALOGUE_SCALE);
 }
 
 /* Map-name banner: replaces the old per-door TALK_*_ENTER/LEAVE
@@ -1659,8 +1661,10 @@ static void draw_map_title(int map_id) {
     int w;
     if(map_id < 0 || map_id >= MAP_N) map_id = MAP_HOUSE;
     name = MAP_DISPLAY_NAME[map_id];
-    w = text_width_s(name, 2);
-    draw_text_s(name, SCREEN_W - 6 - w, 4, rgb565(232, 228, 216), 2);
+    /* Scale 1 on the REP row: at scale 2 a 16-letter name took most of
+       the 320px width and printed over the lead/scroll HUD lines. */
+    w = text_width_s(name, 1);
+    draw_text_s(name, SCREEN_W - 6 - w, 2, rgb565(232, 228, 216), 1);
 }
 
 static void draw_map_banner(int map_id, int timer) {
@@ -4055,9 +4059,16 @@ static void draw_battle_status(const Battle *b) {
         n = s_cat(buf, n, STATUS_NAME[b->foe.status]);
     }
     buf[n] = 0;
-    draw_text_s(buf, BFOE_BOX_X + 4, BFOE_BOX_Y + 4, 0xFFFF, MENU_SCALE);
-    draw_nature_badge(species_nature(b->foe.species),
-                      BFOE_BOX_X - 4 - NATURE_BADGE_SIZE, BFOE_BOX_Y + 3);
+    /* Long names plus "LVxx hp/max" outgrow the box ("NEEDLEROOT LV10
+       20/20" ran off the right edge in Flycast), so the foe line is
+       pulled left to stay on screen and the badges follow the text. */
+    {
+        int x = BFOE_BOX_X + 4, w = text_width_s(buf, MENU_SCALE);
+        if(x + w > SCREEN_W - 4) x = SCREEN_W - 4 - w;
+        draw_text_s(buf, x, BFOE_BOX_Y + 4, 0xFFFF, MENU_SCALE);
+        draw_nature_badge(species_nature(b->foe.species),
+                          x - 8 - NATURE_BADGE_SIZE, BFOE_BOX_Y + 3);
+    }
 
     n = s_cat(buf, 0, b->pl.shiny ? "*" : "");
     n = s_cat(buf, n, SPECIES[b->pl.species].name);
@@ -4073,8 +4084,12 @@ static void draw_battle_status(const Battle *b) {
     }
     buf[n] = 0;
     draw_text_s(buf, BPL_BOX_X + 4, BPL_BOX_Y + 4, 0xFFFF, MENU_SCALE);
-    draw_nature_badge(species_nature(b->pl.species),
-                      BPL_BOX_X + BPL_BOX_W + 4, BPL_BOX_Y + 3);
+    {
+        int bx = BPL_BOX_X + 4 + text_width_s(buf, MENU_SCALE) + 4;
+        if(bx < BPL_BOX_X + BPL_BOX_W + 4) bx = BPL_BOX_X + BPL_BOX_W + 4;
+        if(bx > SCREEN_W - 2 - NATURE_BADGE_SIZE) bx = SCREEN_W - 2 - NATURE_BADGE_SIZE;
+        draw_nature_badge(species_nature(b->pl.species), bx, BPL_BOX_Y + 3);
+    }
 }
 
 static void draw_battle_menu_row(const char *label, int idx, int cur, int y) {
