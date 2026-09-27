@@ -117,6 +117,11 @@ SPEAKER = {
     "osk": 93,
     "ilse": 94,
     "maren": 95,
+    # 96-99: the Hollow (post-game)
+    "hollowKeeper": 96,
+    "hollowRanger": 97,
+    "hollowShade": 98,
+    "hollowWarden": 99,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -384,7 +389,7 @@ def bake_maps(data: dict, out: Path) -> None:
     lines.append("static const unsigned char MAP_TILE_THEME[MAP_N] = {")
     lines.append("    " + ", ".join(str(themes.index(tmap.get(m, "town"))) for m in order) + ",")
     lines.append("};")
-    moods = ["", "haunt", "veil", "mist"]
+    moods = ["", "haunt", "veil", "mist", "glow"]
     amap = (data.get("sprites") or {}).get("ambient") or {}
     lines.append("static const unsigned char MAP_AMBIENT[MAP_N] = {")
     lines.append("    " + ", ".join(str(moods.index(amap.get(m, ""))) for m in order) + ",")

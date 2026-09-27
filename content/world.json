@@ -7611,7 +7611,7 @@
       "mark": "i",
       "id": "hollowKeeper",
       "role": "talk",
-      "sprite": "npc/keeper",
+      "sprite": "npc/hollowKeeper",
       "talk": "hollowKeeperMeet",
       "script": [
         {
@@ -7648,7 +7648,7 @@
       "mark": "f",
       "id": "hollowRanger",
       "role": "talk",
-      "sprite": "npc/ranger",
+      "sprite": "npc/hollowRanger",
       "talk": "hollowRangerFight",
       "script": [
         {
@@ -7667,7 +7667,7 @@
       "mark": "j",
       "id": "hollowShade",
       "role": "talk",
-      "sprite": "npc/ghost",
+      "sprite": "npc/hollowShade",
       "talk": "hollowShadeFight",
       "script": [
         {
@@ -7686,7 +7686,7 @@
       "mark": "d",
       "id": "hollowWarden",
       "role": "talk",
-      "sprite": "npc/warden",
+      "sprite": "npc/hollowWarden",
       "talk": "hollowWardenFight",
       "script": [
         {

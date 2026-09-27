@@ -5667,7 +5667,8 @@ export class CryMon {
 	}
 	/** Map mood from sprites.json ambient: "haunt" (night tint, low fog,
 	 *  ghost motes), "veil" (grey tint, pale wisps rising off the road),
-	 *  "mist" (light drifting fog). Wall torches and lanterns (tileArt
+	 *  "mist" (light drifting fog), "glow" (the Hollow: violet dusk, motes
+	 *  of light floating up). Wall torches and lanterns (tileArt
 	 *  LIGHTS) glow on top on every map. The Dreamcast draw_ambient()
 	 *  mirrors this with the same kinds. */
 	drawAmbient() {
@@ -5676,8 +5677,8 @@ export class CryMon {
 		const t = this.clock;
 		const { cx, cy } = this.cam();
 		ctx.save();
-		if (kind === "haunt" || kind === "veil" || kind === "mist") {
-			ctx.fillStyle = kind === "haunt" ? "rgba(8,12,40,0.45)" : kind === "veil" ? "rgba(50,58,78,0.32)" : "rgba(170,190,180,0.10)";
+		if (kind === "haunt" || kind === "veil" || kind === "mist" || kind === "glow") {
+			ctx.fillStyle = kind === "haunt" ? "rgba(8,12,40,0.45)" : kind === "veil" ? "rgba(50,58,78,0.32)" : kind === "glow" ? "rgba(46,22,80,0.30)" : "rgba(170,190,180,0.10)";
 			ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 		}
 		if (kind === "haunt" || kind === "mist") {
@@ -5697,17 +5698,18 @@ export class CryMon {
 				ctx.restore();
 			}
 		}
-		if (kind === "haunt" || kind === "veil") {
-			// ghost motes (haunt) drift and blink; Veil wisps rise off the road
-			const n = kind === "veil" ? 34 : 18;
+		if (kind === "haunt" || kind === "veil" || kind === "glow") {
+			// ghost motes (haunt) drift and blink; Veil wisps rise off the
+			// road; in the Hollow, motes of fallen light float up slowly
+			const n = kind === "veil" ? 34 : kind === "glow" ? 26 : 18;
 			for (let i = 0; i < n; i++) {
 				const sp = 12 + (i % 5) * 5;
 				const px = ((i * 97 + Math.sin(t * 0.7 + i) * 18 - cx * 0.2) % VIEW_W + VIEW_W) % VIEW_W;
-				const py = kind === "veil"
-					? VIEW_H - (((t * sp + i * 53) % (VIEW_H + 20)) + VIEW_H + 20) % (VIEW_H + 20)
+				const py = kind !== "haunt"
+					? VIEW_H - (((t * sp * (kind === "glow" ? 0.5 : 1) + i * 53) % (VIEW_H + 20)) + VIEW_H + 20) % (VIEW_H + 20)
 					: ((i * 71 + Math.cos(t * 0.5 + i) * 14 - cy * 0.2) % VIEW_H + VIEW_H) % VIEW_H;
 				const a = 0.35 + 0.35 * Math.sin(t * 2 + i * 1.7);
-				ctx.fillStyle = kind === "veil" ? `rgba(220,226,240,${a})` : `rgba(150,220,255,${a})`;
+				ctx.fillStyle = kind === "veil" ? `rgba(220,226,240,${a})` : kind === "glow" ? `rgba(230,200,255,${a})` : `rgba(150,220,255,${a})`;
 				const s = kind === "veil" ? 2 + (i % 3) : 3;
 				ctx.fillRect(Math.round(px), Math.round(py), s, kind === "veil" ? s * 2 : s);
 			}

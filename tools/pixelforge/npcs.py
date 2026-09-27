@@ -188,8 +188,8 @@ def walker(p, t):
         c.ell(cx - tw + 1, waist + 1 + b, 3.5, 3.0, m["leather"], z=9)
     if "bird" in ex:
         bx_, by_ = cx + tw, top - 3
-        c.ell(bx_, by_, 3.2, 2.6, M("#e6e6e6"), z=12)
-        c.ell(bx_ - 2, by_ - 2, 2.0, 2.0, M("#e6e6e6"), z=13)
+        c.ell(bx_, by_, 3.2, 2.6, M(p.get("bird_col", "#e6e6e6")), z=12)
+        c.ell(bx_ - 2, by_ - 2, 2.0, 2.0, M(p.get("bird_col", "#e6e6e6")), z=13)
 
     # ---- head
     hg = c.group()

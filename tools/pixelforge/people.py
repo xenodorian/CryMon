@@ -203,3 +203,22 @@ PEOPLE.update({
                   pants="#a0b0c0", boots="#90a0b0", hat="none", eyes="#e0f0ff", age="child", expr="sad",
                   extras=["tears"]),
 })
+
+# ---- the Hollow (post-game area west of the Reach)
+PEOPLE.update({
+    "hollowKeeper": dict(skin="tan", hair="#c8c0b0", hair_style="long", outfit="robe", main="#4a5a3a", trim="#a89a60",
+                         pants="#2e3424", boots="#1e2218", hat="hood", hat_col="#3a4a2e", beard="full",
+                         beard_col="#d8d0c0", eyes="#e0b860", age="old", expr="smile",
+                         extras=["lantern", "staff", "sack"], build="slim"),
+    "hollowRanger": dict(skin="light", hair="#3a2a1e", hair_style="wild", outfit="coat", main="#6a4a2c", trim="#3a2a1a",
+                         pants="#3a3024", boots="#241c14", hat="none", beard="stubble", beard_col="#3a2a1e",
+                         eyes="#6a8a4a", expr="smirk", extras=["bow", "bird", "scar", "belt"], build="slim",
+                         bird_col="#2a2630"),
+    "hollowShade": dict(skin="dead", hair="#6a5a8a", hair_style="long", outfit="ghost", main="#6a5a90", trim="#b8a8e8",
+                        pants="#5a4a7a", boots="#4a3a6a", hat="none", eyes="#e8d8ff", expr="sad",
+                        extras=["tears"], build="slim"),
+    "hollowWarden": dict(skin="brown", hair="#e0e0d8", hair_style="short", outfit="armor", main="#5a6a3a", trim="#b89a48",
+                         pants="#3a4228", boots="#262a1a", hat="none", beard="full",
+                         beard_col="#e8e8e0", eyes="#9ae070", age="old", expr="grim",
+                         extras=["cape", "sword", "tabard"], build="broad"),
+})
