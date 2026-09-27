@@ -377,6 +377,19 @@ def bake_maps(data: dict, out: Path) -> None:
     lines.append("    " + ", ".join(str(kinds.index(bgmap[m]) + 1 if m in bgmap else 0) for m in order) + ",")
     lines.append("};")
     lines.append("")
+    # Tile theme per map (sprites.json tileTheme; main.c draw_building_art)
+    # and ambient mood (sprites.json ambient; main.c draw_ambient).
+    themes = ["town", "wood", "keep", "crypt", "palace", "seph"]
+    tmap = (data.get("sprites") or {}).get("tileTheme") or {}
+    lines.append("static const unsigned char MAP_TILE_THEME[MAP_N] = {")
+    lines.append("    " + ", ".join(str(themes.index(tmap.get(m, "town"))) for m in order) + ",")
+    lines.append("};")
+    moods = ["", "haunt", "veil", "mist"]
+    amap = (data.get("sprites") or {}).get("ambient") or {}
+    lines.append("static const unsigned char MAP_AMBIENT[MAP_N] = {")
+    lines.append("    " + ", ".join(str(moods.index(amap.get(m, ""))) for m in order) + ",")
+    lines.append("};")
+    lines.append("")
     solid = data["maps"].get("solid", "#HWRBC^NKEVAQXUJISMGL89r")
     lines.append(f'static const char *const SOLID_TILES = "{c_escape(solid)}";')
     lines.append("")

@@ -1076,8 +1076,11 @@ static void draw_tile(int map_id, char ch, int dx, int dy) {
 enum { TC_NONE, TC_GRASS, TC_TALL, TC_DIRT, TC_DIRT2, TC_TREE, TC_WATER, TC_CLIFF };
 static u32 tile_anim_tick;
 
+static int g_yard_dirt; /* outdoor theme: F and P paint as packed earth */
+
 static int tile_cat(char ch) {
     const char *p;
+    if(g_yard_dirt && (ch == 'F' || ch == 'P')) return TC_DIRT;
     if(ch == 'T') return TC_TALL;
     if(ch == '#') return TC_TREE;
     if(ch == 'W') return TC_WATER;
@@ -1143,6 +1146,214 @@ static int draw_tile_art(const Map *m, int row, int col, int dx, int dy) {
 }
 #endif
 
+#if defined(HAVE_TILE_ART) && defined(HAVE_TOWN_TILES)
+/* Building and room tiles (sprites.h, from tools/pixelforge/tiles_town.py)
+   by MAP_TILE_THEME, the same rules as paintBuilding() in
+   src/game/tileArt.ts: indoor themes repaint floors, walls (a face where
+   the tile below is open) and doors; outdoor themes repaint house walls,
+   roofs (a ridge on the top row) and doors. Wall torches and door
+   lanterns are queued in g_lights for draw_ambient()'s glow. */
+enum { TH_TOWN, TH_WOOD, TH_KEEP, TH_CRYPT, TH_PALACE, TH_SEPH };
+#define MAX_LIGHTS 24
+static int g_light_n;
+static short g_light_x[MAX_LIGHTS], g_light_y[MAX_LIGHTS];
+static unsigned char g_light_torch[MAX_LIGHTS];
+
+static int char_in(char c, const char *set) {
+    if(!c) return 0;
+    for(; *set; set++) if(*set == c) return 1;
+    return 0;
+}
+
+static char map_at(const Map *m, int row, int col) {
+    if(row < 0 || row >= m->rows_n || col < 0 || col >= m->cols) return 0;
+    return m->rows[row][col];
+}
+
+static void draw_wall_light(int torch, int x, int y, u32 h) {
+    static const unsigned short *const tf[4] = { fx_torch_1, fx_torch_2, fx_torch_3, fx_torch_4 };
+    static const unsigned short *const lf[4] = { fx_lantern_1, fx_lantern_2, fx_lantern_3, fx_lantern_4 };
+    int f = (int)((tile_anim_tick / 7u + h) & 3u);
+    blit_sprite(torch ? tf[f] : lf[f], LIGHT_PX, LIGHT_PX, x, y);
+    if(g_light_n < MAX_LIGHTS) {
+        g_light_x[g_light_n] = (short)(x + 5);
+        g_light_y[g_light_n] = (short)(y + (torch ? 2 : 5));
+        g_light_torch[g_light_n] = (unsigned char)torch;
+        g_light_n++;
+    }
+}
+
+/* Returns 1 when it drew the tile. */
+static int draw_building_art(int map_id, const Map *m, int row, int col, int dx, int dy) {
+    static const unsigned short *const floor1[5] = { 0, tile_floor_wood_1, tile_floor_keep_1, tile_floor_crypt_1, tile_floor_palace_1 };
+    static const unsigned short *const floor2[5] = { 0, tile_floor_wood_2, tile_floor_keep_2, tile_floor_crypt_2, tile_floor_palace_2 };
+    static const unsigned short *const wtop[5] = { 0, tile_wall_wood, tile_wall_keep, tile_wall_crypt, tile_wall_palace };
+    static const unsigned short *const wface[5] = { 0, tile_wallf_wood, tile_wallf_keep, tile_wallf_crypt, tile_wallf_palace };
+    static const unsigned short *const idoor[5] = { 0, tile_door_wood, tile_door_keep, tile_door_crypt, tile_door_palace };
+    const char *doors = "Dbw()0";
+    int theme = MAP_TILE_THEME[map_id];
+    int out = theme == TH_TOWN || theme == TH_SEPH;
+    char ch = m->rows[row][col];
+    u32 h = tile_hash(col, row);
+    const unsigned short *px = 0;
+
+    if(ch == '%') px = tile_bars;
+    else if(ch == 'g') px = tile_gate;
+    else if(ch == '*') px = (h & 1u) ? tile_flowers_2 : tile_flowers_1;
+    if(px) {
+        blit_sprite(px, TILE_ART_PX, TILE_ART_PX, dx, dy);
+        return 1;
+    }
+    if(!out) {
+        if(char_in(ch, "FPBUCSastxz")) {
+            blit_sprite((h % 4u) == 0 ? floor2[theme] : floor1[theme], TILE_ART_PX, TILE_ART_PX, dx, dy);
+            if(map_id != MAP_HOUSE && ch == 'C') blit_sprite(tile_crate, TILE_ART_PX, TILE_ART_PX, dx, dy);
+            if(map_id != MAP_HOUSE && (ch == 'B' || ch == 'U')) blit_sprite(tile_bed, TILE_ART_PX, TILE_ART_PX, dx, dy);
+            return 1;
+        }
+        if(char_in(ch, doors)) {
+            blit_sprite(idoor[theme], TILE_ART_PX, TILE_ART_PX, dx, dy);
+            return 1;
+        }
+        if(ch == 'H') {
+            char below = map_at(m, row + 1, col);
+            int face = below && below != 'H' && !char_in(below, doors);
+            blit_sprite(face ? wface[theme] : wtop[theme], TILE_ART_PX, TILE_ART_PX, dx, dy);
+            if(face && ((h >> 4) % (theme == TH_WOOD ? 6u : 4u)) == 0)
+                draw_wall_light(theme != TH_WOOD, dx + 5, dy + 4, h);
+            return 1;
+        }
+        return 0;
+    }
+    if(ch == 'H') {
+        char l = map_at(m, row, col - 1), r = map_at(m, row, col + 1);
+        int by_door = char_in(l, doors) || char_in(r, doors);
+        int win = ((h >> 3) % 3u) == 0 && !by_door;
+        if(theme == TH_SEPH) px = win ? tile_wallf_seph_2 : tile_wallf_seph_1;
+        else px = win ? tile_wallf_town_2 : tile_wallf_town_1;
+        blit_sprite(px, TILE_ART_PX, TILE_ART_PX, dx, dy);
+        if(by_door) draw_wall_light(0, dx + 5, dy + 3, h);
+        return 1;
+    }
+    if(ch == 'r' || ch == 'R') {
+        char above = map_at(m, row - 1, col);
+        int top = ch == 'R' || (above != 'r' && above != 'R');
+        int moss = (h % 5u) == 0;
+        if(theme == TH_SEPH) px = top ? tile_ridge_seph : moss ? tile_roof_seph_2 : tile_roof_seph_1;
+        else px = top ? tile_ridge_town : moss ? tile_roof_town_2 : tile_roof_town_1;
+        blit_sprite(px, TILE_ART_PX, TILE_ART_PX, dx, dy);
+        return 1;
+    }
+    if(char_in(ch, doors)) {
+        blit_sprite(theme == TH_SEPH ? tile_door_seph : tile_door_town, TILE_ART_PX, TILE_ART_PX, dx, dy);
+        return 1;
+    }
+    return 0;
+}
+#endif
+
+/* Map mood from MAP_AMBIENT (sprites.json ambient), after the actors and
+   before the HUD, as drawAmbient() in engine.ts: 1 haunt (night tint,
+   drifting fog rows, blinking ghost motes), 2 veil (grey tint, pale wisps
+   rising), 3 mist (light fog rows). Then a warm glow around each wall
+   light drawn this frame. */
+static void draw_ambient(int map_id, int cam_x, int cam_y, u32 t) {
+    int mood = MAP_AMBIENT[map_id];
+    int i;
+    if(mood) {
+        /* per-channel mix toward a tint: keep/16 of the pixel, plus fog
+           rows that lift toward pale grey in slow bands */
+        static const u8 tr[4] = { 0, 8, 50, 170 }, tg[4] = { 0, 12, 58, 190 }, tb[4] = { 0, 40, 78, 180 };
+        const u32 keep = mood == 1 ? 9u : mood == 2 ? 11u : 15u;
+        const u32 cr = (u32)(tr[mood] >> 3) * (16u - keep), cg = (u32)(tg[mood] >> 2) * (16u - keep),
+                  cb = (u32)(tb[mood] >> 3) * (16u - keep);
+        int y;
+        for(y = 0; y < SCREEN_H; y++) {
+            volatile u16 *row = &draw_fb[y * SCREEN_W];
+            int wy = y + cam_y / 2 + (int)(t / 3u) + 4800;
+            int x;
+            for(x = 0; x < SCREEN_W; x++) {
+                u16 c = row[x];
+                u32 r = ((((u32)(c >> 11) & 0x1Fu) * keep) + cr) >> 4;
+                u32 g = ((((u32)(c >> 5) & 0x3Fu) * keep) + cg) >> 4;
+                u32 b = ((((u32)c & 0x1Fu) * keep) + cb) >> 4;
+                /* fog banks: two crossing slow waves, dithered, lifting
+                   0..4/16 toward pale grey (none on the Veil) */
+                if(mood != 2) {
+                    int wx = x + cam_x / 2 + 4800;
+                    /* power-of-two periods: the SH4 has no divide unit */
+                    int p1 = (wy + ((wx * 23) >> 5)) & 127, p2 = (wy * 2 + 4096 - ((wx * 19) >> 5)) & 127;
+                    int v = (p1 < 64 ? p1 : 127 - p1) + (p2 < 64 ? p2 : 127 - p2) / 2;
+                    u32 fog = (u32)(v + (((x & 1) << 1) | (y & 1)) * 6) >> 5;
+                    if(mood == 3) fog = fog > 1u ? fog - 1u : 0u;
+                    if(fog) {
+                        r += ((25u - r) * fog) >> 4;
+                        g += ((52u - g) * fog) >> 4;
+                        b += ((28u - b) * fog) >> 4;
+                    }
+                }
+                row[x] = (u16)((r << 11) | (g << 5) | b);
+            }
+        }
+        if(mood == 1 || mood == 2) {
+            int n = mood == 2 ? 30 : 16;
+            for(i = 0; i < n; i++) {
+                int sp = 1 + (i % 4);
+                int x = ((i * 67 - cam_x / 5) % SCREEN_W + SCREEN_W) % SCREEN_W;
+                int y;
+                u16 col;
+                if(mood == 2) {
+                    y = SCREEN_H - (int)((t * (u32)sp / 2u + (u32)i * 37u) % (u32)(SCREEN_H + 10));
+                    col = ((t / 8u + (u32)i) & 3u) ? rgb565(220, 226, 240) : rgb565(160, 168, 190);
+                    put_pixel(x, y, col);
+                    put_pixel(x, y + 1, col);
+                    if(i & 1) put_pixel(x, y + 2, rgb565(120, 128, 150));
+                } else {
+                    y = ((i * 43 - cam_y / 5) % SCREEN_H + SCREEN_H) % SCREEN_H;
+                    x += (int)((t / 20u + (u32)i) % 5u) - 2;
+                    if(((t / 10u + (u32)i * 3u) % 6u) < 4u) {
+                        col = rgb565(150, 220, 255);
+                        put_pixel(x, y, col);
+                        put_pixel(x + 1, y, col);
+                        put_pixel(x, y + 1, col);
+                        put_pixel(x + 1, y + 1, col);
+                    }
+                }
+            }
+        }
+    }
+#if defined(HAVE_TILE_ART) && defined(HAVE_TOWN_TILES)
+    for(i = 0; i < g_light_n; i++) {
+        int r = g_light_torch[i] ? 26 : 18, r2 = r * r;
+        int str = mood == 1 ? 7 : 4;
+        int inv = 65536 / r2; /* one divide per light, not per pixel */
+        int dx, dy;
+        for(dy = -r; dy <= r; dy++) {
+            int y = g_light_y[i] + dy;
+            if(y < 0 || y >= SCREEN_H) continue;
+            for(dx = -r; dx <= r; dx++) {
+                int x = g_light_x[i] + dx, d2 = dx * dx + dy * dy, a;
+                u16 c;
+                u32 cr, cg, cb;
+                if(x < 0 || x >= SCREEN_W || d2 >= r2) continue;
+                a = (str * (r2 - d2) * inv) >> 16; /* 0..str */
+                if(!a) continue;
+                c = draw_fb[y * SCREEN_W + x];
+                cr = ((u32)(c >> 11) & 0x1Fu) + (u32)a * 2u;
+                cg = ((u32)(c >> 5) & 0x3Fu) + (u32)a * 2u;
+                cb = ((u32)c & 0x1Fu) + (u32)a / 2u;
+                if(cr > 31u) cr = 31u;
+                if(cg > 63u) cg = 63u;
+                if(cb > 31u) cb = 31u;
+                draw_fb[y * SCREEN_W + x] = (u16)((cr << 11) | (cg << 5) | cb);
+            }
+        }
+    }
+#endif
+    (void)cam_x;
+    (void)cam_y;
+}
+
 /* Keeps the player roughly centered, clamped to the map's edges; a
    map no bigger than the screen (HOUSE) instead gets a fixed,
    centered offset (possibly negative), which is what actually
@@ -1200,8 +1411,15 @@ static void draw_map(int map_id, int cam_x, int cam_y) {
 #ifdef HAVE_TILE_ART
     tile_anim_tick++;
 #endif
+#if defined(HAVE_TILE_ART) && defined(HAVE_TOWN_TILES)
+    g_light_n = 0;
+    g_yard_dirt = MAP_TILE_THEME[map_id] == TH_TOWN || MAP_TILE_THEME[map_id] == TH_SEPH;
+#endif
     for(row = row0; row < row1; row++)
         for(col = col0; col < col1; col++) {
+#if defined(HAVE_TILE_ART) && defined(HAVE_TOWN_TILES)
+            if(draw_building_art(map_id, m, row, col, col * TILE - cam_x, row * TILE - cam_y)) continue;
+#endif
 #ifdef HAVE_TILE_ART
             if(draw_tile_art(m, row, col, col * TILE - cam_x, row * TILE - cam_y)) continue;
 #endif
@@ -9509,6 +9727,7 @@ void main(void) {
                         MAX_SPRITE_W, MAX_SPRITE_H, px, py);
                 ws_sort_and_draw(ws_list, ws_n, cam_x, cam_y);
             }
+            draw_ambient(map_id, cam_x, cam_y, frame_count);
             draw_hud(got_shelf, looted_crate, bag.bandage, has_scroll, reputation,
                      party_n > 0 ? SPECIES[party[lead].species].name : 0, party_n > 0 ? party[lead].lv : 0);
             if(seq_lines)

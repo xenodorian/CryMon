@@ -4,7 +4,7 @@
  * when it returns false (a char this file does not cover, or the image has
  * not loaded yet) the engine's flat-colour tile runs as before.
  */
-import { TILE_ART } from "./data";
+import { SPRITES, TILE_ART } from "./data";
 
 /** Chars with their own look in Engine.paintTile(): never painted here. */
 const OWN_LOOK = "HRr%gkFPDBUCN*X";
@@ -31,6 +31,92 @@ function hash(x: number, y: number) {
 	return (h ^ (h >>> 16)) >>> 0;
 }
 
+/* Building and room tiles (tools/pixelforge/tiles_town.py), picked by the
+ * map's theme in sprites.json tileTheme (default "town"). Indoor themes
+ * repaint floors, walls and doors; outdoor themes repaint house walls,
+ * roofs and doors. The Dreamcast draw_building_art() mirrors this. */
+export type TileTheme = "town" | "wood" | "keep" | "crypt" | "palace" | "seph";
+const INDOOR: Record<string, boolean> = { wood: true, keep: true, crypt: true, palace: true };
+const DOORS = "Dbw()0";
+const FLOORS = "FPBUCSastxz";
+const TORCH_THEMES: Record<string, string> = { keep: "torch", crypt: "torch", palace: "torch", wood: "lantern" };
+
+export function mapTheme(mapId: string): TileTheme {
+	const t = (SPRITES as { tileTheme?: Record<string, string> }).tileTheme?.[mapId];
+	return (t ?? "town") as TileTheme;
+}
+
+/** Wall lights drawn this frame (screen coords of the flame), for the glow pass. */
+export const LIGHTS: { x: number; y: number; kind: string }[] = [];
+
+function wallish(c: string | undefined) {
+	return c === "H" || (c !== undefined && DOORS.includes(c));
+}
+
+function blit(ctx: CanvasRenderingContext2D, images: Record<string, HTMLImageElement>, key: string, dx: number, dy: number) {
+	const im = images[key];
+	if (!im || !im.width) return false;
+	ctx.drawImage(im, dx, dy);
+	return true;
+}
+
+function light(ctx: CanvasRenderingContext2D, images: Record<string, HTMLImageElement>, kind: string, dx: number, dy: number, h: number, now: number) {
+	const f = (Math.floor(now / 120) + (h % 4)) % 4;
+	if (blit(ctx, images, `fx-${kind}-${f + 1}`, dx, dy)) LIGHTS.push({ x: dx + 8, y: dy + (kind === "torch" ? 4 : 9), kind });
+}
+
+function paintBuilding(
+	ctx: CanvasRenderingContext2D,
+	images: Record<string, HTMLImageElement>,
+	map: string[],
+	ch: string,
+	dx: number,
+	dy: number,
+	tx: number,
+	ty: number,
+	now: number,
+	theme: TileTheme,
+	mapId: string,
+): boolean {
+	const h = hash(tx, ty);
+	const at = (x: number, y: number) => (y >= 0 && y < map.length && x >= 0 && x < map[y].length ? map[y][x] : undefined);
+	if (ch === "%") return blit(ctx, images, "tile-bars", dx, dy);
+	if (ch === "g") return blit(ctx, images, "tile-gate", dx, dy);
+	if (ch === "*") return blit(ctx, images, `tile-flowers-${(h % 2) + 1}`, dx, dy);
+	if (INDOOR[theme]) {
+		if (FLOORS.includes(ch)) {
+			if (!blit(ctx, images, `tile-floor-${theme}-${h % 4 === 0 ? 2 : 1}`, dx, dy)) return false;
+			// the home map draws its own bed, shelf and crate props
+			if (mapId !== "house" && ch === "C") blit(ctx, images, "tile-crate", dx, dy);
+			if (mapId !== "house" && (ch === "B" || ch === "U")) blit(ctx, images, "tile-bed", dx, dy);
+			return true;
+		}
+		if (DOORS.includes(ch)) return blit(ctx, images, `tile-door-${theme}`, dx, dy);
+		if (ch === "H") {
+			const below = at(tx, ty + 1);
+			const face = below !== undefined && !wallish(below);
+			if (!blit(ctx, images, face ? `tile-wallf-${theme}` : `tile-wall-${theme}`, dx, dy)) return false;
+			if (face && (h >> 4) % (theme === "wood" ? 6 : 4) === 0) light(ctx, images, TORCH_THEMES[theme], dx + 8, dy + 6, h, now);
+			return true;
+		}
+		return false;
+	}
+	if (ch === "H") {
+		const win = (h >> 3) % 3 === 0 && !DOORS.includes(at(tx - 1, ty) ?? "") && !DOORS.includes(at(tx + 1, ty) ?? "");
+		if (!blit(ctx, images, `tile-wallf-${theme}-${win ? 2 : 1}`, dx, dy)) return false;
+		const l = at(tx - 1, ty), r = at(tx + 1, ty);
+		if ((l && DOORS.includes(l)) || (r && DOORS.includes(r))) light(ctx, images, "lantern", dx + 8, dy + 5, h, now);
+		return true;
+	}
+	if (ch === "r" || ch === "R") {
+		const above = at(tx, ty - 1);
+		const top = ch === "R" || (above !== "r" && above !== "R");
+		return blit(ctx, images, top ? `tile-ridge-${theme}` : `tile-roof-${theme}-${h % 5 === 0 ? 2 : 1}`, dx, dy);
+	}
+	if (DOORS.includes(ch)) return blit(ctx, images, `tile-door-${theme}`, dx, dy);
+	return false;
+}
+
 const NB: [string, number, number][] = [["n", 0, -1], ["e", 1, 0], ["s", 0, 1], ["w", -1, 0]];
 
 export function paintTileArt(
@@ -43,7 +129,14 @@ export function paintTileArt(
 	tx: number,
 	ty: number,
 	now: number,
+	mapId = "",
 ): boolean {
+	if (map) {
+		const theme = mapTheme(mapId);
+		if (paintBuilding(ctx, images, map, ch, dx, dy, tx, ty, now, theme, mapId)) return true;
+		// outdoors, F and P are packed-earth yards and warp marks
+		if (!INDOOR[theme] && (ch === "F" || ch === "P")) ch = "=";
+	}
 	const cat = tileCat(ch);
 	if (!cat || !map) return false;
 	const h = hash(tx, ty);

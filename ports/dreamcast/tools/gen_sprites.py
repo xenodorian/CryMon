@@ -109,6 +109,13 @@ TILE_NAMES = (['grass-%d' % i for i in range(1, 5)] + ['dirt-%d' % i for i in ra
               ['water-%d' % i for i in range(1, 5)] + ['dirt2-1', 'dirt2-2'] +
               ['%s-%d' % (k, i) for k in ('tallgrass', 'tree', 'tree-s', 'cliff') for i in (1, 2)] +
               ['%s-%s' % (k, d) for k in ('dirtedge', 'shore') for d in 'nesw'])
+# Building and room tiles (tools/pixelforge/tiles_town.py), per theme.
+TOWN_TILE_NAMES = (['%s-%s-%d' % (k, t, i) for t in ('wood', 'keep', 'crypt', 'palace') for k in ('floor',) for i in (1, 2)] +
+                   ['%s-%s' % (k, t) for t in ('wood', 'keep', 'crypt', 'palace') for k in ('wall', 'wallf', 'door')] +
+                   ['%s-%s-%d' % (k, t, i) for t in ('town', 'seph') for k in ('wallf', 'roof') for i in (1, 2)] +
+                   ['%s-%s' % (k, t) for t in ('town', 'seph') for k in ('ridge', 'door')] +
+                   ['bars', 'gate', 'flowers-1', 'flowers-2', 'crate', 'bed'])
+LIGHT_NAMES = ['%s-%d' % (k, i) for k in ('torch', 'lantern') for i in range(1, 5)]
 BATTLE_BG_W, BATTLE_BG_H = 320, 240
 
 ITEM_ICON_W, ITEM_ICON_H = 14, 14
@@ -417,6 +424,20 @@ def main():
             edge = 'edge' in n or 'shore' in n
             pixels = encode(im, 20, 20, Image.BOX if edge else Image.LANCZOS)
             emit_array(lines, 'tile_' + n.replace('-', '_'), pixels, 20, 20)
+    # Building and room tiles plus the wall torch and lantern frames (fx/,
+    # 16px -> 10px). main.c's draw_building_art() uses them per map theme.
+    fx_dir = os.path.join(root, 'fx')
+    if (all(os.path.exists(os.path.join(tile_dir, n + '.png')) for n in TOWN_TILE_NAMES) and
+            all(os.path.exists(os.path.join(fx_dir, n + '.png')) for n in LIGHT_NAMES)):
+        lines.append('#define HAVE_TOWN_TILES 1')
+        lines.append('#define LIGHT_PX 10')
+        for n in TOWN_TILE_NAMES:
+            im = Image.open(os.path.join(tile_dir, n + '.png'))
+            over = n in ('crate', 'bed')
+            emit_array(lines, 'tile_' + n.replace('-', '_'), encode(im, 20, 20, Image.BOX if over else Image.LANCZOS), 20, 20)
+        for n in LIGHT_NAMES:
+            im = Image.open(os.path.join(fx_dir, n + '.png'))
+            emit_array(lines, 'fx_' + n.replace('-', '_'), encode(im, 10, 10, Image.BOX), 10, 10)
 
     lines.append('#define ITEM_ICON_W %d' % ITEM_ICON_W)
     lines.append('#define ITEM_ICON_H %d' % ITEM_ICON_H)

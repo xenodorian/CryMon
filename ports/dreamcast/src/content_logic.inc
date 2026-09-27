@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=77cf5de48c08e3a9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=c5a2afe2d11553a9 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_WALK_FRAC 358 /* 1/256 px per frame */

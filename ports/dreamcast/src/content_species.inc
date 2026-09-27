@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=77cf5de48c08e3a9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=c5a2afe2d11553a9 — do not edit. python3 tools/bake_content.py */
 
 #define SP_QUILLPUP 0
 #define SP_GLIMMOTH 1

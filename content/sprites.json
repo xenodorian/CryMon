@@ -695,6 +695,190 @@
     [
       "screen-ending",
       "/sprites/screens/ending.png"
+    ],
+    [
+      "tile-floor-wood-1",
+      "/sprites/tiles/floor-wood-1.png"
+    ],
+    [
+      "tile-floor-wood-2",
+      "/sprites/tiles/floor-wood-2.png"
+    ],
+    [
+      "tile-wall-wood",
+      "/sprites/tiles/wall-wood.png"
+    ],
+    [
+      "tile-wallf-wood",
+      "/sprites/tiles/wallf-wood.png"
+    ],
+    [
+      "tile-door-wood",
+      "/sprites/tiles/door-wood.png"
+    ],
+    [
+      "tile-floor-keep-1",
+      "/sprites/tiles/floor-keep-1.png"
+    ],
+    [
+      "tile-floor-keep-2",
+      "/sprites/tiles/floor-keep-2.png"
+    ],
+    [
+      "tile-wall-keep",
+      "/sprites/tiles/wall-keep.png"
+    ],
+    [
+      "tile-wallf-keep",
+      "/sprites/tiles/wallf-keep.png"
+    ],
+    [
+      "tile-door-keep",
+      "/sprites/tiles/door-keep.png"
+    ],
+    [
+      "tile-floor-crypt-1",
+      "/sprites/tiles/floor-crypt-1.png"
+    ],
+    [
+      "tile-floor-crypt-2",
+      "/sprites/tiles/floor-crypt-2.png"
+    ],
+    [
+      "tile-wall-crypt",
+      "/sprites/tiles/wall-crypt.png"
+    ],
+    [
+      "tile-wallf-crypt",
+      "/sprites/tiles/wallf-crypt.png"
+    ],
+    [
+      "tile-door-crypt",
+      "/sprites/tiles/door-crypt.png"
+    ],
+    [
+      "tile-floor-palace-1",
+      "/sprites/tiles/floor-palace-1.png"
+    ],
+    [
+      "tile-floor-palace-2",
+      "/sprites/tiles/floor-palace-2.png"
+    ],
+    [
+      "tile-wall-palace",
+      "/sprites/tiles/wall-palace.png"
+    ],
+    [
+      "tile-wallf-palace",
+      "/sprites/tiles/wallf-palace.png"
+    ],
+    [
+      "tile-door-palace",
+      "/sprites/tiles/door-palace.png"
+    ],
+    [
+      "tile-wallf-town-1",
+      "/sprites/tiles/wallf-town-1.png"
+    ],
+    [
+      "tile-wallf-town-2",
+      "/sprites/tiles/wallf-town-2.png"
+    ],
+    [
+      "tile-roof-town-1",
+      "/sprites/tiles/roof-town-1.png"
+    ],
+    [
+      "tile-roof-town-2",
+      "/sprites/tiles/roof-town-2.png"
+    ],
+    [
+      "tile-ridge-town",
+      "/sprites/tiles/ridge-town.png"
+    ],
+    [
+      "tile-door-town",
+      "/sprites/tiles/door-town.png"
+    ],
+    [
+      "tile-wallf-seph-1",
+      "/sprites/tiles/wallf-seph-1.png"
+    ],
+    [
+      "tile-wallf-seph-2",
+      "/sprites/tiles/wallf-seph-2.png"
+    ],
+    [
+      "tile-roof-seph-1",
+      "/sprites/tiles/roof-seph-1.png"
+    ],
+    [
+      "tile-roof-seph-2",
+      "/sprites/tiles/roof-seph-2.png"
+    ],
+    [
+      "tile-ridge-seph",
+      "/sprites/tiles/ridge-seph.png"
+    ],
+    [
+      "tile-door-seph",
+      "/sprites/tiles/door-seph.png"
+    ],
+    [
+      "tile-bars",
+      "/sprites/tiles/bars.png"
+    ],
+    [
+      "tile-gate",
+      "/sprites/tiles/gate.png"
+    ],
+    [
+      "tile-flowers-1",
+      "/sprites/tiles/flowers-1.png"
+    ],
+    [
+      "tile-flowers-2",
+      "/sprites/tiles/flowers-2.png"
+    ],
+    [
+      "tile-crate",
+      "/sprites/tiles/crate.png"
+    ],
+    [
+      "tile-bed",
+      "/sprites/tiles/bed.png"
+    ],
+    [
+      "fx-torch-1",
+      "/sprites/fx/torch-1.png"
+    ],
+    [
+      "fx-torch-2",
+      "/sprites/fx/torch-2.png"
+    ],
+    [
+      "fx-torch-3",
+      "/sprites/fx/torch-3.png"
+    ],
+    [
+      "fx-torch-4",
+      "/sprites/fx/torch-4.png"
+    ],
+    [
+      "fx-lantern-1",
+      "/sprites/fx/lantern-1.png"
+    ],
+    [
+      "fx-lantern-2",
+      "/sprites/fx/lantern-2.png"
+    ],
+    [
+      "fx-lantern-3",
+      "/sprites/fx/lantern-3.png"
+    ],
+    [
+      "fx-lantern-4",
+      "/sprites/fx/lantern-4.png"
     ]
   ],
   "drawScale": {
@@ -771,5 +955,52 @@
     "hauntedhall": "bg-crypt",
     "heroeshall": "bg-indoor",
     "thievesden": "bg-indoor"
+  },
+  "tileTheme": {
+    "house": "wood",
+    "heroeshall": "wood",
+    "thievesden": "wood",
+    "ruinslibrary": "wood",
+    "ruinsinn": "wood",
+    "brannhouse": "wood",
+    "hermithut": "wood",
+    "sagehouse": "wood",
+    "basemalkuth": "keep",
+    "baseyesod": "keep",
+    "basenetzach": "keep",
+    "basehod": "keep",
+    "basetiferet": "keep",
+    "basechesed": "keep",
+    "basegevurah": "keep",
+    "basebinah": "keep",
+    "basechokmah": "keep",
+    "ghostcrypt": "crypt",
+    "hauntedhall": "crypt",
+    "emptyhouse": "crypt",
+    "palaceketer": "palace",
+    "malkuth": "seph",
+    "yesod": "seph",
+    "netzach": "seph",
+    "hod": "seph",
+    "tiferet": "seph",
+    "chesed": "seph",
+    "gevurah": "seph",
+    "binah": "seph",
+    "chokmah": "seph",
+    "keter": "seph"
+  },
+  "ambient": {
+    "ghostcrypt": "haunt",
+    "hauntedhall": "haunt",
+    "emptyhouse": "haunt",
+    "gauntlet6": "haunt",
+    "weepingroad": "veil",
+    "gauntlet": "veil",
+    "gauntlet1": "veil",
+    "gauntlet2": "veil",
+    "gauntlet3": "veil",
+    "gauntlet4": "veil",
+    "gauntlet5": "veil",
+    "marsh": "mist"
   }
 }
