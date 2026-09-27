@@ -1,5 +1,5 @@
 {
-  "cache": "evo2",
+  "cache": "evo3",
   "walkers": {
     "max": "max",
     "mason": "mason",
@@ -1390,7 +1390,7 @@
         "drag": 1.5,
         "life": [
           0.7,
-          1.0
+          1
         ],
         "size": [
           2,
@@ -1444,7 +1444,7 @@
         "drag": 3,
         "life": [
           0.7,
-          1.0
+          1
         ],
         "size": [
           2,
