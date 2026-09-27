@@ -5906,7 +5906,7 @@ export class CryMon {
 			this.drawSprite(`fx-${this.hitFx.nat}-${f}`, fx + (fw - sz) / 2, fy + (fw - sz) / 2, sz, sz, false);
 		}
 		this.box(X(6), Y(6), X(124), Y(32));
-		this.text(`${b.foe.shiny ? "*" : ""}${b.foe.name.toUpperCase()}`, X(10), Y(9), b.foe.shiny ? "#d4c06a" : "#e8e4d8", FONT);
+		this.text(`${b.foe.shiny ? "*" : ""}${b.foe.name.toUpperCase()} Lv${b.foe.level}`, X(10), Y(9), b.foe.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(10), Y(22), X(96), b.foe.hp, b.foe.maxHp);
 		this.text(`${b.foe.hp}`, X(110), Y(20), "#8a8678", FONT);
 		this.drawNatureBadge(speciesNature(b.foe.species), X(133), Y(10));

@@ -3692,6 +3692,8 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       (19-22). Now the ramp runs Vesk 21 -> Lead 22-26 -> Tau 22-25.
       Also smoke-tested every NPC on web with early and late-game flags
       (talk, script, no page errors): all clean.
+- [x] H8 Web battle screen now shows the enemy's level ("SABLECLAW Lv60"),
+      as Dreamcast already did. It showed only the name.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
