@@ -3832,3 +3832,9 @@ own files; redraw them only if the user says so.
 ### Battle hit effects (Claude, 2026-09-27)
 - New tools/pixelforge/hitfx.py draws a 4-frame 64x64 burst per crystal nature into public/sprites/fx/: quartz impact star, ruby fireball, citrine lightning, sapphire splash, diamond starlight, emerald leaf whirl, jasper rock burst, obsidian claw slashes, prism rainbow ring.
 - Web battle (engine.ts): when a hit lands, the attacker's nature burst plays over the target for about a third of a second (hitFx field, drawn after the monsters). Listed in sprites.json extra. Dreamcast does not show them yet.
+
+### Deep pass batch 5 (Claude, 2026-09-27)
+- Atlashell: stubby scaled legs with toenails that step in turn, plated shell scutes, a tail, a beaked head that nods.
+- Baphorn: broad shaggy shoulders over a narrow waist, rib ridges, a ragged loincloth and bigger ram horns so it reads as upright.
+- Arcanox: the rune clutter on its body is down to one glowing band, plus a third eye that opens as it idles.
+- Crabs (Rimecrab, Floeclaw, Rockhermit, Cragsage): legs now arch to a knee and splay like real crab legs instead of a comb.
