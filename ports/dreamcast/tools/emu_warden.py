@@ -96,7 +96,9 @@ class Emu:
     def window(self):
         def walk(w):
             try:
-                if "lycast" in (w.get_wm_name() or ""):
+                # SDL sets the title only as UTF-8 _NET_WM_NAME, so the
+                # plain WM_NAME is empty: match the class instead.
+                if "flycast" in (w.get_wm_class() or ()):
                     return w
             except Exception:
                 pass
@@ -128,13 +130,64 @@ class Emu:
     def talk_open(self):
         """The talk box is bright text on the bottom rows of the 640x480 frame."""
         im = self.shot().convert("L").crop((10, 410, 630, 470))
-        return sum(im.histogram()[201:]) > 150
+        return sum(im.histogram()[161:]) > 150  # grey narration lines too
 
     def close_talk(self):
         for _ in range(12):
             if not self.talk_open():
                 return
             self.key("x", after=0.4)
+
+    # The world view always draws the HUD's "REP" word top-left; battles
+    # and menus cover it. Its outline mask (lit vs black) doesn't change
+    # with the reputation colour, so it tells world from battle.
+    HUD_BOX = (6, 2, 70, 22)
+
+    def hud_mask(self):
+        im = self.shot().convert("L").crop(self.HUD_BOX)
+        return [1 if v > 60 else 0 for v in im.point(lambda v: v).tobytes()]
+
+    def mark_world(self):
+        self.hud_ref = self.hud_mask()
+
+    def in_world(self):
+        m = self.hud_mask()
+        diff = sum(a != b for a, b in zip(m, self.hud_ref))
+        return diff < len(m) // 12
+
+    def menu_open(self, im=None):
+        """A draw_ui_frame() panel (pause, mercy, shop): its stretched
+        9-slice edge makes the columns just inside the left and right
+        borders a few flat colours from top to bottom."""
+        im = (im or self.shot()).convert("RGB")
+        cols = []
+        for x in (42, W - 43):
+            px = [im.getpixel((x, y)) for y in range(70, 400, 6)]
+            if max(sum(p) for p in px) < 90:
+                return False  # black letterbox, not a frame
+            cols.append(len(set(px)))
+        return max(cols) <= 6
+
+    def idle(self):
+        return self.in_world() and not self.talk_open() and not self.menu_open()
+
+    def fight(self, max_presses=400):
+        """Mash A until a battle has come and gone and the world is idle.
+        Pressing A in the world next to the trainer would start the talk
+        again, so stop as soon as the world is back with no talk or menu."""
+        seen_battle = False
+        for i in range(max_presses):
+            self.key("x", after=0.3)
+            world = self.in_world()
+            if not world and not seen_battle:
+                seen_battle = True
+                self.shot("03-fight.png")
+            if seen_battle and world and self.idle():
+                # Lines type out letter by letter, so a fresh line can look
+                # empty for a moment: stay idle over ~2 s before stopping.
+                if all(time.sleep(0.5) or self.idle() for _ in range(4)):
+                    return i
+        return max_presses
 
     def pause_save(self):
         self.close_talk()
@@ -183,28 +236,30 @@ def run(who, args):
         emu.shot("01-title.png")
         emu.key("x", after=2.0)          # Continue
         emu.shot("02-continue.png")
-        for i in range(90):
-            emu.key("x", after=0.35)
-            if i == 12:
-                emu.shot("03-fight.png")
+        emu.mark_world()
+        n = emu.fight(max_presses=args.max_presses)
+        print(f"      fight over after {n} presses", flush=True)
         emu.shot("04-after.png")
         emu.pause_save()
         emu.shot("05-saved.png")
         emu.stop()
         after = decode(vmu_tool.extract(bytearray(emu.vmu.read_bytes())))
-        check(after["flags"][kit["set"]], f"{kit['set']} set in the VMU save")
-        check(after["marks"] - before["marks"] == kit["marks"],
+        if kit.get("set"):
+            check(after["flags"][kit["set"]], f"{kit['set']} set in the VMU save")
+        check(after["marks"] - before["marks"] == kit.get("marks", 0),
               f"+{kit['marks']} marks (got +{after['marks'] - before['marks']})")
         check(after["battles"] - before["battles"] == 1,
               f"one battle counted (got {after['battles'] - before['battles']})")
 
+        if args.quick:
+            return
         emu.start()                      # reload: Continue, save again
         emu.key("x", after=2.0)
         emu.shot("06-reloaded.png")
         emu.pause_save()
         emu.stop()
         again = decode(vmu_tool.extract(bytearray(emu.vmu.read_bytes())))
-        check(again["flags"][kit["set"]] and again["marks"] == after["marks"],
+        check((not kit.get("set") or again["flags"][kit["set"]]) and again["marks"] == after["marks"],
               "badge and marks survive a reboot + Continue + save")
     finally:
         emu.stop()
@@ -217,6 +272,8 @@ def main():
     ap.add_argument("--flycast", required=True)
     ap.add_argument("--save-dir", required=True, help="dir with <who>-before.bin from the web e2e")
     ap.add_argument("--out", default="emu-out")
+    ap.add_argument("--quick", action="store_true", help="skip the reboot + Continue check")
+    ap.add_argument("--max-presses", type=int, default=400)
     ap.add_argument("who", nargs="*", default=["quartz", "opal"])
     args = ap.parse_args()
     for who in args.who:
