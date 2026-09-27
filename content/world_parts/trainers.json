@@ -399,7 +399,7 @@
     "baseMalkuthA": {
       "lead": [
         "sparkit",
-        19
+        23
       ],
       "bench": [],
       "title": "Base Guard sends Sparkit",
@@ -412,12 +412,12 @@
     "baseMalkuthB": {
       "lead": [
         "pipsprout",
-        20
+        24
       ],
       "bench": [
         [
           "frostfry",
-          19
+          23
         ]
       ],
       "title": "Base Guard sends Pipsprout",
@@ -430,16 +430,16 @@
     "generalHarrow": {
       "lead": [
         "tunneler",
-        22
+        26
       ],
       "bench": [
         [
           "dustmole",
-          20
+          24
         ],
         [
           "rubblet",
-          20
+          24
         ]
       ],
       "title": "General Harrow sends Tunneler",
@@ -447,12 +447,13 @@
       "marks": 30,
       "winTalk": "harrowWin",
       "set": "medalBronzeStar",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "baseYesodA": {
       "lead": [
         "soottick",
-        22
+        25
       ],
       "bench": [],
       "title": "Base Guard sends Soottick",
@@ -465,12 +466,12 @@
     "baseYesodB": {
       "lead": [
         "sparkfly",
-        23
+        26
       ],
       "bench": [
         [
           "dustmole",
-          22
+          25
         ]
       ],
       "title": "Base Guard sends Sparkfly",
@@ -483,16 +484,16 @@
     "generalAshgrove": {
       "lead": [
         "arcwasp",
-        25
+        28
       ],
       "bench": [
         [
           "sparkfly",
-          23
+          26
         ],
         [
           "boltlamb",
-          23
+          26
         ]
       ],
       "title": "General Ashgrove sends Arcwasp",
@@ -500,12 +501,13 @@
       "marks": 35,
       "winTalk": "ashgroveWin",
       "set": "medalPurpleHeart",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "baseNetzachA": {
       "lead": [
         "mooncalf",
-        25
+        27
       ],
       "bench": [],
       "title": "Base Guard sends Mooncalf",
@@ -518,12 +520,12 @@
     "baseNetzachB": {
       "lead": [
         "cardkin",
-        26
+        28
       ],
       "bench": [
         [
           "pipwren",
-          25
+          27
         ]
       ],
       "title": "Base Guard sends Cardkin",
@@ -536,16 +538,16 @@
     "generalStroud": {
       "lead": [
         "fateweaver",
-        28
+        30
       ],
       "bench": [
         [
           "cardkin",
-          26
+          28
         ],
         [
           "twinklet",
-          26
+          28
         ]
       ],
       "title": "General Stroud sends Fateweaver",
@@ -553,12 +555,13 @@
       "marks": 40,
       "winTalk": "stroudWin",
       "set": "medalPowMedal",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "baseHodA": {
       "lead": [
         "snowbell",
-        28
+        29
       ],
       "bench": [],
       "title": "Base Guard sends Snowbell",
@@ -571,12 +574,12 @@
     "baseHodB": {
       "lead": [
         "tallowisp",
-        29
+        30
       ],
       "bench": [
         [
           "rubblet",
-          28
+          29
         ]
       ],
       "title": "Base Guard sends Tallowisp",
@@ -589,16 +592,16 @@
     "generalVale": {
       "lead": [
         "gloomspider",
-        31
+        32
       ],
       "bench": [
         [
           "tallowisp",
-          29
+          30
         ],
         [
           "grimkid",
-          29
+          30
         ]
       ],
       "title": "General Vale sends Gloomspider",
@@ -606,7 +609,8 @@
       "marks": 45,
       "winTalk": "valeWin",
       "set": "medalSilverStar",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "baseTiferetA": {
       "lead": [
@@ -659,7 +663,8 @@
       "marks": 50,
       "winTalk": "kesslerWin",
       "set": "medalGoldStar",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "baseChesedA": {
       "lead": [
@@ -712,7 +717,8 @@
       "marks": 55,
       "winTalk": "morrowWin",
       "set": "medalLegionOfMerit",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "baseGevurahA": {
       "lead": [
@@ -765,7 +771,8 @@
       "marks": 60,
       "winTalk": "craneWin",
       "set": "medalFlyingCross",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "baseBinahA": {
       "lead": [
@@ -818,7 +825,8 @@
       "marks": 65,
       "winTalk": "blackwoodWin",
       "set": "medalServiceCross",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "baseChokmahA": {
       "lead": [
@@ -871,7 +879,8 @@
       "marks": 70,
       "winTalk": "sorrelWin",
       "set": "medalOfHonor",
-      "general": true
+      "general": true,
+      "hpMul": 2
     },
     "palaceGuardA": {
       "lead": [
@@ -936,7 +945,8 @@
       "marks": 80,
       "winTalk": "neroWin",
       "set": "beatNero",
-      "king": true
+      "king": true,
+      "hpMul": 1.5
     },
     "heavenfallFinal": {
       "lead": [

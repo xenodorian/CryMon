@@ -2370,18 +2370,32 @@ static int try_evolve(Monster *m) {
     return 1;
 }
 
+/* data.levelUpGain: with LEVEL_UP_CURVE a level adds what minting the
+   species one level higher adds (same rounding as mint_monster), never
+   less than the flat LEVEL_HP / LEVEL_STAT. */
+static int level_up_gain(int base, int lv, int flat) {
+    int d;
+    if(!LEVEL_UP_CURVE) return flat;
+    d = jground((float)base * (1.0f + (float)(lv - 3) * 0.12f))
+      - jground((float)base * (1.0f + (float)(lv - 4) * 0.12f));
+    return d > flat ? d : flat;
+}
+
 static int grant_xp(Monster *m, int foe_lv, int pct) {
     int grew = 0;
     m->xp += (XP_BASE + foe_lv * XP_PER_LEVEL) * pct / 100;
     while(m->xp >= m->lv * LEVEL_XP_MUL && m->lv < LEVEL_CAP) {
         m->xp -= m->lv * LEVEL_XP_MUL;
         m->lv++;
-        m->maxHp += LEVEL_HP;
-        m->hp += LEVEL_HP;
+        {
+            int dhp = level_up_gain(SPECIES[m->species].maxHp, m->lv, LEVEL_HP);
+            m->maxHp += dhp;
+            m->hp += dhp;
+        }
         if(m->hp > m->maxHp) m->hp = m->maxHp;
-        m->str += LEVEL_STAT;
-        m->agl += LEVEL_STAT;
-        m->spc += LEVEL_STAT;
+        m->str += level_up_gain(SPECIES[m->species].str, m->lv, LEVEL_STAT);
+        m->agl += level_up_gain(SPECIES[m->species].agl, m->lv, LEVEL_STAT);
+        m->spc += level_up_gain(SPECIES[m->species].spc, m->lv, LEVEL_STAT);
         grew = 1;
     }
     if(try_evolve(m)) grew = 1;
@@ -4926,6 +4940,12 @@ static void leg3_start_battle(Battle *b, int post, const Monster *lead_mon) {
     for(bi = 0; bi < k->bench_n && bi < KIT_BENCH_MAX; bi++)
         b->bench[bi] = mint_monster(k->bench_sp[bi], k->bench_lv[bi]);
     b->bench_n = k->bench_n;
+    /* Boss HP (kit hpMul, same rounding as web's Math.round). */
+    if(k->hp_mul_pct != 100) {
+        b->foe.maxHp = b->foe.hp = (b->foe.maxHp * k->hp_mul_pct + 50) / 100;
+        for(bi = 0; bi < b->bench_n && bi < KIT_BENCH_MAX; bi++)
+            b->bench[bi].maxHp = b->bench[bi].hp = (b->bench[bi].maxHp * k->hp_mul_pct + 50) / 100;
+    }
     b->grew = 0;
     b->pl = *lead_mon;
 }

@@ -2949,13 +2949,19 @@ export class CryMon {
 		const kit = TRAINERS[who];
 		if (!kit) return;
 		this.pendingWs = who;
+		// Boss HP (kit hpMul; Dreamcast: leg3_start_battle, integer percent).
+		const pct = Math.round((kit.hpMul ?? 1) * 100);
+		const boss = (m) => {
+			if (pct !== 100) m.maxHp = m.hp = Math.floor((m.maxHp * pct + 50) / 100);
+			return m;
+		};
 		this.startBattle(
-			mintMonster(kit.lead[0], kit.lead[1]),
+			boss(mintMonster(kit.lead[0], kit.lead[1])),
 			false,
 			kit.title,
 			"wsoldier",
 			who,
-			kit.bench.map((b) => mintMonster(b[0], b[1]))
+			kit.bench.map((b) => boss(mintMonster(b[0], b[1])))
 		);
 	}
 	startBattle(foe, wild, title, trainer = wild ? "wild" : "calder", soldierId = null, bench = []) {

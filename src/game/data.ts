@@ -424,7 +424,7 @@ export const INTERACT = (logicJson.interact || {
   defaultW: 48, defaultH: 52, buffer: 16,
 }) as InteractConfig;
 
-export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number; evolveAt2?: number } }).growth || {
+export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number; evolveAt2?: number; levelUpStats?: string } }).growth || {
   secondaryAt: 5, specialAt: 10, evolveAt: 10, evolveAt2: 10,
 });
 
@@ -639,6 +639,24 @@ export function tryEvolve(m: Monster): string | null {
   return `${from} evolved into ${m.name}!`;
 }
 
+/** Stat gain for reaching `level` (logic.json growth.levelUpStats). "curve"
+ *  follows the mint curve so a raised CryMon keeps pace with a freshly minted
+ *  one; never less than the flat formulas.levelHp / levelStat. */
+export function levelUpGain(species: SpeciesId, level: number) {
+  const flatHp = FORMULAS.levelHp;
+  const flat = FORMULAS.levelStat;
+  if ((GROWTH as { levelUpStats?: string }).levelUpStats !== "curve") return { maxHp: flatHp, str: flat, agl: flat, spc: flat };
+  const s = SPECIES[species];
+  const grow = (lv: number) => 1 + (lv - FORMULAS.mintBaseLevel) * FORMULAS.mintGrowPerLevel;
+  const d = (base: number) => Math.round(base * grow(level)) - Math.round(base * grow(level - 1));
+  return {
+    maxHp: Math.max(flatHp, d(s.maxHp)),
+    str: Math.max(flat, d(s.str)),
+    agl: Math.max(flat, d(s.agl)),
+    spc: Math.max(flat, d(s.spc)),
+  };
+}
+
 export function grantXp(m: Monster, foeLevel: number, share = 1) {
   const gain = Math.floor((FORMULAS.xpBase + foeLevel * FORMULAS.xpPerLevel) * share);
   m.xp += gain;
@@ -647,11 +665,12 @@ export function grantXp(m: Monster, foeLevel: number, share = 1) {
   while (m.xp >= m.level * FORMULAS.levelXpMul && m.level < FORMULAS.levelCap) {
     m.xp -= m.level * FORMULAS.levelXpMul;
     m.level += 1;
-    m.maxHp += FORMULAS.levelHp;
-    m.hp = Math.min(m.maxHp, m.hp + FORMULAS.levelHp);
-    m.str += FORMULAS.levelStat;
-    m.agl += FORMULAS.levelStat;
-    m.spc += FORMULAS.levelStat;
+    const up = levelUpGain(m.species, m.level);
+    m.maxHp += up.maxHp;
+    m.hp = Math.min(m.maxHp, m.hp + up.maxHp);
+    m.str += up.str;
+    m.agl += up.agl;
+    m.spc += up.spc;
     grew = true;
   }
   const evo = tryEvolve(m);

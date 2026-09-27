@@ -694,6 +694,7 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define LV_SPECIAL {int(growth.get('specialAt') or 10)}")
     lines.append(f"#define LV_EVOLVE {int(growth.get('evolveAt') or 10)}")
     lines.append(f"#define LV_EVOLVE2 {int(growth.get('evolveAt2') or growth.get('evolveAt') or 10)}")
+    lines.append(f"#define LEVEL_UP_CURVE {1 if growth.get('levelUpStats') == 'curve' else 0}")
     lines.append("")
 
     # Leg 2.11: stage-based stat drops (Proud Roar/Magebane/Slow Powder/
@@ -936,7 +937,14 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("    int lead_sp, lead_lv;")
     lines.append("    int bench_sp[KIT_BENCH_MAX], bench_lv[KIT_BENCH_MAX], bench_n;")
     lines.append("    const char *name; /* kit `name`, DC text (mercy menu header) */")
+    lines.append("    int hp_mul_pct; /* kit `hpMul` x100: boss HP, applied by leg3_start_battle() */")
     lines.append("} TrainerKit;")
+    # hpMul is applied on the Dreamcast only where Leg 3 posts start, so a
+    # kit elsewhere with hpMul would silently differ from web.
+    leg3_ids = {tid for tid, _k, _g in leg3_posts(data)}
+    for tid, t in world["trainers"].items():
+        if isinstance(t, dict) and t.get("hpMul") and tid not in leg3_ids:
+            raise SystemExit(f"trainer {tid}: hpMul is only supported on Leg 3 posts (Generals, Nero, bases)")
     lines.append(f"static const TrainerKit TRAINER_KITS[{len(kit_keys)}] = {{")
     for k in kit_keys:
         t = world["trainers"][k]
@@ -946,7 +954,7 @@ def bake_world(data: dict, out: Path) -> None:
         lines.append(
             f"    {{ {sp[lead_sp]}, {int(lead_lv)}, "
             f"{{ {', '.join(str(sp[b[0]]) for b in pad)} }}, {{ {', '.join(str(int(b[1])) for b in pad)} }}, {len(benches)}, "
-            f"\"{c_escape(dc_text(t.get('name') or k))}\" }},"
+            f"\"{c_escape(dc_text(t.get('name') or k))}\", {int(round(float(t.get('hpMul') or 1) * 100))} }},"
         )
     lines.append("};")
     lines.append(f"#define KIT_LEG3_FIRST {len(base_keys)}")

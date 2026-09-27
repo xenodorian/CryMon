@@ -3816,6 +3816,52 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       turned off on purpose (manual Save only, see persist()), so there is
       nothing for an indicator to show; the dex reward already exists
       (Archivist Wyn, 10/25/50/80/all).
+- [x] H22 Balance simulator: `python3 tools/balance_sim.py` (options:
+      --policy best|loyal, --grind N, --level-up flat|curve, --boss-hp X,
+      --csv). A model of the battle rules (mint curve, specials, block /
+      barrier, crystal matchups, XP share, evolution), not a port; it
+      plays the main path in story order, then the Hollow and the side
+      trainers, 40 seeded runs, and flags WALL (first-try win under 50% or
+      more than 8 extra wild fights) and pushover (party loses under 10%
+      HP). Findings before tuning:
+      - No walls for a player who keeps swapping in fresh catches.
+      - A player who keeps their first six hit a wall at Nero (0% first
+        try): flat level-ups (+3 HP, +1 stat) fall about 30% behind the
+        mint curve that every wild and trainer CryMon uses.
+      - Most fights before the late Sephirot are pushovers. Cause is
+        structural: the player always acts first and a connected special
+        one-shots a same-level foe (special power ~1.25 x 1.5 vs HP).
+        Levels alone can't fix that.
+- [x] H23 Tuning from the sim (both ports).
+      - growth.levelUpStats = "curve": a level-up adds what minting the
+        species one level higher adds, never less than the old flat
+        amount. Web `levelUpGain()` (data.ts), Dreamcast `level_up_gain()`
+        (same float math as mint_monster), baked `LEVEL_UP_CURVE`.
+      - Boss HP: kit `hpMul` (x2 every General, x1.5 Nero). Web
+        startWsBattle(), Dreamcast leg3_start_battle() via baked
+        `TrainerKit.hp_mul_pct`. The baker refuses hpMul on a kit that is
+        not a Leg 3 post, so the two ports can't drift.
+      - Early Sephirot lifted so levels keep rising after Lead (22-26):
+        Malkuth bases 23/24, Harrow 26, Yesod 25/26, Ashgrove 28,
+        Netzach 27/28, Stroud 30, Hod 29/30, Vale 32. Tiferet on is
+        unchanged.
+      - After: no walls on either policy; Nero first-try 85-100% with
+        80% of the party's HP spent for a kept-team player; the Hollow
+        Warden and Calder rematch cost about 60%.
+      - Not changed, recommended: speed-based turn order (AGL decides who
+        strikes first) and foe guarding would remove the early one-shot
+        pattern; both need battle state machine work on both ports.
+- [x] H24 Battle depth review: already has 9 crystal types with a
+      2x/0.5x chart, 5 statuses, stat stages, crystal secondaries, shiny
+      Overload, Hype Up on evolution, 2-stage evolution (Lv 12 / 22), the
+      special timing needle and Cathleen's spells. Nothing missing is
+      cheap enough to add safely tonight; see H23 for the two that would
+      matter most.
+- Art thread note: the Hollow uses existing generic sprites on purpose
+  (npc/keeper, npc/ranger, npc/ghost, npc/warden), so nothing is
+  missing. If you want unique Hollow art, add npc/hollowKeeper etc. and
+  change the `sprite` of hollowKeeper / hollowRanger / hollowShade /
+  hollowWarden in content/world_parts/npcs.json.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
