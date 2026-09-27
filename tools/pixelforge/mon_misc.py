@@ -564,9 +564,14 @@ def arcanox(t):
             card(c, x, y, 5, 7, math.degrees(ang) * 0.2, 60 * math.sin(ang), PRISM[k % 5], k, back=(k % 2 == 1))
         glyphs = [hx(p) for p in PRISM]
 
+        # a third eye on the brow that opens as it reads you
+        op = [0.6, 1.2, 1.8, 1.2][t]
+
         def ink(cc):
-            for k in range(4):
-                rune_glyph(cc, a["bx"] - 14 + k * 10, a["by"] - 2, k + t, glyphs[(k + t) % 5])
+            peye(cc, a["hx"] + 1, a["hy"] - a["hry"] * 0.55, 2.4, op, iris=glyphs[1], pw=0.5, ph=0.9, slit=True)
+            # a single band of runes glowing along the flank
+            for k in range(3):
+                rune_glyph(cc, a["bx"] - 10 + k * 11, a["by"] - 4, k + t, glyphs[(k + t) % 5])
         c.ink(ink)
     spec = dict(seed=94, body=(56, 28), leg=26, leg_r=5.2, head=(16, 14), neck=6, fur="#5a3a8a", belly="#b09ae0",
                 eye="#f2c230", slit=True, angry=0.7, ears="fox", ear_size=1.2, tail="long", tail_len=1.1,
@@ -664,9 +669,15 @@ def baphorn(t):
         c.cap(x + dx, G - 6, 4, x + dx - 1, G - 1, 4.6, hoof, z=zz + 2)
     # torso: broad chest, shaggy
     g = c.group()
-    c.ell(x, y + 8, 21, 24, fur, z=0, g=g, tuft=16, tuft_len=3.5, tuft_arc=(150, 390))
-    c.ell(x - 6, y - 4, 17, 13, fur, z=4, g=g, tuft=12, tuft_len=3, tuft_arc=(180, 360))
-    c.ell(x - 7, y + 12, 11, 15, belly, decal=True, only=g)
+    # broad shaggy shoulders over a narrow waist, so it reads as upright
+    c.ell(x, y + 18, 13, 12, fur, z=0, g=g)
+    c.ell(x - 2, y - 2, 22, 15, fur, z=2, g=g)
+    c.ell(x - 4, y - 10, 20, 9, fur, z=6, g=g, tuft=18, tuft_len=4, tuft_arc=(160, 380))
+    c.ell(x - 7, y + 6, 10, 12, belly, decal=True, only=g)
+    c.pattern(lambda xx, yy: (abs(xx - x + 7) < 8) & ((yy - y) % 6 < 1) & (yy > y), -1, only=g)   # rib ridges
+    # a ragged loincloth
+    c.poly([(x - 12, y + 22), (x + 12, y + 22), (x + 8, y + 36), (x + 2, y + 32), (x - 4, y + 38), (x - 10, y + 32)],
+           M("#5a1a24", tex="grain", tex_amp=0.6), z=40, bevel=1.5)
     # near arm raised, holding a candle up
     c.chain([(x - 16, y - 6, 6.5), (x - 26, y + 6, 5), (x - 32, y - 8 - bob, 4.4)], fur, z=16)
     c.ell(x - 32, y - 10 - bob, 5, 4, fur, z=18)
@@ -684,7 +695,7 @@ def baphorn(t):
     c.ell(hx_ - 8, hy_ - 4, 6, 2.6, fur, z=22, rot=-20)
     # ram horns curling back and around
     for k, (cx, cy, zz, sc) in enumerate(((hx_ + 8, hy_ - 10, 6, 0.85), (hx_ + 1, hy_ - 9, 24, 1.0))):
-        R = 13 * sc
+        R = 16 * sc
         pts = []
         for i in range(10):
             ang = math.radians(-150 + i * 40)
