@@ -4849,9 +4849,11 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
             if(NPC_DEFS[li].map_id != map_id || NPC_DEF_SPRITE[li] < 0) continue;
             if(leg3_npc_post(li) >= 0 && !leg3_post_standing(li)) continue;
             if(npc_def_hidden(li)) continue;
-            ws_push_mark_idle(list, n, map_id, NPC_DEFS[li].mark,
-                              NPC_SPRITE_FRAMES[(int)NPC_DEF_SPRITE[li]],
-                              frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+            /* _roam: a roaming trainer (Quartz, Opal, Bogwalker...) is
+               drawn where it walked to, not at its map mark. */
+            ws_push_mark_idle_roam(list, n, map_id, NPC_DEFS[li].mark,
+                                   NPC_SPRITE_FRAMES[(int)NPC_DEF_SPRITE[li]],
+                                   frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         }
     }
     if(map_id == MAP_VELD) {
