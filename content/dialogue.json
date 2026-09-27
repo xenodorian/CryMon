@@ -315,7 +315,11 @@
       },
       {
         "speaker": "max",
-        "text": "Good. I'm going north."
+        "text": "Good. If they know my name, they'll know CryTown isn't staying under the Army."
+      },
+      {
+        "speaker": "wren",
+        "text": "Then go carefully. Getting free is one thing. Staying free is another."
       }
     ],
     "wrenCart": [
@@ -359,11 +363,15 @@
     "maeAgain": [
       {
         "speaker": "mae",
-        "text": "I'll be here. The war drums haven't stopped."
+        "text": "You're still going, aren't you? The war drums haven't stopped."
       },
       {
         "speaker": "max",
-        "text": "I hear them."
+        "text": "Not until CryTown is free."
+      },
+      {
+        "speaker": "mae",
+        "text": "Then come back in one piece. That's all I'm asking."
       }
     ],
     "ivoFirst": [
@@ -387,11 +395,15 @@
     "ivoAgain": [
       {
         "speaker": "ivo",
-        "text": "Hit first. Run if the bat folds you."
+        "text": "Still standing? Good. Hit first, run if the bat folds you."
       },
       {
         "speaker": "max",
-        "text": "I don't run yet."
+        "text": "I made it past Calder."
+      },
+      {
+        "speaker": "ivo",
+        "text": "Then you've already learned the important part: don't fight the Army on their terms."
       }
     ],
     "nellFirst": [
@@ -429,11 +441,15 @@
     "nellAgain": [
       {
         "speaker": "nell",
-        "text": "The pond keeps secrets. The war drums haven't stopped."
+        "text": "The pond keeps its secrets, but the town doesn't. Everyone's talking about what you're doing."
       },
       {
         "speaker": "max",
-        "text": "I hear them."
+        "text": "Let them talk. I'm still going."
+      },
+      {
+        "speaker": "nell",
+        "text": "Then take care of yourself. The road won't."
       }
     ],
     "pikeFirst": [
@@ -475,7 +491,11 @@
       },
       {
         "speaker": "max",
-        "text": "That's the part I'm here for."
+        "text": "That's the part I'm here for. Calder's behind me now."
+      },
+      {
+        "speaker": "pike",
+        "text": "Then maybe there's hope for the rest of us."
       }
     ],
     "pikeHint": [
@@ -3906,6 +3926,10 @@
       {
         "speaker": "tam",
         "text": "Tick, tick. Thanks again, Max."
+      },
+      {
+        "speaker": "max",
+        "text": "Keep it wound. You've got a few good years left in you."
       }
     ],
     "linaAsk": [
@@ -3944,6 +3968,14 @@
       {
         "speaker": "rolo",
         "text": "I'm going to catch my own CryMon one day. Like you!"
+      },
+      {
+        "speaker": "max",
+        "text": "Start by staying where your mother can find you."
+      },
+      {
+        "speaker": "rolo",
+        "text": "Aw. Fine."
       }
     ],
     "linaThanks": [
@@ -3968,6 +4000,14 @@
       {
         "speaker": "lina",
         "text": "Rolo hasn't left my sight since. Thank you again."
+      },
+      {
+        "speaker": "max",
+        "text": "Good. I don't want to rescue him twice."
+      },
+      {
+        "speaker": "lina",
+        "text": "Neither do I."
       }
     ],
     "junoAsk": [
@@ -4014,6 +4054,14 @@
       {
         "speaker": "juno",
         "text": "My Crymare is doing well. I'm writing a book about her."
+      },
+      {
+        "speaker": "max",
+        "text": "Make sure you put in the part where she cost me an afternoon in the Ruins."
+      },
+      {
+        "speaker": "juno",
+        "text": "I will. Probably in the dedication."
       }
     ],
     "betAsk": [
