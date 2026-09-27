@@ -33,7 +33,13 @@ session stops, pick up at the first step not marked DONE.
    Doc-only commits, so this is a flaky Dreamcast/harness issue, not a content change.
    `main` Checks stays red until step 3 is fixed.
 2. **Full Dreamcast trainer sweep -- TODO.**
-3. **Opal fight bug root cause -- TODO.**
+3. **Opal fight bug root cause -- DONE.** Not a game bug. Reproduced locally (1 fail in 7
+   Flycast runs): the fight, win and mercy menu all worked ("LET THEM GO. +1 REP"), but
+   `emu_warden.py pause_save()` pressed Down 7 times blind and one press was dropped, so
+   it opened SETTINGS instead of SAVE and nothing reached the VMU. Fix: `pause_cursor()`
+   reads the green highlighted row off the screen and steps until it is on SAVE.
+   Verified: 6/6 Opal runs under full CPU load, plus full Quartz + Opal (incl. reboot)
+   all PASS. The "21 presses" count is normal for Opal, not a symptom.
 4. **BUG-012 NPC geometry (all NPCs, DC) -- TODO.**
 5. **Regional dialogue/NPC audit -- TODO.** Report proposed text edits to the user
    before applying them.
@@ -100,7 +106,7 @@ Current save format is v6, 256 bytes. Do not change offsets or reorder map IDs w
 - Dreamcast monster battle art normally streams from `MONSTERS.BIN`; resident 16×16 icons provide fallback.
 - Current art systems include generated NPC walkers/portraits, painted overworld tiles, themed buildings, battle backdrops, ambience, item icons, title/ending screens, and Hollow-specific art. Do not redo these wholesale unless requested.
 - **Battle effects (Claude, 2026-09-27):** one hit burst per real crystal (`tools/pixelforge/hitfx.py`, natures from logic.json), plus particles, shock ring, screen flash, damage-scaled shake and floating numbers, all from `content/sprites.json` `battleFx`. Web: `src/game/battleFx.ts`; Dreamcast: `gen_sprites.py emit_battle_fx()` + main.c `fx_*`. Both only watch battle state. `emu_warden.py` saves quick `fx-fight-NN.png` frames during fights.
-- **Dreamcast Opal warden check:** fails the same way on the battle-effects branch and on PR #39 (fight ends after 21 presses, no battle counted). Not caused by battle effects; not root-caused yet.
+- **Dreamcast Opal warden check:** was a harness flake (pause menu Down press dropped, landed on SETTINGS). Fixed in `emu_warden.py` by reading the highlighted row.
 - Player monster back-view sprites are **not implemented**; both engines currently use front battle art. Treat back views as a separate art/engine project.
 
 ### World validation

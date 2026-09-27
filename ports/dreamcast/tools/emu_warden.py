@@ -197,11 +197,38 @@ class Emu:
                     return i
         return max_presses
 
+    def pause_cursor(self):
+        """Row of the highlighted pause item, or None. draw_pause_menu()
+        draws the current row green (168,216,144) and the rest grey, at
+        MENU_Y + 24 + i * MENU_ROW_H in the 320x240 frame (2x here)."""
+        im = self.shot().convert("RGB")
+        best, best_n = None, 0
+        for i in range(9):
+            y = (20 + 24 + 16 * i) * 2
+            px = im.crop((72, y, 312, y + 16)).tobytes()
+            n = sum(1 for k in range(0, len(px), 3)
+                    if px[k + 1] > 150 and px[k + 1] - px[k] > 25 and px[k + 1] - px[k + 2] > 45)
+            if n > best_n:
+                best, best_n = i, n
+        return best if best_n > 20 else None
+
     def pause_save(self):
+        # Step to SAVE by reading the highlight, not by counting presses:
+        # a slow runner can drop one of several quick Downs, which used to
+        # land on SETTINGS and save nothing (the "Opal fails" flake).
         self.close_talk()
         self.key("Return", after=0.6)
-        for _ in range(pause_row("SAVE")):
-            self.key("Down", after=0.1)
+        want = pause_row("SAVE")
+        for _ in range(30):
+            cur = self.pause_cursor()
+            if cur == want:
+                break
+            if cur is None:
+                time.sleep(0.2)
+                continue
+            self.key("Down" if (want - cur) % 9 <= 4 else "Up", after=0.2)
+        else:
+            print("      pause menu: never reached SAVE", flush=True)
         self.key("x", after=2.0)
 
 
