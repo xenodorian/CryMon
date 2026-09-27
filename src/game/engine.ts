@@ -151,6 +151,8 @@ export class CryMon {
 	last = 0;
 	running = false;
 	shake = 0;
+	/** Hit burst over the target (public/sprites/fx, tools/pixelforge/hitfx.py). */
+	hitFx = null;
 	clock = 0;
 	world = {
 		mapId: "house",
@@ -1678,6 +1680,7 @@ export class CryMon {
 		this.clock += dt;
 		this.tickFade(dt);
 		if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
+		if (this.hitFx && (this.hitFx.t += dt) > 0.36) this.hitFx = null;
 		if (this.hudT > 0) this.hudT -= dt;
 		if (this.input.tapA || this.input.tapStart || this.input.keys.has("KeyZ") || this.input.keys.has("Enter")) this.audio.unlock();
 		try {
@@ -3247,6 +3250,7 @@ export class CryMon {
 				const hit = natureScaleDmg(b.pendingDmg, b.player.species, b.foe.species);
 				b.foe.hp = Math.max(0, b.foe.hp - hit.dmg);
 				this.shake = .25;
+				this.hitFx = { at: "foe", nat: SPECIES[b.player.species]?.nature ?? "quartz", t: 0 };
 				this.audio.hit();
 				line = `${b.pendingLabel}  ${hit.dmg} dmg.${natureTag(hit.sign)}${foeTick}`;
 			} else {
@@ -3468,6 +3472,7 @@ export class CryMon {
 			}
 			b.player.hp = Math.max(0, b.player.hp - dmg);
 			this.shake = dmg === 0 ? .05 : .28;
+			if (dmg > 0) this.hitFx = { at: "player", nat: SPECIES[b.foe.species]?.nature ?? "quartz", t: 0 };
 			if (b.player.hp <= 0) {
 				this.party[this.partyIndex] = { ...b.player };
 				const next = this.party.findIndex((m, i) => i !== this.partyIndex && m.hp > 0);
@@ -5894,6 +5899,12 @@ export class CryMon {
 		const pf = Math.floor(b.t * 4) % 4 + 1;
 		this.drawBattleMon(`${b.foe.species}-${pf}`, X(168), Y(8), X(52), Y(52), b.foeEnterT, b.foeFaintT, b.foe.shiny);
 		this.drawBattleMon(`${b.player.species}-${pf}`, X(12), Y(52), X(48), Y(48), b.enterT, b.faintT, b.player.shiny);
+		if (this.hitFx) {
+			const f = Math.min(3, Math.floor(this.hitFx.t / 0.09)) + 1;
+			const [fx, fy, fw] = this.hitFx.at === "foe" ? [X(168), Y(8), X(52)] : [X(12), Y(52), X(48)];
+			const sz = X(36);
+			this.drawSprite(`fx-${this.hitFx.nat}-${f}`, fx + (fw - sz) / 2, fy + (fw - sz) / 2, sz, sz, false);
+		}
 		this.box(X(6), Y(6), X(124), Y(32));
 		this.text(`${b.foe.shiny ? "*" : ""}${b.foe.name.toUpperCase()}`, X(10), Y(9), b.foe.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(10), Y(22), X(96), b.foe.hp, b.foe.maxHp);

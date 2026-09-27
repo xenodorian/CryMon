@@ -3826,3 +3826,7 @@ own files; redraw them only if the user says so.
 - Web: new src/game/tileArt.ts. Engine.paintTile() now tries the painted tile first and falls back to the old flat colors for anything it does not cover (houses, roofs, floors, props) or while images load. drawMap() passes tile coords and the map so variants and edges follow the neighbors.
 - sprites.json extra lists the tile files so the art check and loader see them. The Dreamcast port still draws its own tiles; wiring these in there is a follow-up.
 - Dreamcast now uses the same painted tiles: gen_sprites.py bakes public/sprites/tiles at 20px into sprites.h (HAVE_TILE_ART), and main.c draw_tile_art() applies the same variant hash and edge rules as tileArt.ts before falling back to draw_tile(). Host gcc -fsyntax-only is clean; CI builds the CDI.
+
+### Battle hit effects (Claude, 2026-09-27)
+- New tools/pixelforge/hitfx.py draws a 4-frame 64x64 burst per crystal nature into public/sprites/fx/: quartz impact star, ruby fireball, citrine lightning, sapphire splash, diamond starlight, emerald leaf whirl, jasper rock burst, obsidian claw slashes, prism rainbow ring.
+- Web battle (engine.ts): when a hit lands, the attacker's nature burst plays over the target for about a third of a second (hitFx field, drawn after the monsters). Listed in sprites.json extra. Dreamcast does not show them yet.
