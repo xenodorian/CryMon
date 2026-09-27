@@ -5038,6 +5038,19 @@ export class CryMon {
 	}
 	box(x, y, w, h) {
 		const ctx = this.ctx;
+		const fr = this.images["ui-frame"];
+		if (fr && fr.width === 16) {
+			// nine-slice of public/sprites/ui/frame.png (tools/pixelforge/uiframe.py): 6px corners
+			const s = h < Y(24) ? 1 : Math.max(1, Math.round(X(1) / 2)); // thin trim on small HUD boxes
+			const c = 6 * s;
+			const sx = [0, 6, 10], sw = [6, 4, 6];
+			const dx = [x, x + c, x + w - c], dw = [c, w - 2 * c, c];
+			const dy = [y, y + c, y + h - c], dh = [c, h - 2 * c, c];
+			for (let j = 0; j < 3; j++)
+				for (let i = 0; i < 3; i++)
+					if (dw[i] > 0 && dh[j] > 0) ctx.drawImage(fr, sx[i], sx[j], sw[i], sw[j], dx[i], dy[j], dw[i], dh[j]);
+			return;
+		}
 		ctx.fillStyle = "#12110e";
 		ctx.fillRect(x, y, w, h);
 		ctx.strokeStyle = "#c5cec6";
