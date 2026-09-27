@@ -42,11 +42,11 @@ Status: Partly fixed 2026-09-27. The e2e test drives both crystal wardens throug
 The repository validates content relationships, but does not automatically execute trainer interactions through battle victory, rewards, dialogue changes, and persistence.
 
 ### BUG-007: No Dreamcast emulator regression test
-Status: Test gap.
+Status: Fixed 2026-09-27. CI boots the real CDI headless in Flycast (ports/dreamcast/tools/emu_warden.py), plays Quartz and Opal from a web-made save, saves, reboots, Continues, and checks badge, marks and battle count from the VMU image. Screenshots in the `e2e` artifact.
 CI builds the Dreamcast artifacts but does not establish that the CDI boots in an emulator, accepts controller input, or reaches gameplay.
 
 ### BUG-008: Dreamcast save persistence is not automatically tested
-Status: Partly fixed 2026-09-27. ports/dreamcast/tools/save_host_check.c runs the real save.c pack/unpack on the host in CI. VMU I/O itself is still untested.
+Status: Fixed 2026-09-27. save_host_check.c tests save.c on the host, and the Flycast test (BUG-007) covers VMU write, reboot and reload.
 There is no automated test covering save, reset/reload, and restoration of progression flags on the Dreamcast target.
 
 ### BUG-009: Web/Dreamcast save compatibility is not automatically tested
@@ -54,7 +54,7 @@ Status: Fixed 2026-09-27. CI feeds each web e2e save to the Dreamcast save.c and
 The two implementations have separate save paths and formats. There is no automated parity test confirming equivalent progression semantics.
 
 ### BUG-010: NPC rendering and interaction can diverge
-Status: Potential.
+Status: Found and fixed 2026-09-27 (Dreamcast). Seven JSON-only NPCs (bogwalker, reedguard, quartz, opal, driller, fenn, dray) were marked hand-drawn in bake_content.py but no hand code drew them: talkable but invisible on DC. They now use the generic roaming path; the Flycast screenshots show Quartz and Opal.
 Rendering and interaction are separate systems. An NPC can potentially remain interactable while its sprite is missing or fail to render while still having an interaction footprint.
 
 ### BUG-011: Quartz NPC default interaction footprint may be oversized
@@ -62,13 +62,13 @@ Status: Working as designed, 2026-09-27. Web uses logic.json `interact` (48x52 +
 Quartz does not specify an explicit interaction width/height in the current NPC data. Verify that the default interaction rectangle does not cause accidental interactions from adjacent tiles.
 
 ### BUG-012: Dreamcast NPC geometry differs from web geometry
-Status: Potential.
+Status: Partly verified 2026-09-27. In Flycast, a web save placed one tile under Quartz or Opal lands there on DC and A starts the talk (emu_warden.py). Other NPCs not checked.
 Dreamcast interaction/render coordinates are scaled from the web coordinate system. Rounding during conversion can produce one-pixel/tile discrepancies at some positions.
 
 ## Lower priority
 
 ### BUG-013: Save checksum excludes Pokédex byte ranges
-Status: Potential integrity issue.
+Status: Won't fix for now, 2026-09-27. On Dreamcast the VMS CRC already covers the whole file (save.c save_restore). Widening the web checksum changes the shared format and would reject every existing save for little gain on localStorage.
 The web save checksum does not cover all serialized data. The Pokédex seen/caught ranges are outside the checksum-covered bytes, so corruption in those fields may not be detected.
 
 ### BUG-014: Saved player coordinates need walkability validation
@@ -76,7 +76,7 @@ Status: Fixed 2026-09-27. Both ports move a loaded position that is off-map, sol
 Loading a save should ideally validate that the stored player position is within map bounds and corresponds to a legal walkable location before applying it.
 
 ### BUG-015: Save version/key migration risk
-Status: Maintenance risk.
+Status: Won't fix for now, 2026-09-27. The binary version byte (save.json `version`) is what both ports check; renaming the localStorage key would orphan saves without adding safety.
 The web save key remains `crymon.save.v1` while the binary save schema has advanced. This is not necessarily a current defect, but future migrations can become ambiguous if key and schema versioning diverge.
 
 ### BUG-016: Asset loading failures are not surfaced clearly
@@ -94,3 +94,9 @@ After the next Dreamcast build succeeds, test Quartz specifically on both platfo
 ## Scope note
 
 Quarry remains parked and is intentionally excluded from this bug log's implementation scope.
+
+### BUG-018: Dreamcast HUD text overlapped (found in Flycast)
+Status: Fixed 2026-09-27. The map name (scale 2, top right) printed over the lead and scroll lines, "SAVED" printed over the lead's name, and the foe's battle line ("NEEDLEROOT LV10 20/66") ran off the right edge with the player's nature badge over the "/". Map name is now scale 1 on the REP row, the toast sits centered under the HUD, and the battle lines stay on screen with badges beside the text.
+
+### BUG-019: Needleroot art has magenta patches
+Status: Open, art (not code). public/sprites/monsters/needleroot/*.png contain opaque magenta pixels (frame 3: 803 of 4704 opaque pixels), which show on both ports. The DC converter is not the cause. Owned by the art thread.

@@ -3909,6 +3909,11 @@ own files; redraw them only if the user says so.
 - New tools/pixelforge/hitfx.py draws a 4-frame 64x64 burst per crystal nature into public/sprites/fx/: quartz impact star, ruby fireball, citrine lightning, sapphire splash, diamond starlight, emerald leaf whirl, jasper rock burst, obsidian claw slashes, prism rainbow ring.
 - Web battle (engine.ts): when a hit lands, the attacker's nature burst plays over the target for about a third of a second (hitFx field, drawn after the monsters). Listed in sprites.json extra. Dreamcast does not show them yet.
 
+## Dreamcast emulator test, invisible NPCs, HUD overlap (Claude, 2026-09-27)
+- Flycast runs headless here and in CI (Xvfb, built-in HLE BIOS, prebuilt binary copied out of the linuxserver/flycast image). `ports/dreamcast/tools/emu_warden.py` loads a web-made pre-fight save (`<warden>-before.bin` from `npm run test:e2e:quartz`) into the VMU with `vmu_tool.py`, plays the fight, saves, reboots, Continues, and checks the VMU save. Quartz and Opal both pass. Wired into `.github/workflows/checks.yml` after the web e2e (BUG-007, BUG-008).
+- Local run: build the CDI, then `python3 ports/dreamcast/tools/emu_warden.py --cdi <cdi> --flycast <AppRun> --save-dir <e2e-out>`. Keys: X = A, Return = Start, arrows. Restart Xvfb per boot (a killed Flycast leaves keys stuck).
+- BUG-010 fixed: 7 NPCs were invisible on DC. BUG-018 fixed: HUD/map name/toast/battle line overlap. BUG-013 and BUG-015 closed as won't fix (reasons in BUG_LOG). BUG-019 logged for the art thread (Needleroot magenta is in the PNGs).
+
 ### Deep pass batch 5 (Claude, 2026-09-27)
 - Atlashell: stubby scaled legs with toenails that step in turn, plated shell scutes, a tail, a beaked head that nods.
 - Baphorn: broad shaggy shoulders over a narrow waist, rib ridges, a ragged loincloth and bigger ram horns so it reads as upright.

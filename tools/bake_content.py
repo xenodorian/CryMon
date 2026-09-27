@@ -1203,10 +1203,12 @@ LEG3_PENDING_BASE = 100
 # `sprite` is npc/<one of these> gets NPC_DEF_SPRITE[i] >= 0.
 # main.c draws these NPC sprites with its own hand-written code; every other
 # name in sprites.json "npcs" is drawn generically from NPC_SPRITE_FRAMES.
+# Only names main.c really draws by hand belong here: bogwalker, reedguard,
+# quartz, opal, driller, fenn and dray were listed but never drawn, so those
+# NPCs were invisible on Dreamcast (talkable, not shown). Found in Flycast.
 HAND_DRAWN_NPC_SPRITES = {"wren", "mae", "ivo", "nell", "pike", "bram", "calder", "oren", "tessa", "birch",
                           "sable", "cross", "commander", "conscript", "enforcer", "sentry", "father", "ranger",
-                          "scout", "keeper", "warden", "bogwalker", "reedguard", "quartz", "opal", "driller",
-                          "fenn", "dray", "heavenfallPriestess", "shinigamiBoulder"}
+                          "scout", "keeper", "warden", "heavenfallPriestess", "shinigamiBoulder"}
 # NPC ids main.c draws by hand even though their sprite is generic-capable
 # (Shinigami at the Reach keeps his hand-wired saw_shinigami_rock logic).
 HAND_DRAWN_NPC_IDS = {"shinigamiFree"}

@@ -1651,7 +1651,9 @@ static void draw_dialogue_box(const TalkBeat *beat) {
    reached from plain world state, not mid-dialogue). No background
    panel, same as the dialogue box above -- just outlined text. */
 static void draw_hud_toast(const char *text) {
-    draw_text_s(text, 26, 10, 0xFFFF, DIALOGUE_SCALE);
+    /* Centered under the HUD column (up to five rows from y=2), not on
+       top of it: "SAVED" used to overprint the lead's name. */
+    draw_text_center_s(text, SCREEN_W / 2, 2 + 5 * DIALOGUE_LINE_H + 4, 0xFFFF, DIALOGUE_SCALE);
 }
 
 /* Map-name banner: replaces the old per-door TALK_*_ENTER/LEAVE
@@ -4136,9 +4138,16 @@ static void draw_battle_status(const Battle *b) {
         n = s_cat(buf, n, STATUS_NAME[b->foe.status]);
     }
     buf[n] = 0;
-    draw_text_s(buf, BFOE_BOX_X + 4, BFOE_BOX_Y + 4, 0xFFFF, MENU_SCALE);
-    draw_nature_badge(species_nature(b->foe.species),
-                      BFOE_BOX_X - 4 - NATURE_BADGE_SIZE, BFOE_BOX_Y + 3);
+    /* Long names plus "LVxx hp/max" outgrow the box ("NEEDLEROOT LV10
+       20/20" ran off the right edge in Flycast), so the foe line is
+       pulled left to stay on screen and the badges follow the text. */
+    {
+        int x = BFOE_BOX_X + 4, w = text_width_s(buf, MENU_SCALE);
+        if(x + w > SCREEN_W - 4) x = SCREEN_W - 4 - w;
+        draw_text_s(buf, x, BFOE_BOX_Y + 4, 0xFFFF, MENU_SCALE);
+        draw_nature_badge(species_nature(b->foe.species),
+                          x - 8 - NATURE_BADGE_SIZE, BFOE_BOX_Y + 3);
+    }
 
     n = s_cat(buf, 0, b->pl.shiny ? "*" : "");
     n = s_cat(buf, n, SPECIES[b->pl.species].name);
@@ -4154,8 +4163,12 @@ static void draw_battle_status(const Battle *b) {
     }
     buf[n] = 0;
     draw_text_s(buf, BPL_BOX_X + 4, BPL_BOX_Y + 4, 0xFFFF, MENU_SCALE);
-    draw_nature_badge(species_nature(b->pl.species),
-                      BPL_BOX_X + BPL_BOX_W + 4, BPL_BOX_Y + 3);
+    {
+        int bx = BPL_BOX_X + 4 + text_width_s(buf, MENU_SCALE) + 4;
+        if(bx < BPL_BOX_X + BPL_BOX_W + 4) bx = BPL_BOX_X + BPL_BOX_W + 4;
+        if(bx > SCREEN_W - 2 - NATURE_BADGE_SIZE) bx = SCREEN_W - 2 - NATURE_BADGE_SIZE;
+        draw_nature_badge(species_nature(b->pl.species), bx, BPL_BOX_Y + 3);
+    }
 }
 
 static void draw_battle_menu_row(const char *label, int idx, int cur, int y) {
@@ -5004,9 +5017,11 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
             if(NPC_DEFS[li].map_id != map_id || NPC_DEF_SPRITE[li] < 0) continue;
             if(leg3_npc_post(li) >= 0 && !leg3_post_standing(li)) continue;
             if(npc_def_hidden(li)) continue;
-            ws_push_mark_idle(list, n, map_id, NPC_DEFS[li].mark,
-                              NPC_SPRITE_FRAMES[(int)NPC_DEF_SPRITE[li]],
-                              frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+            /* _roam: a roaming trainer (Quartz, Opal, Bogwalker...) is
+               drawn where it walked to, not at its map mark. */
+            ws_push_mark_idle_roam(list, n, map_id, NPC_DEFS[li].mark,
+                                   NPC_SPRITE_FRAMES[(int)NPC_DEF_SPRITE[li]],
+                                   frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         }
     }
     if(map_id == MAP_VELD) {

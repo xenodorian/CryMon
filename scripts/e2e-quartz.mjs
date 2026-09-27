@@ -93,7 +93,8 @@ async function runWarden(who) {
     // Strong lead so mashing confirm wins the real fight (no WinAll).
     await page.evaluate(() => {
       const p = window.__crymon.party()[0];
-      Object.assign(p, { level: 40, maxHp: 400, hp: 400, str: 200, agl: 200, spc: 200 });
+      // Party slots store hp/stats as bytes, so keep them under 256.
+      Object.assign(p, { level: 40, maxHp: 250, hp: 250, str: 200, agl: 200, spc: 200 });
     });
     const before = await state();
     await faceQuartz();
@@ -157,6 +158,32 @@ async function runWarden(who) {
     check((await state()).talk === winLine, `re-talk after reload gives ${kit.winTalk}`);
     await page.screenshot({ path: join(OUT, `${who}-after-reload.png`) });
     check(errors.length === 0, `no page errors ${errors.length ? JSON.stringify(errors) : ""}`);
+
+    // Pre-fight save one tile under the warden, for the Dreamcast emulator
+    // test (ports/dreamcast/tools/emu_warden.py). Fresh run so the roaming
+    // warden has not walked anywhere yet.
+    await C("wipeSave");
+    await page.reload();
+    await boot();
+    const pre = await page.evaluate(
+      ([x, y]) => {
+        const c = window.__crymon;
+        c.skipToReach();
+        Object.assign(c.party()[0], {
+          level: 40,
+          maxHp: 250,
+          hp: 250,
+          str: 200,
+          agl: 200,
+          spc: 200,
+        });
+        c.setPos(x, y);
+        c.saveNow();
+        return localStorage.getItem("crymon.save.v1");
+      },
+      [col * 32 + 16, (row + 1) * 32 + 16],
+    );
+    writeFileSync(join(OUT, `${who}-before.bin`), Buffer.from(pre || "", "base64"));
   } finally {
     await browser.close();
   }

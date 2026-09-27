@@ -1317,8 +1317,15 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_MARSH, 'm', 443, 3, 30, 32 },
 };
 #define NPC_DEF_N 155
-#define NPC_SPRITE_N 65
+#define NPC_SPRITE_N 72
 static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
+    { npc_bogwalker_1, npc_bogwalker_2, npc_bogwalker_3, npc_bogwalker_4 },
+    { npc_reedguard_1, npc_reedguard_2, npc_reedguard_3, npc_reedguard_4 },
+    { npc_quartz_1, npc_quartz_2, npc_quartz_3, npc_quartz_4 },
+    { npc_opal_1, npc_opal_2, npc_opal_3, npc_opal_4 },
+    { npc_driller_1, npc_driller_2, npc_driller_3, npc_driller_4 },
+    { npc_fenn_1, npc_fenn_2, npc_fenn_3, npc_fenn_4 },
+    { npc_dray_1, npc_dray_2, npc_dray_3, npc_dray_4 },
     { npc_lead_1, npc_lead_2, npc_lead_3, npc_lead_4 },
     { npc_weepingGuard_1, npc_weepingGuard_2, npc_weepingGuard_3, npc_weepingGuard_4 },
     { npc_royalGuard_1, npc_royalGuard_2, npc_royalGuard_3, npc_royalGuard_4 },
@@ -1386,7 +1393,7 @@ static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_shinigami_1, npc_shinigami_2, npc_shinigami_3, npc_shinigami_4 },
 };
 /* NPC_SPRITE_FRAMES index per NPC_DEFS entry (-1: drawn by hand-wired code). */
-static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 64, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 64, -1, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 1, 7, 1, 1, 8, 1, 1, 9, 1, 1, 10, 1, 1, 11, 2, 2, 12, 13, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 64, 19, 19, 19, 20, 20, 20, 18, 18, 18, 21, 23, 22, 24, 25, 26, 27, 28, 29, 36, 35, 37, 39, 39, 38, 40, 42, 42, 41, 43, 35, 44, 46, 45, 48, 48, 47, 49, 35, 50, 52, 51, 54, 54, 53, 55, 31, 30, 31, 30, 31, 30, 31, 30, 31, 32, 56, 57, 58, 59, 60, 61, 62, 63, 19, 35, 31, 30 };
+static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 71, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, -1, 7, -1, 71, -1, 8, 8, 10, 8, 8, 11, 8, 8, 12, 8, 8, 13, 8, 8, 14, 8, 8, 15, 8, 8, 16, 8, 8, 17, 8, 8, 18, 9, 9, 19, 20, 21, 22, 23, 23, 23, 23, 23, 23, 23, 23, 23, 71, 26, 26, 26, 27, 27, 27, 25, 25, 25, 28, 30, 29, 31, 32, 33, 34, 35, 36, 43, 42, 44, 46, 46, 45, 47, 49, 49, 48, 50, 42, 51, 53, 52, 55, 55, 54, 56, 42, 57, 59, 58, 61, 61, 60, 62, 38, 37, 38, 37, 38, 37, 38, 37, 38, 39, 63, 64, 65, 66, 67, 68, 69, 70, 26, 42, 38, 37 };
 #define INTERACT_BUFFER 20
 
 
@@ -1619,7 +1626,7 @@ static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {
     { 42, 1, 8, FLAG_MEDAL_OF_HONOR, 177, 70, 10, "GENERAL SORREL SENDS ECLIPSAUR", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* generalSorrel */
     { 43, 0, -1, FLAG_BEAT_PALACE_GUARD_A, 137, 34, 1, "ROYAL GUARD SENDS CRAGSAGE", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* palaceGuardA */
     { 44, 0, -1, FLAG_BEAT_PALACE_GUARD_B, 139, 36, 1, "ROYAL GUARD SENDS MAGISTOWL", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* palaceGuardB */
-    { 45, 2, -1, FLAG_BEAT_NERO, 181, 80, 12, "WEEPING KING NERO SENDS DEATHKNELL", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* nero */
+    { 45, 2, -1, FLAG_BEAT_NERO, 181, 80, 19, "WEEPING KING NERO SENDS DEATHKNELL", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* nero */
     { 46, 3, -1, FLAG_TITLE_GODSLAYER, 191, 0, -1, "HEAVENFALL TURNS ON YOU", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* heavenfallFinal */
     { 47, 0, -1, FLAG_EXPELLED_GHOST_A, 290, 0, 0, "A SOLDIER'S GHOST RISES", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* ghostSoldierA */
     { 48, 0, -1, FLAG_EXPELLED_GHOST_B, 292, 0, 0, "A SERGEANT'S GHOST RISES", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* ghostSoldierB */
