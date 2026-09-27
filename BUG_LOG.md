@@ -62,7 +62,7 @@ Status: Working as designed, 2026-09-27. Web uses logic.json `interact` (48x52 +
 Quartz does not specify an explicit interaction width/height in the current NPC data. Verify that the default interaction rectangle does not cause accidental interactions from adjacent tiles.
 
 ### BUG-012: Dreamcast NPC geometry differs from web geometry
-Status: Partly verified 2026-09-27. In Flycast, a web save placed one tile under Quartz or Opal lands there on DC and A starts the talk (emu_warden.py). Other NPCs not checked.
+Status: Verified 2026-09-27. ports/dreamcast/tools/npc_talk.py: in Flycast, standing next to each NPC and pressing A starts its talk for 158/158 NPCs (shinigamiBoulder skipped: no free tile). A PASS shows an NPC answered, not always the target when two are in reach.
 Dreamcast interaction/render coordinates are scaled from the web coordinate system. Rounding during conversion can produce one-pixel/tile discrepancies at some positions.
 
 ## Lower priority
