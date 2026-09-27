@@ -121,11 +121,12 @@ tools/gen_ai_art.py). Never commit the token.
 ======================================================================
 Scanned 2026-09-27 for the magenta placeholder tag.
 
-A. Lieutenant Lead overworld art: RESOLVED 2026-09-27.
-   public/sprites/npc/lead-1..4.png now use the validated 48x64 RGBA
-   Lead overworld source. Obsolete/corrupt Lead base64 installers were
-   removed from tools/. Do not regenerate these frames from the old
-   one-off generators.
+A. Lieutenant Lead overworld art: CLEANED 2026-09-27.
+   The previously stored Lead cutout sources were all corrupt/truncated.
+   public/sprites/npc/lead-1..4.png now use a valid 48x64 RGBA military
+   officer placeholder so both engines have a readable transparent asset.
+   A replacement using the intended user-provided cutout can be installed
+   later when an intact source image is available.
 
 B. Placeholder monsters (82), public/sprites/monsters/<id>/:
    arcanox arcwasp ashwing atlashell baphorn blazelynx bloomdoe
