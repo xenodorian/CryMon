@@ -5345,14 +5345,14 @@ export class CryMon {
 		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 		this.box(X(20), Y(24), X(200), Y(112));
-		this.text("THE SCROLL", X(120), Y(32), "#c5cec6", FONT, "center");
-		this.text("The scroll can wake one of the dead.", X(32), Y(48), "#8a8678", FONT);
+		this.text("SCROLL OF RESURRECTION", X(120), Y(32), "#c5cec6", FONT, "center");
+		this.text("It can wake one of the dead.", X(32), Y(48), "#8a8678", FONT);
 		const rows = ["Resurrect Father", "Resurrect Heavenfall"];
 		rows.forEach((row, i) => {
 			const on = i === this.choiceCur;
 			this.text(on ? `> ${row}` : `  ${row}`, X(32), Y(68 + i * 16), on ? "#e8e4d8" : "#8a8678", FONT);
 		});
-		this.text(this.choiceCur === 0 ? "He comes back as he was. Human, and hers." : "An ancient CryMon wakes. Vast and unknown.", X(32), Y(108), "#8a8678", FONT);
+		this.text(this.choiceCur === 0 ? "He comes back as he was. Human, and hers." : "Its grave waits past the Priestess. Vast and unknown.", X(32), Y(108), "#8a8678", FONT);
 		this.text("Z  choose", X(32), Y(122), "#5a7a52", FONT);
 	}
 	drawBag() {

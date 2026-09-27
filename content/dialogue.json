@@ -86,7 +86,7 @@
         "text": "It sleeps inside the crystal until someone cracks it open."
       },
       {
-        "speaker": "father",
+        "speaker": "none",
         "text": "Father does not wake. The Capture Crystal is still on the shelf."
       }
     ],
@@ -96,7 +96,7 @@
         "text": "I already took Quillpup. Sleep. I'll do the fighting."
       },
       {
-        "speaker": "father",
+        "speaker": "none",
         "text": "His breath is thin. He does not answer."
       }
     ],
@@ -187,7 +187,7 @@
       },
       {
         "speaker": "max",
-        "text": "Danger lies between here and the Prison."
+        "text": "To the Prison."
       },
       {
         "speaker": "mason",
@@ -244,6 +244,10 @@
       {
         "speaker": "mason",
         "text": "You didn't need it. You took it anyway."
+      },
+      {
+        "speaker": "none",
+        "text": "Tall grass hides CryMon. Wren has salve. Bram sells gear up the path. Calder guards the cliff road."
       }
     ],
     "wrenFirst": [
@@ -263,11 +267,11 @@
     "wrenBeat": [
       {
         "speaker": "wren",
-        "text": "You beat him. The Weeping Army still wants more of us."
+        "text": "You beat Calder. I heard about the letter he carried. They know your name."
       },
       {
         "speaker": "max",
-        "text": "Then it can wait."
+        "text": "Then they know I'm coming."
       }
     ],
     "wrenCart": [
@@ -483,7 +487,15 @@
       },
       {
         "speaker": "none",
-        "text": "The camp waits."
+        "text": "A letter slips out of Calder's coat. Weeping Army orders."
+      },
+      {
+        "speaker": "none",
+        "text": "Send the cottage girl to us. We need bodies."
+      },
+      {
+        "speaker": "max",
+        "text": "They already knew my name."
       }
     ],
     "commander": [
@@ -603,7 +615,7 @@
       },
       {
         "speaker": "shinigami",
-        "text": "Take the scroll, then. Legendary Reanimation."
+        "text": "Take the scroll, then. The Scroll of Resurrection."
       },
       {
         "speaker": "shinigami",
@@ -623,7 +635,7 @@
       },
       {
         "speaker": "none",
-        "text": "Her father. The scroll. This is why she came."
+        "text": "Max came here for power. Now the scroll can bring back her father."
       }
     ],
     "shinigamiDone": [
@@ -724,7 +736,7 @@
         "text": "Max unrolls the scroll over her father's still chest."
       },
       {
-        "speaker": "father",
+        "speaker": "none",
         "text": "His eyes open. He doesn't understand yet. Neither does she, not really."
       },
       {
@@ -747,15 +759,15 @@
     "choiceHeavenfall": [
       {
         "speaker": "none",
-        "text": "Max unrolls the scroll over ground no one has dug in a thousand years."
+        "text": "Max unrolls the scroll and speaks Heavenfall's name instead of her father's."
       },
       {
         "speaker": "none",
-        "text": "The sky cracks. Something ancient and enormous opens its eyes."
+        "text": "The runes burn. They point south, past the Priestess, to a grave no one has dug in a thousand years."
       },
       {
         "speaker": "max",
-        "text": "Heavenfall is awake. The Weeping Army doesn't know yet what's coming."
+        "text": "Heavenfall. I'm coming to wake you. The Weeping Army doesn't know yet what's coming."
       }
     ],
     "sentrySpot": [
@@ -1419,7 +1431,7 @@
       },
       {
         "speaker": "lead",
-        "text": "No one leaves Crytown while I stand here."
+        "text": "No one leaves CryTown while I stand here."
       },
       {
         "speaker": "lead",
@@ -1429,15 +1441,27 @@
     "leadWinPlaceholder": [
       {
         "speaker": "none",
-        "text": "Lieutenant Lead falls."
+        "text": "Lieutenant Lead drops to one knee."
+      },
+      {
+        "speaker": "lead",
+        "text": "You don't know what's north of here, girl."
+      },
+      {
+        "speaker": "max",
+        "text": "Then tell me."
+      },
+      {
+        "speaker": "lead",
+        "text": "Nine Generals. Nine cities. And the Weeping King, Nero, in Keter over all of them."
+      },
+      {
+        "speaker": "lead",
+        "text": "Go on. They'll finish what I couldn't."
       },
       {
         "speaker": "none",
-        "text": "Thank you for playing."
-      },
-      {
-        "speaker": "none",
-        "text": "More of the world opens in Leg 3."
+        "text": "The north road to the Sephirot is open."
       }
     ],
     "heavenfallDevour": [
@@ -1544,38 +1568,6 @@
         "text": "The path's open. I'll be at the Reach, if you're still keeping count of favors."
       }
     ],
-    "baseGuardSpotA": [
-      {
-        "speaker": "weepingGuard",
-        "text": "Restricted area. Civilians turn around."
-      },
-      {
-        "speaker": "max",
-        "text": "Not today."
-      },
-      {
-        "speaker": "weepingGuard",
-        "text": "Then you go through me."
-      }
-    ],
-    "baseGuardWinA": [
-      {
-        "speaker": "weepingGuard",
-        "text": "Fine. Go on. The next one will stop you."
-      }
-    ],
-    "baseGuardSpotB": [
-      {
-        "speaker": "weepingGuard",
-        "text": "You got past the door? Not past me."
-      }
-    ],
-    "baseGuardWinB": [
-      {
-        "speaker": "weepingGuard",
-        "text": "The General is through there. You will regret it."
-      }
-    ],
     "royalGuardSpotA": [
       {
         "speaker": "royalGuard",
@@ -1655,399 +1647,399 @@
     "harrowSpot": [
       {
         "speaker": "harrow",
-        "text": "General Harrow. I hold Malkuth. I have held worse towns with fewer men."
+        "text": "General Harrow. I held Malkuth back when it was still worth holding."
       },
       {
         "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "It's still worth holding. Just not by you."
       },
       {
         "speaker": "harrow",
-        "text": "Then show me."
+        "text": "Brave words from a child with one hound. Guards, stay out of this one."
       }
     ],
     "harrowWin": [
       {
         "speaker": "none",
-        "text": "Harrow falls to one knee in the dust."
+        "text": "Harrow sits down hard on the stone floor and laughs once."
       },
       {
         "speaker": "harrow",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "Thirty years a soldier, beaten by a farm girl. Go on, then."
       }
     ],
     "harrowArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "You're coming with me. Malkuth gets to decide what happens to you."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Harrow. The city's people lead the General away."
+        "text": "Max locks the Shackles on Harrow, who holds out both wrists like this was always coming."
       },
       {
         "speaker": "harrow",
-        "text": "...They will hang me anyway."
+        "text": "Fair enough. I'd have done the same."
       }
     ],
     "harrowExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "Malkuth already decided."
       },
       {
         "speaker": "none",
-        "text": "General Harrow does not get up again."
+        "text": "Harrow doesn't flinch. It's over fast."
       }
     ],
     "ashgroveSpot": [
       {
         "speaker": "ashgrove",
-        "text": "General Ashgrove. Yesod belongs to the Weeping Army. So does anyone who walks in here."
+        "text": "General Ashgrove. You shouldn't be in here. Nobody told me you'd be in here."
       },
       {
         "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "Nobody tells you much, do they?"
       },
       {
         "speaker": "ashgrove",
-        "text": "Then show me."
+        "text": "They told me to hold Yesod. So I'm holding it."
       }
     ],
     "ashgroveWin": [
       {
         "speaker": "none",
-        "text": "Ashgrove's hands are shaking."
+        "text": "Ashgrove's hands shake so hard the crystal rattles."
       },
       {
         "speaker": "ashgrove",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "I only signed the orders. I never went out there myself."
       }
     ],
     "ashgroveArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "Then you can explain those orders to Yesod."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Ashgrove. The city's people lead the General away."
+        "text": "The Shackles close. Ashgrove looks relieved it isn't worse."
       },
       {
         "speaker": "ashgrove",
-        "text": "...They will hang me anyway."
+        "text": "Tell them I cooperated. Please."
       }
     ],
     "ashgroveExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "You signed them. That's enough."
       },
       {
         "speaker": "none",
-        "text": "General Ashgrove does not get up again."
+        "text": "Ashgrove never finishes the next word."
       }
     ],
     "stroudSpot": [
       {
         "speaker": "stroud",
-        "text": "General Stroud. I kept prisoners in this base. You will make a fine one."
-      },
-      {
-        "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "General Stroud. Every cell in this base has a name scratched in the wall."
       },
       {
         "speaker": "stroud",
-        "text": "Then show me."
+        "text": "I'll scratch yours in tonight."
+      },
+      {
+        "speaker": "max",
+        "text": "Open the cells, and you can walk out of this room."
       }
     ],
     "stroudWin": [
       {
         "speaker": "none",
-        "text": "Stroud drops the keys to the cells."
+        "text": "Stroud's key ring hits the floor and slides to Max's feet."
       },
       {
         "speaker": "stroud",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "Take them. The cells were full anyway."
       }
     ],
     "stroudArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "You'll get a cell of your own. With your name on the wall."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Stroud. The city's people lead the General away."
+        "text": "Max locks the Shackles on Stroud, then opens every cell in the base."
       },
       {
         "speaker": "stroud",
-        "text": "...They will hang me anyway."
+        "text": "Funny. They look happier than I ever did."
       }
     ],
     "stroudExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "Nobody's scratching your name anywhere."
       },
       {
         "speaker": "none",
-        "text": "General Stroud does not get up again."
+        "text": "Behind the cell doors, the prisoners go quiet."
       }
     ],
     "valeSpot": [
       {
         "speaker": "vale",
-        "text": "General Vale. Hod is quiet because I made it quiet."
+        "text": "General Vale. Hear how quiet Hod is? I did that."
       },
       {
         "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "I heard it from the road. That's why I'm here."
       },
       {
         "speaker": "vale",
-        "text": "Then show me."
+        "text": "Then you'll be quiet too."
       }
     ],
     "valeWin": [
       {
         "speaker": "none",
-        "text": "Vale stops smiling."
+        "text": "For the first time, Vale stops smiling."
       },
       {
         "speaker": "vale",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "Hm. I didn't think you'd make any noise at all."
       }
     ],
     "valeArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "Hod gets to talk again. Starting with what you did."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Vale. The city's people lead the General away."
+        "text": "The Shackles click. Somewhere outside, somebody starts to sing."
       },
       {
         "speaker": "vale",
-        "text": "...They will hang me anyway."
+        "text": "Let them. It won't last."
       }
     ],
     "valeExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "Quiet. Like you wanted."
       },
       {
         "speaker": "none",
-        "text": "General Vale does not get up again."
+        "text": "Vale makes no sound at all."
       }
     ],
     "kesslerSpot": [
       {
         "speaker": "kessler",
-        "text": "General Kessler. Tiferet burned once. I can light it again."
+        "text": "General Kessler. Tiferet burned once. Smell that? I kept a little of it going."
       },
       {
         "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "I could smell it from the road."
       },
       {
         "speaker": "kessler",
-        "text": "Then show me."
+        "text": "Good. Then you know what I do to people who argue."
       }
     ],
     "kesslerWin": [
       {
         "speaker": "none",
-        "text": "Kessler's torches gutter out."
+        "text": "Kessler's torches gutter out one by one."
       },
       {
         "speaker": "kessler",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "Fire always goes out eventually. Didn't think it would be mine."
       }
     ],
     "kesslerArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "You'll stand trial in the square you burned."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Kessler. The city's people lead the General away."
+        "text": "Max locks the Shackles on Kessler and kicks the last torch into a water trough."
       },
       {
         "speaker": "kessler",
-        "text": "...They will hang me anyway."
+        "text": "They'll want to burn me. I would."
       }
     ],
     "kesslerExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "No more fires."
       },
       {
         "speaker": "none",
-        "text": "General Kessler does not get up again."
+        "text": "The last torch hisses out with Kessler."
       }
     ],
     "morrowSpot": [
       {
         "speaker": "morrow",
-        "text": "General Morrow. Chesed's water is mine. Its people drink when I say."
+        "text": "General Morrow. Chesed drinks when I open the gates. Not before."
       },
       {
         "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "Then I'll open them myself."
       },
       {
         "speaker": "morrow",
-        "text": "Then show me."
+        "text": "The key's on my belt. Come and take it."
       }
     ],
     "morrowWin": [
       {
         "speaker": "none",
-        "text": "Morrow looks at the floor."
+        "text": "Morrow stares at the floor. Water starts running under the gate."
       },
       {
         "speaker": "morrow",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "They'll drink today. Tomorrow somebody else will own the gate."
       }
     ],
     "morrowArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "Not if Chesed keeps the key."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Morrow. The city's people lead the General away."
+        "text": "Max locks the Shackles on Morrow and throws the gate key to the crowd outside."
       },
       {
         "speaker": "morrow",
-        "text": "...They will hang me anyway."
+        "text": "Clever. They'll be fighting over it by morning."
       }
     ],
     "morrowExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "Nobody owns the water now."
       },
       {
         "speaker": "none",
-        "text": "General Morrow does not get up again."
+        "text": "Morrow slides down against the gate and stays there."
       }
     ],
     "craneSpot": [
       {
         "speaker": "crane",
-        "text": "General Crane. I watch this whole country from the sky. I saw you coming."
+        "text": "General Crane. My birds saw you leave CryTown. They've watched every step since."
       },
       {
         "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "Then they watched me win."
       },
       {
         "speaker": "crane",
-        "text": "Then show me."
+        "text": "They watched you get lucky. Watch this."
       }
     ],
     "craneWin": [
       {
         "speaker": "none",
-        "text": "Crane's birds scatter."
+        "text": "Crane's birds scatter out the high windows."
       },
       {
         "speaker": "crane",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "Even they know when to leave."
       }
     ],
     "craneArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "You watched everyone. Now everyone gets to watch you."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Crane. The city's people lead the General away."
+        "text": "The Shackles close. One bird lands on Crane's shoulder and won't leave."
       },
       {
         "speaker": "crane",
-        "text": "...They will hang me anyway."
+        "text": "Loyal to the end. More than my soldiers were."
       }
     ],
     "craneExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "Nobody's watching anymore."
       },
       {
         "speaker": "none",
-        "text": "General Crane does not get up again."
+        "text": "The last bird flies off alone."
       }
     ],
     "blackwoodSpot": [
       {
         "speaker": "blackwood",
-        "text": "General Blackwood. Binah was a garrison before it was a city. It will be one again."
+        "text": "General Blackwood. Binah was a garrison before it was a city. It'll be one again."
       },
       {
         "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "It's a city. It stays one."
       },
       {
         "speaker": "blackwood",
-        "text": "Then show me."
+        "text": "Soldier's talk. Let's see you back it up."
       }
     ],
     "blackwoodWin": [
       {
         "speaker": "none",
-        "text": "Blackwood tears off a sleeve patch and throws it down."
+        "text": "Blackwood tears the patch off one sleeve and drops it."
       },
       {
         "speaker": "blackwood",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "I served three kings. Not one of them was worth this."
       }
     ],
     "blackwoodArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "Then you can tell a court all about them."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Blackwood. The city's people lead the General away."
+        "text": "Max locks the Shackles on Blackwood, who straightens up like it's a parade."
       },
       {
         "speaker": "blackwood",
-        "text": "...They will hang me anyway."
+        "text": "Walk me out, then. I'll keep in step."
       }
     ],
     "blackwoodExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "No fourth king."
       },
       {
         "speaker": "none",
-        "text": "General Blackwood does not get up again."
+        "text": "Blackwood falls at attention."
       }
     ],
     "sorrelSpot": [
       {
         "speaker": "sorrel",
-        "text": "General Sorrel. I am the last wall between you and the King. I do not break."
+        "text": "General Sorrel. I am the last wall between you and the King."
       },
       {
         "speaker": "max",
-        "text": "Your war is over. Starting here."
+        "text": "Eight walls came down before you."
       },
       {
         "speaker": "sorrel",
-        "text": "Then show me."
+        "text": "They were soldiers. I am his friend. I do not break."
       }
     ],
     "sorrelWin": [
@@ -2057,31 +2049,31 @@
       },
       {
         "speaker": "sorrel",
-        "text": "Do it, then. Whatever you are going to do."
+        "text": "He trusted me with this door. Don't make him watch what you do to me."
       }
     ],
     "sorrelArrest": [
       {
         "speaker": "max",
-        "text": "You're under arrest. You will answer for what you did here."
+        "text": "He'll see you at the trial. You can tell him yourself."
       },
       {
         "speaker": "none",
-        "text": "Max locks the Shackles on General Sorrel. The city's people lead the General away."
+        "text": "Max locks the Shackles on Sorrel. On the desk behind the General sits a second pair, made of gold."
       },
       {
         "speaker": "sorrel",
-        "text": "...They will hang me anyway."
+        "text": "Those are for him. Be careful with them."
       }
     ],
     "sorrelExecute": [
       {
         "speaker": "max",
-        "text": "No trial. Not for you."
+        "text": "Tell him yourself. Soon."
       },
       {
         "speaker": "none",
-        "text": "General Sorrel does not get up again."
+        "text": "Sorrel falls across the door that was supposed to hold."
       }
     ],
     "neroSpot": [
@@ -2164,6 +2156,10 @@
     ],
     "fatherProud": [
       {
+        "speaker": "none",
+        "text": "When it is all over, Max walks home to CryTown. Father is waiting on the step."
+      },
+      {
         "speaker": "father",
         "text": "You chained him. You didn't kill him."
       },
@@ -2173,6 +2169,10 @@
       }
     ],
     "fatherSacrifice": [
+      {
+        "speaker": "none",
+        "text": "When it is all over, Max walks home to CryTown. Father is waiting on the step."
+      },
       {
         "speaker": "father",
         "text": "I heard what you did on the road here. I know the kind of fighter you became."
@@ -2184,6 +2184,10 @@
     ],
     "fatherMonster": [
       {
+        "speaker": "none",
+        "text": "When it is all over, Max walks home to CryTown. Father is waiting on the step."
+      },
+      {
         "speaker": "father",
         "text": "You killed him. You killed a beaten man and put on his crown."
       },
@@ -2193,7 +2197,7 @@
       },
       {
         "speaker": "none",
-        "text": "Father walks away and does not look back."
+        "text": "Father walks out of CryTown and does not look back."
       },
       {
         "speaker": "none",
@@ -2264,6 +2268,288 @@
       {
         "speaker": "none",
         "text": "The songs they sing about her later call her Max The Bloody."
+      }
+    ],
+    "gauntletGraveEmpty": [
+      {
+        "speaker": "none",
+        "text": "The grave is open and empty. Nothing is left down there to wake."
+      }
+    ],
+    "priestessSpent": [
+      {
+        "speaker": "heavenfallPriestess",
+        "text": "You carried the Scroll of Resurrection once. I can smell it on you."
+      },
+      {
+        "speaker": "heavenfallPriestess",
+        "text": "You spent it on a man. The gauntlet is closed to you. Begone."
+      }
+    ],
+    "leadNotYet": [
+      {
+        "speaker": "lead",
+        "text": "Halt. Lieutenant Lead, Weeping Army."
+      },
+      {
+        "speaker": "lead",
+        "text": "The north road stays shut while the Prison still holds its necromancer. Orders."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll deal with the Prison first."
+      }
+    ],
+    "guardMalkuthSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Malkuth base. Turn around, kid. This is soldier business."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm making it my business."
+      }
+    ],
+    "guardMalkuthWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Fine. Harrow's up the hall. Tell the old man I tried."
+      }
+    ],
+    "guardMalkuthSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Hey! How'd you get past Pell?"
+      }
+    ],
+    "guardMalkuthWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Harrow's going to take my stripes for this."
+      }
+    ],
+    "guardYesodSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Yesod base. Papers. You got papers?"
+      },
+      {
+        "speaker": "max",
+        "text": "I've got a CryMon."
+      }
+    ],
+    "guardYesodWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "That's... not papers. Go on."
+      }
+    ],
+    "guardYesodSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Ashgrove said nobody gets through. Ashgrove says a lot of things."
+      }
+    ],
+    "guardYesodWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Don't tell Ashgrove it was me."
+      }
+    ],
+    "guardNetzachSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "You smell like the road. Prisoners come in the back door."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm not a prisoner."
+      }
+    ],
+    "guardNetzachWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Not yet. Stroud's got plenty of room."
+      }
+    ],
+    "guardNetzachSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Keys stay with Stroud. You don't get past me for them."
+      }
+    ],
+    "guardNetzachWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Take the keys. Let them all out. I don't care anymore."
+      }
+    ],
+    "guardHodSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Shh. Vale likes it quiet in here."
+      },
+      {
+        "speaker": "max",
+        "text": "Then this is going to be loud."
+      }
+    ],
+    "guardHodWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "...You're going to wake the whole city."
+      }
+    ],
+    "guardHodSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "No talking in the hall. Vale's rule."
+      }
+    ],
+    "guardHodWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Go. Before Vale hears me losing."
+      }
+    ],
+    "guardTiferetSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Careful. The floor's still warm from the last fire."
+      },
+      {
+        "speaker": "max",
+        "text": "Then stand still and I won't push you onto it."
+      }
+    ],
+    "guardTiferetWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Kessler's through there. Bring water."
+      }
+    ],
+    "guardTiferetSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "You're the one burning through our bases? Not this one."
+      }
+    ],
+    "guardTiferetWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Tell Kessler the fire went out. It's true."
+      }
+    ],
+    "guardChesedSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "You want water, you wait in line with the rest."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm not here for water."
+      }
+    ],
+    "guardChesedWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Morrow's got the key. Morrow's always got the key."
+      }
+    ],
+    "guardChesedSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Gate's locked. General's orders."
+      }
+    ],
+    "guardChesedWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Fine. Open it. My family's out there too."
+      }
+    ],
+    "guardGevurahSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "The birds said you were coming. I didn't believe them."
+      },
+      {
+        "speaker": "max",
+        "text": "Believe them now."
+      }
+    ],
+    "guardGevurahWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Crane's up top. The birds will tell him I lost."
+      }
+    ],
+    "guardGevurahSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Look up. Crane sees everything you do."
+      }
+    ],
+    "guardGevurahWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Guess Crane saw that too."
+      }
+    ],
+    "guardBinahSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Halt. Binah garrison. State your unit."
+      },
+      {
+        "speaker": "max",
+        "text": "CryTown. Unit of one."
+      }
+    ],
+    "guardBinahWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Unit of one. Blackwood will like that."
+      }
+    ],
+    "guardBinahSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Blackwood trained me himself. You won't get past."
+      }
+    ],
+    "guardBinahWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "He trained me to lose with my head up. So I will."
+      }
+    ],
+    "guardChokmahSpotA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Nobody reaches the King. That's the whole point of Chokmah."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm not trying to reach him. Yet."
+      }
+    ],
+    "guardChokmahWinA": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Sorrel won't move. Nobody's ever moved Sorrel."
+      }
+    ],
+    "guardChokmahSpotB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Last door before the King. Last chance to walk away."
+      }
+    ],
+    "guardChokmahWinB": [
+      {
+        "speaker": "weepingGuard",
+        "text": "Sorrel's through there. Good luck. You'll need more than luck."
       }
     ]
   },

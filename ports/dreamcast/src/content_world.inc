@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=9b413a9ca13a4136 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=7061db22760f4246 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -155,23 +155,23 @@ static const WarpDef WARPS[] = {
     { MAP_BINAH, MAP_BETH, 'D', '2', 3, 0, 0, -1 },
     { MAP_MALKUTH, MAP_BASEMALKUTH, 'b', 'D', 1, 0, 0, -1 },
     { MAP_BASEMALKUTH, MAP_MALKUTH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_YESOD, MAP_BASEYESOD, 'b', 'D', 1, 1084, 0, 144 },
+    { MAP_YESOD, MAP_BASEYESOD, 'b', 'D', 1, 1084, 0, 140 },
     { MAP_BASEYESOD, MAP_YESOD, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_NETZACH, MAP_BASENETZACH, 'b', 'D', 1, 1085, 0, 144 },
+    { MAP_NETZACH, MAP_BASENETZACH, 'b', 'D', 1, 1085, 0, 140 },
     { MAP_BASENETZACH, MAP_NETZACH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_HOD, MAP_BASEHOD, 'b', 'D', 1, 1086, 0, 144 },
+    { MAP_HOD, MAP_BASEHOD, 'b', 'D', 1, 1086, 0, 140 },
     { MAP_BASEHOD, MAP_HOD, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_TIFERET, MAP_BASETIFERET, 'b', 'D', 1, 1087, 0, 144 },
+    { MAP_TIFERET, MAP_BASETIFERET, 'b', 'D', 1, 1087, 0, 140 },
     { MAP_BASETIFERET, MAP_TIFERET, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_CHESED, MAP_BASECHESED, 'b', 'D', 1, 1088, 0, 144 },
+    { MAP_CHESED, MAP_BASECHESED, 'b', 'D', 1, 1088, 0, 140 },
     { MAP_BASECHESED, MAP_CHESED, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_GEVURAH, MAP_BASEGEVURAH, 'b', 'D', 1, 1089, 0, 144 },
+    { MAP_GEVURAH, MAP_BASEGEVURAH, 'b', 'D', 1, 1089, 0, 140 },
     { MAP_BASEGEVURAH, MAP_GEVURAH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_BINAH, MAP_BASEBINAH, 'b', 'D', 1, 1090, 0, 144 },
+    { MAP_BINAH, MAP_BASEBINAH, 'b', 'D', 1, 1090, 0, 140 },
     { MAP_BASEBINAH, MAP_BINAH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_CHOKMAH, MAP_BASECHOKMAH, 'b', 'D', 1, 1091, 0, 144 },
+    { MAP_CHOKMAH, MAP_BASECHOKMAH, 'b', 'D', 1, 1091, 0, 140 },
     { MAP_BASECHOKMAH, MAP_CHOKMAH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_KETER, MAP_PALACEKETER, 'b', 'D', 1, 1104, 0, 145 },
+    { MAP_KETER, MAP_PALACEKETER, 'b', 'D', 1, 1104, 0, 141 },
     { MAP_PALACEKETER, MAP_KETER, 'D', 'b', 0, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
@@ -632,65 +632,65 @@ static const NpcStep NPC_STEPS[] = {
     { 17, -1, 29, 29, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 135, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, 29, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, 66, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 100, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 196, -1, -1, 7, 100, 0, 0, -1 },
     { -1, -1, 67, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 101, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 198, -1, -1, 7, 101, 0, 0, -1 },
     { -1, -1, 84, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 148, -1, -1, 7, 102, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 144, -1, -1, 7, 102, 0, 0, -1 },
     { -1, -1, 68, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 103, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 200, -1, -1, 7, 103, 0, 0, -1 },
     { -1, -1, 69, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 104, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 202, -1, -1, 7, 104, 0, 0, -1 },
     { -1, -1, 85, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 152, -1, -1, 7, 105, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 148, -1, -1, 7, 105, 0, 0, -1 },
     { -1, -1, 70, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 106, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 204, -1, -1, 7, 106, 0, 0, -1 },
     { -1, -1, 71, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 107, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 206, -1, -1, 7, 107, 0, 0, -1 },
     { -1, -1, 86, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 156, -1, -1, 7, 108, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 152, -1, -1, 7, 108, 0, 0, -1 },
     { -1, -1, 72, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 109, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 208, -1, -1, 7, 109, 0, 0, -1 },
     { -1, -1, 73, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 110, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 210, -1, -1, 7, 110, 0, 0, -1 },
     { -1, -1, 87, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 160, -1, -1, 7, 111, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 156, -1, -1, 7, 111, 0, 0, -1 },
     { -1, -1, 74, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 112, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 212, -1, -1, 7, 112, 0, 0, -1 },
     { -1, -1, 75, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 113, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 214, -1, -1, 7, 113, 0, 0, -1 },
     { -1, -1, 88, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 164, -1, -1, 7, 114, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 160, -1, -1, 7, 114, 0, 0, -1 },
     { -1, -1, 76, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 115, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 216, -1, -1, 7, 115, 0, 0, -1 },
     { -1, -1, 77, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 116, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 218, -1, -1, 7, 116, 0, 0, -1 },
     { -1, -1, 89, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 168, -1, -1, 7, 117, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 164, -1, -1, 7, 117, 0, 0, -1 },
     { -1, -1, 78, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 118, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 220, -1, -1, 7, 118, 0, 0, -1 },
     { -1, -1, 79, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 119, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 222, -1, -1, 7, 119, 0, 0, -1 },
     { -1, -1, 90, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 172, -1, -1, 7, 120, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 168, -1, -1, 7, 120, 0, 0, -1 },
     { -1, -1, 80, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 121, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 224, -1, -1, 7, 121, 0, 0, -1 },
     { -1, -1, 81, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 122, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 226, -1, -1, 7, 122, 0, 0, -1 },
     { -1, -1, 91, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 176, -1, -1, 7, 123, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 172, -1, -1, 7, 123, 0, 0, -1 },
     { -1, -1, 82, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 124, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 228, -1, -1, 7, 124, 0, 0, -1 },
     { -1, -1, 83, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 125, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 230, -1, -1, 7, 125, 0, 0, -1 },
     { -1, -1, 92, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 180, -1, -1, 7, 126, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 176, -1, -1, 7, 126, 0, 0, -1 },
     { -1, -1, 102, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 140, -1, -1, 7, 127, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 127, 0, 0, -1 },
     { -1, -1, 103, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 142, -1, -1, 7, 128, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 128, 0, 0, -1 },
     { -1, -1, 105, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 184, -1, -1, 7, 129, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 180, -1, -1, 7, 129, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -783,50 +783,50 @@ static const NpcDef NPC_DEFS[] = {
 /* sprite: 0 base guard, 1 royal guard, 2..10 Generals, 11 Nero, 12 none */
 typedef struct { int kit, kind, gen, set_flag, win_talk, marks, sprite; const char *title; } Leg3Post;
 static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {
-    { 16, 0, 0, FLAG_BEAT_BASE_MALKUTH_A, 137, 14, 0, "BASE GUARD SENDS SPARKIT" }, /* baseMalkuthA */
-    { 17, 0, 0, FLAG_BEAT_BASE_MALKUTH_B, 139, 14, 0, "BASE GUARD SENDS PIPSPROUT" }, /* baseMalkuthB */
-    { 18, 1, 0, FLAG_MEDAL_BRONZE_STAR, 149, 30, 2, "GENERAL HARROW SENDS TUNNELER" }, /* generalHarrow */
-    { 19, 0, 1, FLAG_BEAT_BASE_YESOD_A, 137, 16, 0, "BASE GUARD SENDS SOOTTICK" }, /* baseYesodA */
-    { 20, 0, 1, FLAG_BEAT_BASE_YESOD_B, 139, 16, 0, "BASE GUARD SENDS SPARKFLY" }, /* baseYesodB */
-    { 21, 1, 1, FLAG_MEDAL_PURPLE_HEART, 153, 35, 3, "GENERAL ASHGROVE SENDS ARCWASP" }, /* generalAshgrove */
-    { 22, 0, 2, FLAG_BEAT_BASE_NETZACH_A, 137, 18, 0, "BASE GUARD SENDS MOONCALF" }, /* baseNetzachA */
-    { 23, 0, 2, FLAG_BEAT_BASE_NETZACH_B, 139, 18, 0, "BASE GUARD SENDS CARDKIN" }, /* baseNetzachB */
-    { 24, 1, 2, FLAG_MEDAL_POW_MEDAL, 157, 40, 4, "GENERAL STROUD SENDS FATEWEAVER" }, /* generalStroud */
-    { 25, 0, 3, FLAG_BEAT_BASE_HOD_A, 137, 20, 0, "BASE GUARD SENDS SNOWBELL" }, /* baseHodA */
-    { 26, 0, 3, FLAG_BEAT_BASE_HOD_B, 139, 20, 0, "BASE GUARD SENDS TALLOWISP" }, /* baseHodB */
-    { 27, 1, 3, FLAG_MEDAL_SILVER_STAR, 161, 45, 5, "GENERAL VALE SENDS GLOOMSPIDER" }, /* generalVale */
-    { 28, 0, 4, FLAG_BEAT_BASE_TIFERET_A, 137, 22, 0, "BASE GUARD SENDS DAWNCHICK" }, /* baseTiferetA */
-    { 29, 0, 4, FLAG_BEAT_BASE_TIFERET_B, 139, 22, 0, "BASE GUARD SENDS MOTLEY" }, /* baseTiferetB */
-    { 30, 1, 4, FLAG_MEDAL_GOLD_STAR, 165, 50, 6, "GENERAL KESSLER SENDS HORNBLAZE" }, /* generalKessler */
-    { 31, 0, 5, FLAG_BEAT_BASE_CHESED_A, 137, 24, 0, "BASE GUARD SENDS ATLASHELL" }, /* baseChesedA */
-    { 32, 0, 5, FLAG_BEAT_BASE_CHESED_B, 139, 24, 0, "BASE GUARD SENDS TIDEWOLF" }, /* baseChesedB */
-    { 33, 1, 5, FLAG_MEDAL_LEGION_OF_MERIT, 169, 55, 7, "GENERAL MORROW SENDS FLOECLAW" }, /* generalMorrow */
-    { 34, 0, 6, FLAG_BEAT_BASE_GEVURAH_A, 137, 26, 0, "BASE GUARD SENDS WHEELHOG" }, /* baseGevurahA */
-    { 35, 0, 6, FLAG_BEAT_BASE_GEVURAH_B, 139, 26, 0, "BASE GUARD SENDS BLAZELYNX" }, /* baseGevurahB */
-    { 36, 1, 6, FLAG_MEDAL_FLYING_CROSS, 173, 60, 8, "GENERAL CRANE SENDS GRANDROC" }, /* generalCrane */
-    { 37, 0, 7, FLAG_BEAT_BASE_BINAH_A, 137, 28, 0, "BASE GUARD SENDS GEMINAL" }, /* baseBinahA */
-    { 38, 0, 7, FLAG_BEAT_BASE_BINAH_B, 139, 28, 0, "BASE GUARD SENDS FLOECLAW" }, /* baseBinahB */
-    { 39, 1, 7, FLAG_MEDAL_SERVICE_CROSS, 177, 65, 9, "GENERAL BLACKWOOD SENDS ROOTKING" }, /* generalBlackwood */
-    { 40, 0, 8, FLAG_BEAT_BASE_CHOKMAH_A, 137, 30, 0, "BASE GUARD SENDS KESTRAIL" }, /* baseChokmahA */
-    { 41, 0, 8, FLAG_BEAT_BASE_CHOKMAH_B, 139, 30, 0, "BASE GUARD SENDS GLACIERJAW" }, /* baseChokmahB */
-    { 42, 1, 8, FLAG_MEDAL_OF_HONOR, 181, 70, 10, "GENERAL SORREL SENDS ECLIPSAUR" }, /* generalSorrel */
-    { 43, 0, -1, FLAG_BEAT_PALACE_GUARD_A, 141, 34, 1, "ROYAL GUARD SENDS CRAGSAGE" }, /* palaceGuardA */
-    { 44, 0, -1, FLAG_BEAT_PALACE_GUARD_B, 143, 36, 1, "ROYAL GUARD SENDS MAGISTOWL" }, /* palaceGuardB */
-    { 45, 2, -1, FLAG_BEAT_NERO, 185, 80, 11, "WEEPING KING NERO SENDS DEATHKNELL" }, /* nero */
-    { 46, 3, -1, FLAG_TITLE_GODSLAYER, 195, 0, 12, "HEAVENFALL TURNS ON YOU" }, /* heavenfallFinal */
+    { 16, 0, 0, FLAG_BEAT_BASE_MALKUTH_A, 197, 14, 0, "BASE GUARD SENDS SPARKIT" }, /* baseMalkuthA */
+    { 17, 0, 0, FLAG_BEAT_BASE_MALKUTH_B, 199, 14, 0, "BASE GUARD SENDS PIPSPROUT" }, /* baseMalkuthB */
+    { 18, 1, 0, FLAG_MEDAL_BRONZE_STAR, 145, 30, 2, "GENERAL HARROW SENDS TUNNELER" }, /* generalHarrow */
+    { 19, 0, 1, FLAG_BEAT_BASE_YESOD_A, 201, 16, 0, "BASE GUARD SENDS SOOTTICK" }, /* baseYesodA */
+    { 20, 0, 1, FLAG_BEAT_BASE_YESOD_B, 203, 16, 0, "BASE GUARD SENDS SPARKFLY" }, /* baseYesodB */
+    { 21, 1, 1, FLAG_MEDAL_PURPLE_HEART, 149, 35, 3, "GENERAL ASHGROVE SENDS ARCWASP" }, /* generalAshgrove */
+    { 22, 0, 2, FLAG_BEAT_BASE_NETZACH_A, 205, 18, 0, "BASE GUARD SENDS MOONCALF" }, /* baseNetzachA */
+    { 23, 0, 2, FLAG_BEAT_BASE_NETZACH_B, 207, 18, 0, "BASE GUARD SENDS CARDKIN" }, /* baseNetzachB */
+    { 24, 1, 2, FLAG_MEDAL_POW_MEDAL, 153, 40, 4, "GENERAL STROUD SENDS FATEWEAVER" }, /* generalStroud */
+    { 25, 0, 3, FLAG_BEAT_BASE_HOD_A, 209, 20, 0, "BASE GUARD SENDS SNOWBELL" }, /* baseHodA */
+    { 26, 0, 3, FLAG_BEAT_BASE_HOD_B, 211, 20, 0, "BASE GUARD SENDS TALLOWISP" }, /* baseHodB */
+    { 27, 1, 3, FLAG_MEDAL_SILVER_STAR, 157, 45, 5, "GENERAL VALE SENDS GLOOMSPIDER" }, /* generalVale */
+    { 28, 0, 4, FLAG_BEAT_BASE_TIFERET_A, 213, 22, 0, "BASE GUARD SENDS DAWNCHICK" }, /* baseTiferetA */
+    { 29, 0, 4, FLAG_BEAT_BASE_TIFERET_B, 215, 22, 0, "BASE GUARD SENDS MOTLEY" }, /* baseTiferetB */
+    { 30, 1, 4, FLAG_MEDAL_GOLD_STAR, 161, 50, 6, "GENERAL KESSLER SENDS HORNBLAZE" }, /* generalKessler */
+    { 31, 0, 5, FLAG_BEAT_BASE_CHESED_A, 217, 24, 0, "BASE GUARD SENDS ATLASHELL" }, /* baseChesedA */
+    { 32, 0, 5, FLAG_BEAT_BASE_CHESED_B, 219, 24, 0, "BASE GUARD SENDS TIDEWOLF" }, /* baseChesedB */
+    { 33, 1, 5, FLAG_MEDAL_LEGION_OF_MERIT, 165, 55, 7, "GENERAL MORROW SENDS FLOECLAW" }, /* generalMorrow */
+    { 34, 0, 6, FLAG_BEAT_BASE_GEVURAH_A, 221, 26, 0, "BASE GUARD SENDS WHEELHOG" }, /* baseGevurahA */
+    { 35, 0, 6, FLAG_BEAT_BASE_GEVURAH_B, 223, 26, 0, "BASE GUARD SENDS BLAZELYNX" }, /* baseGevurahB */
+    { 36, 1, 6, FLAG_MEDAL_FLYING_CROSS, 169, 60, 8, "GENERAL CRANE SENDS GRANDROC" }, /* generalCrane */
+    { 37, 0, 7, FLAG_BEAT_BASE_BINAH_A, 225, 28, 0, "BASE GUARD SENDS GEMINAL" }, /* baseBinahA */
+    { 38, 0, 7, FLAG_BEAT_BASE_BINAH_B, 227, 28, 0, "BASE GUARD SENDS FLOECLAW" }, /* baseBinahB */
+    { 39, 1, 7, FLAG_MEDAL_SERVICE_CROSS, 173, 65, 9, "GENERAL BLACKWOOD SENDS ROOTKING" }, /* generalBlackwood */
+    { 40, 0, 8, FLAG_BEAT_BASE_CHOKMAH_A, 229, 30, 0, "BASE GUARD SENDS KESTRAIL" }, /* baseChokmahA */
+    { 41, 0, 8, FLAG_BEAT_BASE_CHOKMAH_B, 231, 30, 0, "BASE GUARD SENDS GLACIERJAW" }, /* baseChokmahB */
+    { 42, 1, 8, FLAG_MEDAL_OF_HONOR, 177, 70, 10, "GENERAL SORREL SENDS ECLIPSAUR" }, /* generalSorrel */
+    { 43, 0, -1, FLAG_BEAT_PALACE_GUARD_A, 137, 34, 1, "ROYAL GUARD SENDS CRAGSAGE" }, /* palaceGuardA */
+    { 44, 0, -1, FLAG_BEAT_PALACE_GUARD_B, 139, 36, 1, "ROYAL GUARD SENDS MAGISTOWL" }, /* palaceGuardB */
+    { 45, 2, -1, FLAG_BEAT_NERO, 181, 80, 11, "WEEPING KING NERO SENDS DEATHKNELL" }, /* nero */
+    { 46, 3, -1, FLAG_TITLE_GODSLAYER, 191, 0, 12, "HEAVENFALL TURNS ON YOU" }, /* heavenfallFinal */
 };
 #define LEG3_GEN_N 9
 typedef struct { int medal_flag, arrested_flag, talk_arrest, talk_execute; const char *medal, *name; } Leg3Gen;
 static const Leg3Gen LEG3_GENS[LEG3_GEN_N] = {
-    { FLAG_MEDAL_BRONZE_STAR, FLAG_ARRESTED_HARROW, 150, 151, "BRONZE STAR", "GENERAL HARROW" },
-    { FLAG_MEDAL_PURPLE_HEART, FLAG_ARRESTED_ASHGROVE, 154, 155, "PURPLE HEART", "GENERAL ASHGROVE" },
-    { FLAG_MEDAL_POW_MEDAL, FLAG_ARRESTED_STROUD, 158, 159, "PRISONER OF WAR MEDAL", "GENERAL STROUD" },
-    { FLAG_MEDAL_SILVER_STAR, FLAG_ARRESTED_VALE, 162, 163, "SILVER STAR", "GENERAL VALE" },
-    { FLAG_MEDAL_GOLD_STAR, FLAG_ARRESTED_KESSLER, 166, 167, "GOLD STAR", "GENERAL KESSLER" },
-    { FLAG_MEDAL_LEGION_OF_MERIT, FLAG_ARRESTED_MORROW, 170, 171, "LEGION OF MERIT", "GENERAL MORROW" },
-    { FLAG_MEDAL_FLYING_CROSS, FLAG_ARRESTED_CRANE, 174, 175, "DISTINGUISHED FLYING CROSS", "GENERAL CRANE" },
-    { FLAG_MEDAL_SERVICE_CROSS, FLAG_ARRESTED_BLACKWOOD, 178, 179, "DISTINGUISHED SERVICE CROSS", "GENERAL BLACKWOOD" },
-    { FLAG_MEDAL_OF_HONOR, FLAG_ARRESTED_SORREL, 182, 183, "MEDAL OF HONOR", "GENERAL SORREL" },
+    { FLAG_MEDAL_BRONZE_STAR, FLAG_ARRESTED_HARROW, 146, 147, "BRONZE STAR", "GENERAL HARROW" },
+    { FLAG_MEDAL_PURPLE_HEART, FLAG_ARRESTED_ASHGROVE, 150, 151, "PURPLE HEART", "GENERAL ASHGROVE" },
+    { FLAG_MEDAL_POW_MEDAL, FLAG_ARRESTED_STROUD, 154, 155, "PRISONER OF WAR MEDAL", "GENERAL STROUD" },
+    { FLAG_MEDAL_SILVER_STAR, FLAG_ARRESTED_VALE, 158, 159, "SILVER STAR", "GENERAL VALE" },
+    { FLAG_MEDAL_GOLD_STAR, FLAG_ARRESTED_KESSLER, 162, 163, "GOLD STAR", "GENERAL KESSLER" },
+    { FLAG_MEDAL_LEGION_OF_MERIT, FLAG_ARRESTED_MORROW, 166, 167, "LEGION OF MERIT", "GENERAL MORROW" },
+    { FLAG_MEDAL_FLYING_CROSS, FLAG_ARRESTED_CRANE, 170, 171, "DISTINGUISHED FLYING CROSS", "GENERAL CRANE" },
+    { FLAG_MEDAL_SERVICE_CROSS, FLAG_ARRESTED_BLACKWOOD, 174, 175, "DISTINGUISHED SERVICE CROSS", "GENERAL BLACKWOOD" },
+    { FLAG_MEDAL_OF_HONOR, FLAG_ARRESTED_SORREL, 178, 179, "MEDAL OF HONOR", "GENERAL SORREL" },
 };
 #define LEG3_FLAG_N 46
 static const int LEG3_FLAG_ID[LEG3_FLAG_N] = { FLAG_BEAT_BASE_MALKUTH_A, FLAG_BEAT_BASE_MALKUTH_B, FLAG_MEDAL_BRONZE_STAR, FLAG_ARRESTED_HARROW, FLAG_BEAT_BASE_YESOD_A, FLAG_BEAT_BASE_YESOD_B, FLAG_MEDAL_PURPLE_HEART, FLAG_ARRESTED_ASHGROVE, FLAG_BEAT_BASE_NETZACH_A, FLAG_BEAT_BASE_NETZACH_B, FLAG_MEDAL_POW_MEDAL, FLAG_ARRESTED_STROUD, FLAG_BEAT_BASE_HOD_A, FLAG_BEAT_BASE_HOD_B, FLAG_MEDAL_SILVER_STAR, FLAG_ARRESTED_VALE, FLAG_BEAT_BASE_TIFERET_A, FLAG_BEAT_BASE_TIFERET_B, FLAG_MEDAL_GOLD_STAR, FLAG_ARRESTED_KESSLER, FLAG_BEAT_BASE_CHESED_A, FLAG_BEAT_BASE_CHESED_B, FLAG_MEDAL_LEGION_OF_MERIT, FLAG_ARRESTED_MORROW, FLAG_BEAT_BASE_GEVURAH_A, FLAG_BEAT_BASE_GEVURAH_B, FLAG_MEDAL_FLYING_CROSS, FLAG_ARRESTED_CRANE, FLAG_BEAT_BASE_BINAH_A, FLAG_BEAT_BASE_BINAH_B, FLAG_MEDAL_SERVICE_CROSS, FLAG_ARRESTED_BLACKWOOD, FLAG_BEAT_BASE_CHOKMAH_A, FLAG_BEAT_BASE_CHOKMAH_B, FLAG_MEDAL_OF_HONOR, FLAG_ARRESTED_SORREL, FLAG_BEAT_PALACE_GUARD_A, FLAG_BEAT_PALACE_GUARD_B, FLAG_HAS_GOLDEN_SHACKLES, FLAG_BEAT_NERO, FLAG_NERO_TRIED, FLAG_TITLE_KINGSLAYER, FLAG_FATHER_ABANDONED, FLAG_TITLE_GODSLAYER, FLAG_TITLE_BLOODY, FLAG_LEG3_ENDED };
@@ -839,19 +839,19 @@ static const int LEG3_SAVE_ID[LEG3_FLAG_N] = { 64, 65, 82, 91, 66, 67, 83, 92, 6
 #define LEG3_F_TITLE_GODSLAYER 43
 #define LEG3_F_TITLE_BLOODY 44
 #define LEG3_F_LEG3_ENDED 45
-#define LEG3_TALK_GOLDEN_SHACKLES_GET 146
-#define LEG3_TALK_GENERAL_ARREST_NO_SHACKLES 147
-#define LEG3_TALK_NERO_TRIAL 186
-#define LEG3_TALK_NERO_EXECUTE 187
-#define LEG3_TALK_NERO_CROWNED 188
-#define LEG3_TALK_FATHER_PROUD 189
-#define LEG3_TALK_FATHER_SACRIFICE 190
-#define LEG3_TALK_FATHER_MONSTER 191
-#define LEG3_TALK_HF_END_NONE 192
-#define LEG3_TALK_HF_END_TAMED 193
-#define LEG3_TALK_HF_END_HOSTILE 194
-#define LEG3_TALK_HF_END_GODSLAYER 195
-#define LEG3_TALK_HF_END_BLOODY 196
+#define LEG3_TALK_GOLDEN_SHACKLES_GET 142
+#define LEG3_TALK_GENERAL_ARREST_NO_SHACKLES 143
+#define LEG3_TALK_NERO_TRIAL 182
+#define LEG3_TALK_NERO_EXECUTE 183
+#define LEG3_TALK_NERO_CROWNED 184
+#define LEG3_TALK_FATHER_PROUD 185
+#define LEG3_TALK_FATHER_SACRIFICE 186
+#define LEG3_TALK_FATHER_MONSTER 187
+#define LEG3_TALK_HF_END_NONE 188
+#define LEG3_TALK_HF_END_TAMED 189
+#define LEG3_TALK_HF_END_HOSTILE 190
+#define LEG3_TALK_HF_END_GODSLAYER 191
+#define LEG3_TALK_HF_END_BLOODY 192
 #define LEG3_REP_ARREST 10
 #define LEG3_REP_EXECUTE -25
 #define LEG3_REP_TRIAL 50

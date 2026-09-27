@@ -1540,7 +1540,7 @@ static void draw_hud(int got_shelf, int looted_crate, int bag_bandage, int has_s
         y += DIALOGUE_LINE_H;
     }
     if(has_scroll)
-        draw_text_s("LEGENDARY REANIMATION", 4, y, 0xFFFF, DIALOGUE_SCALE);
+        draw_text_s("SCROLL OF RESURRECTION", 4, y, 0xFFFF, DIALOGUE_SCALE);
 }
 
 /* ----------------------------------------------------------------------
@@ -2409,8 +2409,8 @@ static void draw_choice_row(const char *label, int idx, int cur, int y) {
 static void draw_choice(int cur) {
     int y = MENU_Y + 24;
 
-    draw_menu_frame("THE SCROLL", "A CHOOSE");
-    draw_wrapped("THE SCROLL CAN WAKE ONE OF THE DEAD.",
+    draw_menu_frame("SCROLL OF RESURRECTION", "A CHOOSE");
+    draw_wrapped("IT CAN WAKE ONE OF THE DEAD.",
                  MENU_X + 8, y, rgb565(197, 206, 198), MENU_SCALE,
                  (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
     y += 28;
@@ -2419,7 +2419,7 @@ static void draw_choice(int cur) {
     draw_choice_row("RESURRECT HEAVENFALL", 1, cur, y); y += MENU_ROW_H * 2;
 
     draw_wrapped(cur == 0 ? "HE COMES BACK AS HE WAS. HUMAN, AND HERS."
-                          : "AN ANCIENT CRYMON WAKES. VAST AND UNKNOWN.",
+                          : "ITS GRAVE WAITS PAST THE PRIESTESS. VAST AND UNKNOWN.",
                  MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE,
                  (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
 }
@@ -5445,7 +5445,7 @@ void main(void) {
     int saw_shinigami_rock = 0;
     int quarry_crate_looted = 0, quarry_shelf_searched = 0;
     int cage_open = 0;
-    int has_scroll = 0; /* Legendary Reanimation, granted once Shinigami's win dialogue closes */
+    int has_scroll = 0; /* Scroll of Resurrection, granted once Shinigami's win dialogue closes */
     int anne2_told = 0; /* gates Anne's second (father-died/choice) approach to firing once */
     int choice_mode = 0, choice_cur = 0; /* father-vs-Heavenfall resurrection choice screen */
     int mercy_mode = 0, mercy_cur = 0; /* Leg 2.9 post-battle mercy menu */

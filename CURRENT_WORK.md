@@ -3283,3 +3283,30 @@ Each stage below is pushed on its own; tick it here when it lands.
       - eslint 15 warnings -> 1 (shadcn button.tsx, left as is).
       Still open: real art for the 12 Leg 3 NPCs/portraits (Grok); the
       design guesses at the top of this section are the user's to confirm.
+
+## Narrative fix pass (Claude, 2026-09-27) -- from the narrative audit
+
+User: "Upgrade repetitive dialogue. Scroll of Resurrection is the correct
+name, implement it. Execute other fixes." Stages, each pushed:
+
+- [x] T1 Text (JSON + two UI strings):
+  - The scroll is the **Scroll of Resurrection** everywhere (Shinigami's
+    line, choice-screen title on both engines, Dreamcast HUD). "Legendary
+    Reanimation" is gone.
+  - Every General has unique Spot/Win/Arrest/Execute lines; every base
+    has its own two guards' lines (`guard<City>Spot/WinA|B`, the shared
+    `baseGuard*` keys were removed and trainers/NPCs repointed).
+  - Narration that was filed under Father's name now uses `none`.
+  - Mason: "To the Prison."; the never-shown `doorOut` hint now ends
+    `masonWin`. The never-shown Weeping Army letter (`cart`) now drops out
+    of Calder's coat in `calderWin`; `wrenBeat` references it.
+  - Shinigami's last line now says Max came for power and the scroll can
+    bring back her father (she didn't come for that).
+  - `choiceHeavenfall` now marks the grave instead of claiming Heavenfall
+    is already awake; the grave is where it rises.
+  - Lieutenant Lead: "CryTown" spelling; his win line names the nine
+    Generals and Nero and opens the north road (was "Thank you for
+    playing"). New `leadNotYet` for the gate below.
+  - Father's finale lines open with Max walking home, so the scene isn't
+    set in the throne room.
+  - New keys for T2: `gauntletGraveEmpty`, `priestessSpent`, `leadNotYet`.

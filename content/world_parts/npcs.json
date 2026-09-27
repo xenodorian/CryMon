@@ -1087,14 +1087,14 @@
       "id": "baseMalkuthA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardMalkuthSpotA",
+      "talkDone": "guardMalkuthWinA",
       "script": [
         {
           "hideIf": "beatBaseMalkuthA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardMalkuthSpotA",
           "after": "wsoldier",
           "pending": "baseMalkuthA"
         }
@@ -1106,14 +1106,14 @@
       "id": "baseMalkuthB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardMalkuthSpotB",
+      "talkDone": "guardMalkuthWinB",
       "script": [
         {
           "hideIf": "beatBaseMalkuthB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardMalkuthSpotB",
           "after": "wsoldier",
           "pending": "baseMalkuthB"
         }
@@ -1144,14 +1144,14 @@
       "id": "baseYesodA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardYesodSpotA",
+      "talkDone": "guardYesodWinA",
       "script": [
         {
           "hideIf": "beatBaseYesodA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardYesodSpotA",
           "after": "wsoldier",
           "pending": "baseYesodA"
         }
@@ -1163,14 +1163,14 @@
       "id": "baseYesodB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardYesodSpotB",
+      "talkDone": "guardYesodWinB",
       "script": [
         {
           "hideIf": "beatBaseYesodB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardYesodSpotB",
           "after": "wsoldier",
           "pending": "baseYesodB"
         }
@@ -1201,14 +1201,14 @@
       "id": "baseNetzachA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardNetzachSpotA",
+      "talkDone": "guardNetzachWinA",
       "script": [
         {
           "hideIf": "beatBaseNetzachA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardNetzachSpotA",
           "after": "wsoldier",
           "pending": "baseNetzachA"
         }
@@ -1220,14 +1220,14 @@
       "id": "baseNetzachB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardNetzachSpotB",
+      "talkDone": "guardNetzachWinB",
       "script": [
         {
           "hideIf": "beatBaseNetzachB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardNetzachSpotB",
           "after": "wsoldier",
           "pending": "baseNetzachB"
         }
@@ -1258,14 +1258,14 @@
       "id": "baseHodA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardHodSpotA",
+      "talkDone": "guardHodWinA",
       "script": [
         {
           "hideIf": "beatBaseHodA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardHodSpotA",
           "after": "wsoldier",
           "pending": "baseHodA"
         }
@@ -1277,14 +1277,14 @@
       "id": "baseHodB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardHodSpotB",
+      "talkDone": "guardHodWinB",
       "script": [
         {
           "hideIf": "beatBaseHodB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardHodSpotB",
           "after": "wsoldier",
           "pending": "baseHodB"
         }
@@ -1315,14 +1315,14 @@
       "id": "baseTiferetA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardTiferetSpotA",
+      "talkDone": "guardTiferetWinA",
       "script": [
         {
           "hideIf": "beatBaseTiferetA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardTiferetSpotA",
           "after": "wsoldier",
           "pending": "baseTiferetA"
         }
@@ -1334,14 +1334,14 @@
       "id": "baseTiferetB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardTiferetSpotB",
+      "talkDone": "guardTiferetWinB",
       "script": [
         {
           "hideIf": "beatBaseTiferetB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardTiferetSpotB",
           "after": "wsoldier",
           "pending": "baseTiferetB"
         }
@@ -1372,14 +1372,14 @@
       "id": "baseChesedA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardChesedSpotA",
+      "talkDone": "guardChesedWinA",
       "script": [
         {
           "hideIf": "beatBaseChesedA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardChesedSpotA",
           "after": "wsoldier",
           "pending": "baseChesedA"
         }
@@ -1391,14 +1391,14 @@
       "id": "baseChesedB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardChesedSpotB",
+      "talkDone": "guardChesedWinB",
       "script": [
         {
           "hideIf": "beatBaseChesedB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardChesedSpotB",
           "after": "wsoldier",
           "pending": "baseChesedB"
         }
@@ -1429,14 +1429,14 @@
       "id": "baseGevurahA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardGevurahSpotA",
+      "talkDone": "guardGevurahWinA",
       "script": [
         {
           "hideIf": "beatBaseGevurahA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardGevurahSpotA",
           "after": "wsoldier",
           "pending": "baseGevurahA"
         }
@@ -1448,14 +1448,14 @@
       "id": "baseGevurahB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardGevurahSpotB",
+      "talkDone": "guardGevurahWinB",
       "script": [
         {
           "hideIf": "beatBaseGevurahB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardGevurahSpotB",
           "after": "wsoldier",
           "pending": "baseGevurahB"
         }
@@ -1486,14 +1486,14 @@
       "id": "baseBinahA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardBinahSpotA",
+      "talkDone": "guardBinahWinA",
       "script": [
         {
           "hideIf": "beatBaseBinahA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardBinahSpotA",
           "after": "wsoldier",
           "pending": "baseBinahA"
         }
@@ -1505,14 +1505,14 @@
       "id": "baseBinahB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardBinahSpotB",
+      "talkDone": "guardBinahWinB",
       "script": [
         {
           "hideIf": "beatBaseBinahB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardBinahSpotB",
           "after": "wsoldier",
           "pending": "baseBinahB"
         }
@@ -1543,14 +1543,14 @@
       "id": "baseChokmahA",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotA",
-      "talkDone": "baseGuardWinA",
+      "talk": "guardChokmahSpotA",
+      "talkDone": "guardChokmahWinA",
       "script": [
         {
           "hideIf": "beatBaseChokmahA"
         },
         {
-          "talk": "baseGuardSpotA",
+          "talk": "guardChokmahSpotA",
           "after": "wsoldier",
           "pending": "baseChokmahA"
         }
@@ -1562,14 +1562,14 @@
       "id": "baseChokmahB",
       "role": "trainer",
       "sprite": "npc/weepingGuard",
-      "talk": "baseGuardSpotB",
-      "talkDone": "baseGuardWinB",
+      "talk": "guardChokmahSpotB",
+      "talkDone": "guardChokmahWinB",
       "script": [
         {
           "hideIf": "beatBaseChokmahB"
         },
         {
-          "talk": "baseGuardSpotB",
+          "talk": "guardChokmahSpotB",
           "after": "wsoldier",
           "pending": "baseChokmahB"
         }

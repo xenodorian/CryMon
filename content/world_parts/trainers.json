@@ -384,7 +384,7 @@
       "title": "Base Guard sends Sparkit",
       "name": "Base Guard",
       "marks": 14,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardMalkuthWinA",
       "set": "beatBaseMalkuthA",
       "base": true
     },
@@ -402,7 +402,7 @@
       "title": "Base Guard sends Pipsprout",
       "name": "Base Guard",
       "marks": 14,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardMalkuthWinB",
       "set": "beatBaseMalkuthB",
       "base": true
     },
@@ -437,7 +437,7 @@
       "title": "Base Guard sends Soottick",
       "name": "Base Guard",
       "marks": 16,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardYesodWinA",
       "set": "beatBaseYesodA",
       "base": true
     },
@@ -455,7 +455,7 @@
       "title": "Base Guard sends Sparkfly",
       "name": "Base Guard",
       "marks": 16,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardYesodWinB",
       "set": "beatBaseYesodB",
       "base": true
     },
@@ -490,7 +490,7 @@
       "title": "Base Guard sends Mooncalf",
       "name": "Base Guard",
       "marks": 18,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardNetzachWinA",
       "set": "beatBaseNetzachA",
       "base": true
     },
@@ -508,7 +508,7 @@
       "title": "Base Guard sends Cardkin",
       "name": "Base Guard",
       "marks": 18,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardNetzachWinB",
       "set": "beatBaseNetzachB",
       "base": true
     },
@@ -543,7 +543,7 @@
       "title": "Base Guard sends Snowbell",
       "name": "Base Guard",
       "marks": 20,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardHodWinA",
       "set": "beatBaseHodA",
       "base": true
     },
@@ -561,7 +561,7 @@
       "title": "Base Guard sends Tallowisp",
       "name": "Base Guard",
       "marks": 20,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardHodWinB",
       "set": "beatBaseHodB",
       "base": true
     },
@@ -596,7 +596,7 @@
       "title": "Base Guard sends Dawnchick",
       "name": "Base Guard",
       "marks": 22,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardTiferetWinA",
       "set": "beatBaseTiferetA",
       "base": true
     },
@@ -614,7 +614,7 @@
       "title": "Base Guard sends Motley",
       "name": "Base Guard",
       "marks": 22,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardTiferetWinB",
       "set": "beatBaseTiferetB",
       "base": true
     },
@@ -649,7 +649,7 @@
       "title": "Base Guard sends Atlashell",
       "name": "Base Guard",
       "marks": 24,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardChesedWinA",
       "set": "beatBaseChesedA",
       "base": true
     },
@@ -667,7 +667,7 @@
       "title": "Base Guard sends Tidewolf",
       "name": "Base Guard",
       "marks": 24,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardChesedWinB",
       "set": "beatBaseChesedB",
       "base": true
     },
@@ -702,7 +702,7 @@
       "title": "Base Guard sends Wheelhog",
       "name": "Base Guard",
       "marks": 26,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardGevurahWinA",
       "set": "beatBaseGevurahA",
       "base": true
     },
@@ -720,7 +720,7 @@
       "title": "Base Guard sends Blazelynx",
       "name": "Base Guard",
       "marks": 26,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardGevurahWinB",
       "set": "beatBaseGevurahB",
       "base": true
     },
@@ -755,7 +755,7 @@
       "title": "Base Guard sends Geminal",
       "name": "Base Guard",
       "marks": 28,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardBinahWinA",
       "set": "beatBaseBinahA",
       "base": true
     },
@@ -773,7 +773,7 @@
       "title": "Base Guard sends Floeclaw",
       "name": "Base Guard",
       "marks": 28,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardBinahWinB",
       "set": "beatBaseBinahB",
       "base": true
     },
@@ -808,7 +808,7 @@
       "title": "Base Guard sends Kestrail",
       "name": "Base Guard",
       "marks": 30,
-      "winTalk": "baseGuardWinA",
+      "winTalk": "guardChokmahWinA",
       "set": "beatBaseChokmahA",
       "base": true
     },
@@ -826,7 +826,7 @@
       "title": "Base Guard sends Glacierjaw",
       "name": "Base Guard",
       "marks": 30,
-      "winTalk": "baseGuardWinB",
+      "winTalk": "guardChokmahWinB",
       "set": "beatBaseChokmahB",
       "base": true
     },
