@@ -1,0 +1,121 @@
+CRYMON SESSION HANDOFF
+Written 2026-09-27 by Claude (Claude Code cloud session "Project status check").
+Paste this whole file into a new session, or tell the new session:
+"Read SESSION_HANDOFF.txt in the repo root and continue from it."
+
+======================================================================
+1. FIRST STEPS FOR THE NEW SESSION
+======================================================================
+1. The repo is xenodorian/CryMon (GitHub). Work directly on `main`
+   (user rule: no new branches; push to main after each verified step).
+2. Read, in order: CLAUDE.md, docs/CRYMON.md (the contract),
+   CURRENT_WORK.md (live coordination log). Other agents (Grok, ChatGPT)
+   push to main too: always `git fetch origin main` before editing and
+   before pushing.
+3. Test Hugging Face image generation (section 5) before any art work.
+
+======================================================================
+2. WHAT THE PROJECT IS
+======================================================================
+CryMon: a monster-catching RPG, one game with two runtimes.
+  - content/*.json + public/sprites/ = the shared game (both engines).
+  - src/game/ = web engine (TypeScript). Owned by Grok.
+  - ports/dreamcast/ = Dreamcast port (C). Owned by Claude.
+Pipeline (from CLAUDE.md):
+  python3 tools/bake_content.py --content content --out ports/dreamcast/src
+  python3 ports/dreamcast/tools/gen_sprites.py
+  python3 tools/check_sync.py --strict
+  make -C ports/dreamcast        (Docker image einsteinx2/dcdev-kos-toolchain:gcc-9)
+Never hand-edit content_*.inc or sprites.h. If JSON and main.c disagree,
+JSON wins.
+
+======================================================================
+3. WHAT THIS SESSION DID (all pushed to main)
+======================================================================
+- Opal Dreamcast test flake: root cause was the test harness, not the game.
+  emu_warden.py now reads the pause-menu highlight before saving.
+- New tool ports/dreamcast/tools/npc_talk.py: 158/158 NPCs answer A on
+  Dreamcast (BUG-012 closed in BUG_LOG.md).
+- Dialogue audit of 20 unaudited regions: docs/DIALOGUE_AUDIT_2026-09-27.md.
+  PROPOSALS ONLY. Nothing applied. Needs the user's approval first.
+- Move/growth redesign, all three phases, both engines:
+  A (e88e0a4) evolve at 15/25, secondaries 10 PP, specials 5 PP, save v8.
+  B (2c63a61) Lv15: Hype Up for evolution lines, Attack Swap for
+    single-stage species (hit, then SWAP IN menu).
+  C (6ecba46) Lv20 signature + Lv30 finisher, one pair per crystal
+    (logic.json crystalMoves; 18 moves, names chosen by Claude).
+  Test: npm run test:e2e:growth (scripts/e2e-growth.mjs, in checks.yml).
+- sweep.yml fixed to bake before make. Commits b42ca0f and 5b61636 recorded
+  two stale branches as merged.
+
+======================================================================
+4. OPEN ITEMS (need the user or are blocked)
+======================================================================
+- CI is red on main: public/sprites/shinigami/idle.png is not listed in
+  content/sprites.json (from the Shinigami art commits). Ask the user
+  whether to register it or leave it to Grok.
+- 10 remote branches, all fully merged into main, should be deleted.
+  Claude's git push --delete was refused by the proxy and the session
+  safety filter. The user deletes them at
+  https://github.com/xenodorian/CryMon/branches/all
+- Repo data cleanup: user asked to discard outdated data. Candidates
+  (not yet approved): backups/ (contract says keep), screenshots/,
+  IMAGEGEN_HANDOFF.txt, patches/, docs/ARCHITECTURE_REMEDIATION_*.md.
+  Ask which to remove.
+- Lieutenant Lead art: overworld walker (public/sprites/npc/lead-1..4.png)
+  is a green-camo soldier that does not match his navy/red officer
+  portraits; all 4 frames identical. Battle art (monsters/lead/*) has an
+  opaque painted background. Needs new art.
+- Dreamcast full trainer sweep: dropped by user request (the CI run gave
+  no progress output). Web half passed 71/71 maps, 64/64 trainers.
+- test:e2e:battle "fast foe opens the round" is flaky on plain main.
+- Dialogue audit edits await approval (section 3).
+
+======================================================================
+5. CONNECTING GITHUB AND HUGGING FACE
+======================================================================
+GITHUB
+- The session needs xenodorian/CryMon attached. In a Claude Code cloud
+  session it is cloned automatically. git push to main works through the
+  session's git proxy.
+- GitHub API work (CI runs, logs, PRs) uses the GitHub MCP tools
+  (mcp__github__*), not the gh CLI.
+- If access fails, the user reconnects GitHub at
+  https://claude.ai/connect-github
+
+HUGGING FACE (image generation) -- NOT WORKING YET in the old session
+- Connector: logged in as HF user "Beelzebub" (oauth, inference-api scope).
+- HF settings (https://huggingface.co/settings/mcp): Spaces Tools has
+  mcp-tools/Z-Image-Turbo added, Dynamic Spaces enabled.
+- Old session errors:
+  a) dynamic_space invoke: "disabled because gradio=none is set"
+     (this is a header set on the Claude side, not an HF setting).
+  b) Direct API (huggingface.co / router.huggingface.co): 401
+     "Invalid username or password".
+- The user disconnected and reconnected the HF connector at
+  https://claude.ai/customize/connectors. A session only loads connectors
+  when it starts, so the NEW session must re-test:
+    1. Call hf_whoami.
+    2. Look for a Z-Image-Turbo tool, or call dynamic_space invoke with
+       space_name mcp-tools/Z-Image-Turbo and a short prompt. The user
+       must tap "Allow once" on the permission prompt.
+    3. curl https://huggingface.co/api/whoami-v2 (expect 200, not 401).
+- If it still fails: generate images outside Claude Code (HuggingChat or
+  ChatGPT), give them to Claude, and Claude crops, keys and installs them.
+- Art rules: transparent PNG, no magenta halo, 48x64 overworld walkers,
+  160x200 portraits, 48x64 battle frames 1..4. Never reuse another
+  character's sprite; missing art is tagged PLACEHOLDER_ART.
+  See IMAGEGEN_HANDOFF.txt for the full art brief from an earlier session.
+
+======================================================================
+6. USER PREFERENCES (short)
+======================================================================
+- Push to main after each verified step; no new branches.
+- Plain, concise answers. No em dashes, no emoji.
+- Flag once before starting work that is bigger than it looks.
+- Stop and confirm before edits beyond the request, and before applying
+  manuscript/dialogue changes.
+- Do not state something as fact without the supporting text; mark
+  unverified inferences.
+- After three failed fix attempts, search online; if still stuck, stop
+  and write a plain-English report file.
