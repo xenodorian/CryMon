@@ -115,7 +115,16 @@ def gravemoth(t):
             c.ell(mx + 4, my + 1, 1.5, 1.8, dark, decal=True, only=g)
         else:
             c.ell(mx + 2, my, 4, 3, dark, decal=True, only=g)
-    _moth(c, t, cx=58, cy=66 + bob, wing="#7a7680", wing2="#5a5660", body="#6a6670", eye="#c02a2a", pattern=pat)
+    _moth(c, t, cx=58, cy=66 + bob, wing="#8a8272", wing2="#4a4450", body="#5a5460", eye="#c02a2a", pattern=pat)
+    # a dusting of pale scales drifting over the wings
+
+    def dust(cc):
+        for i in range(10):
+            px = 64 + (i * 13 + t * 3) % 50
+            py = 20 + (i * 7 + t * 5) % 70
+            if cc.alpha[int(py), int(px)]:
+                cc.put(px, py, (200, 192, 176))
+    c.ink(dust)
     return c
 
 

@@ -59,7 +59,7 @@ import {
   STATUS_EFFECTS,
   HYPE_UP,
   effectiveStat
-, TOWN_MAP, TILE_ART } from "./data";
+, TILE_ART } from "./data";
 import { paintTileArt } from "./tileArt";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
@@ -323,6 +323,7 @@ export class CryMon {
 	titleCursor = 0;
 	pauseCursor = 0;
 	journalCursor = 0;
+	townMapPage = 0;
 	hasSave = false;
 	lastAutosave = 0;
 	visHook = null;
@@ -1276,109 +1277,79 @@ export class CryMon {
 		this.text("Z / X  back", X(16), Y(148), "#5a7a52", FONT);
 	}
 
+	// Pause-menu Map (logic.json mapScreen, tools/build_map_screen.py). Same
+	// layout as Dreamcast's draw_map_screen(): positions are Dreamcast
+	// pixels in a 280x152 box under the menu title, doubled here.
+	mapScreenWhere(): { node: number; link: number } {
+		const ms = LOGIC.mapScreen;
+		const id = this.world.mapId;
+		const node = ms.nodes.findIndex((n) => n.maps.includes(id));
+		const link = node >= 0 ? -1 : ms.links.findIndex((l) => l.maps.includes(id));
+		return { node, link };
+	}
 	openTownMap() {
+		const ms = LOGIC.mapScreen;
+		const w = this.mapScreenWhere();
+		this.townMapPage = w.node >= 0 ? ms.nodes[w.node].page : w.link >= 0 ? ms.nodes[ms.links[w.link].a].page : 0;
 		this.mode = "townmap";
 		this.audio.ui();
 	}
 	updateTownMap() {
-		if (this.input.cancel() || this.input.start() || this.input.confirm()) {
+		if (this.input.left() || this.input.right()) {
+			this.townMapPage = (this.townMapPage + 1) % LOGIC.mapScreen.pages.length;
+			this.audio.ui();
+		}
+		if (this.input.start()) {
+			this.mode = "world";
+			this.audio.ui();
+		} else if (this.input.cancel() || this.input.confirm()) {
 			this.mode = "pause";
 			this.audio.ui();
 		}
 	}
-	townMapRegionId() {
-		const mapId = this.world.mapId;
-		const nodes = TOWN_MAP?.nodes ?? [];
-		for (const n of nodes) {
-			if (n.playableMaps?.includes(mapId)) return n.id;
-		}
-		return TOWN_MAP?.anchor ?? "veld";
-	}
 	drawTownMap() {
-		const nodes = TOWN_MAP?.nodes ?? [];
-		if (!nodes.length) {
-			this.panel(20, 20, 280, 200);
-			this.text("No map data.", X(160), Y(110), "#e8e4d8", FONT, "center");
-			return;
-		}
-		this.panel(12, 12, 296, 216);
+		this.drawWorld();
+		const ms = LOGIC.mapScreen;
 		const ctx = this.ctx;
+		const page = this.townMapPage;
+		const { node: hereNode, link: hereLink } = this.mapScreenWhere();
+		const blink = Math.floor(performance.now() / 333) % 2 === 1;
+		const K = 2; // Dreamcast pixel -> canvas pixel
+		const px = (x: number) => (20 + x) * K;
+		const py = (y: number) => (20 + 24 + y) * K;
+		this.box(20 * K, 20 * K, 280 * K, 200 * K);
+		this.text(ms.pages[page].title, 28 * K, 28 * K, "#ffffff", FONT);
+		this.text("L/R", 292 * K, 28 * K, "#b4dcaa", FONT, "right");
+		const here = hereLink >= 0 ? ms.links[hereLink].label : hereNode >= 0 ? ms.nodes[hereNode].label : "";
+		this.text(`AT ${here}`, 28 * K, 204 * K, "#b4dcaa", FONT);
+		this.text("B BACK", 292 * K, 204 * K, "#b4dcaa", FONT, "right");
 		ctx.save();
-		ctx.imageSmoothingEnabled = false;
-		this.text(TOWN_MAP?.name ?? "Sorrow County", X(160), Y(26), "#e8f0d8", FONT, "center");
-
-		const mapX = 24;
-		const mapY = 36;
-		const mapW = 272;
-		const mapH = 150;
-
-		// Every cell is the same flat beige -- a colored-by-kind fill or an
-		// internal "path stripe" implies a specific correct sub-path through
-		// the cell that isn't real (the cell is a simplified proportional
-		// footprint, not a tile-traced route). Only the gem markers get color.
-		const CELL_FILL = "#d4c49a";
-		const CELL_STROKE = "#8a7a55";
-
-		const minX = Math.min(...nodes.map((n) => n.x));
-		const minY = Math.min(...nodes.map((n) => n.y));
-		const maxX = Math.max(...nodes.map((n) => n.x + (n.cellW ?? 1)));
-		const maxY = Math.max(...nodes.map((n) => n.y + (n.cellH ?? 1)));
-		const gw = maxX - minX;
-		const gh = maxY - minY;
-		const cell = Math.max(2, Math.min(Math.floor(mapW / gw), Math.floor(mapH / gh)));
-		const ox = mapX + Math.floor((mapW - gw * cell) / 2);
-		const oy = mapY + Math.floor((mapH - gh * cell) / 2);
-		const here = this.townMapRegionId();
-
-		for (const n of nodes) {
-			const cw = n.cellW ?? 1;
-			const ch = n.cellH ?? 1;
-			const x = ox + (n.x - minX) * cell;
-			const y = oy + (n.y - minY) * cell;
-			const w = cw * cell;
-			const h = ch * cell;
-			ctx.fillStyle = CELL_FILL;
-			ctx.fillRect(x, y, w, h);
-			ctx.strokeStyle = CELL_STROKE;
-			ctx.lineWidth = 0.5;
-			ctx.strokeRect(x, y, w, h);
+		ctx.lineCap = "square";
+		const onPage = ms.links.map((l, i) => [l, i] as const).filter(([l]) => ms.nodes[l.a].page === page);
+		for (const [l] of onPage) {
+			const a = ms.nodes[l.a], b = ms.nodes[l.b];
+			ctx.strokeStyle = "#5c4a2e";
+			ctx.lineWidth = 5 * K;
+			ctx.beginPath(); ctx.moveTo(px(a.x), py(a.y)); ctx.lineTo(px(b.x), py(b.y)); ctx.stroke();
 		}
-		for (const n of nodes) {
-			const cw = n.cellW ?? 1;
-			const ch = n.cellH ?? 1;
-			const x = ox + (n.x - minX) * cell;
-			const y = oy + (n.y - minY) * cell;
-			const cx = x + (cw * cell) / 2;
-			const isHere = n.id === here;
-			// Gauntlet's label sits in the vertical middle of the long corridor
-			// it represents, not pinned to the top edge.
-			const labelInMiddle = n.id === "gauntlet_route";
-			const labelY = labelInMiddle ? y + (ch * cell) / 2 + 3 : y + Math.max(4, cell * 0.5);
-			this.text(n.label, X(cx), Y(labelY), isHere ? "#ffe08a" : "#f0ecd8", 8, "center");
-			if (n.gem) {
-				const gy = y + (ch * cell) / 2;
-				ctx.fillStyle = "#0a2f52";
-				ctx.beginPath();
-				ctx.arc(cx, gy, Math.max(3, cell * 0.3), 0, Math.PI * 2);
-				ctx.fill();
-				ctx.fillStyle = isHere ? "#a0e0ff" : "#29b6ff";
-				ctx.beginPath();
-				ctx.moveTo(cx, gy - 4);
-				ctx.lineTo(cx + 3, gy);
-				ctx.lineTo(cx, gy + 4);
-				ctx.lineTo(cx - 3, gy);
-				ctx.closePath();
-				ctx.fill();
-			} else if (isHere) {
-				const gy = y + (ch * cell) / 2;
-				ctx.fillStyle = "#ffe08a";
-				ctx.fillRect(cx - 2, gy - 2, 4, 4);
-			}
+		for (const [l, i] of onPage) {
+			const a = ms.nodes[l.a], b = ms.nodes[l.b];
+			ctx.strokeStyle = i === hereLink && blink ? "#ffe08a" : "#d4c49a";
+			ctx.lineWidth = 1 * K;
+			ctx.beginPath(); ctx.moveTo(px(a.x), py(a.y)); ctx.lineTo(px(b.x), py(b.y)); ctx.stroke();
 		}
 		ctx.restore();
-		const hereLabel = nodes.find((n) => n.id === here)?.label ?? here;
-		this.text("You are here: " + hereLabel, X(160), Y(210), "#a8c090", 10, "center");
-		this.text("B / Start: back", X(160), Y(222), "#7a7868", 10, "center");
+		ctx.font = `${FONT}px Silkscreen, ui-monospace, monospace`;
+		ms.nodes.forEach((n, i) => {
+			if (n.page !== page) return;
+			const x = px(n.x), y = py(n.y);
+			if (i === hereNode && blink) { ctx.fillStyle = "#ffe08a"; ctx.fillRect(x - 5 * K, y - 5 * K, 11 * K, 11 * K); }
+			ctx.fillStyle = "#0a2f52"; ctx.fillRect(x - 3 * K, y - 3 * K, 7 * K, 7 * K);
+			ctx.fillStyle = n.gem ? "#29b6ff" : "#d4c49a"; ctx.fillRect(x - 2 * K, y - 2 * K, 5 * K, 5 * K);
+			const w = ctx.measureText(n.label).width;
+			ctx.fillStyle = "#161412"; ctx.fillRect(x - w / 2 - 2 * K, y + 5 * K, w + 3 * K, 10 * K);
+			this.text(n.label, x, y + 6 * K, i === hereNode ? "#ffe08a" : "#f0ecd8", FONT, "center");
+		});
 	}
 
 	openCryDex() {

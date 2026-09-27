@@ -994,6 +994,7 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("")
     bake_npc_scripts(data, items, lines)
     bake_journal(data, lines)
+    bake_map_screen(data, lines)
     bake_leg3(data, lines, kit_keys)
     out.write_text("\n".join(lines) + "\n")
 
@@ -1322,6 +1323,41 @@ def bake_journal(data: dict, lines: list[str]) -> None:
         lines.append(f"    {{ \"{c_escape(t)}\", {st}, {dn}, \"{c_escape(dt)}\", {s0}, {n}, {lin} }},")
     lines.append("};")
 
+
+
+def bake_map_screen(data: dict, lines: list[str]) -> None:
+    """logic.json mapScreen -> MAPSCREEN_* (main.c pause MAP, tools/build_map_screen.py)."""
+    ms = data["logic"].get("mapScreen") or {"pages": [], "nodes": [], "links": []}
+    order = map_order(data)
+    where = [-1] * len(order)
+    for i, n in enumerate(ms["nodes"]):
+        for m in n["maps"]:
+            if m in order:
+                where[order.index(m)] = i
+    for i, l in enumerate(ms["links"]):
+        for m in l["maps"]:
+            if m in order:
+                where[order.index(m)] = 1000 + i
+    lines.append("")
+    lines.append("/* Pause-menu Map (logic.json mapScreen). Nodes are dots with a label under")
+    lines.append("   them, links are lines; x/y are in a 280x152 box under the menu title.")
+    lines.append("   MAP_WHERE[map]: node index, 1000 + link index, or -1. */")
+    lines.append("typedef struct { int page, x, y, gem; const char *label; } MapScreenNode;")
+    lines.append("typedef struct { int a, b; const char *label; } MapScreenLink;")
+    lines.append(f"#define MAPSCREEN_PAGE_N {max(1, len(ms['pages']))}")
+    lines.append(f"#define MAPSCREEN_NODE_N {max(1, len(ms['nodes']))}")
+    lines.append(f"#define MAPSCREEN_LINK_N {max(1, len(ms['links']))}")
+    lines.append("static const char *const MAPSCREEN_PAGE_TITLE[MAPSCREEN_PAGE_N] = { "
+                 + ", ".join(f'"{c_escape(p["title"].upper())}"' for p in ms["pages"] or [{"title": ""}]) + " };")
+    lines.append("static const MapScreenNode MAPSCREEN_NODES[MAPSCREEN_NODE_N] = {")
+    for n in ms["nodes"] or [{"page": 0, "x": 0, "y": 0, "gem": False, "label": ""}]:
+        lines.append(f"    {{ {n['page']}, {n['x']}, {n['y']}, {1 if n['gem'] else 0}, \"{c_escape(n['label'].upper())}\" }},")
+    lines.append("};")
+    lines.append("static const MapScreenLink MAPSCREEN_LINKS[MAPSCREEN_LINK_N] = {")
+    for l in ms["links"] or [{"a": 0, "b": 0, "label": ""}]:
+        lines.append(f"    {{ {l['a']}, {l['b']}, \"{c_escape(l['label'].upper())}\" }},")
+    lines.append("};")
+    lines.append(f"static const short MAP_WHERE[{len(order)}] = {{ " + ", ".join(str(w) for w in where) + " };")
 
 def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     world = data["world"]

@@ -110,7 +110,21 @@ def deathknell(t):
     g = bell(c, x + swing * 0.3, y, 30, 56, black, z=0)
     c.ell(x + swing * 0.6, y + 4, 5, 5, IRON, z=30)      # clapper
     # skull face etched
-    ghost_face(c, x + swing * 0.3 - 1, y - 32, s=1.3, col=(200, 40, 50))
+    # a bone skull set into the bronze, eye sockets burning red
+    fx_, fy_ = x + swing * 0.3 - 1, y - 30
+    bone = M("#d8d0bc", spec=0.3)
+    c.ell(fx_, fy_, 11, 10, bone, decal=True, only=g)
+    c.ell(fx_, fy_ + 9, 7, 4, bone, decal=True, only=g)
+    sock = Mat(["#300808", "#601010", "#a01818", "#e03020", "#ff8060"], emit=True)
+    glow = [2.4, 2.8, 3.2, 2.8][t]
+    c.ell(fx_ - 4.5, fy_ + 1, glow, glow * 1.1, sock, decal=True, only=g)
+    c.ell(fx_ + 4.5, fy_ + 1, glow, glow * 1.1, sock, decal=True, only=g)
+
+    def teeth(cc):
+        cc.put(fx_, fy_ + 5, (40, 20, 24))
+        for k in range(-4, 5, 2):
+            cc.put(fx_ + k, fy_ + 9, (60, 50, 50))
+    c.ink(teeth)
 
     def rings(cc):
         n = [1, 2, 3, 2][t]
@@ -130,16 +144,37 @@ def snowbell(t):
     c = Canvas(128, 128, seed=84)
     swing = [-4, 0, 4, 0][t]
     x, y = 64, 96
-    c.cap(x - 12, 40, 2.4, x + 12, 40, 2.4, ICE_DARK, z=-2)
-    bell(c, x + swing * 0.4, y, 24, 46, ICE, z=0)
-    c.ell(x + swing, y + 4, 4, 4, ICE_DARK, z=24)
-    c.ink(lambda cc: [peye(cc, x - 8 + swing * 0.4, y - 24, 3.0, 3.4, iris=(60, 120, 200), pw=0.7, ph=0.7),
-                      peye(cc, x + 6 + swing * 0.4, y - 24, 3.0, 3.4, iris=(60, 120, 200), pw=0.7, ph=0.7),
-                      [cc.put(x - 2 + k + swing * 0.4, y - 16 + (k in (0, 4)) * -1, (40, 70, 120)) for k in range(5)]])
+    bx = x + swing * 0.4
+    SNOW = M("#f4f8ff", spec=0.3)
+    RIB = M("#c83a4a", spec=0.3)
+    # hanging loop and a snow drift on the crown
+    c.ell(bx, 44, 6, 6, ICE_DARK, z=-2, th=2)
+    bell(c, bx, y, 24, 46, ICE, z=0)
+    c.ell(bx - 3, 53, 12, 5, SNOW, z=14)
+    c.ell(bx + 6, 52, 7, 4, SNOW, z=15)
+    # ribbon bow round the shoulder
+    c.cap(bx - 11, 60, 2.0, bx + 11, 60, 2.0, RIB, z=18)
+    c.tri((bx + 8, 60), (bx + 15, 55), (bx + 15, 65), RIB, z=20, bevel=1)
+    c.tri((bx + 8, 60), (bx + 1, 55), (bx + 1, 65), RIB, z=20, bevel=1)
+    c.ell(bx + 8, 60, 2.2, 2.2, RIB, z=22)
+    c.cap(bx + 9, 62, 1.2, bx + 12 + swing * 0.3, 70, 1.0, RIB, z=19)
+    # icicles off the lip and a swinging clapper
+    for k in range(6):
+        ix = bx - 18 + k * 7.2
+        L = 4 + (k * 5) % 4
+        c.tri((ix - 1.6, y + 1), (ix, y + 1 + L), (ix + 1.6, y + 1), ICE_DARK if k % 2 else ICE, z=26, bevel=0.6)
+    c.ell(x + swing * 1.2, y + 5, 4, 4, ICE_DARK, z=24)
+    c.ink(lambda cc: [peye(cc, bx - 8, y - 24, 3.0, 3.4, iris=(60, 120, 200), pw=0.7, ph=0.7),
+                      peye(cc, bx + 6, y - 24, 3.0, 3.4, iris=(60, 120, 200), pw=0.7, ph=0.7),
+                      [cc.put(bx - 13 + k, y - 18, (240, 170, 190)) for k in range(3)],
+                      [cc.put(bx + 10 + k, y - 18, (240, 170, 190)) for k in range(3)],
+                      [cc.put(bx - 2 + k, y - 16 + (k in (0, 4)) * -1, (40, 70, 120)) for k in range(5)],
+                      [cc.put(bx + dx, y - 6 + dy, (230, 244, 255)) for dx, dy in
+                       ((-12, 0), (-14, 0), (-10, 0), (-12, -2), (-12, 2), (-13, -1), (-11, 1), (-13, 1), (-11, -1))]])
 
     def snow(cc):
-        for i in range(8):
-            px = 20 + (i * 37 + t * 5) % 90
+        for i in range(10):
+            px = 14 + (i * 37 + t * 5) % 100
             py = 10 + (i * 23 + t * 6) % 110
             if not cc.alpha[int(py), int(px)]:
                 sparkle(cc, px, py, (220, 240, 255), 1 if i % 3 == 0 else 0)
@@ -152,6 +187,14 @@ def icecantor(t):
     c = Canvas(128, 128, seed=85)
     x, y = 64, 100
     bell(c, x, y, 28, 62, ICE, z=0)
+    # an icicle fringe hanging off the lip, and a frost crown on top
+    for k in range(9):
+        ix = x - 26 + k * 6.5
+        L = 5 + (k * 7) % 5
+        c.tri((ix - 2, y + 1), (ix, y + 1 + L), (ix + 2, y + 1), ICE_DARK if k % 2 else ICE, z=40, bevel=0.8)
+    for k in range(5):
+        cx_ = x - 10 + k * 5
+        c.tri((cx_ - 2, y - 62), (cx_, y - 70 - (k % 2) * 4), (cx_ + 2, y - 62), ICE, z=20, bevel=0.8)
     # singing mouth, open wider each frame
     op = [3, 5, 7, 5][t]
     mouth = Mat(["#10203a", "#1a2e50", "#28406a", "#3a5a8a", "#4a6aa0"], soft=0.4)
@@ -351,6 +394,9 @@ def wisp_body(c, x, y, h, col, z=0, lean=0, t=0):
 def geminal(t):
     c = Canvas(128, 128, seed=89)
     bob = [0, -2, -3, -1][t]
+    # each spirit wears the star it grew from, spinning behind its head
+    star(c, 40, 22 + bob, 13, "#f2c230", z=-20, rot=t * 9)
+    star(c, 88, 22 - bob, 13, "#9a60e0", z=-20, rot=-t * 9)
     warm = wisp_body(c, 44, 70 + bob, 70, "#f2a040", z=0, lean=-1, t=t)
     cool = wisp_body(c, 84, 70 - bob, 70, "#6a9af0", z=0, lean=1, t=(t + 2) % 4)
     # joined hands
@@ -564,9 +610,14 @@ def arcanox(t):
             card(c, x, y, 5, 7, math.degrees(ang) * 0.2, 60 * math.sin(ang), PRISM[k % 5], k, back=(k % 2 == 1))
         glyphs = [hx(p) for p in PRISM]
 
+        # a third eye on the brow that opens as it reads you
+        op = [0.6, 1.2, 1.8, 1.2][t]
+
         def ink(cc):
-            for k in range(4):
-                rune_glyph(cc, a["bx"] - 14 + k * 10, a["by"] - 2, k + t, glyphs[(k + t) % 5])
+            peye(cc, a["hx"] + 1, a["hy"] - a["hry"] * 0.55, 2.4, op, iris=glyphs[1], pw=0.5, ph=0.9, slit=True)
+            # a single band of runes glowing along the flank
+            for k in range(3):
+                rune_glyph(cc, a["bx"] - 10 + k * 11, a["by"] - 4, k + t, glyphs[(k + t) % 5])
         c.ink(ink)
     spec = dict(seed=94, body=(56, 28), leg=26, leg_r=5.2, head=(16, 14), neck=6, fur="#5a3a8a", belly="#b09ae0",
                 eye="#f2c230", slit=True, angry=0.7, ears="fox", ear_size=1.2, tail="long", tail_len=1.1,
@@ -664,9 +715,15 @@ def baphorn(t):
         c.cap(x + dx, G - 6, 4, x + dx - 1, G - 1, 4.6, hoof, z=zz + 2)
     # torso: broad chest, shaggy
     g = c.group()
-    c.ell(x, y + 8, 21, 24, fur, z=0, g=g, tuft=16, tuft_len=3.5, tuft_arc=(150, 390))
-    c.ell(x - 6, y - 4, 17, 13, fur, z=4, g=g, tuft=12, tuft_len=3, tuft_arc=(180, 360))
-    c.ell(x - 7, y + 12, 11, 15, belly, decal=True, only=g)
+    # broad shaggy shoulders over a narrow waist, so it reads as upright
+    c.ell(x, y + 18, 13, 12, fur, z=0, g=g)
+    c.ell(x - 2, y - 2, 22, 15, fur, z=2, g=g)
+    c.ell(x - 4, y - 10, 20, 9, fur, z=6, g=g, tuft=18, tuft_len=4, tuft_arc=(160, 380))
+    c.ell(x - 7, y + 6, 10, 12, belly, decal=True, only=g)
+    c.pattern(lambda xx, yy: (abs(xx - x + 7) < 8) & ((yy - y) % 6 < 1) & (yy > y), -1, only=g)   # rib ridges
+    # a ragged loincloth
+    c.poly([(x - 12, y + 22), (x + 12, y + 22), (x + 8, y + 36), (x + 2, y + 32), (x - 4, y + 38), (x - 10, y + 32)],
+           M("#5a1a24", tex="grain", tex_amp=0.6), z=40, bevel=1.5)
     # near arm raised, holding a candle up
     c.chain([(x - 16, y - 6, 6.5), (x - 26, y + 6, 5), (x - 32, y - 8 - bob, 4.4)], fur, z=16)
     c.ell(x - 32, y - 10 - bob, 5, 4, fur, z=18)
@@ -684,7 +741,7 @@ def baphorn(t):
     c.ell(hx_ - 8, hy_ - 4, 6, 2.6, fur, z=22, rot=-20)
     # ram horns curling back and around
     for k, (cx, cy, zz, sc) in enumerate(((hx_ + 8, hy_ - 10, 6, 0.85), (hx_ + 1, hy_ - 9, 24, 1.0))):
-        R = 13 * sc
+        R = 16 * sc
         pts = []
         for i in range(10):
             ang = math.radians(-150 + i * 40)
@@ -751,37 +808,58 @@ def vinebrute(t):
     c = Canvas(128, 128, seed=99)
     G = 122
     bob = [0, 1, 2, 1][t]
-    x, y = 64, 64 + bob
-    # legs of twisted vine
-    for k, (dx, zz) in enumerate(((10, -6), (-10, 10))):
+    x, y = 64, 62 + bob
+    THORN = M("#c8b87a", spec=0.3)
+    BERRY = M("#c8283a", spec=0.7)
+    # legs: thick braided trunks that splay into root toes
+    for k, (dx, zz) in enumerate(((11, -6), (-11, 10))):
         for j in range(3):
-            c.chain([(x + dx + j * 2 - 2, y + 20, 4), (x + dx + 3 - j * 2, y + 38, 3.5), (x + dx - 1 + j, G - 2, 3.2)],
-                    VINE if j % 2 else LEAF_D, z=zz + j)
-    # torso: a knot of vines
+            c.chain([(x + dx + j * 3 - 3, y + 18, 5), (x + dx + 4 - j * 3, y + 38, 4.6), (x + dx - 2 + j * 2, G - 4, 4.2)],
+                    (VINE, LEAF_D, BARK)[j], z=zz + j)
+        for j, fx in enumerate((-8, -2, 5)):
+            c.cap(x + dx - 1, G - 4, 3.4, x + dx + fx, G - 1, 1.6, BARK, z=zz + 4)
+    # torso: a knot of vines, broad at the shoulders
     g = c.group()
     for j in range(9):
-        a = j * 40
-        r = 16
-        x0 = x + math.cos(math.radians(a)) * 8
-        y0 = y + math.sin(math.radians(a)) * 10
-        c.cap(x0 - 12, y0 - 10, 6, x0 + 12, y0 + 10, 5, VINE if j % 2 else LEAF_D, z=j % 3, g=g)
-    c.ell(x, y - 4, 20, 22, VINE, z=2, g=g)
+        a_ = j * 40
+        x0 = x + math.cos(math.radians(a_)) * 9
+        y0 = y + math.sin(math.radians(a_)) * 10
+        c.cap(x0 - 12, y0 - 10, 6.5, x0 + 12, y0 + 10, 5.5, VINE if j % 2 else LEAF_D, z=j % 3, g=g)
+    c.poly([(x - 26, y - 14), (x - 10, y - 24), (x + 10, y - 24), (x + 26, y - 14), (x + 18, y + 14), (x - 18, y + 14)],
+           VINE, z=2, bevel=6, th=8, g=g)
     c.pattern(lambda xx, yy: ((xx * 0.6 + yy) % 7 < 1.6), -2, only=g)
-    # huge fists
-    for k, (d, zz) in enumerate(((1, -4), (-1, 20))):
-        sx, sy = x + d * 18, y - 10
-        c.chain([(sx, sy, 7), (sx + d * 14, sy + 12, 6), (sx + d * 12, sy + 30 + bob, 5)], VINE, z=zz)
-        c.ell(sx + d * 12, sy + 36 + bob, 10, 9, LEAF_D, z=zz + 4, tuft=8, tuft_len=1.5)
-    # leafy head crest
-    for k in range(5):
-        leaf(c, x - 6 + k * 3, y - 24, 10 + (k % 2) * 3, -150 + k * 30, z=8)
+    c.pattern(lambda xx, yy: ((xx * 0.6 - yy) % 11 < 1.0) & (yy > y), -1, only=g)
+    # face hollow with glowing eyes
+    hol = Mat(["#0c1a0c", "#122412", "#182e18", "#1e381e", "#244224"], soft=0.4)
+    c.ell(x - 1, y - 7, 11, 6, hol, z=12)
+    glow = Mat(["#806010", "#c09020", "#f0c840", "#ffe890", "#fffbe0"], emit=True)
+    c.ell(x - 6, y - 8, 2.6, 2.0, glow, z=40)
+    c.ell(x + 4, y - 8, 2.6, 2.0, glow, z=40)
+    # arms: vines coiling down to thorned club fists
+    for k, (d, zz) in enumerate(((1, -4), (-1, 22))):
+        sx, sy = x + d * 22, y - 12
+        c.ell(sx, sy, 9, 8, LEAF_D, z=zz + 2, tuft=10, tuft_len=1.6)
+        c.chain([(sx, sy + 2, 6.5), (sx + d * 10, sy + 16, 5.5), (sx + d * 9, sy + 30 + bob, 5)], VINE, z=zz)
+        fx_, fy_ = sx + d * 9, sy + 36 + bob
+        c.ell(fx_, fy_, 9, 8, VINE, z=zz + 4)
+        c.pattern(lambda xx, yy, fx_=fx_, fy_=fy_: ((xx - fx_) ** 2 + (yy - fy_) ** 2 < 80) & (((xx + yy * 2) % 6) < 1.2), -2)
+        for j in range(5):
+            ang = math.radians(-60 + j * 55)
+            c.tri((fx_ + math.cos(ang) * 7 - 1.4, fy_ + math.sin(ang) * 6), (fx_ + math.cos(ang) * 12, fy_ + math.sin(ang) * 10),
+                  (fx_ + math.cos(ang) * 7 + 1.4, fy_ + math.sin(ang) * 6), THORN, z=zz + 6, bevel=0.6)
+    # thorns and berries on the chest, leafy crest
+    for j, (px, py) in enumerate(((-14, 2), (12, -2), (-4, 10), (16, 8))):
+        c.tri((x + px - 1.5, y + py), (x + px + (1 if px > 0 else -1) * 3, y + py - 3), (x + px + 1.5, y + py), THORN,
+              z=30, bevel=0.4)
+    for px, py in ((-16, -16), (-12, -18), (14, -18), (8, 6), (11, 4)):
+        c.ell(x + px, y + py, 1.8, 1.8, BERRY, z=32)
+    for k in range(6):
+        leaf(c, x - 9 + k * 3.6, y - 24, 10 + (k % 2) * 4, -155 + k * 26, z=8)
 
-    def face(cc):
-        peye(cc, x - 8, y - 8, 2.6, 2.4, iris=(250, 220, 60), pw=0.5, ph=0.6, angry=0.9)
-        peye(cc, x + 4, y - 8, 2.6, 2.4, iris=(250, 220, 60), pw=0.5, ph=0.6, angry=0.9)
+    def mouth(cc):
         for k in range(8):
-            cc.put(x - 5 + k, y + 2 + (k % 2), (20, 40, 20))
-    c.ink(face)
+            cc.put(x - 5 + k, y + 1 + (k % 2), (14, 30, 14))
+    c.ink(mouth)
     return c
 
 
@@ -849,23 +927,42 @@ def stone_legs(c, x, y, G, dxs, r=4, mat=STONE, t=0):
         c.ell(x + dx - 3, G - 2 + lift, r * 1.3, r * 0.6, mat, z=12)
 
 
+MOSS = M("#5a8a3a", tex="grain", tex_amp=0.9)
+
+
+def stone_arm(c, sx, sy, ex, ey, hx_, hy_, r, mat, z):
+    """Shoulder boulder, blocky forearm, knuckled fist."""
+    c.ell(sx, sy, r * 1.5, r * 1.3, mat, z=z + 2)
+    c.chain([(sx, sy, r * 1.1), (ex, ey, r), (hx_, hy_, r * 0.95)], mat, z=z)
+    c.ell(hx_, hy_ + r * 0.4, r * 1.35, r * 1.15, mat, z=z + 3)
+
+
 @mon("rubblet")
 def rubblet(t):
     c = Canvas(96, 96, seed=101)
     G = 92
     bob = [0, -1, -2, -1][t]
-    x, y = 48, 58 + bob
-    stone_legs(c, x, y + 10, G, (-7, 7), r=3.2, mat=BRICK, t=t)
+    sw = [0, 2, 0, -2][t]
+    x, y = 48, 60 + bob
+    stone_legs(c, x, y + 10, G, (-8, 8), r=3.6, mat=BRICK, t=t)
+    # far arm behind the block
+    stone_arm(c, x + 18, y - 2, x + 24, y + 6 - sw, x + 26, y + 13 - sw, 2.6, BRICK, z=-8)
     g = c.group()
-    c.poly([(x - 20, y + 10), (x - 18, y - 14), (x + 18, y - 12), (x + 20, y + 12)], BRICK, z=0, bevel=4, th=8, g=g)
+    c.poly([(x - 20, y + 12), (x - 18, y - 16), (x + 18, y - 14), (x + 20, y + 13)], BRICK, z=0, bevel=4, th=8, g=g)
     brick_pat(c, g, 8, 14)
-    # a chipped corner
-    c.pattern(lambda xx, yy: (xx > x + 12) & (yy < y - 6), -1, only=g)
-    c.cap(x - 20, y, 2.4, x - 28, y - 6 + bob, 1.8, BRICK, z=10)
-    c.cap(x + 20, y, 2.4, x + 28, y + 6, 1.8, BRICK, z=-4)
-    c.ink(lambda cc: [peye(cc, x - 7, y - 3, 2.6, 2.8, iris=(40, 30, 20), pw=0.8, ph=0.8, angry=0.3),
-                      peye(cc, x + 5, y - 3, 2.6, 2.8, iris=(40, 30, 20), pw=0.8, ph=0.8, angry=0.3),
-                      [cc.put(x - 3 + k, y + 5, (50, 24, 16)) for k in range(6)]])
+    # a chipped corner and a mossy cap
+    c.pattern(lambda xx, yy: (xx > x + 11) & (yy < y - 8) & (xx - x - 11 > y - 8 - yy), -1, only=g)
+    c.ell(x - 8, y - 16, 9, 3, MOSS, z=10)
+    c.ell(x + 3, y - 15, 6, 2.4, MOSS, z=11)
+    # loose pebbles orbiting overhead
+    for k in range(3):
+        px = x - 12 + k * 12
+        py = y - 24 + [0, -1, -2, -1][(t + k) % 4] - (k == 1) * 3
+        c.ell(px, py, 2.4, 2, STONE, z=12)
+    stone_arm(c, x - 19, y - 2, x - 25, y + 4 + sw, x - 26, y + 11 + sw, 2.8, BRICK, z=16)
+    c.ink(lambda cc: [peye(cc, x - 7, y - 4, 2.8, 3.0, iris=(40, 30, 20), pw=0.9, ph=0.9, angry=0.35),
+                      peye(cc, x + 5, y - 4, 2.8, 3.0, iris=(40, 30, 20), pw=0.9, ph=0.9, angry=0.35),
+                      [cc.put(x - 3 + k, y + 5 + (k in (0, 5)) * -1, (50, 24, 16)) for k in range(6)]])
     return c
 
 
@@ -874,19 +971,40 @@ def ramparth(t):
     c = Canvas(128, 128, seed=102)
     G = 122
     bob = [0, 1, 2, 1][t]
-    x, y = 64, 70 + bob
-    stone_legs(c, x, y + 26, G, (-30, -12, 12, 30), r=5.2, t=t)
+    sw = [0, 3, 0, -3][t]
+    x, y = 64, 72 + bob
+    stone_legs(c, x, y + 24, G, (-24, -9, 9, 24), r=6.4, t=t)
+    stone_arm(c, x + 44, y - 8, x + 52, y + 6 - sw, x + 54, y + 20 - sw, 6, STONE, z=-8)
     g = c.group()
-    pts = [(x - 48, y + 28), (x - 48, y - 20)]
+    pts = [(x - 46, y + 28), (x - 48, y - 18)]
     for k in range(5):
-        x0 = x - 48 + k * 20
-        pts += [(x0, y - 30), (x0 + 10, y - 30), (x0 + 10, y - 20), (x0 + 20, y - 20)]
-    pts = pts[:-1] + [(x + 48, y - 30), (x + 48, y + 28)]
+        x0 = x - 48 + k * 19.2
+        pts += [(x0, y - 30), (x0 + 10, y - 30), (x0 + 10, y - 18), (x0 + 19.2, y - 18)]
+    pts = pts[:-1] + [(x + 48, y - 30), (x + 48, y - 18), (x + 46, y + 28)]
     c.poly(pts, STONE, z=0, bevel=4, th=10, g=g)
     brick_pat(c, g, 9, 18)
-    c.pattern(lambda xx, yy: ((xx - x) ** 2 / 60 + (yy - y - 16) ** 2 / 90 < 1), -3, only=g)   # arrow slit / mouth
-    c.ink(lambda cc: [peye(cc, x - 14, y - 6, 3.2, 3.0, iris=(250, 200, 60), pw=0.5, ph=0.6, angry=0.9),
-                      peye(cc, x + 12, y - 6, 3.2, 3.0, iris=(250, 200, 60), pw=0.5, ph=0.6, angry=0.9)])
+    # gate mouth: dark arch with a raised portcullis
+    gate = lambda xx, yy: ((xx - x) ** 2 / 110 + (yy - y - 12) ** 2 / 150 < 1) & (yy > y + 2) | \
+        ((abs(xx - x) < 10.5) & (yy >= y + 12) & (yy < y + 28))
+    c.pattern(gate, -4, only=g)
+    teeth = [0, 2, 4, 2][t]
+    c.ink(lambda cc: [[cc.put(x + dx, yy, (70, 64, 60)) for dx in (-7, -3, 1, 5) for yy in range(int(y + 2), int(y + 8 + teeth))],
+                      [cc.put(x + dx, int(y + 8 + teeth), (120, 112, 100)) for dx in range(-8, 8)]])
+    # moss and ivy on the wall
+    c.ell(x - 30, y + 22, 10, 4, MOSS, z=8)
+    c.ell(x + 34, y - 16, 8, 3, MOSS, z=8)
+    c.chain([(x - 40, y - 18, 1.4), (x - 36, y - 4, 1.4), (x - 40, y + 8, 1.4)], MOSS, z=9)
+    # banner pole on the rightmost merlon
+    c.cap(x + 38, y - 30, 1.2, x + 38, y - 52, 1.1, IRON, z=10)
+    flap = [0, 2, 1, -1][t]
+    c.poly([(x + 38, y - 52), (x + 54, y - 48 + flap), (x + 38, y - 42)], M("#b03a3a"), z=11, bevel=1)
+    stone_arm(c, x - 44, y - 8, x - 52, y + 4 + sw, x - 54, y + 18 + sw, 6.4, STONE, z=20)
+    win = Mat(["#6a3a10", "#b06a20", "#f0a030", "#ffd070", "#fff0c0"], emit=True)
+    for dx in (-16, 14):
+        c.poly([(x + dx - 4, y - 2), (x + dx - 4, y - 10), (x + dx, y - 13), (x + dx + 4, y - 10), (x + dx + 4, y - 2)],
+               Mat(["#141010", "#201a16", "#2a2420", "#342c26", "#3e342c"]), z=22, bevel=1)
+        c.ell(x + dx, y - 6, 2.4, 2.6, win, z=24)
+    c.ink(lambda cc: [cc.put(x + dx + (1 if dx < 0 else -1), int(y - 11), (40, 36, 34)) for dx in (-17, -15, 13, 15)])
     return c
 
 
@@ -931,6 +1049,13 @@ def eclipsaur(t):
         disc = Mat(["#050508", "#0a0a12", "#12121e", "#1a1a2a", "#24243a"], spec=0.2)
         c.ell(hx_, hy_, r + 3, r + 3, corona, z=40)
         c.ell(hx_, hy_, r, r, disc, z=46)
+        # two pinprick eyes of starlight, and a thin crescent of light on the rim
+        glint = [1, 1, 0, 1][t]
+        c.ink(lambda cc: [cc.put(hx_ - r * 0.4, hy_ - 2, (230, 236, 255)), cc.put(hx_ + r * 0.25, hy_ - 2, (230, 236, 255)),
+                          cc.put(hx_ - r * 0.4, hy_ - 1, (150, 160, 230)) if glint else None,
+                          cc.put(hx_ + r * 0.25, hy_ - 1, (150, 160, 230)) if glint else None,
+                          [cc.put(hx_ + math.cos(math.radians(a)) * (r - 1), hy_ + math.sin(math.radians(a)) * (r - 1),
+                                  (120, 130, 200)) for a in range(120, 240, 6)]])
 
         def fx(cc):
             for k in range(16):

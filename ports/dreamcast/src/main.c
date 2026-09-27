@@ -2257,10 +2257,10 @@ static void draw_menu_frame(const char *title, const char *footer) {
 }
 
 static void draw_pause_menu(int cur) {
-    static const char *const rows[8] = { "PARTY", "BAG", "CRYDEX", "MEDALS", "JOURNAL", "SETTINGS", "SAVE", "CLOSE" };
+    static const char *const rows[9] = { "PARTY", "BAG", "CRYDEX", "MAP", "MEDALS", "JOURNAL", "SETTINGS", "SAVE", "CLOSE" };
     int i;
     draw_menu_frame("PAUSE", "A SELECT  B CLOSE");
-    for(i = 0; i < 8; i++)
+    for(i = 0; i < 9; i++)
         draw_text_s(rows[i], MENU_X + 16, MENU_Y + 24 + i * MENU_ROW_H,
                     i == cur ? rgb565(90, 122, 82) : rgb565(197, 206, 198), MENU_SCALE);
 }
@@ -4694,6 +4694,71 @@ static const char *journal_hint(int qi) {
 }
 
 #define JOURNAL_VIS 8
+/* Pause-menu Map (logic.json mapScreen, tools/build_map_screen.py).
+   Mirrors engine.ts drawTownMap(): links are lines, nodes are dots with
+   a label under them, Max's node or path blinks yellow. */
+static int map_screen_where(int map) {
+    return (map >= 0 && map < MAP_N) ? MAP_WHERE[map] : -1;
+}
+static int map_screen_page(int map) {
+    int w = map_screen_where(map);
+    if(w >= 1000) return MAPSCREEN_NODES[MAPSCREEN_LINKS[w - 1000].a].page;
+    if(w >= 0) return MAPSCREEN_NODES[w].page;
+    return 0;
+}
+static void map_screen_line(int x0, int y0, int x1, int y1, int r, u16 c) {
+    int dx = x1 > x0 ? x1 - x0 : x0 - x1, dy = y1 > y0 ? y1 - y0 : y0 - y1;
+    int sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, err = dx - dy, e2;
+    for(;;) {
+        fill_rect(x0 - r, y0 - r, 2 * r + 1, 2 * r + 1, c);
+        if(x0 == x1 && y0 == y1) break;
+        e2 = 2 * err;
+        if(e2 > -dy) { err -= dy; x0 += sx; }
+        if(e2 < dx) { err += dx; y0 += sy; }
+    }
+}
+#define MAPSCREEN_OX (MENU_X)
+#define MAPSCREEN_OY (MENU_Y + 24)
+static void draw_map_screen(int page, int map, u32 frame_count) {
+    int i, where = map_screen_where(map), here_node = where >= 0 && where < 1000 ? where : -1;
+    int here_link = where >= 1000 ? where - 1000 : -1;
+    int blink = (frame_count / 20u) & 1u;
+    const char *here = where < 0 ? "" : here_link >= 0 ? MAPSCREEN_LINKS[here_link].label : MAPSCREEN_NODES[here_node].label;
+    char foot[48];
+    int k;
+    u16 road_dark = rgb565(92, 74, 46), road = rgb565(212, 196, 154), gold = rgb565(255, 224, 138);
+    k = s_cat(foot, 0, "AT ");
+    k = s_cat(foot, k, here);
+    foot[k] = 0;
+    draw_menu_frame(MAPSCREEN_PAGE_TITLE[page], foot);
+    draw_text_s("B BACK", MENU_X + MENU_W - 8 - text_width_s("B BACK", MENU_SCALE), MENU_Y + MENU_H - 16,
+                rgb565(180, 220, 170), MENU_SCALE);
+    draw_text_s("L/R", MENU_X + MENU_W - 8 - text_width_s("L/R", MENU_SCALE), MENU_Y + 8,
+                rgb565(180, 220, 170), MENU_SCALE);
+    for(i = 0; i < MAPSCREEN_LINK_N; i++) {
+        const MapScreenNode *a = &MAPSCREEN_NODES[MAPSCREEN_LINKS[i].a], *b = &MAPSCREEN_NODES[MAPSCREEN_LINKS[i].b];
+        if(a->page != page) continue;
+        map_screen_line(MAPSCREEN_OX + a->x, MAPSCREEN_OY + a->y, MAPSCREEN_OX + b->x, MAPSCREEN_OY + b->y, 2, road_dark);
+    }
+    for(i = 0; i < MAPSCREEN_LINK_N; i++) {
+        const MapScreenNode *a = &MAPSCREEN_NODES[MAPSCREEN_LINKS[i].a], *b = &MAPSCREEN_NODES[MAPSCREEN_LINKS[i].b];
+        if(a->page != page) continue;
+        map_screen_line(MAPSCREEN_OX + a->x, MAPSCREEN_OY + a->y, MAPSCREEN_OX + b->x, MAPSCREEN_OY + b->y, 0,
+                        i == here_link && blink ? gold : road);
+    }
+    for(i = 0; i < MAPSCREEN_NODE_N; i++) {
+        const MapScreenNode *n = &MAPSCREEN_NODES[i];
+        int x = MAPSCREEN_OX + n->x, y = MAPSCREEN_OY + n->y, w;
+        if(n->page != page) continue;
+        if(i == here_node && blink) fill_rect(x - 5, y - 5, 11, 11, gold);
+        fill_rect(x - 3, y - 3, 7, 7, rgb565(10, 47, 82));
+        fill_rect(x - 2, y - 2, 5, 5, n->gem ? rgb565(41, 182, 255) : road);
+        w = text_width_s(n->label, MENU_SCALE);
+        fill_rect(x - w / 2 - 2, y + 5, w + 3, 10, rgb565(22, 20, 18));
+        draw_text_s(n->label, x - w / 2, y + 6, i == here_node ? gold : rgb565(240, 236, 216), MENU_SCALE);
+    }
+}
+
 static void draw_journal(int cur) {
     int rows[JOURNAL_QUEST_N > 0 ? JOURNAL_QUEST_N : 1];
     int n = journal_rows(rows), i, open_n = 0, start, y;
@@ -5854,6 +5919,7 @@ void main(void) {
     int pause_cur = 0;
     int dex_cur = 0;
     int journal_cur = 0;
+    int map_page = 0;
     int dex_entry = 0;
     int title_cur = 0;
     int have_save = 0;
@@ -6547,18 +6613,18 @@ void main(void) {
         }
         else if(menu_mode == 3) {
             if(up_now && !prev_up) {
-                pause_cur = (pause_cur + 7) % 8;
+                pause_cur = (pause_cur + 8) % 9;
                 chip_sfx_ui();
             }
             if(down_now && !prev_down) {
-                pause_cur = (pause_cur + 1) % 8;
+                pause_cur = (pause_cur + 1) % 9;
                 chip_sfx_ui();
             }
             if(b_now && !prev_b) {
                 menu_mode = 0;
                 chip_sfx_ui();
             }
-            else if((a_now && !prev_a) || (start_now && !prev_start && pause_cur == 7)) {
+            else if((a_now && !prev_a) || (start_now && !prev_start && pause_cur == 8)) {
                 if(pause_cur == 0) {
                     menu_mode = 2;
                     party_detail = 0;
@@ -6575,16 +6641,20 @@ void main(void) {
                     dex_entry = 0;
                     chip_sfx_ui();
                 } else if(pause_cur == 3) {
-                    menu_mode = 6; /* Leg 3 medals */
+                    menu_mode = 8; /* map, opened on the page Max is on */
+                    map_page = map_screen_page(map_id);
                     chip_sfx_ui();
                 } else if(pause_cur == 4) {
+                    menu_mode = 6; /* Leg 3 medals */
+                    chip_sfx_ui();
+                } else if(pause_cur == 5) {
                     menu_mode = 7; /* quest journal */
                     journal_cur = 0;
                     chip_sfx_ui();
-                } else if(pause_cur == 5) {
+                } else if(pause_cur == 6) {
                     menu_mode = 5;
                     chip_sfx_ui();
-                } else if(pause_cur == 6) {
+                } else if(pause_cur == 7) {
                     SaveLive sl;
                     int i, pi;
                     for(i = 0; i < (int)sizeof(sl); i++) ((unsigned char *)&sl)[i] = 0;
@@ -6750,6 +6820,19 @@ void main(void) {
                     menu_mode = 0;
                     chip_sfx_ui();
                 }
+            }
+        }
+        else if(menu_mode == 8) {
+            if((left_now && !prev_left) || (right_now && !prev_right)) {
+                map_page = (map_page + 1) % MAPSCREEN_PAGE_N;
+                chip_sfx_ui();
+            }
+            if((a_now && !prev_a) || (b_now && !prev_b)) {
+                menu_mode = 3;
+                chip_sfx_ui();
+            } else if(start_now && !prev_start) {
+                menu_mode = 0;
+                chip_sfx_ui();
             }
         }
         else if(menu_mode == 7) {
@@ -9347,6 +9430,8 @@ void main(void) {
                 draw_leg3_medals(bag.shackles);
             else if(menu_mode == 7)
                 draw_journal(journal_cur);
+            else if(menu_mode == 8)
+                draw_map_screen(map_page, map_id, frame_count);
             if(in_battle)
                 draw_battle(&battle, &bag, frame_count,
                             battle_foe_enter_t, battle_foe_faint_t,

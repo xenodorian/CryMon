@@ -238,9 +238,21 @@ quad("mooncalf", seed=14, body=(44, 26), leg=18, leg_r=5.0, head=(15, 14), neck=
 def _moonglow(c, a, t):
     # crescent birthmark on the flank
     bx, by = a["bx"] + 6, a["by"] - 4
-    mark = M("#9aa6f2")
+    mark = Mat(["#6a78d0", "#9aa6f2", "#c8d0ff", "#eef0ff", "#ffffff"], emit=True)
     c.ell(bx, by, 7, 7, mark, decal=True, only=a["g_body"])
     c.ell(bx + 3, by - 2, 6, 6, M("#d8dcf4", tex="fur", tex_amp=0.4), decal=True, only=a["g_body"])
+    # its hide glows faintly: a soft pulsing halo one pixel outside the body
+    pulse = [0, 1, 2, 1][t]
+
+    def halo(cc):
+        import numpy as np
+        al = cc.alpha > 0
+        ring = (np.roll(al, 1, 0) | np.roll(al, -1, 0) | np.roll(al, 1, 1) | np.roll(al, -1, 1)) & ~al
+        ys, xs = np.nonzero(ring)
+        for x, y in zip(xs, ys):
+            if (x + y + t) % (4 - pulse // 2) == 0:
+                cc.put(x, y, (200, 210, 255))
+    c.fx(halo)
 
 
 quad("moonbull", seed=15, body=(62, 34), leg=24, leg_r=6.4, head=(17, 15), neck=4,
@@ -430,7 +442,25 @@ quad("quakelord", seed=28, body=(76, 42), leg=10, leg_r=7.5, head=(18, 16), neck
      head_type="mole", snout=12, fur="#4a3a30", belly="#8a7058", eye="#000000", eye_kind="none",
      ears="none", tail="short", tail_len=0.6, feet="claw", nose_col="#e0908a",
      extras=[lambda c, a, t, m: _dust(c, a, t, 9), lambda c, a, t, m: _shovels(c, a, t, 1.5),
-             lambda c, a, t, m: _cracks(c, a, t)])
+             lambda c, a, t, m: _cracks(c, a, t), lambda c, a, t, m: _quake_plates(c, a, t)])
+
+
+def _quake_plates(c, a, t):
+    """Tectonic armour: tilted slabs ridging the back, split by a hot seam."""
+    slab = M("#7a6a5a", tex="grain", tex_amp=0.7, spec=0.15)
+    dark = M("#5a4c40", tex="grain", tex_amp=0.6)
+    bx, by, rx, ry = a["bx"], a["by"], a["rx"], a["ry"]
+    shake = [0, 1, 0, -1][t]
+    for i, (dx, w, h) in enumerate(((-26, 8, 12), (-12, 11, 18), (4, 12, 22), (20, 10, 16), (32, 7, 10))):
+        top = by - ry * (0.78 - 0.1 * (abs(dx) / rx) ** 2)
+        lean = 0.35 * dx / rx * w
+        jit = shake if i % 2 else -shake
+        c.poly([(bx + dx - w, top + 4), (bx + dx - w * 0.5 + lean, top - h + jit), (bx + dx + w * 0.4 + lean, top - h - 2 + jit),
+                (bx + dx + w, top + 4)], slab if i % 2 == 0 else dark, z=38 + i, bevel=2.5)
+    glow = Mat(["#6a1a08", "#b0400c", "#f08020", "#ffc050", "#fff0b0"], emit=True)
+    for i in range(4):
+        x0 = bx - 20 + i * 15
+        c.cap(x0, by - ry * 0.72, 1.0, x0 + 3, by - ry * 0.5, 0.7, glow, z=37)
 
 
 def _cracks(c, a, t):

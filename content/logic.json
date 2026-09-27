@@ -1129,5 +1129,547 @@
         ]
       }
     ]
+  },
+  "mapScreen": {
+    "note": "Pause-menu Map screen. See tools/build_map_screen.py for the rules.",
+    "pages": [
+      {
+        "id": "county",
+        "title": "SORROW COUNTY"
+      },
+      {
+        "id": "sephirot",
+        "title": "THE SEPHIROT"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "toMalkuth",
+        "page": 0,
+        "x": 140,
+        "y": 0,
+        "label": "MALKUTH",
+        "gem": false,
+        "maps": []
+      },
+      {
+        "id": "weepingroad",
+        "page": 0,
+        "x": 140,
+        "y": 24,
+        "label": "WEEPING ROAD",
+        "gem": false,
+        "maps": [
+          "weepingroad"
+        ]
+      },
+      {
+        "id": "reach",
+        "page": 0,
+        "x": 34,
+        "y": 24,
+        "label": "REACH",
+        "gem": true,
+        "maps": [
+          "reach",
+          "hauntedhall",
+          "hermithut",
+          "sagehouse",
+          "emptyhouse"
+        ]
+      },
+      {
+        "id": "ruins",
+        "page": 0,
+        "x": 60,
+        "y": 50,
+        "label": "RUINS",
+        "gem": false,
+        "maps": [
+          "ruins",
+          "ghostcrypt",
+          "ruinslibrary",
+          "ruinsinn",
+          "brannhouse"
+        ]
+      },
+      {
+        "id": "veld",
+        "page": 0,
+        "x": 140,
+        "y": 50,
+        "label": "CRYTOWN",
+        "gem": true,
+        "maps": [
+          "veld",
+          "house",
+          "heroeshall"
+        ]
+      },
+      {
+        "id": "cliffs",
+        "page": 0,
+        "x": 222,
+        "y": 50,
+        "label": "CLIFFS",
+        "gem": false,
+        "maps": [
+          "cliffs"
+        ]
+      },
+      {
+        "id": "marsh",
+        "page": 0,
+        "x": 240,
+        "y": 76,
+        "label": "MARSH",
+        "gem": false,
+        "maps": [
+          "marsh",
+          "thievesden"
+        ]
+      },
+      {
+        "id": "quarry",
+        "page": 0,
+        "x": 240,
+        "y": 102,
+        "label": "QUARRY",
+        "gem": false,
+        "maps": [
+          "quarry"
+        ]
+      },
+      {
+        "id": "camp",
+        "page": 0,
+        "x": 240,
+        "y": 128,
+        "label": "CAMP",
+        "gem": true,
+        "maps": [
+          "camp"
+        ]
+      },
+      {
+        "id": "forest",
+        "page": 0,
+        "x": 165,
+        "y": 128,
+        "label": "FOREST",
+        "gem": false,
+        "maps": [
+          "forest"
+        ]
+      },
+      {
+        "id": "grove",
+        "page": 0,
+        "x": 165,
+        "y": 88,
+        "label": "PRISON",
+        "gem": true,
+        "maps": [
+          "grove"
+        ]
+      },
+      {
+        "id": "gauntlet",
+        "page": 0,
+        "x": 75,
+        "y": 90,
+        "label": "GAUNTLET",
+        "gem": false,
+        "maps": [
+          "gauntlet",
+          "gauntlet1",
+          "gauntlet2",
+          "gauntlet3",
+          "gauntlet4",
+          "gauntlet5"
+        ]
+      },
+      {
+        "id": "shrine",
+        "page": 0,
+        "x": 70,
+        "y": 128,
+        "label": "HEAVENFALL",
+        "gem": true,
+        "maps": [
+          "gauntlet6"
+        ]
+      },
+      {
+        "id": "keter",
+        "page": 1,
+        "x": 140,
+        "y": 0,
+        "label": "KETER",
+        "gem": true,
+        "maps": [
+          "keter",
+          "palaceketer"
+        ]
+      },
+      {
+        "id": "binah",
+        "page": 1,
+        "x": 40,
+        "y": 20,
+        "label": "BINAH",
+        "gem": true,
+        "maps": [
+          "binah",
+          "basebinah"
+        ]
+      },
+      {
+        "id": "chokmah",
+        "page": 1,
+        "x": 240,
+        "y": 20,
+        "label": "CHOKMAH",
+        "gem": true,
+        "maps": [
+          "chokmah",
+          "basechokmah"
+        ]
+      },
+      {
+        "id": "gevurah",
+        "page": 1,
+        "x": 40,
+        "y": 60,
+        "label": "GEVURAH",
+        "gem": true,
+        "maps": [
+          "gevurah",
+          "basegevurah"
+        ]
+      },
+      {
+        "id": "chesed",
+        "page": 1,
+        "x": 240,
+        "y": 60,
+        "label": "CHESED",
+        "gem": true,
+        "maps": [
+          "chesed",
+          "basechesed"
+        ]
+      },
+      {
+        "id": "tiferet",
+        "page": 1,
+        "x": 140,
+        "y": 68,
+        "label": "TIFERET",
+        "gem": true,
+        "maps": [
+          "tiferet",
+          "basetiferet"
+        ]
+      },
+      {
+        "id": "hod",
+        "page": 1,
+        "x": 40,
+        "y": 100,
+        "label": "HOD",
+        "gem": true,
+        "maps": [
+          "hod",
+          "basehod"
+        ]
+      },
+      {
+        "id": "netzach",
+        "page": 1,
+        "x": 240,
+        "y": 100,
+        "label": "NETZACH",
+        "gem": true,
+        "maps": [
+          "netzach",
+          "basenetzach"
+        ]
+      },
+      {
+        "id": "yesod",
+        "page": 1,
+        "x": 140,
+        "y": 108,
+        "label": "YESOD",
+        "gem": true,
+        "maps": [
+          "yesod",
+          "baseyesod"
+        ]
+      },
+      {
+        "id": "malkuth",
+        "page": 1,
+        "x": 140,
+        "y": 136,
+        "label": "MALKUTH",
+        "gem": true,
+        "maps": [
+          "malkuth",
+          "basemalkuth"
+        ]
+      }
+    ],
+    "links": [
+      {
+        "a": 0,
+        "b": 1,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 1,
+        "b": 4,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 4,
+        "b": 3,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 3,
+        "b": 2,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 4,
+        "b": 5,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 5,
+        "b": 6,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 6,
+        "b": 7,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 7,
+        "b": 8,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 8,
+        "b": 9,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 9,
+        "b": 10,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 4,
+        "b": 11,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 11,
+        "b": 12,
+        "label": "",
+        "maps": []
+      },
+      {
+        "a": 22,
+        "b": 21,
+        "label": "PATH OF TAU",
+        "maps": [
+          "tau"
+        ]
+      },
+      {
+        "a": 22,
+        "b": 20,
+        "label": "PATH OF QOPH",
+        "maps": [
+          "qoph"
+        ]
+      },
+      {
+        "a": 19,
+        "b": 22,
+        "label": "PATH OF SHIN",
+        "maps": [
+          "shin"
+        ]
+      },
+      {
+        "a": 19,
+        "b": 20,
+        "label": "PATH OF PEH",
+        "maps": [
+          "peh"
+        ]
+      },
+      {
+        "a": 19,
+        "b": 21,
+        "label": "PATH OF RESH",
+        "maps": [
+          "resh"
+        ]
+      },
+      {
+        "a": 20,
+        "b": 21,
+        "label": "PATH OF TZADDI",
+        "maps": [
+          "tzaddi"
+        ]
+      },
+      {
+        "a": 18,
+        "b": 21,
+        "label": "PATH OF SAMEKH",
+        "maps": [
+          "samekh"
+        ]
+      },
+      {
+        "a": 20,
+        "b": 18,
+        "label": "PATH OF NUN",
+        "maps": [
+          "nun"
+        ]
+      },
+      {
+        "a": 19,
+        "b": 18,
+        "label": "PATH OF AYIN",
+        "maps": [
+          "ayin"
+        ]
+      },
+      {
+        "a": 17,
+        "b": 20,
+        "label": "PATH OF KAPH",
+        "maps": [
+          "kaph"
+        ]
+      },
+      {
+        "a": 17,
+        "b": 18,
+        "label": "PATH OF YOD",
+        "maps": [
+          "yod"
+        ]
+      },
+      {
+        "a": 16,
+        "b": 19,
+        "label": "PATH OF MEM",
+        "maps": [
+          "mem"
+        ]
+      },
+      {
+        "a": 16,
+        "b": 18,
+        "label": "PATH OF LAMED",
+        "maps": [
+          "lamed"
+        ]
+      },
+      {
+        "a": 17,
+        "b": 16,
+        "label": "PATH OF TETH",
+        "maps": [
+          "teth"
+        ]
+      },
+      {
+        "a": 14,
+        "b": 18,
+        "label": "PATH OF ZAYIN",
+        "maps": [
+          "zayin"
+        ]
+      },
+      {
+        "a": 14,
+        "b": 16,
+        "label": "PATH OF HETH",
+        "maps": [
+          "heth"
+        ]
+      },
+      {
+        "a": 15,
+        "b": 18,
+        "label": "PATH OF HE",
+        "maps": [
+          "he"
+        ]
+      },
+      {
+        "a": 17,
+        "b": 15,
+        "label": "PATH OF VAU",
+        "maps": [
+          "vau"
+        ]
+      },
+      {
+        "a": 14,
+        "b": 15,
+        "label": "PATH OF DALETH",
+        "maps": [
+          "daleth"
+        ]
+      },
+      {
+        "a": 13,
+        "b": 18,
+        "label": "PATH OF GIMEL",
+        "maps": [
+          "gimel"
+        ]
+      },
+      {
+        "a": 15,
+        "b": 13,
+        "label": "PATH OF ALEPH",
+        "maps": [
+          "aleph"
+        ]
+      },
+      {
+        "a": 14,
+        "b": 13,
+        "label": "PATH OF BETH",
+        "maps": [
+          "beth"
+        ]
+      }
+    ]
   }
 }

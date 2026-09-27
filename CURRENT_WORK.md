@@ -3694,6 +3694,26 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       (talk, script, no page errors): all clean.
 - [x] H8 Web battle screen now shows the enemy's level ("SABLECLAW Lv60"),
       as Dreamcast already did. It showed only the name.
+- [x] H9 Pause-menu Map, rebuilt on web and new on Dreamcast.
+      - Web bug fixed: opening Map from the pause menu threw
+        `this.panel is not a function` inside the draw loop, which stops
+        requestAnimationFrame, so the game froze for good.
+      - `tools/build_map_screen.py` writes logic.json `mapScreen`: two
+        pages (Sorrow County, the Sephirot), 23 nodes and 34 links. The
+        22 Sephirot paths come from warps.json (a map that warps to two
+        cities). Every map id is assigned to a node or a path; interiors
+        and bases take the nearest one through warps.
+      - Baker: `MAPSCREEN_NODES/LINKS/PAGE_TITLE`, `MAP_WHERE[]`.
+      - Both engines draw it the same (web doubles the Dreamcast
+        pixels): road lines, blue squares for cities, labels under the
+        dots, Max's node or path blinks gold, "AT <place>" in the footer,
+        LEFT/RIGHT flips the page, A/B back to pause, Start closes.
+      - Dreamcast pause menu gained MAP at row 3 (same order as web:
+        Party, Bag, CryDex, Map, Medals, Journal, Settings, Save, Close).
+      - Verified: web screenshots on both pages (CryTown, Path of Samekh,
+        haunted hall -> Reach) with no page errors; Dreamcast in Flycast.
+      - `content/town_map.json` and `public/maps/*` (the old generator's
+        output) are left as they were; the game no longer reads them.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
@@ -3838,3 +3858,25 @@ own files; redraw them only if the user says so.
 - Local run: build the CDI, then `python3 ports/dreamcast/tools/emu_warden.py --cdi <cdi> --flycast <AppRun> --save-dir <e2e-out>`. Keys: X = A, Return = Start, arrows. Restart Xvfb per boot (a killed Flycast leaves keys stuck).
 - BUG-010 fixed: 7 NPCs were invisible on DC. BUG-018 fixed: HUD/map name/toast/battle line overlap. BUG-013 and BUG-015 closed as won't fix (reasons in BUG_LOG). BUG-019 logged for the art thread (Needleroot magenta is in the PNGs).
 
+### Deep pass batch 5 (Claude, 2026-09-27)
+- Atlashell: stubby scaled legs with toenails that step in turn, plated shell scutes, a tail, a beaked head that nods.
+- Baphorn: broad shaggy shoulders over a narrow waist, rib ridges, a ragged loincloth and bigger ram horns so it reads as upright.
+- Arcanox: the rune clutter on its body is down to one glowing band, plus a third eye that opens as it idles.
+- Crabs (Rimecrab, Floeclaw, Rockhermit, Cragsage): legs now arch to a knee and splay like real crab legs instead of a comb.
+
+### Deep pass batch 6 (Claude, 2026-09-27)
+- Deathknell: a bone skull set into the bell with eye sockets that burn brighter as it swings.
+- Eclipsaur: two pinprick star eyes and a thin crescent of light inside the black disc face.
+- Geminal: each spirit wears the spinning star it grew from (matches the new Twinklet).
+- Glacierjaw: a huge ice-plated underbite that gapes and snaps, ice fangs, and an ice brow plate.
+- Gravemoth: warmer dusty wing colors with pale scales drifting over them.
+
+### Deep pass batch 7 (Claude, 2026-09-27)
+- Magistowl: a real brass balance with chains and pans that tip as it weighs you (was a floating T shape).
+- Mooncalf and Moonbull: the crescent mark glows, and a faint pulsing halo traces the body so the hide reads as glowing.
+- Icecantor: an icicle fringe on the lip and a frost crown on top.
+Magenta cleanup: Needleroot 1-4 lost the hot pink fill between its vines. Veilcap 1-4 had an opaque pink backdrop square, now flood-cleared to transparent. Mireback 1-4 lost a magenta shadow under its feet. Cage key lost its pink rim. Scanned every sprite outside portraits and tiles for pink/magenta chroma; the rest of the hits are real art (Bloomdoe and Gardenbull flowers, Glowcap gills, Sableclaw aura).
+Monster deep pass batch 8: Ramparth gets boulder arms with fists, a gate mouth with portcullis teeth that rise and fall, lit window eyes, moss, ivy and a red banner. Rubblet gets stone arms, a mossy top, a proper chipped corner and pebbles bobbing overhead. Quakelord gets tectonic back slabs that shake with its steps. Pipwren, Plunderat, Pyrelion, Reedfawn and Rootking reviewed and left as they are.
+Monster deep pass batch 9: Snowbell gets a snow drift on its crown, a red ribbon bow, blush, a frost mark, an icicle fringe and a clapper that swings with it. Runemote, Scavrat, Scorchbeak, Shrewbit, Sleightfox, Sparkfly and Sparkit reviewed and left as they are.
+Monster deep pass batch 10: Starwhale gets two-lobed flukes on a tail stock, nebula clouds across its back, a shaped flipper and a stardust spout from its blowhole. Starfry, Stormwing, Sunhawk, Tallowisp, Thornhide, Thunderam and Thunderqueen reviewed and left as they are.
+Monster deep pass batch 11 (last): Vinebrute gets broad vine shoulders with leaf pads, braided trunk legs with bark root toes, thorned club fists, a dark face hollow with glowing eyes, chest thorns and red berries. Tidewolf, Tortcask, Towerfall, Tuftowl, Voltbuck, Voltgrub, Warbison, Wheelhog and Widowshade reviewed and left as they are. Monster pass complete.

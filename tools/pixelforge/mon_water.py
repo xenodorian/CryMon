@@ -106,8 +106,20 @@ def glacierjaw(t):
     c = Canvas(128, 128, seed=63)
     bob = [0, -1, -2, -1][t]
     jaw = [0.8, 1.2, 1.6, 1.2][t]
-    fish(c, t, cx=66, cy=58 + bob, L=100, H=40, body="#2a5a96", belly="#cfe6f6", fin="#6a9ad0", eye="#b0f0ff",
-         teeth=True, jaw=jaw, spikes=6, angry=0.9)
+    a = fish(c, t, cx=66, cy=58 + bob, L=100, H=40, body="#2a5a96", belly="#cfe6f6", fin="#6a9ad0", eye="#b0f0ff",
+             teeth=True, jaw=jaw, spikes=6, angry=0.9)
+    # the glacier jaw: a huge ice-plated underbite that gapes and snaps,
+    # with fangs of ice standing up out of it
+    hx_, hy_ = a["head"]
+    gape = [2, 4, 6, 4][t]
+    c.poly([(hx_ - 8, hy_ + 6 + gape), (hx_ + 26, hy_ + 10), (hx_ + 30, hy_ + 22), (hx_ + 6, hy_ + 26 + gape * 0.5),
+            (hx_ - 10, hy_ + 16 + gape)], ICE, z=60, bevel=3)
+    for k in range(4):
+        fx_ = hx_ - 5 + k * 7
+        c.tri((fx_ - 2.2, hy_ + 8 + gape - k * 0.4), (fx_ + 0.5, hy_ - 1 + gape - k * 0.4), (fx_ + 3, hy_ + 9 + gape - k * 0.4),
+              M("#f4fbff", spec=0.8), z=64, bevel=1)
+    # a brow plate of ice over the eye
+    c.poly([(hx_ + 4, hy_ - 14), (hx_ + 26, hy_ - 18), (hx_ + 30, hy_ - 10), (hx_ + 8, hy_ - 8)], ICE, z=60, bevel=2)
     # frozen breath
     sparks((220, 246, 255), 6, seed=63, spread=(4, 30, 50, 90))(c, {}, t, None)
     return c
@@ -141,14 +153,29 @@ def starwhale(t):
     sw = [0, 2, 4, 2][t]
     cx, cy = 60, 66 + bob
     g = c.group()
-    # tail flukes
-    c.poly([(104, cy - 6), (124, cy - 20 - sw), (118, cy - 4), (124, cy + 10 - sw)], fin, z=-4, bevel=2)
+    # tail flukes: two swept lobes on a narrow stock
+    c.cap(106, cy - 4, 4, 114, cy - 6 - sw * 0.5, 3, fin, z=-3)
+    c.poly([(112, cy - 6 - sw * 0.5), (120, cy - 22 - sw), (126, cy - 20 - sw), (118, cy - 4 - sw * 0.5)], fin, z=-4, bevel=2)
+    c.poly([(112, cy - 6 - sw * 0.5), (122, cy + 8 - sw), (126, cy + 4 - sw), (118, cy - 6 - sw * 0.5)], fin, z=-5, bevel=2)
     c.ell(cx, cy, 50, 26, body, z=0, g=g)
     c.cap(cx + 30, cy - 2, 18, 108, cy - 4, 6, body, z=0, g=g)
     c.ell(cx - 6, cy + 14, 44, 12, belly, g=g, decal=True, only=g)
     c.pattern(lambda x, y: (y > cy + 8) & ((x % 5) < 1), -1, only=g)
-    # flipper
-    c.poly([(cx - 10, cy + 10), (cx + 10, cy + 34 - sw * 0.5), (cx + 16, cy + 12)], fin, z=30, bevel=2)
+    # nebula clouds drifting across its back
+    neb = Mat(["#2c2468", "#3a2e7a", "#4a3a8e", "#5c4aa0", "#7060b4"], soft=0.9)
+    neb2 = Mat(["#203c6a", "#284c7c", "#30608e", "#3a70a0", "#4a84b0"], soft=0.9)
+    c.ell(cx - 4, cy - 12, 18, 6, neb, g=g, decal=True, only=g)
+    c.ell(cx + 22, cy - 8, 12, 5, neb2, g=g, decal=True, only=g)
+    c.ell(cx - 26, cy - 6, 8, 4, neb2, g=g, decal=True, only=g)
+    # curved flipper
+    fl = sw * 0.5
+    c.poly([(cx - 10, cy + 10), (cx - 4, cy + 22 - fl * 0.5), (cx + 6, cy + 32 - fl), (cx + 12, cy + 34 - fl),
+            (cx + 10, cy + 26 - fl), (cx + 6, cy + 14)], fin, z=30, bevel=2.5)
+    # stardust spout from the blowhole
+    for k in range(4):
+        h = 2 + k * 5 + sw
+        sc = Mat(["#a0a8e0", "#c8d0ff", "#e8ecff", "#ffffff", "#ffffff"], emit=True)
+        c.ell(cx - 18 + (k % 2) * 3 - k, cy - 26 - h, 2.4 - k * 0.4, 2.4 - k * 0.4, sc, z=40)
     # constellation on its back
     stars = [(cx - 20, cy - 14), (cx - 6, cy - 18), (cx + 8, cy - 14), (cx + 22, cy - 18), (cx + 34, cy - 10)]
 
@@ -177,9 +204,23 @@ def crab(c, t, *, cx=64, G=120, shell=(26, 16), shell_mat=None, body="#c86a4a", 
     sw = [0, 1, 2, 1][t]
     cy = G - shell[1] - 8 + sw * 0.5
     # far legs
+    def leg(k, z, far):
+        # walking legs splay wide like a real crab seen from the side: the
+        # tips spread from under the claws to well behind the shell, and
+        # each leg arches up to a knee above the line from hip to tip
+        n = max(1, legs - 1)
+        f = k / n
+        bx_ = cx + shell[0] * (-0.1 + 0.45 * f)
+        by_ = cy + shell[1] * 0.3
+        lift = (sw if (k + far) % 2 else 0)
+        fx_ = cx + shell[0] * (-0.35 + 1.55 * f) + (5 if far else 0)
+        fy = G - (3 if far else 0) - lift * 0.5
+        kx = (bx_ + fx_) / 2 + shell[0] * 0.18 * (f - 0.3)
+        ky = min(by_, fy) - shell[1] * 0.45 - lift - (1 - abs(f - 0.5)) * 3
+        c.chain([(bx_, by_, 2.8), (kx, ky, 2.3), (fx_, fy, 0.7)], bm, z=z)
+        c.ell(kx, ky, 2.1, 2.1, bm, z=z + 1)
     for k in range(legs):
-        x0 = cx - shell[0] * 0.3 + k * shell[0] * 0.22
-        c.chain([(x0, cy + 2, 2.4), (x0 + 10 + k * 4, cy - 8, 2.0), (x0 + 15 + k * 6, G - 3, 1.0)], bm, z=-10)
+        leg(k, -10, True)
     g = c.group()
     if stone:
         stone(c, cx, cy, g)
@@ -193,9 +234,7 @@ def crab(c, t, *, cx=64, G=120, shell=(26, 16), shell_mat=None, body="#c86a4a", 
         c.ell(ex - 1, cy - shell[1] * 0.5 - 10, 2.6, 2.6, M("#1a1a22", spec=0.8), z=zz + 2)
     # near legs
     for k in range(legs):
-        x0 = cx - shell[0] * 0.2 + k * shell[0] * 0.24
-        c.chain([(x0, cy + shell[1] * 0.4, 2.6), (x0 + 10 + k * 4, cy - 2 - (sw if k % 2 else 0), 2.2),
-                 (x0 + 16 + k * 6, G, 1.2)], bm, z=24)
+        leg(k, 24, False)
     # claws: small far, big near
     for k, (sc, zz, dy) in enumerate(((claw_small, -6, -6), (claw_big, 30, 6))):
         ax0, ay0 = cx - shell[0] * 0.7, cy + dy * 0.5
@@ -352,13 +391,34 @@ def atlashell(t):
     wall = M("#e8dcc0", tex="grain", tex_amp=0.4)
     sw = [0, 1, 2, 1][t]
     cx, cy = 70, 84 + sw * 0.5
-    for x0 in (48, 92):
-        c.cap(x0 + 5, cy + 10, 7, x0 + 7, G - 3, 6, skin, z=-10)
+    def leg(x0, z, lift):
+        # stubby elephant-like column: wide at the shoulder, a round pad and
+        # three toenails, with scale rings down its length
+        top, foot = cy + 10, G - 3 - lift
+        c.cap(x0, top, 9, x0 - 1, foot, 7.5, skin, z=z)
+        c.ell(x0 - 2, foot + 1, 9, 3.4, skin, z=z + 2)
+        for k in range(3):
+            c.ell(x0 - 8 + k * 5, foot + 2.5, 1.8, 1.4, M("#e8dcc0", spec=0.4), z=z + 4)
+        c.pattern(lambda x, y, x0=x0: (abs(x - x0) < 8) & (y > top + 4) & (y < foot - 2) & ((y + (x // 4) * 2) % 5 < 1),
+                  -1, where=[skin])
+    step = [0, 2, 0, 0][t], [0, 0, 0, 2][t]
+    leg(52, -10, step[1])
+    leg(96, -10, step[0])
+    # stubby tail
+    c.cap(cx + 42, cy + 10, 4, cx + 52, cy + 16, 1.5, skin, z=-6)
     g = c.group()
     c.ell(cx, cy, 44, 26, shellm, z=0, g=g)
-    c.pattern(lambda x, y: (((x - cx) % 16 < 1.5) | ((y - cy + (x // 16) * 5) % 12 < 1.5)) & (y > cy - 10), -2, only=g)
+    # scutes: hexagon-ish plates in two rows, each with its own growth rings
+    for row, (yy, n, w) in enumerate(((cy - 6, 5, 17), (cy + 8, 6, 15))):
+        for k in range(n):
+            px = cx - (n - 1) * w / 2 + k * w + (row * 3)
+            c.pattern(lambda x, y, px=px, yy=yy, w=w: ((abs(x - px) / (w * 0.5) + abs(y - yy) / 8.0) > 0.92)
+                      & ((abs(x - px) / (w * 0.5) + abs(y - yy) / 8.0) < 1.08), -2, only=g)
+            c.pattern(lambda x, y, px=px, yy=yy, w=w: ((abs(x - px) / (w * 0.5) + abs(y - yy) / 8.0) > 0.52)
+                      & ((abs(x - px) / (w * 0.5) + abs(y - yy) / 8.0) < 0.62), -1, only=g)
     # rim
     c.cap(cx - 44, cy + 12, 5, cx + 44, cy + 12, 5, shellm, z=14)
+    c.pattern(lambda x, y: (abs(y - cy - 12) < 5) & ((x % 9) < 1), -2, where=[shellm])
     # the hill on top
     c.ell(cx + 2, cy - 18, 36, 14, grass, z=12, tuft=16, tuft_len=2, tuft_arc=(180, 360))
     c.poly([(cx + 10, cy - 24), (cx + 18, cy - 38), (cx + 28, cy - 26)], rock, z=24, bevel=3)
@@ -370,12 +430,15 @@ def atlashell(t):
     c.cap(cx + 30, cy - 22, 1.4, cx + 30, cy - 32, 1.2, M("#6a4a30"), z=26)
     c.ell(cx + 30, cy - 36, 6, 6, M("#3a8a3a", tex="fur", tex_amp=0.6), z=28, tuft=8, tuft_len=1.5)
     # near legs, head
-    for x0 in (42, 88):
-        c.cap(x0, cy + 12, 8, x0 - 1, G - 2, 7, skin, z=24)
-        c.ell(x0 - 2, G - 2, 8, 3, skin, z=26)
-    c.cap(cx - 40, cy + 6, 8, cx - 54, cy - 2 + sw * 0.5, 9, skin, z=20)
-    hx_, hy_ = cx - 58, cy - 4 + sw * 0.5
+    leg(44, 24, step[0])
+    leg(88, 24, step[1])
+    # neck with wrinkles and a beaked head that nods
+    nod = [0, 1, 2, 1][t]
+    c.cap(cx - 40, cy + 6, 8, cx - 54, cy - 2 + nod, 9, skin, z=20)
+    c.pattern(lambda x, y: (x < cx - 40) & (x > cx - 56) & ((x + y * 0.3) % 4 < 1), -1, where=[skin])
+    hx_, hy_ = cx - 58, cy - 4 + nod
     c.ell(hx_, hy_, 11, 9, skin, z=26)
+    c.tri((hx_ - 10, hy_ - 1), (hx_ - 15, hy_ + 3), (hx_ - 8, hy_ + 6), M("#5a4a3a", spec=0.4), z=30, bevel=1)
 
     def ink(cc):
         peye(cc, hx_ - 4, hy_ - 3, 2.2, 2.4, iris=(40, 30, 20), pw=0.7, ph=0.7)
