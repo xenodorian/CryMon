@@ -529,20 +529,20 @@
       "/sprites/fx/quartz-4.png"
     ],
     [
-      "fx-hematite-1",
-      "/sprites/fx/hematite-1.png"
+      "fx-jasper-1",
+      "/sprites/fx/jasper-1.png"
     ],
     [
-      "fx-hematite-2",
-      "/sprites/fx/hematite-2.png"
+      "fx-jasper-2",
+      "/sprites/fx/jasper-2.png"
     ],
     [
-      "fx-hematite-3",
-      "/sprites/fx/hematite-3.png"
+      "fx-jasper-3",
+      "/sprites/fx/jasper-3.png"
     ],
     [
-      "fx-hematite-4",
-      "/sprites/fx/hematite-4.png"
+      "fx-jasper-4",
+      "/sprites/fx/jasper-4.png"
     ],
     [
       "fx-diamond-1",
@@ -561,68 +561,100 @@
       "/sprites/fx/diamond-4.png"
     ],
     [
-      "fx-opal-1",
-      "/sprites/fx/opal-1.png"
+      "fx-citrine-1",
+      "/sprites/fx/citrine-1.png"
     ],
     [
-      "fx-opal-2",
-      "/sprites/fx/opal-2.png"
+      "fx-citrine-2",
+      "/sprites/fx/citrine-2.png"
     ],
     [
-      "fx-opal-3",
-      "/sprites/fx/opal-3.png"
+      "fx-citrine-3",
+      "/sprites/fx/citrine-3.png"
     ],
     [
-      "fx-opal-4",
-      "/sprites/fx/opal-4.png"
+      "fx-citrine-4",
+      "/sprites/fx/citrine-4.png"
     ],
     [
-      "fx-spinel-1",
-      "/sprites/fx/spinel-1.png"
+      "fx-obsidian-1",
+      "/sprites/fx/obsidian-1.png"
     ],
     [
-      "fx-spinel-2",
-      "/sprites/fx/spinel-2.png"
+      "fx-obsidian-2",
+      "/sprites/fx/obsidian-2.png"
     ],
     [
-      "fx-spinel-3",
-      "/sprites/fx/spinel-3.png"
+      "fx-obsidian-3",
+      "/sprites/fx/obsidian-3.png"
     ],
     [
-      "fx-spinel-4",
-      "/sprites/fx/spinel-4.png"
+      "fx-obsidian-4",
+      "/sprites/fx/obsidian-4.png"
     ],
     [
-      "fx-lapis-1",
-      "/sprites/fx/lapis-1.png"
+      "fx-prism-1",
+      "/sprites/fx/prism-1.png"
     ],
     [
-      "fx-lapis-2",
-      "/sprites/fx/lapis-2.png"
+      "fx-prism-2",
+      "/sprites/fx/prism-2.png"
     ],
     [
-      "fx-lapis-3",
-      "/sprites/fx/lapis-3.png"
+      "fx-prism-3",
+      "/sprites/fx/prism-3.png"
     ],
     [
-      "fx-lapis-4",
-      "/sprites/fx/lapis-4.png"
+      "fx-prism-4",
+      "/sprites/fx/prism-4.png"
     ],
     [
-      "fx-amethyst-1",
-      "/sprites/fx/amethyst-1.png"
+      "fx-emerald-1",
+      "/sprites/fx/emerald-1.png"
     ],
     [
-      "fx-amethyst-2",
-      "/sprites/fx/amethyst-2.png"
+      "fx-emerald-2",
+      "/sprites/fx/emerald-2.png"
     ],
     [
-      "fx-amethyst-3",
-      "/sprites/fx/amethyst-3.png"
+      "fx-emerald-3",
+      "/sprites/fx/emerald-3.png"
     ],
     [
-      "fx-amethyst-4",
-      "/sprites/fx/amethyst-4.png"
+      "fx-emerald-4",
+      "/sprites/fx/emerald-4.png"
+    ],
+    [
+      "fx-ruby-1",
+      "/sprites/fx/ruby-1.png"
+    ],
+    [
+      "fx-ruby-2",
+      "/sprites/fx/ruby-2.png"
+    ],
+    [
+      "fx-ruby-3",
+      "/sprites/fx/ruby-3.png"
+    ],
+    [
+      "fx-ruby-4",
+      "/sprites/fx/ruby-4.png"
+    ],
+    [
+      "fx-sapphire-1",
+      "/sprites/fx/sapphire-1.png"
+    ],
+    [
+      "fx-sapphire-2",
+      "/sprites/fx/sapphire-2.png"
+    ],
+    [
+      "fx-sapphire-3",
+      "/sprites/fx/sapphire-3.png"
+    ],
+    [
+      "fx-sapphire-4",
+      "/sprites/fx/sapphire-4.png"
     ],
     [
       "fx-torch-1",
@@ -1041,5 +1073,280 @@
     "gauntlet5": "veil",
     "marsh": "mist",
     "hollow": "glow"
+  },
+  "battleFx": {
+    "note": "Battle hit effects, read by both engines (src/game/battleFx.ts and ports/dreamcast gen_sprites.py -> sprites.h HITFX). One entry per crystal nature in logic.json natures. colors feed the burst art (tools/pixelforge/hitfx.py) and the particles. Units are the web's 240x160 logical pixels and seconds; the Dreamcast scales them to its own battle layout. shape: spark, chunk, glint, bolt, wisp, rainbow, leaf, ember, shard. dir: radial (all ways), up (a fountain) or down. gravity is px/s/s, negative floats up. drag slows particles per second. sway is a sideways wobble in px. ring 1 draws a shock ring on impact. A hit whose damage is at least bigHit of the target's max HP counts as big: stronger flash and shake. Faint shatters the fallen CryMon into its own crystal's particles; enter, status and stat drops use smaller bursts.",
+    "burstSec": 0.36,
+    "shake": {
+      "min": 1.2,
+      "max": 4,
+      "superMul": 1.5,
+      "note": "peak screen offset in logical px; bigger share of max HP hits harder"
+    },
+    "flash": {
+      "sec": 0.2,
+      "color": "#FFFFFF",
+      "bigAlpha": 0.5,
+      "superAlpha": 0.35,
+      "hitAlpha": 0.12,
+      "note": "whole-screen flash; super effective tints it with the attacker's crystal color"
+    },
+    "popup": {
+      "sec": 0.9,
+      "rise": 18,
+      "hitColor": "#FFFFFF",
+      "superColor": "#FFE070",
+      "weakColor": "#A8A8B0",
+      "healColor": "#8BD66A"
+    },
+    "faint": {
+      "countMul": 2,
+      "lifeMul": 1.5
+    },
+    "status": {
+      "countMul": 0.5
+    },
+    "natures": {
+      "quartz": {
+        "colors": [
+          "#FFFFFF",
+          "#ECEAE4",
+          "#B8B4A8"
+        ],
+        "shape": "spark",
+        "count": 16,
+        "dir": "radial",
+        "speed": [
+          50,
+          110
+        ],
+        "gravity": 0,
+        "drag": 3,
+        "life": [
+          0.35,
+          0.6
+        ],
+        "size": [
+          1,
+          2
+        ],
+        "sway": 0,
+        "ring": 1
+      },
+      "jasper": {
+        "colors": [
+          "#9C6236",
+          "#C98A52",
+          "#5A3620"
+        ],
+        "shape": "chunk",
+        "count": 12,
+        "dir": "up",
+        "speed": [
+          70,
+          130
+        ],
+        "gravity": 380,
+        "drag": 0.5,
+        "life": [
+          0.55,
+          0.8
+        ],
+        "size": [
+          2,
+          3
+        ],
+        "sway": 0,
+        "ring": 0
+      },
+      "diamond": {
+        "colors": [
+          "#FFFFFF",
+          "#B9C4FF",
+          "#8A7CE0"
+        ],
+        "shape": "glint",
+        "count": 12,
+        "dir": "radial",
+        "speed": [
+          25,
+          65
+        ],
+        "gravity": 0,
+        "drag": 2,
+        "life": [
+          0.6,
+          0.9
+        ],
+        "size": [
+          2,
+          3
+        ],
+        "sway": 0,
+        "ring": 1
+      },
+      "citrine": {
+        "colors": [
+          "#F2C230",
+          "#FFF6C0",
+          "#E07A18"
+        ],
+        "shape": "bolt",
+        "count": 10,
+        "dir": "radial",
+        "speed": [
+          110,
+          190
+        ],
+        "gravity": 0,
+        "drag": 5,
+        "life": [
+          0.2,
+          0.35
+        ],
+        "size": [
+          1,
+          2
+        ],
+        "sway": 0,
+        "ring": 1
+      },
+      "obsidian": {
+        "colors": [
+          "#2B2433",
+          "#6A4C8C",
+          "#B89CE0"
+        ],
+        "shape": "wisp",
+        "count": 10,
+        "dir": "up",
+        "speed": [
+          15,
+          40
+        ],
+        "gravity": -60,
+        "drag": 1.5,
+        "life": [
+          0.7,
+          1.0
+        ],
+        "size": [
+          2,
+          4
+        ],
+        "sway": 6,
+        "ring": 0
+      },
+      "prism": {
+        "colors": [
+          "#D63A3A",
+          "#F2C230",
+          "#3FA34D",
+          "#3A6FD6",
+          "#8A4FD0"
+        ],
+        "shape": "rainbow",
+        "count": 18,
+        "dir": "radial",
+        "speed": [
+          40,
+          90
+        ],
+        "gravity": 0,
+        "drag": 2.5,
+        "life": [
+          0.5,
+          0.8
+        ],
+        "size": [
+          1,
+          2
+        ],
+        "sway": 0,
+        "ring": 1
+      },
+      "emerald": {
+        "colors": [
+          "#3FA34D",
+          "#8BD66A",
+          "#1E5A2A"
+        ],
+        "shape": "leaf",
+        "count": 10,
+        "dir": "radial",
+        "speed": [
+          35,
+          80
+        ],
+        "gravity": 70,
+        "drag": 3,
+        "life": [
+          0.7,
+          1.0
+        ],
+        "size": [
+          2,
+          3
+        ],
+        "sway": 8,
+        "ring": 0
+      },
+      "ruby": {
+        "colors": [
+          "#D63A3A",
+          "#F28A2E",
+          "#FFE070"
+        ],
+        "shape": "ember",
+        "count": 16,
+        "dir": "up",
+        "speed": [
+          35,
+          90
+        ],
+        "gravity": -110,
+        "drag": 2,
+        "life": [
+          0.45,
+          0.75
+        ],
+        "size": [
+          1,
+          2
+        ],
+        "sway": 3,
+        "ring": 0
+      },
+      "sapphire": {
+        "colors": [
+          "#3A6FD6",
+          "#A8D8FF",
+          "#FFFFFF"
+        ],
+        "shape": "shard",
+        "count": 12,
+        "dir": "radial",
+        "speed": [
+          55,
+          105
+        ],
+        "gravity": 150,
+        "drag": 2,
+        "life": [
+          0.5,
+          0.75
+        ],
+        "size": [
+          2,
+          3
+        ],
+        "sway": 0,
+        "ring": 1
+      }
+    },
+    "enter": {
+      "countMul": 0.6
+    },
+    "bigHit": 0.35
   }
 }
