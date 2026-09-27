@@ -132,6 +132,13 @@ export class CryMon {
 	audio = new Chip();
 	images: ImgMap = {};
 	ready = false;
+	/** BUG-016/017: art load bookkeeping. ready flips after the critical
+	 *  chunk; artDone after everything. Missing files are listed, warned
+	 *  once, and readable through window.__crymon.artStatus(). */
+	artTotal = 0;
+	artLoaded = 0;
+	artMissing: string[] = [];
+	artDone = false;
 	mode: Mode = "title";
 	introI = 0;
 	endI = 0;
@@ -352,6 +359,10 @@ export class CryMon {
 		const all = artManifest();
 		const prefer = this.criticalArtKeys();
 		await this.loadArtChunk(all.filter(([k]) => !prefer.has(k)));
+		this.artDone = true;
+		if (this.artMissing.length) {
+			console.warn(`CryMon: ${this.artMissing.length} art file(s) failed to load:`, this.artMissing);
+		}
 	}
 	async loadArt() {
 		await this.loadArtCritical();
@@ -359,16 +370,22 @@ export class CryMon {
 	}
 	async loadArtChunk(list) {
 		const conc = 8;
+		this.artTotal += list.length;
 		for (let i = 0; i < list.length; i += conc) {
 			const chunk = list.slice(i, i + conc);
 			const loaded = await Promise.all(chunk.map(async ([k, src]) => {
 				try {
-					return [k, await loadImg(src)];
+					return [k, await loadImg(src), src];
 				} catch {
-					return [k, null];
+					return [k, null, src];
 				}
 			}));
-			for (const [k, im] of loaded) if (im) this.images[k] = im;
+			for (const [k, im, src] of loaded) {
+				if (im) {
+					this.images[k] = im;
+					this.artLoaded += 1;
+				} else this.artMissing.push(`${k} (${src})`);
+			}
 		}
 	}
 	reset() {
@@ -1000,6 +1017,13 @@ export class CryMon {
 				try { localStorage.removeItem("crymon.save.v1"); } catch { /* ignore */ }
 				this.hasSave = false;
 			},
+			artStatus: () => ({
+				ready: this.ready,
+				done: this.artDone,
+				total: this.artTotal,
+				loaded: this.artLoaded,
+				missing: [...this.artMissing],
+			}),
 			debug: () => ({
 				mode: this.mode,
 				cur: this.titleCursor,

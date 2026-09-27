@@ -214,6 +214,12 @@ for (const who of WARDENS) await runWarden(who);
       c.continueSave();
       return c.pos();
     });
+    await page.waitForFunction(() => window.__crymon.artStatus().done, null, { timeout: 120000 });
+    const art = await page.evaluate(() => window.__crymon.artStatus());
+    check(
+      art.missing.length === 0,
+      `all ${art.total} art files load (missing: ${art.missing.slice(0, 5).join(", ") || "none"})`,
+    );
     const rows = maps.rows.reach;
     const ch = rows[Math.floor(res.y / 32)]?.[Math.floor(res.x / 32)];
     check(
