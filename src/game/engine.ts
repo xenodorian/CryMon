@@ -4584,7 +4584,7 @@ export class CryMon {
 			const i = start + k;
 			const on = i === cur;
 			const y = Y(24 + k * 10.5);
-			this.text(`${on ? "> " : "  "}${r.q.title}`, X(16), y, on ? "#5a7a52" : r.done ? "#6e6a5c" : "#c5cec6", FONT);
+			this.text(`${on ? "> " : "  "}${r.q.title}`, X(16), y, on ? "#a8d890" : r.done ? "#6e6a5c" : "#c5cec6", FONT);
 			if (r.done) this.text("done", X(222), y, "#5a7a52", FONT, "right");
 		});
 		this.ctx.fillStyle = "#5a5648";
@@ -5099,7 +5099,7 @@ export class CryMon {
 		this.text("PAUSE", X(120), Y(30), "#e8e4d8", FONT, "center");
 		PAUSE_ROWS.forEach((r, i) => {
 			const on = i === this.pauseCursor;
-			this.text(on ? `> ${r}` : r, X(120), Y(40 + i * 10.5), on ? "#5a7a52" : "#c5cec6", FONT, "center");
+			this.text(on ? `> ${r}` : r, X(120), Y(40 + i * 10.5), on ? "#a8d890" : "#c5cec6", FONT, "center");
 		});
 	}
 	drawCryDex() {

@@ -3747,6 +3747,13 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         Warden 15/15.
       - Cathleen (10) and Shinigami (15) stay put: check_sync pins them.
       - Mason's rematch (Lv 6-8, hard-coded on Dreamcast) left alone.
+- [x] H13 Dreamcast wake-up after the ending verified in Flycast: a
+      pre-Nero save plus a local-only build with a Lv 2 Nero team (not
+      committed) -> trial -> Father -> ending -> Max at home, party kept,
+      journal shows the main quest DONE and "After the War" open.
+      Cursor rows in the pause menu and journal now use a brighter green
+      (#a8d890) on both engines; the old #5a7a52 was hard to read on the
+      dark panels.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

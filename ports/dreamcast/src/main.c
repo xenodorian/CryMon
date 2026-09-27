@@ -2295,7 +2295,7 @@ static void draw_pause_menu(int cur) {
     draw_menu_frame("PAUSE", "A SELECT  B CLOSE");
     for(i = 0; i < 9; i++)
         draw_text_s(rows[i], MENU_X + 16, MENU_Y + 24 + i * MENU_ROW_H,
-                    i == cur ? rgb565(90, 122, 82) : rgb565(197, 206, 198), MENU_SCALE);
+                    i == cur ? rgb565(168, 216, 144) : rgb565(197, 206, 198), MENU_SCALE);
 }
 
 static void draw_crydex(int cur, int entry) {
@@ -4813,7 +4813,7 @@ static void draw_journal(int cur) {
     for(i = start; i < n && i < start + JOURNAL_VIS; i++, y += 11) {
         const JournalQuest *q = &JOURNAL_QUESTS[rows[i]];
         int done = q->done >= 0 && journal_flag(q->done);
-        u16 c = i == cur ? rgb565(90, 122, 82) : (done ? rgb565(110, 106, 92) : rgb565(197, 206, 198));
+        u16 c = i == cur ? rgb565(168, 216, 144) : (done ? rgb565(110, 106, 92) : rgb565(197, 206, 198));
         draw_text_s(i == cur ? ">" : " ", MENU_X + 8, y, c, 1);
         draw_text_s(q->title, MENU_X + 20, y, c, 1);
         if(done) draw_text_s("DONE", MENU_X + MENU_W - 40, y, rgb565(90, 122, 82), 1);
