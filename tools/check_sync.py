@@ -638,18 +638,24 @@ def main() -> int:
         "partyIndex": [14, 1],
         "battlesDone": [15, 1],
         "mason2Map": [16, 1],
-        "bag": [18, len(save.get("itemOrder") or [])],
-        "flags": [18 + len(save.get("itemOrder") or []), 8],
-        "party": [18 + len(save.get("itemOrder") or []) + 8, 6 * int(save.get("partySlot") or 0)],
-        "checksum": [18 + len(save.get("itemOrder") or []) + 8 + 6 * int(save.get("partySlot") or 0), 2],
-        "dexSeen": [18 + len(save.get("itemOrder") or []) + 8 + 6 * int(save.get("partySlot") or 0) + 2, 4],
-        "dexCaught": [18 + len(save.get("itemOrder") or []) + 8 + 6 * int(save.get("partySlot") or 0) + 6, 4],
+        # Bag and flags were frozen at 20 slots / 8 bytes when Leg 3 moved
+        # the overflow into bagParts/flagParts (see save.json comment).
+        "bag": [18, 20],
+        "flags": [38, 8],
+        "party": [46, 6 * int(save.get("partySlot") or 0)],
+        "checksum": [46 + 6 * int(save.get("partySlot") or 0), 2],
+        "dexSeen": [46 + 6 * int(save.get("partySlot") or 0) + 2, 4],
+        "dexCaught": [46 + 6 * int(save.get("partySlot") or 0) + 6, 4],
     }
+    for key, first in (("flagParts", [38, 8]), ("bagParts", [18, 20])):
+        parts = save.get(key) or []
+        if not parts or list(parts[0]) != first:
+            errors.append(f"save.{key} must start with {first} (the original field)")
     for key, want in expected_layout.items():
         if layout.get(key) != want:
             errors.append(f"save.layout.{key} must be {want}, got {layout.get(key)!r}")
     dex_caught_end = expected_layout["dexCaught"][0] + expected_layout["dexCaught"][1]
-    for key in ("dexSeenHi", "dexCaughtHi", "dexSeenHi2", "dexCaughtHi2"):
+    for key in ("dexSeenHi", "dexCaughtHi", "dexSeenHi2", "dexCaughtHi2", "flagsHi", "bagHi"):
         span = layout.get(key)
         if span:
             dex_caught_end = max(dex_caught_end, int(span[0]) + int(span[1]))
@@ -658,8 +664,12 @@ def main() -> int:
         errors.append(f"save.size must cover dexCaught through byte {dex_caught_end - 1}, got {size}")
     flag_n = len(save.get("flags") or [])
     flag_bytes = (flag_n + 7) // 8
-    if flag_bytes > 8:
-        errors.append(f"save.flags requires {flag_bytes} bytes, but layout reserves 8")
+    flag_room = sum(int(n) for _o, n in (save.get("flagParts") or [[38, 8]]))
+    if flag_bytes > flag_room:
+        errors.append(f"save.flags requires {flag_bytes} bytes, but flagParts reserve {flag_room}")
+    bag_room = sum(int(n) for _o, n in (save.get("bagParts") or [[18, 20]]))
+    if len(save.get("itemOrder") or []) > bag_room:
+        errors.append(f"save.itemOrder has {len(save.get('itemOrder') or [])} items, but bagParts reserve {bag_room}")
     if int(save.get("partySlot") or 0) != 16:
         errors.append("save.partySlot must be 16 bytes")
     if int(save.get("version") or 0) < 1:

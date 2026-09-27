@@ -18,6 +18,16 @@ function dexWords(parts: number[][]): number[] {
 export const DEX_SEEN_WORDS = dexWords((saveJson as { dexSeenParts: number[][] }).dexSeenParts);
 export const DEX_CAUGHT_WORDS = dexWords((saveJson as { dexCaughtParts: number[][] }).dexCaughtParts);
 export const DEX_WORD_N = DEX_SEEN_WORDS.length;
+/** Blob offset of each flag byte (flag i is bit i&7 of byte i>>3) and of
+ *  each bag slot (itemOrder index) -- from save.json flagParts/bagParts.
+ *  The first part of each is the original fixed field (Leg 3 overflow). */
+function byteOffsets(parts: number[][]): number[] {
+	const out: number[] = [];
+	for (const [o, n] of parts) for (let i = 0; i < n; i++) out.push(o + i);
+	return out;
+}
+const FLAG_OFFS = byteOffsets((saveJson as { flagParts: number[][] }).flagParts);
+const BAG_OFFS = byteOffsets((saveJson as { bagParts: number[][] }).bagParts);
 export const SAVE_KEY = "crymon.save.v1";
 
 export type SaveFlagName = (typeof SAVE_FLAGS)[number];
@@ -102,10 +112,10 @@ export function packSave(snap: SaveSnapshot): Uint8Array {
 	buf[16] = snap.mason2Map ? Math.max(0, SAVE_MAPS.indexOf(snap.mason2Map)) : 0xff;
 	buf[17] = Math.max(0, Math.min(200, Math.round(snap.reputation) + 100));
 	for (let i = 0; i < SAVE_ITEMS.length; i++) {
-		buf[18 + i] = Math.max(0, Math.min(255, snap.bag[SAVE_ITEMS[i]] ?? 0));
+		buf[BAG_OFFS[i]] = Math.max(0, Math.min(255, snap.bag[SAVE_ITEMS[i]] ?? 0));
 	}
 	for (let i = 0; i < SAVE_FLAGS.length; i++) {
-		if (snap.flags[SAVE_FLAGS[i]]) buf[38 + (i >> 3)] |= 1 << (i & 7);
+		if (snap.flags[SAVE_FLAGS[i]]) buf[FLAG_OFFS[i >> 3]] |= 1 << (i & 7);
 	}
 	for (let p = 0; p < n; p++) {
 		const m = snap.party[p];
@@ -166,10 +176,10 @@ export function unpackSave(buf: Uint8Array): SaveSnapshot | null {
 	const dir = SAVE_DIRS[buf[6]] ?? "down";
 	const n = Math.min(6, buf[7]);
 	const bag: Record<string, number> = {};
-	for (let i = 0; i < SAVE_ITEMS.length; i++) bag[SAVE_ITEMS[i]] = buf[18 + i] ?? 0;
+	for (let i = 0; i < SAVE_ITEMS.length; i++) bag[SAVE_ITEMS[i]] = buf[BAG_OFFS[i]] ?? 0;
 	const flags: Record<string, boolean> = {};
 	for (let i = 0; i < SAVE_FLAGS.length; i++) {
-		flags[SAVE_FLAGS[i]] = !!(buf[38 + (i >> 3)] & (1 << (i & 7)));
+		flags[SAVE_FLAGS[i]] = !!((buf[FLAG_OFFS[i >> 3]] ?? 0) & (1 << (i & 7)));
 	}
 	const party: Monster[] = [];
 	for (let p = 0; p < n; p++) {

@@ -53,8 +53,8 @@ void save_pack(u8 *dst, const SaveLive *s) {
     dst[15] = s->battles;
     dst[16] = s->mason2_map;
     dst[17] = s->reputation;
-    for(i = 0; i < SAVE_ITEM_N; i++) dst[18 + i] = s->bag[i];
-    for(i = 0; i < 8; i++) dst[38 + i] = s->flags[i];
+    for(i = 0; i < SAVE_ITEM_N; i++) dst[SAVE_BAG_OFF[i]] = s->bag[i];
+    for(i = 0; i < SAVE_FLAG_BYTES; i++) dst[SAVE_FLAG_OFF[i]] = s->flags[i];
     for(p = 0; p < dst[7]; p++) {
         u8 *o = dst + 46 + p * SAVE_PARTY_SLOT;
         o[0] = s->party[p].species;
@@ -136,8 +136,8 @@ int save_unpack(const u8 *src, SaveLive *s) {
     s->battles = src[15];
     s->mason2_map = src[16];
     s->reputation = src[17];
-    for(i = 0; i < SAVE_ITEM_N; i++) s->bag[i] = src[18 + i];
-    for(i = 0; i < 8; i++) s->flags[i] = src[38 + i];
+    for(i = 0; i < SAVE_ITEM_N; i++) s->bag[i] = src[SAVE_BAG_OFF[i]];
+    for(i = 0; i < SAVE_FLAG_BYTES; i++) s->flags[i] = src[SAVE_FLAG_OFF[i]];
     for(p = 0; p < n; p++) {
         const u8 *o = src + 46 + p * SAVE_PARTY_SLOT;
         s->party[p].species = o[0];
@@ -484,7 +484,7 @@ int save_restore(SaveLive *s) {
     u8 fat[512], dir[512];
     u8 file[VMS_MAX_BLOCKS * 512];
     u16 blks[VMS_MAX_BLOCKS];
-    int dblk, dent, n, i;
+    int dblk, dent, n, i, len;
     u16 crc_saved;
     if(!vmu_layout(&L)) return 0;
     if(vmu_find_entry(&L, &dblk, &dent, dir) != 1) return 0;
@@ -499,8 +499,14 @@ int save_restore(SaveLive *s) {
     if(file[0] == 'C' && file[1] == 'R' && file[2] == 'Y' && file[3] == 'M' && file[4] < 0x20)
         return save_unpack(file, s);
     if(n < VMS_BLOCKS) return 0;
+    /* data_len comes from the header, not SAVE_SIZE: a file written by an
+       older build holds a shorter blob (280 before Leg 3). The CRC covers
+       only what was written; the missing tail reads as zero. */
+    len = le16(file + 0x48);
+    if(len < 144 || len > SAVE_SIZE || file[0x4a] || file[0x4b]) return 0;
     crc_saved = le16(file + 0x46);
     file[0x46] = file[0x47] = 0;
-    if(crc16_ccitt(file, VMS_FILE_BYTES) != crc_saved) return 0;
+    if(crc16_ccitt(file, VMS_DATA_OFF + len) != crc_saved) return 0;
+    for(i = VMS_DATA_OFF + len; i < VMS_FILE_BYTES; i++) file[i] = 0;
     return save_unpack(file + VMS_DATA_OFF, s);
 }

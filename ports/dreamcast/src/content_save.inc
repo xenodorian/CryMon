@@ -1,10 +1,10 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=e6feee54f879b4b3 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=d84e33771af370d9 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
 
 #define SAVE_VERSION 7
-#define SAVE_SIZE 280
+#define SAVE_SIZE 300
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
 #define SAVE_FLAG_N 64
@@ -88,5 +88,8 @@
 static const unsigned short SAVE_DEX_SEEN_OFF[SAVE_DEX_BYTES] = { 144, 145, 146, 147, 256, 257, 258, 259, 264, 265, 266, 267, 268, 269, 270, 271 };
 static const unsigned short SAVE_DEX_CAUGHT_OFF[SAVE_DEX_BYTES] = { 148, 149, 150, 151, 260, 261, 262, 263, 272, 273, 274, 275, 276, 277, 278, 279 };
 #define SAVE_PARTY_NATURE 12
+#define SAVE_FLAG_BYTES 16
+static const unsigned short SAVE_FLAG_OFF[SAVE_FLAG_BYTES] = { 38, 39, 40, 41, 42, 43, 44, 45, 280, 281, 282, 283, 284, 285, 286, 287 };
+static const unsigned short SAVE_BAG_OFF[SAVE_ITEM_N] = { 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37 };
 
 #endif

@@ -1312,6 +1312,22 @@ def bake_save(data: dict, out: Path) -> None:
     lines.append("static const unsigned short SAVE_DEX_CAUGHT_OFF[SAVE_DEX_BYTES] = { "
                  + ", ".join(str(o) for o in caught_offs) + " };")
     lines.append(f"#define SAVE_PARTY_NATURE {int(pnat)}")
+    # Flags and bag slots past the original fixed fields (Leg 3): byte i of
+    # the flag bits / slot i of the bag lives at SAVE_*_OFF[i] -- from
+    # save.json flagParts/bagParts, same idea as the CryDex parts above.
+    flag_offs = [int(o) + i for o, n in (save.get("flagParts") or [[38, 8]]) for i in range(int(n))]
+    bag_offs = [int(o) + i for o, n in (save.get("bagParts") or [[18, len(items)]]) for i in range(int(n))]
+    if len(flags) > 8 * len(flag_offs):
+        raise SystemExit(f"save.json flagParts hold {8 * len(flag_offs)} flags but flags has {len(flags)}")
+    if len(items) > len(bag_offs):
+        raise SystemExit(f"save.json bagParts hold {len(bag_offs)} items but itemOrder has {len(items)}")
+    if max(flag_offs + bag_offs) >= size:
+        raise SystemExit("save.json flag/bag parts run past save.size")
+    lines.append(f"#define SAVE_FLAG_BYTES {len(flag_offs)}")
+    lines.append("static const unsigned short SAVE_FLAG_OFF[SAVE_FLAG_BYTES] = { "
+                 + ", ".join(str(o) for o in flag_offs) + " };")
+    lines.append("static const unsigned short SAVE_BAG_OFF[SAVE_ITEM_N] = { "
+                 + ", ".join(str(o) for o in bag_offs[:len(items)]) + " };")
     lines.append("")
     lines.append("#endif")
     out.write_text("\n".join(lines) + "\n")

@@ -3157,7 +3157,12 @@ Each stage below is pushed on its own; tick it here when it lands.
   sprite, not another character's).
 
 ### Stages
-- [ ] S1 Save: flagParts/bagParts, size 300, both engines, check_sync, baker.
+- [x] S1 Save: flagParts/bagParts, size 300, both engines, check_sync, baker.
+      Baker emits `SAVE_FLAG_BYTES`/`SAVE_FLAG_OFF[]`/`SAVE_BAG_OFF[]`;
+      `save.ts` walks the same parts. Dreamcast `save_restore` now takes the
+      CRC length from the VMS header's data_len (so a 280-byte file from an
+      older build still loads) and zero-fills the tail. check_sync pins the
+      first part of each list to the original field.
 - [ ] S2 Content: items, shop rule, logic `leg3` block, trainers, dialogue,
       NPCs, base/palace maps + city doors (`build_sephirot.py`), warps,
       placeholder NPC art.

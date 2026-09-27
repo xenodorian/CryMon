@@ -14,7 +14,7 @@ typedef struct {
     unsigned char map_id, dir, party_n, lead, battles, mason2_map, reputation;
     unsigned short x, y, marks;
     unsigned char bag[SAVE_ITEM_N];
-    unsigned char flags[8];
+    unsigned char flags[SAVE_FLAG_BYTES];
     SaveMon party[SAVE_PARTY_MAX];
     unsigned char dex_seen[SAVE_DEX_BYTES];
     unsigned char dex_caught[SAVE_DEX_BYTES];
