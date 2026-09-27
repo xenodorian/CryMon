@@ -3958,6 +3958,10 @@
       {
         "speaker": "max",
         "text": "Keep him close this time. I've got enough trouble on the road."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got a Mega Crystal."
       }
     ],
     "linaAfter": [
