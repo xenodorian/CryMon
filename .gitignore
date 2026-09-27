@@ -14,5 +14,6 @@ ports/dreamcast/src/sprites.h
 ports/dreamcast/disc/
 ports/dreamcast/tools/placeholder_sprites/
 tools/__pycache__/
+tools/pixelforge/__pycache__/
 ports/dreamcast/tools/__pycache__/
 backups/**/*.tar.gz

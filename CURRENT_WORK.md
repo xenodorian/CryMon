@@ -3680,3 +3680,34 @@ Dreamcast build: verified locally with the CI image
 container); no emulator run. Still open in BUG_LOG: 007 (emulator boot
 test), 010/012 (NPC render vs interaction geometry), 013 (checksum skips
 dex bytes, needs a save version bump), 015 (save key name).
+
+## Code-drawn art replaces PLACEHOLDER_ART (Claude, 2026-09-27) -- IN PROGRESS
+
+AI image generation is still blocked in the cloud sessions (Hugging Face
+token rejected with 401, connector Spaces off, model weights on
+us.aws.cdn.hf.co refused by the network policy). Details:
+`/mnt/project-files/imagegen/BLOCKED_REPORT.txt` in the project folder.
+The user asked for the art anyway, so it is drawn in code.
+
+**Tool: `tools/pixelforge/`** (needs Pillow + numpy).
+- `core.py`: 2.5D sculpt-and-shade renderer. Parts are ellipsoids, tapered
+  capsules and bevelled polygons written into a depth buffer, shaded onto
+  hue-shifted color ramps, then cast shadows, part lines, selective
+  outline, pixel "ink" (eyes via `peye`), fx (sparks). `flame()` helper.
+- `quad.py` / `bird.py` / `bug.py`: parametric body plans. `mon_*.py`:
+  one entry per species. `registry.py` maps ids to drawing functions.
+- Run: `python3 tools/pixelforge/build.py monsters --all` (writes through
+  `sprite_root.assert_write`, overwrites on purpose). Add
+  `--preview sheet.png` to render a contact sheet without writing.
+- To redraw one species, edit its entry and rebuild just that id.
+
+**Batch 1: all 82 placeholder monsters** replaced
+(`public/sprites/monsters/<id>/1..4.png`, 4-frame idle, facing left,
+cropped to the union of the frames). Pipeline run: gen_sprites,
+bake_content, check_sync --strict OK; typecheck, 55 tests, eslint OK.
+Dreamcast toolchain is not in the cloud session; CI builds the CDI.
+
+Not touched: Max, Lead (user art, still broken, needs the user),
+all finished monsters.
+
+Next: NPC overworld sprites (35), portraits (32), then a quality pass.
