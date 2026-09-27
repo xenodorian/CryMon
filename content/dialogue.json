@@ -297,15 +297,15 @@
     "wrenFirst": [
       {
         "speaker": "wren",
-        "text": "Too young. Take the salve. Calder's still out there."
+        "text": "You're too young for this road. Take the salve. Calder's still out there."
       },
       {
         "speaker": "max",
-        "text": "I'm not too young."
+        "text": "I'm going anyway."
       },
       {
         "speaker": "wren",
-        "text": "Ivo and Nell are close by. Keep that hound fed."
+        "text": "Then keep that hound fed. Ivo and Nell are close by."
       }
     ],
     "wrenBeat": [
@@ -345,11 +345,11 @@
       },
       {
         "speaker": "max",
-        "text": "Don't follow me."
+        "text": "Were you following me?"
       },
       {
         "speaker": "mae",
-        "text": "I won't. Take the wrap. Wren heals. I just didn't want the path empty."
+        "text": "No. Take the wrap. Wren can heal you properly. I just didn't want the road to feel empty."
       }
     ],
     "maeAgain": [
@@ -365,7 +365,7 @@
     "ivoFirst": [
       {
         "speaker": "ivo",
-        "text": "Camp took my CryMon. Chew this. Calder's still out there."
+        "text": "Camp took my CryMon. Chew this bitterroot. Calder's still out there."
       },
       {
         "speaker": "max",
@@ -373,7 +373,7 @@
       },
       {
         "speaker": "ivo",
-        "text": "Don't give him a clean fight."
+        "text": "Then don't give him a clean fight."
       }
     ],
     "ivoAgain": [
@@ -389,11 +389,11 @@
     "nellFirst": [
       {
         "speaker": "nell",
-        "text": "Too young. Drink this anyway. Reeds hide a stone."
+        "text": "Too young. Use this anyway. Reeds hide a stone."
       },
       {
         "speaker": "max",
-        "text": "I can hold a crystal."
+        "text": "I can handle a crystal."
       }
     ],
     "nellBonus": [
@@ -517,7 +517,7 @@
     "calderFight": [
       {
         "speaker": "calder",
-        "text": "No one gets past this point. This is a military camp for the Weeping Army."
+        "text": "No one gets past this point. The Weeping Army holds the road beyond it."
       },
       {
         "speaker": "max",
@@ -1480,6 +1480,10 @@
       {
         "speaker": "lead",
         "text": "Turn back, or meet all six of mine."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm not turning back."
       }
     ],
     "leadWinPlaceholder": [
@@ -3795,7 +3799,7 @@
       },
       {
         "speaker": "crier",
-        "text": "He fights with six CryMon. Nobody beats him alone. If your father's old team were back, that would be a fair fight."
+        "text": "He fights with six CryMon. Nobody beats him alone. If your father's old CryMon were back, that would be a fair fight."
       },
       {
         "speaker": "crier",
@@ -3840,6 +3844,10 @@
       {
         "speaker": "tam",
         "text": "A deal's a deal. Take my Voltbuck. Treat her better than I could."
+      },
+      {
+        "speaker": "max",
+        "text": "I will. Thank you, Tam."
       },
       {
         "speaker": "none",
@@ -3892,6 +3900,10 @@
         "text": "Thank you, Max. Take this. It's the best crystal we have."
       },
       {
+        "speaker": "max",
+        "text": "He won't do it alone next time."
+      },
+      {
         "speaker": "none",
         "text": "Max got a Mega Crystal."
       }
@@ -3920,6 +3932,10 @@
       {
         "speaker": "juno",
         "text": "Here. One Ultimate Crystal, as promised."
+      },
+      {
+        "speaker": "max",
+        "text": "You really like Crymare."
       },
       {
         "speaker": "none",
