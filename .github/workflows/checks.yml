@@ -1,9 +1,10 @@
 name: Checks
 
-# Fast gates on every push and PR (BUG_LOG BUG-005/006/008/009):
-# content bake is in sync, web typecheck/lint/unit tests, and a real
-# browser run of both crystal wardens through win, save, reload and
-# Continue, with the web save blob read back by the Dreamcast save.c.
+# Gates on every push and PR (BUG_LOG BUG-005..009): content bake is in
+# sync, web typecheck/lint/unit tests, a real browser run of both crystal
+# wardens through win, save, reload and Continue (web blob read back by the
+# Dreamcast save.c), then the same fights on the Dreamcast build itself,
+# booted headless in Flycast, checked through the VMU save it writes.
 
 on:
   push:
@@ -42,6 +43,21 @@ jobs:
           npm run dev > dev.log 2>&1 &
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:8080/ && break; sleep 1; done
           E2E_OUT=e2e-out npm run test:e2e:quartz
+      - name: Build Dreamcast CDI
+        run: |
+          python3 -m pip install --user Pillow python-xlib
+          python3 ports/dreamcast/tools/gen_sprites.py public/sprites
+          docker run --rm -v "$GITHUB_WORKSPACE:/src" -w /src einsteinx2/dcdev-kos-toolchain:gcc-9 sh -lc 'export PATH=/opt/toolchains/dc/sh-elf/bin:/opt/toolchains/dc/bin:$PATH; make -C ports/dreamcast clean && make -C ports/dreamcast'
+          docker run --rm -v "$GITHUB_WORKSPACE:/src" ubuntu:24.04 bash -lc 'set -e; apt-get update -qq; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq git meson ninja-build pkg-config build-essential libisofs-dev >/dev/null; git clone -q --depth 1 https://gitlab.com/simulant/mkdcdisc.git /tmp/mkdcdisc; meson setup /tmp/mkdcdisc/build /tmp/mkdcdisc >/dev/null; meson compile -C /tmp/mkdcdisc/build >/dev/null; /tmp/mkdcdisc/build/mkdcdisc -e /src/ports/dreamcast/crymon.elf -f /src/ports/dreamcast/disc/MONSTERS.BIN -o /src/ports/dreamcast/test.cdi -n "CryMon" -a "xenodorian" -N --allow-overwrite'
+      - name: Crystal wardens on Dreamcast (Flycast, headless)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1 libegl1 libgl1-mesa-dri >/dev/null
+          # Prebuilt Flycast (an extracted AppImage) from the linuxserver image.
+          cid=$(docker create linuxserver/flycast)
+          docker cp "$cid:/opt/flycast" "$RUNNER_TEMP/flycast"
+          docker rm "$cid"
+          python3 ports/dreamcast/tools/emu_warden.py --cdi ports/dreamcast/test.cdi \
+            --flycast "$RUNNER_TEMP/flycast/AppRun" --save-dir e2e-out --out e2e-out/dreamcast
       - name: Upload e2e artifacts
         if: always()
         uses: actions/upload-artifact@v4
