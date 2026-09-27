@@ -18,6 +18,7 @@ Default Flycast keyboard map: arrows = d-pad, X = A, Return = Start.
 import argparse
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -138,9 +139,17 @@ class Emu:
     def pause_save(self):
         self.close_talk()
         self.key("Return", after=0.6)
-        for _ in range(6):  # PARTY BAG CRYDEX MEDALS JOURNAL SETTINGS SAVE
+        for _ in range(pause_row("SAVE")):
             self.key("Down", after=0.1)
         self.key("x", after=2.0)
+
+
+def pause_row(label):
+    """Row of a pause menu item, read from main.c so new items don't break us."""
+    src = (REPO / "ports" / "dreamcast" / "src" / "main.c").read_text()
+    body = src[src.index("static void draw_pause_menu("):]
+    rows = re.search(r"rows\[\d+\]\s*=\s*\{([^}]*)\}", body).group(1)
+    return re.findall(r'"([^"]*)"', rows).index(label)
 
 
 def decode(blob):
