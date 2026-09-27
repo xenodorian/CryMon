@@ -3190,8 +3190,41 @@ Each stage below is pushed on its own; tick it here when it lands.
         the committed city gate letters (yesod/netzach/hod/chesed/chokmah/
         keter swap letters; the gate-order fix was applied to the rows, not
         the tool). Don't re-run it without fixing that first.
-- [ ] S3 Web: base soldiers/Generals, medals, arrest/execute, Golden Shackles.
-- [ ] S4 Web: Nero, tint/Kingslayer, father reaction, Heavenfall endings.
+- [x] S3 Web: base soldiers/Generals, medals, arrest/execute, Golden Shackles.
+- [x] S4 Web: Nero, tint/Kingslayer, father reaction, Heavenfall endings.
+      (S3 and S4 landed together in engine.ts.) Where things are:
+      - `LEG3`, `LEG3_FLAGS` consts near the top; every Leg 3 flag is a
+        plain boolean field, reset in `reset()`, exposed to NPC scripts via
+        `npcFlags()`, and usable as a warp `need` (generic fallback in
+        `flagFor()`).
+      - `finishWin()` wsoldier branch -> `isLeg3Post(who)` -> `leg3Win()`
+        (sets the trainer's `set` flag, marks, then win talk; Generals ->
+        `generalFate`, Nero -> `neroFate`, hostile Heavenfall -> `leg3End`).
+        Leg 3 posts are excluded from roaming (`roamableNpc`), so they
+        stand in the hall and block it.
+      - Mode `fate`: `openFate/updateFate/drawFate`, `resolveGeneral`
+        (arrest uses 1 Shackles; execute scream + red fade; medal line;
+        9th medal grants Golden Shackles) and `resolveNero` (trial /
+        execute: scream x3 via setTimeout, `titleKingslayer`).
+      - Chain after Nero: `leg3Father` -> `leg3FatherReaction()` ->
+        `leg3Heavenfall` -> `leg3HeavenfallResolution()` ->
+        (`leg3HostileFight` -> battle) -> `leg3End` -> mode `ending` with
+        `leg3EndingText()` (cards in dialogue.json `endingLeg3`). A wipe
+        against `heavenfallFinal` is caught in the `end_lose` branch ->
+        `titleBloody`. Hostile Heavenfall is removed from both parties
+        before the fight; if nobody is left, it counts as the wipe.
+      - `drawKingslayerTint()` runs every frame after the scene.
+      - `playerDisplayName()`: Bloody > Godslayer > Kingslayer > Leg 2 names.
+      - Pause menu gained "Medals" (index 4; Close is now 7).
+      - Shops: `shops.notSoldBy` filter in `shopCatalog()`.
+      Verified with Playwright (tapConfirm, not keyboard Z, drives dialogue
+      reliably): Yesod door refuses without the Bronze Star; guards block
+      the hall and must be beaten; no Shackles -> Execute only (-25);
+      Shackles -> Arrest (+10, one used); 9 medals -> Golden Shackles;
+      palace opens; Nero execute (-50, Kingslayer, tint) -> Father leaves
+      -> rep < 0 -> hostile Heavenfall -> win -> Godslayer ending; trial
+      path -> Father proud -> tamed ending. Save round trip keeps flags
+      past bit 64 and bag slots past 20; a 280-byte blob still loads.
 - [ ] S5 Dreamcast: bases, Generals, medals, arrest/execute.
 - [ ] S6 Dreamcast: Nero, tint, father, endings.
 - [ ] S7 Verify: typecheck/tests/lint, Playwright run, Flycast visual check.

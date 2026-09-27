@@ -42,6 +42,7 @@ import {
   spawnOf,
   ENDING_WIN,
   ENDING_WIN_HEAVENFALL,
+  ENDING_LEG3,
   MAP_NAME,
   ENCOUNTERS,
   WARPS,
@@ -84,11 +85,20 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport";
+type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "leadThanksGO" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL" };
 const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray" };
 const STEP = 1 / 60;
+/* Leg 3 (logic.json leg3; CURRENT_WORK.md "Leg 3 implementation"). */
+const LEG3 = LOGIC.leg3;
+const cap1 = (s: string) => s[0].toUpperCase() + s.slice(1);
+/** Save flags Leg 3 owns; each is a plain boolean field on the engine. */
+const LEG3_FLAGS: string[] = [
+	...LEG3.generals.flatMap((g) => [...g.guards.map((x) => `beat${cap1(x)}`), g.medal, g.arrested]),
+	...LEG3.palace.guards.map((x) => `beat${cap1(x)}`),
+	"hasGoldenShackles", "beatNero", "neroTried", "titleKingslayer", "fatherAbandoned", "titleGodslayer", "titleBloody", "leg3Ended",
+];
 function loadImg(src, ms = 8000) {
 	return new Promise((res, rej) => {
 		const im = new Image();
@@ -460,6 +470,11 @@ export class CryMon {
 		this.beatLieutenantLead = false;
 		this.heavenfallRepWarned = false;
 		this.drayKnifeOffered = false;
+		for (const k of LEG3_FLAGS) this[k] = false;
+		this.fateCur = 0;
+		this.fateKind = null;
+		this.fateTrainer = null;
+		this.medalCur = 0;
 		this.backstabCur = 0;
 		this.pendingBackstab = null;
 		this.quarryCrateLooted = false;
@@ -1068,6 +1083,23 @@ export class CryMon {
 				this.choiceCur = 0;
 			} else if (next === "wsoldier") {
 				this.startWsBattle(this.pendingWs);
+			} else if (next === "generalFate" || next === "neroFate") {
+				this.openFate(next === "neroFate" ? "nero" : "general");
+			} else if (next === "leg3Father") {
+				this.leg3FatherReaction();
+			} else if (next === "leg3Heavenfall") {
+				this.leg3HeavenfallResolution();
+			} else if (next === "leg3HostileFight") {
+				this.startWsBattle(LEG3.finalHeavenfall.trainer);
+				if (this.mode !== "battle") {
+					// Nobody left who can fight: the god wins by default.
+					this.titleBloody = true;
+					this.say(TALK.hfEndBloody, "leg3End");
+				}
+			} else if (next === "leg3End") {
+				this.leg3Ended = true;
+				this.mode = "ending";
+				this.endI = 0;
 			} else if (next === "hfGameOver") {
 				this.runHeavenfallGameOverFx();
 			} else if (next === "ending") {
@@ -1093,7 +1125,7 @@ export class CryMon {
 		this.audio.ui();
 	}
 	updatePause() {
-		const rows = ["Party", "Bag", "CryDex", "Map", "Settings", "Save", "Close"];
+		const rows = ["Party", "Bag", "CryDex", "Map", "Medals", "Settings", "Save", "Close"];
 		if (this.input.up()) {
 			this.pauseCursor = (this.pauseCursor + rows.length - 1) % rows.length;
 			this.audio.ui();
@@ -1107,13 +1139,14 @@ export class CryMon {
 			this.audio.ui();
 			return;
 		}
-		if (this.input.confirm() || (this.input.start() && this.pauseCursor === 6)) {
+		if (this.input.confirm() || (this.input.start() && this.pauseCursor === 7)) {
 			if (this.pauseCursor === 0) this.openParty();
 			else if (this.pauseCursor === 1) this.openBag();
 			else if (this.pauseCursor === 2) this.openCryDex();
 			else if (this.pauseCursor === 3) this.openTownMap();
-			else if (this.pauseCursor === 4) this.openSettings();
-			else if (this.pauseCursor === 5) {
+			else if (this.pauseCursor === 4) this.openMedals();
+			else if (this.pauseCursor === 5) this.openSettings();
+			else if (this.pauseCursor === 6) {
 				this.mode = "world";
 				this.persist(true);
 			} else {
@@ -1340,8 +1373,10 @@ export class CryMon {
 	shopCatalog(keeper: string) {
 		const stock = LOGIC.shops?.crystalStock ?? {};
 		const allowed: string[] = stock[keeper] ?? stock.default ?? [];
+		const notSoldBy: Record<string, string[]> = LOGIC.shops?.notSoldBy ?? {};
 		const list = ITEM_ORDER.filter((id) => {
 			if (ITEMS[id].buy <= 0) return false;
+			if (notSoldBy[id]?.includes(keeper)) return false;
 			if (ITEMS[id].effect?.kind === "capture") return allowed.includes(id);
 			// Only Dray sells the Bowie Knife, only after his one-time
 			// reputation-warning line has fired, and only until the
@@ -1623,6 +1658,14 @@ export class CryMon {
 		}
 		if (this.mode === "mercy") {
 			this.updateMercy();
+			return;
+		}
+		if (this.mode === "fate") {
+			this.updateFate();
+			return;
+		}
+		if (this.mode === "medals") {
+			this.updateMedals();
 			return;
 		}
 		if (this.mode === "backstab") {
@@ -2176,10 +2219,14 @@ export class CryMon {
 		if (need === "choseHeavenfall") return this.choseHeavenfall || this.gauntletUnlocked;
 		if (need === "foughtMason") return this.foughtMason;
 		if (need === "hasParty") return this.party.length >= 1;
+		// Leg 3 gates (base doors need the previous medal, the palace needs
+		// hasGoldenShackles): any other boolean flag field works as a need.
+		if (typeof this[need] === "boolean") return this[need];
 		return true;
 	}
 	npcFlags(): Record<string, boolean> {
 		return {
+			...Object.fromEntries(LEG3_FLAGS.map((k) => [k, !!this[k]])),
 			tookStarter: this.tookStarter,
 			talkedFather: this.talkedFather,
 			lootedCrate: this.lootedCrate,
@@ -2637,6 +2684,9 @@ export class CryMon {
 		// rather than dropping "wsoldier" from his script, which would also
 		// break the shared battle-trigger wiring (startWsBattle()).
 		if (npc.id === "lieutenantLead") return false;
+		// Leg 3 base guards, Generals and Nero hold their post (they block
+		// the hall you have to walk through), so they never roam or chase.
+		if (npc.script?.some((s) => s.pending && this.isLeg3Post(s.pending))) return false;
 		return !!npc.script?.some((s) => s.after === "wsoldier");
 	}
 	ensureRoamer(npc): Roamer {
@@ -2767,6 +2817,7 @@ export class CryMon {
 		if (this.clock - this.lastAutosave > 4) this.persist(false);
 	}
 	endingText() {
+		if (this.leg3Ended) return this.leg3EndingText();
 		return this.choseHeavenfall ? ENDING_WIN_HEAVENFALL : ENDING_WIN;
 	}
 	startWsBattle(who) {
@@ -2799,7 +2850,7 @@ export class CryMon {
 					: trainer === "shinigami"
 						? "Shinigami"
 						: trainer === "wsoldier"
-							? (wsName[soldierId] ?? "Soldier")
+							? (wsName[soldierId] ?? TRAINERS[soldierId]?.name ?? "Soldier")
 							: "Calder";
 		this.battle = {
 			wild,
@@ -2949,7 +3000,15 @@ export class CryMon {
 						return;
 					}
 					if (b.afterMsg === "end_lose") {
+						const lostTo = b.trainer === "wsoldier" ? b.soldierId : null;
 						this.leaveBattle();
+						if (lostTo === LEG3.finalHeavenfall.trainer) {
+							// 3.6: wiped by the hostile Heavenfall. No retry.
+							this.onBattleOver();
+							this.titleBloody = true;
+							this.say(TALK.hfEndBloody, "leg3End");
+							return;
+						}
 						this.world.encounterLock = 3;
 						this.onBattleOver();
 						if (this.choseHeavenfall) {
@@ -3861,6 +3920,10 @@ export class CryMon {
 				this.world.encounterLock = 3;
 				this.onBattleOver();
 				const kit = TRAINERS[who];
+				if (this.isLeg3Post(who)) {
+					this.leg3Win(who);
+					return;
+				}
 				if (kit?.grant) {
 					for (const [iid, qty] of kit.grant) {
 						this.bag[iid] = (this.bag[iid] ?? 0) + qty;
@@ -4102,6 +4165,203 @@ export class CryMon {
 			this.text(on ? `> ${row}` : `  ${row}`, X(28), Y(56 + i * 14), on ? "#e8e4d8" : "#8a8678", FONT);
 		});
 		this.text("Z  choose", X(28), Y(128), "#5a7a52", FONT);
+	}
+	/* ---------------- Leg 3: Generals, Nero, endings ---------------- */
+	/** Base guards, Generals, royal guards, Nero and the hostile
+	 *  Heavenfall: trainers whose win runs leg3Win() instead of mercy. */
+	isLeg3Post(who) {
+		const k = TRAINERS[who];
+		return !!(k && (k.base || k.general || k.king || k.final));
+	}
+	leg3General(who) {
+		return LEG3.generals.find((g) => g.trainer === who) || null;
+	}
+	leg3Win(who) {
+		const kit = TRAINERS[who];
+		if (kit.set) this[kit.set] = true;
+		this.marks += kit.marks ?? 0;
+		this.audio.ok();
+		if (kit.final) {
+			this.say(TALK[kit.winTalk], "leg3End");
+			return;
+		}
+		if (kit.general) {
+			this.fateTrainer = who;
+			this.say(TALK[kit.winTalk], "generalFate");
+			return;
+		}
+		if (kit.king) {
+			this.fateTrainer = who;
+			this.say(TALK[kit.winTalk], "neroFate");
+			return;
+		}
+		this.say(TALK[kit.winTalk]);
+	}
+	/** 3.2 / 3.4 choice after a General or Nero is beaten. */
+	fateRows() {
+		if (this.fateKind === "nero") return ["Bring Him To Trial", "Execute"];
+		return (this.bag[LEG3.shackles] ?? 0) > 0 ? ["Arrest", "Execute"] : ["Execute"];
+	}
+	openFate(kind) {
+		this.fateKind = kind;
+		this.fateCur = 0;
+		this.mode = "fate";
+	}
+	updateFate() {
+		const rows = this.fateRows();
+		if (this.input.up()) {
+			this.fateCur = (this.fateCur + rows.length - 1) % rows.length;
+			this.audio.ui();
+		} else if (this.input.down()) {
+			this.fateCur = (this.fateCur + 1) % rows.length;
+			this.audio.ui();
+		}
+		if (this.input.confirm()) {
+			this.audio.ok();
+			const pick = rows[this.fateCur];
+			this.mode = "world";
+			if (this.fateKind === "nero") this.resolveNero(pick !== "Execute");
+			else this.resolveGeneral(pick !== "Execute");
+		}
+	}
+	resolveGeneral(arrest) {
+		const g = this.leg3General(this.fateTrainer);
+		if (!g) return;
+		const spk = TRAINERS[g.trainer].winTalk.replace(/Win$/, "");
+		let lines;
+		if (arrest) {
+			this.bag[LEG3.shackles] = Math.max(0, (this.bag[LEG3.shackles] ?? 0) - 1);
+			this[g.arrested] = true;
+			this.adjustReputation(LEG3.rep.arrestGeneral);
+			lines = [...TALK[`${spk}Arrest`]];
+		} else {
+			this.adjustReputation(LEG3.rep.executeGeneral);
+			this.audio.scream();
+			this.startFade("execute");
+			lines = [...((this.bag[LEG3.shackles] ?? 0) > 0 ? [] : TALK.generalArrestNoShackles), ...TALK[`${spk}Execute`]];
+		}
+		lines.push({ speaker: "none", text: `${this.playerDisplayName()} took the ${g.medalName}.` });
+		if (!this.hasGoldenShackles && LEG3.generals.every((x) => this[x.medal])) {
+			this.hasGoldenShackles = true;
+			this.bag[LEG3.goldenShackles] = 1;
+			lines.push(...TALK.goldenShacklesGet);
+		}
+		this.say(lines);
+	}
+	/** 3.4: Nero's fate, then 3.5 (Father) and 3.6 (Heavenfall). */
+	resolveNero(trial) {
+		if (trial) {
+			this.neroTried = true;
+			this.adjustReputation(LEG3.rep.trialNero);
+			this.say(TALK.neroTrial, "leg3Father");
+			return;
+		}
+		this.adjustReputation(LEG3.rep.executeNero);
+		this.titleKingslayer = true;
+		this.startFade("execute");
+		for (let i = 0; i < LEG3.screamRepeats; i++) {
+			setTimeout(() => {
+				try { this.audio.scream(); } catch { /* audio may be blocked; the fade still runs */ }
+			}, i * LEG3.screamGapMs);
+		}
+		this.say([...TALK.neroExecute, ...TALK.neroCrowned], "leg3Father");
+	}
+	leg3FatherReaction() {
+		if (!this.revivedFather) {
+			this.leg3HeavenfallResolution();
+			return;
+		}
+		if (this.titleKingslayer) {
+			// "Abandons": Father and his CryMon leave; Max is on her own.
+			this.fatherAbandoned = true;
+			if (this.activeParty === 1) {
+				const tmp = this.party;
+				this.party = this.party2;
+				this.party2 = tmp;
+				this.activeParty = 0;
+				this.partyIndex = 0;
+			}
+			this.party2 = [];
+			this.say(TALK.fatherMonster, "leg3Heavenfall");
+		} else if (this.reputation >= 0) {
+			this.say(TALK.fatherProud, "leg3Heavenfall");
+		} else {
+			this.say(TALK.fatherSacrifice, "leg3Heavenfall");
+		}
+	}
+	leg3HasHeavenfall() {
+		const id = LEG3.finalHeavenfall.species;
+		return [...this.party, ...this.party2].some((m) => m.species === id);
+	}
+	leg3HeavenfallResolution() {
+		if (!this.leg3HasHeavenfall()) {
+			this.say(TALK.hfEndNone, "leg3End");
+		} else if (this.reputation >= 0) {
+			this.say(TALK.hfEndTamed, "leg3End");
+		} else {
+			// It leaves the party to fight her. No heal, no rest.
+			const id = LEG3.finalHeavenfall.species;
+			this.party = this.party.filter((m) => m.species !== id);
+			this.party2 = this.party2.filter((m) => m.species !== id);
+			this.partyIndex = Math.max(0, this.party.findIndex((m) => m.hp > 0));
+			this.say(TALK.hfEndHostile, "leg3HostileFight");
+		}
+	}
+	leg3EndingText() {
+		const E = ENDING_LEG3;
+		const out = [E.war, this.neroTried ? E.trial : E.crowned];
+		if (this.revivedFather) out.push(this.fatherAbandoned ? E.fatherGone : E.fatherStays);
+		if (this.titleBloody) out.push(E.bloody);
+		else if (this.titleGodslayer) out.push(E.godslayer);
+		else if (this.leg3HasHeavenfall()) out.push(E.tamed);
+		else out.push(E.none);
+		out.push(E.end);
+		return out;
+	}
+	drawFate() {
+		this.drawWorld();
+		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.box(X(16), Y(16), X(208), Y(112));
+		const name = TRAINERS[this.fateTrainer]?.name || "The General";
+		this.text(this.fateKind === "nero" ? "THE KING'S FATE" : "THE GENERAL'S FATE", X(120), Y(22), "#c5cec6", FONT, "center");
+		this.text(`${name} is beaten.`, X(28), Y(38), "#8a8678", FONT);
+		const rows = this.fateRows();
+		rows.forEach((row, i) => {
+			const on = i === this.fateCur;
+			this.text(on ? `> ${row}` : `  ${row}`, X(28), Y(56 + i * 14), on ? "#e8e4d8" : "#8a8678", FONT);
+		});
+		if (this.fateKind !== "nero" && rows.length === 1) this.text("No Shackles: you can't arrest.", X(28), Y(88), "#8f4a40", FONT);
+		this.text("Z  choose", X(28), Y(112), "#5a7a52", FONT);
+	}
+	openMedals() {
+		this.mode = "medals";
+		this.audio.ui();
+	}
+	updateMedals() {
+		if (this.input.cancel() || this.input.confirm() || this.input.start()) {
+			this.mode = "pause";
+			this.audio.ui();
+		}
+	}
+	drawMedals() {
+		this.drawWorld();
+		this.ctx.fillStyle = "rgba(18,17,14,0.55)";
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.box(X(8), Y(6), X(224), Y(148));
+		const got = LEG3.generals.filter((g) => this[g.medal]).length;
+		this.text(`MEDALS  ${got}/${LEG3.generals.length}`, X(16), Y(10), "#c5cec6", FONT);
+		LEG3.generals.forEach((g, i) => {
+			const y = Y(26 + i * 12);
+			if (!this[g.medal]) {
+				this.text("- - -", X(16), y, "#5a5648", FONT);
+				return;
+			}
+			this.text(g.medalName, X(16), y, "#e8c860", FONT);
+			this.text(this[g.arrested] ? "arrested" : "executed", X(170), y, this[g.arrested] ? "#5a7a52" : "#8f4a40", FONT);
+		});
+		const gold = this.hasGoldenShackles ? "Golden Shackles: yes" : "Golden Shackles: no";
+		this.text(`${gold}   Shackles: ${this.bag[LEG3.shackles] ?? 0}`, X(16), Y(138), "#8a8678", FONT);
 	}
 	/** Whether a script step's `after` leads to an actual fight (as
 	 *  opposed to a shop, heal, or plain-talk step) -- the set of
@@ -4396,6 +4656,11 @@ export class CryMon {
 		this.adjustReputation(delta);
 	}
 	playerDisplayName() {
+		// Leg 3 names outrank the Leg 2 ones: the last thing Max did is who
+		// she is (3.4 Kingslayer, 3.6 Godslayer / Max The Bloody).
+		if (this.titleBloody) return LEG3.titles.bloody;
+		if (this.titleGodslayer) return LEG3.titles.godslayer;
+		if (this.titleKingslayer) return LEG3.titles.kingslayer;
 		if (this.titleSlayer) return "Heaven Slayer";
 		if (this.titleTamer) return "Heaven Tamer";
 		if (this.titleTamer) return "Heaven Tamer";
@@ -4423,14 +4688,28 @@ export class CryMon {
 		else if (this.mode === "shop") this.drawShop();
 		else if (this.mode === "choice") this.drawChoice();
 		else if (this.mode === "mercy") this.drawMercy();
+		else if (this.mode === "fate") this.drawFate();
+		else if (this.mode === "medals") this.drawMedals();
 		else if (this.mode === "backstab") this.drawBackstabChoice();
 		else if (this.mode === "pause") this.drawPause();
 		else if (this.mode === "crydex") this.drawCryDex();
 		else if (this.mode === "townmap") this.drawTownMap();
 		else if (this.mode === "settings") this.drawSettings();
 		else this.drawWorld();
+		this.drawKingslayerTint();
 		this.drawFade();
 		ctx.restore();
+	}
+	/** 3.4: after Nero's execution a red tint stays on screen for the
+	 *  rest of the playthrough (it's saved: titleKingslayer). */
+	drawKingslayerTint() {
+		if (!this.titleKingslayer) return;
+		const [r, g, b] = LEG3.redTint.rgb;
+		this.ctx.save();
+		this.ctx.globalAlpha = LEG3.redTint.alpha;
+		this.ctx.fillStyle = `rgb(${r},${g},${b})`;
+		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+		this.ctx.restore();
 	}
 	drawFade() {
 		const a = fadeAlpha(this.fade.phase, this.fade.t);
@@ -4513,12 +4792,12 @@ export class CryMon {
 	}
 	drawPause() {
 		this.drawWorld();
-		this.box(X(64), Y(28), X(112), Y(100));
-		this.text("PAUSE", X(120), Y(34), "#e8e4d8", FONT, "center");
-		const rows = ["Party", "Bag", "CryDex", "Map", "Settings", "Save", "Close"];
+		this.box(X(64), Y(24), X(112), Y(112));
+		this.text("PAUSE", X(120), Y(30), "#e8e4d8", FONT, "center");
+		const rows = ["Party", "Bag", "CryDex", "Map", "Medals", "Settings", "Save", "Close"];
 		rows.forEach((r, i) => {
 			const on = i === this.pauseCursor;
-			this.text(on ? `> ${r}` : r, X(120), Y(48 + i * 11), on ? "#5a7a52" : "#c5cec6", FONT, "center");
+			this.text(on ? `> ${r}` : r, X(120), Y(44 + i * 11), on ? "#5a7a52" : "#c5cec6", FONT, "center");
 		});
 	}
 	drawCryDex() {

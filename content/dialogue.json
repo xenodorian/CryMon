@@ -2279,5 +2279,18 @@
     "Take it easy on the next one, will you?",
     "This isn't over. Not really. But... fine. Go.",
     "My CryMon needs a rematch someday. Not today."
-  ]
+  ],
+  "endingLeg3": {
+    "comment": "Leg 3 epilogue cards (engine picks one line per slot from the player's choices, then 'end').",
+    "war": "The Weeping Army is finished. The cities of the Sephirot are free.",
+    "trial": "Nero lives out his life in a prison cell in Malkuth.",
+    "crowned": "Queen Max, the Kingslayer, rules from the throne in Keter.",
+    "fatherStays": "Father comes home to CryTown with her.",
+    "fatherGone": "Father never speaks to her again.",
+    "none": "Max has no god at her side. She never needed one.",
+    "tamed": "Heavenfall stays at her side for the rest of her days.",
+    "godslayer": "They call her Godslayer now. Nobody says it to her face.",
+    "bloody": "Max The Bloody is dead. The stories about her are not kind.",
+    "end": "THE END"
+  }
 }
