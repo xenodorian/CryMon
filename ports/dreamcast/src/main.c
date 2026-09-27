@@ -7016,7 +7016,7 @@ void main(void) {
                         seq_len = TALK_COUNTS[g->talk_arrest];
                     } else {
                         reputation += LEG3_REP_EXECUTE;
-                        chip_sfx_faint(); /* stand-in scream, same as mercy */
+                        chip_sfx_scream();
                         g_mercy_red_fade = 1;
                         fade_state = FADE_OUT;
                         fade_timer = 0;
@@ -7102,11 +7102,10 @@ void main(void) {
                        never actually gets hidden on the map. */
                     ebit = mercy_exec_bit(battle.trainer_kind, battle.soldier_id);
                     if(ebit >= 0 && ebit < 31) g_executed_mask |= (1u << ebit);
-                    chip_sfx_faint(); /* stand-in scream until dedicated SFX exists */
+                    chip_sfx_scream();
                     g_mercy_red_fade = 1;
                     fade_state = FADE_OUT;
                     fade_timer = 0;
-                    chip_sfx_faint();
                     {
                         int n = s_cat(hud_flash, 0, "NO SURVIVORS");
                         hud_flash[n] = 0; hud_t = 90;
@@ -7188,7 +7187,7 @@ void main(void) {
                     if(sa) (*sa)++;
                     if(sb) (*sb)++;
                     soldier_beaten[sidx] = 1;
-                    chip_sfx_faint();
+                    chip_sfx_scream();
                     g_mercy_red_fade = 1;
                     fade_state = FADE_OUT;
                     fade_timer = 0;
@@ -7240,7 +7239,7 @@ void main(void) {
                             else if(bst->pending == NPC_PENDING_QUARRY_DRILLER) beat_quarry_driller = 1;
                         }
                     }
-                    chip_sfx_faint();
+                    chip_sfx_scream();
                     g_mercy_red_fade = 1;
                     fade_state = FADE_OUT;
                     fade_timer = 0;
@@ -8471,10 +8470,10 @@ void main(void) {
                                     break;
                                 case POST_HFGAMEOVER_SCREAM:
                                     /* Matches web's runHeavenfallGameOverFx():
-                                       scream + red fade, same stand-in
+                                       scream + red fade, same
                                        SFX and red-tint flag the mercy
                                        execute path uses (Leg 2.9). */
-                                    chip_sfx_faint();
+                                    chip_sfx_scream();
                                     g_mercy_red_fade = 1;
                                     fade_state = FADE_OUT;
                                     fade_timer = 0;
@@ -8685,7 +8684,7 @@ void main(void) {
             leg3_apply_tint();
         apply_fade(fade_level(fade_state, fade_timer));
         if(g_leg3_scream_left > 0 && --g_leg3_scream_timer <= 0) {
-            chip_sfx_faint(); /* 3.4: scream three times (stand-in SFX) */
+            chip_sfx_scream(); /* 3.4: scream three times */
             g_leg3_scream_left--;
             g_leg3_scream_timer = LEG3_SCREAM_GAP_FRAMES;
         }

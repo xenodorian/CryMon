@@ -325,6 +325,7 @@ void chip_sfx_catch(void) { chip_sfx(SFX_CATCH); }
 void chip_sfx_save(void) { chip_sfx(SFX_SAVE); }
 void chip_sfx_heal(void) { chip_sfx(SFX_HEAL); }
 void chip_sfx_faint(void) { chip_sfx(SFX_FAINT); }
+void chip_sfx_scream(void) { chip_sfx(SFX_SCREAM); }
 
 int chip_song_title(void) { return SONG_ID_TITLE; }
 int chip_song_ending(void) { return SONG_ID_ENDING; }

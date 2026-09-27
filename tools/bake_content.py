@@ -1354,7 +1354,7 @@ def bake_audio(data: dict, out: Path) -> None:
     song_ids = list(songs.keys())
     sfx_ids = list(sfx.keys())
     lines = [HEADER, "#ifndef CONTENT_AUDIO_INC", "#define CONTENT_AUDIO_INC", ""]
-    lines.append("typedef struct { unsigned char midi, frames, vol; } ChipEv;")
+    lines.append("typedef struct { unsigned char midi; unsigned short frames; unsigned char vol; } ChipEv; /* frames > 255 happens (home t3 rest: 320) */")
     lines.append("typedef struct {")
     lines.append("    unsigned char wave, duty, vol;")
     lines.append("    const ChipEv *ev;")

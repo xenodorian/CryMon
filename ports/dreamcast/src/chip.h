@@ -14,6 +14,7 @@ void chip_sfx_catch(void);
 void chip_sfx_save(void);
 void chip_sfx_heal(void);
 void chip_sfx_faint(void);
+void chip_sfx_scream(void);
 void chip_set_volume(float v);
 void chip_nudge_volume(int dir);
 float chip_volume(void);

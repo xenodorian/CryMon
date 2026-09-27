@@ -3,7 +3,7 @@
 #ifndef CONTENT_AUDIO_INC
 #define CONTENT_AUDIO_INC
 
-typedef struct { unsigned char midi, frames, vol; } ChipEv;
+typedef struct { unsigned char midi; unsigned short frames; unsigned char vol; } ChipEv; /* frames > 255 happens (home t3 rest: 320) */
 typedef struct {
     unsigned char wave, duty, vol;
     const ChipEv *ev;
