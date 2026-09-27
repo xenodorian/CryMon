@@ -5864,7 +5864,8 @@ export class CryMon {
 	drawBattle() {
 		const b = this.battle;
 		if (!b) return;
-		const bg = this.images.bg;
+		const areaBg = this.images[SPRITES.battleBgMap?.[this.world.mapId]];
+		const bg = areaBg && areaBg.width ? areaBg : this.images.bg;
 		if (bg) this.ctx.drawImage(bg, 0, 0, VIEW_W, VIEW_H);
 		else this.fill("#2a2418");
 		const pf = Math.floor(b.t * 4) % 4 + 1;
