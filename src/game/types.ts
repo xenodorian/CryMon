@@ -12,7 +12,7 @@ export type SpeakerId =
   | "oren" | "tessa" | "birch" | "sable"
   | "cross" | "commander" | "conscript" | "enforcer" | "sentry"
   | "father" | "heavenfall" | "ranger" | "scout" | "keeper" | "warden"
-  | "bogwalker" | "reedguard" | "quartz" | "opal" | "driller" | "fenn" | "dray" | "lead" | "system" | "none" | "heavenfallPriestess" | "weepingGuard" | "royalGuard" | "nero" | "harrow" | "ashgrove" | "stroud" | "vale" | "kessler" | "morrow" | "crane" | "blackwood" | "sorrel" | "ada" | "hale" | "marn" | "citizen" | "ghost" | "vesk";
+  | "bogwalker" | "reedguard" | "quartz" | "opal" | "driller" | "fenn" | "dray" | "lead" | "system" | "none" | "heavenfallPriestess" | "weepingGuard" | "royalGuard" | "nero" | "harrow" | "ashgrove" | "stroud" | "vale" | "kessler" | "morrow" | "crane" | "blackwood" | "sorrel" | "ada" | "hale" | "marn" | "citizen" | "ghost" | "vesk" | "ardent" | "mag" | "pell" | "fingers" | "aldous" | "brin" | "rook" | "mallory" | "silas";
 
 export interface TalkBeat {
   speaker: SpeakerId;

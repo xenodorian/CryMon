@@ -55,11 +55,20 @@
     "marn": "Elder Marn",
     "citizen": "Citizen",
     "ghost": "Ghost",
-    "vesk": "Mourner Vesk"
+    "vesk": "Mourner Vesk",
+    "ardent": "Captain Ardent",
+    "mag": "Mag",
+    "pell": "Squire Pell",
+    "fingers": "Fingers",
+    "aldous": "Sir Aldous",
+    "brin": "Dame Brin",
+    "rook": "Captain Rook",
+    "mallory": "Red Mallory",
+    "silas": "Silas"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
-    "Max is eight. CryMon \u2014 Crystal Monsters \u2014 sleep inside Capture Crystals.",
+    "Max is eight. CryMon — Crystal Monsters — sleep inside Capture Crystals.",
     "Father is too sick to stand. His crystal sits on the shelf.",
     "Quillpup is inside it. She will take the CryMon. CryTown does not get to fall."
   ],
@@ -1289,7 +1298,7 @@
     "fennOpen": [
       {
         "speaker": "fenn",
-        "text": "Marsh trade. Better crystals than the common stuff \u2014 for a price."
+        "text": "Marsh trade. Better crystals than the common stuff — for a price."
       },
       {
         "speaker": "max",
@@ -3188,6 +3197,480 @@
       {
         "speaker": "none",
         "text": "The chain breaks. The Cryptlamp's light goes calm, then out."
+      }
+    ],
+    "ardentBadges": [
+      {
+        "speaker": "ardent",
+        "text": "Captain Ardent, Heroes Guild. We hunt outlaws and keep rare CryMon out of the wrong hands."
+      },
+      {
+        "speaker": "ardent",
+        "text": "We only take proven trainers. Bring me the Quartz Badge and the Opal Badge from the Reach."
+      },
+      {
+        "speaker": "ardent",
+        "text": "And keep your name clean. We don't take anyone the town talks about."
+      }
+    ],
+    "ardentRepLow": [
+      {
+        "speaker": "ardent",
+        "text": "I've heard what people say about you. The Heroes Guild doesn't work with that kind of name."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Do some good. Come back when CryTown trusts you."
+      }
+    ],
+    "ardentThief": [
+      {
+        "speaker": "ardent",
+        "text": "You run with Mag's crew. Get out of my hall before I call the watch."
+      }
+    ],
+    "ardentJoin": [
+      {
+        "speaker": "ardent",
+        "text": "Both badges, and a good name. Welcome to the Heroes Guild, Max."
+      },
+      {
+        "speaker": "ardent",
+        "text": "First job. Red Mallory robs travelers in the Forest south of town. Bring her in."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Use Shackles. We want her in a cell, not a grave."
+      },
+      {
+        "speaker": "none",
+        "text": "Max joined the Heroes Guild."
+      }
+    ],
+    "ardentQuestMallory": [
+      {
+        "speaker": "ardent",
+        "text": "Red Mallory is still out in the Forest. Beat her, then shackle her."
+      }
+    ],
+    "ardentPaidMallory": [
+      {
+        "speaker": "ardent",
+        "text": "Mallory's in a cell. Good work. Here's your pay, and a Mega Crystal from the guild vault."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Next: the Ruins have a Glasswisp nest. Poachers sell them for glass. Catch one and bring it here so we can keep it safe."
+      }
+    ],
+    "ardentMalloryDead": [
+      {
+        "speaker": "ardent",
+        "text": "Dead. That's not what I asked for."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Here's half pay. Next job: catch a Glasswisp in the Ruins and bring it to me. Alive, this time."
+      }
+    ],
+    "ardentQuestGlasswisp": [
+      {
+        "speaker": "ardent",
+        "text": "Glasswisps live in the Ruins' grass. Catch one and bring it here."
+      }
+    ],
+    "ardentGotGlasswisp": [
+      {
+        "speaker": "none",
+        "text": "Max hands over the Glasswisp. Ardent's squire carries it off to the guild's garden."
+      },
+      {
+        "speaker": "ardent",
+        "text": "It'll be safe here. Take these Panaceas."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Next: Silas the Fence. He buys stolen CryMon at the Quarry. Arrest him."
+      }
+    ],
+    "ardentQuestSilas": [
+      {
+        "speaker": "ardent",
+        "text": "Silas the Fence is at the Quarry, north end. Bring him in."
+      }
+    ],
+    "ardentPaidSilas": [
+      {
+        "speaker": "ardent",
+        "text": "Silas is behind bars and his buyers are scattering. Take this Ultimate Crystal."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Next: a Stardrop from the Quarry. The fences have been selling them to Nero's soldiers."
+      }
+    ],
+    "ardentSilasDead": [
+      {
+        "speaker": "ardent",
+        "text": "You killed him. The guild pays less for bodies."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Next: catch a Stardrop in the Quarry and bring it here."
+      }
+    ],
+    "ardentQuestStardrop": [
+      {
+        "speaker": "ardent",
+        "text": "Stardrops live in the Quarry's grass. Catch one for the guild."
+      }
+    ],
+    "ardentGotStardrop": [
+      {
+        "speaker": "ardent",
+        "text": "A Stardrop. Good. Two Mega Crystals, as promised."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Last one, and it's hard. Past the Veil, in Ayin, there's a Moonveil. Nero's Generals hunt them. Get one before they do."
+      }
+    ],
+    "ardentQuestMoonveil": [
+      {
+        "speaker": "ardent",
+        "text": "A Moonveil, from Ayin, past the Veil. Bring it here."
+      }
+    ],
+    "ardentGotMoonveil": [
+      {
+        "speaker": "ardent",
+        "text": "A Moonveil. I didn't think I'd ever see one alive."
+      },
+      {
+        "speaker": "ardent",
+        "text": "Two Ultimate Crystals. You've earned them. You're the best hero this guild has."
+      }
+    ],
+    "ardentDone": [
+      {
+        "speaker": "ardent",
+        "text": "No jobs today, hero. Go put an end to Nero."
+      }
+    ],
+    "pellHint": [
+      {
+        "speaker": "pell",
+        "text": "Captain Ardent only takes trainers with the Quartz and Opal Badges. Both are in the Reach."
+      },
+      {
+        "speaker": "pell",
+        "text": "You need a good name too. Pray at shrines, arrest crooks, help folks out. Don't rob graves."
+      }
+    ],
+    "pellMember": [
+      {
+        "speaker": "pell",
+        "text": "Arrests raise your name. Executions sink it. The Captain notices both."
+      }
+    ],
+    "pellThief": [
+      {
+        "speaker": "pell",
+        "text": "The Captain won't talk to thieves. You know that."
+      }
+    ],
+    "magJoin": [
+      {
+        "speaker": "mag",
+        "text": "Mag. I run this den. Don't care what the town says about you. Nobody here has a good name."
+      },
+      {
+        "speaker": "mag",
+        "text": "The Heroes Guild strut around with rare CryMon and fat purses. We lighten them."
+      },
+      {
+        "speaker": "mag",
+        "text": "First mark: Sir Aldous, in CryTown. Beat him, then scare him or finish him. Either way, take his stuff."
+      },
+      {
+        "speaker": "none",
+        "text": "Max joined the Thieves Guild."
+      }
+    ],
+    "magHero": [
+      {
+        "speaker": "mag",
+        "text": "A Heroes Guild badge? In my den? Walk out slow."
+      }
+    ],
+    "magQuestAldous": [
+      {
+        "speaker": "mag",
+        "text": "Sir Aldous. CryTown, east side. Go shake him down."
+      }
+    ],
+    "magPaidAldous": [
+      {
+        "speaker": "mag",
+        "text": "Aldous is crying to Ardent. Nice. Here's your cut, and some Smoke Bombs."
+      },
+      {
+        "speaker": "mag",
+        "text": "Next: Dame Brin. She guards the Ruins like she owns them."
+      }
+    ],
+    "magQuestBrin": [
+      {
+        "speaker": "mag",
+        "text": "Dame Brin, in the Ruins. Take her CryMon."
+      }
+    ],
+    "magPaidBrin": [
+      {
+        "speaker": "mag",
+        "text": "Brin won't be back for a while. Three Great Crystals for you."
+      },
+      {
+        "speaker": "mag",
+        "text": "Last mark is the big one. Captain Rook, up on the Cliffs. Ardent's right hand."
+      }
+    ],
+    "magQuestRook": [
+      {
+        "speaker": "mag",
+        "text": "Captain Rook. The Cliffs. Don't come back empty handed."
+      }
+    ],
+    "magPaidRook": [
+      {
+        "speaker": "mag",
+        "text": "Rook. You actually did it."
+      },
+      {
+        "speaker": "mag",
+        "text": "Here. An Ultimate Crystal and the biggest cut I've ever paid out. You're the best we've got."
+      }
+    ],
+    "magDone": [
+      {
+        "speaker": "mag",
+        "text": "Heroes are hiding in their hall. Nothing left to take. For now."
+      }
+    ],
+    "fingersHint": [
+      {
+        "speaker": "fingers",
+        "text": "Mag doesn't care about your name. Anyone can join. Just not heroes."
+      },
+      {
+        "speaker": "fingers",
+        "text": "Once you're in, the Heroes Guild won't have you. Choose carefully."
+      }
+    ],
+    "fingersMember": [
+      {
+        "speaker": "fingers",
+        "text": "Threaten a mark and they live to hate you. Finish them and the whole town hates you. Your call."
+      }
+    ],
+    "fingersHero": [
+      {
+        "speaker": "fingers",
+        "text": "Ardent's pet. Get lost."
+      }
+    ],
+    "aldousIdle": [
+      {
+        "speaker": "aldous",
+        "text": "Sir Aldous, Heroes Guild. The Guild hall is the west house, by the rock."
+      },
+      {
+        "speaker": "aldous",
+        "text": "Captain Ardent wants both Reach badges before he'll talk to you."
+      }
+    ],
+    "aldousSpot": [
+      {
+        "speaker": "aldous",
+        "text": "You smell like Mag's den. I'm not handing anything over."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll take it."
+      }
+    ],
+    "aldousWin": [
+      {
+        "speaker": "aldous",
+        "text": "Enough! What do you want?"
+      }
+    ],
+    "aldousThreaten": [
+      {
+        "speaker": "max",
+        "text": "Your crystal and your Glasswisp. Now."
+      },
+      {
+        "speaker": "aldous",
+        "text": "Take them. Just go."
+      }
+    ],
+    "aldousExecute": [
+      {
+        "speaker": "none",
+        "text": "Sir Aldous doesn't get up again."
+      }
+    ],
+    "brinIdle": [
+      {
+        "speaker": "brin",
+        "text": "Dame Brin, Heroes Guild. Keep off the graves. Somebody has been digging."
+      }
+    ],
+    "brinSpot": [
+      {
+        "speaker": "brin",
+        "text": "Mag sent you. I can tell."
+      },
+      {
+        "speaker": "brin",
+        "text": "Come on, then."
+      }
+    ],
+    "brinWin": [
+      {
+        "speaker": "brin",
+        "text": "Fine. You win. Now what?"
+      }
+    ],
+    "brinThreaten": [
+      {
+        "speaker": "max",
+        "text": "Your Panaceas. And the Stormwing."
+      },
+      {
+        "speaker": "brin",
+        "text": "Ardent will hear about this."
+      }
+    ],
+    "brinExecute": [
+      {
+        "speaker": "none",
+        "text": "Dame Brin falls in the Ruins she guarded."
+      }
+    ],
+    "rookIdle": [
+      {
+        "speaker": "rook",
+        "text": "Captain Rook. I watch the Cliffs for Nero's scouts."
+      },
+      {
+        "speaker": "rook",
+        "text": "If you want to get past the Veil on the north road, you need someone who knows the dead. Try the old house in the Ruins."
+      }
+    ],
+    "rookSpot": [
+      {
+        "speaker": "rook",
+        "text": "So Mag finally sent someone who might win."
+      },
+      {
+        "speaker": "rook",
+        "text": "Might."
+      }
+    ],
+    "rookWin": [
+      {
+        "speaker": "rook",
+        "text": "...Well fought. Get it over with."
+      }
+    ],
+    "rookThreaten": [
+      {
+        "speaker": "max",
+        "text": "The crystal and the Sableclaw."
+      },
+      {
+        "speaker": "rook",
+        "text": "Mag's getting bold. Take them."
+      }
+    ],
+    "rookExecute": [
+      {
+        "speaker": "none",
+        "text": "The Captain of the Cliffs goes over the edge."
+      }
+    ],
+    "malloryIdle": [
+      {
+        "speaker": "mallory",
+        "text": "Nice day for a walk. Keep walking, kid."
+      }
+    ],
+    "mallorySpot": [
+      {
+        "speaker": "mallory",
+        "text": "A Heroes badge. Ardent sent a kid after me?"
+      },
+      {
+        "speaker": "max",
+        "text": "Ardent sent me after a thief."
+      }
+    ],
+    "malloryWin": [
+      {
+        "speaker": "mallory",
+        "text": "Alright, alright. I'm done."
+      }
+    ],
+    "malloryArrest": [
+      {
+        "speaker": "none",
+        "text": "Max locks the Shackles on Red Mallory and walks her back to CryTown."
+      }
+    ],
+    "malloryExecute": [
+      {
+        "speaker": "none",
+        "text": "Red Mallory won't rob anyone again."
+      }
+    ],
+    "silasIdle": [
+      {
+        "speaker": "silas",
+        "text": "Buying or selling? No? Then I don't know you."
+      },
+      {
+        "speaker": "silas",
+        "text": "Stardrops go for good money in the Quarry. If you ever catch one, I'm paying."
+      }
+    ],
+    "silasSpot": [
+      {
+        "speaker": "silas",
+        "text": "The Heroes Guild. Always bad for business."
+      },
+      {
+        "speaker": "silas",
+        "text": "Let's make this quick."
+      }
+    ],
+    "silasWin": [
+      {
+        "speaker": "silas",
+        "text": "You've cost me a fortune. Happy?"
+      }
+    ],
+    "silasArrest": [
+      {
+        "speaker": "none",
+        "text": "Max shackles Silas. His ledger names half the thieves in the Marsh."
+      }
+    ],
+    "silasExecute": [
+      {
+        "speaker": "none",
+        "text": "Silas the Fence has made his last deal."
       }
     ]
   },

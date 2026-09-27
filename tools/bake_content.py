@@ -75,6 +75,15 @@ SPEAKER = {
     "citizen": 53,
     "ghost": 54,
     "vesk": 55,
+    "ardent": 56,
+    "mag": 57,
+    "pell": 58,
+    "fingers": 59,
+    "aldous": 60,
+    "brin": 61,
+    "rook": 62,
+    "mallory": 63,
+    "silas": 64,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol

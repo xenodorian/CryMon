@@ -84,6 +84,12 @@ MARKS = [
     ("cliffs", "f", (15, 2)),   # shrine
     ("quarry", "f", (13, 9)),   # shrine
     ("forest", "f", (22, 17)),  # shrine
+    # Heroes / Thieves Guild targets (hint NPCs until Max joins a side)
+    ("veld", "i", (20, 16)),    # Sir Aldous (Heroes Guild)
+    ("ruins", "i", (6, 14)),    # Dame Brin (Heroes Guild)
+    ("cliffs", "i", (4, 12)),   # Captain Rook (Heroes Guild)
+    ("forest", "i", (7, 18)),   # Red Mallory (wanted)
+    ("quarry", "i", (12, 2)),   # Silas the Fence (wanted)
 ]
 
 

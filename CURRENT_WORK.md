@@ -3482,6 +3482,22 @@ sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
         draw_tile 'w' door, 'x'/'z' floor. Speakers ghost 54, vesk 55.
       - Verified on web (Playwright): whole arc, arrest and execute paths,
         Lead team. Dreamcast: builds; emulator pass is in S6.
-- [ ] S4 Heroes and Thieves Guilds.
+- [x] S4 Heroes and Thieves Guilds.
+      - Heroes Guild (heroeshall, CryTown west house): Captain Ardent joins
+        Max if rep:pos + badgeQuartz + badgeOpal and not joinedThieves.
+        Quests in order: arrest Red Mallory (Forest 'i'), bring a
+        Glasswisp, arrest Silas the Fence (Quarry 'i'), bring a Stardrop,
+        bring a Moonveil (Ayin). Arrests pay full, executions pay less.
+        Squire Pell ('z') gives the join hints.
+      - Thieves Guild (thievesden, Marsh hut): Mag joins Max at any rep
+        unless joinedHeroes. Shakedowns (fate "shakedown", threaten or
+        execute, loot item + CryMon): Sir Aldous (CryTown 'i'), Dame Brin
+        (Ruins 'i'), Captain Rook (Cliffs 'i'). Fingers ('z') hints.
+      - Targets stand on their maps as hint NPCs; they only fight once Max
+        has joined the side that hunts them, and vanish once beaten.
+      - Speakers 56-64 (ardent mag pell fingers aldous brin rook mallory
+        silas), PLACEHOLDER_ART sprites and portraits.
+      - Verified on web (Playwright): both join paths, refusals, payouts,
+        takeMon, threaten loot, rep deltas.
 - [ ] S5 CryTown and Sephirot townsfolk and sidequests.
 - [ ] S6 Verification; west maps audit write-up.

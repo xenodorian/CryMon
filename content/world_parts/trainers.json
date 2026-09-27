@@ -1046,6 +1046,184 @@
         "arrest": "veskArrest",
         "execute": "veskExecute"
       }
+    },
+    "redMallory": {
+      "lead": [
+        "briarfox",
+        17
+      ],
+      "bench": [
+        [
+          "scavrat",
+          16
+        ],
+        [
+          "plunderat",
+          18
+        ]
+      ],
+      "title": "Red Mallory sends Briarfox",
+      "name": "Red Mallory",
+      "marks": 25,
+      "winTalk": "malloryWin",
+      "set": "beatMallory",
+      "fate": "bounty",
+      "outcomes": {
+        "arrest": "arrestedMallory",
+        "execute": "executedMallory"
+      },
+      "fateTalk": {
+        "arrest": "malloryArrest",
+        "execute": "malloryExecute"
+      }
+    },
+    "silasFence": {
+      "lead": [
+        "cindermite",
+        19
+      ],
+      "bench": [
+        [
+          "slatekin",
+          18
+        ],
+        [
+          "plunderat",
+          19
+        ],
+        [
+          "kilnback",
+          20
+        ]
+      ],
+      "title": "Silas the Fence sends Cindermite",
+      "name": "Silas the Fence",
+      "marks": 35,
+      "winTalk": "silasWin",
+      "set": "beatSilas",
+      "fate": "bounty",
+      "outcomes": {
+        "arrest": "arrestedSilas",
+        "execute": "executedSilas"
+      },
+      "fateTalk": {
+        "arrest": "silasArrest",
+        "execute": "silasExecute"
+      }
+    },
+    "sirAldous": {
+      "lead": [
+        "jolthare",
+        16
+      ],
+      "bench": [
+        [
+          "voltbuck",
+          17
+        ]
+      ],
+      "title": "Sir Aldous sends Jolthare",
+      "name": "Sir Aldous",
+      "marks": 20,
+      "winTalk": "aldousWin",
+      "set": "beatAldous",
+      "fate": "shakedown",
+      "outcomes": {
+        "threaten": "threatenedAldous",
+        "execute": "executedAldous"
+      },
+      "fateTalk": {
+        "threaten": "aldousThreaten",
+        "execute": "aldousExecute"
+      },
+      "loot": [
+        "megacrystal",
+        1
+      ],
+      "lootMon": [
+        "glasswisp",
+        14
+      ]
+    },
+    "dameBrin": {
+      "lead": [
+        "runemote",
+        19
+      ],
+      "bench": [
+        [
+          "crymare",
+          18
+        ],
+        [
+          "stormwing",
+          19
+        ]
+      ],
+      "title": "Dame Brin sends Runemote",
+      "name": "Dame Brin",
+      "marks": 30,
+      "winTalk": "brinWin",
+      "set": "beatBrin",
+      "fate": "shakedown",
+      "outcomes": {
+        "threaten": "threatenedBrin",
+        "execute": "executedBrin"
+      },
+      "fateTalk": {
+        "threaten": "brinThreaten",
+        "execute": "brinExecute"
+      },
+      "loot": [
+        "panacea",
+        2
+      ],
+      "lootMon": [
+        "stormwing",
+        16
+      ]
+    },
+    "captainRook": {
+      "lead": [
+        "rimeowl",
+        21
+      ],
+      "bench": [
+        [
+          "frostail",
+          20
+        ],
+        [
+          "razorbat",
+          21
+        ],
+        [
+          "sableclaw",
+          22
+        ]
+      ],
+      "title": "Captain Rook sends Rimeowl",
+      "name": "Captain Rook",
+      "marks": 40,
+      "winTalk": "rookWin",
+      "set": "beatRook",
+      "fate": "shakedown",
+      "outcomes": {
+        "threaten": "threatenedRook",
+        "execute": "executedRook"
+      },
+      "fateTalk": {
+        "threaten": "rookThreaten",
+        "execute": "rookExecute"
+      },
+      "loot": [
+        "ultimatecrystal",
+        1
+      ],
+      "lootMon": [
+        "sableclaw",
+        18
+      ]
     }
   }
 }

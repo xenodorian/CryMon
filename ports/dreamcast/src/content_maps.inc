@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=2a4bafe3d98bf863 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=11e862feadf5fd48 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -97,7 +97,7 @@ static const char *const map_veld_rows[] = {
     "##...TTT.....=====......TTT..#",
     "##............===.rrr..^^....#",
     "##....TTT....=====HHH...TTT..#",
-    "##....TTT.....===......TTT...#",
+    "##....TTT.....===...i..TTT...#",
     "##rrr.........===............#",
     "##HHH........=====.....NNNN..#",
     "##............===.......N....#",
@@ -125,7 +125,7 @@ static const char *const map_forest_rows[] = {
     "##...TTT...=====...TTT..##",
     "##...TTT...=====...TTT..##",
     "##..........===.......f.##",
-    "##..........===.........##",
+    "##.....i....===.........##",
     "##...TTT....===....TTT..##",
     "##...TTT....===....TTT..##",
     "##.........=====........##",
@@ -191,7 +191,7 @@ static const char *const map_cliffs_rows[] = {
     "#.........%%%%%..#",
     "#.........%Y.C%..#",
     "#.........%%k%%..#",
-    "#................#",
+    "#...i............#",
     "#................#",
     "#.TTT.......TTT..#",
     "#................#",
@@ -216,7 +216,7 @@ static const char *const map_ruins_rows[] = {
     "#..rrr........rrr..#",
     "#..HHH....A...HHH..#",
     "#..................#",
-    "#...............d..#",
+    "#.....i.........d..#",
     "#..................#",
     "#....TTTTTTTT......#",
     "#....TTTTTTTT......#",
@@ -269,7 +269,7 @@ static const char *const map_marsh_rows[] = {
 static const char *const map_quarry_rows[] = {
     "################",
     "#........#.....#",
-    "#.........1....#",
+    "#.........1.i..#",
     "#..^^^^........#",
     "#..^^^^..TTT...#",
     "#..^^^^..TTT...#",

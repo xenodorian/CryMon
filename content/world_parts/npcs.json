@@ -2266,6 +2266,364 @@
           "pending": "ghostOriel"
         }
       ]
+    },
+    {
+      "map": "heroeshall",
+      "mark": "x",
+      "id": "ardent",
+      "role": "talk",
+      "sprite": "npc/ardent",
+      "talk": "ardentBadges",
+      "script": [
+        {
+          "if": "joinedThieves",
+          "talk": "ardentThief"
+        },
+        {
+          "ifNot": "rep:pos",
+          "talk": "ardentRepLow"
+        },
+        {
+          "ifNot": "badgeQuartz",
+          "talk": "ardentBadges"
+        },
+        {
+          "ifNot": "badgeOpal",
+          "talk": "ardentBadges"
+        },
+        {
+          "ifNot": "joinedHeroes",
+          "set": "joinedHeroes",
+          "talk": "ardentJoin"
+        },
+        {
+          "if": "arrestedMallory",
+          "ifNot": "paidMallory",
+          "set": "paidMallory",
+          "grant": [
+            [
+              "megacrystal",
+              1
+            ]
+          ],
+          "marks": 30,
+          "talk": "ardentPaidMallory"
+        },
+        {
+          "if": "executedMallory",
+          "ifNot": "paidMallory",
+          "set": "paidMallory",
+          "marks": 10,
+          "talk": "ardentMalloryDead"
+        },
+        {
+          "ifNot": "paidMallory",
+          "talk": "ardentQuestMallory"
+        },
+        {
+          "if": "mon:glasswisp",
+          "ifNot": "gaveGlasswisp",
+          "set": "gaveGlasswisp",
+          "takeMon": "glasswisp",
+          "grant": [
+            [
+              "panacea",
+              2
+            ]
+          ],
+          "talk": "ardentGotGlasswisp"
+        },
+        {
+          "ifNot": "gaveGlasswisp",
+          "talk": "ardentQuestGlasswisp"
+        },
+        {
+          "if": "arrestedSilas",
+          "ifNot": "paidSilas",
+          "set": "paidSilas",
+          "grant": [
+            [
+              "ultimatecrystal",
+              1
+            ]
+          ],
+          "marks": 40,
+          "talk": "ardentPaidSilas"
+        },
+        {
+          "if": "executedSilas",
+          "ifNot": "paidSilas",
+          "set": "paidSilas",
+          "marks": 15,
+          "talk": "ardentSilasDead"
+        },
+        {
+          "ifNot": "paidSilas",
+          "talk": "ardentQuestSilas"
+        },
+        {
+          "if": "mon:stardrop",
+          "ifNot": "gaveStardrop",
+          "set": "gaveStardrop",
+          "takeMon": "stardrop",
+          "grant": [
+            [
+              "megacrystal",
+              2
+            ]
+          ],
+          "talk": "ardentGotStardrop"
+        },
+        {
+          "ifNot": "gaveStardrop",
+          "talk": "ardentQuestStardrop"
+        },
+        {
+          "if": "mon:moonveil",
+          "ifNot": "gaveMoonveil",
+          "set": "gaveMoonveil",
+          "takeMon": "moonveil",
+          "grant": [
+            [
+              "ultimatecrystal",
+              2
+            ]
+          ],
+          "talk": "ardentGotMoonveil"
+        },
+        {
+          "ifNot": "gaveMoonveil",
+          "talk": "ardentQuestMoonveil"
+        },
+        {
+          "talk": "ardentDone"
+        }
+      ]
+    },
+    {
+      "map": "heroeshall",
+      "mark": "z",
+      "id": "pell",
+      "role": "talk",
+      "sprite": "npc/pell",
+      "talk": "pellHint",
+      "script": [
+        {
+          "if": "joinedHeroes",
+          "talk": "pellMember"
+        },
+        {
+          "if": "joinedThieves",
+          "talk": "pellThief"
+        },
+        {
+          "talk": "pellHint"
+        }
+      ]
+    },
+    {
+      "map": "thievesden",
+      "mark": "x",
+      "id": "mag",
+      "role": "talk",
+      "sprite": "npc/mag",
+      "talk": "magJoin",
+      "script": [
+        {
+          "if": "joinedHeroes",
+          "talk": "magHero"
+        },
+        {
+          "ifNot": "joinedThieves",
+          "set": "joinedThieves",
+          "talk": "magJoin"
+        },
+        {
+          "if": "beatAldous",
+          "ifNot": "paidAldous",
+          "set": "paidAldous",
+          "grant": [
+            [
+              "smokebomb",
+              3
+            ]
+          ],
+          "marks": 30,
+          "talk": "magPaidAldous"
+        },
+        {
+          "ifNot": "paidAldous",
+          "talk": "magQuestAldous"
+        },
+        {
+          "if": "beatBrin",
+          "ifNot": "paidBrin",
+          "set": "paidBrin",
+          "grant": [
+            [
+              "greatcrystal",
+              3
+            ]
+          ],
+          "marks": 40,
+          "talk": "magPaidBrin"
+        },
+        {
+          "ifNot": "paidBrin",
+          "talk": "magQuestBrin"
+        },
+        {
+          "if": "beatRook",
+          "ifNot": "paidRook",
+          "set": "paidRook",
+          "grant": [
+            [
+              "ultimatecrystal",
+              1
+            ]
+          ],
+          "marks": 60,
+          "talk": "magPaidRook"
+        },
+        {
+          "ifNot": "paidRook",
+          "talk": "magQuestRook"
+        },
+        {
+          "talk": "magDone"
+        }
+      ]
+    },
+    {
+      "map": "thievesden",
+      "mark": "z",
+      "id": "fingers",
+      "role": "talk",
+      "sprite": "npc/fingers",
+      "talk": "fingersHint",
+      "script": [
+        {
+          "if": "joinedThieves",
+          "talk": "fingersMember"
+        },
+        {
+          "if": "joinedHeroes",
+          "talk": "fingersHero"
+        },
+        {
+          "talk": "fingersHint"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "i",
+      "id": "aldous",
+      "role": "talk",
+      "sprite": "npc/aldous",
+      "talk": "aldousIdle",
+      "script": [
+        {
+          "hideIf": "beatAldous"
+        },
+        {
+          "if": "joinedThieves",
+          "talk": "aldousSpot",
+          "after": "wsoldier",
+          "pending": "sirAldous"
+        },
+        {
+          "talk": "aldousIdle"
+        }
+      ]
+    },
+    {
+      "map": "ruins",
+      "mark": "i",
+      "id": "brin",
+      "role": "talk",
+      "sprite": "npc/brin",
+      "talk": "brinIdle",
+      "script": [
+        {
+          "hideIf": "beatBrin"
+        },
+        {
+          "if": "joinedThieves",
+          "talk": "brinSpot",
+          "after": "wsoldier",
+          "pending": "dameBrin"
+        },
+        {
+          "talk": "brinIdle"
+        }
+      ]
+    },
+    {
+      "map": "cliffs",
+      "mark": "i",
+      "id": "rook",
+      "role": "talk",
+      "sprite": "npc/rook",
+      "talk": "rookIdle",
+      "script": [
+        {
+          "hideIf": "beatRook"
+        },
+        {
+          "if": "joinedThieves",
+          "talk": "rookSpot",
+          "after": "wsoldier",
+          "pending": "captainRook"
+        },
+        {
+          "talk": "rookIdle"
+        }
+      ]
+    },
+    {
+      "map": "forest",
+      "mark": "i",
+      "id": "mallory",
+      "role": "talk",
+      "sprite": "npc/mallory",
+      "talk": "malloryIdle",
+      "script": [
+        {
+          "hideIf": "beatMallory"
+        },
+        {
+          "if": "joinedHeroes",
+          "talk": "mallorySpot",
+          "after": "wsoldier",
+          "pending": "redMallory"
+        },
+        {
+          "talk": "malloryIdle"
+        }
+      ]
+    },
+    {
+      "map": "quarry",
+      "mark": "i",
+      "id": "silas",
+      "role": "talk",
+      "sprite": "npc/silas",
+      "talk": "silasIdle",
+      "script": [
+        {
+          "hideIf": "beatSilas"
+        },
+        {
+          "if": "joinedHeroes",
+          "talk": "silasSpot",
+          "after": "wsoldier",
+          "pending": "silasFence"
+        },
+        {
+          "talk": "silasIdle"
+        }
+      ]
     }
   ]
 }

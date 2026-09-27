@@ -58,7 +58,16 @@
     "vesk",
     "ghost",
     "grave",
-    "shrine"
+    "shrine",
+    "ardent",
+    "mag",
+    "pell",
+    "fingers",
+    "aldous",
+    "brin",
+    "rook",
+    "mallory",
+    "silas"
   ],
   "monsters": [
     "quillpup",
@@ -243,7 +252,16 @@
     "marn",
     "citizen",
     "ghost",
-    "vesk"
+    "vesk",
+    "ardent",
+    "mag",
+    "pell",
+    "fingers",
+    "aldous",
+    "brin",
+    "rook",
+    "mallory",
+    "silas"
   ],
   "items": [
     "salve",

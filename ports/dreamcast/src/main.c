@@ -1343,7 +1343,7 @@ typedef struct {
 /* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals),
    in bake_content.py's SPEAKER order. Portraits are PLACEHOLDER_ART from
    tools/make_placeholder_npcs.py. */
-#define SPK_COUNT     56 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk */
+#define SPK_COUNT     65 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds */
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of
@@ -1413,6 +1413,15 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_citizen, PORT_CITIZEN_W, PORT_CITIZEN_H }, /* 53 PLACEHOLDER_ART */
     { port_ghost, PORT_GHOST_W, PORT_GHOST_H }, /* 54 PLACEHOLDER_ART */
     { port_vesk, PORT_VESK_W, PORT_VESK_H }, /* 55 PLACEHOLDER_ART */
+    { port_ardent, PORT_ARDENT_W, PORT_ARDENT_H }, /* 56 PLACEHOLDER_ART */
+    { port_mag, PORT_MAG_W, PORT_MAG_H }, /* 57 PLACEHOLDER_ART */
+    { port_pell, PORT_PELL_W, PORT_PELL_H }, /* 58 PLACEHOLDER_ART */
+    { port_fingers, PORT_FINGERS_W, PORT_FINGERS_H }, /* 59 PLACEHOLDER_ART */
+    { port_aldous, PORT_ALDOUS_W, PORT_ALDOUS_H }, /* 60 PLACEHOLDER_ART */
+    { port_brin, PORT_BRIN_W, PORT_BRIN_H }, /* 61 PLACEHOLDER_ART */
+    { port_rook, PORT_ROOK_W, PORT_ROOK_H }, /* 62 PLACEHOLDER_ART */
+    { port_mallory, PORT_MALLORY_W, PORT_MALLORY_H }, /* 63 PLACEHOLDER_ART */
+    { port_silas, PORT_SILAS_W, PORT_SILAS_H }, /* 64 PLACEHOLDER_ART */
 };
 
 #include "content_talk.inc"
