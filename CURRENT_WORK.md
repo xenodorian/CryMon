@@ -3808,6 +3808,14 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       - Nero's win: the queen appears behind the throne, touches his
         shoulder and goes, before he asks to be finished or chained.
         Matches the execute line (her ring rolls to Max's feet).
+- [x] H21 QoL: the Hollow Keeper heals the party on every talk (`heal`
+      on each script step), so training there doesn't mean walking back
+      to CryTown. Verified on web (party at 1 HP back to full).
+      Looked at the other QoL ideas: dialogue shows whole lines at once
+      (no typewriter), so there is no text speed to set; autosave was
+      turned off on purpose (manual Save only, see persist()), so there is
+      nothing for an indicator to show; the dex reward already exists
+      (Archivist Wyn, 10/25/50/80/all).
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

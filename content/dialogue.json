@@ -5286,15 +5286,27 @@
       {
         "speaker": "keeper",
         "text": "Three fighters came here to train and never left. Beat them all and come back to me."
+      },
+      {
+        "speaker": "keeper",
+        "text": "Sit by my fire whenever you need it. Your CryMon look like they could use it now."
       }
     ],
     "hollowKeeperHint": [
+      {
+        "speaker": "none",
+        "text": "The Keeper's fire warms the party back to full."
+      },
       {
         "speaker": "keeper",
         "text": "The Ranger and the Shade first. The Warden won't fight anyone who hasn't."
       }
     ],
     "hollowKeeperReward": [
+      {
+        "speaker": "none",
+        "text": "The Keeper's fire warms the party back to full."
+      },
       {
         "speaker": "keeper",
         "text": "You beat the Warden. Nobody's done that in the years I've kept this place."
@@ -5309,6 +5321,10 @@
       }
     ],
     "hollowKeeperDone": [
+      {
+        "speaker": "none",
+        "text": "The Keeper's fire warms the party back to full."
+      },
       {
         "speaker": "keeper",
         "text": "The grass is quieter since you came. Or maybe the monsters just learned your name."

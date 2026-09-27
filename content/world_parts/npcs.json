@@ -3997,11 +3997,13 @@
         {
           "ifNot": "metHollowKeeper",
           "set": "metHollowKeeper",
-          "talk": "hollowKeeperMeet"
+          "talk": "hollowKeeperMeet",
+          "heal": true
         },
         {
           "if": "hollowRewarded",
-          "talk": "hollowKeeperDone"
+          "talk": "hollowKeeperDone",
+          "heal": true
         },
         {
           "if": "beatHollowWarden",
@@ -4012,10 +4014,12 @@
               3
             ]
           ],
-          "talk": "hollowKeeperReward"
+          "talk": "hollowKeeperReward",
+          "heal": true
         },
         {
-          "talk": "hollowKeeperHint"
+          "talk": "hollowKeeperHint",
+          "heal": true
         }
       ]
     },
