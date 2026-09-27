@@ -1737,6 +1737,10 @@
           "talk": "marnLetter"
         },
         {
+          "if": "leg3Ended",
+          "talk": "marnPost"
+        },
+        {
           "ifNot": "talkedMarn",
           "set": "talkedMarn",
           "talk": "marnFirst"
@@ -2654,9 +2658,15 @@
       "mark": "j",
       "id": "crier",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/crier",
       "talk": "crierNews",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talkIf": "neroTried",
+          "talk": "crierPostTrial",
+          "talkElse": "crierPostCrown"
+        },
         {
           "if": "sawShinigamiRock",
           "ifNot": "talkedReach",
@@ -2714,7 +2724,7 @@
       "mark": "l",
       "id": "tam",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/tam",
       "talk": "tamAsk",
       "script": [
         {
@@ -2743,7 +2753,7 @@
       "mark": "j",
       "id": "roloLost",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/rolo",
       "talk": "roloFound",
       "script": [
         {
@@ -2760,7 +2770,7 @@
       "mark": "o",
       "id": "roloHome",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/rolo",
       "talk": "roloHome",
       "script": [
         {
@@ -2776,7 +2786,7 @@
       "mark": "n",
       "id": "lina",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/lina",
       "talk": "linaAsk",
       "script": [
         {
@@ -2806,7 +2816,7 @@
       "mark": "p",
       "id": "juno",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/juno",
       "talk": "junoAsk",
       "script": [
         {
@@ -2837,7 +2847,7 @@
       "mark": "p",
       "id": "pipLost",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/pip",
       "talk": "pipFound",
       "script": [
         {
@@ -2854,7 +2864,7 @@
       "mark": "l",
       "id": "pipHome",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/pip",
       "talk": "pipHome",
       "script": [
         {
@@ -2870,7 +2880,7 @@
       "mark": "j",
       "id": "bet",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/bet",
       "talk": "betAsk",
       "script": [
         {
@@ -2900,7 +2910,7 @@
       "mark": "j",
       "id": "cobb",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/cobb",
       "talk": "cobbAsk",
       "script": [
         {
@@ -2954,7 +2964,7 @@
       "mark": "j",
       "id": "sera",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/sera",
       "talk": "seraAsk",
       "script": [
         {
@@ -2983,7 +2993,7 @@
       "mark": "o",
       "id": "garrow",
       "role": "talk",
-      "sprite": "npc/bandit",
+      "sprite": "npc/garrow",
       "talk": "garrowSpot",
       "script": [
         {
@@ -3001,7 +3011,7 @@
       "mark": "j",
       "id": "dunn",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/dunn",
       "talk": "dunnAsk",
       "script": [
         {
@@ -3039,7 +3049,7 @@
       "mark": "p",
       "id": "tillyLost",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/tilly",
       "talk": "tillyFound",
       "script": [
         {
@@ -3056,7 +3066,7 @@
       "mark": "l",
       "id": "tillyHome",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/tilly",
       "talk": "tillyHome",
       "script": [
         {
@@ -3072,7 +3082,7 @@
       "mark": "j",
       "id": "hesse",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/hesse",
       "talk": "hesseAsk",
       "script": [
         {
@@ -3102,7 +3112,7 @@
       "mark": "j",
       "id": "voss",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/voss",
       "talk": "vossAsk",
       "script": [
         {
@@ -3156,7 +3166,7 @@
       "mark": "j",
       "id": "lune",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/lune",
       "talk": "luneAsk",
       "script": [
         {
@@ -3185,7 +3195,7 @@
       "mark": "o",
       "id": "kael",
       "role": "talk",
-      "sprite": "npc/bandit",
+      "sprite": "npc/kael",
       "talk": "kaelSpot",
       "script": [
         {
@@ -3203,7 +3213,7 @@
       "mark": "j",
       "id": "holt",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/holt",
       "talk": "holtAsk",
       "script": [
         {
@@ -3241,7 +3251,7 @@
       "mark": "p",
       "id": "ionaLost",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/iona",
       "talk": "ionaFound",
       "script": [
         {
@@ -3258,7 +3268,7 @@
       "mark": "l",
       "id": "ionaHome",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/iona",
       "talk": "ionaHome",
       "script": [
         {
@@ -3274,7 +3284,7 @@
       "mark": "j",
       "id": "anselm",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/anselm",
       "talk": "anselmAsk",
       "script": [
         {
@@ -3308,7 +3318,7 @@
       "mark": "j",
       "id": "rhee",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/rhee",
       "talk": "rheeAsk",
       "script": [
         {
@@ -3343,6 +3353,10 @@
       "talk": "hintMalkuth",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintMalkuthPost"
+        },
+        {
           "if": "medalBronzeStar",
           "talk": "hintMalkuthAfter"
         },
@@ -3359,6 +3373,10 @@
       "sprite": "npc/townsman",
       "talk": "hintYesod",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintYesodPost"
+        },
         {
           "if": "medalPurpleHeart",
           "talk": "hintYesodAfter"
@@ -3377,6 +3395,10 @@
       "talk": "hintNetzach",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintNetzachPost"
+        },
+        {
           "if": "medalPowMedal",
           "talk": "hintNetzachAfter"
         },
@@ -3393,6 +3415,10 @@
       "sprite": "npc/townsman",
       "talk": "hintHod",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintHodPost"
+        },
         {
           "if": "medalSilverStar",
           "talk": "hintHodAfter"
@@ -3411,6 +3437,10 @@
       "talk": "hintTiferet",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintTiferetPost"
+        },
+        {
           "if": "medalGoldStar",
           "talk": "hintTiferetAfter"
         },
@@ -3427,6 +3457,10 @@
       "sprite": "npc/townsman",
       "talk": "hintChesed",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintChesedPost"
+        },
         {
           "if": "medalLegionOfMerit",
           "talk": "hintChesedAfter"
@@ -3445,6 +3479,10 @@
       "talk": "hintGevurah",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintGevurahPost"
+        },
+        {
           "if": "medalFlyingCross",
           "talk": "hintGevurahAfter"
         },
@@ -3461,6 +3499,10 @@
       "sprite": "npc/townsman",
       "talk": "hintBinah",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintBinahPost"
+        },
         {
           "if": "medalServiceCross",
           "talk": "hintBinahAfter"
@@ -3479,6 +3521,10 @@
       "talk": "hintChokmah",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintChokmahPost"
+        },
+        {
           "if": "medalOfHonor",
           "talk": "hintChokmahAfter"
         },
@@ -3496,6 +3542,10 @@
       "talk": "hintKeter",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintKeterPost"
+        },
+        {
           "if": "hasGoldenShackles",
           "talk": "hintKeterOpen"
         },
@@ -3509,7 +3559,7 @@
       "mark": "x",
       "id": "wyn",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/wyn",
       "talk": "wynFirst",
       "script": [
         {
@@ -3607,7 +3657,7 @@
       "mark": "z",
       "id": "lark",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/lark",
       "talk": "larkLore",
       "script": [
         {
@@ -3624,7 +3674,7 @@
       "mark": "x",
       "id": "hollis",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/hollis",
       "talk": "hollisRest",
       "script": [
         {
@@ -3638,7 +3688,7 @@
       "mark": "z",
       "id": "quill",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/quill",
       "talk": "quillReach",
       "script": [
         {
@@ -3691,7 +3741,7 @@
       "mark": "x",
       "id": "brann",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/brann",
       "talk": "brannAsk",
       "script": [
         {
@@ -3730,7 +3780,7 @@
       "mark": "x",
       "id": "osk",
       "role": "trainer",
-      "sprite": "npc/elder",
+      "sprite": "npc/osk",
       "talk": "oskOne",
       "script": [
         {
@@ -3770,7 +3820,7 @@
       "mark": "x",
       "id": "ilse",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/ilse",
       "talk": "ilseLore",
       "script": [
         {
@@ -3807,7 +3857,7 @@
       "mark": "x",
       "id": "maren",
       "role": "talk",
-      "sprite": "ghost",
+      "sprite": "npc/maren",
       "talk": "marenAsk",
       "script": [
         {
@@ -3873,6 +3923,66 @@
             ]
           ],
           "talk": "dollFound"
+        }
+      ]
+    },
+    {
+      "map": "quarry",
+      "mark": "m",
+      "id": "dagny",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "dagnyAsk",
+      "script": [
+        {
+          "if": "mon:cindermite",
+          "ifNot": "showedCindermite",
+          "set": "showedCindermite",
+          "grant": [
+            [
+              "sunbalm",
+              2
+            ]
+          ],
+          "talk": "dagnyThanks"
+        },
+        {
+          "if": "showedCindermite",
+          "talk": "dagnyAfter"
+        },
+        {
+          "talk": "dagnyAsk",
+          "set": "dagnyAsked"
+        }
+      ]
+    },
+    {
+      "map": "marsh",
+      "mark": "m",
+      "id": "fenwick",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "fenwickAsk",
+      "script": [
+        {
+          "if": "mon:chillnewt",
+          "ifNot": "showedChillnewt",
+          "set": "showedChillnewt",
+          "grant": [
+            [
+              "bandage",
+              3
+            ]
+          ],
+          "talk": "fenwickThanks"
+        },
+        {
+          "if": "showedChillnewt",
+          "talk": "fenwickAfter"
+        },
+        {
+          "talk": "fenwickAsk",
+          "set": "fenwickAsked"
         }
       ]
     }

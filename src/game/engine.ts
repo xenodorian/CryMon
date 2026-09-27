@@ -2144,7 +2144,7 @@ export class CryMon {
 		if (this.world.moving) {
 			if (Math.abs(ax.x) > Math.abs(ax.y)) this.world.dir = ax.x < 0 ? "left" : "right";
 			else this.world.dir = ax.y < 0 ? "up" : "down";
-			const sp = 84;
+			const sp = this.input.runHeld() ? LOGIC.walk.runSpeed : LOGIC.walk.speed;
 			const nx = this.world.x + ax.x * sp * dt;
 			const ny = this.world.y + ax.y * sp * dt;
 			const stuck = this.blocked(this.world.x, this.world.y);
@@ -4584,7 +4584,7 @@ export class CryMon {
 			const i = start + k;
 			const on = i === cur;
 			const y = Y(24 + k * 10.5);
-			this.text(`${on ? "> " : "  "}${r.q.title}`, X(16), y, on ? "#5a7a52" : r.done ? "#6e6a5c" : "#c5cec6", FONT);
+			this.text(`${on ? "> " : "  "}${r.q.title}`, X(16), y, on ? "#a8d890" : r.done ? "#6e6a5c" : "#c5cec6", FONT);
 			if (r.done) this.text("done", X(222), y, "#5a7a52", FONT, "right");
 		});
 		this.ctx.fillStyle = "#5a5648";
@@ -5038,6 +5038,19 @@ export class CryMon {
 	}
 	box(x, y, w, h) {
 		const ctx = this.ctx;
+		const fr = this.images["ui-frame"];
+		if (fr && fr.width === 16) {
+			// nine-slice of public/sprites/ui/frame.png (tools/pixelforge/uiframe.py): 6px corners
+			const s = h < Y(24) ? 1 : Math.max(1, Math.round(X(1) / 2)); // thin trim on small HUD boxes
+			const c = 6 * s;
+			const sx = [0, 6, 10], sw = [6, 4, 6];
+			const dx = [x, x + c, x + w - c], dw = [c, w - 2 * c, c];
+			const dy = [y, y + c, y + h - c], dh = [c, h - 2 * c, c];
+			for (let j = 0; j < 3; j++)
+				for (let i = 0; i < 3; i++)
+					if (dw[i] > 0 && dh[j] > 0) ctx.drawImage(fr, sx[i], sx[j], sw[i], sw[j], dx[i], dy[j], dw[i], dh[j]);
+			return;
+		}
 		ctx.fillStyle = "#12110e";
 		ctx.fillRect(x, y, w, h);
 		ctx.strokeStyle = "#c5cec6";
@@ -5086,7 +5099,7 @@ export class CryMon {
 		this.text("PAUSE", X(120), Y(30), "#e8e4d8", FONT, "center");
 		PAUSE_ROWS.forEach((r, i) => {
 			const on = i === this.pauseCursor;
-			this.text(on ? `> ${r}` : r, X(120), Y(40 + i * 10.5), on ? "#5a7a52" : "#c5cec6", FONT, "center");
+			this.text(on ? `> ${r}` : r, X(120), Y(40 + i * 10.5), on ? "#a8d890" : "#c5cec6", FONT, "center");
 		});
 	}
 	drawCryDex() {
@@ -5864,7 +5877,8 @@ export class CryMon {
 	drawBattle() {
 		const b = this.battle;
 		if (!b) return;
-		const bg = this.images.bg;
+		const areaBg = this.images[SPRITES.battleBgMap?.[this.world.mapId]];
+		const bg = areaBg && areaBg.width ? areaBg : this.images.bg;
 		if (bg) this.ctx.drawImage(bg, 0, 0, VIEW_W, VIEW_H);
 		else this.fill("#2a2418");
 		const pf = Math.floor(b.t * 4) % 4 + 1;

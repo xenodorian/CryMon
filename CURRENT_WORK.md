@@ -3714,6 +3714,58 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         haunted hall -> Reach) with no page errors; Dreamcast in Flycast.
       - `content/town_map.json` and `public/maps/*` (the old generator's
         output) are left as they were; the game no longer reads them.
+- [x] H10 Small fixes found while playing the finale.
+      - Web: played Nero -> trial -> Father -> ending cards -> wakes at
+        home with the post-game lines. No errors.
+      - `hfEndNone` said "There is nothing left to fight" right before the
+        post-game; now "For now, there is nothing left to fight."
+      - Dreamcast map title: long names at double size ran into the HUD
+        in the top-left (most maps: "THE FOREST", "NERO'S PALACE"). Names
+        wider than half the screen now draw at normal size, and ones still
+        too wide sit under the HUD lines.
+      - Web: forced every screen's draw and opened every pause row with
+        real input. No errors.
+- [x] H11 After-the-war lines (JSON only, both engines through the NPC
+      scripts). With `leg3Ended` on: the CryTown crier has two versions
+      (Nero tried: `crierPostTrial`; Nero killed: `crierPostCrown`), each
+      Sephirot city's hint NPC and Keter's elder get one line
+      (`hint<City>Post`), and Elder Marn gets `marnPost` (after his
+      letter step, so Brann's quest still works). Verified on web.
+- [x] H12 Early and mid game level curve. The road east is fixed
+      (CryTown -> Cliffs -> Marsh -> Quarry -> Camp -> Forest -> Prison,
+      then the Ruins after Shinigami), but the levels went up and down:
+      the Forest was Lv 3-5 right after the Camp's 6-9, the Marsh and
+      Quarry trainers were Lv 3-4, and the Ruins (Lv 6-9) only open after
+      Shinigami (Lv 13-15). Now:
+      - Wild: Cliffs 4-6, Marsh 5-7, Quarry 6-8, Camp 7-10, Forest 9-11,
+        Prison grounds 10-13, Ruins 13-15 (CryTown 2-4 and the Reach 13-16
+        unchanged).
+      - Trainers: Sentry 5/5/6, Bogwalker 6/6, Reedguard 6/7, Driller
+        7/8, Conscript 9/9/10, Enforcer 10/10/11, Ranger 11/11, Scout
+        11/12, Forest soldiers 10/10/11 (JSON and Dreamcast's hand-kept
+        `SOLDIERS[]`), Warden Cross 12/12/13, Ruins Keeper 14/14, Ruins
+        Warden 15/15.
+      - Cathleen (10) and Shinigami (15) stay put: check_sync pins them.
+      - Mason's rematch (Lv 6-8, hard-coded on Dreamcast) left alone.
+- [x] H13 Dreamcast wake-up after the ending verified in Flycast: a
+      pre-Nero save plus a local-only build with a Lv 2 Nero team (not
+      committed) -> trial -> Father -> ending -> Max at home, party kept,
+      journal shows the main quest DONE and "After the War" open.
+      Cursor rows in the pause menu and journal now use a brighter green
+      (#a8d890) on both engines; the old #5a7a52 was hard to read on the
+      dark panels.
+- [x] H14 Running. logic.json `walk` {speed 84, runSpeed 150}. Web: hold
+      Shift or gamepad button 2 (X/Square), `Input.runHeld()`; Dreamcast:
+      hold X (baked `LOGIC_WALK_FRAC` / `LOGIC_RUN_FRAC`, replacing the
+      hard-coded 358). B stays "cycle lead" on web, so it was not used.
+      "How to play" lists it. Web measured 43 px walking vs 78 px running
+      over the same half second.
+- [x] H15 Two county side quests (JSON only; journal entries too).
+      - Foreman Dagny in the Quarry (mark `m`): show her a Cindermite
+        (you keep it) for 2 Sunbalm. Flags `dagnyAsked`, `showedCindermite`.
+      - Old Fenwick in the Marsh (mark `m`): show him a Chillnewt for 3
+        Linen Wraps. Flags `fenwickAsked`, `showedChillnewt`.
+      - Both species live in that map's own grass. Verified on web.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
@@ -3880,3 +3932,6 @@ Monster deep pass batch 8: Ramparth gets boulder arms with fists, a gate mouth w
 Monster deep pass batch 9: Snowbell gets a snow drift on its crown, a red ribbon bow, blush, a frost mark, an icicle fringe and a clapper that swings with it. Runemote, Scavrat, Scorchbeak, Shrewbit, Sleightfox, Sparkfly and Sparkit reviewed and left as they are.
 Monster deep pass batch 10: Starwhale gets two-lobed flukes on a tail stock, nebula clouds across its back, a shaped flipper and a stardust spout from its blowhole. Starfry, Stormwing, Sunhawk, Tallowisp, Thornhide, Thunderam and Thunderqueen reviewed and left as they are.
 Monster deep pass batch 11 (last): Vinebrute gets broad vine shoulders with leaf pads, braided trunk legs with bark root toes, thorned club fists, a dark face hollow with glowing eyes, chest thorns and red berries. Tidewolf, Tortcask, Towerfall, Tuftowl, Voltbuck, Voltgrub, Warbison, Wheelhog and Widowshade reviewed and left as they are. Monster pass complete.
+Battle backdrops: 9 painted backdrops in public/sprites/bg from tools/pixelforge/battlebg.py (forest, marsh, cliffs, ruins, road, crypt, sephirot, palace, indoor), each with a ground patch under the foe and the player. content/sprites.json battleBgMap picks one per map (69 maps; Crytown keeps battle-bg.png). Web drawBattle uses it; Dreamcast gets them at half size blitted 2x (AREA_BG in sprites.h, MAP_BATTLE_BG in content_maps.inc). Checked in the browser on forest, marsh, quarry, camp, gauntlet, Yesod and Keter.
+UI frames: tools/pixelforge/uiframe.py draws a 16x16 brass nine-slice frame with small corner gems (public/sprites/ui/frame.png, catalog key ui-frame). Web Engine.box() draws it for every box (battle, dialogue, menus, HUD; thin trim on small HUD boxes) and falls back to the flat box if the image is missing. Dreamcast draw_menu_frame() now uses draw_ui_frame() with the same frame; the battle and dialogue text stay panel-free on Dreamcast by design.
+Named characters: the crier, Tam, Lina, Rolo, Juno, Bet, Pip, Cobb, Sera, Dunn, Garrow, Hesse, Tilly, Voss, Lune, Holt, Kael, Anselm, Iona, Rhee, and the house characters Wyn, Lark, Hollis, Quill, Brann, Osk, Ilse and Maren each get their own overworld walker and portrait (tools/pixelforge/people.py looks). portraitAlias is now empty; world_parts/npcs.json points each NPC (and their Lost/Home copies) at its own sprite; Dreamcast SPEAKER_PORTRAIT uses the new portraits. Hint NPCs and ghost soldiers stay on the archetypes since they are unnamed.

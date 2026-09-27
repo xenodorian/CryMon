@@ -154,6 +154,8 @@ MARKS = [
     ("daleth", "o", (28, 5)),   # Deserter Kael (Binah)
     ("aleph", "p", (16, 9)),    # Sister Iona (Chokmah)
     ("marsh", "n", (15, 3)),    # Maren's rag doll (the Reach's empty house)
+    ("quarry", "m", (12, 7)),   # Foreman Dagny
+    ("marsh", "m", (8, 19)),    # Old Fenwick
 ]
 
 

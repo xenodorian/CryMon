@@ -1546,40 +1546,40 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_rook, PORT_ROOK_W, PORT_ROOK_H }, /* 62 PLACEHOLDER_ART */
     { port_mallory, PORT_MALLORY_W, PORT_MALLORY_H }, /* 63 PLACEHOLDER_ART */
     { port_silas, PORT_SILAS_W, PORT_SILAS_H }, /* 64 PLACEHOLDER_ART */
-    /* Townsfolk: several named speakers share one archetype portrait
-       (content/sprites.json portraitAlias), not another character's art. */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 65 crier PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 66 tam PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 67 lina PLACEHOLDER_ART */
-    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 68 rolo PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 69 juno PLACEHOLDER_ART */
+    /* Townsfolk: named speakers have their own portraits
+       (tools/pixelforge/people.py); the bare archetypes stay generic. */
+    { port_crier, PORT_CRIER_W, PORT_CRIER_H }, /* 65 crier */
+    { port_tam, PORT_TAM_W, PORT_TAM_H }, /* 66 tam */
+    { port_lina, PORT_LINA_W, PORT_LINA_H }, /* 67 lina */
+    { port_rolo, PORT_ROLO_W, PORT_ROLO_H }, /* 68 rolo */
+    { port_juno, PORT_JUNO_W, PORT_JUNO_H }, /* 69 juno */
     { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 70 townsman PLACEHOLDER_ART */
     { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 71 townswoman PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 72 bet PLACEHOLDER_ART */
-    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 73 pip PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 74 cobb PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 75 sera PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 76 dunn PLACEHOLDER_ART */
-    { port_bandit, PORT_BANDIT_W, PORT_BANDIT_H }, /* 77 garrow PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 78 hesse PLACEHOLDER_ART */
-    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 79 tilly PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 80 voss PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 81 lune PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 82 holt PLACEHOLDER_ART */
-    { port_bandit, PORT_BANDIT_W, PORT_BANDIT_H }, /* 83 kael PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 84 anselm PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 85 iona PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 86 rhee PLACEHOLDER_ART */
+    { port_bet, PORT_BET_W, PORT_BET_H }, /* 72 bet */
+    { port_pip, PORT_PIP_W, PORT_PIP_H }, /* 73 pip */
+    { port_cobb, PORT_COBB_W, PORT_COBB_H }, /* 74 cobb */
+    { port_sera, PORT_SERA_W, PORT_SERA_H }, /* 75 sera */
+    { port_dunn, PORT_DUNN_W, PORT_DUNN_H }, /* 76 dunn */
+    { port_garrow, PORT_GARROW_W, PORT_GARROW_H }, /* 77 garrow */
+    { port_hesse, PORT_HESSE_W, PORT_HESSE_H }, /* 78 hesse */
+    { port_tilly, PORT_TILLY_W, PORT_TILLY_H }, /* 79 tilly */
+    { port_voss, PORT_VOSS_W, PORT_VOSS_H }, /* 80 voss */
+    { port_lune, PORT_LUNE_W, PORT_LUNE_H }, /* 81 lune */
+    { port_holt, PORT_HOLT_W, PORT_HOLT_H }, /* 82 holt */
+    { port_kael, PORT_KAEL_W, PORT_KAEL_H }, /* 83 kael */
+    { port_anselm, PORT_ANSELM_W, PORT_ANSELM_H }, /* 84 anselm */
+    { port_iona, PORT_IONA_W, PORT_IONA_H }, /* 85 iona */
+    { port_rhee, PORT_RHEE_W, PORT_RHEE_H }, /* 86 rhee */
     { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 87 elder PLACEHOLDER_ART */
-    /* 88-95: Ruins / Reach house interiors, archetype portraits again. */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 88 wyn PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 89 lark PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 90 hollis PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 91 quill PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 92 brann PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 93 osk PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 94 ilse PLACEHOLDER_ART */
-    { port_ghost, PORT_GHOST_W, PORT_GHOST_H }, /* 95 maren PLACEHOLDER_ART */
+    /* 88-95: Ruins / Reach house interiors. */
+    { port_wyn, PORT_WYN_W, PORT_WYN_H }, /* 88 wyn */
+    { port_lark, PORT_LARK_W, PORT_LARK_H }, /* 89 lark */
+    { port_hollis, PORT_HOLLIS_W, PORT_HOLLIS_H }, /* 90 hollis */
+    { port_quill, PORT_QUILL_W, PORT_QUILL_H }, /* 91 quill */
+    { port_brann, PORT_BRANN_W, PORT_BRANN_H }, /* 92 brann */
+    { port_osk, PORT_OSK_W, PORT_OSK_H }, /* 93 osk */
+    { port_ilse, PORT_ILSE_W, PORT_ILSE_H }, /* 94 ilse */
+    { port_maren, PORT_MAREN_W, PORT_MAREN_H }, /* 95 maren */
 };
 
 #include "content_talk.inc"
@@ -1661,10 +1661,16 @@ static void draw_map_title(int map_id) {
     int w;
     if(map_id < 0 || map_id >= MAP_N) map_id = MAP_HOUSE;
     name = MAP_DISPLAY_NAME[map_id];
-    /* Scale 1 on the REP row: at scale 2 a 16-letter name took most of
-       the 320px width and printed over the lead/scroll HUD lines. */
-    w = text_width_s(name, 1);
-    draw_text_s(name, SCREEN_W - 6 - w, 2, rgb565(232, 228, 216), 1);
+    w = text_width_s(name, 2);
+    /* Long names ("NERO'S PALACE") at double size ran into the HUD in
+       the top-left; those drop to normal size. */
+    if(w > SCREEN_W / 2 - 6) {
+        w = text_width_s(name, 1);
+        /* Still too wide to clear the HUD's lines: sit under them. */
+        draw_text_s(name, SCREEN_W - 6 - w, SCREEN_W - 6 - w < 166 ? 30 : 6, rgb565(232, 228, 216), 1);
+        return;
+    }
+    draw_text_s(name, SCREEN_W - 6 - w, 4, rgb565(232, 228, 216), 2);
 }
 
 static void draw_map_banner(int map_id, int timer) {
@@ -2248,9 +2254,38 @@ static int *bag_field(Bag *bag, int idx) {
 /* Solid bordered panel, like the web's box(): menus are drawn as an
    overlay after the world scene, and text over busy map art was hard
    to read. */
+/* Nine-slice of ui_frame (16x16, 6px corners): corners as-is, edges and
+   the middle stretched. Falls back to the flat two-tone panel. */
+static void draw_ui_frame(int x, int y, int w, int h) {
+#ifdef HAVE_UI_FRAME
+    static const int so[3] = { 0, 6, 10 }, sl[3] = { 6, 4, 6 };
+    int dx[3], dw[3], dy[3], dh[3], i, j;
+    if(w >= 12 && h >= 12) {
+        dx[0] = x; dw[0] = 6; dx[1] = x + 6; dw[1] = w - 12; dx[2] = x + w - 6; dw[2] = 6;
+        dy[0] = y; dh[0] = 6; dy[1] = y + 6; dh[1] = h - 12; dy[2] = y + h - 6; dh[2] = 6;
+        for(j = 0; j < 3; j++) {
+            for(i = 0; i < 3; i++) {
+                int px, py;
+                if(dw[i] <= 0 || dh[j] <= 0) continue;
+                for(py = 0; py < dh[j]; py++) {
+                    int sy = so[j] + py * sl[j] / dh[j];
+                    for(px = 0; px < dw[i]; px++) {
+                        u16 c = ui_frame[sy * 16 + so[i] + px * sl[i] / dw[i]];
+                        if(c != SPRITE_KEY)
+                            put_pixel(dx[i] + px, dy[j] + py, c);
+                    }
+                }
+            }
+        }
+        return;
+    }
+#endif
+    fill_rect(x, y, w, h, rgb565(90, 86, 72));
+    fill_rect(x + 1, y + 1, w - 2, h - 2, rgb565(22, 20, 18));
+}
+
 static void draw_menu_frame(const char *title, const char *footer) {
-    fill_rect(MENU_X, MENU_Y, MENU_W, MENU_H, rgb565(90, 86, 72));
-    fill_rect(MENU_X + 1, MENU_Y + 1, MENU_W - 2, MENU_H - 2, rgb565(22, 20, 18));
+    draw_ui_frame(MENU_X, MENU_Y, MENU_W, MENU_H);
     draw_text_s(title, MENU_X + 8, MENU_Y + 8, 0xFFFF, MENU_SCALE);
     draw_text_s(footer, MENU_X + 8, MENU_Y + MENU_H - 16,
                 rgb565(180, 220, 170), MENU_SCALE);
@@ -2262,7 +2297,7 @@ static void draw_pause_menu(int cur) {
     draw_menu_frame("PAUSE", "A SELECT  B CLOSE");
     for(i = 0; i < 9; i++)
         draw_text_s(rows[i], MENU_X + 16, MENU_Y + 24 + i * MENU_ROW_H,
-                    i == cur ? rgb565(90, 122, 82) : rgb565(197, 206, 198), MENU_SCALE);
+                    i == cur ? rgb565(168, 216, 144) : rgb565(197, 206, 198), MENU_SCALE);
 }
 
 static void draw_crydex(int cur, int entry) {
@@ -4270,7 +4305,16 @@ static void draw_battle_guard_menu(int cur) {
    boxes/sprites/content box, all of which are individually small so
    the background (and both battle sprites) stay visible around them
    -- see the section comment above. */
+static int battle_bg_map = 0;   /* map the fight is on; set by the main loop */
+
 static void draw_battle_bg(void) {
+#ifdef HAVE_AREA_BG
+    int k = (battle_bg_map >= 0 && battle_bg_map < MAP_N) ? MAP_BATTLE_BG[battle_bg_map] : 0;
+    if(k > 0) {
+        blit_sprite_2x(AREA_BG[k - 1], AREA_BG_W, AREA_BG_H, 0, 0);
+        return;
+    }
+#endif
     blit_sprite(battle_bg, BATTLE_BG_W, BATTLE_BG_H, 0, 0);
 }
 
@@ -4782,7 +4826,7 @@ static void draw_journal(int cur) {
     for(i = start; i < n && i < start + JOURNAL_VIS; i++, y += 11) {
         const JournalQuest *q = &JOURNAL_QUESTS[rows[i]];
         int done = q->done >= 0 && journal_flag(q->done);
-        u16 c = i == cur ? rgb565(90, 122, 82) : (done ? rgb565(110, 106, 92) : rgb565(197, 206, 198));
+        u16 c = i == cur ? rgb565(168, 216, 144) : (done ? rgb565(110, 106, 92) : rgb565(197, 206, 198));
         draw_text_s(i == cur ? ">" : " ", MENU_X + 8, y, c, 1);
         draw_text_s(q->title, MENU_X + 20, y, c, 1);
         if(done) draw_text_s("DONE", MENU_X + MENU_W - 40, y, rgb565(90, 122, 82), 1);
@@ -5353,9 +5397,9 @@ typedef struct {
 } SoldierDef;
 
 static const SoldierDef SOLDIERS[3] = {
-    { '1', "PATROL", SP_BRIARFOX, 4 },
-    { '2', "SCOUT",  SP_MOSSBACK, 4 },
-    { '3', "SENTRY", SP_RAZORBAT, 5 },
+    { '1', "PATROL", SP_BRIARFOX, 10 },
+    { '2', "SCOUT",  SP_MOSSBACK, 10 },
+    { '3', "SENTRY", SP_RAZORBAT, 11 },
 };
 
 /* Real-time actor movement constants, ported from engine.ts's own
@@ -8414,7 +8458,8 @@ void main(void) {
                        they've accrued -- averages ~83.9px/sec over
                        time instead of a hard 60. */
                     int speed;
-                    player_speed_frac += 358; /* 84 * 256 / 60 ~= 358.4 */
+                    /* Holding X runs (logic.json walk.runSpeed). */
+                    player_speed_frac += pressed(raw, CONT_X) ? LOGIC_RUN_FRAC : LOGIC_WALK_FRAC;
                     speed = player_speed_frac >> 8;
                     player_speed_frac &= 255;
                     int nx = px + dx * speed;
@@ -9432,10 +9477,12 @@ void main(void) {
                 draw_journal(journal_cur);
             else if(menu_mode == 8)
                 draw_map_screen(map_page, map_id, frame_count);
-            if(in_battle)
+            if(in_battle) {
+                battle_bg_map = map_id;
                 draw_battle(&battle, &bag, frame_count,
                             battle_foe_enter_t, battle_foe_faint_t,
                             battle_pl_enter_t, battle_pl_faint_t);
+            }
             if(shop_open)
                 draw_shop(&bag, marks, shop_sell_tab, shop_cur, shop_keep_id,
                           reputation, shop_free, dray_knife_offered);

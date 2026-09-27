@@ -445,7 +445,11 @@
     "anselmAsked",
     "rheeAsked",
     "talkedOsk",
-    "beatCalderPost"
+    "beatCalderPost",
+    "dagnyAsked",
+    "showedCindermite",
+    "fenwickAsked",
+    "showedChillnewt"
   ],
   "layout": {
     "magic": [

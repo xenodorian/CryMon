@@ -30,6 +30,7 @@ export class Input {
   padY = 0;
   padA = false;
   padB = false;
+  padRun = false;
   padStart = false;
   padSelect = false;
   tapA = false;
@@ -138,6 +139,10 @@ export class Input {
     return this.keys;
   }
 
+  /** Run button, held: Shift, or gamepad X/Square (button 2). */
+  runHeld() {
+    return this.held("ShiftLeft") || this.held("ShiftRight") || this.padRun;
+  }
   held(code: string) {
     return this.live().has(code);
   }
@@ -274,6 +279,7 @@ export class Input {
       if (selectBtn && !this.padSelect) this.tapSelectQueued += 1;
       this.padA = aBtn;
       this.padB = bBtn;
+      this.padRun = Boolean(p.buttons[2]?.pressed);
       this.padStart = startBtn;
       this.padSelect = selectBtn;
     }

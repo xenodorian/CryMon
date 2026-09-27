@@ -11,8 +11,8 @@
         "briarfox",
         "glimmoth"
       ],
-      "levelMin": 5,
-      "levelMax": 8
+      "levelMin": 10,
+      "levelMax": 13
     },
     {
       "maps": [
@@ -25,8 +25,8 @@
         "scavrat",
         "duskhorn"
       ],
-      "levelMin": 6,
-      "levelMax": 9
+      "levelMin": 7,
+      "levelMax": 10
     },
     {
       "maps": [
@@ -39,8 +39,8 @@
         "crymare",
         "glasswisp"
       ],
-      "levelMin": 6,
-      "levelMax": 9
+      "levelMin": 13,
+      "levelMax": 15
     },
     {
       "maps": [
@@ -53,8 +53,8 @@
         "fenwisp",
         "glowcap"
       ],
-      "levelMin": 3,
-      "levelMax": 5
+      "levelMin": 9,
+      "levelMax": 11
     },
     {
       "maps": [
@@ -67,8 +67,8 @@
         "rimeowl",
         "razorbat"
       ],
-      "levelMin": 5,
-      "levelMax": 7
+      "levelMin": 4,
+      "levelMax": 6
     },
     {
       "maps": [
@@ -110,8 +110,8 @@
         "mossback",
         "chillnewt"
       ],
-      "levelMin": 4,
-      "levelMax": 6
+      "levelMin": 5,
+      "levelMax": 7
     },
     {
       "maps": [
@@ -124,8 +124,8 @@
         "cindermite",
         "stardrop"
       ],
-      "levelMin": 5,
-      "levelMax": 7
+      "levelMin": 6,
+      "levelMax": 8
     },
     {
       "maps": [

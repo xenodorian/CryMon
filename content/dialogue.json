@@ -2307,7 +2307,7 @@
       },
       {
         "speaker": "none",
-        "text": "Max goes home to CryTown. There is nothing left to fight."
+        "text": "Max goes home to CryTown. For now, there is nothing left to fight."
       }
     ],
     "hfEndTamed": [
@@ -5068,6 +5068,152 @@
       {
         "speaker": "calder",
         "text": "I'm heading to Malkuth. Hale says the new guard needs people who can take a hit."
+      }
+    ],
+    "crierPostTrial": [
+      {
+        "speaker": "crier",
+        "text": "News from CryTown! The Weeping King stood trial in Malkuth. Guilty on every count!"
+      },
+      {
+        "speaker": "crier",
+        "text": "The north road is open for good. Traders are already coming south."
+      }
+    ],
+    "crierPostCrown": [
+      {
+        "speaker": "crier",
+        "text": "News from CryTown! Nero is dead and Queen Max sits the throne in Keter!"
+      },
+      {
+        "speaker": "crier",
+        "text": "Nobody's sure whether to cheer or keep their heads down. I'm doing both."
+      }
+    ],
+    "hintMalkuthPost": [
+      {
+        "speaker": "townswoman",
+        "text": "The base is empty now. Somebody painted flowers on the gate."
+      }
+    ],
+    "hintYesodPost": [
+      {
+        "speaker": "townsman",
+        "text": "They're melting down the army's crystals for new lamps. Yesod has never been this bright."
+      }
+    ],
+    "hintNetzachPost": [
+      {
+        "speaker": "townswoman",
+        "text": "The prisoners from the camp came home last week. My brother among them."
+      }
+    ],
+    "hintHodPost": [
+      {
+        "speaker": "townsman",
+        "text": "Hod has a market again. First one in twelve years."
+      }
+    ],
+    "hintTiferetPost": [
+      {
+        "speaker": "townswoman",
+        "text": "Every city sends someone to Tiferet now. They talk instead of fight. Mostly."
+      }
+    ],
+    "hintChesedPost": [
+      {
+        "speaker": "townsman",
+        "text": "The soldiers who stayed are rebuilding what they burned. It's a start."
+      }
+    ],
+    "hintGevurahPost": [
+      {
+        "speaker": "townswoman",
+        "text": "Gevurah's forges make plows now. Loud ones, but plows."
+      }
+    ],
+    "hintBinahPost": [
+      {
+        "speaker": "townsman",
+        "text": "The old Weeping flags make good blankets. Warm, too."
+      }
+    ],
+    "hintChokmahPost": [
+      {
+        "speaker": "townswoman",
+        "text": "We keep a candle in the window for the ones who never came back from the war."
+      }
+    ],
+    "hintKeterPost": [
+      {
+        "speaker": "elder",
+        "text": "The palace is quiet. For the first time in my life, Keter just feels like a city."
+      }
+    ],
+    "marnPost": [
+      {
+        "speaker": "marn",
+        "text": "Twelve years of war, and a girl from CryTown ended it. Malkuth won't forget you."
+      }
+    ],
+    "dagnyAsk": [
+      {
+        "speaker": "townswoman",
+        "text": "Foreman Dagny. Something in this quarry keeps chewing through my blasting fuses."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The miners swear it's a Cindermite. Catch one in the grass here and show me. I want to see what I'm up against."
+      }
+    ],
+    "dagnyThanks": [
+      {
+        "speaker": "townswoman",
+        "text": "So that's the little fuse-eater. Smaller than I thought. Meaner, too."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "Keep it. Take these for your trouble."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 2 Sunbalm."
+      }
+    ],
+    "dagnyAfter": [
+      {
+        "speaker": "townswoman",
+        "text": "We wrap the fuses in wet cloth now. The Cindermites hate it."
+      }
+    ],
+    "fenwickAsk": [
+      {
+        "speaker": "townsman",
+        "text": "Old Fenwick. I've fished this marsh for forty years."
+      },
+      {
+        "speaker": "townsman",
+        "text": "Something cold lives under the reeds now. Freezes my lines solid. Catch whatever it is and show me."
+      }
+    ],
+    "fenwickThanks": [
+      {
+        "speaker": "townsman",
+        "text": "A Chillnewt! So you're the one stealing my bait."
+      },
+      {
+        "speaker": "townsman",
+        "text": "Here. Linen wraps. I keep more than I need."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 3 Linen Wraps."
+      }
+    ],
+    "fenwickAfter": [
+      {
+        "speaker": "townsman",
+        "text": "I fish on the warm side of the marsh now. The Chillnewts can have the rest."
       }
     ]
   },

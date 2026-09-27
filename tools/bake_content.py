@@ -369,6 +369,14 @@ def bake_maps(data: dict, out: Path) -> None:
     lines.append("    " + ", ".join(f'"{c_escape(dc_text(names[m]))}"' for m in order) + ",")
     lines.append("};")
     lines.append("")
+    # Battle backdrop per map: 0 = battle-bg.png, k+1 = the k-th name in
+    # sorted(sprites.json battleBgMap values), matching AREA_BG in sprites.h.
+    bgmap = (data.get("sprites") or {}).get("battleBgMap") or {}
+    kinds = sorted(set(bgmap.values()))
+    lines.append("static const unsigned char MAP_BATTLE_BG[MAP_N] = {")
+    lines.append("    " + ", ".join(str(kinds.index(bgmap[m]) + 1 if m in bgmap else 0) for m in order) + ",")
+    lines.append("};")
+    lines.append("")
     solid = data["maps"].get("solid", "#HWRBC^NKEVAQXUJISMGL89r")
     lines.append(f'static const char *const SOLID_TILES = "{c_escape(solid)}";')
     lines.append("")
@@ -503,6 +511,9 @@ def bake_logic(data: dict, out: Path) -> None:
     fade = logic["screenFade"]
     lines = [HEADER]
     lines.append("/* Canonical rules from content/logic.json (Dreamcast spec). */")
+    walk = data["logic"].get("walk") or {"speed": 84, "runSpeed": 84}
+    lines.append(f"#define LOGIC_WALK_FRAC {int(round(walk['speed'] * 256 / 60))} /* 1/256 px per frame */")
+    lines.append(f"#define LOGIC_RUN_FRAC {int(round(walk['runSpeed'] * 256 / 60))}")
     lines.append(f"#define LOGIC_FADE_OUT_FRAMES {max(1, int(round(fade['outSec'] * 60)))}")
     lines.append(f"#define LOGIC_FADE_HOLD_FRAMES {max(1, int(round(fade['holdSec'] * 60)))}")
     lines.append(f"#define LOGIC_FADE_IN_FRAMES {max(1, int(round(fade['inSec'] * 60)))}")

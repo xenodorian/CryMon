@@ -162,6 +162,8 @@ def load_catalog(sprite_root):
         'props': props,
         'cathleen': cathleen_rel,
         'bg': bg,
+        'area_bgs': [(k, extra[k][len('/sprites/'):]) for k in sorted(set(cat.get('battleBgMap', {}).values()))
+                     if extra.get(k, '').startswith('/sprites/')],
         'json': path,
     }
 
@@ -368,6 +370,31 @@ def main():
     im = Image.open(os.path.join(root, cat['bg']))
     pixels = encode(im, BATTLE_BG_W, BATTLE_BG_H)
     emit_array(lines, 'battle_bg', pixels, BATTLE_BG_W, BATTLE_BG_H)
+
+    # Brass nine-slice UI frame (tools/pixelforge/uiframe.py): 16x16, 6px
+    # corners. main.c's draw_ui_frame() uses it when HAVE_UI_FRAME is set.
+    frame_path = os.path.join(root, 'ui', 'frame.png')
+    if os.path.isfile(frame_path):
+        lines.append('#define HAVE_UI_FRAME 1')
+        emit_array(lines, 'ui_frame', encode(Image.open(frame_path), 16, 16), 16, 16)
+
+    # Per-area battle backdrops (tools/pixelforge/battlebg.py), stored at half
+    # size and blitted 2x so nine of them cost what two full ones would.
+    # Index k+1 matches MAP_BATTLE_BG in content_maps.inc (sorted names from
+    # sprites.json battleBgMap); 0 means battle_bg above.
+    if cat['area_bgs']:
+        lines.append('#define HAVE_AREA_BG 1')
+        lines.append('#define AREA_BG_W %d' % (BATTLE_BG_W // 2))
+        lines.append('#define AREA_BG_H %d' % (BATTLE_BG_H // 2))
+        names = []
+        for key, rel in cat['area_bgs']:
+            cname = 'area_' + key.replace('-', '_')
+            im = Image.open(os.path.join(root, rel))
+            emit_array(lines, cname, encode(im, BATTLE_BG_W // 2, BATTLE_BG_H // 2, Image.BOX), BATTLE_BG_W // 2,
+                       BATTLE_BG_H // 2)
+            names.append(cname)
+        lines.append('static const unsigned short *const AREA_BG[%d] = { %s };' % (len(names), ', '.join(names)))
+        lines.append('')
 
     # Painted overworld ground tiles (tools/pixelforge/tiles.py), scaled from
     # 32px to the port's 20px TILE. main.c's draw_tile_art() uses them when
