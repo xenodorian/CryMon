@@ -104,7 +104,15 @@ def _cards(c, a, t):
 quad("tidewolf", seed=8, body=(56, 26), leg=26, leg_r=5.0, head=(16, 14), neck=8,
      head_type="dog", snout=14, fur="#3f6fb0", belly="#cfe2f2", eye="#bff0ff", angry=0.5,
      ears="fox", ear_size=1.05, tail="bushy", tail_len=1.1, feet="claw", mane="shag", shag_col="#5b8fcc",
-     extras=[lambda c, a, t, m: _waves(c, a, t)])
+     extras=[lambda c, a, t, m: _tide_breath(c, a, t), sparks((200, 236, 255), 4, seed=8)])
+
+
+def _tide_breath(c, a, t):
+    """A cold mist rolling off the wolf's muzzle."""
+    mist = Mat(["#6a9ad0", "#9ac4ea", "#c8e6fa", "#eaf8ff", "#ffffff"], soft=0.4)
+    x, y = a["nose"]
+    for k in range(4):
+        c.ell(x - 5 - k * 5, y + 3 + [0, 1, 0, -1][(t + k) % 4], 2.2 + k * 0.8, 1.6 + k * 0.5, mist, z=60 - k)
 
 
 def _waves(c, a, t):
@@ -324,7 +332,7 @@ def _helmet(c, a, t):
 quad("dustmole", seed=26, body=(44, 28), leg=6, leg_r=4.4, head=(14, 13), neck=0, head_dy=10,
      head_type="mole", snout=8, fur="#6a5040", belly="#a88c70", eye="#000000", eye_kind="none",
      ears="none", tail="short", tail_len=0.6, feet="claw", horn_col="#f0e0d0", nose_col="#e89a9a",
-     extras=[lambda c, a, t, m: _dust(c, a, t)])
+     extras=[lambda c, a, t, m: _dust(c, a, t), lambda c, a, t, m: _shovels(c, a, t, 0.7)])
 
 
 def _dust(c, a, t, n=6):

@@ -161,14 +161,17 @@ def build(spec, t):
     c.cap(bx - rx * 0.6, by - ry * 0.3, nr, hx_ + hrx * 0.25, hy_ + hry * 0.2, nr * 0.85, fur, z=6, z1=12)
     if s["mane"] == "flame":
         mg = c.group()
-        for i in range(7):
-            ang = math.radians(-160 + i * 42 + [0, 6, 10, 4][t])
-            mx = hx_ + hrx * 0.5 + math.cos(ang) * hrx * 1.15
-            my = hy_ + math.sin(ang) * hry * 1.15
-            flame(c, mx, my + 4, hry * 1.1 + (i % 2) * 4, hrx * 0.28, (t + i) % 4, z=6,
-                  lean=0.25 if i < 4 else 0.1)
-        c.ell(hx_ + hrx * 0.45, hy_ + hry * 0.05, hrx * 1.25, hry * 1.3, M("#c8401c", tex="fur", tex_amp=0.6),
-              z=12, th=3, g=mg, tuft=14, tuft_len=5)
+        mcx, mcy = hx_ + hrx * 0.35, hy_ + hry * 0.1
+        for i in range(9):
+            ang = math.radians(-200 + i * 32 + [0, 5, 9, 4][t])
+            mx = mcx + math.cos(ang) * hrx * 1.3
+            my = mcy + math.sin(ang) * hry * 1.35
+            flame(c, mx, my + 5, hry * 0.9 + (i % 2) * 5, hrx * 0.3, (t + i) % 4, z=3,
+                  lean=math.cos(ang) * 0.5)
+        c.ell(mcx, mcy, hrx * 1.45, hry * 1.5, M("#c8401c", tex="fur", tex_amp=0.6),
+              z=6, th=3, g=mg, tuft=16, tuft_len=4)
+        c.ell(mcx, mcy, hrx * 1.1, hry * 1.15, M("#e8702a", tex="fur", tex_amp=0.5),
+              z=8, th=3, g=mg, tuft=14, tuft_len=3)
     if s["mane"] == "fluff":
         fm = M(s.get("fluff_col", s["belly"]), tex="fur", tex_amp=0.4)
         c.ell(hx_ + hrx * 0.5, hy_ + hry * 0.8, hrx * 0.95, hry * 0.8, fm, z=10, tuft=12, tuft_len=3,

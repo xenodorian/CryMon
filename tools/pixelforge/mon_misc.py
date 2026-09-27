@@ -43,14 +43,17 @@ def ghost_face(c, x, y, s=1.0, mouth=True, col=(30, 14, 50)):
 def tallowisp(t):
     c = Canvas(128, 128, seed=81)
     bob = [0, -2, -3, -1][t]
-    x, y = 64, 92 + bob
-    flame(c, x, y, 58, 17, t, outer=GHOST_OUT, inner=GHOST_IN, tongues=5)
-    ghost_face(c, x - 1, y - 20)
-    # guttering drips of wax that fall away below
+    x, y = 64, 84 + bob
+    # a teardrop of ghostfire: round glowing body, licking tongues above
+    flame(c, x, y - 2, 56, 22, t, outer=GHOST_OUT, inner=GHOST_IN, tongues=5, z=-4)
+    c.ell(x, y, 22, 20, GHOST_OUT, z=4)
+    c.ell(x - 3, y + 2, 14, 13, GHOST_IN, z=16)
+    ghost_face(c, x - 2, y - 4, s=1.2)
+    # it gutters: a few flecks break off and drift down
     wax = M("#e8e0cc", spec=0.4)
-    for k, dx in enumerate((-8, 6)):
-        c.cap(x + dx, y + 6 + k * 3 + t, 2.2, x + dx, y + 10 + k * 3 + t, 1.6, wax, z=4)
-    sparks((200, 170, 255), 4, seed=81)(c, {}, t, None)
+    for k, dx in enumerate((-10, 8)):
+        c.cap(x + dx, y + 20 + k * 3 + t, 1.8, x + dx, y + 23 + k * 3 + t, 1.2, wax, z=4)
+    sparks((200, 170, 255), 5, seed=81)(c, {}, t, None)
     return c
 
 
@@ -543,48 +546,63 @@ def baphorn(t):
     c = Canvas(128, 128, seed=97)
     G = 122
     bob = [0, 1, 2, 1][t]
-    fur = M("#2a2430", tex="fur", tex_amp=0.6)
-    belly = M("#4a4050", tex="fur", tex_amp=0.4)
-    horn = M("#b8a8a0", spec=0.4)
+    fur = M("#2e2834", tex="fur", tex_amp=0.6)
+    belly = M("#54485e", tex="fur", tex_amp=0.4)
+    horn = M("#c8b8a8", spec=0.4)
     hoof = M("#15101a", n=5)
-    x, y = 66, 70 + bob
+    wax = M("#e8dcc0", spec=0.3)
+    x, y = 70, 70 + bob
+    # tail + far arm
+    c.cap(x + 16, y + 20, 3, x + 28, y + 12, 1.6, fur, z=-12)
+    c.chain([(x + 14, y - 8, 6), (x + 22, y + 8, 5), (x + 24, y + 24, 4.2)], fur, z=-8)
     # digitigrade goat legs
     for k, (dx, zz) in enumerate(((8, -6), (-8, 10))):
-        c.chain([(x + dx, y + 18, 8), (x + dx + 6, y + 34, 5.5), (x + dx - 2, y + 42, 4), (x + dx, G - 4, 3.6)], fur, z=zz)
-        c.cap(x + dx, G - 5, 3.8, x + dx - 1, G - 1, 4.2, hoof, z=zz + 2)
-    # tail
-    c.cap(x + 16, y + 14, 3, x + 24, y + 6, 2, fur, z=-8)
-    # torso
+        c.chain([(x + dx, y + 20, 9), (x + dx + 7, y + 34, 6.5), (x + dx - 1, y + 43, 4.4), (x + dx, G - 5, 3.8)],
+                fur, z=zz)
+        c.cap(x + dx, G - 6, 4, x + dx - 1, G - 1, 4.6, hoof, z=zz + 2)
+    # torso: broad chest, shaggy
     g = c.group()
-    c.ell(x, y + 6, 18, 22, fur, z=0, g=g, tuft=14, tuft_len=3, tuft_arc=(160, 380))
-    c.ell(x - 4, y + 8, 11, 15, belly, decal=True, only=g)
-    # arms, one raised holding a candle
-    c.chain([(x - 14, y - 8, 6), (x - 24, y + 4, 4.5), (x - 30, y - 8 - bob, 4)], fur, z=14)
-    c.chain([(x + 14, y - 8, 6), (x + 22, y + 8, 4.5), (x + 20, y + 22, 4)], fur, z=-4)
-    wax = M("#e8dcc0", spec=0.3)
-    c.cap(x - 32, y - 10 - bob, 3, x - 32, y - 24 - bob, 3, wax, z=18)
-    flame(c, x - 32, y - 24 - bob, 12, 3, t, z=20)
-    # head: long goat skull, huge curling horns
-    hx_, hy_ = x - 6, y - 28
-    c.cap(hx_, hy_, 9, hx_ - 12, hy_ + 8, 5, fur, z=12)
-    c.ell(hx_, hy_ - 2, 11, 10, fur, z=10, tuft=10, tuft_len=2, tuft_arc=(180, 360))
-    for k, (d, zz) in enumerate(((1, 2), (-1, 20))):
+    c.ell(x, y + 8, 21, 24, fur, z=0, g=g, tuft=16, tuft_len=3.5, tuft_arc=(150, 390))
+    c.ell(x - 6, y - 4, 17, 13, fur, z=4, g=g, tuft=12, tuft_len=3, tuft_arc=(180, 360))
+    c.ell(x - 7, y + 12, 11, 15, belly, decal=True, only=g)
+    # near arm raised, holding a candle up
+    c.chain([(x - 16, y - 6, 6.5), (x - 26, y + 6, 5), (x - 32, y - 8 - bob, 4.4)], fur, z=16)
+    c.ell(x - 32, y - 10 - bob, 5, 4, fur, z=18)
+    c.cap(x - 33, y - 12 - bob, 3, x - 33, y - 26 - bob, 3, wax, z=20)
+    flame(c, x - 33, y - 26 - bob, 14, 3.4, t, z=22)
+    # head: long goat skull turned left, beard, ram horns
+    hx_, hy_ = x - 10, y - 26
+    hg = c.group()
+    c.ell(hx_, hy_, 12, 11, fur, z=12, g=hg, tuft=10, tuft_len=2, tuft_arc=(180, 360))
+    c.cap(hx_ - 2, hy_ + 2, 8, hx_ - 16, hy_ + 10, 5, fur, z=16, g=hg)
+    c.ell(hx_ - 16, hy_ + 10, 4.5, 4, belly, z=20, g=hg)
+    c.chain([(hx_ - 10, hy_ + 12, 3), (hx_ - 11, hy_ + 18, 2), (hx_ - 12, hy_ + 22, 0.8)], belly, z=18)   # beard
+    # ears
+    c.ell(hx_ + 10, hy_ - 1, 7, 3, fur, z=8, rot=20)
+    c.ell(hx_ - 8, hy_ - 4, 6, 2.6, fur, z=22, rot=-20)
+    # ram horns curling back and around
+    for k, (cx, cy, zz, sc) in enumerate(((hx_ + 8, hy_ - 10, 6, 0.85), (hx_ + 1, hy_ - 9, 24, 1.0))):
+        R = 13 * sc
         pts = []
         for i in range(10):
-            a = math.radians(-100 + d * -10 + i * 36 * d * -1)
-            r = 16 * (1 - i * 0.07)
-            pts.append((hx_ + d * 8 + math.cos(a) * r * d, hy_ - 12 + math.sin(a) * r * 0.9, 4.2 * (1 - i * 0.08)))
+            ang = math.radians(-150 + i * 40)
+            rr = R * (1 - i * 0.07)
+            pts.append((cx + math.cos(ang) * rr + R * 0.4, cy + math.sin(ang) * rr + R * 0.35, R * 0.36 * (1 - i * 0.07)))
         c.chain(pts, horn, z=zz)
-    c.cap(hx_ - 10, hy_ + 12, 2, hx_ - 10, hy_ + 20, 1, belly, z=16)   # beard
+        c.pattern(lambda xx, yy, cx=cx, cy=cy, R=R: ((((xx - cx - R * 0.4) ** 2 + (yy - cy - R * 0.35) ** 2) ** 0.5) % 3 < 1)
+                  & ((xx - cx - R * 0.4) ** 2 + (yy - cy - R * 0.35) ** 2 < (R * 1.3) ** 2), -1, where=[horn])
 
     def face(cc):
-        peye(cc, hx_ - 5, hy_ - 2, 2.6, 2.4, iris=(255, 40, 40), pw=0.3, ph=0.9, slit=True, angry=0.8)
-        cc.put(hx_ - 17, hy_ + 7, (15, 10, 20))
+        peye(cc, hx_ - 5, hy_ - 1, 2.8, 2.4, iris=(255, 50, 40), pw=0.25, ph=0.9, slit=True, angry=0.9)
+        cc.put(hx_ - 20, hy_ + 9, (15, 10, 20))
+        cc.put(hx_ - 19, hy_ + 9, (15, 10, 20))
+        for k in range(7):
+            cc.put(hx_ - 19 + k, hy_ + 13 + (k > 4), (20, 12, 20))
     c.ink(face)
-    # candles lighting around its feet
-    for k, cx_ in enumerate((22, 104)):
-        c.cap(cx_, G, 2.6, cx_, G - 10 - k * 3, 2.6, wax, z=40)
-        flame(c, cx_, G - 10 - k * 3, 9, 2.4, (t + k) % 4, z=42)
+    # candles lighting themselves around its hooves
+    for k, cx_ in enumerate((24, 108)):
+        c.cap(cx_, G, 2.8, cx_, G - 11 - k * 3, 2.8, wax, z=40)
+        flame(c, cx_, G - 11 - k * 3, 10, 2.6, (t + k) % 4, z=42)
     return c
 
 

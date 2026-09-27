@@ -3698,7 +3698,7 @@ container); no emulator run. Still open in BUG_LOG: 007 (emulator boot
 test), 010/012 (NPC render vs interaction geometry), 013 (checksum skips
 dex bytes, needs a save version bump), 015 (save key name).
 
-## Code-drawn art replaces PLACEHOLDER_ART (Claude, 2026-09-27) -- IN PROGRESS
+## Code-drawn art replaces PLACEHOLDER_ART (Claude, 2026-09-27) -- DONE
 
 AI image generation is still blocked in the cloud sessions (Hugging Face
 token rejected with 401, connector Spaces off, model weights on
@@ -3737,4 +3737,16 @@ ways: `npcs.py` (48x64 front-facing walker, breathing idle) and
 portraitAlias; that mapping is unchanged.
 Run: `build.py npcs --all`, `build.py portraits --all`.
 
-Next: check the art in the running game, then a quality pass.
+Checked in the running web build (vite + Playwright, forced wild battles
+for sparkit, pyrelion, thunderqueen): all 902 art files load, no page
+errors, foes face the player.
+
+**Batch 3: quality pass** redrew the weakest monsters: baphorn (new pose,
+readable goat head and ram horns), tallowisp (round ghostfire body),
+pyrelion (fuller flame mane), tidewolf (cold breath instead of the foam
+under its feet), spiders (legs arch up to a knee and out), crabs (legs
+spread wider), dustmole (visible digging claws).
+
+Open: Lieutenant Lead's user-cut sprites (`public/sprites/npc/lead-1..4`)
+are still a dark bar. Left alone on purpose because they are the user's
+own files; redraw them only if the user says so.

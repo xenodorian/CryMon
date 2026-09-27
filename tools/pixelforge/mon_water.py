@@ -179,7 +179,7 @@ def crab(c, t, *, cx=64, G=120, shell=(26, 16), shell_mat=None, body="#c86a4a", 
     # far legs
     for k in range(legs):
         x0 = cx - shell[0] * 0.3 + k * shell[0] * 0.22
-        c.chain([(x0, cy + 4, 2.4), (x0 + 8 + k * 2, cy - 6, 2.0), (x0 + 12 + k * 3, G - 2, 1.0)], bm, z=-10)
+        c.chain([(x0, cy + 2, 2.4), (x0 + 10 + k * 4, cy - 8, 2.0), (x0 + 15 + k * 6, G - 3, 1.0)], bm, z=-10)
     g = c.group()
     if stone:
         stone(c, cx, cy, g)
@@ -194,8 +194,8 @@ def crab(c, t, *, cx=64, G=120, shell=(26, 16), shell_mat=None, body="#c86a4a", 
     # near legs
     for k in range(legs):
         x0 = cx - shell[0] * 0.2 + k * shell[0] * 0.24
-        c.chain([(x0, cy + shell[1] * 0.5, 2.6), (x0 + 6 + k * 2, cy + shell[1] * 0.2 - 2 - (sw if k % 2 else 0), 2.2),
-                 (x0 + 9 + k * 3, G, 1.2)], bm, z=24)
+        c.chain([(x0, cy + shell[1] * 0.4, 2.6), (x0 + 10 + k * 4, cy - 2 - (sw if k % 2 else 0), 2.2),
+                 (x0 + 16 + k * 6, G, 1.2)], bm, z=24)
     # claws: small far, big near
     for k, (sc, zz, dy) in enumerate(((claw_small, -6, -6), (claw_big, 30, 6))):
         ax0, ay0 = cx - shell[0] * 0.7, cy + dy * 0.5
