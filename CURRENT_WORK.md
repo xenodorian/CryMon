@@ -434,7 +434,7 @@ Fixed in both renderers (they must stay in sync, same three-tier logic):
 
 ---
 
-## Leg 3 (open — from the user's doc)
+## Leg 3 (from the user's doc) — implemented, see "Leg 3 implementation" near the end
 
 **Do not start before Leg 2's gauntlet/reputation work is fully
 confirmed working** — Leg 3 depends on `reputation` and the gauntlet
@@ -3089,7 +3089,7 @@ each so another agent can resume. Order and status (update as you go):
       arrows = d-pad), screenshot with `import -window root`.
 
 
-## Leg 3 implementation (Claude, 2026-09-27) -- IN PROGRESS
+## Leg 3 implementation (Claude, 2026-09-27) -- done
 
 User request: "execute the remainder of leg 3 in stages, notating as
 you go". Spec is "## Leg 3 (open — from the user's doc)" above. Nothing
@@ -3267,4 +3267,11 @@ Each stage below is pushed on its own; tick it here when it lands.
       Seen but not investigated: with the patched saves the world HUD's
       party line read "QUILLPUP LV3" while the battle used the patched
       Eclipsaur; likely the patch script, not the game (unverified).
-- [ ] S7 Verify: typecheck/tests/lint, Playwright run, Flycast visual check.
+- [x] S7 Verify: typecheck clean, 195 + 55 tests pass, eslint 0 errors,
+      check_sync --strict green, Playwright and Flycast runs as noted in
+      S3/S4 and S5/S6.
+      Open follow-ups: real art for the 12 Leg 3 NPCs and Dreamcast
+      portraits for speakers 38-49 (PLACEHOLDER_ART); dedicated scream SFX
+      on Dreamcast (uses the faint sound, as mercy already did);
+      `build_sephirot.py` gate-letter drift (see S2); the design guesses
+      listed at the top of this section are the user's to confirm.
