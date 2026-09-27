@@ -3772,3 +3772,10 @@ small core glow). Static sparks now jump off the top of the silhouette.
 Open: Lieutenant Lead's user-cut sprites (`public/sprites/npc/lead-1..4`)
 are still a dark bar. Left alone on purpose because they are the user's
 own files; redraw them only if the user says so.
+
+### Deep pass batch 2: story portraits (Claude, 2026-09-27)
+- tools/pixelforge/portraits.py: faces turned slightly toward the left, a real nose (bridge, tip highlight, nostrils), eyelid crease and lower lid, lashes on long-haired characters, lower-lip highlight, softer skin light, jaw shadow on the neck, cloth fold lines.
+- Full beards are now a shaped beard with downward strands and a sweeping mustache (was a round blob that hid the mouth).
+- Armor shoulders are layered plates with rivets (were round balloons).
+- Nero's crown: velvet cap, two pearl-studded arches, orb and cross, fleurons, jeweled band.
+- Rebuilt all 32 code-drawn portraits. Lead untouched.
