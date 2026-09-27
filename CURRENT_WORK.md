@@ -4070,3 +4070,10 @@ obsidian and prism. None of those are crystals. The engine asks for
 opal, spinel, lapis, amethyst. Those seven bursts are AI pixel art now.
 Torch and lantern frames are unchanged. `tools/pixelforge/hitfx.py`
 refuses to redraw them.
+
+## 2026-09-27 Visual audit, maps and battles (Claude)
+- Screenshotted all 71 maps on web and Dreamcast, and battle backdrops on both.
+- Web rooms no longer sit in a green void; indoor maps fill the letterbox with near-black.
+- Outdoor e/m/q path tiles now draw as dirt on both ports; outdoor C/X marks draw as grass (the Marsh's X warp as dirt), not bare squares.
+- Dreamcast battle: see-through dark panels behind the message and both status lines; the player's nature badge now sits before its text like the foe's, so long HP lines no longer run under it.
+- Back-view sprites: not done. Both ports draw the player's monster with its front frames; back views for 85 species of generated art are not cheap, and the Dreamcast streams one frame set per species from MONSTERS.BIN with no back slot.

@@ -251,6 +251,19 @@ static void fill_rect(int x, int y, int w, int h, u16 color) {
             put_pixel(px, py, color);
 }
 
+/* Halves what is already drawn in a rect: a see-through dark panel that
+   keeps battle text readable over the painted backdrops. */
+static void dim_rect(int x, int y, int w, int h) {
+    int px, py;
+    for(py = y; py < y + h; py++) {
+        if(py < 0 || py >= SCREEN_H) continue;
+        for(px = x; px < x + w; px++) {
+            if(px < 0 || px >= SCREEN_W) continue;
+            draw_fb[py * SCREEN_W + px] = (u16)((draw_fb[py * SCREEN_W + px] >> 1) & 0x7BEFu);
+        }
+    }
+}
+
 static u16 rgb565(u8 r, u8 g, u8 b) {
     return (u16)(((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3));
 }
@@ -1078,16 +1091,19 @@ static u32 tile_anim_tick;
 
 static int g_yard_dirt; /* outdoor theme: F and P paint as packed earth */
 static int g_hollow_ground; /* MAP_TILE_THEME is the Hollow */
+static int g_x_dirt; /* the Marsh: X is a warp on the path */
 
 static int tile_cat(char ch) {
     const char *p;
     if(g_yard_dirt && (ch == 'F' || ch == 'P')) return TC_DIRT;
+    /* outdoors C and X are prop spots on grass; the Marsh's X is a path warp */
+    if(g_yard_dirt && (ch == 'C' || ch == 'X')) return (ch == 'X' && g_x_dirt) ? TC_DIRT : TC_GRASS;
     if(ch == 'T') return TC_TALL;
     if(ch == '#') return TC_TREE;
     if(ch == 'W') return TC_WATER;
     if(ch == '^') return TC_CLIFF;
     if(ch == ',') return TC_DIRT2;
-    for(p = "=ZY3O89cS"; *p; p++) if(*p == ch) return TC_DIRT;
+    for(p = "=ZY3O89cSemq"; *p; p++) if(*p == ch) return TC_DIRT;
     /* every tile-grass char in maps.json tileArt except X (its own look),
        as tileCat() in tileArt.ts: NPC marks and edge warps included */
     for(p = ".KVAQMGLJ124567IEuhvydfijlnop<>"; *p; p++) if(*p == ch) return TC_GRASS;
@@ -1453,6 +1469,7 @@ static void draw_map(int map_id, int cam_x, int cam_y) {
     g_yard_dirt = MAP_TILE_THEME[map_id] == TH_TOWN || MAP_TILE_THEME[map_id] == TH_SEPH ||
                   MAP_TILE_THEME[map_id] == TH_HOLLOW;
     g_hollow_ground = MAP_TILE_THEME[map_id] == TH_HOLLOW;
+    g_x_dirt = map_id == MAP_MARSH;
 #endif
     for(row = row0; row < row1; row++)
         for(col = col0; col < col1; col++) {
@@ -4457,6 +4474,7 @@ static void draw_battle_status(const Battle *b) {
     {
         int x = BFOE_BOX_X + 4, w = text_width_s(buf, MENU_SCALE);
         if(x + w > SCREEN_W - 4) x = SCREEN_W - 4 - w;
+        dim_rect(x - 12 - NATURE_BADGE_SIZE, BFOE_BOX_Y, w + NATURE_BADGE_SIZE + 16, BSTATUS_BOX_H);
         draw_text_s(buf, x, BFOE_BOX_Y + 4, 0xFFFF, MENU_SCALE);
         draw_nature_badge(species_nature(b->foe.species),
                           x - 8 - NATURE_BADGE_SIZE, BFOE_BOX_Y + 3);
@@ -4475,13 +4493,11 @@ static void draw_battle_status(const Battle *b) {
         n = s_cat(buf, n, STATUS_NAME[b->pl.status]);
     }
     buf[n] = 0;
-    draw_text_s(buf, BPL_BOX_X + 4, BPL_BOX_Y + 4, 0xFFFF, MENU_SCALE);
-    {
-        int bx = BPL_BOX_X + 4 + text_width_s(buf, MENU_SCALE) + 4;
-        if(bx < BPL_BOX_X + BPL_BOX_W + 4) bx = BPL_BOX_X + BPL_BOX_W + 4;
-        if(bx > SCREEN_W - 2 - NATURE_BADGE_SIZE) bx = SCREEN_W - 2 - NATURE_BADGE_SIZE;
-        draw_nature_badge(species_nature(b->pl.species), bx, BPL_BOX_Y + 3);
-    }
+    /* badge first, then the text, as on the foe line: a long name plus
+       "LVxx hp/max" pushed a trailing badge onto its own last digits */
+    dim_rect(BPL_BOX_X, BPL_BOX_Y, text_width_s(buf, MENU_SCALE) + NATURE_BADGE_SIZE + 14, BSTATUS_BOX_H);
+    draw_nature_badge(species_nature(b->pl.species), BPL_BOX_X + 4, BPL_BOX_Y + 3);
+    draw_text_s(buf, BPL_BOX_X + 8 + NATURE_BADGE_SIZE, BPL_BOX_Y + 4, 0xFFFF, MENU_SCALE);
 }
 
 static void draw_battle_menu_row(const char *label, int idx, int cur, int y) {
@@ -4678,8 +4694,9 @@ static void draw_battle_bg(void) {
 static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
                          u32 foe_enter_t, u32 foe_faint_t, u32 pl_enter_t, u32 pl_faint_t) {
     draw_battle_bg();
-    draw_battle_status(b);
     draw_battle_sprites(b, frame_count, foe_enter_t, foe_faint_t, pl_enter_t, pl_faint_t);
+    draw_battle_status(b);
+    dim_rect(BCONTENT_X, BCONTENT_Y, BCONTENT_W, BCONTENT_H);
 
     switch(b->phase) {
         case 0:

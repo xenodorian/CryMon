@@ -8,7 +8,7 @@ import { SPRITES, TILE_ART } from "./data";
 
 /** Chars with their own look in Engine.paintTile(): never painted here. */
 const OWN_LOOK = "HRr%gkFPDBUCN*X";
-const DIRT = "=ZY3cO89S";
+const DIRT = "=ZY3cO89Semq";
 
 type Cat = "grass" | "tall" | "dirt" | "dirt2" | "tree" | "water" | "cliff" | null;
 
@@ -136,8 +136,11 @@ export function paintTileArt(
 		const theme = mapTheme(mapId);
 		hollow = theme === "hollow";
 		if (paintBuilding(ctx, images, map, ch, dx, dy, tx, ty, now, theme, mapId)) return true;
-		// outdoors, F and P are packed-earth yards and warp marks
+		// outdoors, F and P are packed-earth yards and warp marks; C and X
+		// are prop spots (chest, crate, cart) on grass, except the Marsh's
+		// X, a warp on the path
 		if (!INDOOR[theme] && (ch === "F" || ch === "P")) ch = "=";
+		if (!INDOOR[theme] && (ch === "C" || ch === "X")) ch = ch === "X" && mapId === "marsh" ? "=" : ".";
 	}
 	const cat = tileCat(ch);
 	if (!cat || !map) return false;

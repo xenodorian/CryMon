@@ -61,7 +61,7 @@ import {
   HYPE_UP,
   effectiveStat
 , TILE_ART } from "./data";
-import { LIGHTS, paintTileArt } from "./tileArt";
+import { LIGHTS, mapTheme, paintTileArt } from "./tileArt";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
 import type {
@@ -5120,7 +5120,9 @@ export class CryMon {
 	drawMap(map, camx, camy) {
 		const mw = (map[0]?.length ?? 1) * TILE;
 		const mh = map.length * TILE;
-		this.fill(map === HOUSE ? "#1a1410" : map === FOREST ? "#121810" : map === GROVE ? "#161218" : map === CAMP ? "#241810" : map === CLIFFS ? "#2a2418" : map === RUINS ? "#1a1814" : "#1c2418");
+		// rooms sit in black, like the Dreamcast's letterbox; fields keep their tone
+		const indoor = ["wood", "keep", "crypt", "palace"].includes(mapTheme(this.world.mapId));
+		this.fill(indoor ? "#0a0908" : map === FOREST ? "#121810" : map === GROVE ? "#161218" : map === CAMP ? "#241810" : map === CLIFFS ? "#2a2418" : map === RUINS ? "#1a1814" : "#1c2418");
 		const x0 = Math.max(0, Math.floor(camx / TILE) - 1);
 		const y0 = Math.max(0, Math.floor(camy / TILE) - 1);
 		const x1 = Math.min(mw / TILE, Math.ceil((camx + VIEW_W) / TILE) + 1);
