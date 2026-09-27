@@ -1224,6 +1224,78 @@
         "sableclaw",
         18
       ]
+    },
+    "garrowOutlaw": {
+      "lead": [
+        "blazelynx",
+        34
+      ],
+      "bench": [
+        [
+          "wheelhog",
+          33
+        ],
+        [
+          "floepike",
+          34
+        ],
+        [
+          "tidewolf",
+          35
+        ]
+      ],
+      "title": "Knife-Hand Garrow sends Blazelynx",
+      "name": "Knife-Hand Garrow",
+      "marks": 30,
+      "winTalk": "garrowWin",
+      "set": "beatGarrow",
+      "fate": "bounty",
+      "outcomes": {
+        "arrest": "arrestedGarrow",
+        "execute": "executedGarrow"
+      },
+      "fateTalk": {
+        "arrest": "garrowArrest",
+        "execute": "garrowExecute"
+      }
+    },
+    "kaelDeserter": {
+      "lead": [
+        "widowshade",
+        42
+      ],
+      "bench": [
+        [
+          "quakelord",
+          41
+        ],
+        [
+          "thunderqueen",
+          42
+        ],
+        [
+          "baphorn",
+          41
+        ],
+        [
+          "rootking",
+          43
+        ]
+      ],
+      "title": "Deserter Kael sends Widowshade",
+      "name": "Deserter Kael",
+      "marks": 45,
+      "winTalk": "kaelWin",
+      "set": "beatKael",
+      "fate": "bounty",
+      "outcomes": {
+        "arrest": "arrestedKael",
+        "execute": "executedKael"
+      },
+      "fateTalk": {
+        "arrest": "kaelArrest",
+        "execute": "kaelExecute"
+      }
     }
   }
 }

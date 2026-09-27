@@ -25,7 +25,10 @@
     "boneInes",
     "boneTomas",
     "boneOriel",
-    "wraithLantern"
+    "wraithLantern",
+    "tamWatch",
+    "silverLocket",
+    "oldMap"
   ],
   "defs": {
     "gem": {
@@ -329,6 +332,33 @@
       "id": "wraithLantern",
       "name": "Wraith Lantern",
       "desc": "Burns with what three freed spirits left behind. The Weeping Veil parts for it.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "tamWatch": {
+      "id": "tamWatch",
+      "name": "Old Tam's Watch",
+      "desc": "A brass pocket watch. Still ticking.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "silverLocket": {
+      "id": "silverLocket",
+      "name": "Silver Locket",
+      "desc": "A dented locket with a tiny portrait inside.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "oldMap": {
+      "id": "oldMap",
+      "name": "Old Map",
+      "desc": "A hand-drawn map of the Sephirot, older than Nero's reign.",
       "battle": false,
       "field": false,
       "buy": 0,

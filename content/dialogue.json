@@ -64,7 +64,30 @@
     "brin": "Dame Brin",
     "rook": "Captain Rook",
     "mallory": "Red Mallory",
-    "silas": "Silas"
+    "silas": "Silas",
+    "crier": "Town Crier",
+    "tam": "Old Tam",
+    "lina": "Lina",
+    "rolo": "Rolo",
+    "juno": "Collector Juno",
+    "townsman": "Townsman",
+    "townswoman": "Townswoman",
+    "bet": "Old Bet",
+    "pip": "Pip",
+    "cobb": "Farmer Cobb",
+    "sera": "Widow Sera",
+    "dunn": "Watchman Dunn",
+    "garrow": "Knife-Hand Garrow",
+    "hesse": "Mother Hesse",
+    "tilly": "Tilly",
+    "voss": "Collector Voss",
+    "lune": "Cartographer Lune",
+    "holt": "Sergeant Holt",
+    "kael": "Deserter Kael",
+    "anselm": "Brother Anselm",
+    "iona": "Sister Iona",
+    "rhee": "Archivist Rhee",
+    "elder": "Elder"
   },
   "intro": [
     "The cottage is quiet. Father sleeps. Outside, the Weeping Army drums.",
@@ -3236,7 +3259,7 @@
       },
       {
         "speaker": "ardent",
-        "text": "First job. Red Mallory robs travelers in the Forest south of town. Bring her in."
+        "text": "First job. Red Mallory robs travelers in the Forest, past the Camp. Bring her in."
       },
       {
         "speaker": "ardent",
@@ -3671,6 +3694,834 @@
       {
         "speaker": "none",
         "text": "Silas the Fence has made his last deal."
+      }
+    ],
+    "crierNews": [
+      {
+        "speaker": "crier",
+        "text": "News from CryTown! Nero's soldiers hold the north road. Nobody goes north, nobody comes south."
+      },
+      {
+        "speaker": "crier",
+        "text": "Old Tam lost his watch out by the Prison. Lina's boy wandered off onto the Cliffs. Collector Juno is paying for a Crymare."
+      }
+    ],
+    "crierRock": [
+      {
+        "speaker": "crier",
+        "text": "News! The rock by the west wall broke apart. A man in white walked out of it toward the Reach."
+      },
+      {
+        "speaker": "crier",
+        "text": "The Reach is past the Ruins. Two badge trainers live there, Quartz and Opal."
+      }
+    ],
+    "crierCrypt": [
+      {
+        "speaker": "crier",
+        "text": "Strange lights under the old house in the Ruins. The northwest one. Folk say the dead are talking."
+      }
+    ],
+    "crierVeil": [
+      {
+        "speaker": "crier",
+        "text": "The north road is walled with the dead. The Weeping Veil, they call it. Nothing living gets past."
+      },
+      {
+        "speaker": "crier",
+        "text": "Whoever is digging up the graves in the Ruins and the Marsh, the town is not happy about it."
+      }
+    ],
+    "crierLead": [
+      {
+        "speaker": "crier",
+        "text": "The Veil is gone! But Lieutenant Lead still holds the north road."
+      },
+      {
+        "speaker": "crier",
+        "text": "He fights with six CryMon. Nobody beats him alone. If your father's old team were back, that would be a fair fight."
+      },
+      {
+        "speaker": "crier",
+        "text": "Some say a Scroll of Resurrection can bring back the dead. Some say worse things can too."
+      }
+    ],
+    "crierNorth": [
+      {
+        "speaker": "crier",
+        "text": "Lead is beaten! The road north to the Sephirot is open."
+      },
+      {
+        "speaker": "crier",
+        "text": "Nine Generals hold nine cities. Each base only opens for the medal of the General before. Start in Malkuth."
+      }
+    ],
+    "tamAsk": [
+      {
+        "speaker": "tam",
+        "text": "My watch. My father's watch. I dropped it at the old Prison, past the Forest, when I went to see my son."
+      },
+      {
+        "speaker": "tam",
+        "text": "My knees won't take me that far anymore. Bring it back and I'll give you my old Voltbuck. She's wasted on me."
+      }
+    ],
+    "tamWatchFound": [
+      {
+        "speaker": "none",
+        "text": "Something shines in the grass. A brass pocket watch, still ticking."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got Old Tam's Watch."
+      }
+    ],
+    "tamThanks": [
+      {
+        "speaker": "tam",
+        "text": "That's it! Still ticking, just like me."
+      },
+      {
+        "speaker": "tam",
+        "text": "A deal's a deal. Take my Voltbuck. Treat her better than I could."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got a Voltbuck."
+      }
+    ],
+    "tamAfter": [
+      {
+        "speaker": "tam",
+        "text": "Tick, tick. Thanks again, Max."
+      }
+    ],
+    "linaAsk": [
+      {
+        "speaker": "lina",
+        "text": "Have you seen my boy, Rolo? He ran off after a Rimeowl, out the east gate onto the Cliffs."
+      },
+      {
+        "speaker": "lina",
+        "text": "He's only seven. Please find him."
+      }
+    ],
+    "roloFound": [
+      {
+        "speaker": "rolo",
+        "text": "I'm not lost! I was following a Rimeowl."
+      },
+      {
+        "speaker": "max",
+        "text": "Your mom's looking for you. Come on, stay behind me."
+      },
+      {
+        "speaker": "none",
+        "text": "Rolo follows Max back toward CryTown."
+      }
+    ],
+    "roloHome": [
+      {
+        "speaker": "rolo",
+        "text": "I'm going to catch my own CryMon one day. Like you!"
+      }
+    ],
+    "linaThanks": [
+      {
+        "speaker": "lina",
+        "text": "Rolo! Don't you ever do that again."
+      },
+      {
+        "speaker": "lina",
+        "text": "Thank you, Max. Take this. It's the best crystal we have."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got a Mega Crystal."
+      }
+    ],
+    "linaAfter": [
+      {
+        "speaker": "lina",
+        "text": "Rolo hasn't left my sight since. Thank you again."
+      }
+    ],
+    "junoAsk": [
+      {
+        "speaker": "juno",
+        "text": "Collector Juno. I study CryMon. I've never seen a Crymare up close."
+      },
+      {
+        "speaker": "juno",
+        "text": "They live in the Ruins' grass. Bring me one and I'll pay you in Ultimate Crystals."
+      }
+    ],
+    "junoThanks": [
+      {
+        "speaker": "juno",
+        "text": "A Crymare! Look at those eyes."
+      },
+      {
+        "speaker": "juno",
+        "text": "Here. One Ultimate Crystal, as promised."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got an Ultimate Crystal."
+      }
+    ],
+    "junoAfter": [
+      {
+        "speaker": "juno",
+        "text": "My Crymare is doing well. I'm writing a book about her."
+      }
+    ],
+    "betAsk": [
+      {
+        "speaker": "bet",
+        "text": "My grandson Pip went out on the Tau road to see the soldiers. He never came back."
+      },
+      {
+        "speaker": "bet",
+        "text": "Tau is the road north out of Malkuth. Please bring him home."
+      }
+    ],
+    "pipFound": [
+      {
+        "speaker": "pip",
+        "text": "The soldiers marched off and I got lost. I'm not crying."
+      },
+      {
+        "speaker": "max",
+        "text": "Stick close. I'll take you to your grandma."
+      },
+      {
+        "speaker": "none",
+        "text": "Pip follows Max back to Malkuth."
+      }
+    ],
+    "pipHome": [
+      {
+        "speaker": "pip",
+        "text": "Grandma says I can't go past the gate anymore."
+      }
+    ],
+    "betThanks": [
+      {
+        "speaker": "bet",
+        "text": "Pip! Oh, thank you. Take these. My late husband saved them for years."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 2 Mega Crystals."
+      }
+    ],
+    "betAfter": [
+      {
+        "speaker": "bet",
+        "text": "Pip's safe. That's all that matters."
+      }
+    ],
+    "cobbAsk": [
+      {
+        "speaker": "cobb",
+        "text": "The soldiers took every Boltlamb on my farm. Said the army needed them."
+      },
+      {
+        "speaker": "cobb",
+        "text": "They live on the Resh road. Catch me one and I'll pay in Panaceas."
+      }
+    ],
+    "cobbThanks": [
+      {
+        "speaker": "cobb",
+        "text": "A Boltlamb! The farm is alive again."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 3 Panaceas."
+      }
+    ],
+    "cobbAfter": [
+      {
+        "speaker": "cobb",
+        "text": "One lamb today. A whole flock next year."
+      }
+    ],
+    "seraAsk": [
+      {
+        "speaker": "sera",
+        "text": "My husband died in Stroud's army. Nero bound his spirit like all the others."
+      },
+      {
+        "speaker": "sera",
+        "text": "All I have left is his locket. I dropped it on the Peh road when the soldiers pushed us. Please find it."
+      }
+    ],
+    "silverLocketFound": [
+      {
+        "speaker": "none",
+        "text": "A dented silver locket lies in the dirt."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got the Silver Locket."
+      }
+    ],
+    "seraThanks": [
+      {
+        "speaker": "sera",
+        "text": "His face. I was starting to forget it."
+      },
+      {
+        "speaker": "sera",
+        "text": "He had a Starfry. It's been waiting for someone worth following. Take it."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got a Starfry."
+      }
+    ],
+    "seraAfter": [
+      {
+        "speaker": "sera",
+        "text": "Beat Stroud and his dead can rest. Mine too."
+      }
+    ],
+    "dunnAsk": [
+      {
+        "speaker": "dunn",
+        "text": "Watchman Dunn. Knife-Hand Garrow robs everyone on the Mem road, and the Generals don't care."
+      },
+      {
+        "speaker": "dunn",
+        "text": "Bring him in and the watch will pay. Shackles, if you have them."
+      }
+    ],
+    "garrowSpot": [
+      {
+        "speaker": "garrow",
+        "text": "Nice CryMon. I'll take them."
+      },
+      {
+        "speaker": "max",
+        "text": "You can try."
+      }
+    ],
+    "garrowWin": [
+      {
+        "speaker": "garrow",
+        "text": "Fine. You win. What now?"
+      }
+    ],
+    "garrowArrest": [
+      {
+        "speaker": "none",
+        "text": "Max shackles Garrow and marches him back to Hod."
+      }
+    ],
+    "garrowExecute": [
+      {
+        "speaker": "none",
+        "text": "Garrow won't rob the Mem road again."
+      }
+    ],
+    "dunnThanks": [
+      {
+        "speaker": "dunn",
+        "text": "Garrow's in a cell. Here's the bounty and a crystal from the watch."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got a Mega Crystal."
+      }
+    ],
+    "dunnDead": [
+      {
+        "speaker": "dunn",
+        "text": "Dead. It works, I guess. Half the bounty. The watch doesn't pay for bodies."
+      }
+    ],
+    "dunnAfter": [
+      {
+        "speaker": "dunn",
+        "text": "The Mem road is quiet now."
+      }
+    ],
+    "hesseAsk": [
+      {
+        "speaker": "hesse",
+        "text": "My daughter Tilly went into the Samekh road to pick flowers. She's been gone since morning."
+      },
+      {
+        "speaker": "hesse",
+        "text": "Please. Samekh is south of the city."
+      }
+    ],
+    "tillyFound": [
+      {
+        "speaker": "tilly",
+        "text": "I picked flowers for Mom! Then I forgot the way."
+      },
+      {
+        "speaker": "max",
+        "text": "I know the way. Come on."
+      },
+      {
+        "speaker": "none",
+        "text": "Tilly follows Max back to Tiferet."
+      }
+    ],
+    "tillyHome": [
+      {
+        "speaker": "tilly",
+        "text": "Mom put my flowers in a cup."
+      }
+    ],
+    "hesseThanks": [
+      {
+        "speaker": "hesse",
+        "text": "Tilly! Thank you, thank you. I don't have much, but take this."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got an Ultimate Crystal."
+      }
+    ],
+    "hesseAfter": [
+      {
+        "speaker": "hesse",
+        "text": "Tilly talks about you all day."
+      }
+    ],
+    "vossAsk": [
+      {
+        "speaker": "voss",
+        "text": "Collector Voss. I've catalogued every CryMon in the Sephirot but one: the Wheelhog."
+      },
+      {
+        "speaker": "voss",
+        "text": "They roll along the Mem road. Bring me one and I'll pay well."
+      }
+    ],
+    "vossThanks": [
+      {
+        "speaker": "voss",
+        "text": "A Wheelhog. My catalogue is complete."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got an Ultimate Crystal."
+      }
+    ],
+    "vossAfter": [
+      {
+        "speaker": "voss",
+        "text": "Every page filled. I may start a second book."
+      }
+    ],
+    "luneAsk": [
+      {
+        "speaker": "lune",
+        "text": "Cartographer Lune. My old map of the Sephirot blew away on the Heth road. It's older than Nero's reign."
+      },
+      {
+        "speaker": "lune",
+        "text": "It shows the old roads, before the Veil. Bring it back and I'll give you my best CryMon."
+      }
+    ],
+    "oldMapFound": [
+      {
+        "speaker": "none",
+        "text": "An old map, pinned under a rock."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got the Old Map."
+      }
+    ],
+    "luneThanks": [
+      {
+        "speaker": "lune",
+        "text": "My map! Look, the old road to Keter. Nero walled it off years ago."
+      },
+      {
+        "speaker": "lune",
+        "text": "As promised. My Sunhawk. She knows every sky in the Sephirot."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got a Sunhawk."
+      }
+    ],
+    "luneAfter": [
+      {
+        "speaker": "lune",
+        "text": "The palace door in Keter only opens for Golden Shackles. The last General carries them."
+      }
+    ],
+    "holtAsk": [
+      {
+        "speaker": "holt",
+        "text": "Sergeant Holt. Kael deserted from Blackwood's army and took a squad's worth of CryMon with him."
+      },
+      {
+        "speaker": "holt",
+        "text": "He hides on the Daleth road. I don't care about Blackwood's army. I care about the farms Kael burns."
+      }
+    ],
+    "kaelSpot": [
+      {
+        "speaker": "kael",
+        "text": "Another bounty hunter. The last three are still lying on this road."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm not the last three."
+      }
+    ],
+    "kaelWin": [
+      {
+        "speaker": "kael",
+        "text": "...Fine. You're good. Get it over with."
+      }
+    ],
+    "kaelArrest": [
+      {
+        "speaker": "none",
+        "text": "Max shackles Kael. He doesn't fight it."
+      }
+    ],
+    "kaelExecute": [
+      {
+        "speaker": "none",
+        "text": "Deserter Kael falls on the road he terrorized."
+      }
+    ],
+    "holtThanks": [
+      {
+        "speaker": "holt",
+        "text": "Kael, alive and in chains. Here's the bounty, and an Ultimate Crystal."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got an Ultimate Crystal."
+      }
+    ],
+    "holtDead": [
+      {
+        "speaker": "holt",
+        "text": "Dead. Well, he won't burn any more farms. Half pay."
+      }
+    ],
+    "holtAfter": [
+      {
+        "speaker": "holt",
+        "text": "The Daleth farms are rebuilding. Thank you."
+      }
+    ],
+    "anselmAsk": [
+      {
+        "speaker": "anselm",
+        "text": "Brother Anselm. Sister Iona went to pray at the old shrine on the Aleph road. She hasn't come back."
+      },
+      {
+        "speaker": "anselm",
+        "text": "She's old, and the road is dangerous. Please find her."
+      }
+    ],
+    "ionaFound": [
+      {
+        "speaker": "iona",
+        "text": "I was praying for the dead. So many of them, Max. They all want to go home."
+      },
+      {
+        "speaker": "max",
+        "text": "Let's get you home first."
+      },
+      {
+        "speaker": "none",
+        "text": "Sister Iona follows Max back to Chokmah."
+      }
+    ],
+    "ionaHome": [
+      {
+        "speaker": "iona",
+        "text": "When Nero falls, the dead can rest. Pray it's soon."
+      }
+    ],
+    "anselmThanks": [
+      {
+        "speaker": "anselm",
+        "text": "Iona! Thank you, child. Take these, from the temple's stores."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 3 Panaceas and 2 Mega Crystals."
+      }
+    ],
+    "anselmAfter": [
+      {
+        "speaker": "anselm",
+        "text": "Iona is resting. She says you were very brave."
+      }
+    ],
+    "rheeAsk": [
+      {
+        "speaker": "rhee",
+        "text": "Archivist Rhee. The old kings kept an Arcanox in the palace. Nero let it go wild on the Aleph road."
+      },
+      {
+        "speaker": "rhee",
+        "text": "Bring one back to Keter and the archive will pay you."
+      }
+    ],
+    "rheeThanks": [
+      {
+        "speaker": "rhee",
+        "text": "An Arcanox, home at last."
+      },
+      {
+        "speaker": "none",
+        "text": "Max got 2 Ultimate Crystals."
+      }
+    ],
+    "rheeAfter": [
+      {
+        "speaker": "rhee",
+        "text": "The archive remembers who helped it."
+      }
+    ],
+    "hintKeter": [
+      {
+        "speaker": "elder",
+        "text": "The palace only opens for Golden Shackles. The last General, Sorrel in Chokmah, carries them."
+      },
+      {
+        "speaker": "elder",
+        "text": "Nero hasn't left the palace in twelve years. He talks to his dead queen all night."
+      }
+    ],
+    "hintKeterOpen": [
+      {
+        "speaker": "elder",
+        "text": "You carry the Golden Shackles. Then it's time. Nero is inside."
+      }
+    ],
+    "hintMalkuth": [
+      {
+        "speaker": "townswoman",
+        "text": "General Harrow holds the base here in Malkuth."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "This is the first of the nine bases. Beat the two guards inside, then the General."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintMalkuthAfter": [
+      {
+        "speaker": "townswoman",
+        "text": "General Harrow is beaten. You have the Bronze Star."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The next base is in Yesod. General Ashgrove holds it."
+      }
+    ],
+    "hintYesod": [
+      {
+        "speaker": "townsman",
+        "text": "General Ashgrove holds the base here in Yesod."
+      },
+      {
+        "speaker": "townsman",
+        "text": "The door won't open for you until you have the Bronze Star, from General Harrow in Malkuth."
+      },
+      {
+        "speaker": "townsman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintYesodAfter": [
+      {
+        "speaker": "townsman",
+        "text": "General Ashgrove is beaten. You have the Purple Heart."
+      },
+      {
+        "speaker": "townsman",
+        "text": "The next base is in Netzach. General Stroud holds it."
+      }
+    ],
+    "hintNetzach": [
+      {
+        "speaker": "townswoman",
+        "text": "General Stroud holds the base here in Netzach."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The door won't open for you until you have the Purple Heart, from General Ashgrove in Yesod."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintNetzachAfter": [
+      {
+        "speaker": "townswoman",
+        "text": "General Stroud is beaten. You have the Prisoner of War Medal."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The next base is in Hod. General Vale holds it."
+      }
+    ],
+    "hintHod": [
+      {
+        "speaker": "townsman",
+        "text": "General Vale holds the base here in Hod."
+      },
+      {
+        "speaker": "townsman",
+        "text": "The door won't open for you until you have the Prisoner of War Medal, from General Stroud in Netzach."
+      },
+      {
+        "speaker": "townsman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintHodAfter": [
+      {
+        "speaker": "townsman",
+        "text": "General Vale is beaten. You have the Silver Star."
+      },
+      {
+        "speaker": "townsman",
+        "text": "The next base is in Tiferet. General Kessler holds it."
+      }
+    ],
+    "hintTiferet": [
+      {
+        "speaker": "townswoman",
+        "text": "General Kessler holds the base here in Tiferet."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The door won't open for you until you have the Silver Star, from General Vale in Hod."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintTiferetAfter": [
+      {
+        "speaker": "townswoman",
+        "text": "General Kessler is beaten. You have the Gold Star."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The next base is in Chesed. General Morrow holds it."
+      }
+    ],
+    "hintChesed": [
+      {
+        "speaker": "townsman",
+        "text": "General Morrow holds the base here in Chesed."
+      },
+      {
+        "speaker": "townsman",
+        "text": "The door won't open for you until you have the Gold Star, from General Kessler in Tiferet."
+      },
+      {
+        "speaker": "townsman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintChesedAfter": [
+      {
+        "speaker": "townsman",
+        "text": "General Morrow is beaten. You have the Legion of Merit."
+      },
+      {
+        "speaker": "townsman",
+        "text": "The next base is in Gevurah. General Crane holds it."
+      }
+    ],
+    "hintGevurah": [
+      {
+        "speaker": "townswoman",
+        "text": "General Crane holds the base here in Gevurah."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The door won't open for you until you have the Legion of Merit, from General Morrow in Chesed."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintGevurahAfter": [
+      {
+        "speaker": "townswoman",
+        "text": "General Crane is beaten. You have the Distinguished Flying Cross."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The next base is in Binah. General Blackwood holds it."
+      }
+    ],
+    "hintBinah": [
+      {
+        "speaker": "townsman",
+        "text": "General Blackwood holds the base here in Binah."
+      },
+      {
+        "speaker": "townsman",
+        "text": "The door won't open for you until you have the Distinguished Flying Cross, from General Crane in Gevurah."
+      },
+      {
+        "speaker": "townsman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintBinahAfter": [
+      {
+        "speaker": "townsman",
+        "text": "General Blackwood is beaten. You have the Distinguished Service Cross."
+      },
+      {
+        "speaker": "townsman",
+        "text": "The next base is in Chokmah. General Sorrel holds it."
+      }
+    ],
+    "hintChokmah": [
+      {
+        "speaker": "townswoman",
+        "text": "General Sorrel holds the base here in Chokmah."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "The door won't open for you until you have the Distinguished Service Cross, from General Blackwood in Binah."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "Bring Shackles. An arrest is better for your name than an execution."
+      }
+    ],
+    "hintChokmahAfter": [
+      {
+        "speaker": "townswoman",
+        "text": "General Sorrel is beaten. You have the Golden Shackles."
+      },
+      {
+        "speaker": "townswoman",
+        "text": "Nero's palace in Keter will open for you now."
       }
     ]
   },

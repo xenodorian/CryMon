@@ -3499,5 +3499,29 @@ sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
         silas), PLACEHOLDER_ART sprites and portraits.
       - Verified on web (Playwright): both join paths, refusals, payouts,
         takeMon, threaten loot, rep deltas.
-- [ ] S5 CryTown and Sephirot townsfolk and sidequests.
+- [x] S5 CryTown and Sephirot townsfolk and sidequests.
+      - CryTown: Town Crier 'j' (hint line follows the story flags), Old
+        Tam 'l' (watch at the Prison 'j' -> Voltbuck), Lina 'n' (Rolo lost
+        on the Cliffs 'j', waits at home 'o' once found -> Mega Crystal),
+        Collector Juno 'p' (bring a Crymare -> Ultimate Crystal).
+      - Every Sephirot city (build_leg3.py CITY_NPC_MARKS): hint NPC 'i'
+        (which base is here, which medal opens it, what's next; Keter:
+        Golden Shackles), quest giver 'j', lost NPC home spot 'l'.
+        Quests: Malkuth lost Pip (Tau), Yesod bring Boltlamb, Netzach
+        fetch Silver Locket (Peh) -> Starfry, Hod bounty Knife-Hand
+        Garrow (Mem), Tiferet lost Tilly (Samekh), Chesed bring Wheelhog,
+        Gevurah fetch Old Map (Heth) -> Sunhawk, Binah bounty Deserter
+        Kael (Daleth), Chokmah lost Sister Iona (Aleph), Keter bring
+        Arcanox. Path spots: pickups 'l', lost 'p', outlaws 'o'
+        (build_guilds.py MARKS).
+      - New step key `showIf` (hidden until the flag is on) on both
+        engines; DC carries it in hide_if as -2 - flag.
+      - Art: archetypes townsman/townswoman/elder/child/bandit + pickup
+        (PLACEHOLDER_ART). Named townsfolk speakers share archetype
+        portraits via sprites.json `portraitAlias` (web) and
+        SPEAKER_PORTRAIT entries (DC). Speakers 65-87.
+      - Run order if maps are regenerated: build_sephirot.py ->
+        build_leg3.py -> build_guilds.py -> merge_world.py.
+      - Verified on web (Playwright): crier progression, fetch, lost
+        (showIf/hideIf swap), bring, bounty, hint before/after medal.
 - [ ] S6 Verification; west maps audit write-up.

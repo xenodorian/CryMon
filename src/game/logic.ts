@@ -20,6 +20,8 @@ export type NpcStep = {
 	if?: string;
 	ifNot?: string;
 	hideIf?: string;
+	/** Hidden until the flag is true (a lost NPC waiting at home). */
+	showIf?: string;
 	set?: string;
 	grant?: [string, number][];
 	grantMonster?: [string, number];
@@ -81,6 +83,10 @@ export function matchNpcScript(script: NpcStep[] | undefined, flags: Record<stri
 	for (const step of script) {
 		if (step.hideIf) {
 			if (flags[step.hideIf]) return null;
+			continue;
+		}
+		if (step.showIf) {
+			if (!flags[step.showIf]) return null;
 			continue;
 		}
 		if (step.if && !flags[step.if]) continue;

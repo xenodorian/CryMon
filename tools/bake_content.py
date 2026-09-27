@@ -84,6 +84,30 @@ SPEAKER = {
     "rook": 62,
     "mallory": 63,
     "silas": 64,
+    # townsfolk pass: named speakers share archetype portraits (sprites.json portraitAlias)
+    "crier": 65,
+    "tam": 66,
+    "lina": 67,
+    "rolo": 68,
+    "juno": 69,
+    "townsman": 70,
+    "townswoman": 71,
+    "bet": 72,
+    "pip": 73,
+    "cobb": 74,
+    "sera": 75,
+    "dunn": 76,
+    "garrow": 77,
+    "hesse": 78,
+    "tilly": 79,
+    "voss": 80,
+    "lune": 81,
+    "holt": 82,
+    "kael": 83,
+    "anselm": 84,
+    "iona": 85,
+    "rhee": 86,
+    "elder": 87,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -1329,7 +1353,9 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
                 {
                     "if_flag": flag_id(st.get("if")),
                     "if_not": flag_id(st.get("ifNot")),
-                    "hide_if": flag_id(st.get("hideIf")),
+                    # showIf rides in hide_if as -2 - flag (main.c npc_match_step)
+                    "hide_if": flag_id(st.get("hideIf")) if st.get("hideIf") or not st.get("showIf")
+                    else -2 - flag_id(st["showIf"]),
                     "set_flag": flag_id(st.get("set")),
                     "g_item": g_item,
                     "g_qty": g_qty,

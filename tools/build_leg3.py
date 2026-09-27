@@ -39,11 +39,15 @@ DOOR = "b"
 TILE_ART = {"b": "tile-door", "a": "tile-floor", "s": "tile-floor", "t": "tile-floor",
             # NPC spots on a city's grass: freed citizen, and Malkuth's
             # healer / merchant / elder (narrative fix pass).
-            "u": "tile-grass", "h": "tile-grass", "v": "tile-grass", "y": "tile-grass"}
+            "u": "tile-grass", "h": "tile-grass", "v": "tile-grass", "y": "tile-grass",
+            "i": "tile-grass", "j": "tile-grass", "l": "tile-grass"}
 # (col, row) of NPC marks stamped into cities. Clear of the building and of
 # every gate's arrival tile (row 1/10, col 1/14).
 CITIZEN_AT = (3, 8)
 MALKUTH_MARKS = {"u": (5, 9), "h": (3, 8), "v": (12, 8), "y": (10, 7)}
+# Townsfolk pass: every city with a building gets a hint NPC 'i', a
+# sidequest giver 'j', and 'l' where a lost NPC waits once led home.
+CITY_NPC_MARKS = {"i": (13, 9), "j": (2, 2), "l": (3, 2)}
 
 # Stamped into a 16x12 Sephirot city: roof, roof, wall with the door.
 # Rows 3-5, cols 5-10 stay clear of every gate's arrival tile (row 1/10,
@@ -102,6 +106,8 @@ def stamp_city_building(grid: list[list[str]], city_id: str) -> None:
     for dy, line in enumerate(BUILDING):
         for dx, ch in enumerate(line):
             grid[r0 + dy][c0 + dx] = ch
+    for ch, (c, r) in CITY_NPC_MARKS.items():
+        grid[r][c] = ch
     L = leg3()
     if city_id == "malkuth":
         for ch, (c, r) in MALKUTH_MARKS.items():

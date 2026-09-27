@@ -2624,6 +2624,848 @@
           "talk": "silasIdle"
         }
       ]
+    },
+    {
+      "map": "veld",
+      "mark": "j",
+      "id": "crier",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "crierNews",
+      "script": [
+        {
+          "if": "sawShinigamiRock",
+          "ifNot": "talkedReach",
+          "talk": "crierRock"
+        },
+        {
+          "if": "talkedReach",
+          "ifNot": "joinedGhost",
+          "talk": "crierCrypt"
+        },
+        {
+          "if": "joinedGhost",
+          "ifNot": "veilLifted",
+          "talk": "crierVeil"
+        },
+        {
+          "if": "veilLifted",
+          "ifNot": "beatLieutenantLead",
+          "talk": "crierLead"
+        },
+        {
+          "if": "beatLieutenantLead",
+          "talk": "crierNorth"
+        },
+        {
+          "talk": "crierNews"
+        }
+      ]
+    },
+    {
+      "map": "grove",
+      "mark": "j",
+      "id": "tamWatchPickup",
+      "role": "talk",
+      "sprite": "npc/pickup",
+      "talk": "tamWatchFound",
+      "script": [
+        {
+          "hideIf": "pickedWatch"
+        },
+        {
+          "set": "pickedWatch",
+          "grant": [
+            [
+              "tamWatch",
+              1
+            ]
+          ],
+          "talk": "tamWatchFound"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "l",
+      "id": "tam",
+      "role": "talk",
+      "sprite": "npc/elder",
+      "talk": "tamAsk",
+      "script": [
+        {
+          "if": "item:tamWatch",
+          "ifNot": "gaveWatch",
+          "set": "gaveWatch",
+          "takeItem": "tamWatch",
+          "grantMonster": [
+            "voltbuck",
+            14
+          ],
+          "talk": "tamThanks"
+        },
+        {
+          "if": "gaveWatch",
+          "talk": "tamAfter"
+        },
+        {
+          "talk": "tamAsk"
+        }
+      ]
+    },
+    {
+      "map": "cliffs",
+      "mark": "j",
+      "id": "roloLost",
+      "role": "talk",
+      "sprite": "npc/child",
+      "talk": "roloFound",
+      "script": [
+        {
+          "hideIf": "roloFound"
+        },
+        {
+          "set": "roloFound",
+          "talk": "roloFound"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "o",
+      "id": "roloHome",
+      "role": "talk",
+      "sprite": "npc/child",
+      "talk": "roloHome",
+      "script": [
+        {
+          "showIf": "roloFound"
+        },
+        {
+          "talk": "roloHome"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "n",
+      "id": "lina",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "linaAsk",
+      "script": [
+        {
+          "if": "roloFound",
+          "ifNot": "roloHome",
+          "set": "roloHome",
+          "grant": [
+            [
+              "megacrystal",
+              1
+            ]
+          ],
+          "talk": "linaThanks"
+        },
+        {
+          "if": "roloHome",
+          "talk": "linaAfter"
+        },
+        {
+          "talk": "linaAsk"
+        }
+      ]
+    },
+    {
+      "map": "veld",
+      "mark": "p",
+      "id": "juno",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "junoAsk",
+      "script": [
+        {
+          "if": "mon:crymare",
+          "ifNot": "gaveCrymare",
+          "set": "gaveCrymare",
+          "takeMon": "crymare",
+          "grant": [
+            [
+              "ultimatecrystal",
+              1
+            ]
+          ],
+          "talk": "junoThanks"
+        },
+        {
+          "if": "gaveCrymare",
+          "talk": "junoAfter"
+        },
+        {
+          "talk": "junoAsk"
+        }
+      ]
+    },
+    {
+      "map": "tau",
+      "mark": "p",
+      "id": "pipLost",
+      "role": "talk",
+      "sprite": "npc/child",
+      "talk": "pipFound",
+      "script": [
+        {
+          "hideIf": "pipFound"
+        },
+        {
+          "set": "pipFound",
+          "talk": "pipFound"
+        }
+      ]
+    },
+    {
+      "map": "malkuth",
+      "mark": "l",
+      "id": "pipHome",
+      "role": "talk",
+      "sprite": "npc/child",
+      "talk": "pipHome",
+      "script": [
+        {
+          "showIf": "pipFound"
+        },
+        {
+          "talk": "pipHome"
+        }
+      ]
+    },
+    {
+      "map": "malkuth",
+      "mark": "j",
+      "id": "bet",
+      "role": "talk",
+      "sprite": "npc/elder",
+      "talk": "betAsk",
+      "script": [
+        {
+          "if": "pipFound",
+          "ifNot": "pipHome",
+          "set": "pipHome",
+          "grant": [
+            [
+              "megacrystal",
+              2
+            ]
+          ],
+          "talk": "betThanks"
+        },
+        {
+          "if": "pipHome",
+          "talk": "betAfter"
+        },
+        {
+          "talk": "betAsk"
+        }
+      ]
+    },
+    {
+      "map": "yesod",
+      "mark": "j",
+      "id": "cobb",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "cobbAsk",
+      "script": [
+        {
+          "if": "mon:boltlamb",
+          "ifNot": "gaveBoltlamb",
+          "set": "gaveBoltlamb",
+          "takeMon": "boltlamb",
+          "grant": [
+            [
+              "panacea",
+              3
+            ]
+          ],
+          "talk": "cobbThanks"
+        },
+        {
+          "if": "gaveBoltlamb",
+          "talk": "cobbAfter"
+        },
+        {
+          "talk": "cobbAsk"
+        }
+      ]
+    },
+    {
+      "map": "peh",
+      "mark": "l",
+      "id": "silverLocketPickup",
+      "role": "talk",
+      "sprite": "npc/pickup",
+      "talk": "silverLocketFound",
+      "script": [
+        {
+          "hideIf": "pickedLocket"
+        },
+        {
+          "set": "pickedLocket",
+          "grant": [
+            [
+              "silverLocket",
+              1
+            ]
+          ],
+          "talk": "silverLocketFound"
+        }
+      ]
+    },
+    {
+      "map": "netzach",
+      "mark": "j",
+      "id": "sera",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "seraAsk",
+      "script": [
+        {
+          "if": "item:silverLocket",
+          "ifNot": "gaveLocket",
+          "set": "gaveLocket",
+          "takeItem": "silverLocket",
+          "grantMonster": [
+            "starfry",
+            28
+          ],
+          "talk": "seraThanks"
+        },
+        {
+          "if": "gaveLocket",
+          "talk": "seraAfter"
+        },
+        {
+          "talk": "seraAsk"
+        }
+      ]
+    },
+    {
+      "map": "mem",
+      "mark": "o",
+      "id": "garrow",
+      "role": "talk",
+      "sprite": "npc/bandit",
+      "talk": "garrowSpot",
+      "script": [
+        {
+          "hideIf": "beatGarrow"
+        },
+        {
+          "talk": "garrowSpot",
+          "after": "wsoldier",
+          "pending": "garrowOutlaw"
+        }
+      ]
+    },
+    {
+      "map": "hod",
+      "mark": "j",
+      "id": "dunn",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "dunnAsk",
+      "script": [
+        {
+          "if": "arrestedGarrow",
+          "ifNot": "paidGarrow",
+          "set": "paidGarrow",
+          "grant": [
+            [
+              "megacrystal",
+              1
+            ]
+          ],
+          "marks": 40,
+          "talk": "dunnThanks"
+        },
+        {
+          "if": "executedGarrow",
+          "ifNot": "paidGarrow",
+          "set": "paidGarrow",
+          "marks": 20,
+          "talk": "dunnDead"
+        },
+        {
+          "if": "paidGarrow",
+          "talk": "dunnAfter"
+        },
+        {
+          "talk": "dunnAsk"
+        }
+      ]
+    },
+    {
+      "map": "samekh",
+      "mark": "p",
+      "id": "tillyLost",
+      "role": "talk",
+      "sprite": "npc/child",
+      "talk": "tillyFound",
+      "script": [
+        {
+          "hideIf": "tillyFound"
+        },
+        {
+          "set": "tillyFound",
+          "talk": "tillyFound"
+        }
+      ]
+    },
+    {
+      "map": "tiferet",
+      "mark": "l",
+      "id": "tillyHome",
+      "role": "talk",
+      "sprite": "npc/child",
+      "talk": "tillyHome",
+      "script": [
+        {
+          "showIf": "tillyFound"
+        },
+        {
+          "talk": "tillyHome"
+        }
+      ]
+    },
+    {
+      "map": "tiferet",
+      "mark": "j",
+      "id": "hesse",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "hesseAsk",
+      "script": [
+        {
+          "if": "tillyFound",
+          "ifNot": "tillyHome",
+          "set": "tillyHome",
+          "grant": [
+            [
+              "ultimatecrystal",
+              1
+            ]
+          ],
+          "talk": "hesseThanks"
+        },
+        {
+          "if": "tillyHome",
+          "talk": "hesseAfter"
+        },
+        {
+          "talk": "hesseAsk"
+        }
+      ]
+    },
+    {
+      "map": "chesed",
+      "mark": "j",
+      "id": "voss",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "vossAsk",
+      "script": [
+        {
+          "if": "mon:wheelhog",
+          "ifNot": "gaveWheelhog",
+          "set": "gaveWheelhog",
+          "takeMon": "wheelhog",
+          "grant": [
+            [
+              "ultimatecrystal",
+              1
+            ]
+          ],
+          "talk": "vossThanks"
+        },
+        {
+          "if": "gaveWheelhog",
+          "talk": "vossAfter"
+        },
+        {
+          "talk": "vossAsk"
+        }
+      ]
+    },
+    {
+      "map": "heth",
+      "mark": "l",
+      "id": "oldMapPickup",
+      "role": "talk",
+      "sprite": "npc/pickup",
+      "talk": "oldMapFound",
+      "script": [
+        {
+          "hideIf": "pickedMap"
+        },
+        {
+          "set": "pickedMap",
+          "grant": [
+            [
+              "oldMap",
+              1
+            ]
+          ],
+          "talk": "oldMapFound"
+        }
+      ]
+    },
+    {
+      "map": "gevurah",
+      "mark": "j",
+      "id": "lune",
+      "role": "talk",
+      "sprite": "npc/elder",
+      "talk": "luneAsk",
+      "script": [
+        {
+          "if": "item:oldMap",
+          "ifNot": "gaveMap",
+          "set": "gaveMap",
+          "takeItem": "oldMap",
+          "grantMonster": [
+            "sunhawk",
+            38
+          ],
+          "talk": "luneThanks"
+        },
+        {
+          "if": "gaveMap",
+          "talk": "luneAfter"
+        },
+        {
+          "talk": "luneAsk"
+        }
+      ]
+    },
+    {
+      "map": "daleth",
+      "mark": "o",
+      "id": "kael",
+      "role": "talk",
+      "sprite": "npc/bandit",
+      "talk": "kaelSpot",
+      "script": [
+        {
+          "hideIf": "beatKael"
+        },
+        {
+          "talk": "kaelSpot",
+          "after": "wsoldier",
+          "pending": "kaelDeserter"
+        }
+      ]
+    },
+    {
+      "map": "binah",
+      "mark": "j",
+      "id": "holt",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "holtAsk",
+      "script": [
+        {
+          "if": "arrestedKael",
+          "ifNot": "paidKael",
+          "set": "paidKael",
+          "grant": [
+            [
+              "ultimatecrystal",
+              1
+            ]
+          ],
+          "marks": 60,
+          "talk": "holtThanks"
+        },
+        {
+          "if": "executedKael",
+          "ifNot": "paidKael",
+          "set": "paidKael",
+          "marks": 30,
+          "talk": "holtDead"
+        },
+        {
+          "if": "paidKael",
+          "talk": "holtAfter"
+        },
+        {
+          "talk": "holtAsk"
+        }
+      ]
+    },
+    {
+      "map": "aleph",
+      "mark": "p",
+      "id": "ionaLost",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "ionaFound",
+      "script": [
+        {
+          "hideIf": "ionaFound"
+        },
+        {
+          "set": "ionaFound",
+          "talk": "ionaFound"
+        }
+      ]
+    },
+    {
+      "map": "chokmah",
+      "mark": "l",
+      "id": "ionaHome",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "ionaHome",
+      "script": [
+        {
+          "showIf": "ionaFound"
+        },
+        {
+          "talk": "ionaHome"
+        }
+      ]
+    },
+    {
+      "map": "chokmah",
+      "mark": "j",
+      "id": "anselm",
+      "role": "talk",
+      "sprite": "npc/elder",
+      "talk": "anselmAsk",
+      "script": [
+        {
+          "if": "ionaFound",
+          "ifNot": "ionaHome",
+          "set": "ionaHome",
+          "grant": [
+            [
+              "panacea",
+              3
+            ],
+            [
+              "megacrystal",
+              2
+            ]
+          ],
+          "talk": "anselmThanks"
+        },
+        {
+          "if": "ionaHome",
+          "talk": "anselmAfter"
+        },
+        {
+          "talk": "anselmAsk"
+        }
+      ]
+    },
+    {
+      "map": "keter",
+      "mark": "j",
+      "id": "rhee",
+      "role": "talk",
+      "sprite": "npc/elder",
+      "talk": "rheeAsk",
+      "script": [
+        {
+          "if": "mon:arcanox",
+          "ifNot": "gaveArcanox",
+          "set": "gaveArcanox",
+          "takeMon": "arcanox",
+          "grant": [
+            [
+              "ultimatecrystal",
+              2
+            ]
+          ],
+          "talk": "rheeThanks"
+        },
+        {
+          "if": "gaveArcanox",
+          "talk": "rheeAfter"
+        },
+        {
+          "talk": "rheeAsk"
+        }
+      ]
+    },
+    {
+      "map": "malkuth",
+      "mark": "i",
+      "id": "hintMalkuth",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "hintMalkuth",
+      "script": [
+        {
+          "if": "medalBronzeStar",
+          "talk": "hintMalkuthAfter"
+        },
+        {
+          "talk": "hintMalkuth"
+        }
+      ]
+    },
+    {
+      "map": "yesod",
+      "mark": "i",
+      "id": "hintYesod",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "hintYesod",
+      "script": [
+        {
+          "if": "medalPurpleHeart",
+          "talk": "hintYesodAfter"
+        },
+        {
+          "talk": "hintYesod"
+        }
+      ]
+    },
+    {
+      "map": "netzach",
+      "mark": "i",
+      "id": "hintNetzach",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "hintNetzach",
+      "script": [
+        {
+          "if": "medalPowMedal",
+          "talk": "hintNetzachAfter"
+        },
+        {
+          "talk": "hintNetzach"
+        }
+      ]
+    },
+    {
+      "map": "hod",
+      "mark": "i",
+      "id": "hintHod",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "hintHod",
+      "script": [
+        {
+          "if": "medalSilverStar",
+          "talk": "hintHodAfter"
+        },
+        {
+          "talk": "hintHod"
+        }
+      ]
+    },
+    {
+      "map": "tiferet",
+      "mark": "i",
+      "id": "hintTiferet",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "hintTiferet",
+      "script": [
+        {
+          "if": "medalGoldStar",
+          "talk": "hintTiferetAfter"
+        },
+        {
+          "talk": "hintTiferet"
+        }
+      ]
+    },
+    {
+      "map": "chesed",
+      "mark": "i",
+      "id": "hintChesed",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "hintChesed",
+      "script": [
+        {
+          "if": "medalLegionOfMerit",
+          "talk": "hintChesedAfter"
+        },
+        {
+          "talk": "hintChesed"
+        }
+      ]
+    },
+    {
+      "map": "gevurah",
+      "mark": "i",
+      "id": "hintGevurah",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "hintGevurah",
+      "script": [
+        {
+          "if": "medalFlyingCross",
+          "talk": "hintGevurahAfter"
+        },
+        {
+          "talk": "hintGevurah"
+        }
+      ]
+    },
+    {
+      "map": "binah",
+      "mark": "i",
+      "id": "hintBinah",
+      "role": "talk",
+      "sprite": "npc/townsman",
+      "talk": "hintBinah",
+      "script": [
+        {
+          "if": "medalServiceCross",
+          "talk": "hintBinahAfter"
+        },
+        {
+          "talk": "hintBinah"
+        }
+      ]
+    },
+    {
+      "map": "chokmah",
+      "mark": "i",
+      "id": "hintChokmah",
+      "role": "talk",
+      "sprite": "npc/townswoman",
+      "talk": "hintChokmah",
+      "script": [
+        {
+          "if": "medalOfHonor",
+          "talk": "hintChokmahAfter"
+        },
+        {
+          "talk": "hintChokmah"
+        }
+      ]
+    },
+    {
+      "map": "keter",
+      "mark": "i",
+      "id": "hintKeter",
+      "role": "talk",
+      "sprite": "npc/elder",
+      "talk": "hintKeter",
+      "script": [
+        {
+          "if": "hasGoldenShackles",
+          "talk": "hintKeterOpen"
+        },
+        {
+          "talk": "hintKeter"
+        }
+      ]
     }
   ]
 }

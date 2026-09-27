@@ -61,7 +61,7 @@ FORBIDDEN_TEXT = [
 SKIP_NAME = {".git", "node_modules", ".vercel", "backups", "__pycache__", "placeholder_sprites"}
 # Every key an NPC script step may use; engine.ts runNpc()/matchNpcScript()
 # and the Dreamcast baker only read these, anything else is dropped silently.
-NPC_STEP_KEYS = {"talk", "if", "ifNot", "hideIf", "set", "after", "grant", "grantMonster",
+NPC_STEP_KEYS = {"talk", "if", "ifNot", "hideIf", "showIf", "set", "after", "grant", "grantMonster",
                  "heal", "passIf", "passOffset", "talkIf", "talkElse", "pending", "takeItem", "marks",
                  "takeMon", "rep"}
 REQUIRED_TRAINERS = ["mason", "calder", "shinigami", "cathleen", "sentry", "conscript", "enforcer", "cross", "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "marshBog", "marshReed", "quartz"]

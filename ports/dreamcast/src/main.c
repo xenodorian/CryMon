@@ -1343,7 +1343,7 @@ typedef struct {
 /* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals),
    in bake_content.py's SPEAKER order. Portraits are PLACEHOLDER_ART from
    tools/make_placeholder_npcs.py. */
-#define SPK_COUNT     65 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds */
+#define SPK_COUNT     88 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds; 65-87: townsfolk */
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of
@@ -1422,6 +1422,31 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_rook, PORT_ROOK_W, PORT_ROOK_H }, /* 62 PLACEHOLDER_ART */
     { port_mallory, PORT_MALLORY_W, PORT_MALLORY_H }, /* 63 PLACEHOLDER_ART */
     { port_silas, PORT_SILAS_W, PORT_SILAS_H }, /* 64 PLACEHOLDER_ART */
+    /* Townsfolk: several named speakers share one archetype portrait
+       (content/sprites.json portraitAlias), not another character's art. */
+    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 65 crier PLACEHOLDER_ART */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 66 tam PLACEHOLDER_ART */
+    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 67 lina PLACEHOLDER_ART */
+    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 68 rolo PLACEHOLDER_ART */
+    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 69 juno PLACEHOLDER_ART */
+    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 70 townsman PLACEHOLDER_ART */
+    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 71 townswoman PLACEHOLDER_ART */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 72 bet PLACEHOLDER_ART */
+    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 73 pip PLACEHOLDER_ART */
+    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 74 cobb PLACEHOLDER_ART */
+    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 75 sera PLACEHOLDER_ART */
+    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 76 dunn PLACEHOLDER_ART */
+    { port_bandit, PORT_BANDIT_W, PORT_BANDIT_H }, /* 77 garrow PLACEHOLDER_ART */
+    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 78 hesse PLACEHOLDER_ART */
+    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 79 tilly PLACEHOLDER_ART */
+    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 80 voss PLACEHOLDER_ART */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 81 lune PLACEHOLDER_ART */
+    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 82 holt PLACEHOLDER_ART */
+    { port_bandit, PORT_BANDIT_W, PORT_BANDIT_H }, /* 83 kael PLACEHOLDER_ART */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 84 anselm PLACEHOLDER_ART */
+    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 85 iona PLACEHOLDER_ART */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 86 rhee PLACEHOLDER_ART */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 87 elder PLACEHOLDER_ART */
 };
 
 #include "content_talk.inc"
@@ -4450,6 +4475,10 @@ static int npc_match_step(const NpcDef *d, int **ft, int party_n) {
         const NpcStep *st = &NPC_STEPS[d->step0 + i];
         if(st->hide_if >= 0) {
             if(npc_flag_on(st->hide_if, ft, party_n)) return -1;
+            continue;
+        }
+        if(st->hide_if <= -2) { /* showIf: hidden until the flag is on */
+            if(!npc_flag_on(-2 - st->hide_if, ft, party_n)) return -1;
             continue;
         }
         if(st->if_flag >= 0 && !npc_flag_on(st->if_flag, ft, party_n)) continue;

@@ -67,7 +67,13 @@
     "brin",
     "rook",
     "mallory",
-    "silas"
+    "silas",
+    "townsman",
+    "townswoman",
+    "elder",
+    "child",
+    "bandit",
+    "pickup"
   ],
   "monsters": [
     "quillpup",
@@ -261,7 +267,12 @@
     "brin",
     "rook",
     "mallory",
-    "silas"
+    "silas",
+    "townsman",
+    "townswoman",
+    "elder",
+    "child",
+    "bandit"
   ],
   "items": [
     "salve",
@@ -307,5 +318,27 @@
   ],
   "drawScale": {
     "mason": 1
+  },
+  "portraitAlias": {
+    "crier": "townsman",
+    "tam": "elder",
+    "lina": "townswoman",
+    "rolo": "child",
+    "juno": "townswoman",
+    "bet": "elder",
+    "pip": "child",
+    "cobb": "townsman",
+    "sera": "townswoman",
+    "dunn": "townsman",
+    "garrow": "bandit",
+    "hesse": "townswoman",
+    "tilly": "child",
+    "voss": "townsman",
+    "lune": "elder",
+    "holt": "townsman",
+    "kael": "bandit",
+    "anselm": "elder",
+    "iona": "townswoman",
+    "rhee": "elder"
   }
 }

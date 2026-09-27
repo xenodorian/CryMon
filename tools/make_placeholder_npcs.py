@@ -64,6 +64,14 @@ STYLE = {
     "fingers": ((70, 60, 50), (170, 40, 40), "cap"),
     "mallory": ((150, 40, 40), (60, 30, 20), "hood"),
     "silas": ((90, 80, 60), (150, 130, 60), "cap"),
+    # Townsfolk archetypes (named townsfolk share these; sprites.json
+    # portraitAlias maps each speaker to one) and a quest-item sparkle.
+    "townsman": ((110, 96, 70), (80, 60, 40), "cap"),
+    "townswoman": ((150, 90, 110), (110, 70, 50), "none"),
+    "elder": ((120, 120, 120), (220, 220, 220), "none"),
+    "child": ((90, 140, 90), (120, 80, 40), "none"),
+    "bandit": ((60, 50, 40), (140, 40, 40), "hood"),
+    "pickup": ((230, 200, 90), (255, 250, 200), "pickup"),
 }
 
 
@@ -78,6 +86,13 @@ def frame(uniform, trim, hat: str, bob: int) -> Image.Image:
     im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
     y = 6 + bob
+    if hat == "pickup":
+        d.ellipse([16, 40 + bob, 32, 52 + bob], fill=(120, 90, 50), outline=INK)  # pouch
+        d.rectangle([22, 36 + bob, 26, 41 + bob], fill=(90, 60, 30))
+        for sx, sy in ((12, 30), (34, 28), (24, 22)):
+            d.line([(sx - 3, sy + bob), (sx + 3, sy + bob)], fill=trim)
+            d.line([(sx, sy - 3 + bob), (sx, sy + 3 + bob)], fill=trim)
+        return tag(im, d)
     if hat in ("grave", "shrine"):
         return prop(im, d, uniform, trim, hat)
     if hat == "ghost":

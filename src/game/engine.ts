@@ -2333,7 +2333,7 @@ export class CryMon {
 	 *  visibility and solidity never disagree -- a hidden gate-blocker
 	 *  (like shinigamiBoulder once beatShin flips) must also stop
 	 *  blocking movement in the same frame it stops being drawn.
-	 *  `hideIf`: hide once the flag is true. `if`: hide until the flag
+	 *  `hideIf`: hide once the flag is true. `showIf` / `if`: hide until the flag
 	 *  is true. Either can appear on any script step. */
 	npcHidden(npc, flags) {
 		// A step's `if` only gates visibility when the step is otherwise
@@ -2341,7 +2341,7 @@ export class CryMon {
 		// On a step that also carries dialogue (calder, the Priestess),
 		// `if` instead picks which line to show and must not hide the
 		// NPC just because that particular branch didn't match.
-		return !!npc.script?.some((s) => (s.hideIf && flags[s.hideIf as string]) || (s.if && !s.talk && !flags[s.if as string]));
+		return !!npc.script?.some((s) => (s.hideIf && flags[s.hideIf as string]) || (s.showIf && !flags[s.showIf as string]) || (s.if && !s.talk && !flags[s.if as string]));
 	}
 	/** A gate-blocking NPC that should stay visible but step out of the
 	 *  way once beaten/satisfied (Calder, the Heavenfall Priestess) --
@@ -5480,7 +5480,8 @@ export class CryMon {
 		const sp = beat.speaker;
 		const showPort = sp && sp !== "none" && sp !== "system";
 		if (showPort) {
-			this.drawSprite(`port-${sp}`, X(-4), Y(6), X(120), Y(150), "top", true);
+			const alias = (SPRITES as { portraitAlias?: Record<string, string> }).portraitAlias?.[sp] ?? sp;
+			this.drawSprite(`port-${alias}`, X(-4), Y(6), X(120), Y(150), "top", true);
 			this.ctx.fillStyle = "rgba(18,17,14,0.45)";
 			this.ctx.fillRect(X(108), 0, VIEW_W - X(108), VIEW_H);
 			this.box(X(112), Y(6), X(122), Y(62));

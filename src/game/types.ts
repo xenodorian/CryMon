@@ -12,7 +12,7 @@ export type SpeakerId =
   | "oren" | "tessa" | "birch" | "sable"
   | "cross" | "commander" | "conscript" | "enforcer" | "sentry"
   | "father" | "heavenfall" | "ranger" | "scout" | "keeper" | "warden"
-  | "bogwalker" | "reedguard" | "quartz" | "opal" | "driller" | "fenn" | "dray" | "lead" | "system" | "none" | "heavenfallPriestess" | "weepingGuard" | "royalGuard" | "nero" | "harrow" | "ashgrove" | "stroud" | "vale" | "kessler" | "morrow" | "crane" | "blackwood" | "sorrel" | "ada" | "hale" | "marn" | "citizen" | "ghost" | "vesk" | "ardent" | "mag" | "pell" | "fingers" | "aldous" | "brin" | "rook" | "mallory" | "silas";
+  | "bogwalker" | "reedguard" | "quartz" | "opal" | "driller" | "fenn" | "dray" | "lead" | "system" | "none" | "heavenfallPriestess" | "weepingGuard" | "royalGuard" | "nero" | "harrow" | "ashgrove" | "stroud" | "vale" | "kessler" | "morrow" | "crane" | "blackwood" | "sorrel" | "ada" | "hale" | "marn" | "citizen" | "ghost" | "vesk" | "ardent" | "mag" | "pell" | "fingers" | "aldous" | "brin" | "rook" | "mallory" | "silas" | "crier" | "tam" | "lina" | "rolo" | "juno" | "townsman" | "townswoman" | "bet" | "pip" | "cobb" | "sera" | "dunn" | "garrow" | "hesse" | "tilly" | "voss" | "lune" | "holt" | "kael" | "anselm" | "iona" | "rhee" | "elder";
 
 export interface TalkBeat {
   speaker: SpeakerId;
@@ -118,7 +118,7 @@ export interface Monster {
 
 export type StatusId = "none" | "burned" | "poisoned" | "confused" | "paralyzed" | "exhausted";
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea" | "bowieKnife" | "shackles" | "goldenShackles" | "boneInes" | "boneTomas" | "boneOriel" | "wraithLantern";
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea" | "bowieKnife" | "shackles" | "goldenShackles" | "boneInes" | "boneTomas" | "boneOriel" | "wraithLantern" | "tamWatch" | "silverLocket" | "oldMap";
 
 export interface ItemDef {
   id: ItemId;

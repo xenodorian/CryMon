@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=11e862feadf5fd48 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=7693235cae7c4461 — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
@@ -7,8 +7,8 @@
 #define SAVE_SIZE 332
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
-#define SAVE_FLAG_N 160
-#define SAVE_ITEM_N 26
+#define SAVE_FLAG_N 186
+#define SAVE_ITEM_N 29
 #define SAVE_FLAG_TOOK_STARTER 0
 #define SAVE_FLAG_TALKED_FATHER 1
 #define SAVE_FLAG_LOOTED_CRATE 2
@@ -169,6 +169,32 @@
 #define SAVE_FLAG_THREATENED_ROOK 157
 #define SAVE_FLAG_EXECUTED_ROOK 158
 #define SAVE_FLAG_PAID_ROOK 159
+#define SAVE_FLAG_PICKED_WATCH 160
+#define SAVE_FLAG_GAVE_WATCH 161
+#define SAVE_FLAG_ROLO_FOUND 162
+#define SAVE_FLAG_ROLO_HOME 163
+#define SAVE_FLAG_GAVE_CRYMARE 164
+#define SAVE_FLAG_PIP_FOUND 165
+#define SAVE_FLAG_PIP_HOME 166
+#define SAVE_FLAG_GAVE_BOLTLAMB 167
+#define SAVE_FLAG_PICKED_LOCKET 168
+#define SAVE_FLAG_GAVE_LOCKET 169
+#define SAVE_FLAG_BEAT_GARROW 170
+#define SAVE_FLAG_ARRESTED_GARROW 171
+#define SAVE_FLAG_EXECUTED_GARROW 172
+#define SAVE_FLAG_PAID_GARROW 173
+#define SAVE_FLAG_TILLY_FOUND 174
+#define SAVE_FLAG_TILLY_HOME 175
+#define SAVE_FLAG_GAVE_WHEELHOG 176
+#define SAVE_FLAG_PICKED_MAP 177
+#define SAVE_FLAG_GAVE_MAP 178
+#define SAVE_FLAG_BEAT_KAEL 179
+#define SAVE_FLAG_ARRESTED_KAEL 180
+#define SAVE_FLAG_EXECUTED_KAEL 181
+#define SAVE_FLAG_PAID_KAEL 182
+#define SAVE_FLAG_IONA_FOUND 183
+#define SAVE_FLAG_IONA_HOME 184
+#define SAVE_FLAG_GAVE_ARCANOX 185
 
 /* Blob layout (little-endian), shared with src/game/save.ts:
    0 magic CRYM, 4 version, 5 map, 6 dir, 7 party_n,
@@ -186,6 +212,6 @@ static const unsigned short SAVE_DEX_CAUGHT_OFF[SAVE_DEX_BYTES] = { 148, 149, 15
 #define SAVE_PARTY_NATURE 12
 #define SAVE_FLAG_BYTES 32
 static const unsigned short SAVE_FLAG_OFF[SAVE_FLAG_BYTES] = { 38, 39, 40, 41, 42, 43, 44, 45, 280, 281, 282, 283, 284, 285, 286, 287, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315 };
-static const unsigned short SAVE_BAG_OFF[SAVE_ITEM_N] = { 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 288, 289, 290, 291, 292, 293 };
+static const unsigned short SAVE_BAG_OFF[SAVE_ITEM_N] = { 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 288, 289, 290, 291, 292, 293, 294, 295, 296 };
 
 #endif

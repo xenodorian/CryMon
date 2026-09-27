@@ -90,6 +90,22 @@ MARKS = [
     ("cliffs", "i", (4, 12)),   # Captain Rook (Heroes Guild)
     ("forest", "i", (7, 18)),   # Red Mallory (wanted)
     ("quarry", "i", (12, 2)),   # Silas the Fence (wanted)
+    # CryTown townsfolk and their sidequest spots
+    ("veld", "j", (19, 12)),    # the crier
+    ("veld", "l", (9, 3)),      # Old Tam
+    ("veld", "n", (25, 17)),    # Lina
+    ("veld", "o", (26, 17)),    # Rolo, once led home
+    ("veld", "p", (8, 14)),     # Collector Juno
+    ("grove", "j", (4, 3)),     # Tam's watch (pickup), at the Prison
+    ("cliffs", "j", (14, 15)),  # Rolo, lost
+    # Sephirot path spots: pickups 'l', lost townsfolk 'p', outlaws 'o'
+    ("tau", "p", (2, 13)),      # Pip (Malkuth)
+    ("peh", "l", (28, 4)),      # Sera's locket (Netzach)
+    ("mem", "o", (2, 11)),      # Knife-Hand Garrow (Hod)
+    ("samekh", "p", (2, 14)),   # Tilly (Tiferet)
+    ("heth", "l", (2, 11)),     # Lune's map (Gevurah)
+    ("daleth", "o", (28, 5)),   # Deserter Kael (Binah)
+    ("aleph", "p", (16, 9)),    # Sister Iona (Chokmah)
 ]
 
 

@@ -28,7 +28,10 @@
     "boneInes",
     "boneTomas",
     "boneOriel",
-    "wraithLantern"
+    "wraithLantern",
+    "tamWatch",
+    "silverLocket",
+    "oldMap"
   ],
   "mapOrder": [
     "house",
@@ -375,7 +378,33 @@
     "beatRook",
     "threatenedRook",
     "executedRook",
-    "paidRook"
+    "paidRook",
+    "pickedWatch",
+    "gaveWatch",
+    "roloFound",
+    "roloHome",
+    "gaveCrymare",
+    "pipFound",
+    "pipHome",
+    "gaveBoltlamb",
+    "pickedLocket",
+    "gaveLocket",
+    "beatGarrow",
+    "arrestedGarrow",
+    "executedGarrow",
+    "paidGarrow",
+    "tillyFound",
+    "tillyHome",
+    "gaveWheelhog",
+    "pickedMap",
+    "gaveMap",
+    "beatKael",
+    "arrestedKael",
+    "executedKael",
+    "paidKael",
+    "ionaFound",
+    "ionaHome",
+    "gaveArcanox"
   ],
   "layout": {
     "magic": [
