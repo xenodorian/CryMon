@@ -5389,8 +5389,9 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
            sprite (mark '9', below) appears for that whole window. */
         if(!saw_shinigami_rock)
             ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMIBOULDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
-        if(beat_shin && !saw_shinigami_rock)
-            ws_push_mark_idle(list, n, map_id, '9', SHINIGAMI_FRAMES, frame_count, 20, NPC_SPRITE_W, NPC_SPRITE_H);
+        /* Shinigami himself (mark '9') is a generic walker. His script
+           showIf beat_shin / hideIf saw_shinigami_rock is what draws him,
+           so he is not pushed here a second time. */
         if(mason_state) {
             ws_push_walker(list, n, MASON_FRAMES, mason_x, mason_y, mason_dir, mason_frame);
             if(*n > 0) list[*n - 1].scale = SPR_SCALE_MASON;

@@ -1096,8 +1096,13 @@
       "sprite": "shinigami",
       "script": [
         {
+          "showIf": "beatShinigami"
+        },
+        {
+          "hideIf": "sawShinigamiRock"
+        },
+        {
           "if": "beatShinigami",
-          "hideIf": "sawShinigamiRock",
           "talk": "shinigamiRockEvent",
           "set": "sawShinigamiRock"
         }

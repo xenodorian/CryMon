@@ -4105,3 +4105,12 @@ Every code-drawn person now has a generated walker (48x64, four identical
 frames) and a 160x200 portrait. Grave, shrine, and the pickup pouch are
 generated props. Max, Lead, the older finished sprites, the map tiles,
 the item icons, and the torch and lantern frames were left as they were.
+
+## Shinigami stays off the boulder until the Grove fight (Grok, 2026-09-27)
+
+`shinigamiRock` had `if`, `hideIf`, and the talk on one step. A step that
+talks does not hide the sprite, and a `hideIf` that is still false is
+skipped, so he stood by the boulder from the first visit. He now stays
+hidden until `beatShinigami`, then leaves once `sawShinigamiRock` is set.
+The boulder is unchanged. Dreamcast no longer draws him a second time on
+top of the generic walker.
