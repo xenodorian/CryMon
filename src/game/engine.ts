@@ -5436,13 +5436,14 @@ export class CryMon {
 		else dy = y + (h - dh) / 2;
 		ctx.drawImage(im, dx, dy, dw, dh);
 	}
-	drawBattleMon(key, x, y, w, h, enterT, faintT, shiny) {
+	drawBattleMon(key, x, y, w, h, enterT, faintT, shiny, flash = false) {
 		const ctx = this.ctx;
 		const enter = Math.min(1, (enterT ?? 1) / 0.3);
 		const faint = faintT > 0 ? Math.max(0, 1 - faintT / 0.4) : 1;
 		ctx.save();
 		ctx.globalAlpha *= faint;
 		if (shiny) ctx.filter = "hue-rotate(38deg) saturate(1.45) brightness(1.12)";
+		if (flash) ctx.filter = "brightness(2.4) saturate(0.3)";
 		const visH = Math.max(1, h * enter);
 		ctx.beginPath();
 		ctx.rect(x, y + h - visH, w, visH);
@@ -5882,8 +5883,19 @@ export class CryMon {
 		if (bg) this.ctx.drawImage(bg, 0, 0, VIEW_W, VIEW_H);
 		else this.fill("#2a2418");
 		const pf = Math.floor(b.t * 4) % 4 + 1;
-		this.drawBattleMon(`${b.foe.species}-${pf}`, X(168), Y(8), X(52), Y(52), b.foeEnterT, b.foeFaintT, b.foe.shiny);
-		this.drawBattleMon(`${b.player.species}-${pf}`, X(12), Y(52), X(48), Y(48), b.enterT, b.faintT, b.player.shiny);
+		// Attack and hurt motion, driven by hitFx: the attacker lunges at the
+		// target, the target shakes and blinks white while the burst plays.
+		const hf = this.hitFx;
+		const lunge = hf ? Math.sin(Math.PI * Math.min(1, hf.t / 0.2)) : 0;
+		const shake = hf ? Math.sin(hf.t * 70) * X(2) * Math.max(0, 1 - hf.t / 0.36) : 0;
+		const blink = !!hf && (hf.t < 0.1 || (hf.t > 0.18 && hf.t < 0.26));
+		const foeHit = hf?.at === "foe", plHit = hf?.at === "player";
+		const fdx = foeHit ? shake : plHit ? -lunge * X(12) : 0;
+		const fdy = plHit ? lunge * Y(6) : 0;
+		const pdx = plHit ? shake : foeHit ? lunge * X(12) : 0;
+		const pdy = foeHit ? -lunge * Y(6) : 0;
+		this.drawBattleMon(`${b.foe.species}-${pf}`, X(168) + fdx, Y(8) + fdy, X(52), Y(52), b.foeEnterT, b.foeFaintT, b.foe.shiny, foeHit && blink);
+		this.drawBattleMon(`${b.player.species}-${pf}`, X(12) + pdx, Y(52) + pdy, X(48), Y(48), b.enterT, b.faintT, b.player.shiny, plHit && blink);
 		if (this.hitFx) {
 			const f = Math.min(3, Math.floor(this.hitFx.t / 0.09)) + 1;
 			const [fx, fy, fw] = this.hitFx.at === "foe" ? [X(168), Y(8), X(52)] : [X(12), Y(52), X(48)];
