@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import math
 
+import numpy as np
+
 from .core import M, Mat, Canvas, flame, peye, hx, mix, darken, sparkle
 from .people import PEOPLE, SKIN
 from .registry import register
@@ -17,7 +19,7 @@ def pm(col, n=8, **kw):
 
 def bust(p):
     c = Canvas(W, H, seed=sum(map(ord, p["main"])))
-    skin = pm(SKIN[p["skin"]], shift=0.04, sat=0.62, light=0.93)
+    skin = pm(SKIN[p["skin"]], shift=0.04, sat=0.62, light=0.93, amb=0.34, soft=0.85)
     hair = pm(p.get("hair", "#4a3222"), tex="fur", tex_amp=0.35)
     main = pm(p["main"], tex="fur", tex_amp=0.12, spec=0.5 if p["outfit"] == "armor" else 0.0)
     trim = pm(p["trim"], spec=0.6)
@@ -81,9 +83,17 @@ def bust(p):
         c.tri((66, sh_y - 8), (80, sh_y + 14), (94, sh_y - 8), shirt if outfit != "ghost" else main, z=17, bevel=2)
         c.cap(80, sh_y + 24, 2, 80, 200, 2, trim, z=18) if outfit in ("coat", "robe") else None
     if outfit == "armor":
+        # layered pauldrons: a domed cap and three overlapping lames below it
         for d in (-1, 1):
-            c.ell(80 + d * sw * 0.72, sh_y + 6, 26, 18, main, z=20, rot=d * 12)
-            c.cap(80 + d * sw * 0.72 - 18, sh_y + 12, 2.2, 80 + d * sw * 0.72 + 18, sh_y + 12, 2.2, trim, z=26)
+            px = 80 + d * sw * 0.7
+            for k in range(3, 0, -1):
+                c.ell(px + d * k * 2, sh_y + 8 + k * 9, 24 - k * 1.5, 7, main, z=20 + (3 - k) * 2, rot=d * (14 + k * 4))
+                c.cap(px - 18 + d * k * 2, sh_y + 12 + k * 9, 1.0, px + 18 + d * k * 2, sh_y + 12 + k * 9, 1.0, trim,
+                      z=21 + (3 - k) * 2, decal=True)
+            c.ell(px, sh_y + 2, 24, 13, main, z=28, rot=d * 12)
+            c.cap(px - 20, sh_y + 8, 1.8, px + 20, sh_y + 8, 1.8, trim, z=30)
+            for rx in (-12, 0, 12):
+                c.ell(px + rx, sh_y + 8, 1.6, 1.6, gold, z=33)
         c.pattern(lambda x, y: (abs(x - 80) < 1.2) & (y > sh_y + 20), -2, only=g)
     if "epaulets" in ex:
         for d in (-1, 1):
@@ -117,10 +127,15 @@ def bust(p):
     c.ell(hx_ - hrx, hy_ + 4, 6, 10, skin, z=6)
     c.ell(hx_ + hrx, hy_ + 4, 6, 10, skin, z=6)
     c.ell(hx_, hy_, hrx, hry, skin, z=10, g=hg)
-    # jaw
-    c.ell(hx_, hy_ + hry * 0.45, hrx * 0.8, hry * 0.55, skin, z=12, g=hg)
-    # nose volume
-    c.ell(hx_ - 3, hy_ + 10, 5, 9, skin, z=hrx * 0.95 + 4, g=hg, th=5)
+    # jaw, turned a little toward the left like the finished portraits
+    c.ell(hx_ - 3, hy_ + hry * 0.45, hrx * 0.78, hry * 0.55, skin, z=12, g=hg)
+    # nose: bridge plus a rounded tip that sticks out toward the left
+    c.cap(hx_ - 5, hy_ - 2, 3.4, hx_ - 8, hy_ + 13, 4.6, skin, z=hrx + 12, z1=hrx + 18, g=hg, th=1.0)
+    # shadow under the jaw onto the neck
+    c.pattern(lambda x, y: (y > hy_ + hry * 0.85) & (y < hy_ + hry * 0.85 + 9) & (abs(x - 80) < 20), -2, where=[skin])
+    # cloth folds pulling from the shoulders toward the chest
+    c.pattern(lambda x, y: (y > sh_y + 12) & ((abs((x - 80) * 0.7 + (y - sh_y) * np.sign(x - 80) * -0.5) % 17) < 1.2)
+              & (abs(x - 80) > 22), -1, only=g)
 
     # ---- hair
     if hs in ("short", "long", "bun", "braid", "pony", "wild"):
@@ -144,8 +159,16 @@ def bust(p):
     # ---- beard
     bd = p.get("beard", "none")
     if bd == "full":
-        c.ell(hx_, hy_ + hry * 0.6, hrx * 0.85, hry * 0.55, beard, z=30, tuft=14, tuft_len=4, tuft_arc=(10, 170))
-        c.ell(hx_ - 3, hy_ + 18, 14, 5, beard, z=34)
+        # beard hangs from the cheeks to a rounded point below the chin, strands running down
+        gb = c.group()
+        c.poly([(hx_ - hrx * 0.86, hy_ + 6), (hx_ - hrx * 0.7, hy_ + hry * 0.9), (hx_ - 16, hy_ + hry + 12),
+                (hx_ - 4, hy_ + hry + 18), (hx_ + 10, hy_ + hry + 10), (hx_ + hrx * 0.72, hy_ + hry * 0.8),
+                (hx_ + hrx * 0.86, hy_ + 6), (hx_ + 10, hy_ + 24), (hx_ - 22, hy_ + 24)], beard, z=52, bevel=8, g=gb)
+        c.pattern(lambda x, y: ((x * 1.0 + (y - hy_) * 0.18 * np.sign(x - hx_ + 4)) % 3.2 < 1.0), -2, only=gb)
+        c.pattern(lambda x, y: ((x + 1.6 + (y - hy_) * 0.18 * np.sign(x - hx_ + 4)) % 6.4 < 0.8), 1, only=gb)
+        # mustache sweeping out from under the nose
+        c.chain([(hx_ + 12, hy_ + 30, 2.5), (hx_ + 2, hy_ + 21, 5), (hx_ - 8, hy_ + 19, 5.5), (hx_ - 18, hy_ + 21, 5),
+                 (hx_ - 27, hy_ + 30, 2.5)], beard, z=58)
     elif bd == "goatee":
         c.ell(hx_ - 2, hy_ + hry * 0.8, 8, 9, beard, z=30)
         c.ell(hx_ - 3, hy_ + 18, 12, 3.5, beard, z=34)
@@ -160,12 +183,34 @@ def bust(p):
         c.cap(hx_ - hrx - 2, hy_ - hry * 0.55, 2.2, hx_ + hrx + 2, hy_ - hry * 0.55, 2.2, gold, z=48)
         c.ell(hx_, hy_ - hry * 0.8, 6, 6, gold, z=50)
     elif hat == "crown":
+        by = hy_ - hry * 0.55
+        velvet = pm("#5a1a3a", tex="fur", tex_amp=0.3)
+        ruby, sapph = pm("#c02a4a", spec=0.9), pm("#3a5ad0", spec=0.9)
+        # velvet cap inside, two arches over it meeting at an orb and cross
+        c.ell(hx_, by - 14, 30, 16, velvet, z=38)
+        for d in (-1, 1):
+            c.chain([(hx_ + d * 30, by - 4, 3), (hx_ + d * 24, by - 26, 2.6), (hx_ + d * 8, by - 36, 2.4), (hx_, by - 37, 2.4)],
+                    hatm, z=41)
+            for k in range(1, 4):
+                c.ell(hx_ + d * (30 - k * 7), by - 8 - k * 9, 1.4, 1.4, pm("#f4ecd8", spec=0.9), z=43)
+        c.ell(hx_, by - 42, 5, 5, hatm, z=44)
+        c.cap(hx_, by - 47, 1.6, hx_, by - 57, 1.6, hatm, z=45)
+        c.cap(hx_ - 4, by - 53, 1.6, hx_ + 4, by - 53, 1.6, hatm, z=45)
+        # points: tall fleurons and short spikes, each tipped with a pearl
+        for k in range(7):
+            x0 = hx_ - 33 + k * 11
+            tall = k % 2 == 0
+            h = 20 if tall else 11
+            c.tri((x0 - 5, by), (x0, by - h), (x0 + 5, by), hatm, z=46 - abs(k - 3) * 0.5, bevel=2)
+            if tall:
+                c.ell(x0 - 4, by - h + 5, 2.4, 3, hatm, z=46)
+                c.ell(x0 + 4, by - h + 5, 2.4, 3, hatm, z=46)
+            c.ell(x0, by - h - 2, 2.2, 2.2, pm("#f4ecd8", spec=0.9), z=48)
+        # thick band with alternating set stones
+        c.poly([(hx_ - 36, by - 5), (hx_ + 36, by - 5), (hx_ + 37, by + 6), (hx_ - 37, by + 6)], hatm, z=50, bevel=3)
         for k in range(5):
             x0 = hx_ - 28 + k * 14
-            c.tri((x0 - 6, hy_ - hry * 0.55), (x0, hy_ - hry - 22 - (k % 2) * 8), (x0 + 6, hy_ - hry * 0.55), hatm,
-                  z=44, bevel=3)
-            c.ell(x0, hy_ - hry - 20 - (k % 2) * 8, 3, 3, pm("#c02a4a", spec=0.9), z=48)
-        c.cap(hx_ - 34, hy_ - hry * 0.55, 5, hx_ + 34, hy_ - hry * 0.55, 5, hatm, z=46)
+            c.ell(x0, by + 0.5, 3.4 if k % 2 == 0 else 2.6, 3.4 if k % 2 == 0 else 3.0, ruby if k % 2 == 0 else sapph, z=53)
     elif hat == "hood":
         # a cowl framing the face: brow edge over the forehead and two drapes
         c.poly([(hx_ - hrx - 8, hy_ - 4), (hx_ - hrx + 4, hy_ - hry - 6), (hx_, hy_ - hry - 16), (hx_ + hrx - 2, hy_ - hry - 8),
@@ -195,7 +240,8 @@ def bust(p):
 
     def face(cc):
         ey = int(hy_ - 2)
-        eyes = [(hx_ - 15, 1.0), (hx_ + 12, 0.95)]
+        eyes = [(hx_ - 18, 1.0), (hx_ + 10, 0.9)]
+        lashes = hs in ("bun", "braid", "long", "pony") and bd == "none"
         helmet_shadow = hat in ("helmet", "plume")
         for i, (x, s) in enumerate(eyes):
             if "eyepatch" in ex and i == 1:
@@ -212,10 +258,18 @@ def bust(p):
                     if (xx / 7.2) ** 2 + (yy / 3.6) ** 2 <= 1:
                         cc.put(x + xx, ey + yy, (238, 232, 226) if p["skin"] != "dead" else (200, 206, 214))
             peye(cc, x - 1, ey + 0.5, 4.2 * s, 4.2 * s, iris=ec, pw=0.5, ph=0.5, look=-0.3, lid=(40, 24, 26))
-            # upper lid line
+            # upper lid line, crease above it, soft lower lid
             for xx in range(-8, 9):
                 yy = -4 + (xx * xx) / 26
                 cc.put(x + xx, ey + yy, (40, 24, 26))
+                cc.put(x + xx, ey + yy - 1, (40, 24, 26)) if abs(xx) < 6 else None
+                if abs(xx) < 7:
+                    cc.put(x + xx, ey + yy - 4, mix(skin_c, line, 0.45))
+                if abs(xx) < 6:
+                    cc.put(x + xx, ey + 4 + (xx * xx) / 40, mix(skin_c, line, 0.35))
+            if lashes:
+                ox = -9 if i == 0 else 9
+                cc.put(x + ox, ey - 4, (40, 24, 26)); cc.put(x + ox + (-1 if i == 0 else 1), ey - 5, (40, 24, 26))
             # brows
             bc = hx(p.get("hair", "#4a3222")) if hs != "none" else line
             if old:
@@ -234,11 +288,13 @@ def bust(p):
             if "tears" in ex:
                 for k in range(14):
                     cc.put(x - 1 + (k > 8), ey + 5 + k, (130, 190, 250) if k % 4 else (200, 230, 255))
-        # nose shadow
-        for k in range(12):
-            cc.put(hx_ + 1, hy_ + 2 + k, mix(skin_c, line, 0.45))
-        for k in range(5):
-            cc.put(hx_ - 6 + k, hy_ + 15, mix(skin_c, line, 0.7))
+        # nose: shadow side, nostrils, a highlight on the tip
+        for k in range(10):
+            cc.put(hx_ - 2 + k * 0.1, hy_ + 3 + k, mix(skin_c, line, 0.4))
+        for dx in (-11, -10, -5, -4):
+            cc.put(hx_ + dx, hy_ + 16, mix(skin_c, line, 0.8))
+        cc.put(hx_ - 9, hy_ + 11, mix(skin_c, (255, 255, 255), 0.45))
+        cc.put(hx_ - 8, hy_ + 11, mix(skin_c, (255, 255, 255), 0.3))
         # mouth
         my = int(hy_ + 26)
         if bd != "full":
@@ -247,31 +303,40 @@ def bust(p):
                     curve = ((k / 9) ** 2) * (4 if expr == "smile" else 3)
                     if expr == "smirk":
                         curve = ((k + 9) / 18) ** 2 * 5
-                    cc.put(hx_ - 2 + k, my - curve + (2 if expr == "smile" else 0), line)
+                    cc.put(hx_ - 8 + k, my - curve + (2 if expr == "smile" else 0), line)
                 if expr == "smile":
                     for k in range(-6, 7):
-                        cc.put(hx_ - 2 + k, my + 3, lip)
+                        cc.put(hx_ - 8 + k, my + 3, lip)
             elif expr in ("frown", "grim", "sad"):
                 for k in range(-8, 9):
                     curve = ((k / 8) ** 2) * 3
-                    cc.put(hx_ - 2 + k, my + curve, line)
+                    cc.put(hx_ - 8 + k, my + curve, line)
                 for k in range(-5, 6):
-                    cc.put(hx_ - 2 + k, my + 3, lip)
+                    cc.put(hx_ - 8 + k, my + 3, lip)
             elif expr == "shock":
                 for yy in range(-3, 5):
                     for xx in range(-4, 5):
                         if (xx / 4.5) ** 2 + (yy / 4.5) ** 2 <= 1:
-                            cc.put(hx_ - 2 + xx, my + yy, (70, 24, 30))
+                            cc.put(hx_ - 6 + xx, my + yy, (70, 24, 30))
             else:
                 for k in range(-7, 8):
-                    cc.put(hx_ - 2 + k, my, line)
+                    cc.put(hx_ - 8 + k, my, line)
                 for k in range(-5, 6):
-                    cc.put(hx_ - 2 + k, my + 2, lip)
+                    cc.put(hx_ - 8 + k, my + 2, lip)
+            # lower lip catches light, a dimple of shadow under it
+            if expr != "shock":
+                for k in range(-3, 3):
+                    cc.put(hx_ - 9 + k, my + 4, mix(skin_c, (255, 236, 220), 0.35))
+                for k in range(-4, 4):
+                    cc.put(hx_ - 8 + k, my + 7, mix(skin_c, line, 0.3))
+        if bd == "full":
+            for k in range(-5, 5):
+                cc.put(hx_ - 8 + k, my + 1 + abs(k) // 4, darken(hx(p.get("beard_col", "#4a3222")), 0.45))
         if bd == "mustache":
             bc = hx(p.get("beard_col", "#4a3222"))
             for k in range(-14, 15):
                 for th in range(4 - abs(k) // 5):
-                    cc.put(hx_ - 2 + k, my - 4 + th + abs(k) // 4, darken(bc, 0.9 if th else 0.7))
+                    cc.put(hx_ - 8 + k, my - 4 + th + abs(k) // 4, darken(bc, 0.9 if th else 0.7))
         if bd == "stubble":
             sc = mix(skin_c, hx(p.get("beard_col", "#4a3222")), 0.35)
             for yy in range(int(hy_ + 18), int(hy_ + hry + 2)):
