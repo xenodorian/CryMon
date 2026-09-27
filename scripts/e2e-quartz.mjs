@@ -94,7 +94,10 @@ async function runWarden(who) {
     await page.evaluate(() => {
       const p = window.__crymon.party()[0];
       // Party slots store hp/stats as bytes, so keep them under 256.
-      Object.assign(p, { level: 40, maxHp: 250, hp: 250, str: 200, agl: 200, spc: 200 });
+      // A final form: a Quillpup evolves on its first XP, and the re-mint
+      // at Lv 40 throws this buff away mid-fight (then a faster foe can
+      // win on paralysis; CI run 36322735037).
+      Object.assign(p, { species: "sableclaw", name: "Sableclaw", level: 40, maxHp: 250, hp: 250, str: 200, agl: 200, spc: 200 });
     });
     const before = await state();
     await faceQuartz();
@@ -170,6 +173,8 @@ async function runWarden(who) {
         const c = window.__crymon;
         c.skipToReach();
         Object.assign(c.party()[0], {
+          species: "sableclaw", // final form, see above
+          name: "Sableclaw",
           level: 40,
           maxHp: 250,
           hp: 250,
