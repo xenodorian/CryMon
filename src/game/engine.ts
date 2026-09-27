@@ -64,6 +64,7 @@ import {
 import { LIGHTS, mapTheme, paintTileArt } from "./tileArt";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
+import { BattleFx } from "./battleFx";
 import type {
   Dir,
   ItemId,
@@ -154,6 +155,8 @@ export class CryMon {
 	shake = 0;
 	/** Hit burst over the target (public/sprites/fx, tools/pixelforge/hitfx.py). */
 	hitFx = null;
+	/** Particles, rings, screen flash, damage numbers (battleFx.ts). */
+	bfx = new BattleFx();
 	clock = 0;
 	world = {
 		mapId: "house",
@@ -1655,6 +1658,10 @@ export class CryMon {
 		this.tickFade(dt);
 		if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 8);
 		if (this.hitFx && (this.hitFx.t += dt) > 0.36) this.hitFx = null;
+		this.bfx.update(dt);
+		if (this.mode === "battle" && this.battle) {
+			this.bfx.watch(this.battle);
+		}
 		if (this.hudT > 0) this.hudT -= dt;
 		if (this.input.tapA || this.input.tapStart || this.input.keys.has("KeyZ") || this.input.keys.has("Enter")) this.audio.unlock();
 		try {
@@ -5040,10 +5047,17 @@ export class CryMon {
 		ctx.imageSmoothingEnabled = false;
 		ctx.webkitImageSmoothingEnabled = false;
 		if (this.shake > 0) ctx.translate((Math.random() - .5) * 6 * this.shake, (Math.random() - .5) * 4 * this.shake);
+		if (this.mode === "battle" && this.bfx.shake > 0) {
+			const k = this.bfx.shake * 2;
+			ctx.translate(Math.round((Math.random() - .5) * k * VIEW_W / 240), Math.round((Math.random() - .5) * k * VIEW_H / 160));
+		}
 		if (this.mode === "title") this.drawTitle();
 		else if (this.mode === "intro") this.drawStory(INTRO[this.introI] ?? "", "The leaving");
 		else if (this.mode === "ending") this.drawStory(this.endingText()[this.endI] ?? "", "The war");
-		else if (this.mode === "battle") this.drawBattle();
+		else if (this.mode === "battle") {
+			this.drawBattle();
+			this.bfx.drawOver(ctx, VIEW_W / 240, VIEW_H / 160, VIEW_W, VIEW_H, (s, x, y, c) => this.text(s, x, y, c, FONT + 8, "center"));
+		}
 		else if (this.mode === "bag") this.drawBag();
 		else if (this.mode === "party") this.drawParty();
 		else if (this.mode === "shop") this.drawShop();
@@ -6065,9 +6079,10 @@ export class CryMon {
 		if (this.hitFx) {
 			const f = Math.min(3, Math.floor(this.hitFx.t / 0.09)) + 1;
 			const [fx, fy, fw] = this.hitFx.at === "foe" ? [X(168), Y(8), X(52)] : [X(12), Y(52), X(48)];
-			const sz = X(36);
+			const sz = X(46);
 			this.drawSprite(`fx-${this.hitFx.nat}-${f}`, fx + (fw - sz) / 2, fy + (fw - sz) / 2, sz, sz, false);
 		}
+		this.bfx.draw(this.ctx, VIEW_W / 240, VIEW_H / 160);
 		this.box(X(6), Y(6), X(124), Y(32));
 		this.text(`${b.foe.shiny ? "*" : ""}${b.foe.name.toUpperCase()} Lv${b.foe.level}`, X(10), Y(9), b.foe.shiny ? "#d4c06a" : "#e8e4d8", FONT);
 		this.hpBar(X(10), Y(22), X(96), b.foe.hp, b.foe.maxHp);

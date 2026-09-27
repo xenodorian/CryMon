@@ -4133,3 +4133,36 @@ skipped, so he stood by the boulder from the first visit. He now stays
 hidden until `beatShinigami`, then leaves once `sawShinigamiRock` is set.
 The boulder is unchanged. Dreamcast no longer draws him a second time on
 top of the generic walker.
+
+## Livelier battles on both ports (Claude, 2026-09-27)
+
+Grok's 2026-09-27 burst set above named the natures wrong. The natures are
+the nine in `content/logic.json` (quartz, jasper, diamond, citrine,
+obsidian, prism, emerald, ruby, sapphire). The amethyst, hematite, lapis,
+opal and spinel bursts are deleted. `tools/pixelforge/hitfx.py` draws one
+burst per real nature again (48x48, 4 frames, each nature its own shape)
+and reads the nature list from logic.json, so it refuses a nature it has no
+drawer for.
+
+New shared block `content/sprites.json` `battleFx`: per-nature particle
+style (shape, colors, count, speed, gravity, drag, life, size, sway, shock
+ring) plus flash, shake, damage-number, faint, enter and status settings.
+- Web: `src/game/battleFx.ts` (new file). engine.ts only gained a `bfx`
+  field, one update/watch line, one draw call in drawBattle, a
+  drawOver call after drawBattle, and a shake offset in draw(). It watches
+  the battle state (hp, status, stat stages, who is out) and never touches
+  rules. The burst sprite is drawn a bit bigger (X(46)).
+- Dreamcast: `gen_sprites.py emit_battle_fx()` bakes the block into
+  sprites.h (HITFX table, FX_* defines, 36 burst frames, ~166 KB). main.c's
+  fx_* block does the same watch-and-draw with fixed pools; the shake moves
+  the backdrop and CryMon only (blit offsets, no extra framebuffer pass).
+- Effects: particles in the attacker's crystal style, shock ring, screen
+  flash (tinted with the attacker's crystal on a super-effective hit,
+  strongest on a hit worth 35%+ of max HP), damage-scaled shake, floating
+  numbers (yellow super effective, grey resisted, green heals), a shatter
+  in the fallen CryMon's own crystal on faint, small puffs on send-out,
+  status and stat drops.
+- `emu_warden.py` now saves a few quick frames per press during a fight
+  (`fx-fight-NN.png` in the e2e artifact) so the Dreamcast effects can be
+  seen from CI.
+- Dreamcast CI note (2026-09-27): the Opal warden check in checks.yml (emu_warden.py) fails the same way on the battle-effects branch and on the unrelated "Remove duplicate sprite frames" PR #39 run (fight ends after 21 presses, no battle counted). It is not caused by the battle effects. Not yet root-caused. Also, main's gen_sprites.py currently stops on four unreadable Lead overworld PNGs (another thread owns that), so the committed sprites.h here is main's plus the battle-effects block, not a fresh generate.
