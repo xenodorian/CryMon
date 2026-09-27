@@ -384,7 +384,7 @@ def bake_maps(data: dict, out: Path) -> None:
     lines.append("")
     # Tile theme per map (sprites.json tileTheme; main.c draw_building_art)
     # and ambient mood (sprites.json ambient; main.c draw_ambient).
-    themes = ["town", "wood", "keep", "crypt", "palace", "seph"]
+    themes = ["town", "wood", "keep", "crypt", "palace", "seph", "hollow"]
     tmap = (data.get("sprites") or {}).get("tileTheme") or {}
     lines.append("static const unsigned char MAP_TILE_THEME[MAP_N] = {")
     lines.append("    " + ", ".join(str(themes.index(tmap.get(m, "town"))) for m in order) + ",")

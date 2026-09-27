@@ -891,6 +891,62 @@
     [
       "bg-hollow",
       "/sprites/bg/hollow.png"
+    ],
+    [
+      "tile-h-grass-1",
+      "/sprites/tiles/h-grass-1.png"
+    ],
+    [
+      "tile-h-grass-2",
+      "/sprites/tiles/h-grass-2.png"
+    ],
+    [
+      "tile-h-grass-3",
+      "/sprites/tiles/h-grass-3.png"
+    ],
+    [
+      "tile-h-grass-4",
+      "/sprites/tiles/h-grass-4.png"
+    ],
+    [
+      "tile-h-water-1",
+      "/sprites/tiles/h-water-1.png"
+    ],
+    [
+      "tile-h-water-2",
+      "/sprites/tiles/h-water-2.png"
+    ],
+    [
+      "tile-h-water-3",
+      "/sprites/tiles/h-water-3.png"
+    ],
+    [
+      "tile-h-water-4",
+      "/sprites/tiles/h-water-4.png"
+    ],
+    [
+      "tile-h-tallgrass-1",
+      "/sprites/tiles/h-tallgrass-1.png"
+    ],
+    [
+      "tile-h-tallgrass-2",
+      "/sprites/tiles/h-tallgrass-2.png"
+    ],
+    [
+      "tile-h-tree-1",
+      "/sprites/tiles/h-tree-1.png"
+    ],
+    [
+      "tile-h-tree-2",
+      "/sprites/tiles/h-tree-2.png"
+    ],
+    [
+      "tile-h-tree-s-1",
+      "/sprites/tiles/h-tree-s-1.png"
+    ],
+    [
+      "tile-h-tree-s-2",
+      "/sprites/tiles/h-tree-s-2.png"
     ]
   ],
   "drawScale": {
@@ -1000,7 +1056,8 @@
     "gevurah": "seph",
     "binah": "seph",
     "chokmah": "seph",
-    "keter": "seph"
+    "keter": "seph",
+    "hollow": "hollow"
   },
   "ambient": {
     "ghostcrypt": "haunt",

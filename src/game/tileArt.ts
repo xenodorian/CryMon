@@ -35,7 +35,7 @@ function hash(x: number, y: number) {
  * map's theme in sprites.json tileTheme (default "town"). Indoor themes
  * repaint floors, walls and doors; outdoor themes repaint house walls,
  * roofs and doors. The Dreamcast draw_building_art() mirrors this. */
-export type TileTheme = "town" | "wood" | "keep" | "crypt" | "palace" | "seph";
+export type TileTheme = "town" | "wood" | "keep" | "crypt" | "palace" | "seph" | "hollow";
 const INDOOR: Record<string, boolean> = { wood: true, keep: true, crypt: true, palace: true };
 const DOORS = "Dbw()0";
 const FLOORS = "FPBUCSastxz";
@@ -131,8 +131,10 @@ export function paintTileArt(
 	now: number,
 	mapId = "",
 ): boolean {
+	let hollow = false;
 	if (map) {
 		const theme = mapTheme(mapId);
+		hollow = theme === "hollow";
 		if (paintBuilding(ctx, images, map, ch, dx, dy, tx, ty, now, theme, mapId)) return true;
 		// outdoors, F and P are packed-earth yards and warp marks
 		if (!INDOOR[theme] && (ch === "F" || ch === "P")) ch = "=";
@@ -155,6 +157,8 @@ export function paintTileArt(
 		const edge = below !== undefined && tileCat(below) !== "tree";
 		key = `${edge ? "tile-tree-s" : "tile-tree"}-${(h % 2) + 1}`;
 	}
+	// the Hollow's regraded ground (tools/pixelforge/tiles_hollow.py)
+	if (hollow && cat !== "dirt" && cat !== "dirt2" && cat !== "cliff") key = key.replace("tile-", "tile-h-");
 	const im = images[key];
 	if (!im || !im.width) return false;
 	ctx.drawImage(im, dx, dy);

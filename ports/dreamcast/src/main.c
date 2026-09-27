@@ -1077,6 +1077,7 @@ enum { TC_NONE, TC_GRASS, TC_TALL, TC_DIRT, TC_DIRT2, TC_TREE, TC_WATER, TC_CLIF
 static u32 tile_anim_tick;
 
 static int g_yard_dirt; /* outdoor theme: F and P paint as packed earth */
+static int g_hollow_ground; /* MAP_TILE_THEME is the Hollow */
 
 static int tile_cat(char ch) {
     const char *p;
@@ -1086,8 +1087,10 @@ static int tile_cat(char ch) {
     if(ch == 'W') return TC_WATER;
     if(ch == '^') return TC_CLIFF;
     if(ch == ',') return TC_DIRT2;
-    for(p = "=ZY3O89"; *p; p++) if(*p == ch) return TC_DIRT;
-    for(p = ".KVAQMGLJ124567I"; *p; p++) if(*p == ch) return TC_GRASS;
+    for(p = "=ZY3O89cS"; *p; p++) if(*p == ch) return TC_DIRT;
+    /* every tile-grass char in maps.json tileArt except X (its own look),
+       as tileCat() in tileArt.ts: NPC marks and edge warps included */
+    for(p = ".KVAQMGLJ124567IEuhvydfijlnop<>"; *p; p++) if(*p == ch) return TC_GRASS;
     return TC_NONE;
 }
 
@@ -1114,6 +1117,36 @@ static int draw_tile_art(const Map *m, int row, int col, int dx, int dy) {
     u32 h = tile_hash(col, row);
     const unsigned short *px;
     int k;
+#ifdef HAVE_HOLLOW_TILES
+    /* the Hollow's regraded ground (tools/pixelforge/tiles_hollow.py) */
+    static const unsigned short *const hgrass[4] = { tile_h_grass_1, tile_h_grass_2, tile_h_grass_3, tile_h_grass_4 };
+    static const unsigned short *const hwater[4] = { tile_h_water_1, tile_h_water_2, tile_h_water_3, tile_h_water_4 };
+    if(g_hollow_ground) {
+        const unsigned short *hp = 0;
+        switch(cat) {
+            case TC_GRASS: { u32 r = h % 16u; hp = hgrass[r < 7 ? 0 : r < 13 ? 1 : r < 15 ? 2 : 3]; break; }
+            case TC_TALL:  hp = (h & 1u) ? tile_h_tallgrass_2 : tile_h_tallgrass_1; break;
+            case TC_WATER: hp = hwater[(tile_anim_tick / 20u) % 4u]; break;
+            case TC_TREE: {
+                int below = tile_cat_at(m, row + 1, col);
+                int edge = below >= 0 && below != TC_TREE;
+                if(edge) hp = (h & 1u) ? tile_h_tree_s_2 : tile_h_tree_s_1;
+                else hp = (h & 1u) ? tile_h_tree_2 : tile_h_tree_1;
+                break;
+            }
+            default: break;
+        }
+        if(hp) {
+            blit_sprite(hp, TILE_ART_PX, TILE_ART_PX, dx, dy);
+            if(cat == TC_WATER)
+                for(k = 0; k < 4; k++) {
+                    int n = tile_cat_at(m, row + nb[k][1], col + nb[k][0]);
+                    if(n >= 0 && n != TC_WATER) blit_sprite(shore[k], TILE_ART_PX, TILE_ART_PX, dx, dy);
+                }
+            return 1;
+        }
+    }
+#endif
 
     switch(cat) {
         case TC_GRASS: { u32 r = h % 16u; px = grass[r < 7 ? 0 : r < 13 ? 1 : r < 15 ? 2 : 3]; break; }
@@ -1153,7 +1186,7 @@ static int draw_tile_art(const Map *m, int row, int col, int dx, int dy) {
    the tile below is open) and doors; outdoor themes repaint house walls,
    roofs (a ridge on the top row) and doors. Wall torches and door
    lanterns are queued in g_lights for draw_ambient()'s glow. */
-enum { TH_TOWN, TH_WOOD, TH_KEEP, TH_CRYPT, TH_PALACE, TH_SEPH };
+enum { TH_TOWN, TH_WOOD, TH_KEEP, TH_CRYPT, TH_PALACE, TH_SEPH, TH_HOLLOW };
 #define MAX_LIGHTS 24
 static int g_light_n;
 static short g_light_x[MAX_LIGHTS], g_light_y[MAX_LIGHTS];
@@ -1192,7 +1225,7 @@ static int draw_building_art(int map_id, const Map *m, int row, int col, int dx,
     static const unsigned short *const idoor[5] = { 0, tile_door_wood, tile_door_keep, tile_door_crypt, tile_door_palace };
     const char *doors = "Dbw()0";
     int theme = MAP_TILE_THEME[map_id];
-    int out = theme == TH_TOWN || theme == TH_SEPH;
+    int out = theme == TH_TOWN || theme == TH_SEPH || theme == TH_HOLLOW;
     char ch = m->rows[row][col];
     u32 h = tile_hash(col, row);
     const unsigned short *px = 0;
@@ -1417,7 +1450,9 @@ static void draw_map(int map_id, int cam_x, int cam_y) {
 #endif
 #if defined(HAVE_TILE_ART) && defined(HAVE_TOWN_TILES)
     g_light_n = 0;
-    g_yard_dirt = MAP_TILE_THEME[map_id] == TH_TOWN || MAP_TILE_THEME[map_id] == TH_SEPH;
+    g_yard_dirt = MAP_TILE_THEME[map_id] == TH_TOWN || MAP_TILE_THEME[map_id] == TH_SEPH ||
+                  MAP_TILE_THEME[map_id] == TH_HOLLOW;
+    g_hollow_ground = MAP_TILE_THEME[map_id] == TH_HOLLOW;
 #endif
     for(row = row0; row < row1; row++)
         for(col = col0; col < col1; col++) {
