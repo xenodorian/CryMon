@@ -808,37 +808,58 @@ def vinebrute(t):
     c = Canvas(128, 128, seed=99)
     G = 122
     bob = [0, 1, 2, 1][t]
-    x, y = 64, 64 + bob
-    # legs of twisted vine
-    for k, (dx, zz) in enumerate(((10, -6), (-10, 10))):
+    x, y = 64, 62 + bob
+    THORN = M("#c8b87a", spec=0.3)
+    BERRY = M("#c8283a", spec=0.7)
+    # legs: thick braided trunks that splay into root toes
+    for k, (dx, zz) in enumerate(((11, -6), (-11, 10))):
         for j in range(3):
-            c.chain([(x + dx + j * 2 - 2, y + 20, 4), (x + dx + 3 - j * 2, y + 38, 3.5), (x + dx - 1 + j, G - 2, 3.2)],
-                    VINE if j % 2 else LEAF_D, z=zz + j)
-    # torso: a knot of vines
+            c.chain([(x + dx + j * 3 - 3, y + 18, 5), (x + dx + 4 - j * 3, y + 38, 4.6), (x + dx - 2 + j * 2, G - 4, 4.2)],
+                    (VINE, LEAF_D, BARK)[j], z=zz + j)
+        for j, fx in enumerate((-8, -2, 5)):
+            c.cap(x + dx - 1, G - 4, 3.4, x + dx + fx, G - 1, 1.6, BARK, z=zz + 4)
+    # torso: a knot of vines, broad at the shoulders
     g = c.group()
     for j in range(9):
-        a = j * 40
-        r = 16
-        x0 = x + math.cos(math.radians(a)) * 8
-        y0 = y + math.sin(math.radians(a)) * 10
-        c.cap(x0 - 12, y0 - 10, 6, x0 + 12, y0 + 10, 5, VINE if j % 2 else LEAF_D, z=j % 3, g=g)
-    c.ell(x, y - 4, 20, 22, VINE, z=2, g=g)
+        a_ = j * 40
+        x0 = x + math.cos(math.radians(a_)) * 9
+        y0 = y + math.sin(math.radians(a_)) * 10
+        c.cap(x0 - 12, y0 - 10, 6.5, x0 + 12, y0 + 10, 5.5, VINE if j % 2 else LEAF_D, z=j % 3, g=g)
+    c.poly([(x - 26, y - 14), (x - 10, y - 24), (x + 10, y - 24), (x + 26, y - 14), (x + 18, y + 14), (x - 18, y + 14)],
+           VINE, z=2, bevel=6, th=8, g=g)
     c.pattern(lambda xx, yy: ((xx * 0.6 + yy) % 7 < 1.6), -2, only=g)
-    # huge fists
-    for k, (d, zz) in enumerate(((1, -4), (-1, 20))):
-        sx, sy = x + d * 18, y - 10
-        c.chain([(sx, sy, 7), (sx + d * 14, sy + 12, 6), (sx + d * 12, sy + 30 + bob, 5)], VINE, z=zz)
-        c.ell(sx + d * 12, sy + 36 + bob, 10, 9, LEAF_D, z=zz + 4, tuft=8, tuft_len=1.5)
-    # leafy head crest
-    for k in range(5):
-        leaf(c, x - 6 + k * 3, y - 24, 10 + (k % 2) * 3, -150 + k * 30, z=8)
+    c.pattern(lambda xx, yy: ((xx * 0.6 - yy) % 11 < 1.0) & (yy > y), -1, only=g)
+    # face hollow with glowing eyes
+    hol = Mat(["#0c1a0c", "#122412", "#182e18", "#1e381e", "#244224"], soft=0.4)
+    c.ell(x - 1, y - 7, 11, 6, hol, z=12)
+    glow = Mat(["#806010", "#c09020", "#f0c840", "#ffe890", "#fffbe0"], emit=True)
+    c.ell(x - 6, y - 8, 2.6, 2.0, glow, z=40)
+    c.ell(x + 4, y - 8, 2.6, 2.0, glow, z=40)
+    # arms: vines coiling down to thorned club fists
+    for k, (d, zz) in enumerate(((1, -4), (-1, 22))):
+        sx, sy = x + d * 22, y - 12
+        c.ell(sx, sy, 9, 8, LEAF_D, z=zz + 2, tuft=10, tuft_len=1.6)
+        c.chain([(sx, sy + 2, 6.5), (sx + d * 10, sy + 16, 5.5), (sx + d * 9, sy + 30 + bob, 5)], VINE, z=zz)
+        fx_, fy_ = sx + d * 9, sy + 36 + bob
+        c.ell(fx_, fy_, 9, 8, VINE, z=zz + 4)
+        c.pattern(lambda xx, yy, fx_=fx_, fy_=fy_: ((xx - fx_) ** 2 + (yy - fy_) ** 2 < 80) & (((xx + yy * 2) % 6) < 1.2), -2)
+        for j in range(5):
+            ang = math.radians(-60 + j * 55)
+            c.tri((fx_ + math.cos(ang) * 7 - 1.4, fy_ + math.sin(ang) * 6), (fx_ + math.cos(ang) * 12, fy_ + math.sin(ang) * 10),
+                  (fx_ + math.cos(ang) * 7 + 1.4, fy_ + math.sin(ang) * 6), THORN, z=zz + 6, bevel=0.6)
+    # thorns and berries on the chest, leafy crest
+    for j, (px, py) in enumerate(((-14, 2), (12, -2), (-4, 10), (16, 8))):
+        c.tri((x + px - 1.5, y + py), (x + px + (1 if px > 0 else -1) * 3, y + py - 3), (x + px + 1.5, y + py), THORN,
+              z=30, bevel=0.4)
+    for px, py in ((-16, -16), (-12, -18), (14, -18), (8, 6), (11, 4)):
+        c.ell(x + px, y + py, 1.8, 1.8, BERRY, z=32)
+    for k in range(6):
+        leaf(c, x - 9 + k * 3.6, y - 24, 10 + (k % 2) * 4, -155 + k * 26, z=8)
 
-    def face(cc):
-        peye(cc, x - 8, y - 8, 2.6, 2.4, iris=(250, 220, 60), pw=0.5, ph=0.6, angry=0.9)
-        peye(cc, x + 4, y - 8, 2.6, 2.4, iris=(250, 220, 60), pw=0.5, ph=0.6, angry=0.9)
+    def mouth(cc):
         for k in range(8):
-            cc.put(x - 5 + k, y + 2 + (k % 2), (20, 40, 20))
-    c.ink(face)
+            cc.put(x - 5 + k, y + 1 + (k % 2), (14, 30, 14))
+    c.ink(mouth)
     return c
 
 
