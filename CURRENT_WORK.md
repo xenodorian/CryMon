@@ -3850,3 +3850,4 @@ own files; redraw them only if the user says so.
 - Magistowl: a real brass balance with chains and pans that tip as it weighs you (was a floating T shape).
 - Mooncalf and Moonbull: the crescent mark glows, and a faint pulsing halo traces the body so the hide reads as glowing.
 - Icecantor: an icicle fringe on the lip and a frost crown on top.
+Magenta cleanup: Needleroot 1-4 lost the hot pink fill between its vines. Veilcap 1-4 had an opaque pink backdrop square, now flood-cleared to transparent. Mireback 1-4 lost a magenta shadow under its feet. Cage key lost its pink rim. Scanned every sprite outside portraits and tiles for pink/magenta chroma; the rest of the hits are real art (Bloomdoe and Gardenbull flowers, Glowcap gills, Sableclaw aura).
