@@ -2219,7 +2219,8 @@ static int nature_list(char *buf, int nat, int want) {
 #define UMOVE_SPELL 3
 #define UMOVE_HYPE 4
 #define UMOVE_WAIT 5
-#define UMOVE_MAX 8
+#define UMOVE_SWAP 6    /* Attack Swap: a basic hit, then a switch-in */
+#define UMOVE_MAX 10
 
 /* Leg 2.11: UMOVE_NMOVE replaces the old UMOVE_SECONDARY/UMOVE_TOXIC
    split -- both crystal secondaries and the shiny-exclusive move now
@@ -2252,13 +2253,25 @@ static int str_same(const char *a, const char *b) {
     }
 }
 
-/* Leg 2.11: any species that is some other species' evolves_to target has
-   evolved into its current form, and Hype Up is learned on evolving --
-   deliberately not a persisted flag, just derived from SPECIES here. */
-static int knows_hype_up(int species) {
+/* Any species that is some other species' evolves_to target has evolved
+   into its current form (derived from SPECIES, not a saved flag). Mirrors
+   data.ts isEvolvedForm(). */
+static int is_evolved_form(int species) {
     int i;
     for(i = 0; i < SPECIES_N; i++) if(SPECIES[i].evolves_to == species) return 1;
     return 0;
+}
+/* Part of a 2- or 3-stage line. data.ts inEvolutionLine(). */
+static int in_evo_line(int species) {
+    return SPECIES[species].evolves_to >= 0 || is_evolved_form(species);
+}
+/* logic.json growth.hypeUpAt / attackSwapAt: from Lv15 an evolution-line
+   CryMon knows Hype Up; a single-stage one knows Attack Swap instead. */
+static int knows_hype_up(const Monster *m) {
+    return in_evo_line(m->species) && m->lv >= LV_HYPE_UP;
+}
+static int knows_attack_swap(const Monster *m) {
+    return !in_evo_line(m->species) && m->lv >= LV_ATTACK_SWAP;
 }
 
 static int unlocked_moves(const Monster *m, int include_wait, UMove *out, int cap) {
@@ -2303,7 +2316,17 @@ static int unlocked_moves(const Monster *m, int include_wait, UMove *out, int ca
             n++;
         }
     }
-    if(knows_hype_up(m->species) && n < cap) {
+    if(knows_attack_swap(m) && n < cap) {
+        out[n].kind = UMOVE_SWAP;
+        out[n].name = ATTACK_SWAP_NAME;
+        out[n].stat = s->basic_stat;
+        out[n].power = s->basic_power;
+        out[n].speed = s->basic_speed;
+        out[n].spell_id = -1;
+        out[n].move_kind = out[n].stat_target = out[n].status_target = out[n].max_pp = 0;
+        n++;
+    }
+    if(knows_hype_up(m) && n < cap) {
         out[n].kind = UMOVE_HYPE;
         out[n].name = HYPE_UP_NAME;
         out[n].stat = ATK_STR;
@@ -2480,7 +2503,7 @@ static int try_evolve(Monster *m) {
     /* A form that is itself an evolution (middle of a 3-stage line) waits
        for LV_EVOLVE2 instead of chaining at LV_EVOLVE. */
     if(to < 0 || to >= SPECIES_N ||
-       m->lv < (knows_hype_up(m->species) ? LV_EVOLVE2 : LV_EVOLVE)) return 0;
+       m->lv < (is_evolved_form(m->species) ? LV_EVOLVE2 : LV_EVOLVE)) return 0;
     from = m->species;
     old_hp = m->hp;
     old_max = m->maxHp;
@@ -3130,7 +3153,8 @@ static void draw_backstab(int cur) {
 typedef struct {
     Monster pl, foe;
     int wild;
-    int phase;      /* 0 msg, 1 item, 2 attack, 3 guard, 4 special minigame */
+    int phase;      /* 0 msg, 1 item, 2 attack, 3 guard, 4 special minigame,
+                       5 Attack Swap's switch-in chooser */
     char msg[3][80];  /* a move label plus damage, a crystal-matchup tag and
                          a poison tick can share one line; draw_wrapped()
                          re-flows it to fit the box */
@@ -3169,6 +3193,11 @@ typedef struct {
        round, not a new one; foe_acted -- the foe has struck this round.
        Zeroed every frame outside battle (main loop). */
     int foe_first, mid_round, foe_acted;
+    /* Attack Swap (logic.json attackSwap): set by battle_pick_umove() for
+       UMOVE_SWAP; battle_apply_hit() opens phase 5 over swap_opts[] (living
+       party slots other than the lead) when the foe is still standing. */
+    int pend_swap;
+    int swap_opts[6], swap_n;
 } Battle;
 
 #define TRAINER_WILD     0
@@ -3504,6 +3533,7 @@ static ConfuseRoll confusion_roll(const Monster *m, int has_ally, int ally_n, co
     }
 }
 
+static void battle_foe_answers(Battle *b, int lines);
 static void battle_apply_hit(Battle *b) {
     int n = 0;
     int nat_sign = 0;
@@ -3542,17 +3572,35 @@ static void battle_apply_hit(Battle *b) {
     b->pend_effect[0] = 0;
     b->msg[0][n] = 0;
 
-    if(battle_foe_maybe_fall(b, "")) return;
+    if(battle_foe_maybe_fall(b, "")) { b->pend_swap = 0; return; }
 
-    /* foeAnswers(): if the foe already struck first this round, the
-       round ends here (the dispatcher starts the next one). */
-    if(b->foe_acted) {
-        b->msg_n = 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
+    if(b->pend_swap) {
+        int i;
+        b->pend_swap = 0;
+        b->swap_n = 0;
+        for(i = 0; g_xp_party && i < g_xp_party_n && i < 6; i++)
+            if(i != g_xp_lead && g_xp_party[i].hp > 0) b->swap_opts[b->swap_n++] = i;
+        if(b->swap_n > 0) {
+            b->cur = 0;
+            b->phase = 5; /* msg[0] (the hit) is shown after the pick */
+            return;
+        }
+    }
+    battle_foe_answers(b, 1);
+}
+
+/* foeAnswers(): msg[0..lines-1] are already written. If the foe struck
+   first this round the round ends here (the dispatcher starts the next
+   one); otherwise it answers. Mirrors engine.ts foeAnswers(). */
+static void battle_foe_answers(Battle *b, int lines) {
+    int n;
+    if(b->foe_acted || lines >= 3) {
+        b->msg_n = lines; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
         return;
     }
-    n = s_cat(b->msg[1], 0, "FOE ANSWERS CHOOSE A GUARD");
-    b->msg[1][n] = 0;
-    b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
+    n = s_cat(b->msg[lines], 0, "FOE ANSWERS CHOOSE A GUARD");
+    b->msg[lines][n] = 0;
+    b->msg_n = lines + 1; b->msg_i = 0; b->phase = 0; b->after = BAFTER_GUARD;
 }
 
 /* Raw stat a move draws on (str or mag), mods included -- the one shared
@@ -3577,6 +3625,7 @@ static const char *const STATUS_NAME[6] = { "", "BURNED", "POISONED", "CONFUSED"
    guard step (Dodge/Block/Barrier), not baked into the attack. */
 static void battle_pick_umove(Battle *b, const UMove *mv) {
     int atk, n = 0;
+    b->pend_swap = mv->kind == UMOVE_SWAP;
     atk = dmg_stat_pl(b, mv->stat);
     b->dmg = jground((float)atk * mv->power);
     if(b->dmg < 1) b->dmg = 1;
@@ -5244,6 +5293,14 @@ static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
         case 3:
             draw_battle_guard_menu(b->cur);
             break;
+        case 5: {
+            int i, y = BCONTENT_Y + 8;
+            draw_text_s("SWAP IN", BCONTENT_X + 8, y, rgb565(138, 134, 120), MENU_SCALE);
+            y += MENU_ROW_H;  /* title + up to 5 rows fits BCONTENT_H */
+            for(i = 0; i < b->swap_n && g_xp_party; i++, y += MENU_ROW_H)
+                draw_battle_menu_row(SPECIES[g_xp_party[b->swap_opts[i]].species].name, i, b->cur, y);
+            break;
+        }
         case 4: {
             int bx = BCONTENT_X + 8, by = BCONTENT_Y + 32;
             int bw = BCONTENT_W - 16, bh = 10;
@@ -8518,6 +8575,29 @@ void main(void) {
                             default:
                                 break;
                         }
+                    }
+                }
+            }
+            else if(battle.phase == 5) {
+                /* Attack Swap's switch-in chooser (engine.ts pickSwap()):
+                   A swaps the picked party slot in, B stays in. Either way
+                   the hit line (msg[0]) shows first, then the foe answers. */
+                int n_rows = battle.swap_n > 0 ? battle.swap_n : 1;
+                if(up_now && !prev_up) battle.cur = (battle.cur - 1 + n_rows) % n_rows;
+                if(down_now && !prev_down) battle.cur = (battle.cur + 1) % n_rows;
+                if(b_now && !prev_b) {
+                    battle_foe_answers(&battle, 1);
+                } else if(a_now && !prev_a && battle.swap_n > 0) {
+                    int next = battle.swap_opts[battle.cur];
+                    if(next >= 0 && next < party_n && party[next].hp > 0) {
+                        int n;
+                        party[lead] = battle.pl;
+                        lead = next;
+                        battle.pl = party[lead];
+                        n = s_cat(battle.msg[1], 0, SPECIES[battle.pl.species].name);
+                        n = s_cat(battle.msg[1], n, " OUT");
+                        battle.msg[1][n] = 0;
+                        battle_foe_answers(&battle, 2);
                     }
                 }
             }

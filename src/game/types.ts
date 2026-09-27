@@ -26,6 +26,7 @@ export type BattlePhase =
   | "minigame"
   | "resolve_hit"
   | "guard"
+  | "swap"
   | "resolve_guard"
   | "msg"
   | "win"

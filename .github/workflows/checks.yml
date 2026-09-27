@@ -45,6 +45,8 @@ jobs:
           E2E_OUT=e2e-out npm run test:e2e:quartz
       - name: Battle turn order end to end (web)
         run: npm run test:e2e:battle
+      - name: Growth rules end to end (web)
+        run: npm run test:e2e:growth
       - name: Every map loads from a save (web)
         run: |
           python3 ports/dreamcast/tools/map_tour.py --base e2e-out/quartz-before.bin --out e2e-out/tour --blobs-only

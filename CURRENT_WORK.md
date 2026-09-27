@@ -69,7 +69,14 @@ session stops, pick up at the first step not marked DONE.
      warden + battle e2e, Dreamcast build all pass).
    - **B. Lv15 gate:** Hype Up for species in an evolution line from Lv15 (not merely
      "is an evolved form"); **Attack Swap** at Lv15 for single-stage species (basic
-     damage, then pick a party CryMon to switch in; foe AI uses it as a plain hit). -- TODO
+     damage, then pick a party CryMon to switch in; foe AI uses it as a plain hit). -- DONE.
+     `logic.json` `growth.hypeUpAt`/`attackSwapAt` + `attackSwap`; web `data.ts`
+     `knowsHypeUp(m)`/`knowsAttackSwap(m)`, engine phase `"swap"` + `pickSwap()`; DC
+     `knows_hype_up()`/`knows_attack_swap()`, `UMOVE_SWAP`, battle phase 5 chooser.
+     Verified: new `scripts/e2e-growth.mjs` (15/15, in checks.yml), web warden e2e,
+     Flycast Quartz + Opal, and a Flycast Attack Swap run (hit, SWAP IN, OUT, foe
+     answers). Note: `test:e2e:battle` "fast foe opens the round" is flaky on plain
+     main too (2 of 3 runs failed before this change); not fixed here.
    - **C. Lv20 / Lv30 crystal moves:** Lv20 basic-power hit + rider, 10 PP/battle;
      Lv30 special-power hit + rider, 5 PP/battle; rider = foe stage down, foe status,
      or self Hype Up; applies only when the hit lands. -- TODO

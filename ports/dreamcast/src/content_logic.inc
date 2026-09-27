@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3843fc673917f4a2 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=198b6b6da3e79628 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_WALK_FRAC 358 /* 1/256 px per frame */
@@ -110,6 +110,8 @@ static const signed char NATURE_CHART[NATURE_N][NATURE_N] = {
 #define LV_SPECIAL 10
 #define LV_EVOLVE 15
 #define LV_EVOLVE2 25
+#define LV_HYPE_UP 15
+#define LV_ATTACK_SWAP 15
 #define LEVEL_UP_CURVE 1
 
 #define STAT_STR 0
@@ -139,10 +141,11 @@ static const float STAT_STAGE_MULT[5] = { 1.0f, 0.7f, 0.4f, 0.1f, 0.0f };
 #define SHINY_MOVE_STATUS 5
 #define SHINY_MOVE_MAX_PP 10
 
-/* Hype Up -- learned on evolving, see bake_npc note / CURRENT_WORK 2.11. */
+/* Hype Up (growth.hypeUpAt) and Attack Swap (growth.attackSwapAt). */
 #define HYPE_UP_NAME "HYPE UP"
 #define HYPE_UP_PCT 35
 #define HYPE_UP_MAX_PP 10
+#define ATTACK_SWAP_NAME "ATTACK SWAP"
 
 #define STAT_MOVE_CAP 10
 #define STATUS_MOVE_CAP 10

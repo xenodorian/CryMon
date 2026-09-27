@@ -431,9 +431,11 @@ export const INTERACT = (logicJson.interact || {
   defaultW: 48, defaultH: 52, buffer: 16,
 }) as InteractConfig;
 
-export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number; evolveAt2?: number; levelUpStats?: string } }).growth || {
+export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number; evolveAt2?: number; hypeUpAt?: number; attackSwapAt?: number; levelUpStats?: string } }).growth || {
   secondaryAt: 5, specialAt: 10, evolveAt: 10, evolveAt2: 10,
 });
+
+export const ATTACK_SWAP = ((logicJson as { attackSwap?: { name: string } }).attackSwap || { name: "Attack Swap" });
 
 export type NatureMoveDef = {
   nature: string;
@@ -446,7 +448,7 @@ export type NatureMoveDef = {
 export const NATURE_MOVES = ((logicJson as { natureMoves?: NatureMoveDef[] }).natureMoves || []) as NatureMoveDef[];
 
 export type UnlockedMove = {
-  kind: "basic" | "special" | "spell" | "nmove" | "hypeUp" | "wait";
+  kind: "basic" | "special" | "spell" | "nmove" | "hypeUp" | "swap" | "wait";
   name: string;
   stat: AtkStat;
   power: number;
@@ -466,10 +468,24 @@ export function natureMoveFor(species: SpeciesId): NatureMoveDef | null {
 }
 
 /** Any species that is some other species' evolvesTo target has evolved
- *  into its current form, and Hype Up is learned on evolving (see 2.11 --
- *  this is deliberately not a persisted flag, just derived from species.json). */
-export function knowsHypeUp(species: SpeciesId): boolean {
+ *  into its current form (derived from species.json, not a saved flag). */
+export function isEvolvedForm(species: SpeciesId): boolean {
   return Object.values(SPECIES).some((s) => s.evolvesTo === species);
+}
+
+/** Part of a 2- or 3-stage line: evolves, or is an evolution. */
+export function inEvolutionLine(species: SpeciesId): boolean {
+  return !!SPECIES[species]?.evolvesTo || isEvolvedForm(species);
+}
+
+/** logic.json growth.hypeUpAt: every CryMon in an evolution line. */
+export function knowsHypeUp(m: Monster): boolean {
+  return inEvolutionLine(m.species) && m.level >= (GROWTH.hypeUpAt ?? GROWTH.evolveAt);
+}
+
+/** logic.json growth.attackSwapAt: single-stage species get Attack Swap instead. */
+export function knowsAttackSwap(m: Monster): boolean {
+  return !inEvolutionLine(m.species) && m.level >= (GROWTH.attackSwapAt ?? GROWTH.evolveAt);
 }
 
 export function unlockedMoves(m: Monster, includeWait = false): UnlockedMove[] {
@@ -510,7 +526,16 @@ export function unlockedMoves(m: Monster, includeWait = false): UnlockedMove[] {
       }
     }
   }
-  if (knowsHypeUp(m.species)) {
+  if (knowsAttackSwap(m)) {
+    rows.push({
+      kind: "swap",
+      name: ATTACK_SWAP.name,
+      stat: s.basicStat,
+      power: s.basicPower,
+      speed: s.basicSpeed,
+    });
+  }
+  if (knowsHypeUp(m)) {
     rows.push({
       kind: "hypeUp",
       name: HYPE_UP.name,
@@ -619,7 +644,7 @@ export function tryEvolve(m: Monster): string | null {
   const to = s.evolvesTo;
   // A form that is itself an evolution (middle of a 3-stage line) waits
   // for the second evolution level instead of chaining at the first one.
-  const at = knowsHypeUp(m.species) ? (GROWTH.evolveAt2 ?? GROWTH.evolveAt) : GROWTH.evolveAt;
+  const at = isEvolvedForm(m.species) ? (GROWTH.evolveAt2 ?? GROWTH.evolveAt) : GROWTH.evolveAt;
   if (!to || !SPECIES[to] || m.level < at) return null;
   const from = m.name;
   const ratio = m.maxHp > 0 ? m.hp / m.maxHp : 1;

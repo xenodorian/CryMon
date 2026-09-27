@@ -327,10 +327,12 @@
     }
   },
   "growth": {
-    "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn shinyMove instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt when they are a first stage, or at evolveAt2 when they are already an evolved form (the middle of a 3-stage line); the evolved form also learns hypeUp then. levelUpStats: 'flat' adds formulas.levelHp / levelStat per level; 'curve' adds what minting the same species one level higher would add (round(base x grow(lv)) - round(base x grow(lv-1)), never less than the flat amount), so a CryMon raised from a low level keeps pace with wild and trainer CryMon minted at that level. tools/balance_sim.py showed the flat rule leaves a kept-from-the-start team about 30% behind by Nero.",
+    "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn shinyMove instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt when they are a first stage, or at evolveAt2 when they are already an evolved form (the middle of a 3-stage line); from hypeUpAt, every species in an evolution line (it has evolvesTo, or is some species' evolvesTo) knows hypeUp; from attackSwapAt, every single-stage species (no evolvesTo either way) knows attackSwap instead. levelUpStats: 'flat' adds formulas.levelHp / levelStat per level; 'curve' adds what minting the same species one level higher would add (round(base x grow(lv)) - round(base x grow(lv-1)), never less than the flat amount), so a CryMon raised from a low level keeps pace with wild and trainer CryMon minted at that level. tools/balance_sim.py showed the flat rule leaves a kept-from-the-start team about 30% behind by Nero.",
     "secondaryAt": 5,
     "specialAt": 10,
     "evolveAt": 15,
+    "hypeUpAt": 15,
+    "attackSwapAt": 15,
     "evolveAt2": 25,
     "levelUpStats": "curve"
   },
@@ -439,8 +441,12 @@
     "status": "exhausted",
     "maxPp": 10
   },
+  "attackSwap": {
+    "note": "Single-stage species learn this at growth.attackSwapAt. Hits exactly like the user's basic move (same stat, power, speed, crystal scaling, guards). If the foe is still standing, the player then picks another living party CryMon to switch in (cancel keeps the current one). The foe AI treats it as a plain basic hit and never switches. No PP.",
+    "name": "Attack Swap"
+  },
   "hypeUp": {
-    "note": "Learned on evolving (see 2.11): any species that is some other species' evolvesTo target knows this. Self-buff, all 3 stats, +hypePercent% of BASE (not current) each use, non-stacking (recomputed from base, not cumulative), lasts until end of battle.",
+    "note": "Learned at growth.hypeUpAt by every species in an evolution line (see growth). Self-buff, all 3 stats, +hypePercent% of BASE (not current) each use, non-stacking (recomputed from base, not cumulative), lasts until end of battle.",
     "name": "Hype Up",
     "hypePercent": 35,
     "maxPp": 10

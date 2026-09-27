@@ -700,6 +700,8 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append(f"#define LV_SPECIAL {int(growth.get('specialAt') or 10)}")
     lines.append(f"#define LV_EVOLVE {int(growth.get('evolveAt') or 10)}")
     lines.append(f"#define LV_EVOLVE2 {int(growth.get('evolveAt2') or growth.get('evolveAt') or 10)}")
+    lines.append(f"#define LV_HYPE_UP {int(growth.get('hypeUpAt') or growth.get('evolveAt') or 10)}")
+    lines.append(f"#define LV_ATTACK_SWAP {int(growth.get('attackSwapAt') or growth.get('evolveAt') or 10)}")
     lines.append(f"#define LEVEL_UP_CURVE {1 if growth.get('levelUpStats') == 'curve' else 0}")
     lines.append("")
 
@@ -758,10 +760,12 @@ def bake_logic(data: dict, out: Path) -> None:
     lines.append("")
 
     hype = logic.get("hypeUp") or {}
-    lines.append("/* Hype Up -- learned on evolving, see bake_npc note / CURRENT_WORK 2.11. */")
+    lines.append("/* Hype Up (growth.hypeUpAt) and Attack Swap (growth.attackSwapAt). */")
     lines.append(f'#define HYPE_UP_NAME "{c_escape(dc_text(hype.get("name") or "HYPE UP"))}"')
     lines.append(f"#define HYPE_UP_PCT {int(hype.get('hypePercent') or 35)}")
     lines.append(f"#define HYPE_UP_MAX_PP {int(hype.get('maxPp') or 10)}")
+    swap = logic.get("attackSwap") or {}
+    lines.append(f'#define ATTACK_SWAP_NAME "{c_escape(dc_text(swap.get("name") or "ATTACK SWAP"))}"')
     lines.append("")
     lines.append(f"#define STAT_MOVE_CAP {int(logic.get('statMoveCap') or 10)}")
     lines.append(f"#define STATUS_MOVE_CAP {int(logic.get('statusMoveCap') or 5)}")

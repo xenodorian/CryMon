@@ -3290,6 +3290,18 @@ export class CryMon {
 				b.afterMsg = "end_win";
 				return;
 			}
+			if (b.pendingSwap) {
+				b.pendingSwap = false;
+				const opts = this.party.map((m, i) => i).filter((i) => i !== this.partyIndex && this.party[i].hp > 0);
+				if (opts.length) {
+					b.swapLines = lines;
+					b.swapOpts = opts;
+					b.menu = opts.map((i) => this.party[i].name);
+					b.cursor = 0;
+					b.phase = "swap";
+					return;
+				}
+			}
 			this.foeAnswers(b, lines);
 			return;
 		}
@@ -3365,7 +3377,8 @@ export class CryMon {
 			const specials = foeMoves.filter((mv) => mv.kind === "special" || (mv.kind === "spell" && mv.pp));
 			const nmoves = foeMoves.filter((mv) => mv.kind === "nmove" && this.movePpRemaining(b, b.foe, mv) > 0);
 			const hypeMoves = foeMoves.filter((mv) => mv.kind === "hypeUp" && this.movePpRemaining(b, b.foe, mv) > 0);
-			const basics = foeMoves.filter((mv) => mv.kind === "basic" || (mv.kind === "spell" && !mv.pp));
+			// Attack Swap is a plain basic hit for the foe (it never switches).
+			const basics = foeMoves.filter((mv) => mv.kind === "basic" || mv.kind === "swap" || (mv.kind === "spell" && !mv.pp));
 			pick = basics[0] || foeMoves[0];
 			if (specials.length && b.foe.specialPp > 0 && Math.random() < 0.28) {
 				pick = specials[randI(0, specials.length - 1)];
@@ -3543,7 +3556,7 @@ export class CryMon {
 			b.afterMsg = "item";
 			return;
 		}
-		if (b.phase === "item" || b.phase === "attack" || b.phase === "guard") {
+		if (b.phase === "item" || b.phase === "attack" || b.phase === "guard" || b.phase === "swap") {
 			if (this.input.up()) {
 				b.cursor = (b.cursor + b.menu.length - 1) % b.menu.length;
 				this.audio.ui();
@@ -3552,18 +3565,37 @@ export class CryMon {
 				b.cursor = (b.cursor + 1) % b.menu.length;
 				this.audio.ui();
 			}
-			if (this.input.cancel() && b.phase === "attack") {
+			// Read B once: cancel() consumes the press.
+			const back = this.input.cancel();
+			if (back && b.phase === "attack") {
 				b.phase = "item";
 				b.menu = this.itemMenu();
 				b.cursor = 0;
 				return;
 			}
+			if (back && b.phase === "swap") {
+				this.foeAnswers(b, b.swapLines ?? []); // stay in
+				return;
+			}
 			if (this.input.confirm()) {
 				if (b.phase === "item") this.pickItem(b.cursor);
 				else if (b.phase === "attack") this.pickAttack(b.cursor);
+				else if (b.phase === "swap") this.pickSwap(b.cursor);
 				else this.pickGuard(b.cursor);
 			}
 		}
+	}
+	/** Attack Swap's switch-in, chosen from the living party. Same hand-off
+	 *  as the item menu's Switch, then the foe answers the round. */
+	pickSwap(i) {
+		const b = this.battle;
+		const next = b.swapOpts?.[i];
+		if (next === undefined || !this.party[next] || this.party[next].hp <= 0) return;
+		this.party[this.partyIndex] = { ...b.player };
+		this.partyIndex = next;
+		b.player = { ...this.party[next] };
+		this.audio.ok();
+		this.foeAnswers(b, [...(b.swapLines ?? []), `${b.player.name} out.`]);
 	}
 	pickItem(i) {
 		const b = this.battle;
@@ -3699,6 +3731,7 @@ export class CryMon {
 		if (!mv) return;
 		b.pendingMods = { str: 0, agl: 0, spc: 0 };
 		b.pendingEffectText = "";
+		b.pendingSwap = false;
 		// Paralysis intercept before the chosen move. Confusion only rolls
 		// on a real attack (not Wait) so holding safely burns a confusion turn.
 		// Turn-countdown itself happens once per round in resolve_guard.
@@ -3776,9 +3809,11 @@ export class CryMon {
 			this.audio.special();
 			return;
 		}
+		// Basic moves and Attack Swap (a basic hit, then a switch-in).
 		const atk = this.dmgStat(b, b.player, "self", mv.stat);
 		b.pendingDmg = Math.max(1, Math.round(atk * mv.power));
 		b.pendingLabel = mv.name;
+		b.pendingSwap = mv.kind === "swap";
 		b.phase = "resolve_hit";
 	}
 	foeDebuffed() {
@@ -6147,7 +6182,7 @@ export class CryMon {
 			this.ctx.fillRect(bx + b.minigame / 100 * bw - 2, Y(128), 6, Y(18));
 			return;		}
 		this.box(X(6), Y(110), X(228), Y(46));
-		const title = b.phase === "item" ? "ITEMS" : b.phase === "attack" ? "ATTACK" : "GUARD";
+		const title = b.phase === "item" ? "ITEMS" : b.phase === "attack" ? "ATTACK" : b.phase === "swap" ? "SWAP IN" : "GUARD";
 		this.text(title, X(12), Y(114), "#8a8678", FONT);
 		const shown = 3;
 		const start = Math.max(0, Math.min(b.cursor, Math.max(0, b.menu.length - shown)));
