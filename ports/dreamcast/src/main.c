@@ -5671,7 +5671,7 @@ static int apply_npc_step(NpcRun *R, int idx) {
     if(st->heal) heal_party(R->party, *R->pn);
     if(st->marks) *R->marks += st->marks;
     if(talk >= 0 && talk < TALK_TABLE_N) {
-        *R->seq_page = 0; seq_lines = TALK_PTRS[talk];
+        *R->seq_lines = TALK_PTRS[talk];
         *R->seq_len = TALK_COUNTS[talk];
     }
     *R->after = st->after;
@@ -6488,7 +6488,6 @@ void main(void) {
     int has_scroll = 0; /* Scroll of Resurrection, granted once Shinigami's win dialogue closes */
     int anne2_told = 0; /* gates Anne's second (father-died/choice) approach to firing once */
     int choice_mode = 0, choice_cur = 0; /* father-vs-Heavenfall resurrection choice screen */
-    int choice_pending_ws = -1; /* optional trainer choice: NPC_PENDING_* */
     int mercy_mode = 0, mercy_cur = 0; /* Leg 2.9 post-battle mercy menu */
     int mercy_foe_levels = 0;
     /* g_executed_mask is g_executed_mask (file-static) */
@@ -8417,7 +8416,7 @@ void main(void) {
                         NpcRun nr2;
                         nr2.map_id = map_id; nr2.px = px; nr2.py = py; nr2.party_n = party_n;
                         nr2.ft = ft; nr2.bag = &bag; nr2.marks = &marks; nr2.party = party;
-                        nr2.pn = &party_n; nr2.lead = &lead; nr2.seq_page = 0; seq_lines = &seq_lines;
+                        nr2.pn = &party_n; nr2.lead = &lead; nr2.seq_lines = &seq_lines;
                         nr2.seq_len = &seq_len; nr2.after = &npc_after2; nr2.pending = &npc_pending2;
                         if(apply_npc_step(&nr2, idx)) {
                             seq_beat = 0;
@@ -8546,8 +8545,8 @@ void main(void) {
                         choice_pending_ws = -1;
                         post_action = POST_WSOLDIER_LEAD;
                         seq_page = 0;
-                        seq_lines = TALK_PTRS[TALK_LEAD_SPOT];
-                        seq_len = TALK_COUNTS[TALK_LEAD_SPOT];
+                        seq_lines = TALK_LEAD_SPOT;
+                        seq_len = TALK_LEN(TALK_LEAD_SPOT);
                         seq_beat = 0;
                     } else {
                         choice_pending_ws = -1;
@@ -9851,7 +9850,7 @@ void main(void) {
                     nr.party = party;
                     nr.pn = &party_n;
                     nr.lead = &lead;
-                    nr.seq_page = 0; seq_lines = &seq_lines;
+                    nr.seq_lines = &seq_lines;
                     nr.seq_len = &seq_len;
                     nr.after = &npc_after;
                     nr.pending = &npc_pending;
