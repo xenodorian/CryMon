@@ -3214,6 +3214,7 @@ export class CryMon {
 					b.afterMsg = "item";
 					return;
 				}
+				if (this.otherPartyStepsIn(b, line)) return;
 				b.msg = [line, `${b.player.name} cannot stand.`];
 				b.msgI = 0;
 				b.phase = "msg";
@@ -3386,6 +3387,7 @@ export class CryMon {
 					b.afterMsg = "item";
 					return;
 				}
+				if (this.otherPartyStepsIn(b, `${line}${selfTick}`)) return;
 				b.msg = [`${line}${selfTick}`, `${b.player.name} cannot stand.`];
 				b.msgI = 0;
 				b.phase = "msg";
@@ -4699,6 +4701,32 @@ export class CryMon {
 		}
 	}
 
+	/** When the fighting party is wiped mid-battle and the other party (Father's,
+	 *  or Max's if Father was fighting) still has someone standing, they take
+	 *  over the same battle. This is what Father's six slots are for. */
+	otherPartyStepsIn(b, line) {
+		if (!this.revivedFather || this.fatherAbandoned) return false;
+		const next = this.party2.findIndex((m) => m.hp > 0);
+		if (next < 0) return false;
+		const tmp = this.party;
+		this.party = this.party2;
+		this.party2 = tmp;
+		this.activeParty = this.activeParty ? 0 : 1;
+		this.party2Index = this.partyIndex;
+		this.partyIndex = next;
+		b.player = { ...this.party[next] };
+		b.mods.selfStr = b.mods.selfAgl = b.mods.selfSpc = 0;
+		b.stage.selfStr = b.stage.selfAgl = b.stage.selfSpc = 0;
+		b.hypeActive.self = false;
+		b.enterT = 0;
+		b.faintT = 0;
+		const who = this.activeParty === 1 ? "Father steps in!" : `${this.playerDisplayName()} steps back in!`;
+		b.msg = [line, who, `${b.player.name} jumps in.`];
+		b.msgI = 0;
+		b.phase = "msg";
+		b.afterMsg = "item";
+		return true;
+	}
 	/** Swap Max <-> Father party in place so existing this.party battle code keeps working. */
 	swapParties() {
 		if (!this.revivedFather) {

@@ -61,6 +61,22 @@ typedef unsigned short u16;
 typedef unsigned int   u32;
 
 #include "sprites.h"
+
+/* No libc here, but GCC may still emit calls to these for large struct
+   initialisers/copies (the Bag grew an `extra[]` array for quest items). */
+void *memset(void *d, int c, __SIZE_TYPE__ n);
+void *memset(void *d, int c, __SIZE_TYPE__ n) {
+    unsigned char *p = (unsigned char *)d;
+    while(n--) *p++ = (unsigned char)c;
+    return d;
+}
+void *memcpy(void *d, const void *s, __SIZE_TYPE__ n);
+void *memcpy(void *d, const void *s, __SIZE_TYPE__ n) {
+    unsigned char *p = (unsigned char *)d;
+    const unsigned char *q = (const unsigned char *)s;
+    while(n--) *p++ = *q++;
+    return d;
+}
 #include "disc.h"
 #include "chip.h"
 #include "save.h"
@@ -2009,6 +2025,7 @@ typedef struct {
     int calmdraft, burnsalve, antidote, clearmind, numbroot, panacea; /* Leg 2.11 */
     int bowieKnife; /* Dray's one-of-a-kind Backstab item */
     int shackles, goldenShackles; /* Leg 3 */
+    int extra[48]; /* item index 22+ (quest items): no hand-named field */
 } Bag;
 
 typedef struct {
@@ -2040,7 +2057,8 @@ static int *bag_field(Bag *bag, int idx) {
         case 18: return &bag->panacea;
         case 19: return &bag->bowieKnife;
         case 20: return &bag->shackles;
-        default: return &bag->goldenShackles;
+        case 21: return &bag->goldenShackles;
+        default: return &bag->extra[(idx - 22) & 47];
     }
 }
 
@@ -3035,6 +3053,37 @@ static int battle_pick_spell(Battle *b, int spell_id) {
    becomes "<line>" + "<name> JUMPS IN", battle continues at the item
    menu) or end the battle if none do ("<line>" + "<name> CANNOT STAND",
    BAFTER_LOSS). */
+/* Father's-party context (tentative definitions; set every frame in main()). */
+static Monster *g_npc_party2;
+static int *g_npc_party2_n;
+static int *g_party_n_ptr, *g_lead_ptr, *g_active_party_ptr, *g_revived_ptr;
+static int g_father_gone;
+static void swap_parties(Monster *a, int *an, Monster *b, int *bn, int *lead, int *active);
+
+/* Max's party is wiped mid-battle: Father's party (or Max's, if Father was
+   fighting) takes over the same battle. engine.ts otherPartyStepsIn(). */
+static int battle_other_party_steps_in(Battle *b, Monster *party, int *lead) {
+    int i, alive = 0, n;
+    if(!g_revived_ptr || !*g_revived_ptr || !g_npc_party2_n || !g_party_n_ptr) return 0;
+    if(g_father_gone) return 0;
+    for(i = 0; i < *g_npc_party2_n; i++) if(g_npc_party2[i].hp > 0) alive = 1;
+    if(!alive) return 0;
+    party[*lead] = b->pl;
+    swap_parties(party, g_party_n_ptr, g_npc_party2, g_npc_party2_n, lead, g_active_party_ptr);
+    b->pl = party[*lead];
+    b->mods_self_str = b->mods_self_agl = b->mods_self_spc = 0;
+    b->stage_self_str = b->stage_self_agl = b->stage_self_spc = 0;
+    b->hype_self = 0;
+    b->nmove_pl_used = b->hype_pl_used = 0;
+    n = s_cat(b->msg[1], 0, *g_active_party_ptr ? "FATHER STEPS IN" : "MAX STEPS BACK IN");
+    b->msg[1][n] = 0;
+    n = s_cat(b->msg[2], 0, SPECIES[b->pl.species].name);
+    n = s_cat(b->msg[2], n, " JUMPS IN");
+    b->msg[2][n] = 0;
+    b->msg_n = 3; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
+    return 1;
+}
+
 static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, int *lead) {
     const Species *foe_sp = &SPECIES[b->foe.species];
     char move_name_buf[40];
@@ -3082,7 +3131,7 @@ static void battle_pick_guard(Battle *b, int kind, Monster *party, int party_n, 
             b->msg[1][n] = 0;
             b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
         }
-        else {
+        else if(!battle_other_party_steps_in(b, party, lead)) {
             n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
             n = s_cat(b->msg[1], n, " CANNOT STAND");
             b->msg[1][n] = 0;
@@ -3335,7 +3384,7 @@ guard_resolve:
             b->msg[1][n] = 0;
             b->msg_n = 2; b->msg_i = 0; b->phase = 0; b->after = BAFTER_ITEM;
         }
-        else {
+        else if(!battle_other_party_steps_in(b, party, lead)) {
             n = s_cat(b->msg[1], 0, SPECIES[b->pl.species].name);
             n = s_cat(b->msg[1], n, " CANNOT STAND");
             b->msg[1][n] = 0;
@@ -4102,10 +4151,22 @@ near_mark(int map_id, char mark, int px, int py, int radius_sq) {
    frame in main() next to g_xp_party. */
 static Bag *g_npc_bag;
 static const int *g_npc_rep;
-static Monster *g_npc_party2;
-static int *g_npc_party2_n;
 static Monster g_gift_mon;       /* reward CryMon waiting for a party slot */
 static int g_gift_pending = 0;
+
+/* Father's party (Leg 2.7.3, ported to Dreamcast): party/party2 swap in
+   place so every battle and menu keeps using `party`. */
+static void swap_parties(Monster *a, int *an, Monster *b, int *bn, int *lead, int *active) {
+    Monster tmp[SAVE_PARTY_MAX];
+    int i, tn = *an;
+    for(i = 0; i < tn; i++) tmp[i] = a[i];
+    for(i = 0; i < *bn; i++) a[i] = b[i];
+    for(i = 0; i < tn; i++) b[i] = tmp[i];
+    *an = *bn; *bn = tn;
+    *lead = 0;
+    for(i = 0; i < *an; i++) if(a[i].hp > 0) { *lead = i; break; }
+    *active = *active ? 0 : 1;
+}
 
 static int npc_mon_available(int species) {
     int i;
@@ -4332,6 +4393,8 @@ static void leg3_start_battle(Battle *b, int post, const Monster *lead_mon) {
 static int leg3_party_has_heavenfall(const Monster *party, int party_n) {
     int i;
     for(i = 0; i < party_n; i++) if(party[i].species == LEG3_SP_HEAVENFALL) return 1;
+    if(g_npc_party2 && g_npc_party2_n)
+        for(i = 0; i < *g_npc_party2_n; i++) if(g_npc_party2[i].species == LEG3_SP_HEAVENFALL) return 1;
     return 0;
 }
 
@@ -4344,6 +4407,12 @@ static int leg3_heavenfall_step(Monster *party, int *party_n, int *lead, int rep
     for(i = 0, j = 0; i < *party_n; i++)
         if(party[i].species != LEG3_SP_HEAVENFALL) party[j++] = party[i];
     *party_n = j;
+    if(g_npc_party2 && g_npc_party2_n) {
+        int k, m = 0;
+        for(k = 0; k < *g_npc_party2_n; k++)
+            if(g_npc_party2[k].species != LEG3_SP_HEAVENFALL) g_npc_party2[m++] = g_npc_party2[k];
+        *g_npc_party2_n = m;
+    }
     *lead = 0;
     for(i = 0; i < j; i++) if(party[i].hp > 0) { *lead = i; break; }
     *next = POST_LEG3_HOSTILE;
@@ -5386,6 +5455,8 @@ void main(void) {
        no NPC gifts, no other starters. lead mirrors G.lead (0-based
        here). */
     Monster party[6];
+    Monster party2[SAVE_PARTY_MAX]; /* Father's party, see swap_parties() */
+    int party2_n = 0, active_party = 0;
     int party_n = 0, lead = 0;
     int catch_swap = 0;
     Monster pending_catch;
@@ -5659,6 +5730,13 @@ void main(void) {
         g_xp_party_n = party_n;
         g_npc_bag = &bag;
         g_npc_rep = &reputation;
+        g_npc_party2 = party2;
+        g_npc_party2_n = &party2_n;
+        g_party_n_ptr = &party_n;
+        g_lead_ptr = &lead;
+        g_active_party_ptr = &active_party;
+        g_revived_ptr = &revived_father;
+        g_father_gone = g_leg3_flags[LEG3_F_FATHER_ABANDONED];
         if(g_gift_pending && !seq_lines && !in_battle && !catch_swap) {
             g_gift_pending = 0;
             pending_catch = g_gift_mon;
@@ -5860,6 +5938,23 @@ void main(void) {
                         bag.antidote = sl.bag[15]; bag.clearmind = sl.bag[16];
                         bag.numbroot = sl.bag[17]; bag.panacea = sl.bag[18];
                         bag.bowieKnife = sl.bag[19];
+                        party2_n = sl.party2_n > SAVE_PARTY_MAX ? SAVE_PARTY_MAX : sl.party2_n;
+                        active_party = sl.active_party ? 1 : 0;
+                        for(pi = 0; pi < party2_n; pi++) {
+                            party2[pi] = mint_monster(sl.party2[pi].species, sl.party2[pi].lv);
+                            party2[pi].hp = sl.party2[pi].hp;
+                            party2[pi].maxHp = sl.party2[pi].maxHp;
+                            party2[pi].str = sl.party2[pi].str;
+                            party2[pi].agl = sl.party2[pi].agl;
+                            party2[pi].spc = sl.party2[pi].spc;
+                            party2[pi].spp = sl.party2[pi].spp;
+                            party2[pi].sppMax = sl.party2[pi].sppMax;
+                            party2[pi].shiny = sl.party2[pi].shiny;
+                            party2[pi].xp = sl.party2[pi].xp;
+                            party2[pi].status = sl.party2[pi].status;
+                            party2[pi].status_turns = sl.party2[pi].status_turns;
+                            party2[pi].poison_stack = sl.party2[pi].poison_stack;
+                        }
                         for(pi = 0; pi < party_n; pi++) {
                             party[pi].species = sl.party[pi].species;
                             party[pi].lv = sl.party[pi].lv;
@@ -5954,6 +6049,7 @@ void main(void) {
                                 if(ft[li] == &g_extra_flags[li]) g_extra_flags[li] = save_flag_get(&sl, FLAG_TO_SAVE[li]);
                             bag.shackles = sl.bag[20];
                             bag.goldenShackles = sl.bag[21];
+                            for(li = 22; li < SAVE_ITEM_N; li++) *bag_field(&bag, li) = sl.bag[li];
                             leg3_sync_title();
                             apply_player_name(revived_father, title_slayer, title_tamer);
                         }
@@ -6156,6 +6252,27 @@ void main(void) {
                             sl.dex_caught[di] = g_dex_caught[di];
                         }
                     }
+                    /* Father's party: `party` is whichever side is active,
+                       party2 the other, active_party says which (web layout). */
+                    sl.active_party = (unsigned char)active_party;
+                    sl.party2_n = (unsigned char)party2_n;
+                    for(pi = 0; pi < party2_n && pi < SAVE_PARTY_MAX; pi++) {
+                        sl.party2[pi].species = (unsigned char)party2[pi].species;
+                        sl.party2[pi].lv = (unsigned char)party2[pi].lv;
+                        sl.party2[pi].hp = (unsigned char)party2[pi].hp;
+                        sl.party2[pi].maxHp = (unsigned char)party2[pi].maxHp;
+                        sl.party2[pi].str = (unsigned char)party2[pi].str;
+                        sl.party2[pi].agl = (unsigned char)party2[pi].agl;
+                        sl.party2[pi].spc = (unsigned char)party2[pi].spc;
+                        sl.party2[pi].spp = (unsigned char)party2[pi].spp;
+                        sl.party2[pi].sppMax = (unsigned char)party2[pi].sppMax;
+                        sl.party2[pi].shiny = (unsigned char)party2[pi].shiny;
+                        sl.party2[pi].xp = (unsigned short)party2[pi].xp;
+                        sl.party2[pi].nature = 0;
+                        sl.party2[pi].status = (unsigned char)party2[pi].status;
+                        sl.party2[pi].status_turns = (unsigned char)party2[pi].status_turns;
+                        sl.party2[pi].poison_stack = (unsigned char)party2[pi].poison_stack;
+                    }
                     save_flag_put(&sl, SAVE_FLAG_TOOK_STARTER, got_shelf);
                     save_flag_put(&sl, SAVE_FLAG_TALKED_FATHER, talked_father);
                     save_flag_put(&sl, SAVE_FLAG_LOOTED_CRATE, looted_crate);
@@ -6227,6 +6344,7 @@ void main(void) {
                             if(ft[li] == &g_extra_flags[li]) save_flag_put(&sl, FLAG_TO_SAVE[li], g_extra_flags[li]);
                         sl.bag[20] = (unsigned char)bag.shackles;
                         sl.bag[21] = (unsigned char)bag.goldenShackles;
+                        for(li = 22; li < SAVE_ITEM_N; li++) sl.bag[li] = (unsigned char)*bag_field(&bag, li);
                     }
                     sl.executed_mask = g_executed_mask;
                     if(save_store(&sl)) {
@@ -6342,6 +6460,15 @@ void main(void) {
                 }
             }
             else if(menu_mode == 2) {
+                if(x_now && !prev_x && revived_father && !catch_swap && party2_n > 0
+                   && !g_leg3_flags[LEG3_F_FATHER_ABANDONED]) {
+                    int n2;
+                    swap_parties(party, &party_n, party2, &party2_n, &lead, &active_party);
+                    party_cur = 0;
+                    n2 = s_cat(hud_flash, 0, active_party ? "FATHER'S PARTY TAKES THE FIELD" : "MAX'S PARTY TAKES THE FIELD");
+                    hud_flash[n2] = 0; hud_t = HUD_NOTE_FRAMES;
+                    chip_sfx_ui();
+                }
                 if(party_n <= 0) {
                     /* nothing else to do with an empty party */
                 }
@@ -7416,6 +7543,13 @@ void main(void) {
                 if(chose_heavenfall) gauntlet_unlocked = 1;
                 if(choice_cur == 0) {
                     revived_father = 1;
+                    if(party2_n == 0) {
+                        party2[0] = mint_monster(SP_MOSSBACK, 8);
+                        party2[1] = mint_monster(SP_QUILLPUP, 7);
+                        party2_n = 2;
+                        dex_note_caught(SP_MOSSBACK);
+                        dex_note_caught(SP_QUILLPUP);
+                    }
                     has_scroll = 0; /* spent on Father (see engine.ts updateChoice) */
                     apply_player_name(1, title_slayer, title_tamer);
                     reputation += LOGIC_REP_FATHER_REVIVE;
@@ -8577,6 +8711,8 @@ void main(void) {
                                         if(g_leg3_flags[LEG3_F_TITLE_KINGSLAYER]) {
                                             talk = LEG3_TALK_FATHER_MONSTER;
                                             g_leg3_flags[LEG3_F_FATHER_ABANDONED] = 1;
+                                            if(active_party) swap_parties(party, &party_n, party2, &party2_n, &lead, &active_party);
+                                            party2_n = 0;
                                         }
                                         else if(reputation >= 0) talk = LEG3_TALK_FATHER_PROUD;
                                         else talk = LEG3_TALK_FATHER_SACRIFICE;
@@ -8782,6 +8918,9 @@ void main(void) {
                 draw_bag_menu(&bag, marks, bag_cur);
             else if(menu_mode == 2)
                 draw_party_menu(party, party_n, lead, party_cur, party_detail, heal_item, catch_swap);
+            if(menu_mode == 2 && revived_father && party2_n > 0 && !catch_swap && !g_leg3_flags[LEG3_F_FATHER_ABANDONED])
+                draw_text_s(active_party ? "X: MAX'S PARTY" : "X: FATHER'S PARTY", MENU_X + 8, MENU_Y + MENU_H - 12,
+                            rgb565(90, 122, 82), 1);
             else if(menu_mode == 3)
                 draw_pause_menu(pause_cur);
             else if(menu_mode == 4)

@@ -3447,7 +3447,19 @@ sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
       - Save 300 -> 332 bytes: flags to 256, bag to 48.
       - Demo text removed: `endingWin*` gone from dialogue.json, data.ts and
         the baker (DEMO_END); the Dreamcast ending header reads EPILOGUE.
-- [ ] S2 Father's party on Dreamcast; Father steps in on a wipe (both).
+- [x] S2 Father's party on Dreamcast; Father steps in on a wipe (both).
+      - Web `otherPartyStepsIn()`: when the fighting party is wiped and the
+        other party (Father's, or Max's if Father was fighting) has anyone
+        standing, it takes over the same battle ("Father steps in!").
+      - Dreamcast: `party2[]`/`party2_n`/`active_party` in main(), seeded
+        Mossback 8 + Quillpup 7 on revival, saved/loaded in the web layout
+        (`party` = active side), X in the party menu swaps sides, the same
+        step-in (`battle_other_party_steps_in`), cleared if Father leaves,
+        Heavenfall checks cover both parties. Verified in Flycast: Max's
+        Shrewbit faints, Father's Eclipsaur jumps in and wins.
+      - Dreamcast Bag gained `extra[48]` (items 22+ need no named field;
+        save/load loop over them) and main.c now provides freestanding
+        memset/memcpy, which GCC emits for the bigger struct.
 - [ ] S3 Lead's 6-CryMon fight, Weeping Veil, Ghost Guild arc, Nero/General lore.
 - [ ] S4 Heroes and Thieves Guilds.
 - [ ] S5 CryTown and Sephirot townsfolk and sidequests.
