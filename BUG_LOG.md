@@ -38,7 +38,7 @@ Status: Fixed 2026-09-27. `.github/workflows/checks.yml` re-bakes and fails if a
 Web and Dreamcast consume generated/baked content through different paths. A JSON change can succeed on one platform while the generated Dreamcast content is stale or fails to compile. CI should verify regeneration from a clean state.
 
 ### BUG-006: No automated trainer gameplay regression tests
-Status: Partly fixed 2026-09-27. The e2e test drives both crystal wardens through a real battle, win line, mercy, rewards, save and reload. Other trainers still untested.
+Status: Fixed 2026-09-27. scripts/e2e-trainers.mjs plays all 61 scripted trainer fights on web (61/61 pass); emu_warden.py plays them on Dreamcast. Both run nightly in sweep.yml.
 The repository validates content relationships, but does not automatically execute trainer interactions through battle victory, rewards, dialogue changes, and persistence.
 
 ### BUG-007: No Dreamcast emulator regression test

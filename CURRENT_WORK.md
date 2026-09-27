@@ -4077,3 +4077,10 @@ refuses to redraw them.
 - Outdoor e/m/q path tiles now draw as dirt on both ports; outdoor C/X marks draw as grass (the Marsh's X warp as dirt), not bare squares.
 - Dreamcast battle: see-through dark panels behind the message and both status lines; the player's nature badge now sits before its text like the foe's, so long HP lines no longer run under it.
 - Back-view sprites: not done. Both ports draw the player's monster with its front frames; back views for 85 species of generated art are not cheap, and the Dreamcast streams one frame set per species from MONSTERS.BIN with no back slot.
+
+## Two-port sweep: every map, every trainer fight (Claude, 2026-09-27) -- WRAPPED UP
+- `ports/dreamcast/tools/map_tour.py` + `scripts/e2e-map-tour.mjs`: load all 70 maps from a save and walk. Result: 70/70 on web and 70/70 on Dreamcast (Flycast). Web half runs in checks.yml on every push.
+- `ports/dreamcast/tools/trainer_saves.py` + `scripts/e2e-trainers.mjs`: a save next to every scripted trainer (61) with the flags/items its script needs and a maxed party. Web: 61/61 pass (flag, Marks, one battle, no page errors).
+- Dreamcast trainer sweep (emu_warden.py --quick): 41/61 passed on the first run; the failures looked at (commanderFinal, generalSorrel, forestScout) were the harness stopping too early and pass after the talk-box and typed-line fixes. calderPost needs more than 300 presses (a long 6-monster fight, not stuck). The full DC rerun with the tuned harness was not finished when work was wrapped up; `.github/workflows/sweep.yml` runs both ports nightly and on demand, so its first run is the real DC result.
+- Stopped here on the owner's request. No code changes in progress.
+
