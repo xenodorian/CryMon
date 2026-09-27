@@ -5693,8 +5693,22 @@ export class CryMon {
 					y: s.y,
 					draw: () => {
 						if (base in walkers || npc.sprite === "shinigami") {
-							const sf = Math.floor(this.clock * 3) % 4 + 1;
-							this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y);
+							if (npc.sprite === "shinigami") {
+								// Shinigami has a deliberate 2-frame directional walk:
+								// down/up use frames 1-2; left/right use frames 3-4.
+								// When stationary, frame 1 down is the canonical idle.
+								const dir = roamer?.dir || "down";
+								const walking = !!roamer?.chase;
+								let sf = 1;
+								if (walking) {
+									const phase = Math.floor(this.clock * 3) % 2;
+									sf = (dir === "left" || dir === "right") ? phase + 3 : phase + 1;
+								}
+								this.drawActor(`${base}-${dir}-${sf}`, s.x, s.y);
+							} else {
+								const sf = Math.floor(this.clock * 3) % 4 + 1;
+								this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y);
+							}
 						} else {
 							this.drawActor(`${base}-${wf}`, s.x, s.y);
 						}
