@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=4b5e6d8de4931d24 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=2e1e2184f1f58a84 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -1317,7 +1317,7 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_MARSH, 'm', 443, 3, 30, 32 },
 };
 #define NPC_DEF_N 155
-#define NPC_SPRITE_N 37
+#define NPC_SPRITE_N 65
 static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_lead_1, npc_lead_2, npc_lead_3, npc_lead_4 },
     { npc_weepingGuard_1, npc_weepingGuard_2, npc_weepingGuard_3, npc_weepingGuard_4 },
@@ -1355,10 +1355,38 @@ static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_child_1, npc_child_2, npc_child_3, npc_child_4 },
     { npc_bandit_1, npc_bandit_2, npc_bandit_3, npc_bandit_4 },
     { npc_pickup_1, npc_pickup_2, npc_pickup_3, npc_pickup_4 },
+    { npc_crier_1, npc_crier_2, npc_crier_3, npc_crier_4 },
+    { npc_tam_1, npc_tam_2, npc_tam_3, npc_tam_4 },
+    { npc_lina_1, npc_lina_2, npc_lina_3, npc_lina_4 },
+    { npc_rolo_1, npc_rolo_2, npc_rolo_3, npc_rolo_4 },
+    { npc_juno_1, npc_juno_2, npc_juno_3, npc_juno_4 },
+    { npc_bet_1, npc_bet_2, npc_bet_3, npc_bet_4 },
+    { npc_pip_1, npc_pip_2, npc_pip_3, npc_pip_4 },
+    { npc_cobb_1, npc_cobb_2, npc_cobb_3, npc_cobb_4 },
+    { npc_sera_1, npc_sera_2, npc_sera_3, npc_sera_4 },
+    { npc_dunn_1, npc_dunn_2, npc_dunn_3, npc_dunn_4 },
+    { npc_garrow_1, npc_garrow_2, npc_garrow_3, npc_garrow_4 },
+    { npc_hesse_1, npc_hesse_2, npc_hesse_3, npc_hesse_4 },
+    { npc_tilly_1, npc_tilly_2, npc_tilly_3, npc_tilly_4 },
+    { npc_voss_1, npc_voss_2, npc_voss_3, npc_voss_4 },
+    { npc_lune_1, npc_lune_2, npc_lune_3, npc_lune_4 },
+    { npc_holt_1, npc_holt_2, npc_holt_3, npc_holt_4 },
+    { npc_kael_1, npc_kael_2, npc_kael_3, npc_kael_4 },
+    { npc_anselm_1, npc_anselm_2, npc_anselm_3, npc_anselm_4 },
+    { npc_iona_1, npc_iona_2, npc_iona_3, npc_iona_4 },
+    { npc_rhee_1, npc_rhee_2, npc_rhee_3, npc_rhee_4 },
+    { npc_wyn_1, npc_wyn_2, npc_wyn_3, npc_wyn_4 },
+    { npc_lark_1, npc_lark_2, npc_lark_3, npc_lark_4 },
+    { npc_hollis_1, npc_hollis_2, npc_hollis_3, npc_hollis_4 },
+    { npc_quill_1, npc_quill_2, npc_quill_3, npc_quill_4 },
+    { npc_brann_1, npc_brann_2, npc_brann_3, npc_brann_4 },
+    { npc_osk_1, npc_osk_2, npc_osk_3, npc_osk_4 },
+    { npc_ilse_1, npc_ilse_2, npc_ilse_3, npc_ilse_4 },
+    { npc_maren_1, npc_maren_2, npc_maren_3, npc_maren_4 },
     { npc_shinigami_1, npc_shinigami_2, npc_shinigami_3, npc_shinigami_4 },
 };
 /* NPC_SPRITE_FRAMES index per NPC_DEFS entry (-1: drawn by hand-wired code). */
-static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 36, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 36, -1, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 1, 7, 1, 1, 8, 1, 1, 9, 1, 1, 10, 1, 1, 11, 2, 2, 12, 13, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 36, 19, 19, 19, 20, 20, 20, 18, 18, 18, 21, 23, 22, 24, 25, 26, 27, 28, 29, 30, 35, 32, 33, 33, 31, 31, 33, 33, 32, 30, 35, 31, 34, 30, 33, 33, 31, 30, 35, 32, 34, 30, 31, 31, 32, 32, 31, 30, 31, 30, 31, 30, 31, 30, 31, 32, 32, 30, 31, 30, 32, 32, 31, 18, 19, 35, 31, 30 };
+static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 64, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 64, -1, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 1, 7, 1, 1, 8, 1, 1, 9, 1, 1, 10, 1, 1, 11, 2, 2, 12, 13, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 64, 19, 19, 19, 20, 20, 20, 18, 18, 18, 21, 23, 22, 24, 25, 26, 27, 28, 29, 36, 35, 37, 39, 39, 38, 40, 42, 42, 41, 43, 35, 44, 46, 45, 48, 48, 47, 49, 35, 50, 52, 51, 54, 54, 53, 55, 31, 30, 31, 30, 31, 30, 31, 30, 31, 32, 56, 57, 58, 59, 60, 61, 62, 63, 19, 35, 31, 30 };
 #define INTERACT_BUFFER 20
 
 
