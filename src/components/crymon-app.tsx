@@ -171,6 +171,9 @@ export function CryMonApp() {
               <span className="text-muted">Move</span> WASD / arrows
             </li>
             <li>
+              <span className="text-muted">Run</span> hold Shift, or X / Square on a pad (X on Dreamcast)
+            </li>
+            <li>
               <span className="text-muted">Talk / confirm</span> Z Space · people, herbs, the wrecked cart
             </li>
             <li>

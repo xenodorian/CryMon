@@ -3754,6 +3754,12 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       Cursor rows in the pause menu and journal now use a brighter green
       (#a8d890) on both engines; the old #5a7a52 was hard to read on the
       dark panels.
+- [x] H14 Running. logic.json `walk` {speed 84, runSpeed 150}. Web: hold
+      Shift or gamepad button 2 (X/Square), `Input.runHeld()`; Dreamcast:
+      hold X (baked `LOGIC_WALK_FRAC` / `LOGIC_RUN_FRAC`, replacing the
+      hard-coded 358). B stays "cycle lead" on web, so it was not used.
+      "How to play" lists it. Web measured 43 px walking vs 78 px running
+      over the same half second.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

@@ -2144,7 +2144,7 @@ export class CryMon {
 		if (this.world.moving) {
 			if (Math.abs(ax.x) > Math.abs(ax.y)) this.world.dir = ax.x < 0 ? "left" : "right";
 			else this.world.dir = ax.y < 0 ? "up" : "down";
-			const sp = 84;
+			const sp = this.input.runHeld() ? LOGIC.walk.runSpeed : LOGIC.walk.speed;
 			const nx = this.world.x + ax.x * sp * dt;
 			const ny = this.world.y + ax.y * sp * dt;
 			const stuck = this.blocked(this.world.x, this.world.y);

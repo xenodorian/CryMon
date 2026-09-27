@@ -8443,7 +8443,8 @@ void main(void) {
                        they've accrued -- averages ~83.9px/sec over
                        time instead of a hard 60. */
                     int speed;
-                    player_speed_frac += 358; /* 84 * 256 / 60 ~= 358.4 */
+                    /* Holding X runs (logic.json walk.runSpeed). */
+                    player_speed_frac += pressed(raw, CONT_X) ? LOGIC_RUN_FRAC : LOGIC_WALK_FRAC;
                     speed = player_speed_frac >> 8;
                     player_speed_frac &= 255;
                     int nx = px + dx * speed;

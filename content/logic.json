@@ -1671,5 +1671,10 @@
         ]
       }
     ]
+  },
+  "walk": {
+    "note": "Overworld speed in px/sec (web px; Dreamcast scales per frame). Hold the run button (web: Shift, or gamepad X/Square; Dreamcast: X) to run.",
+    "speed": 84,
+    "runSpeed": 150
   }
 }

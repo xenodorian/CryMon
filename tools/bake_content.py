@@ -511,6 +511,9 @@ def bake_logic(data: dict, out: Path) -> None:
     fade = logic["screenFade"]
     lines = [HEADER]
     lines.append("/* Canonical rules from content/logic.json (Dreamcast spec). */")
+    walk = data["logic"].get("walk") or {"speed": 84, "runSpeed": 84}
+    lines.append(f"#define LOGIC_WALK_FRAC {int(round(walk['speed'] * 256 / 60))} /* 1/256 px per frame */")
+    lines.append(f"#define LOGIC_RUN_FRAC {int(round(walk['runSpeed'] * 256 / 60))}")
     lines.append(f"#define LOGIC_FADE_OUT_FRAMES {max(1, int(round(fade['outSec'] * 60)))}")
     lines.append(f"#define LOGIC_FADE_HOLD_FRAMES {max(1, int(round(fade['holdSec'] * 60)))}")
     lines.append(f"#define LOGIC_FADE_IN_FRAMES {max(1, int(round(fade['inSec'] * 60)))}")
