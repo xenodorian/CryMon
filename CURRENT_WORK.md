@@ -43,7 +43,14 @@ session stops, pick up at the first step not marked DONE.
    reads the green highlighted row off the screen and steps until it is on SAVE.
    Verified: 6/6 Opal runs under full CPU load, plus full Quartz + Opal (incl. reboot)
    all PASS. The "21 presses" count is normal for Opal, not a symptom.
-4. **BUG-012 NPC geometry (all NPCs, DC) -- TODO.**
+4. **BUG-012 NPC geometry (all NPCs, DC) -- IN PROGRESS.** New tool
+   `ports/dreamcast/tools/npc_talk.py`: per NPC, save next to it (trainer_saves.build),
+   boot Flycast, Continue, close any arrival scene, press A once; PASS if a talk box,
+   battle or menu appears. Uses its own white-glyph talk detector (emu_warden's
+   `talk_open()` false-fires on bright map art at the bottom of town maps).
+   `--control` steps away first; 3/5 correctly FAIL, 2 still answered by a second NPC in
+   reach, so a PASS proves *an* NPC answered, not always the target. Full run (~1 h):
+   `npc_talk.py --cdi ports/dreamcast/test.cdi --flycast <AppRun> --base e2e-out/quartz-before.bin`.
 5. **Regional dialogue/NPC audit -- TODO.** Report proposed text edits to the user
    before applying them.
 
