@@ -3694,6 +3694,26 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       (talk, script, no page errors): all clean.
 - [x] H8 Web battle screen now shows the enemy's level ("SABLECLAW Lv60"),
       as Dreamcast already did. It showed only the name.
+- [x] H9 Pause-menu Map, rebuilt on web and new on Dreamcast.
+      - Web bug fixed: opening Map from the pause menu threw
+        `this.panel is not a function` inside the draw loop, which stops
+        requestAnimationFrame, so the game froze for good.
+      - `tools/build_map_screen.py` writes logic.json `mapScreen`: two
+        pages (Sorrow County, the Sephirot), 23 nodes and 34 links. The
+        22 Sephirot paths come from warps.json (a map that warps to two
+        cities). Every map id is assigned to a node or a path; interiors
+        and bases take the nearest one through warps.
+      - Baker: `MAPSCREEN_NODES/LINKS/PAGE_TITLE`, `MAP_WHERE[]`.
+      - Both engines draw it the same (web doubles the Dreamcast
+        pixels): road lines, blue squares for cities, labels under the
+        dots, Max's node or path blinks gold, "AT <place>" in the footer,
+        LEFT/RIGHT flips the page, A/B back to pause, Start closes.
+      - Dreamcast pause menu gained MAP at row 3 (same order as web:
+        Party, Bag, CryDex, Map, Medals, Journal, Settings, Save, Close).
+      - Verified: web screenshots on both pages (CryTown, Path of Samekh,
+        haunted hall -> Reach) with no page errors; Dreamcast in Flycast.
+      - `content/town_map.json` and `public/maps/*` (the old generator's
+        output) are left as they were; the game no longer reads them.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=09a02bc2a3a1a69f — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=9a9d5dde8d3df229 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -1445,6 +1445,78 @@ static const JournalQuest JOURNAL_QUESTS[24] = {
     { "SISTER IONA", 216, 186, "", 69, 2, 0 },
     { "AN ARCANOX FOR RHEE", 217, 187, "", 71, 1, 0 },
 };
+
+/* Pause-menu Map (logic.json mapScreen). Nodes are dots with a label under
+   them, links are lines; x/y are in a 280x152 box under the menu title.
+   MAP_WHERE[map]: node index, 1000 + link index, or -1. */
+typedef struct { int page, x, y, gem; const char *label; } MapScreenNode;
+typedef struct { int a, b; const char *label; } MapScreenLink;
+#define MAPSCREEN_PAGE_N 2
+#define MAPSCREEN_NODE_N 23
+#define MAPSCREEN_LINK_N 34
+static const char *const MAPSCREEN_PAGE_TITLE[MAPSCREEN_PAGE_N] = { "SORROW COUNTY", "THE SEPHIROT" };
+static const MapScreenNode MAPSCREEN_NODES[MAPSCREEN_NODE_N] = {
+    { 0, 140, 0, 0, "MALKUTH" },
+    { 0, 140, 24, 0, "WEEPING ROAD" },
+    { 0, 34, 24, 1, "REACH" },
+    { 0, 60, 50, 0, "RUINS" },
+    { 0, 140, 50, 1, "CRYTOWN" },
+    { 0, 222, 50, 0, "CLIFFS" },
+    { 0, 240, 76, 0, "MARSH" },
+    { 0, 240, 102, 0, "QUARRY" },
+    { 0, 240, 128, 1, "CAMP" },
+    { 0, 165, 128, 0, "FOREST" },
+    { 0, 165, 88, 1, "PRISON" },
+    { 0, 75, 90, 0, "GAUNTLET" },
+    { 0, 70, 128, 1, "HEAVENFALL" },
+    { 1, 140, 0, 1, "KETER" },
+    { 1, 40, 20, 1, "BINAH" },
+    { 1, 240, 20, 1, "CHOKMAH" },
+    { 1, 40, 60, 1, "GEVURAH" },
+    { 1, 240, 60, 1, "CHESED" },
+    { 1, 140, 68, 1, "TIFERET" },
+    { 1, 40, 100, 1, "HOD" },
+    { 1, 240, 100, 1, "NETZACH" },
+    { 1, 140, 108, 1, "YESOD" },
+    { 1, 140, 136, 1, "MALKUTH" },
+};
+static const MapScreenLink MAPSCREEN_LINKS[MAPSCREEN_LINK_N] = {
+    { 0, 1, "" },
+    { 1, 4, "" },
+    { 4, 3, "" },
+    { 3, 2, "" },
+    { 4, 5, "" },
+    { 5, 6, "" },
+    { 6, 7, "" },
+    { 7, 8, "" },
+    { 8, 9, "" },
+    { 9, 10, "" },
+    { 4, 11, "" },
+    { 11, 12, "" },
+    { 22, 21, "PATH OF TAU" },
+    { 22, 20, "PATH OF QOPH" },
+    { 19, 22, "PATH OF SHIN" },
+    { 19, 20, "PATH OF PEH" },
+    { 19, 21, "PATH OF RESH" },
+    { 20, 21, "PATH OF TZADDI" },
+    { 18, 21, "PATH OF SAMEKH" },
+    { 20, 18, "PATH OF NUN" },
+    { 19, 18, "PATH OF AYIN" },
+    { 17, 20, "PATH OF KAPH" },
+    { 17, 18, "PATH OF YOD" },
+    { 16, 19, "PATH OF MEM" },
+    { 16, 18, "PATH OF LAMED" },
+    { 17, 16, "PATH OF TETH" },
+    { 14, 18, "PATH OF ZAYIN" },
+    { 14, 16, "PATH OF HETH" },
+    { 15, 18, "PATH OF HE" },
+    { 17, 15, "PATH OF VAU" },
+    { 14, 15, "PATH OF DALETH" },
+    { 13, 18, "PATH OF GIMEL" },
+    { 15, 13, "PATH OF ALEPH" },
+    { 14, 13, "PATH OF BETH" },
+};
+static const short MAP_WHERE[70] = { 4, 4, 9, 10, 8, 5, 3, 2, 6, 7, 11, 11, 11, 11, 11, 11, 12, 22, 1, 21, 1012, 20, 1013, 19, 1014, 1015, 1016, 1017, 18, 1018, 1019, 1020, 17, 1021, 1022, 16, 1023, 1024, 1025, 14, 1026, 1027, 15, 1028, 1029, 1030, 13, 1031, 1032, 1033, 22, 21, 20, 19, 18, 17, 16, 14, 15, 13, 3, 2, 4, 6, 3, 3, 3, 2, 2, 2 };
 
 /* ---- Leg 3: bases, Generals, Nero, endings (logic.json leg3) ---- */
 #define NPC_PENDING_LEG3_FIRST 100
