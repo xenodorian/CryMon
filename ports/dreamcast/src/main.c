@@ -2252,9 +2252,38 @@ static int *bag_field(Bag *bag, int idx) {
 /* Solid bordered panel, like the web's box(): menus are drawn as an
    overlay after the world scene, and text over busy map art was hard
    to read. */
+/* Nine-slice of ui_frame (16x16, 6px corners): corners as-is, edges and
+   the middle stretched. Falls back to the flat two-tone panel. */
+static void draw_ui_frame(int x, int y, int w, int h) {
+#ifdef HAVE_UI_FRAME
+    static const int so[3] = { 0, 6, 10 }, sl[3] = { 6, 4, 6 };
+    int dx[3], dw[3], dy[3], dh[3], i, j;
+    if(w >= 12 && h >= 12) {
+        dx[0] = x; dw[0] = 6; dx[1] = x + 6; dw[1] = w - 12; dx[2] = x + w - 6; dw[2] = 6;
+        dy[0] = y; dh[0] = 6; dy[1] = y + 6; dh[1] = h - 12; dy[2] = y + h - 6; dh[2] = 6;
+        for(j = 0; j < 3; j++) {
+            for(i = 0; i < 3; i++) {
+                int px, py;
+                if(dw[i] <= 0 || dh[j] <= 0) continue;
+                for(py = 0; py < dh[j]; py++) {
+                    int sy = so[j] + py * sl[j] / dh[j];
+                    for(px = 0; px < dw[i]; px++) {
+                        u16 c = ui_frame[sy * 16 + so[i] + px * sl[i] / dw[i]];
+                        if(c != SPRITE_KEY)
+                            put_pixel(dx[i] + px, dy[j] + py, c);
+                    }
+                }
+            }
+        }
+        return;
+    }
+#endif
+    fill_rect(x, y, w, h, rgb565(90, 86, 72));
+    fill_rect(x + 1, y + 1, w - 2, h - 2, rgb565(22, 20, 18));
+}
+
 static void draw_menu_frame(const char *title, const char *footer) {
-    fill_rect(MENU_X, MENU_Y, MENU_W, MENU_H, rgb565(90, 86, 72));
-    fill_rect(MENU_X + 1, MENU_Y + 1, MENU_W - 2, MENU_H - 2, rgb565(22, 20, 18));
+    draw_ui_frame(MENU_X, MENU_Y, MENU_W, MENU_H);
     draw_text_s(title, MENU_X + 8, MENU_Y + 8, 0xFFFF, MENU_SCALE);
     draw_text_s(footer, MENU_X + 8, MENU_Y + MENU_H - 16,
                 rgb565(180, 220, 170), MENU_SCALE);

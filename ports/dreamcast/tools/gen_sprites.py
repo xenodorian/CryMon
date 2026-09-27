@@ -371,6 +371,13 @@ def main():
     pixels = encode(im, BATTLE_BG_W, BATTLE_BG_H)
     emit_array(lines, 'battle_bg', pixels, BATTLE_BG_W, BATTLE_BG_H)
 
+    # Brass nine-slice UI frame (tools/pixelforge/uiframe.py): 16x16, 6px
+    # corners. main.c's draw_ui_frame() uses it when HAVE_UI_FRAME is set.
+    frame_path = os.path.join(root, 'ui', 'frame.png')
+    if os.path.isfile(frame_path):
+        lines.append('#define HAVE_UI_FRAME 1')
+        emit_array(lines, 'ui_frame', encode(Image.open(frame_path), 16, 16), 16, 16)
+
     # Per-area battle backdrops (tools/pixelforge/battlebg.py), stored at half
     # size and blitted 2x so nine of them cost what two full ones would.
     # Index k+1 matches MAP_BATTLE_BG in content_maps.inc (sorted names from

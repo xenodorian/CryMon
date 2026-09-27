@@ -614,6 +614,10 @@
     [
       "bg-indoor",
       "/sprites/bg/indoor.png"
+    ],
+    [
+      "ui-frame",
+      "/sprites/ui/frame.png"
     ]
   ],
   "drawScale": {
