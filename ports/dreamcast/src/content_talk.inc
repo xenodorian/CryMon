@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=751cd5ab7ef18803 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=94bafe7f4ce7e262 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -90,9 +90,9 @@ static const TalkBeat TALK_MASON_WIN2[] = {
     { "MASON KNEELS. THREE DOWN. HE HAS NOTHING LEFT TO PROVE.", 0 },
 };
 static const TalkBeat TALK_WREN_FIRST[] = {
-    { "TOO YOUNG. TAKE THE SALVE. CALDER'S STILL OUT THERE.", 4 },
-    { "I'M NOT TOO YOUNG.", 1 },
-    { "IVO AND NELL ARE CLOSE BY. KEEP THAT HOUND FED.", 4 },
+    { "YOU'RE TOO YOUNG FOR THIS ROAD. TAKE THE SALVE. CALDER'S STILL OUT THERE.", 4 },
+    { "I'M GOING ANYWAY.", 1 },
+    { "THEN KEEP THAT HOUND FED. IVO AND NELL ARE CLOSE BY.", 4 },
 };
 static const TalkBeat TALK_WREN_BEAT[] = {
     { "YOU BEAT CALDER. I HEARD ABOUT THE LETTER HE CARRIED. THEY KNOW YOUR NAME.", 4 },
@@ -108,25 +108,25 @@ static const TalkBeat TALK_WREN_HEAL[] = {
 };
 static const TalkBeat TALK_MAE_FIRST[] = {
     { "YOU'RE MAX. I WATCHED YOU LEAVE THE HOUSE.", 5 },
-    { "DON'T FOLLOW ME.", 1 },
-    { "I WON'T. TAKE THE WRAP. WREN HEALS. I JUST DIDN'T WANT THE PATH EMPTY.", 5 },
+    { "WERE YOU FOLLOWING ME?", 1 },
+    { "NO. TAKE THE WRAP. WREN CAN HEAL YOU PROPERLY. I JUST DIDN'T WANT THE ROAD TO FEEL EMPTY.", 5 },
 };
 static const TalkBeat TALK_MAE_AGAIN[] = {
     { "I'LL BE HERE. THE WAR DRUMS HAVEN'T STOPPED.", 5 },
     { "I HEAR THEM.", 1 },
 };
 static const TalkBeat TALK_IVO_FIRST[] = {
-    { "CAMP TOOK MY CRYMON. CHEW THIS. CALDER'S STILL OUT THERE.", 6 },
+    { "CAMP TOOK MY CRYMON. CHEW THIS BITTERROOT. CALDER'S STILL OUT THERE.", 6 },
     { "I'M GOING AFTER THEM ANYWAY.", 1 },
-    { "DON'T GIVE HIM A CLEAN FIGHT.", 6 },
+    { "THEN DON'T GIVE HIM A CLEAN FIGHT.", 6 },
 };
 static const TalkBeat TALK_IVO_AGAIN[] = {
     { "HIT FIRST. RUN IF THE BAT FOLDS YOU.", 6 },
     { "I DON'T RUN YET.", 1 },
 };
 static const TalkBeat TALK_NELL_FIRST[] = {
-    { "TOO YOUNG. DRINK THIS ANYWAY. REEDS HIDE A STONE.", 7 },
-    { "I CAN HOLD A CRYSTAL.", 1 },
+    { "TOO YOUNG. USE THIS ANYWAY. REEDS HIDE A STONE.", 7 },
+    { "I CAN HANDLE A CRYSTAL.", 1 },
 };
 static const TalkBeat TALK_NELL_BONUS[] = {
     { "THAT MOTH WASN'T YOURS YESTERDAY. ANOTHER SALVE.", 7 },
@@ -181,7 +181,7 @@ static const TalkBeat TALK_CALDER_AFTER[] = {
     { "I DON'T PLAN TO.", 1 },
 };
 static const TalkBeat TALK_CALDER_FIGHT[] = {
-    { "NO ONE GETS PAST THIS POINT. THIS IS A MILITARY CAMP FOR THE WEEPING ARMY.", 9 },
+    { "NO ONE GETS PAST THIS POINT. THE WEEPING ARMY HOLDS THE ROAD BEYOND IT.", 9 },
     { "THEN I'LL MAKE ROOM.", 1 },
 };
 static const TalkBeat TALK_CALDER_WIN[] = {
@@ -537,6 +537,7 @@ static const TalkBeat TALK_LEAD_SPOT[] = {
     { "HALT. LIEUTENANT LEAD, WEEPING ARMY.", 35 },
     { "NO ONE LEAVES CRYTOWN WHILE I STAND HERE. PAST ME IS THE VEIL, AND PAST THE VEIL IS THE KING.", 35 },
     { "TURN BACK, OR MEET ALL SIX OF MINE.", 35 },
+    { "I'M NOT TURNING BACK.", 1 },
 };
 static const TalkBeat TALK_LEAD_WIN_PLACEHOLDER[] = {
     { "LIEUTENANT LEAD DROPS TO ONE KNEE.", 0 },
@@ -1460,7 +1461,7 @@ static const TalkBeat TALK_CRIER_VEIL[] = {
 };
 static const TalkBeat TALK_CRIER_LEAD[] = {
     { "THE VEIL IS GONE! BUT LIEUTENANT LEAD STILL HOLDS THE NORTH ROAD.", 65 },
-    { "HE FIGHTS WITH SIX CRYMON. NOBODY BEATS HIM ALONE. IF YOUR FATHER'S OLD TEAM WERE BACK, THAT WOULD BE A FAIR FIGHT.", 65 },
+    { "HE FIGHTS WITH SIX CRYMON. NOBODY BEATS HIM ALONE. IF YOUR FATHER'S OLD CRYMON WERE BACK, THAT WOULD BE A FAIR FIGHT.", 65 },
     { "SOME SAY A SCROLL OF RESURRECTION CAN BRING BACK THE DEAD. SOME SAY WORSE THINGS CAN TOO.", 65 },
 };
 static const TalkBeat TALK_CRIER_NORTH[] = {
@@ -1478,6 +1479,7 @@ static const TalkBeat TALK_TAM_WATCH_FOUND[] = {
 static const TalkBeat TALK_TAM_THANKS[] = {
     { "THAT'S IT! STILL TICKING, JUST LIKE ME.", 66 },
     { "A DEAL'S A DEAL. TAKE MY VOLTBUCK. TREAT HER BETTER THAN I COULD.", 66 },
+    { "I WILL. THANK YOU, TAM.", 1 },
     { "MAX GOT A VOLTBUCK.", 0 },
 };
 static const TalkBeat TALK_TAM_AFTER[] = {
@@ -1498,6 +1500,7 @@ static const TalkBeat TALK_ROLO_HOME[] = {
 static const TalkBeat TALK_LINA_THANKS[] = {
     { "ROLO! DON'T YOU EVER DO THAT AGAIN.", 67 },
     { "THANK YOU, MAX. TAKE THIS. IT'S THE BEST CRYSTAL WE HAVE.", 67 },
+    { "HE WON'T DO IT ALONE NEXT TIME.", 1 },
     { "MAX GOT A MEGA CRYSTAL.", 0 },
 };
 static const TalkBeat TALK_LINA_AFTER[] = {
@@ -1510,6 +1513,7 @@ static const TalkBeat TALK_JUNO_ASK[] = {
 static const TalkBeat TALK_JUNO_THANKS[] = {
     { "A CRYMARE! LOOK AT THOSE EYES.", 69 },
     { "HERE. ONE ULTIMATE CRYSTAL, AS PROMISED.", 69 },
+    { "YOU REALLY LIKE CRYMARE.", 1 },
     { "MAX GOT AN ULTIMATE CRYSTAL.", 0 },
 };
 static const TalkBeat TALK_JUNO_AFTER[] = {
