@@ -3917,6 +3917,8 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         to the web SpeakerId union in types.ts (one word, Grok's file).
       - Still open: npc/lead-1..4.png from b3a58ee are not valid PNGs, so
         gen_sprites.py (Dreamcast build) fails. Lead's files, left alone.
+        NEEDS THE USER'S DECISION (e.g. restore the previous Lead overworld
+        PNGs, or new art). No new CDI until this is fixed.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
