@@ -5079,10 +5079,15 @@ export class CryMon {
 		}
 	}
 	drawTitle() {
-		this.drawMap(VELD, 8 * TILE, 0);
+		const tbg = this.images["screen-title"];
+		const painted = !!(tbg && tbg.width);
+		if (painted) this.ctx.drawImage(tbg, 0, 0, VIEW_W, VIEW_H);
+		else this.drawMap(VELD, 8 * TILE, 0);
 		this.ctx.fillStyle = "rgba(18,17,14,0.28)";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-		this.drawSprite("max-down-1", X(28), Y(62), SPR_W, SPR_H);
+		// on the painted title Max stands on the knoll, drawn at 2x
+		if (painted) this.drawSprite("max-down-1", X(20), Y(116) - SPR_H * 2, SPR_W * 2, SPR_H * 2);
+		else this.drawSprite("max-down-1", X(28), Y(62), SPR_W, SPR_H);
 		this.drawSprite("quillpup-1", X(168), Y(48), X(96), Y(96), false);
 		this.box(X(48), Y(28), X(144), Y(28));
 		this.text("CRYMON", X(120), Y(32), "#e8e4d8", 48, "center");
@@ -5183,9 +5188,17 @@ export class CryMon {
 			this.drawSprite("prop-crate", crate.x - 16, crate.y - 20, 32, 32);
 			this.drawSprite("max-down-1", X(80), Y(72), SPR_W, SPR_H);
 		} else {
-			this.drawMap(VELD, 14 * TILE, 12 * TILE);
-			this.drawSprite("calder-1", X(160), Y(28), SPR_W, SPR_H);
-			this.drawSprite("max-down-1", X(40), Y(72), SPR_W, SPR_H);
+			const ebg = this.mode === "ending" ? this.images["screen-ending"] : null;
+			if (ebg && ebg.width) {
+				// painted dawn: Max in the meadow, Calder up on the ledge
+				this.ctx.drawImage(ebg, 0, 0, VIEW_W, VIEW_H);
+				this.drawSprite("calder-1", X(178), Y(86) - SPR_H * 2, SPR_W * 2, SPR_H * 2);
+				this.drawSprite("max-down-1", X(40), Y(114) - SPR_H * 2, SPR_W * 2, SPR_H * 2);
+			} else {
+				this.drawMap(VELD, 14 * TILE, 12 * TILE);
+				this.drawSprite("calder-1", X(160), Y(28), SPR_W, SPR_H);
+				this.drawSprite("max-down-1", X(40), Y(72), SPR_W, SPR_H);
+			}
 		}
 		this.ctx.fillStyle = "rgba(18,17,14,0.2)";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);

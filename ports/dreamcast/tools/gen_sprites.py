@@ -378,6 +378,15 @@ def main():
         lines.append('#define HAVE_UI_FRAME 1')
         emit_array(lines, 'ui_frame', encode(Image.open(frame_path), 16, 16), 16, 16)
 
+    # Title and ending backdrops (tools/pixelforge/screens.py), half size,
+    # blitted 2x by draw_press_start() / draw_ending().
+    scr = [(n, os.path.join(root, 'screens', n + '.png')) for n in ('title', 'ending')]
+    if all(os.path.isfile(pth) for _, pth in scr):
+        lines.append('#define HAVE_SCREEN_ART 1')
+        for n, pth in scr:
+            emit_array(lines, 'screen_' + n, encode(Image.open(pth), BATTLE_BG_W // 2, BATTLE_BG_H // 2, Image.BOX),
+                       BATTLE_BG_W // 2, BATTLE_BG_H // 2)
+
     # Per-area battle backdrops (tools/pixelforge/battlebg.py), stored at half
     # size and blitted 2x so nine of them cost what two full ones would.
     # Index k+1 matches MAP_BATTLE_BG in content_maps.inc (sorted names from
