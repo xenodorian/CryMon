@@ -3008,6 +3008,16 @@ static void draw_choice_row(const char *label, int idx, int cur, int y) {
 
 static void draw_choice(int cur) {
     int y = MENU_Y + 24;
+    if(choice_pending_ws == NPC_PENDING_LEAD) {
+        draw_menu_frame("LIEUTENANT LEAD", "A CHOOSE");
+        draw_wrapped("HE WAITS FOR YOUR ANSWER.",
+                     MENU_X + 8, y, rgb565(197, 206, 198), MENU_SCALE,
+                     (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
+        y += 24;
+        draw_choice_row("FIGHT", 0, cur, y); y += MENU_ROW_H;
+        draw_choice_row("WALK AWAY", 1, cur, y);
+        return;
+    }
 
     draw_menu_frame("SCROLL OF RESURRECTION", "A CHOOSE");
     draw_wrapped("IT CAN WAKE ONE OF THE DEAD.",
@@ -6478,6 +6488,7 @@ void main(void) {
     int has_scroll = 0; /* Scroll of Resurrection, granted once Shinigami's win dialogue closes */
     int anne2_told = 0; /* gates Anne's second (father-died/choice) approach to firing once */
     int choice_mode = 0, choice_cur = 0; /* father-vs-Heavenfall resurrection choice screen */
+    int choice_pending_ws = -1; /* optional trainer choice: NPC_PENDING_* */
     int mercy_mode = 0, mercy_cur = 0; /* Leg 2.9 post-battle mercy menu */
     int mercy_foe_levels = 0;
     /* g_executed_mask is g_executed_mask (file-static) */
@@ -8411,6 +8422,10 @@ void main(void) {
                         if(apply_npc_step(&nr2, idx)) {
                             seq_beat = 0;
                             post_action = npc_after_to_post_action(npc_after2, npc_pending2, &shop_keep_id);
+                            if(npc_after2 == NPC_AFTER_WSOLDIER && npc_pending2 == NPC_PENDING_LEAD) {
+                                choice_pending_ws = npc_pending2;
+                                post_action = POST_OPEN_CHOICE;
+                            }
                         }
                     } else if(sidx >= 0) {
                         seq_page = 0; seq_lines = TALK_SOLDIER_SPOT;
@@ -8525,6 +8540,24 @@ void main(void) {
             if(up_now && !prev_up) choice_cur = 1 - choice_cur;
             if(down_now && !prev_down) choice_cur = 1 - choice_cur;
             if(a_now && !prev_a) {
+                if(choice_pending_ws == NPC_PENDING_LEAD) {
+                    choice_mode = 0;
+                    if(choice_cur == 0) {
+                        choice_pending_ws = -1;
+                        post_action = POST_WSOLDIER_LEAD;
+                        seq_page = 0;
+                        seq_lines = TALK_PTRS[TALK_LEAD_SPOT];
+                        seq_len = TALK_COUNTS[TALK_LEAD_SPOT];
+                        seq_beat = 0;
+                    } else {
+                        choice_pending_ws = -1;
+                        seq_page = 0;
+                        seq_lines = TALK_PTRS[TALK_LEAD_WALK_AWAY];
+                        seq_len = TALK_COUNTS[TALK_LEAD_WALK_AWAY];
+                        seq_beat = 0;
+                        post_action = POST_NONE;
+                    }
+                } else {
                 choice_mode = 0;
                 chose_heavenfall = choice_cur;
                 if(chose_heavenfall) gauntlet_unlocked = 1;
@@ -8558,6 +8591,7 @@ void main(void) {
                 }
                 seq_beat = 0;
                 post_action = POST_ENDING_FINAL;
+                }
             }
         }
         else if(g_leg3_ending) {
@@ -9824,6 +9858,10 @@ void main(void) {
                     if(try_npc_script(&nr)) {
                         seq_beat = 0;
                         post_action = npc_after_to_post_action(npc_after, npc_pending, &shop_keep_id);
+                        if(npc_after == NPC_AFTER_WSOLDIER && npc_pending == NPC_PENDING_LEAD) {
+                            choice_pending_ws = npc_pending;
+                            post_action = POST_OPEN_CHOICE;
+                        }
                     }
                     else if(map_id == MAP_FOREST) {
                         int si;
