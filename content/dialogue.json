@@ -1696,7 +1696,7 @@
       },
       {
         "speaker": "max",
-        "text": "He will see me."
+        "text": "Then open the door and let him tell me that himself."
       }
     ],
     "royalGuardWinA": [
@@ -1709,6 +1709,10 @@
       {
         "speaker": "royalGuard",
         "text": "One step closer and you die."
+      },
+      {
+        "speaker": "max",
+        "text": "I've heard that from every gate on the way here."
       }
     ],
     "royalGuardWinB": [
@@ -1768,19 +1772,23 @@
     "harrowSpot": [
       {
         "speaker": "harrow",
-        "text": "General Harrow. I held Malkuth back when it was still worth holding."
+        "text": "General Harrow. Malkuth was mine before Nero's war reached this far."
       },
       {
         "speaker": "harrow",
-        "text": "The King keeps my brothers from the old war in the Veil. As long as I serve, they stand guard forever."
+        "text": "He keeps my old comrades in the Veil. As long as I serve him, I can still hear them."
       },
       {
         "speaker": "max",
-        "text": "It's still worth holding. Just not by you."
+        "text": "You can hear them. They can't live."
       },
       {
         "speaker": "harrow",
-        "text": "Brave words from a child with one hound. Guards, stay out of this one."
+        "text": "You sound like someone who hasn't lost enough yet."
+      },
+      {
+        "speaker": "max",
+        "text": "I've lost my father. I'm still fighting."
       }
     ],
     "harrowWin": [
@@ -1824,19 +1832,23 @@
     "ashgroveSpot": [
       {
         "speaker": "ashgrove",
-        "text": "General Ashgrove. You shouldn't be in here. Nobody told me you'd be in here."
+        "text": "General Ashgrove. I know why you're here."
       },
       {
         "speaker": "ashgrove",
-        "text": "He kept my wife's voice. I hear her every night. I'd sign anything for that."
+        "text": "Nero kept my wife's voice. Every night I hear her call my name, and every night I keep serving him for one more word."
       },
       {
         "speaker": "max",
-        "text": "Nobody tells you much, do they?"
+        "text": "That's not your wife. It's a chain."
       },
       {
         "speaker": "ashgrove",
-        "text": "They told me to hold Yesod. So I'm holding it."
+        "text": "Maybe. But you don't know what you'd accept to hear your father again."
+      },
+      {
+        "speaker": "max",
+        "text": "I do. That's why I'm going to take my father back without becoming you."
       }
     ],
     "ashgroveWin": [
@@ -1880,19 +1892,23 @@
     "stroudSpot": [
       {
         "speaker": "stroud",
-        "text": "General Stroud. Every cell in this base has a name scratched in the wall."
+        "text": "General Stroud. Every cell here has a name scratched into it."
       },
       {
         "speaker": "stroud",
-        "text": "The King keeps my son's ghost in a cell of its own. As long as I serve, my boy stays."
-      },
-      {
-        "speaker": "stroud",
-        "text": "I'll scratch yours in tonight."
+        "text": "My son's name is one of them. Nero keeps his ghost here. If I leave, I lose the only place I can hear him."
       },
       {
         "speaker": "max",
-        "text": "Open the cells, and you can walk out of this room."
+        "text": "You keep other people's families locked up to hear your own."
+      },
+      {
+        "speaker": "stroud",
+        "text": "You think that makes me a monster?"
+      },
+      {
+        "speaker": "max",
+        "text": "I think it makes you responsible for what you do next."
       }
     ],
     "stroudWin": [
@@ -1936,19 +1952,23 @@
     "valeSpot": [
       {
         "speaker": "vale",
-        "text": "General Vale. Hear how quiet Hod is? I did that."
+        "text": "General Vale. Hear how quiet Hod is?"
       },
       {
         "speaker": "vale",
-        "text": "My daughter drowned in the river. Nero lets her sing to me. Quiet is the only way I can hear her."
+        "text": "My daughter drowned in the river. Nero lets me hear her singing when the city is silent."
       },
       {
         "speaker": "max",
-        "text": "I heard it from the road. That's why I'm here."
+        "text": "So you made everyone else silent for one voice."
       },
       {
         "speaker": "vale",
-        "text": "Then you'll be quiet too."
+        "text": "What would you sacrifice to hear your dead again?"
+      },
+      {
+        "speaker": "max",
+        "text": "Not a city. Not a child. Not my soul."
       }
     ],
     "valeWin": [
@@ -1992,19 +2012,23 @@
     "kesslerSpot": [
       {
         "speaker": "kessler",
-        "text": "General Kessler. Tiferet burned once. Smell that? I kept a little of it going."
+        "text": "General Kessler. Tiferet burned once. I made sure I remembered the smell."
       },
       {
         "speaker": "kessler",
-        "text": "Fire took my whole family. Nero bound them where no fire can reach them again."
+        "text": "Fire took my family. Nero bound them beyond death, where no fire can touch them."
       },
       {
         "speaker": "max",
-        "text": "I could smell it from the road."
+        "text": "And you burn everyone else to keep from remembering the loss."
       },
       {
         "speaker": "kessler",
-        "text": "Good. Then you know what I do to people who argue."
+        "text": "You think you understand grief because you lost your father?"
+      },
+      {
+        "speaker": "max",
+        "text": "No. I understand what grief can make a person do."
       }
     ],
     "kesslerWin": [
@@ -2048,19 +2072,23 @@
     "morrowSpot": [
       {
         "speaker": "morrow",
-        "text": "General Morrow. Chesed drinks when I open the gates. Not before."
+        "text": "General Morrow. Chesed drinks when I open the gates."
       },
       {
         "speaker": "morrow",
-        "text": "My brother died of thirst in the old war. Nero keeps him. I keep the water."
+        "text": "My brother died of thirst in the old war. Nero keeps him. I keep the water so I can pretend I still have power over something."
       },
       {
         "speaker": "max",
-        "text": "Then I'll open them myself."
+        "text": "You have power over whether children drink."
       },
       {
         "speaker": "morrow",
-        "text": "The key's on my belt. Come and take it."
+        "text": "You'd throw away that power?"
+      },
+      {
+        "speaker": "max",
+        "text": "I'd use it to keep people alive."
       }
     ],
     "morrowWin": [
@@ -2104,19 +2132,23 @@
     "craneSpot": [
       {
         "speaker": "crane",
-        "text": "General Crane. My birds saw you leave CryTown. They've watched every step since."
+        "text": "General Crane. My birds saw you leave CryTown and every road you've taken since."
       },
       {
         "speaker": "crane",
-        "text": "My birds are my old squad. Nero bound them into feathers so they'd never leave me."
+        "text": "They were my old squad. Nero bound them into feathers so they would never leave me."
       },
       {
         "speaker": "max",
-        "text": "Then they watched me win."
+        "text": "They didn't choose that."
       },
       {
         "speaker": "crane",
-        "text": "They watched you get lucky. Watch this."
+        "text": "Neither did I."
+      },
+      {
+        "speaker": "max",
+        "text": "You still choose what you do with them."
       }
     ],
     "craneWin": [
@@ -2156,19 +2188,23 @@
     "blackwoodSpot": [
       {
         "speaker": "blackwood",
-        "text": "General Blackwood. Binah was a garrison before it was a city. It'll be one again."
+        "text": "General Blackwood. Binah was a garrison before it was a city."
       },
       {
         "speaker": "blackwood",
-        "text": "Three kings died on my watch. Nero is the one who refuses to."
+        "text": "Three kings died on my watch. Nero is the one who refuses to die, and I have spent years mistaking that for duty."
       },
       {
         "speaker": "max",
-        "text": "It's a city. It stays one."
+        "text": "You know what he's doing is wrong."
       },
       {
         "speaker": "blackwood",
-        "text": "Soldier's talk. Let's see you back it up."
+        "text": "Knowing is not the same as being willing to lose everything."
+      },
+      {
+        "speaker": "max",
+        "text": "Then lose this post first."
       }
     ],
     "blackwoodWin": [
@@ -2208,19 +2244,23 @@
     "sorrelSpot": [
       {
         "speaker": "sorrel",
-        "text": "General Sorrel. I am the last wall between you and the King."
+        "text": "General Sorrel. I am the last wall between you and Nero."
       },
       {
         "speaker": "sorrel",
-        "text": "I stood at the queen's deathbed with him. I'm the one who told him to keep her."
+        "text": "I stood beside him when the queen died. I was the one who told him to keep her close, even after death."
       },
       {
         "speaker": "max",
-        "text": "Eight walls came down before you."
+        "text": "And you've spent twelve years helping him keep the whole country trapped with her."
       },
       {
         "speaker": "sorrel",
-        "text": "They were soldiers. I am his friend. I do not break."
+        "text": "I thought grief would pass if we had enough time."
+      },
+      {
+        "speaker": "max",
+        "text": "It didn't. So I'm ending what you helped build."
       }
     ],
     "sorrelWin": [
@@ -2268,15 +2308,19 @@
       },
       {
         "speaker": "nero",
-        "text": "Every soldier, every General, every soul in this land stays with me. And you walked through my Veil."
+        "text": "Every soldier, every General, every soul in this land stays with me. Even the dead."
       },
       {
         "speaker": "max",
-        "text": "They wanted to leave. You wouldn't let them."
+        "text": "You call that keeping them. I call it refusing to let anyone go."
       },
       {
         "speaker": "nero",
-        "text": "Then come and take my crown, and see who stays with you."
+        "text": "You came all this way for a dead father. Don't pretend you are different from me."
+      },
+      {
+        "speaker": "max",
+        "text": "I came to bring him back. Not to make him mine."
       }
     ],
     "neroWin": [
@@ -2508,11 +2552,11 @@
     "guardMalkuthSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Malkuth base. Turn around, kid. This is soldier business."
+        "text": "Malkuth base. Turn around. Civilians don't belong here."
       },
       {
         "speaker": "max",
-        "text": "I'm making it my business."
+        "text": "I'm not a civilian anymore."
       }
     ],
     "guardMalkuthWinA": [
@@ -2524,7 +2568,11 @@
     "guardMalkuthSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Hey! How'd you get past Pell?"
+        "text": "You slipped past Pell? That won't happen twice."
+      },
+      {
+        "speaker": "max",
+        "text": "Then make this attempt count."
       }
     ],
     "guardMalkuthWinB": [
@@ -2536,11 +2584,11 @@
     "guardYesodSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Yesod base. Papers. You got papers?"
+        "text": "Yesod base. State your business."
       },
       {
         "speaker": "max",
-        "text": "I've got a CryMon."
+        "text": "I'm here for Ashgrove."
       }
     ],
     "guardYesodWinA": [
@@ -2552,7 +2600,11 @@
     "guardYesodSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Ashgrove said nobody gets through. Ashgrove says a lot of things."
+        "text": "Ashgrove ordered this door sealed. He doesn't change orders."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll make him change this one."
       }
     ],
     "guardYesodWinB": [
@@ -2564,11 +2616,11 @@
     "guardNetzachSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "You smell like the road. Prisoners come in the back door."
+        "text": "Netzach base. Prisoners use the rear entrance."
       },
       {
         "speaker": "max",
-        "text": "I'm not a prisoner."
+        "text": "I'm not here to enter as a prisoner."
       }
     ],
     "guardNetzachWinA": [
@@ -2580,7 +2632,11 @@
     "guardNetzachSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Keys stay with Stroud. You don't get past me for them."
+        "text": "Stroud keeps the keys. Nobody reaches his cells without him."
+      },
+      {
+        "speaker": "max",
+        "text": "Then I'll start with Stroud."
       }
     ],
     "guardNetzachWinB": [
@@ -2592,11 +2648,11 @@
     "guardHodSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Shh. Vale likes it quiet in here."
+        "text": "Quiet. Vale hates noise."
       },
       {
         "speaker": "max",
-        "text": "Then this is going to be loud."
+        "text": "Then he won't like me."
       }
     ],
     "guardHodWinA": [
@@ -2608,7 +2664,11 @@
     "guardHodSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "No talking in the hall. Vale's rule."
+        "text": "No talking in the hall. That's Vale's rule."
+      },
+      {
+        "speaker": "max",
+        "text": "I'm not here to talk."
       }
     ],
     "guardHodWinB": [
@@ -2620,11 +2680,11 @@
     "guardTiferetSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Careful. The floor's still warm from the last fire."
+        "text": "Careful. The floor is still warm from the last fire."
       },
       {
         "speaker": "max",
-        "text": "Then stand still and I won't push you onto it."
+        "text": "Then stand aside before someone gets burned."
       }
     ],
     "guardTiferetWinA": [
@@ -2636,7 +2696,11 @@
     "guardTiferetSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "You're the one burning through our bases? Not this one."
+        "text": "You're the one tearing through our bases. Not this one."
+      },
+      {
+        "speaker": "max",
+        "text": "That's what the others said."
       }
     ],
     "guardTiferetWinB": [
@@ -2648,11 +2712,11 @@
     "guardChesedSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "You want water, you wait in line with the rest."
+        "text": "Water line's outside. The base is closed."
       },
       {
         "speaker": "max",
-        "text": "I'm not here for water."
+        "text": "I'm here for Morrow."
       }
     ],
     "guardChesedWinA": [
@@ -2665,6 +2729,10 @@
       {
         "speaker": "weepingGuard",
         "text": "Gate's locked. General's orders."
+      },
+      {
+        "speaker": "max",
+        "text": "Then tell him I'm coming through anyway."
       }
     ],
     "guardChesedWinB": [
@@ -2676,11 +2744,11 @@
     "guardGevurahSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "The birds said you were coming. I didn't believe them."
+        "text": "The birds said you were coming. Crane has been watching the road."
       },
       {
         "speaker": "max",
-        "text": "Believe them now."
+        "text": "Then he already knows I'm not turning back."
       }
     ],
     "guardGevurahWinA": [
@@ -2692,7 +2760,11 @@
     "guardGevurahSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Look up. Crane sees everything you do."
+        "text": "Look up. Crane sees everything."
+      },
+      {
+        "speaker": "max",
+        "text": "Then let him watch me beat him."
       }
     ],
     "guardGevurahWinB": [
@@ -2708,7 +2780,7 @@
       },
       {
         "speaker": "max",
-        "text": "CryTown. Unit of one."
+        "text": "CryTown. One person, one CryMon, and no intention of stopping."
       }
     ],
     "guardBinahWinA": [
@@ -2720,7 +2792,11 @@
     "guardBinahSpotB": [
       {
         "speaker": "weepingGuard",
-        "text": "Blackwood trained me himself. You won't get past."
+        "text": "Blackwood trained me himself. You won't pass."
+      },
+      {
+        "speaker": "max",
+        "text": "Then he trained you to lose slowly."
       }
     ],
     "guardBinahWinB": [
@@ -2732,11 +2808,11 @@
     "guardChokmahSpotA": [
       {
         "speaker": "weepingGuard",
-        "text": "Nobody reaches the King. That's the whole point of Chokmah."
+        "text": "Nobody reaches the King. That's the point of Chokmah."
       },
       {
         "speaker": "max",
-        "text": "I'm not trying to reach him. Yet."
+        "text": "Then you're the last thing between me and him."
       }
     ],
     "guardChokmahWinA": [
@@ -2749,6 +2825,10 @@
       {
         "speaker": "weepingGuard",
         "text": "Last door before the King. Last chance to walk away."
+      },
+      {
+        "speaker": "max",
+        "text": "I walked away from CryTown once. Never again."
       }
     ],
     "guardChokmahWinB": [
