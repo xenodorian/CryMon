@@ -99,4 +99,4 @@ Quarry remains parked and is intentionally excluded from this bug log's implemen
 Status: Fixed 2026-09-27. The map name (scale 2, top right) printed over the lead and scroll lines, "SAVED" printed over the lead's name, and the foe's battle line ("NEEDLEROOT LV10 20/66") ran off the right edge with the player's nature badge over the "/". Map name is now scale 1 on the REP row, the toast sits centered under the HUD, and the battle lines stay on screen with badges beside the text.
 
 ### BUG-019: Needleroot art has magenta patches
-Status: Open, art (not code). public/sprites/monsters/needleroot/*.png contain opaque magenta pixels (frame 3: 803 of 4704 opaque pixels), which show on both ports. The DC converter is not the cause. Owned by the art thread.
+Status: Fixed, closed 2026-09-27 by commit 005d363. A scan of every PNG under public/sprites finds no magenta pixels left. Original note: public/sprites/monsters/needleroot/*.png contain opaque magenta pixels (frame 3: 803 of 4704 opaque pixels), which show on both ports. The DC converter is not the cause. Owned by the art thread.
