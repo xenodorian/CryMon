@@ -1,75 +1,69 @@
-name: Checks
+name: Full sweep
 
-# Gates on every push and PR (BUG_LOG BUG-005..009): content bake is in
-# sync, web typecheck/lint/unit tests, a real browser run of both crystal
-# wardens through win, save, reload and Continue (web blob read back by the
-# Dreamcast save.c), then the same fights on the Dreamcast build itself,
-# booted headless in Flycast, checked through the VMU save it writes.
+# Nightly (and on demand): every map and every scripted trainer fight on
+# both ports. Web through Playwright; Dreamcast through the real CDI in
+# headless Flycast, checked by reading back the VMU save. Too slow for
+# every push (the per-push checks keep Quartz, Opal and the web map tour).
 
 on:
-  push:
-  pull_request:
+  schedule:
+    - cron: "17 6 * * *"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  checks:
+  sweep:
     runs-on: ubuntu-latest
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - name: Install
-        run: npm ci
-      - name: Bake is in sync with content/*.json
-        run: |
-          python3 tools/bake_content.py --content content --out ports/dreamcast/src
-          git diff --exit-code -- 'ports/dreamcast/src/content_*.inc'
-          python3 tools/check_sync.py --strict
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Lint
-        run: npm run lint
-      - name: Unit tests
-        run: npm test
-      - name: Browser
-        run: npx playwright install --with-deps chromium
-      - name: Crystal wardens end to end (web + Dreamcast save readback)
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Web sweep (maps, trainers)
         run: |
           npm run dev > dev.log 2>&1 &
           for i in $(seq 1 60); do curl -sf -o /dev/null http://localhost:8080/ && break; sleep 1; done
-          E2E_OUT=e2e-out npm run test:e2e:quartz
-      - name: Battle turn order end to end (web)
-        run: npm run test:e2e:battle
-      - name: Every map loads from a save (web)
-        run: |
-          python3 ports/dreamcast/tools/map_tour.py --base e2e-out/quartz-before.bin --out e2e-out/tour --blobs-only
-          node scripts/e2e-map-tour.mjs e2e-out/tour
+          E2E_OUT=sweep node scripts/e2e-quartz.mjs quartz
+          python3 ports/dreamcast/tools/map_tour.py --base sweep/quartz-before.bin --out sweep/tour --blobs-only
+          python3 ports/dreamcast/tools/trainer_saves.py --base sweep/quartz-before.bin --out sweep/trainers
+          status=0
+          node scripts/e2e-map-tour.mjs sweep/tour || status=1
+          node scripts/e2e-trainers.mjs sweep/trainers || status=1
+          exit $status
       - name: Build Dreamcast CDI
+        if: always()
         run: |
           python3 -m pip install --user Pillow python-xlib
           python3 ports/dreamcast/tools/gen_sprites.py public/sprites
           docker run --rm -v "$GITHUB_WORKSPACE:/src" -w /src einsteinx2/dcdev-kos-toolchain:gcc-9 sh -lc 'export PATH=/opt/toolchains/dc/sh-elf/bin:/opt/toolchains/dc/bin:$PATH; make -C ports/dreamcast clean && make -C ports/dreamcast'
           docker run --rm -v "$GITHUB_WORKSPACE:/src" ubuntu:24.04 bash -lc 'set -e; apt-get update -qq; DEBIAN_FRONTEND=noninteractive apt-get install -y -qq git meson ninja-build pkg-config build-essential libisofs-dev >/dev/null; git clone -q --depth 1 https://gitlab.com/simulant/mkdcdisc.git /tmp/mkdcdisc; meson setup /tmp/mkdcdisc/build /tmp/mkdcdisc >/dev/null; meson compile -C /tmp/mkdcdisc/build >/dev/null; /tmp/mkdcdisc/build/mkdcdisc -e /src/ports/dreamcast/crymon.elf -f /src/ports/dreamcast/disc/MONSTERS.BIN -o /src/ports/dreamcast/test.cdi -n "CryMon" -a "xenodorian" -N --allow-overwrite'
-      - name: Crystal wardens on Dreamcast (Flycast, headless)
+      - name: Dreamcast sweep (Flycast, headless)
+        if: always()
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq xvfb libgl1 libegl1 libgl1-mesa-dri >/dev/null
-          # Prebuilt Flycast (an extracted AppImage) from the linuxserver image.
           cid=$(docker create linuxserver/flycast)
           docker cp "$cid:/opt/flycast" "$RUNNER_TEMP/flycast"
           docker rm "$cid"
-          python3 ports/dreamcast/tools/emu_warden.py --cdi ports/dreamcast/test.cdi \
-            --flycast "$RUNNER_TEMP/flycast/AppRun" --save-dir e2e-out --out e2e-out/dreamcast
-      - name: Upload e2e artifacts
+          FC="$RUNNER_TEMP/flycast/AppRun"
+          status=0
+          python3 ports/dreamcast/tools/map_tour.py --cdi ports/dreamcast/test.cdi --flycast "$FC" \
+            --base sweep/quartz-before.bin --out sweep/dc-tour || status=1
+          who=$(python3 -c "import json;print(' '.join(p['trainer'] for p in json.load(open('sweep/trainers/plan.json'))))")
+          python3 ports/dreamcast/tools/emu_warden.py --quick --max-presses 900 --cdi ports/dreamcast/test.cdi \
+            --flycast "$FC" --save-dir sweep/trainers --out sweep/dc-trainers $who || status=1
+          exit $status
+      - name: Upload sweep
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: e2e
+          name: sweep
           path: |
-            e2e-out
+            sweep
             dev.log
           if-no-files-found: ignore
