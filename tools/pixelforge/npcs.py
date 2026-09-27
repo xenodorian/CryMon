@@ -41,9 +41,9 @@ def walker(p, t):
     G = H - 1
     # vertical layout
     if child:
-        head_y, head_r, sh_y, waist, hip_w = 27, 7.5, 34, 47, 6
+        head_y, head_r, sh_y, waist, hip_w = 28, 6.4, 35, 47, 6
     else:
-        head_y, head_r, sh_y, waist, hip_w = 13, 7.0, 22, 41, 7
+        head_y, head_r, sh_y, waist, hip_w = 11, 5.6, 19, 38, 7
     if old:
         head_y += 1
         sh_y += 1
@@ -119,8 +119,10 @@ def walker(p, t):
         bottom = waist + 2 + b if outfit != "coat" else waist + 8 + b * 0.5
         flare = 2 if outfit == "coat" else 0
         body_m = m["shirt"] if outfit == "vest" else m["main"]
-        c.poly([(cx - tw, top), (cx + tw, top), (cx + tw - 1 + flare, bottom), (cx - tw + 1 - flare, bottom)], body_m,
-               z=2, bevel=3, g=g)
+        c.poly([(cx - tw, top + 1), (cx - tw + 2, top - 1), (cx + tw - 2, top - 1), (cx + tw, top + 1),
+                (cx + tw * 0.78 + flare, bottom), (cx - tw * 0.78 - flare, bottom)], body_m, z=2, bevel=3, g=g)
+        # fold shading down the flanks and a belt-line crease
+        c.pattern(lambda x, y: (abs(abs(x - cx) - tw * 0.55) < 0.6) & (y > top + 4), -1, only=g)
         if outfit == "vest":
             c.poly([(cx - tw, top), (cx - 2, top), (cx - 2, waist + b), (cx - tw + 1, waist + b)], m["main"], z=3, bevel=1)
             c.poly([(cx + 2, top), (cx + tw, top), (cx + tw - 1, waist + b), (cx + 2, waist + b)], m["main"], z=3, bevel=1)
@@ -153,11 +155,15 @@ def walker(p, t):
     for d in (-1, 1):
         sx = cx + d * (tw + 0.5)
         hand_y = waist - 1 + b
-        c.cap(sx, top + 2, 2.6 * bw, sx + d * 1.5, hand_y - 2, 2.2, arm_m, z=4)
+        swing = [0, 0.5, 1, 0.5][t] * d
+        ex_, ey_ = sx + d * 2.2, (top + hand_y) / 2 + 0.5
+        hx2 = sx + d * 1.2 - swing * 0.6
+        c.chain([(sx, top + 2, 2.4 * bw), (ex_, ey_, 2.0 * bw), (hx2, hand_y - 1.5, 1.8)], arm_m, z=4)
+        c.cap(hx2 - 1.8, hand_y - 2.6, 0.6, hx2 + 1.8, hand_y - 2.6, 0.6, m["trim"], z=5) if outfit in ("coat", "armor") else None
         if "gloves" in ex:
-            c.ell(sx + d * 1.5, hand_y, 2.4, 2.4, M("#2a2226"), z=6)
+            c.ell(hx2, hand_y, 2.0, 2.2, M("#2a2226"), z=6)
         elif outfit != "ghost":
-            c.ell(sx + d * 1.5, hand_y, 2.2, 2.2, m["skin"], z=6)
+            c.ell(hx2, hand_y, 1.8, 2.1, m["skin"], z=6)
 
     # ---- hand-held things
     if "sword" in ex:
@@ -187,7 +193,10 @@ def walker(p, t):
 
     # ---- head
     hg = c.group()
-    c.ell(cx, hy, head_r, head_r + 0.5, m["skin"], z=10, g=hg)
+    c.cap(cx, hy + head_r - 1, 1.8, cx, top + 1, 2.0, m["skin"], z=3)
+    look = [0, 0, -0.5, -0.5][t]
+    c.ell(cx + look, hy, head_r, head_r + 0.7, m["skin"], z=10, g=hg)
+    c.ell(cx + look, hy + head_r * 0.5, head_r * 0.78, head_r * 0.5, m["skin"], z=10.5, g=hg)
     c.ell(cx - head_r, hy + 1, 1.4, 2, m["skin"], z=9)
     c.ell(cx + head_r, hy + 1, 1.4, 2, m["skin"], z=9)
     # hair
@@ -206,9 +215,9 @@ def walker(p, t):
     # beard
     bd = p.get("beard", "none")
     if bd == "full":
-        c.ell(cx, hy + 4.5, head_r - 1, 4.5, m["beard"], z=14, tuft=8, tuft_len=1.2, tuft_arc=(20, 160))
+        c.ell(cx + look, hy + head_r * 0.8, head_r - 1.2, 3.4, m["beard"], z=14, tuft=8, tuft_len=1.2, tuft_arc=(20, 160))
     elif bd == "goatee":
-        c.ell(cx, hy + 6, 2.2, 2.4, m["beard"], z=14)
+        c.ell(cx + look, hy + head_r * 0.9, 1.8, 2.2, m["beard"], z=14)
     # hat
     hat = p.get("hat", "none")
     if hat == "cap":
@@ -244,7 +253,9 @@ def walker(p, t):
 
     def face(cc):
         ey = int(hy + 0.5)
-        lx, rx = cx - 3, cx + 2
+        lx, rx = cx - 3 + int(look), cx + 1 + int(look)
+        # nose shade under the brow line
+        cc.put(cx - 1 + int(look), ey + 2, skin_d)
         if hat in ("helmet", "plume") and "tears" in ex and p["outfit"] != "ghost":
             pass
         for x in (lx, rx):
@@ -261,7 +272,7 @@ def walker(p, t):
                 cc.put(x, ey - 1, dark)
             if expr == "sad":
                 cc.put(x + (1 if x == lx else -1) * -1, ey - 1, skin_d)
-        my = int(hy + 4)
+        my = int(hy + 3.6)
         if bd not in ("full",):
             if expr in ("smile", "smirk"):
                 cc.put(cx - 2, my, dark) if expr == "smile" else None
