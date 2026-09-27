@@ -51,8 +51,10 @@ session stops, pick up at the first step not marked DONE.
    `--control` steps away first; 3/5 correctly FAIL, 2 still answered by a second NPC in
    reach, so a PASS proves *an* NPC answered, not always the target. Full run (~1 h):
    `npc_talk.py --cdi ports/dreamcast/test.cdi --flycast <AppRun> --base e2e-out/quartz-before.bin`.
-5. **Regional dialogue/NPC audit -- TODO.** Report proposed text edits to the user
-   before applying them.
+5. **Regional dialogue/NPC audit -- REPORT WRITTEN, AWAITING USER OK.** Covered the 20
+   regions no earlier audit touched. Findings and proposed rewrites:
+   `docs/DIALOGUE_AUDIT_2026-09-27.md` (4 state bugs, 4 redundant-exposition items).
+   Nothing in `content/` changed yet. Do not apply without the user's approval.
 
 ## Standing repository rules
 
