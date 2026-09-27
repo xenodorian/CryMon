@@ -654,6 +654,44 @@ static int wrapped_page_count(const char *s, int max_chars) {
     return (lines + DIALOGUE_LINES_PER_PAGE - 1) / DIALOGUE_LINES_PER_PAGE;
 }
 
+#define WRAP_BUF_MAX 40
+static void draw_wrapped(const char *s, int x, int y, u16 color, int scale,
+                          int max_chars, int line_h) {
+    char buf[WRAP_BUF_MAX + 1];
+    int buf_len = 0;
+    int line = 0;
+    const char *p = s;
+
+    for(;;) {
+        int wlen = word_len(p);
+        int need = wlen + (buf_len > 0 ? 1 : 0);
+
+        if(buf_len > 0 && buf_len + need > max_chars) {
+            buf[buf_len] = 0;
+            draw_text_s(buf, x, y + line * line_h, color, scale);
+            line++;
+            buf_len = 0;
+        }
+
+        if(buf_len > 0)
+            buf[buf_len++] = ' ';
+        {
+            int i;
+            for(i = 0; i < wlen && buf_len < WRAP_BUF_MAX; i++)
+                buf[buf_len++] = p[i];
+        }
+
+        p += wlen;
+        if(*p != ' ')
+            break;
+        p++;
+    }
+
+    buf[buf_len] = 0;
+    draw_text_s(buf, x, y + line * line_h, color, scale);
+}
+
+
 static void draw_wrapped_page(const char *s, int x, int y, u16 color, int scale,
                               int max_chars, int line_h, int page) {
     char buf[WRAP_BUF_MAX + 1];
