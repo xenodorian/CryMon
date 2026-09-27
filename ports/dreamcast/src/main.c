@@ -1336,9 +1336,9 @@ typedef struct {
    every other SPK_* here already has, just with a real gap before it
    instead of a contiguous run. */
 #define SPK_HEAVENFALLPRIESTESS 37
-/* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals).
-   No portraits drawn yet (PLACEHOLDER_ART); the rest of the table below
-   is zero-filled by C's partial-initializer rule. */
+/* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals),
+   in bake_content.py's SPEAKER order. Portraits are PLACEHOLDER_ART from
+   tools/make_placeholder_npcs.py. */
 #define SPK_COUNT     50
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
@@ -1391,6 +1391,18 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { 0, 0, 0 }, /* 35 */
     { 0, 0, 0 }, /* 36 -- SPK_NONE/"system" territory, no portrait */
     { port_heavenfallPriestess, PORT_HEAVENFALLPRIESTESS_W, PORT_HEAVENFALLPRIESTESS_H }, /* 37 */
+    { port_weepingGuard, PORT_WEEPINGGUARD_W, PORT_WEEPINGGUARD_H }, /* 38 PLACEHOLDER_ART */
+    { port_royalGuard, PORT_ROYALGUARD_W, PORT_ROYALGUARD_H }, /* 39 PLACEHOLDER_ART */
+    { port_nero, PORT_NERO_W, PORT_NERO_H }, /* 40 PLACEHOLDER_ART */
+    { port_harrow, PORT_HARROW_W, PORT_HARROW_H }, /* 41 PLACEHOLDER_ART */
+    { port_ashgrove, PORT_ASHGROVE_W, PORT_ASHGROVE_H }, /* 42 PLACEHOLDER_ART */
+    { port_stroud, PORT_STROUD_W, PORT_STROUD_H }, /* 43 PLACEHOLDER_ART */
+    { port_vale, PORT_VALE_W, PORT_VALE_H }, /* 44 PLACEHOLDER_ART */
+    { port_kessler, PORT_KESSLER_W, PORT_KESSLER_H }, /* 45 PLACEHOLDER_ART */
+    { port_morrow, PORT_MORROW_W, PORT_MORROW_H }, /* 46 PLACEHOLDER_ART */
+    { port_crane, PORT_CRANE_W, PORT_CRANE_H }, /* 47 PLACEHOLDER_ART */
+    { port_blackwood, PORT_BLACKWOOD_W, PORT_BLACKWOOD_H }, /* 48 PLACEHOLDER_ART */
+    { port_sorrel, PORT_SORREL_W, PORT_SORREL_H }, /* 49 PLACEHOLDER_ART */
 };
 
 #include "content_talk.inc"

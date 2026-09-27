@@ -4,7 +4,8 @@
     python3 tools/make_placeholder_npcs.py harrow nero weepingGuard ...
 
 Writes public/sprites/npc/<id>-1..4.png (48x64, the size every other NPC
-walker uses): a plain standing figure in the colors given in STYLE below,
+walker uses) and a 160x200 dialogue portrait at public/sprites/portraits/
+<id>.png (a zoomed bust of the same figure): a plain standing figure in the colors given in STYLE below,
 bobbing across the 4 idle frames, with a magenta "PH" tag so nobody takes
 it for finished art. Real art (Grok) replaces the same paths later.
 Refuses to overwrite an existing PNG unless --force is given.
@@ -78,6 +79,19 @@ def frame(uniform, trim, hat: str, bob: int) -> Image.Image:
     return im
 
 
+def portrait(uniform, trim, hat: str) -> Image.Image:
+    """160x200 bust: the idle frame's head and shoulders, scaled up 5x."""
+    fig = frame(uniform, trim, hat, 0).crop((8, 0, 40, 40)).resize((160, 200), Image.NEAREST)
+    im = Image.new("RGBA", (160, 200), (46, 40, 34, 255))
+    im.alpha_composite(fig)
+    d = ImageDraw.Draw(im)
+    d.rectangle([0, 182, 159, 199], fill=(24, 20, 16, 235))
+    label = "PLACEHOLDER"
+    f = font(11)
+    d.text(((160 - d.textlength(label, font=f)) / 2, 185), label, fill=(255, 0, 255, 255), font=f)
+    return im
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("ids", nargs="+")
@@ -93,6 +107,12 @@ def main() -> None:
                 print(f"skip {out.relative_to(ROOT)} (exists)")
                 continue
             frame(uniform, trim, hat, bob).save(out)
+            print(f"wrote {out.relative_to(ROOT)}")
+        out = assert_write(CANON / "portraits" / f"{nid}.png")
+        if out.exists() and not args.force:
+            print(f"skip {out.relative_to(ROOT)} (exists)")
+        else:
+            portrait(uniform, trim, hat).save(out)
             print(f"wrote {out.relative_to(ROOT)}")
 
 

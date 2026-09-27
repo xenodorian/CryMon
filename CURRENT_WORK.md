@@ -3186,10 +3186,8 @@ Each stage below is pushed on its own; tick it here when it lands.
       - New speakers 38-49 in bake_content `SPEAKER`; Dreamcast
         `SPK_COUNT` is 50 with no portraits for them yet (PLACEHOLDER_ART).
       - NPC placeholders: `tools/make_placeholder_npcs.py` (48x64, "PH" tag).
-      - Known, pre-existing: `build_sephirot.py --step 23` does not reproduce
-        the committed city gate letters (yesod/netzach/hod/chesed/chokmah/
-        keter swap letters; the gate-order fix was applied to the rows, not
-        the tool). Don't re-run it without fixing that first.
+      - (Fixed in the follow-up pass: `build_sephirot.py --step 23` used to
+        relabel six cities' gates; it now reuses the letters in warps.json.)
 - [x] S3 Web: base soldiers/Generals, medals, arrest/execute, Golden Shackles.
 - [x] S4 Web: Nero, tint/Kingslayer, father reaction, Heavenfall endings.
       (S3 and S4 landed together in engine.ts.) Where things are:
@@ -3270,8 +3268,18 @@ Each stage below is pushed on its own; tick it here when it lands.
 - [x] S7 Verify: typecheck clean, 195 + 55 tests pass, eslint 0 errors,
       check_sync --strict green, Playwright and Flycast runs as noted in
       S3/S4 and S5/S6.
-      Open follow-ups: real art for the 12 Leg 3 NPCs and Dreamcast
-      portraits for speakers 38-49 (PLACEHOLDER_ART); dedicated scream SFX
-      on Dreamcast (uses the faint sound, as mercy already did);
-      `build_sephirot.py` gate-letter drift (see S2); the design guesses
-      listed at the top of this section are the user's to confirm.
+      Follow-up pass (Claude, 2026-09-27), all pushed:
+      - Placeholder portraits for speakers 38-49 on both engines
+        (`make_placeholder_npcs.py` now writes `portraits/<id>.png` too).
+        Costs ~600 KB of Dreamcast RAM (ELF 2.0 -> 2.6 MB); portraits are a
+        candidate for disc streaming like monster frames if RAM gets tight.
+      - Dreamcast plays the real SFX_SCREAM (it was baked but unused) for
+        every scream, not the faint sound.
+      - ChipEv.frames widened to 16 bits: the home song's 320-frame rest
+        was wrapping to 64 on Dreamcast.
+      - Dreamcast HUD showed a hard-coded "QUILLPUP LV3"; now the real lead.
+      - `build_sephirot.py` reuses committed gate letters, so a full re-run
+        is byte-identical (gate positions were already correct).
+      - eslint 15 warnings -> 1 (shadcn button.tsx, left as is).
+      Still open: real art for the 12 Leg 3 NPCs/portraits (Grok); the
+      design guesses at the top of this section are the user's to confirm.
