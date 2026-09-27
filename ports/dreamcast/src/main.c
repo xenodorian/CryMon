@@ -2160,10 +2160,12 @@ static int *bag_field(Bag *bag, int idx) {
 #define MENU_SCALE 1
 #define MENU_ROW_H 16
 
-/* No background panel -- outlined text reads fine directly over
-   whatever's behind the menu (the world scene, since draw_bag_menu/
-   draw_party_menu/draw_shop are all drawn as an overlay after it). */
+/* Solid bordered panel, like the web's box(): menus are drawn as an
+   overlay after the world scene, and text over busy map art was hard
+   to read. */
 static void draw_menu_frame(const char *title, const char *footer) {
+    fill_rect(MENU_X, MENU_Y, MENU_W, MENU_H, rgb565(90, 86, 72));
+    fill_rect(MENU_X + 1, MENU_Y + 1, MENU_W - 2, MENU_H - 2, rgb565(22, 20, 18));
     draw_text_s(title, MENU_X + 8, MENU_Y + 8, 0xFFFF, MENU_SCALE);
     draw_text_s(footer, MENU_X + 8, MENU_Y + MENU_H - 16,
                 rgb565(180, 220, 170), MENU_SCALE);
@@ -2258,9 +2260,8 @@ static const u16 *const ITEM_ICONS[] = {
 };
 
 /* Effect text is stripped out of the row's own title now (matching
-   the battle item menu below) and only drawn when the row is the one
-   under the cursor, so the list reads as plain item names/counts
-   until the player actually navigates onto one. */
+   the battle item menu below) and only drawn for the row under the
+   cursor, beside the BAG title, so it never runs off the panel. */
 static const char *const ITEM_EFFECT_DESC[] = {
     "+22 HP", "+12 HP", "STR+4", "-3/-2/-2", "CATCH",
     "+40 HP", "AGL+4", "FLEE", "CATCH+", "CAGE KEY",
@@ -2271,23 +2272,37 @@ static const char *const ITEM_EFFECT_DESC[] = {
 
 static void draw_bag_row(const u16 *icon, const char *label, int count,
                           int idx, int cur, int y) {
-    char buf[48];
-    int n;
+    char buf[48], cnt[8];
+    int n, k, x = MENU_X + 16 + ITEM_ICON_W + 4, right;
     u16 color = (idx == cur) ? rgb565(232, 228, 216) : rgb565(138, 134, 120);
 
     draw_text_s(idx == cur ? ">" : " ", MENU_X + 8, y, color, MENU_SCALE);
     if(icon)
         blit_sprite(icon, ITEM_ICON_W, ITEM_ICON_H, MENU_X + 16, y - 1);
 
+    /* Count sits right-aligned so long names can't push it off the panel. */
+    k = s_cat(cnt, 0, "X");
+    k = s_cat_uint(cnt, k, count);
+    cnt[k] = 0;
+    right = MENU_X + MENU_W - 8 - text_width_s(cnt, MENU_SCALE);
+    draw_text_s(cnt, right, y, color, MENU_SCALE);
+
     n = s_cat(buf, 0, label);
-    n = s_cat(buf, n, " X");
-    n = s_cat_uint(buf, n, count);
-    if(idx == cur) {
-        n = s_cat(buf, n, "  ");
-        n = s_cat(buf, n, ITEM_EFFECT_DESC[idx]);
-    }
     buf[n] = 0;
-    draw_text_s(buf, MENU_X + 16 + ITEM_ICON_W + 4, y, color, MENU_SCALE);
+    if(x + text_width_s(buf, MENU_SCALE) > right - 6) {
+        /* "ULTIMATE CAPTURE CRYSTAL" -> "ULTIMATE CRYSTAL" */
+        int i, j = 0;
+        for(i = 0; buf[i]; i++) {
+            if(buf[i] == 'C' && buf[i + 1] == 'A' && buf[i + 2] == 'P' && buf[i + 3] == 'T'
+               && buf[i + 4] == 'U' && buf[i + 5] == 'R' && buf[i + 6] == 'E' && buf[i + 7] == ' ') {
+                i += 7;
+                continue;
+            }
+            buf[j++] = buf[i];
+        }
+        buf[j] = 0;
+    }
+    draw_text_s(buf, x, y, color, MENU_SCALE);
 }
 
 /* Leg 2.5: item count grew past what fits in the fixed menu box in one
@@ -2300,13 +2315,16 @@ static void draw_bag_menu(const Bag *bag, int marks, int cur) {
     char marks_buf[16];
     int n, i, start, max_start;
 
-    draw_menu_frame("BAG", "UP/DOWN A USE  B CLOSE");
+    draw_menu_frame("BAG", "A USE  B CLOSE");
+    if(cur >= 0 && cur < ITEM_COUNT) /* the cursor row's effect, beside the title */
+        draw_text_s(ITEM_EFFECT_DESC[cur], MENU_X + 8 + text_width_s("BAG  ", MENU_SCALE),
+                    MENU_Y + 8, rgb565(90, 122, 82), MENU_SCALE);
 
     n = s_cat(marks_buf, 0, "MARKS ");
     n = s_cat_uint(marks_buf, n, marks);
     marks_buf[n] = 0;
     draw_text_s(marks_buf, MENU_X + MENU_W - 8 - text_width_s(marks_buf, MENU_SCALE),
-                MENU_Y + 8, rgb565(143, 74, 64), MENU_SCALE);
+                MENU_Y + MENU_H - 16, rgb565(143, 74, 64), MENU_SCALE);
 
     max_start = ITEM_COUNT - BAG_ROWS_SHOWN;
     if(max_start < 0) max_start = 0;
@@ -2436,7 +2454,7 @@ static void draw_settings_menu(void) {
     fill_rect(MENU_X + 8, y, bar_w, 8, rgb565(42, 38, 32));
     fill_rect(MENU_X + 8, y, fill, 8, rgb565(90, 122, 82));
     y += MENU_ROW_H;
-    draw_text_s("200% IS TWICE THE OLD MAX", MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE);
+    draw_text_s("200 IS TWICE THE OLD MAX", MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE);
 }
 
 static void draw_party_menu(const Monster *party, int party_n, int lead, int party_cur,
@@ -4579,7 +4597,7 @@ static const char *journal_hint(int qi) {
     return "";
 }
 
-#define JOURNAL_VIS 14
+#define JOURNAL_VIS 8
 static void draw_journal(int cur) {
     int rows[JOURNAL_QUEST_N > 0 ? JOURNAL_QUEST_N : 1];
     int n = journal_rows(rows), i, open_n = 0, start, y;
@@ -4599,18 +4617,19 @@ static void draw_journal(int cur) {
     start = cur - JOURNAL_VIS / 2;
     if(start > n - JOURNAL_VIS) start = n - JOURNAL_VIS;
     if(start < 0) start = 0;
-    y = MENU_Y + 24;
-    for(i = start; i < n && i < start + JOURNAL_VIS; i++, y += 16) {
+    y = MENU_Y + 22;
+    for(i = start; i < n && i < start + JOURNAL_VIS; i++, y += 11) {
         const JournalQuest *q = &JOURNAL_QUESTS[rows[i]];
         int done = q->done >= 0 && journal_flag(q->done);
         u16 c = i == cur ? rgb565(90, 122, 82) : (done ? rgb565(110, 106, 92) : rgb565(197, 206, 198));
         draw_text_s(i == cur ? ">" : " ", MENU_X + 8, y, c, 1);
         draw_text_s(q->title, MENU_X + 20, y, c, 1);
-        if(done) draw_text_s("DONE", MENU_X + MENU_W - 48, y, rgb565(90, 122, 82), 1);
+        if(done) draw_text_s("DONE", MENU_X + MENU_W - 40, y, rgb565(90, 122, 82), 1);
     }
-    y = MENU_Y + 24 + JOURNAL_VIS * 16 + 8;
-    fill_rect(MENU_X + 8, y - 4, MENU_W - 16, 1, rgb565(90, 86, 72));
-    draw_wrapped(journal_hint(rows[cur]), MENU_X + 8, y + 4, rgb565(232, 228, 216), 1, 70, 14);
+    y = MENU_Y + 22 + JOURNAL_VIS * 11 + 2;
+    fill_rect(MENU_X + 8, y, MENU_W - 16, 1, rgb565(90, 86, 72));
+    draw_wrapped(journal_hint(rows[cur]), MENU_X + 8, y + 5, rgb565(232, 228, 216), MENU_SCALE,
+                 (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 10);
 }
 static int npc_def_hidden(int li) {
     if(!g_ft || !g_party_n_ptr) return 0;

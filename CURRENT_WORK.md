@@ -3649,6 +3649,19 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         7, pause menu now 8 rows (JOURNAL at 4; Save 6, Close 7).
       - Verified on web: hints follow flags, quests appear on the ask,
         done quests sort last, screenshot of the screen. Dreamcast builds.
+- [x] H5 Dreamcast menu readability, checked in Flycast (built from source
+      in the container, driven by xdotool on Xvfb, save injected into the
+      VMU file).
+      - Journal was laid out for 640x480; the screen is 320x240. Rows and
+        the hint now fit, and the hint wraps to the panel width.
+      - Every menu (`draw_menu_frame`) now draws a solid bordered panel,
+        like the web's `box()`. Text over map art was hard to read.
+      - Bag: counts are right-aligned, "CAPTURE" is dropped from crystal
+        names that would not fit, the cursor item's effect sits beside the
+        BAG title, and MARKS moved to the footer. Long names used to run
+        off the screen.
+      - Settings: "200% IS..." drew a blank for "%" (no glyph) and ran off
+        the panel; now "200 IS TWICE THE OLD MAX".
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
