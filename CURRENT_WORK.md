@@ -57,11 +57,20 @@ session stops, pick up at the first step not marked DONE.
    regions no earlier audit touched. Findings and proposed rewrites:
    `docs/DIALOGUE_AUDIT_2026-09-27.md` (4 state bugs, 4 redundant-exposition items).
    Nothing in `content/` changed yet. Do not apply without the user's approval.
-6. **Move / growth redesign -- TODO (added by user request).** Spec is Grok's
-   "Move / growth redesign" table at the end of this file. Open questions before code:
-   what Hype Up does (not defined), the per-species Lv20 and Lv30 effects (marked TBD),
-   and whether existing saves past Lv12/22 need a migration when evolve levels move to
-   15/25 (a Lv13 CryMon that already evolved stays evolved?).
+6. **Move / growth redesign -- IN PROGRESS (Claude, both engines, user approved).**
+   User decisions 2026-09-27: Lv20/Lv30 moves are **one pair per crystal** (18 moves,
+   like `natureMoves`); Claude implements **web and Dreamcast**; **bump the save
+   version** (old saves rejected). Hype Up already exists (`logic.json` `hypeUp`).
+   Stat stages only lower stats, so "self-buff" riders use Hype Up.
+   Phases, each shipped on both engines together:
+   - **A. Numbers:** `evolveAt` 15, `evolveAt2` 25, every secondary `maxPp` 10, every
+     species `specialPp` 5, `save.json` version bump. -- TODO
+   - **B. Lv15 gate:** Hype Up for species in an evolution line from Lv15 (not merely
+     "is an evolved form"); **Attack Swap** at Lv15 for single-stage species (basic
+     damage, then pick a party CryMon to switch in; foe AI uses it as a plain hit). -- TODO
+   - **C. Lv20 / Lv30 crystal moves:** Lv20 basic-power hit + rider, 10 PP/battle;
+     Lv30 special-power hit + rider, 5 PP/battle; rider = foe stage down, foe status,
+     or self Hype Up; applies only when the hit lands. -- TODO
 
 ## Standing repository rules
 
