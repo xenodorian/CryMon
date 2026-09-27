@@ -55,7 +55,6 @@ export function pickMason2Map(rand01: number): MapId {
 }
 
 export function shouldSpawnMasonRematch(flags: LogicFlags): boolean {
-	const r = LOGIC.masonRematch;
 	if (flags.mason2Done) return false;
 	if (!flags.mason2Map) return false;
 	if (flags.mapId !== flags.mason2Map) return false;

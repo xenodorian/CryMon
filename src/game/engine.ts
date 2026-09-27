@@ -59,29 +59,19 @@ import {
   FORMULAS,
   STAT_STAGES,
   STATUS_EFFECTS,
-  SHINY_MOVE,
   HYPE_UP,
   effectiveStat
 , TOWN_MAP } from "./data";
 import { LOGIC, arrivalAllowed, fadeAlpha, matchNpcScript, pickMason2Map, shouldSpawnMasonRematch } from "./logic";
 import { Input } from "./input";
 import type {
-  BattleState,
   Dir,
-  GuardKind,
   ItemId,
-  MapId,
   Mode,
   Monster,
-  PartyView,
   Roamer,
-  RivalState,
-  ShopTab,
   Soldier,
   SpeciesId,
-  TalkBeat,
-  TrainerId,
-  WorldState,
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
@@ -5136,7 +5126,6 @@ export class CryMon {
 	}
 	drawActor(key, wx, wy) {
 		const { cx, cy } = this.cam();
-		const who = String(key).split("-")[0];
 		const w = SPR_W;
 		const h = SPR_H;
 		this.drawSprite(key, wx - cx - w / 2, wy - cy - h + 4, w, h);

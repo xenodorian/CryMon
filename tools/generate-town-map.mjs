@@ -447,7 +447,7 @@ for (const e of regionEdgesOut) {
   svg.push(`  <path d="${d}" fill="none" stroke="#5a4a2a" stroke-width="2" stroke-linecap="square"/>`);
 }
 
-for (const [id, b] of Object.entries(boxes)) {
+for (const b of Object.values(boxes)) {
   const x = ox + (M + b.x) * CELL;
   const y = oy + (M + b.y) * CELL;
   const w = b.w * CELL;
