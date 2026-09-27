@@ -5002,10 +5002,13 @@ static int leg3_npc_post(int def_idx) {
     return -1;
 }
 
+static int **g_ft; /* main()'s flag table, see below */
+
 /* Beaten posts are gone (their script's hideIf is the same flag). */
 static int leg3_post_standing(int def_idx) {
     int p = leg3_npc_post(def_idx);
-    return p >= 0 && !leg3_flag(LEG3_POSTS[p].set_flag);
+    int f = p >= 0 ? LEG3_POSTS[p].set_flag : -1;
+    return p >= 0 && !(f >= 0 && f < FLAG_N && g_ft && g_ft[f] ? *g_ft[f] : leg3_flag(f));
 }
 
 static int leg3_all_medals(void) {
@@ -7863,7 +7866,11 @@ void main(void) {
                                 }
                                 else if(battle.trainer_kind == TRAINER_LEG3) {
                                     const Leg3Post *lp = &LEG3_POSTS[g_leg3_post];
-                                    leg3_set(lp->set_flag, 1);
+                                    /* Through ft[]: post-game kits (calderPost)
+                                       keep their flag in g_extra_flags, not the
+                                       Leg 3 table, and leg3_set() dropped it, so
+                                       Calder could be re-fought for +250 each time. */
+                                    leg3_set_any(lp->set_flag, ft);
                                     marks += lp->marks;
                                     battles++;
                                     in_battle = 0;
