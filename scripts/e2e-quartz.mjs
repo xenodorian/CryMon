@@ -196,5 +196,33 @@ async function runWarden(who) {
   }
 }
 for (const who of WARDENS) await runWarden(who);
+
+// BUG-014: a save made inside a wall loads onto the nearest walkable tile.
+{
+  const browser = await chromium.launch({ executablePath: exe });
+  const page = await browser.newPage();
+  try {
+    await page.goto(PAGE_URL);
+    await page.waitForFunction(() => !!window.__crymon, null, { timeout: 60000 });
+    await page.waitForTimeout(1000);
+    const res = await page.evaluate(() => {
+      const c = window.__crymon;
+      c.wipeSave();
+      c.skipToReach();
+      c.setPos(16, 16); // reach tile 0,0 is '#'
+      c.saveNow();
+      c.continueSave();
+      return c.pos();
+    });
+    const rows = maps.rows.reach;
+    const ch = rows[Math.floor(res.y / 32)]?.[Math.floor(res.x / 32)];
+    check(
+      ch != null && !maps.solid.includes(ch) && ch !== maps.doors,
+      `save in a wall loads on a walkable tile (got ${res.x},${res.y} '${ch}')`,
+    );
+  } finally {
+    await browser.close();
+  }
+}
 console.log(`artifacts: ${OUT}`);
 process.exit(fails.length ? 1 : 0);

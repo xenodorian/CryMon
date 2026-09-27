@@ -874,6 +874,46 @@ static char tile_at(int map_id, int col, int row) {
     return m->rows[row][col];
 }
 
+/* Shared save blob stores positions in web pixels: 32 per tile. */
+#define SAVE_TILE_PX 32
+
+/* BUG-014: a loaded position must be on the map and on a walkable,
+   non-door tile; otherwise move to the nearest such tile centre,
+   breadth-first. Mirrors engine.ts rescueStandPos(). */
+static void rescue_stand_pos(int map_id, int *px, int *py) {
+    static unsigned short q[128 * 128];
+    static unsigned char seen[128 * 128];
+    const Map *m = &MAPS[map_id];
+    int cols = m->cols, rows = m->rows_n, head = 0, tail = 0, i;
+    int tx = *px / TILE, ty = *py / TILE;
+    char ch = tile_at(map_id, tx, ty);
+    if(*px >= 0 && *py >= 0 && !tile_is_solid(ch) && ch != 'D') return;
+    if(cols > 128 || rows > 128) return;
+    if(tx < 0) tx = 0;
+    if(tx >= cols) tx = cols - 1;
+    if(ty < 0) ty = 0;
+    if(ty >= rows) ty = rows - 1;
+    for(i = 0; i < cols * rows; i++) seen[i] = 0;
+    q[tail++] = (unsigned short)(ty * cols + tx);
+    seen[ty * cols + tx] = 1;
+    while(head < tail) {
+        int cur = q[head++], cx = cur % cols, cy = cur / cols, d;
+        static const int DX[4] = { 0, 0, 1, -1 }, DY[4] = { 1, -1, 0, 0 };
+        ch = tile_at(map_id, cx, cy);
+        if(!tile_is_solid(ch) && ch != 'D') {
+            *px = cx * TILE + TILE / 2;
+            *py = cy * TILE + TILE / 2;
+            return;
+        }
+        for(d = 0; d < 4; d++) {
+            int nx = cx + DX[d], ny = cy + DY[d];
+            if(nx < 0 || ny < 0 || nx >= cols || ny >= rows || seen[ny * cols + nx]) continue;
+            seen[ny * cols + nx] = 1;
+            q[tail++] = (unsigned short)(ny * cols + nx);
+        }
+    }
+}
+
 /* First occurrence of mark, row-major, matching data.spawnOf's
    row:find() scan order. Every call site below only asks for marks
    known to exist on that map (checked against the grids above), so
@@ -6000,8 +6040,11 @@ void main(void) {
                         dex_clear();
                         map_id = sl.map_id;
                         if(map_id < 0 || map_id >= MAP_N) map_id = MAP_HOUSE;
-                        px = sl.x;
-                        py = sl.y;
+                        /* Save x/y are web pixels (32px tiles, the shared
+                           blob's unit); this port walks a TILE-px grid. */
+                        px = (int)sl.x * TILE / SAVE_TILE_PX;
+                        py = (int)sl.y * TILE / SAVE_TILE_PX;
+                        rescue_stand_pos(map_id, &px, &py);
                         pdir = sl.dir;
                         if(pdir < 0 || pdir > 3) pdir = 0;
                         marks = sl.marks;
@@ -6301,8 +6344,8 @@ void main(void) {
                         if(rep > 200) rep = 200;
                         sl.reputation = (unsigned char)rep;
                     }
-                    sl.x = (unsigned short)px;
-                    sl.y = (unsigned short)py;
+                    sl.x = (unsigned short)((px * SAVE_TILE_PX + TILE / 2) / TILE);
+                    sl.y = (unsigned short)((py * SAVE_TILE_PX + TILE / 2) / TILE);
                     sl.marks = (unsigned short)marks;
                     sl.bag[0] = (unsigned char)bag.salve; sl.bag[1] = (unsigned char)bag.bandage;
                     sl.bag[2] = (unsigned char)bag.bitterroot; sl.bag[3] = (unsigned char)bag.dust;

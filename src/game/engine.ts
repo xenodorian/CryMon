@@ -599,6 +599,7 @@ export class CryMon {
 			if (this.soldiers[1]) this.soldiers[1].beaten = !!snap.flags.soldierBeaten1;
 			if (this.soldiers[2]) this.soldiers[2].beaten = !!snap.flags.soldierBeaten2;
 		}
+		this.rescueStandPos();
 		this.rival.phase = this.foughtMason ? "off" : "off";
 		this.anne.phase = "off";
 		this.mode = "world";
@@ -607,6 +608,41 @@ export class CryMon {
 		this.battle = null;
 		this.announceMap();
 		return true;
+	}
+	/** BUG-014: a loaded position must be on the map and on a walkable,
+	 *  non-door tile. If it is not (old or foreign save, map edit since
+	 *  the save), move to the nearest such tile centre, breadth-first.
+	 *  Dreamcast main.c rescue_stand_pos() does the same on its grid. */
+	rescueStandPos() {
+		const map = this.map();
+		const ok = (tx, ty) => {
+			const ch = map[ty]?.[tx];
+			return ch != null && !solidTile(ch) && !doorTile(ch);
+		};
+		const tx0 = Math.floor(this.world.x / TILE);
+		const ty0 = Math.floor(this.world.y / TILE);
+		if (ok(tx0, ty0)) return;
+		const rows = map.length;
+		const cols = Math.max(...map.map((r) => r.length));
+		const sx = Math.max(0, Math.min(cols - 1, tx0));
+		const sy = Math.max(0, Math.min(rows - 1, ty0));
+		const seen = new Set([sy * cols + sx]);
+		const q = [[sx, sy]];
+		while (q.length) {
+			const [tx, ty] = q.shift();
+			if (ok(tx, ty)) {
+				this.world.x = tx * TILE + TILE / 2;
+				this.world.y = ty * TILE + TILE / 2;
+				return;
+			}
+			for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
+				const nx = tx + dx;
+				const ny = ty + dy;
+				if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || seen.has(ny * cols + nx)) continue;
+				seen.add(ny * cols + nx);
+				q.push([nx, ny]);
+			}
+		}
 	}
 	/** Autosave disabled entirely -- every non-manual call is a no-op.
 	 *  Loading last save was breaking because the game wrote over the slot
