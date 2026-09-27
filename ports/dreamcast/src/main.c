@@ -1134,7 +1134,7 @@ typedef struct {
     int scale;
 } WorldSprite;
 
-#define MAX_WORLD_SPRITES 12
+#define MAX_WORLD_SPRITES 64 /* was 12: CryTown alone now draws ~20 (townsfolk pass), and Max, pushed last, was dropped */
 
 static void ws_push(WorldSprite *list, int *n, const u16 *px, int w, int h, int cx, int cy) {
     if(*n >= MAX_WORLD_SPRITES) return;
@@ -4510,7 +4510,7 @@ static int npc_def_roamable(int i) {
        chases. Excluded by map+mark here rather than dropping wsoldier
        from his script, which would also break the shared battle-trigger
        wiring. Matches engine.ts's roamableNpc(). */
-    if(d->map_id == MAP_VELD && d->mark == 'S') return 0;
+    if(d->map_id == MAP_VELD && d->mark == 'L') return 0; /* was 'S': Lead's mark is 'L' */
     if(d->map_id == MAP_CAMP && d->mark == 'I') return 0; /* Commander holds his post */
     /* Leg 3 guards / Generals / Nero hold their post in the hall. */
     for(k = 0; k < d->stepn; k++)
@@ -4949,7 +4949,7 @@ static int find_backstab_target(int map_id, int ppx, int ppy, int **ft, int part
         if(NPC_DEFS[i].map_id != map_id) continue;
         /* Lieutenant Lead: stationary and always facing the road he
            blocks -- never eligible. Matches engine.ts's canBackstab(). */
-        if(NPC_DEFS[i].map_id == MAP_VELD && NPC_DEFS[i].mark == 'S') continue;
+        if(NPC_DEFS[i].map_id == MAP_VELD && NPC_DEFS[i].mark == 'L') continue; /* was 'S' */
         if(npc_on_warp_gate(map_id, NPC_DEFS[i].mark)) continue;
         ebit = npc_exec_bit(NPC_DEFS[i].map_id, NPC_DEFS[i].mark);
         if(ebit >= 0 && (g_executed_mask & (1u << ebit))) continue;

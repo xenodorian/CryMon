@@ -3355,7 +3355,7 @@ name, implement it. Execute other fixes." Stages, each pushed:
   only Lead's win line and Cross's old hint; Leg 2's unused `endingWin*`
   text; Max's age vs. being crowned (left as is, the user's call).
 
-## Guilds, Shinigami arc, townsfolk and sidequests (Claude, 2026-09-27) -- IN PROGRESS
+## Guilds, Shinigami arc, townsfolk and sidequests (Claude, 2026-09-27) -- DONE
 
 User asked for: Nero/Generals story expansion; demo text removed; Max stays
 8; audit of the maps west of CryTown; a Shinigami narrative loop that is
@@ -3524,4 +3524,44 @@ sidequest (types rotate). Pickups and lost NPCs sit on nearby paths.
         build_leg3.py -> build_guilds.py -> merge_world.py.
       - Verified on web (Playwright): crier progression, fetch, lost
         (showIf/hideIf swap), bring, bounty, hint before/after medal.
-- [ ] S6 Verification; west maps audit write-up.
+- [x] S6 Verification; west maps audit write-up.
+      Dreamcast (Flycast, /tmp emu scripts, scenarios veil/crypt/lead/town):
+      - Veil: north road refuses Max with veilBlocks until veilLifted. OK.
+      - Crypt: Shinigami draws generically (GENERIC_WALKER_SPRITES) and
+        runs ghostJoin. OK.
+      - Lead: talks, then Sableclaw Lv24 -> Stormwing Lv24 ... bench from
+        his kit. OK.
+      - Malkuth: Old Bet (elder portrait via alias), hint NPC, Pip's home
+        spot hidden until found. OK.
+      Bugs found and fixed while testing:
+      - MAX_WORLD_SPRITES was 12. CryTown now draws ~20 sprites and Max,
+        pushed last, vanished. Now 64.
+      - Lieutenant Lead was never drawn on Dreamcast and never blocked the
+        road: "lead" sat in HAND_DRAWN_NPC_SPRITES but no hand code drew
+        him, and the roamer / backstab exclusions checked mark 'S' while
+        his mark is 'L' (so he also counted as a chasing roamer). He is
+        now drawn and blocked generically and the checks use 'L'.
+      Open (not changed, needs the art owner):
+      - public/sprites/npc/lead-1..4.png (commit cfe5903, "user-cut sprite
+        assets") are a cropped dark bar, not a figure, on both engines.
+        Lead's overworld sprite needs re-cutting.
+
+      West of CryTown audit (Ruins, Reach, and their interiors):
+      - Ruins (Lv 6-9 grass: runemote, crymare, glasswisp): Oren's shop,
+        Birch and Sable gifts, Keeper and Warden trainers. Before: four
+        doorless decorative houses and nothing that tied into the main
+        story. Now: the northwest house is the Ghost Guild crypt (opens
+        after talkedReach), Ines's grave 'd', Dame Brin 'i' (Heroes Guild
+        member, Thieves target), Crymare for Collector Juno, Glasswisp
+        for Captain Ardent.
+      - Reach (Lv 8-11): Quartz and Opal badge trainers, Shinigami after
+        the rock. Before: a dead end whose badges did nothing. Now: the
+        badges gate the Heroes Guild, Shinigami sends Max to the crypt,
+        and the northeast house is the haunted hall (opens after
+        joinedGhost) with the three ghost fights.
+      - Still decorative: three houses in the Ruins and three in the Reach.
+        Room for later interiors.
+      - Level curve note: the haunted hall (Lv 16-21) and Vesk (Lv 21-23)
+        sit above the Ruins/Reach grass (Lv 6-11). The gauntlet maps
+        (Lv 8-20) are the grinding route before them, and Lead (Lv 24-28)
+        after. Not rebalanced here.

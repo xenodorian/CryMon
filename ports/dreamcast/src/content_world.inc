@@ -1173,8 +1173,9 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_KETER, 'i', 373, 2, 30, 32 },
 };
 #define NPC_DEF_N 143
-#define NPC_SPRITE_N 36
+#define NPC_SPRITE_N 37
 static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
+    { npc_lead_1, npc_lead_2, npc_lead_3, npc_lead_4 },
     { npc_weepingGuard_1, npc_weepingGuard_2, npc_weepingGuard_3, npc_weepingGuard_4 },
     { npc_royalGuard_1, npc_royalGuard_2, npc_royalGuard_3, npc_royalGuard_4 },
     { npc_harrow_1, npc_harrow_2, npc_harrow_3, npc_harrow_4 },
@@ -1213,7 +1214,7 @@ static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_shinigami_1, npc_shinigami_2, npc_shinigami_3, npc_shinigami_4 },
 };
 /* NPC_SPRITE_FRAMES index per NPC_DEFS entry (-1: drawn by hand-wired code). */
-static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 35, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 35, -1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0, 6, 0, 0, 7, 0, 0, 8, 0, 0, 9, 0, 0, 10, 1, 1, 11, 12, 13, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 35, 18, 18, 18, 19, 19, 19, 17, 17, 17, 20, 22, 21, 23, 24, 25, 26, 27, 28, 29, 34, 31, 32, 32, 30, 30, 32, 32, 31, 29, 34, 30, 33, 29, 32, 32, 30, 29, 34, 31, 33, 29, 30, 30, 31, 31, 30, 29, 30, 29, 30, 29, 30, 29, 30, 31 };
+static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 36, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, 36, -1, 1, 1, 3, 1, 1, 4, 1, 1, 5, 1, 1, 6, 1, 1, 7, 1, 1, 8, 1, 1, 9, 1, 1, 10, 1, 1, 11, 2, 2, 12, 13, 14, 15, 16, 16, 16, 16, 16, 16, 16, 16, 16, 36, 19, 19, 19, 20, 20, 20, 18, 18, 18, 21, 23, 22, 24, 25, 26, 27, 28, 29, 30, 35, 32, 33, 33, 31, 31, 33, 33, 32, 30, 35, 31, 34, 30, 33, 33, 31, 30, 35, 32, 34, 30, 31, 31, 32, 32, 31, 30, 31, 30, 31, 30, 31, 30, 31, 32 };
 #define INTERACT_BUFFER 20
 
 
@@ -1262,7 +1263,7 @@ static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {
     { 42, 1, 8, FLAG_MEDAL_OF_HONOR, 177, 70, 10, "GENERAL SORREL SENDS ECLIPSAUR", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* generalSorrel */
     { 43, 0, -1, FLAG_BEAT_PALACE_GUARD_A, 137, 34, 1, "ROYAL GUARD SENDS CRAGSAGE", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* palaceGuardA */
     { 44, 0, -1, FLAG_BEAT_PALACE_GUARD_B, 139, 36, 1, "ROYAL GUARD SENDS MAGISTOWL", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* palaceGuardB */
-    { 45, 2, -1, FLAG_BEAT_NERO, 181, 80, 11, "WEEPING KING NERO SENDS DEATHKNELL", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* nero */
+    { 45, 2, -1, FLAG_BEAT_NERO, 181, 80, 12, "WEEPING KING NERO SENDS DEATHKNELL", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* nero */
     { 46, 3, -1, FLAG_TITLE_GODSLAYER, 191, 0, -1, "HEAVENFALL TURNS ON YOU", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* heavenfallFinal */
     { 47, 0, -1, FLAG_EXPELLED_GHOST_A, 290, 0, 0, "A SOLDIER'S GHOST RISES", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* ghostSoldierA */
     { 48, 0, -1, FLAG_EXPELLED_GHOST_B, 292, 0, 0, "A SERGEANT'S GHOST RISES", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* ghostSoldierB */

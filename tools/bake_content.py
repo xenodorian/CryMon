@@ -1166,7 +1166,7 @@ LEG3_PENDING_BASE = 100
 HAND_DRAWN_NPC_SPRITES = {"wren", "mae", "ivo", "nell", "pike", "bram", "calder", "oren", "tessa", "birch",
                           "sable", "cross", "commander", "conscript", "enforcer", "sentry", "father", "ranger",
                           "scout", "keeper", "warden", "bogwalker", "reedguard", "quartz", "opal", "driller",
-                          "fenn", "dray", "lead", "heavenfallPriestess", "shinigamiBoulder"}
+                          "fenn", "dray", "heavenfallPriestess", "shinigamiBoulder"}
 # NPC ids main.c draws by hand even though their sprite is generic-capable
 # (Shinigami at the Reach keeps his hand-wired saw_shinigami_rock logic).
 HAND_DRAWN_NPC_IDS = {"shinigamiFree"}
