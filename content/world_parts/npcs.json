@@ -1054,7 +1054,7 @@
         },
         {
           "talk": "leadSpot",
-          "after": "wsoldier",
+          "after": "choice",
           "pending": "lieutenantLead"
         }
       ]
