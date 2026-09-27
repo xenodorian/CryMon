@@ -57,7 +57,7 @@ session stops, pick up at the first step not marked DONE.
    regions no earlier audit touched. Findings and proposed rewrites:
    `docs/DIALOGUE_AUDIT_2026-09-27.md` (4 state bugs, 4 redundant-exposition items).
    Nothing in `content/` changed yet. Do not apply without the user's approval.
-6. **Move / growth redesign -- IN PROGRESS (Claude, both engines, user approved).**
+6. **Move / growth redesign -- DONE (Claude, both engines, user approved).**
    User decisions 2026-09-27: Lv20/Lv30 moves are **one pair per crystal** (18 moves,
    like `natureMoves`); Claude implements **web and Dreamcast**; **bump the save
    version** (old saves rejected). Hype Up already exists (`logic.json` `hypeUp`).
@@ -79,7 +79,16 @@ session stops, pick up at the first step not marked DONE.
      main too (2 of 3 runs failed before this change); not fixed here.
    - **C. Lv20 / Lv30 crystal moves:** Lv20 basic-power hit + rider, 10 PP/battle;
      Lv30 special-power hit + rider, 5 PP/battle; rider = foe stage down, foe status,
-     or self Hype Up; applies only when the hit lands. -- TODO
+     or self Hype Up; applies only when the hit lands. -- DONE. `logic.json`
+     `crystalMoves` (18 moves, names in the table there) + `growth.signatureAt`/
+     `finisherAt`; web `data.ts` kinds `signature`/`finisher`, engine `applyRider()`,
+     finisher reuses the special minigame (`b.minigameMove`); DC baker
+     `CRYSTAL_MOVES[NATURE_N][2]`, `UMOVE_SIG`/`UMOVE_FIN`, `apply_rider()`,
+     `battle_pick_crystal()`, `mg_fin`/`mg_move`. Foe AI uses them (30%) at plain power.
+     Verified: `e2e-growth.mjs` (25 checks), web warden e2e, Flycast Quartz + Opal, and
+     Flycast runs of Rally Blow (hit + STATS UP) and Crushing Charge (minigame + STR
+     FALLS). Fixed on the way: DC `pend_swap` was never cleared, so a crystal move
+     opened SWAP IN; DC attack rows now show names only, uses + rider on a detail line.
 
 ## Standing repository rules
 

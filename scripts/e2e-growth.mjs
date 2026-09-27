@@ -142,6 +142,59 @@ const swapFlow = async () => {
   check(after.idx === 0 && after.phase === "msg", `cancel keeps the lead in (partyIndex ${after.idx}, phase ${after.phase})`);
 }
 
+// 5-7. Lv20 signature / Lv30 finisher (logic.json crystalMoves): gates,
+// a real hit with its rider, the finisher through the timing minigame.
+const CM = LOGIC.crystalMoves.moves.find((m) => m.nature === SPECIES[lineSp].nature);
+{
+  const at19 = await moveNames(lineSp, 19), at20 = await moveNames(lineSp, 20);
+  const at29 = await moveNames(lineSp, 29), at30 = await moveNames(lineSp, 30);
+  check(!at19.includes(CM.signature.name) && at20.includes(CM.signature.name), `${CM.signature.name} unlocks at Lv20`);
+  check(!at29.includes(CM.finisher.name) && at30.includes(CM.finisher.name), `${CM.finisher.name} unlocks at Lv30`);
+}
+const riderOn = (r) =>
+  page.evaluate((r) => {
+    const b = window.__crymon.engine().battle;
+    if (r.kind === "selfHype") return b.hypeActive.self === true;
+    if (r.kind === "foeStage") return b.stage["foe" + r.stat[0].toUpperCase() + r.stat.slice(1)] > 0;
+    return b.foe.status === r.status;
+  }, r);
+const crystalHit = async (kind) => {
+  await page.evaluate((lineSp) => {
+    const e = window.__crymon.engine();
+    const p = e.party[0];
+    Object.assign(p, { species: lineSp, name: "Lead", level: 30, maxHp: 5000, hp: 5000, str: 20, spc: 20, agl: 999, status: "none" });
+    e.party = [p];
+    e.partyIndex = 0;
+    const foe = { ...p, id: "foe-1", name: "Testfoe", hp: 5000, maxHp: 5000, agl: 1, specialPp: 0 };
+    e.startBattle(foe, false, "Test fight", "wsoldier", null, []);
+    for (const k of ["nmove", "hype", "signature", "finisher"]) e.battle.movePpUsed["foe-1:" + k] = 99;
+  }, lineSp);
+  await toPhase(["item"]);
+  await page.evaluate(() => { const e = window.__crymon.engine(); e.pickItem(e.battle.menu.indexOf("Pass")); });
+  const name = kind === "signature" ? CM.signature.name : CM.finisher.name;
+  const hp0 = await page.evaluate(() => window.__crymon.engine().battle.foe.hp);
+  await page.evaluate((name) => {
+    const e = window.__crymon.engine();
+    e.pickAttack(e.battle.menu.findIndex((r) => r.startsWith(name)));
+  }, name);
+  if (kind === "finisher") {
+    const ph = await page.evaluate(() => window.__crymon.engine().battle.phase);
+    check(ph === "minigame", `${name} opens the timing minigame (got ${ph})`);
+    await page.evaluate(() => window.__crymon.tapConfirm());
+  }
+  await page.waitForFunction(() => window.__crymon.engine().battle.phase !== "resolve_hit" && window.__crymon.engine().battle.phase !== "minigame", null, { timeout: 5000 });
+  const st = await page.evaluate((kind) => {
+    const e = window.__crymon.engine();
+    const key = `${e.battle.player.id}:${kind}`;
+    return { hp: e.battle.foe.hp, used: e.battle.movePpUsed[key], line: e.battle.msg.join(" | ") };
+  }, kind);
+  check(hp0 - st.hp > 0, `${name} deals damage (got ${hp0 - st.hp})`);
+  check(await riderOn(kind === "signature" ? CM.signature.rider : CM.finisher.rider), `${name} applies its rider (${JSON.stringify(kind === "signature" ? CM.signature.rider : CM.finisher.rider)}): ${st.line}`);
+  check(st.used === 1, `${name} spends one use (got ${st.used})`);
+};
+await crystalHit("signature");
+await crystalHit("finisher");
+
 check(errors.length === 0, `no page errors ${errors.join(" | ")}`);
 await browser.close();
 console.log(fails.length ? `\n${fails.length} failed` : "\nall passed");

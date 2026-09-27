@@ -333,6 +333,8 @@
     "evolveAt": 15,
     "hypeUpAt": 15,
     "attackSwapAt": 15,
+    "signatureAt": 20,
+    "finisherAt": 30,
     "evolveAt2": 25,
     "levelUpStats": "curve"
   },
@@ -440,6 +442,162 @@
     "name": "Overload",
     "status": "exhausted",
     "maxPp": 10
+  },
+  "crystalMoves": {
+    "note": "One pair per crystal, shared by every species of that crystal (user decision 2026-09-27). signature (growth.signatureAt): hits exactly like the species' basic move (stat, power, speed) plus a rider. finisher (growth.finisherAt): the species' special stat/power/speed through the same timing minigame, plus a rider. Rider kinds: foeStage (one stat-stage drop on the foe, like a stage secondary), foeStatus (inflicts that status), selfHype (turns on the user's Hype Up). A player's hit always lands, so its rider always applies; a foe's foeStage/foeStatus rider applies unless the player dodges cleanly (the same landed rule as a foe secondary), selfHype always. PP is per battle, like the secondaries.",
+    "signaturePp": 10,
+    "finisherPp": 5,
+    "moves": [
+      {
+        "nature": "quartz",
+        "signature": {
+          "name": "Rally Blow",
+          "rider": {
+            "kind": "selfHype"
+          }
+        },
+        "finisher": {
+          "name": "Crushing Charge",
+          "rider": {
+            "kind": "foeStage",
+            "stat": "str"
+          }
+        }
+      },
+      {
+        "nature": "jasper",
+        "signature": {
+          "name": "Rock Slam",
+          "rider": {
+            "kind": "foeStage",
+            "stat": "str"
+          }
+        },
+        "finisher": {
+          "name": "Earthsplitter",
+          "rider": {
+            "kind": "foeStatus",
+            "status": "paralyzed"
+          }
+        }
+      },
+      {
+        "nature": "diamond",
+        "signature": {
+          "name": "Starfall",
+          "rider": {
+            "kind": "foeStage",
+            "stat": "spc"
+          }
+        },
+        "finisher": {
+          "name": "Supernova",
+          "rider": {
+            "kind": "selfHype"
+          }
+        }
+      },
+      {
+        "nature": "citrine",
+        "signature": {
+          "name": "Spark Jab",
+          "rider": {
+            "kind": "foeStage",
+            "stat": "agl"
+          }
+        },
+        "finisher": {
+          "name": "Thunderclap",
+          "rider": {
+            "kind": "foeStatus",
+            "status": "paralyzed"
+          }
+        }
+      },
+      {
+        "nature": "obsidian",
+        "signature": {
+          "name": "Shadow Claw",
+          "rider": {
+            "kind": "foeStage",
+            "stat": "spc"
+          }
+        },
+        "finisher": {
+          "name": "Night Terror",
+          "rider": {
+            "kind": "foeStatus",
+            "status": "confused"
+          }
+        }
+      },
+      {
+        "nature": "prism",
+        "signature": {
+          "name": "Hex Bolt",
+          "rider": {
+            "kind": "foeStatus",
+            "status": "confused"
+          }
+        },
+        "finisher": {
+          "name": "Arcane Surge",
+          "rider": {
+            "kind": "selfHype"
+          }
+        }
+      },
+      {
+        "nature": "emerald",
+        "signature": {
+          "name": "Thorn Lash",
+          "rider": {
+            "kind": "foeStatus",
+            "status": "poisoned"
+          }
+        },
+        "finisher": {
+          "name": "Strangleroot",
+          "rider": {
+            "kind": "foeStage",
+            "stat": "agl"
+          }
+        }
+      },
+      {
+        "nature": "ruby",
+        "signature": {
+          "name": "Ember Strike",
+          "rider": {
+            "kind": "foeStatus",
+            "status": "burned"
+          }
+        },
+        "finisher": {
+          "name": "Wildfire",
+          "rider": {
+            "kind": "selfHype"
+          }
+        }
+      },
+      {
+        "nature": "sapphire",
+        "signature": {
+          "name": "Ice Shard",
+          "rider": {
+            "kind": "foeStage",
+            "stat": "agl"
+          }
+        },
+        "finisher": {
+          "name": "Blizzard",
+          "rider": {
+            "kind": "foeStage",
+            "stat": "str"
+          }
+        }
+      }
+    ]
   },
   "attackSwap": {
     "note": "Single-stage species learn this at growth.attackSwapAt. Hits exactly like the user's basic move (same stat, power, speed, crystal scaling, guards). If the foe is still standing, the player then picks another living party CryMon to switch in (cancel keeps the current one). The foe AI treats it as a plain basic hit and never switches. No PP.",

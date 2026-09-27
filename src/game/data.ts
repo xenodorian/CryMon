@@ -431,11 +431,25 @@ export const INTERACT = (logicJson.interact || {
   defaultW: 48, defaultH: 52, buffer: 16,
 }) as InteractConfig;
 
-export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number; evolveAt2?: number; hypeUpAt?: number; attackSwapAt?: number; levelUpStats?: string } }).growth || {
+export const GROWTH = ((logicJson as { growth?: { secondaryAt: number; specialAt: number; evolveAt: number; evolveAt2?: number; hypeUpAt?: number; attackSwapAt?: number; signatureAt?: number; finisherAt?: number; levelUpStats?: string } }).growth || {
   secondaryAt: 5, specialAt: 10, evolveAt: 10, evolveAt2: 10,
 });
 
 export const ATTACK_SWAP = ((logicJson as { attackSwap?: { name: string } }).attackSwap || { name: "Attack Swap" });
+
+/** logic.json crystalMoves: the Lv20 signature and Lv30 finisher, one pair
+ *  per crystal. A rider rides on the hit: a foe stat-stage drop, a status
+ *  on the foe, or the user's own Hype Up. */
+export type Rider = { kind: "foeStage" | "foeStatus" | "selfHype"; stat?: "str" | "agl" | "spc"; status?: StatusId };
+type CrystalMoveDef = { name: string; rider: Rider };
+export const CRYSTAL_MOVES = ((logicJson as {
+  crystalMoves?: { signaturePp: number; finisherPp: number; moves: { nature: string; signature: CrystalMoveDef; finisher: CrystalMoveDef }[] };
+}).crystalMoves || { signaturePp: 10, finisherPp: 5, moves: [] });
+
+export function crystalMovesFor(species: SpeciesId) {
+  const nid = (SPECIES[species] as { nature?: string })?.nature;
+  return CRYSTAL_MOVES.moves.find((m) => m.nature === nid) ?? null;
+}
 
 export type NatureMoveDef = {
   nature: string;
@@ -448,7 +462,7 @@ export type NatureMoveDef = {
 export const NATURE_MOVES = ((logicJson as { natureMoves?: NatureMoveDef[] }).natureMoves || []) as NatureMoveDef[];
 
 export type UnlockedMove = {
-  kind: "basic" | "special" | "spell" | "nmove" | "hypeUp" | "swap" | "wait";
+  kind: "basic" | "special" | "spell" | "nmove" | "hypeUp" | "swap" | "signature" | "finisher" | "wait";
   name: string;
   stat: AtkStat;
   power: number;
@@ -460,6 +474,8 @@ export type UnlockedMove = {
   statTarget?: "str" | "agl" | "spc";
   statusTarget?: StatusId;
   maxPp?: number;
+  /** kind === "signature" | "finisher" only. */
+  rider?: Rider;
 };
 
 export function natureMoveFor(species: SpeciesId): NatureMoveDef | null {
@@ -543,6 +559,29 @@ export function unlockedMoves(m: Monster, includeWait = false): UnlockedMove[] {
       power: 0,
       speed: 1,
       maxPp: HYPE_UP.maxPp,
+    });
+  }
+  const cm = crystalMovesFor(m.species);
+  if (cm && m.level >= (GROWTH.signatureAt ?? 20)) {
+    rows.push({
+      kind: "signature",
+      name: cm.signature.name,
+      stat: s.basicStat,
+      power: s.basicPower,
+      speed: s.basicSpeed,
+      maxPp: CRYSTAL_MOVES.signaturePp,
+      rider: cm.signature.rider,
+    });
+  }
+  if (cm && m.level >= (GROWTH.finisherAt ?? 30)) {
+    rows.push({
+      kind: "finisher",
+      name: cm.finisher.name,
+      stat: s.specialStat,
+      power: s.specialPower,
+      speed: s.specialSpeed,
+      maxPp: CRYSTAL_MOVES.finisherPp,
+      rider: cm.finisher.rider,
     });
   }
   if (m.level >= GROWTH.specialAt) {

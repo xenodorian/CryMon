@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=198b6b6da3e79628 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=e84fe66c0f1d4a31 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_WALK_FRAC 358 /* 1/256 px per frame */
@@ -164,5 +164,26 @@ static const NatureMove NATURE_MOVES[NATURE_N] = {
     { "BLIGHT", NMOVE_KIND_STATUS, 0, 2, 10 },
     { "SCORCH", NMOVE_KIND_STATUS, 0, 1, 10 },
     { "FROSTBITE", NMOVE_KIND_STAGE, 0, 0, 10 },
+};
+
+/* crystalMoves -- Lv20 signature / Lv30 finisher, one pair per nature. */
+#define LV_SIGNATURE 20
+#define LV_FINISHER 30
+#define SIGNATURE_PP 10
+#define FINISHER_PP 5
+#define RIDER_FOE_STAGE 0
+#define RIDER_FOE_STATUS 1
+#define RIDER_SELF_HYPE 2
+typedef struct { const char *name; int rider; int stat; int status; } CrystalMove;
+static const CrystalMove CRYSTAL_MOVES[NATURE_N][2] = {
+    { { "RALLY BLOW", RIDER_SELF_HYPE, 0, 0 }, { "CRUSHING CHARGE", RIDER_FOE_STAGE, 0, 0 } },
+    { { "ROCK SLAM", RIDER_FOE_STAGE, 0, 0 }, { "EARTHSPLITTER", RIDER_FOE_STATUS, 0, 4 } },
+    { { "STARFALL", RIDER_FOE_STAGE, 2, 0 }, { "SUPERNOVA", RIDER_SELF_HYPE, 0, 0 } },
+    { { "SPARK JAB", RIDER_FOE_STAGE, 1, 0 }, { "THUNDERCLAP", RIDER_FOE_STATUS, 0, 4 } },
+    { { "SHADOW CLAW", RIDER_FOE_STAGE, 2, 0 }, { "NIGHT TERROR", RIDER_FOE_STATUS, 0, 3 } },
+    { { "HEX BOLT", RIDER_FOE_STATUS, 0, 3 }, { "ARCANE SURGE", RIDER_SELF_HYPE, 0, 0 } },
+    { { "THORN LASH", RIDER_FOE_STATUS, 0, 2 }, { "STRANGLEROOT", RIDER_FOE_STAGE, 1, 0 } },
+    { { "EMBER STRIKE", RIDER_FOE_STATUS, 0, 1 }, { "WILDFIRE", RIDER_SELF_HYPE, 0, 0 } },
+    { { "ICE SHARD", RIDER_FOE_STAGE, 1, 0 }, { "BLIZZARD", RIDER_FOE_STAGE, 0, 0 } },
 };
 

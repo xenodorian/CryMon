@@ -53,6 +53,7 @@ import {
   frand,
   foeStrikesFirst,
   unlockedMoves,
+  type Rider,
   natureMatchNames,
   MERCY_DISMISS,
   FORMULAS,
@@ -3111,7 +3112,7 @@ export class CryMon {
 			}
 			const atk = atkStatValue(m, 0, 0, mv.stat);
 			const dmg = Math.max(1, Math.round(atk * (mv.power || 0)));
-			const pp = mv.pp ? `${m.specialPp}/${m.specialPpMax}` : null;
+			const pp = mv.pp ? `${m.specialPp}/${m.specialPpMax}` : mv.maxPp ? `${mv.maxPp}/battle` : null;
 			return { name: mv.name, stat: mv.stat, power: mv.power, speed: mv.speed, pp, dmg, kind: mv.kind };
 		});
 	}
@@ -3131,6 +3132,12 @@ export class CryMon {
 			}
 			const detail = this.atkDetail(mv.stat, mv.power, mv.speed);
 			if (mv.pp) return `${mv.name}  ${p.specialPp}/${p.specialPpMax}  ${detail}`;
+			if (mv.kind === "signature" || mv.kind === "finisher") {
+				const remain = b ? this.movePpRemaining(b, p, mv) : mv.maxPp;
+				const r = mv.rider;
+				const effect = !r ? "" : r.kind === "selfHype" ? "STATS UP" : r.kind === "foeStage" ? `${(r.stat || "").toUpperCase()} DOWN` : (r.status || "").toUpperCase();
+				return `${mv.name}  ${remain}/${mv.maxPp}  ${effect}`;
+			}
 			return `${mv.name}  ${detail}`;
 		});
 	}
@@ -3231,9 +3238,11 @@ export class CryMon {
 					this.audio.ok();
 				} else this.audio.miss();
 				const s = SPECIES[b.player.species];
-				const atk = this.dmgStat(b, b.player, "self", s.specialStat);
-				b.pendingDmg = Math.max(1, Math.round(atk * s.specialPower * mul));
-				b.pendingLabel = `${s.special} ${tag}`;
+				const fin = b.minigameMove;
+				const atk = this.dmgStat(b, b.player, "self", fin ? fin.stat : s.specialStat);
+				b.pendingDmg = Math.max(1, Math.round(atk * (fin ? fin.power : s.specialPower) * mul));
+				b.pendingLabel = `${fin ? fin.name : s.special} ${tag}`;
+				b.minigameMove = null;
 				b.phase = "resolve_hit";
 			}
 			return;
@@ -3251,13 +3260,15 @@ export class CryMon {
 				this.shake = .25;
 				this.hitFx = { at: "foe", nat: SPECIES[b.player.species]?.nature ?? "quartz", t: 0 };
 				this.audio.hit();
-				line = `${b.pendingLabel}  ${hit.dmg} dmg.${natureTag(hit.sign)}${foeTick}`;
+				const rider = b.foe.hp > 0 ? this.applyRider(b, "self", b.pendingRider) : "";
+				line = `${b.pendingLabel}  ${hit.dmg} dmg.${natureTag(hit.sign)}${rider ? ` ${rider}` : ""}${foeTick}`;
 			} else {
 				this.shake = .1;
 				this.audio.ok();
 				line = `${b.pendingLabel}${b.pendingEffectText ? ` ${b.pendingEffectText}` : ""}${foeTick}`;
 			}
 			b.pendingEffectText = "";
+			b.pendingRider = null;
 			const lines = [line];
 			if (b.foe.hp <= 0) {
 				const lines2 = [...lines, `${b.foe.name} falls.`];
@@ -3377,11 +3388,14 @@ export class CryMon {
 			const specials = foeMoves.filter((mv) => mv.kind === "special" || (mv.kind === "spell" && mv.pp));
 			const nmoves = foeMoves.filter((mv) => mv.kind === "nmove" && this.movePpRemaining(b, b.foe, mv) > 0);
 			const hypeMoves = foeMoves.filter((mv) => mv.kind === "hypeUp" && this.movePpRemaining(b, b.foe, mv) > 0);
+			const crystalHits = foeMoves.filter((mv) => (mv.kind === "signature" || mv.kind === "finisher") && this.movePpRemaining(b, b.foe, mv) > 0);
 			// Attack Swap is a plain basic hit for the foe (it never switches).
 			const basics = foeMoves.filter((mv) => mv.kind === "basic" || mv.kind === "swap" || (mv.kind === "spell" && !mv.pp));
 			pick = basics[0] || foeMoves[0];
 			if (specials.length && b.foe.specialPp > 0 && Math.random() < 0.28) {
 				pick = specials[randI(0, specials.length - 1)];
+			} else if (crystalHits.length && Math.random() < 0.3) {
+				pick = crystalHits[randI(0, crystalHits.length - 1)];
 			} else if (hypeMoves.length && !b.hypeActive.foe && Math.random() < 0.15) {
 				pick = hypeMoves[0];
 			} else if (nmoves.length && Math.random() < 0.35) {
@@ -3412,6 +3426,15 @@ export class CryMon {
 				moveName = pick.name;
 				moveSpeed = pick.speed;
 				effectText = "STATS UP";
+			} else if (pick?.kind === "signature" || pick?.kind === "finisher") {
+				// The foe has no minigame: a finisher lands at its plain power,
+				// like the foe's own special.
+				this.spendMovePp(b, b.foe, pick);
+				const atk = this.dmgStat(b, b.foe, "foe", pick.stat);
+				dmg = Math.max(1, Math.round(atk * pick.power));
+				moveSpeed = pick.speed;
+				moveName = pick.name;
+				if (pick.rider?.kind === "selfHype") effectText = this.applyRider(b, "foe", pick.rider);
 			} else if (pick?.kind === "special") {
 				b.foe.specialPp -= 1;
 				const atk = this.dmgStat(b, b.foe, "foe", pick.stat);
@@ -3483,6 +3506,10 @@ export class CryMon {
 				if (pick.moveKind === "stage") this.advanceStage(b, "self", pick.statTarget);
 				else this.inflictStatus(b.player, pick.statusTarget);
 				line = line ? `${line} ${effectText}` : effectText;
+			} else if (pick?.kind === "signature" || pick?.kind === "finisher") {
+				// selfHype already applied above; aimed riders need the hit to land.
+				const t = pick.rider?.kind === "selfHype" ? effectText : landed ? this.applyRider(b, "foe", pick.rider) : "";
+				if (t) line = line ? `${line} ${t}` : t;
 			}
 			b.player.hp = Math.max(0, b.player.hp - dmg);
 			this.shake = dmg === 0 ? .05 : .28;
@@ -3732,6 +3759,8 @@ export class CryMon {
 		b.pendingMods = { str: 0, agl: 0, spc: 0 };
 		b.pendingEffectText = "";
 		b.pendingSwap = false;
+		b.pendingRider = null;
+		b.minigameMove = null;
 		// Paralysis intercept before the chosen move. Confusion only rolls
 		// on a real attack (not Wait) so holding safely burns a confusion turn.
 		// Turn-countdown itself happens once per round in resolve_guard.
@@ -3791,6 +3820,31 @@ export class CryMon {
 			}
 			b.phase = "resolve_hit";
 			this.audio.special();
+			return;
+		}
+		if (mv.kind === "signature" || mv.kind === "finisher") {
+			if (!this.spendMovePp(b, b.player, mv)) {
+				b.msg = [`${mv.name} is spent.`];
+				b.msgI = 0;
+				b.phase = "msg";
+				b.afterMsg = "attack";
+				return;
+			}
+			b.pendingRider = mv.rider ?? null;
+			if (mv.kind === "finisher") {
+				// Same timing minigame as the species special.
+				b.minigameMove = mv;
+				b.minigame = 8;
+				b.minigameDir = 1;
+				b.minigameHit = null;
+				b.phase = "minigame";
+				this.audio.special();
+				return;
+			}
+			const atk = this.dmgStat(b, b.player, "self", mv.stat);
+			b.pendingDmg = Math.max(1, Math.round(atk * mv.power));
+			b.pendingLabel = mv.name;
+			b.phase = "resolve_hit";
 			return;
 		}
 		if (mv.kind === "special") {
@@ -3895,8 +3949,24 @@ export class CryMon {
 		const flat = side === "self" ? (statKey === "str" ? b.mods.selfStr : b.mods.selfSpc) : (statKey === "str" ? b.mods.foeStr : b.mods.foeSpc);
 		return this.effStat(m, statKey, stage, hyped, flat);
 	}
+	/** A signature/finisher rider (logic.json crystalMoves). `user` is the
+	 *  side that used the move. Returns the effect text. */
+	applyRider(b, user: "self" | "foe", rider: Rider | null | undefined): string {
+		if (!rider) return "";
+		const target = user === "self" ? "foe" : "self";
+		if (rider.kind === "selfHype") {
+			b.hypeActive[user] = true;
+			return "STATS UP";
+		}
+		if (rider.kind === "foeStage") {
+			this.advanceStage(b, target, rider.stat);
+			return `${(rider.stat || "").toUpperCase()} FALLS`;
+		}
+		this.inflictStatus(target === "foe" ? b.foe : b.player, rider.status);
+		return (rider.status || "").toUpperCase();
+	}
 	movePpKey(m, mv) {
-		return `${m.id}:${mv.kind === "hypeUp" ? "hype" : "nmove"}`;
+		return `${m.id}:${mv.kind === "hypeUp" ? "hype" : mv.kind === "nmove" ? "nmove" : mv.kind}`;
 	}
 	movePpRemaining(b, m, mv) {
 		return (mv.maxPp ?? 0) - (b.movePpUsed[this.movePpKey(m, mv)] ?? 0);

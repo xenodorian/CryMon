@@ -800,6 +800,49 @@ def bake_logic(data: dict, out: Path) -> None:
         )
     lines.append("};")
     lines.append("")
+
+    # crystalMoves: the Lv20 signature and Lv30 finisher, one pair per nature.
+    cm = logic.get("crystalMoves") or {}
+    cmoves = cm.get("moves") or []
+    by_nat = {m.get("nature"): m for m in cmoves}
+    lines.append("/* crystalMoves -- Lv20 signature / Lv30 finisher, one pair per nature. */")
+    lines.append(f"#define LV_SIGNATURE {int(growth.get('signatureAt') or 20)}")
+    lines.append(f"#define LV_FINISHER {int(growth.get('finisherAt') or 30)}")
+    lines.append(f"#define SIGNATURE_PP {int(cm.get('signaturePp') or 10)}")
+    lines.append(f"#define FINISHER_PP {int(cm.get('finisherPp') or 5)}")
+    lines.append("#define RIDER_FOE_STAGE 0")
+    lines.append("#define RIDER_FOE_STATUS 1")
+    lines.append("#define RIDER_SELF_HYPE 2")
+    lines.append("typedef struct { const char *name; int rider; int stat; int status; } CrystalMove;")
+    lines.append("static const CrystalMove CRYSTAL_MOVES[NATURE_N][2] = {")
+    if cmoves and len(cmoves) != len(natures):
+        raise SystemExit(f"logic.json crystalMoves.moves must have one entry per nature ({len(natures)}), got {len(cmoves)}")
+
+    def rider_row(mv, where):
+        r = mv.get("rider") or {}
+        k = r.get("kind")
+        if k == "foeStage":
+            rk, stat, status = "RIDER_FOE_STAGE", stage_stat_sym(r.get("stat") or "", where), 0
+        elif k == "foeStatus":
+            rk, stat, status = "RIDER_FOE_STATUS", 0, status_sym(r.get("status") or "", where)
+        elif k == "selfHype":
+            rk, stat, status = "RIDER_SELF_HYPE", 0, 0
+        else:
+            raise SystemExit(f"{where}: rider.kind must be foeStage, foeStatus or selfHype, got {k!r}")
+        return f'{{ "{c_escape(dc_text(mv.get("name") or "MOVE"))}", {rk}, {stat}, {status} }}'
+
+    for nat in natures:
+        m = by_nat.get(nat["id"])
+        if not m:
+            if cmoves:
+                raise SystemExit(f"logic.json crystalMoves missing nature {nat['id']!r}")
+            lines.append('    { { "", RIDER_SELF_HYPE, 0, 0 }, { "", RIDER_SELF_HYPE, 0, 0 } },')
+            continue
+        where = "crystalMoves." + nat["id"]
+        lines.append(f"    {{ {rider_row(m.get('signature') or {}, where + '.signature')}, "
+                     f"{rider_row(m.get('finisher') or {}, where + '.finisher')} }},")
+    lines.append("};")
+    lines.append("")
     out.write_text("\n".join(lines) + "\n")
 
 
