@@ -2377,22 +2377,31 @@ static void draw_crydex(int cur, int entry) {
    bag, shop, and battle item-menu rows below, all of which previously
    showed items as bare text. icon may be null (the item-menu's "PASS"
    row has no matching icon). */
-static const u16 *const ITEM_ICONS[] = {
+static const u16 *const ITEM_ICONS[ITEM_COUNT] = {
     icon_salve, icon_bandage, icon_bitterroot, icon_dust, icon_gem,
     icon_sunbalm, icon_warroot, icon_smokebomb, icon_greatcrystal, icon_cageKey,
     icon_megacrystal, icon_ultimatecrystal, icon_perfectcrystal,
-    icon_calmdraft, icon_burnsalve, icon_antidote, icon_clearmind, icon_numbroot, icon_panacea
+    icon_calmdraft, icon_burnsalve, icon_antidote, icon_clearmind, icon_numbroot, icon_panacea,
+    /* key and quest items (tools/pixelforge/items.py) */
+    icon_bowieKnife, icon_shackles, icon_goldenShackles, icon_boneInes, icon_boneTomas,
+    icon_boneOriel, icon_wraithLantern, icon_tamWatch, icon_silverLocket, icon_oldMap,
+    icon_brannLetter, icon_marnReply, icon_ragDoll
 };
 
 /* Effect text is stripped out of the row's own title now (matching
    the battle item menu below) and only drawn for the row under the
    cursor, beside the BAG title, so it never runs off the panel. */
-static const char *const ITEM_EFFECT_DESC[] = {
+static const char *const ITEM_EFFECT_DESC[ITEM_COUNT] = {
     "+22 HP", "+12 HP", "STR+4", "-3/-2/-2", "CATCH",
     "+40 HP", "AGL+4", "FLEE", "CATCH+", "CAGE KEY",
     "CATCH++", "CATCH+++", "ALWAYS CATCH",
     "RESET STAGES", "CURE BURN", "CURE POISON", "CURE CONFUSE",
-    "CURE PARALYZE", "CURE ANY"
+    "CURE PARALYZE", "CURE ANY",
+    /* key and quest items: the bag reached past the old 19-entry
+       table for these rows */
+    "KEY ITEM", "KEY ITEM", "KEY ITEM", "QUEST", "QUEST",
+    "QUEST", "QUEST", "QUEST", "QUEST", "QUEST",
+    "QUEST", "QUEST", "QUEST"
 };
 
 static void draw_bag_row(const u16 *icon, const char *label, int count,
