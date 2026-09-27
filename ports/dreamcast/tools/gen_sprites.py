@@ -115,6 +115,9 @@ TOWN_TILE_NAMES = (['%s-%s-%d' % (k, t, i) for t in ('wood', 'keep', 'crypt', 'p
                    ['%s-%s-%d' % (k, t, i) for t in ('town', 'seph') for k in ('wallf', 'roof') for i in (1, 2)] +
                    ['%s-%s' % (k, t) for t in ('town', 'seph') for k in ('ridge', 'door')] +
                    ['bars', 'gate', 'flowers-1', 'flowers-2', 'crate', 'bed'])
+# The Hollow's regraded ground (tools/pixelforge/tiles_hollow.py).
+HOLLOW_TILE_NAMES = (['h-grass-%d' % i for i in range(1, 5)] + ['h-water-%d' % i for i in range(1, 5)] +
+                     ['h-%s-%d' % (k, i) for k in ('tallgrass', 'tree', 'tree-s') for i in (1, 2)])
 LIGHT_NAMES = ['%s-%d' % (k, i) for k in ('torch', 'lantern') for i in range(1, 5)]
 BATTLE_BG_W, BATTLE_BG_H = 320, 240
 
@@ -438,6 +441,11 @@ def main():
         for n in LIGHT_NAMES:
             im = Image.open(os.path.join(fx_dir, n + '.png'))
             emit_array(lines, 'fx_' + n.replace('-', '_'), encode(im, 10, 10, Image.BOX), 10, 10)
+    if all(os.path.exists(os.path.join(tile_dir, n + '.png')) for n in HOLLOW_TILE_NAMES):
+        lines.append('#define HAVE_HOLLOW_TILES 1')
+        for n in HOLLOW_TILE_NAMES:
+            im = Image.open(os.path.join(tile_dir, n + '.png'))
+            emit_array(lines, 'tile_' + n.replace('-', '_'), encode(im, 20, 20, Image.LANCZOS), 20, 20)
 
     lines.append('#define ITEM_ICON_W %d' % ITEM_ICON_W)
     lines.append('#define ITEM_ICON_H %d' % ITEM_ICON_H)
