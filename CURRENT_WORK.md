@@ -3747,6 +3747,15 @@ pyrelion (fuller flame mane), tidewolf (cold breath instead of the foam
 under its feet), spiders (legs arch up to a knee and out), crabs (legs
 spread wider), dustmole (visible digging claws).
 
+**Batch 4: deep pass, all monsters.** Renderer now draws directional
+fur strands and a bounce-light rim on the shadow side. Idle loops have
+real motion: four-legged monsters breathe (body swells), the head drifts
+out of step with the breath, tails sway wider and one ear twitches;
+perched birds nod and flick their tails. Early-game monsters got extra
+detail: Jolthare (cheek fluff, bolt forelock, dark ear tips), Runemote
+(glowing carved rune on a mossy wall chip), Stardrop (dark star rock with a
+small core glow). Static sparks now jump off the top of the silhouette.
+
 Open: Lieutenant Lead's user-cut sprites (`public/sprites/npc/lead-1..4`)
 are still a dark bar. Left alone on purpose because they are the user's
 own files; redraw them only if the user says so.

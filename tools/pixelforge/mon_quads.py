@@ -32,23 +32,29 @@ def sparks(color=(255, 200, 70), n=4, spread=(10, 120, 20, 112), seed=1):
 
 
 def static_zaps(color=(255, 236, 120), n=3, seed=3):
-    """fx: short zigzag bolts hugging the silhouette."""
+    """fx: short zigzag bolts jumping off the top of the silhouette."""
     def extra(c, a, t, mats):
         def fx(cc):
             import numpy as np
-            ys, xs = np.nonzero(cc.alpha)
+            al = cc.alpha
+            top = al.copy()
+            top[1:, :] &= ~al[:-1, :]
+            top[0, :] = False
+            ys, xs = np.nonzero(top)
             if len(xs) == 0:
                 return
             for i in range(n):
-                k = (i * 2654435761 + t * 40503 + seed) % len(xs)
-                x, y = int(xs[k]), int(ys[k])
-                # walk outward (up-left or up-right) in a zigzag
+                k = (i * 2654435761 + t * 40503 + seed * 97) % len(xs)
+                x, y = int(xs[k]), int(ys[k]) - 1
                 dx = -1 if (i + t) % 2 else 1
-                for j in range(6):
-                    x += dx if j % 2 == 0 else 0
+                for j in range(7):
+                    if j % 2 == 0:
+                        x += dx
+                    else:
+                        dx = -dx
                     y -= 1
-                    if not cc.alpha[max(0, min(cc.h - 1, y)), max(0, min(cc.w - 1, x))]:
-                        cc.put(x, y, color if j < 4 else (255, 255, 255))
+                    if 0 <= y < cc.h and 0 <= x < cc.w and not al[y, x]:
+                        cc.put(x, y, (255, 255, 255) if j in (2, 3) else color)
         c.fx(fx)
     return extra
 
@@ -125,9 +131,24 @@ def _waves(c, a, t):
 
 # ------------------------------------------------------------------ hares / deer
 quad("jolthare", seed=9, body=(38, 24), leg=14, leg_r=4.2, head=(15, 14), neck=2,
-     head_type="rodent", snout=4, fur="#e4bf4a", belly="#fbf1d0", eye="#3a2a18",
+     head_type="rodent", snout=5, fur="#e4bf4a", belly="#fbf1d0", eye="#3a2a18",
      ears="long", ear_size=1.0, tail="puff", puff_col="#fff6d8", pale_paws=True,
-     extras=[static_zaps(), sparks((255, 240, 120), 3, seed=9)])
+     extras=[lambda c, a, t, m: _hare_face(c, a, t), static_zaps(n=4), sparks((255, 240, 120), 3, seed=9)])
+
+
+def _hare_face(c, a, t):
+    """Cheek fluff that crackles, and a lightning-bolt forelock."""
+    fluff = M("#fbf1d0", tex="fur", tex_amp=0.5)
+    hx_, hy_, hrx, hry = a["hx"], a["hy"], a["hrx"], a["hry"]
+    c.ell(hx_ - hrx * 0.1, hy_ + hry * 0.55, hrx * 0.7, hry * 0.45, fluff, z=26, th=3, tuft=10, tuft_len=2.5,
+          tuft_arc=(20, 200))
+    bolt = Mat(["#b08010", "#e0b020", "#ffe050", "#fff4a0", "#ffffff"], emit=True)
+    x, y = hx_ - 2, hy_ - hry * 0.75
+    c.poly([(x, y - 7), (x + 5, y - 7), (x + 2, y - 2), (x + 5, y - 2), (x - 2, y + 6), (x, y), (x - 3, y)], bolt, z=34,
+           bevel=1)
+    # dark ear tips
+    for ex, ey in a.get("ear_tips", []):
+        c.ell(ex, ey + 2, 3, 3.5, M("#5a4020"), z=20)
 
 quad("voltbuck", seed=10, body=(54, 26), leg=30, leg_r=4.0, head=(13, 12), neck=12,
      head_type="deer", snout=10, fur="#c8a038", belly="#f6e8c0", eye="#fff080", feet="hoof",
