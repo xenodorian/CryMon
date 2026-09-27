@@ -20,6 +20,24 @@ Live coordination document for all CryMon agents. Read before changing the repo;
 3. **Continue regional dialogue/NPC audits.** NPCs should act from their story role and current state; avoid redundant exposition for characters who already know Max.
 4. **Lead walker art:** replace with a navy/red officer walker matching the portraits.
 
+## Claude non-art pass (2026-09-27, in progress, session_01GPDsdW8JR9AqXFQ7HYorsa)
+
+User asked for all five non-art items, in this order, pushed step by step. If this
+session stops, pick up at the first step not marked DONE.
+
+1. **Emulator/e2e verification -- DONE.** CI `checks.yml` on `main`: web Quartz e2e,
+   battle e2e, map tour, CDI build all pass. Dreamcast Flycast: Quartz passes
+   (badge, +16 marks, 1 battle, survives reboot). **Opal is intermittent**: passed
+   on `b76a403` (run 36337517294), failed on `1d84787` and `a30d395` (run
+   36341811561: "fight over after 21 presses", no badgeOpal, +0 marks, 0 battles).
+   Doc-only commits, so this is a flaky Dreamcast/harness issue, not a content change.
+   `main` Checks stays red until step 3 is fixed.
+2. **Full Dreamcast trainer sweep -- TODO.**
+3. **Opal fight bug root cause -- TODO.**
+4. **BUG-012 NPC geometry (all NPCs, DC) -- TODO.**
+5. **Regional dialogue/NPC audit -- TODO.** Report proposed text edits to the user
+   before applying them.
+
 ## Standing repository rules
 
 - Commit and push each completed step to `main`; do not batch unrelated steps.
