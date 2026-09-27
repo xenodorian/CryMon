@@ -333,6 +333,10 @@ static u16 shiny_tint(u16 c) {
    independent so idle draws (revealed=h, fade=16) are just the old
    plain blit_sprite/blit_sprite_shiny with extra math that folds
    away. */
+/* Set by draw_battle_sprites() around one blit: 1 = draw the sprite
+   washed toward white (the hurt blink). */
+static int anim_flash = 0;
+
 static void blit_sprite_anim(const u16 *px, int w, int h, int x, int y,
                               int shiny, int revealed, int fade) {
     int sx, sy, start;
@@ -346,6 +350,9 @@ static void blit_sprite_anim(const u16 *px, int w, int h, int x, int y,
             u16 c = px[sy * w + sx];
             if(c == SPRITE_KEY) continue;
             if(shiny) c = shiny_tint(c);
+            if(anim_flash)
+                c = (u16)(((((c >> 11) & 0x1Fu) + 0x1Fu) / 2u << 11) |
+                          ((((c >> 5) & 0x3Fu) + 0x3Fu) / 2u << 5) | (((c & 0x1Fu) + 0x1Fu) / 2u));
             if(fade < 16) {
                 u16 r = (u16)((((c >> 11) & 0x1Fu) * (u32)fade) / 16u);
                 u16 g = (u16)((((c >> 5) & 0x3Fu) * (u32)fade) / 16u);
@@ -4039,10 +4046,27 @@ static void draw_party_mon_icon(int species, int x, int y) {
    twice. */
 #define BATTLE_ANIM_ENTER_FRAMES 18
 #define BATTLE_ANIM_FAINT_FRAMES 24
+/* Frame a hit landed on each side (main loop sees the hp drop); drives
+   the attacker's lunge and the target's shake and white blink. */
+static u32 battle_foe_hit_t = 0, battle_pl_hit_t = 0;
+#define BATTLE_HIT_FRAMES 22
+
+static void hit_motion(u32 frame_count, u32 hit_t, int *shake, int *lunge, int *blink) {
+    u32 el;
+    *shake = *lunge = *blink = 0;
+    if(!hit_t || frame_count < hit_t) return;
+    el = frame_count - hit_t;
+    if(el >= BATTLE_HIT_FRAMES) return;
+    *shake = ((el / 2u) % 2u ? 2 : -2) * (int)(BATTLE_HIT_FRAMES - el) / 8;
+    *lunge = el < 12u ? (el < 6u ? (int)el : (int)(12u - el)) * 2 : 0;
+    *blink = el < 6u || (el >= 11u && el < 16u);
+}
+
 static void draw_battle_sprites(const Battle *b, u32 frame_count,
                                  u32 foe_enter_t, u32 foe_faint_t,
                                  u32 pl_enter_t, u32 pl_faint_t) {
     int f = (int)((frame_count / 15u) % 4u);
+    int fs, fl, fb, ps, pl, pb;
     int foe_revealed = MONSTER_SPRITE_H, foe_fade = 16;
     int pl_revealed = MONSTER_SPRITE_H, pl_fade = 16;
 
@@ -4067,10 +4091,15 @@ static void draw_battle_sprites(const Battle *b, u32 frame_count,
                           : (int)(el * (u32)MONSTER_SPRITE_H / BATTLE_ANIM_ENTER_FRAMES);
     }
 
+    hit_motion(frame_count, battle_foe_hit_t, &fs, &fl, &fb);   /* foe was hit: player lunges */
+    hit_motion(frame_count, battle_pl_hit_t, &ps, &pl, &pb);    /* player was hit: foe lunges */
+    anim_flash = fb;
     blit_sprite_anim(mon_frame(0, b->foe.species, f), MONSTER_SPRITE_W, MONSTER_SPRITE_H,
-                      BFOE_SPRITE_X, BFOE_SPRITE_Y, b->foe.shiny, foe_revealed, foe_fade);
+                      BFOE_SPRITE_X + fs - pl, BFOE_SPRITE_Y + pl / 2, b->foe.shiny, foe_revealed, foe_fade);
+    anim_flash = pb;
     blit_sprite_anim(mon_frame(1, b->pl.species, f), MONSTER_SPRITE_W, MONSTER_SPRITE_H,
-                      BPL_SPRITE_X, BPL_SPRITE_Y, b->pl.shiny, pl_revealed, pl_fade);
+                      BPL_SPRITE_X + ps + fl, BPL_SPRITE_Y - fl / 2, b->pl.shiny, pl_revealed, pl_fade);
+    anim_flash = 0;
 }
 
 /* One line each -- "*NAME LVxx hp/maxHp" -- sized to BSTATUS_BOX_W's
@@ -6233,6 +6262,10 @@ void main(void) {
             }
             else if(battle.foe.hp <= 0 && battle_prev_foe_hp > 0 && !battle_foe_faint_t) {
                 battle_foe_faint_t = frame_count;
+                battle_foe_hit_t = frame_count;
+            }
+            else if(battle.foe.hp < battle_prev_foe_hp) {
+                battle_foe_hit_t = frame_count;
             }
             /* A successful capture (BAFTER_WORLD, see battle_pick_item)
                withdraws the foe from battle without necessarily
@@ -6254,12 +6287,17 @@ void main(void) {
             }
             else if(battle.pl.hp <= 0 && battle_prev_pl_hp > 0 && !battle_pl_faint_t) {
                 battle_pl_faint_t = frame_count;
+                battle_pl_hit_t = frame_count;
+            }
+            else if(battle.pl.hp < battle_prev_pl_hp) {
+                battle_pl_hit_t = frame_count;
             }
             battle_prev_pl_hp = battle.pl.hp;
         }
         else if(battle_was_active) {
             battle_foe_enter_t = battle_foe_faint_t = 0;
             battle_pl_enter_t = battle_pl_faint_t = 0;
+            battle_foe_hit_t = battle_pl_hit_t = 0;
             battle_prev_foe_species = battle_prev_pl_species = -1;
             battle_prev_after = -1;
         }
