@@ -442,7 +442,25 @@ quad("quakelord", seed=28, body=(76, 42), leg=10, leg_r=7.5, head=(18, 16), neck
      head_type="mole", snout=12, fur="#4a3a30", belly="#8a7058", eye="#000000", eye_kind="none",
      ears="none", tail="short", tail_len=0.6, feet="claw", nose_col="#e0908a",
      extras=[lambda c, a, t, m: _dust(c, a, t, 9), lambda c, a, t, m: _shovels(c, a, t, 1.5),
-             lambda c, a, t, m: _cracks(c, a, t)])
+             lambda c, a, t, m: _cracks(c, a, t), lambda c, a, t, m: _quake_plates(c, a, t)])
+
+
+def _quake_plates(c, a, t):
+    """Tectonic armour: tilted slabs ridging the back, split by a hot seam."""
+    slab = M("#7a6a5a", tex="grain", tex_amp=0.7, spec=0.15)
+    dark = M("#5a4c40", tex="grain", tex_amp=0.6)
+    bx, by, rx, ry = a["bx"], a["by"], a["rx"], a["ry"]
+    shake = [0, 1, 0, -1][t]
+    for i, (dx, w, h) in enumerate(((-26, 8, 12), (-12, 11, 18), (4, 12, 22), (20, 10, 16), (32, 7, 10))):
+        top = by - ry * (0.78 - 0.1 * (abs(dx) / rx) ** 2)
+        lean = 0.35 * dx / rx * w
+        jit = shake if i % 2 else -shake
+        c.poly([(bx + dx - w, top + 4), (bx + dx - w * 0.5 + lean, top - h + jit), (bx + dx + w * 0.4 + lean, top - h - 2 + jit),
+                (bx + dx + w, top + 4)], slab if i % 2 == 0 else dark, z=38 + i, bevel=2.5)
+    glow = Mat(["#6a1a08", "#b0400c", "#f08020", "#ffc050", "#fff0b0"], emit=True)
+    for i in range(4):
+        x0 = bx - 20 + i * 15
+        c.cap(x0, by - ry * 0.72, 1.0, x0 + 3, by - ry * 0.5, 0.7, glow, z=37)
 
 
 def _cracks(c, a, t):

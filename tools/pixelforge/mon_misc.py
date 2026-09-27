@@ -885,23 +885,42 @@ def stone_legs(c, x, y, G, dxs, r=4, mat=STONE, t=0):
         c.ell(x + dx - 3, G - 2 + lift, r * 1.3, r * 0.6, mat, z=12)
 
 
+MOSS = M("#5a8a3a", tex="grain", tex_amp=0.9)
+
+
+def stone_arm(c, sx, sy, ex, ey, hx_, hy_, r, mat, z):
+    """Shoulder boulder, blocky forearm, knuckled fist."""
+    c.ell(sx, sy, r * 1.5, r * 1.3, mat, z=z + 2)
+    c.chain([(sx, sy, r * 1.1), (ex, ey, r), (hx_, hy_, r * 0.95)], mat, z=z)
+    c.ell(hx_, hy_ + r * 0.4, r * 1.35, r * 1.15, mat, z=z + 3)
+
+
 @mon("rubblet")
 def rubblet(t):
     c = Canvas(96, 96, seed=101)
     G = 92
     bob = [0, -1, -2, -1][t]
-    x, y = 48, 58 + bob
-    stone_legs(c, x, y + 10, G, (-7, 7), r=3.2, mat=BRICK, t=t)
+    sw = [0, 2, 0, -2][t]
+    x, y = 48, 60 + bob
+    stone_legs(c, x, y + 10, G, (-8, 8), r=3.6, mat=BRICK, t=t)
+    # far arm behind the block
+    stone_arm(c, x + 18, y - 2, x + 24, y + 6 - sw, x + 26, y + 13 - sw, 2.6, BRICK, z=-8)
     g = c.group()
-    c.poly([(x - 20, y + 10), (x - 18, y - 14), (x + 18, y - 12), (x + 20, y + 12)], BRICK, z=0, bevel=4, th=8, g=g)
+    c.poly([(x - 20, y + 12), (x - 18, y - 16), (x + 18, y - 14), (x + 20, y + 13)], BRICK, z=0, bevel=4, th=8, g=g)
     brick_pat(c, g, 8, 14)
-    # a chipped corner
-    c.pattern(lambda xx, yy: (xx > x + 12) & (yy < y - 6), -1, only=g)
-    c.cap(x - 20, y, 2.4, x - 28, y - 6 + bob, 1.8, BRICK, z=10)
-    c.cap(x + 20, y, 2.4, x + 28, y + 6, 1.8, BRICK, z=-4)
-    c.ink(lambda cc: [peye(cc, x - 7, y - 3, 2.6, 2.8, iris=(40, 30, 20), pw=0.8, ph=0.8, angry=0.3),
-                      peye(cc, x + 5, y - 3, 2.6, 2.8, iris=(40, 30, 20), pw=0.8, ph=0.8, angry=0.3),
-                      [cc.put(x - 3 + k, y + 5, (50, 24, 16)) for k in range(6)]])
+    # a chipped corner and a mossy cap
+    c.pattern(lambda xx, yy: (xx > x + 11) & (yy < y - 8) & (xx - x - 11 > y - 8 - yy), -1, only=g)
+    c.ell(x - 8, y - 16, 9, 3, MOSS, z=10)
+    c.ell(x + 3, y - 15, 6, 2.4, MOSS, z=11)
+    # loose pebbles orbiting overhead
+    for k in range(3):
+        px = x - 12 + k * 12
+        py = y - 24 + [0, -1, -2, -1][(t + k) % 4] - (k == 1) * 3
+        c.ell(px, py, 2.4, 2, STONE, z=12)
+    stone_arm(c, x - 19, y - 2, x - 25, y + 4 + sw, x - 26, y + 11 + sw, 2.8, BRICK, z=16)
+    c.ink(lambda cc: [peye(cc, x - 7, y - 4, 2.8, 3.0, iris=(40, 30, 20), pw=0.9, ph=0.9, angry=0.35),
+                      peye(cc, x + 5, y - 4, 2.8, 3.0, iris=(40, 30, 20), pw=0.9, ph=0.9, angry=0.35),
+                      [cc.put(x - 3 + k, y + 5 + (k in (0, 5)) * -1, (50, 24, 16)) for k in range(6)]])
     return c
 
 
@@ -910,19 +929,40 @@ def ramparth(t):
     c = Canvas(128, 128, seed=102)
     G = 122
     bob = [0, 1, 2, 1][t]
-    x, y = 64, 70 + bob
-    stone_legs(c, x, y + 26, G, (-30, -12, 12, 30), r=5.2, t=t)
+    sw = [0, 3, 0, -3][t]
+    x, y = 64, 72 + bob
+    stone_legs(c, x, y + 24, G, (-24, -9, 9, 24), r=6.4, t=t)
+    stone_arm(c, x + 44, y - 8, x + 52, y + 6 - sw, x + 54, y + 20 - sw, 6, STONE, z=-8)
     g = c.group()
-    pts = [(x - 48, y + 28), (x - 48, y - 20)]
+    pts = [(x - 46, y + 28), (x - 48, y - 18)]
     for k in range(5):
-        x0 = x - 48 + k * 20
-        pts += [(x0, y - 30), (x0 + 10, y - 30), (x0 + 10, y - 20), (x0 + 20, y - 20)]
-    pts = pts[:-1] + [(x + 48, y - 30), (x + 48, y + 28)]
+        x0 = x - 48 + k * 19.2
+        pts += [(x0, y - 30), (x0 + 10, y - 30), (x0 + 10, y - 18), (x0 + 19.2, y - 18)]
+    pts = pts[:-1] + [(x + 48, y - 30), (x + 48, y - 18), (x + 46, y + 28)]
     c.poly(pts, STONE, z=0, bevel=4, th=10, g=g)
     brick_pat(c, g, 9, 18)
-    c.pattern(lambda xx, yy: ((xx - x) ** 2 / 60 + (yy - y - 16) ** 2 / 90 < 1), -3, only=g)   # arrow slit / mouth
-    c.ink(lambda cc: [peye(cc, x - 14, y - 6, 3.2, 3.0, iris=(250, 200, 60), pw=0.5, ph=0.6, angry=0.9),
-                      peye(cc, x + 12, y - 6, 3.2, 3.0, iris=(250, 200, 60), pw=0.5, ph=0.6, angry=0.9)])
+    # gate mouth: dark arch with a raised portcullis
+    gate = lambda xx, yy: ((xx - x) ** 2 / 110 + (yy - y - 12) ** 2 / 150 < 1) & (yy > y + 2) | \
+        ((abs(xx - x) < 10.5) & (yy >= y + 12) & (yy < y + 28))
+    c.pattern(gate, -4, only=g)
+    teeth = [0, 2, 4, 2][t]
+    c.ink(lambda cc: [[cc.put(x + dx, yy, (70, 64, 60)) for dx in (-7, -3, 1, 5) for yy in range(int(y + 2), int(y + 8 + teeth))],
+                      [cc.put(x + dx, int(y + 8 + teeth), (120, 112, 100)) for dx in range(-8, 8)]])
+    # moss and ivy on the wall
+    c.ell(x - 30, y + 22, 10, 4, MOSS, z=8)
+    c.ell(x + 34, y - 16, 8, 3, MOSS, z=8)
+    c.chain([(x - 40, y - 18, 1.4), (x - 36, y - 4, 1.4), (x - 40, y + 8, 1.4)], MOSS, z=9)
+    # banner pole on the rightmost merlon
+    c.cap(x + 38, y - 30, 1.2, x + 38, y - 52, 1.1, IRON, z=10)
+    flap = [0, 2, 1, -1][t]
+    c.poly([(x + 38, y - 52), (x + 54, y - 48 + flap), (x + 38, y - 42)], M("#b03a3a"), z=11, bevel=1)
+    stone_arm(c, x - 44, y - 8, x - 52, y + 4 + sw, x - 54, y + 18 + sw, 6.4, STONE, z=20)
+    win = Mat(["#6a3a10", "#b06a20", "#f0a030", "#ffd070", "#fff0c0"], emit=True)
+    for dx in (-16, 14):
+        c.poly([(x + dx - 4, y - 2), (x + dx - 4, y - 10), (x + dx, y - 13), (x + dx + 4, y - 10), (x + dx + 4, y - 2)],
+               Mat(["#141010", "#201a16", "#2a2420", "#342c26", "#3e342c"]), z=22, bevel=1)
+        c.ell(x + dx, y - 6, 2.4, 2.6, win, z=24)
+    c.ink(lambda cc: [cc.put(x + dx + (1 if dx < 0 else -1), int(y - 11), (40, 36, 34)) for dx in (-17, -15, 13, 15)])
     return c
 
 
