@@ -1737,6 +1737,10 @@
           "talk": "marnLetter"
         },
         {
+          "if": "leg3Ended",
+          "talk": "marnPost"
+        },
+        {
           "ifNot": "talkedMarn",
           "set": "talkedMarn",
           "talk": "marnFirst"
@@ -2658,6 +2662,12 @@
       "talk": "crierNews",
       "script": [
         {
+          "if": "leg3Ended",
+          "talkIf": "neroTried",
+          "talk": "crierPostTrial",
+          "talkElse": "crierPostCrown"
+        },
+        {
           "if": "sawShinigamiRock",
           "ifNot": "talkedReach",
           "talk": "crierRock"
@@ -3343,6 +3353,10 @@
       "talk": "hintMalkuth",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintMalkuthPost"
+        },
+        {
           "if": "medalBronzeStar",
           "talk": "hintMalkuthAfter"
         },
@@ -3359,6 +3373,10 @@
       "sprite": "npc/townsman",
       "talk": "hintYesod",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintYesodPost"
+        },
         {
           "if": "medalPurpleHeart",
           "talk": "hintYesodAfter"
@@ -3377,6 +3395,10 @@
       "talk": "hintNetzach",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintNetzachPost"
+        },
+        {
           "if": "medalPowMedal",
           "talk": "hintNetzachAfter"
         },
@@ -3393,6 +3415,10 @@
       "sprite": "npc/townsman",
       "talk": "hintHod",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintHodPost"
+        },
         {
           "if": "medalSilverStar",
           "talk": "hintHodAfter"
@@ -3411,6 +3437,10 @@
       "talk": "hintTiferet",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintTiferetPost"
+        },
+        {
           "if": "medalGoldStar",
           "talk": "hintTiferetAfter"
         },
@@ -3427,6 +3457,10 @@
       "sprite": "npc/townsman",
       "talk": "hintChesed",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintChesedPost"
+        },
         {
           "if": "medalLegionOfMerit",
           "talk": "hintChesedAfter"
@@ -3445,6 +3479,10 @@
       "talk": "hintGevurah",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintGevurahPost"
+        },
+        {
           "if": "medalFlyingCross",
           "talk": "hintGevurahAfter"
         },
@@ -3461,6 +3499,10 @@
       "sprite": "npc/townsman",
       "talk": "hintBinah",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintBinahPost"
+        },
         {
           "if": "medalServiceCross",
           "talk": "hintBinahAfter"
@@ -3479,6 +3521,10 @@
       "talk": "hintChokmah",
       "script": [
         {
+          "if": "leg3Ended",
+          "talk": "hintChokmahPost"
+        },
+        {
           "if": "medalOfHonor",
           "talk": "hintChokmahAfter"
         },
@@ -3495,6 +3541,10 @@
       "sprite": "npc/elder",
       "talk": "hintKeter",
       "script": [
+        {
+          "if": "leg3Ended",
+          "talk": "hintKeterPost"
+        },
         {
           "if": "hasGoldenShackles",
           "talk": "hintKeterOpen"

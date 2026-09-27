@@ -3725,6 +3725,12 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         too wide sit under the HUD lines.
       - Web: forced every screen's draw and opened every pause row with
         real input. No errors.
+- [x] H11 After-the-war lines (JSON only, both engines through the NPC
+      scripts). With `leg3Ended` on: the CryTown crier has two versions
+      (Nero tried: `crierPostTrial`; Nero killed: `crierPostCrown`), each
+      Sephirot city's hint NPC and Keter's elder get one line
+      (`hint<City>Post`), and Elder Marn gets `marnPost` (after his
+      letter step, so Brann's quest still works). Verified on web.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 
