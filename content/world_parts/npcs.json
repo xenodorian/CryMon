@@ -428,6 +428,9 @@
       "talkDone": "shinigamiAfter",
       "script": [
         {
+          "showIf": "cathleenCaught"
+        },
+        {
           "hideIf": "beatShinigami"
         },
         {
