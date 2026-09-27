@@ -1482,18 +1482,6 @@
         "text": "Turn back, or meet all six of mine."
       }
     ],
-    "leadFightConfirm": [
-      {
-        "speaker": "lead",
-        "text": "Then you chose the hard road."
-      }
-    ],
-    "leadWalkAway": [
-      {
-        "speaker": "lead",
-        "text": "Then turn back."
-      }
-    ],
     "leadWinPlaceholder": [
       {
         "speaker": "none",
