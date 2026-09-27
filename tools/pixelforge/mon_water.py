@@ -153,14 +153,29 @@ def starwhale(t):
     sw = [0, 2, 4, 2][t]
     cx, cy = 60, 66 + bob
     g = c.group()
-    # tail flukes
-    c.poly([(104, cy - 6), (124, cy - 20 - sw), (118, cy - 4), (124, cy + 10 - sw)], fin, z=-4, bevel=2)
+    # tail flukes: two swept lobes on a narrow stock
+    c.cap(106, cy - 4, 4, 114, cy - 6 - sw * 0.5, 3, fin, z=-3)
+    c.poly([(112, cy - 6 - sw * 0.5), (120, cy - 22 - sw), (126, cy - 20 - sw), (118, cy - 4 - sw * 0.5)], fin, z=-4, bevel=2)
+    c.poly([(112, cy - 6 - sw * 0.5), (122, cy + 8 - sw), (126, cy + 4 - sw), (118, cy - 6 - sw * 0.5)], fin, z=-5, bevel=2)
     c.ell(cx, cy, 50, 26, body, z=0, g=g)
     c.cap(cx + 30, cy - 2, 18, 108, cy - 4, 6, body, z=0, g=g)
     c.ell(cx - 6, cy + 14, 44, 12, belly, g=g, decal=True, only=g)
     c.pattern(lambda x, y: (y > cy + 8) & ((x % 5) < 1), -1, only=g)
-    # flipper
-    c.poly([(cx - 10, cy + 10), (cx + 10, cy + 34 - sw * 0.5), (cx + 16, cy + 12)], fin, z=30, bevel=2)
+    # nebula clouds drifting across its back
+    neb = Mat(["#2c2468", "#3a2e7a", "#4a3a8e", "#5c4aa0", "#7060b4"], soft=0.9)
+    neb2 = Mat(["#203c6a", "#284c7c", "#30608e", "#3a70a0", "#4a84b0"], soft=0.9)
+    c.ell(cx - 4, cy - 12, 18, 6, neb, g=g, decal=True, only=g)
+    c.ell(cx + 22, cy - 8, 12, 5, neb2, g=g, decal=True, only=g)
+    c.ell(cx - 26, cy - 6, 8, 4, neb2, g=g, decal=True, only=g)
+    # curved flipper
+    fl = sw * 0.5
+    c.poly([(cx - 10, cy + 10), (cx - 4, cy + 22 - fl * 0.5), (cx + 6, cy + 32 - fl), (cx + 12, cy + 34 - fl),
+            (cx + 10, cy + 26 - fl), (cx + 6, cy + 14)], fin, z=30, bevel=2.5)
+    # stardust spout from the blowhole
+    for k in range(4):
+        h = 2 + k * 5 + sw
+        sc = Mat(["#a0a8e0", "#c8d0ff", "#e8ecff", "#ffffff", "#ffffff"], emit=True)
+        c.ell(cx - 18 + (k % 2) * 3 - k, cy - 26 - h, 2.4 - k * 0.4, 2.4 - k * 0.4, sc, z=40)
     # constellation on its back
     stars = [(cx - 20, cy - 14), (cx - 6, cy - 18), (cx + 8, cy - 14), (cx + 22, cy - 18), (cx + 34, cy - 10)]
 
