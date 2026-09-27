@@ -1660,6 +1660,14 @@ static void draw_map_title(int map_id) {
     if(map_id < 0 || map_id >= MAP_N) map_id = MAP_HOUSE;
     name = MAP_DISPLAY_NAME[map_id];
     w = text_width_s(name, 2);
+    /* Long names ("NERO'S PALACE") at double size ran into the HUD in
+       the top-left; those drop to normal size. */
+    if(w > SCREEN_W / 2 - 6) {
+        w = text_width_s(name, 1);
+        /* Still too wide to clear the HUD's lines: sit under them. */
+        draw_text_s(name, SCREEN_W - 6 - w, SCREEN_W - 6 - w < 166 ? 30 : 6, rgb565(232, 228, 216), 1);
+        return;
+    }
     draw_text_s(name, SCREEN_W - 6 - w, 4, rgb565(232, 228, 216), 2);
 }
 

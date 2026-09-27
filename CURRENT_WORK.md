@@ -3714,6 +3714,17 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
         haunted hall -> Reach) with no page errors; Dreamcast in Flycast.
       - `content/town_map.json` and `public/maps/*` (the old generator's
         output) are left as they were; the game no longer reads them.
+- [x] H10 Small fixes found while playing the finale.
+      - Web: played Nero -> trial -> Father -> ending cards -> wakes at
+        home with the post-game lines. No errors.
+      - `hfEndNone` said "There is nothing left to fight" right before the
+        post-game; now "For now, there is nothing left to fight."
+      - Dreamcast map title: long names at double size ran into the HUD
+        in the top-left (most maps: "THE FOREST", "NERO'S PALACE"). Names
+        wider than half the screen now draw at normal size, and ones still
+        too wide sit under the HUD lines.
+      - Web: forced every screen's draw and opened every pause row with
+        real input. No errors.
 
 ## Quartz win/save parity, BUG_LOG sweep, CI checks (Claude, 2026-09-27) -- DONE
 

@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=9a9d5dde8d3df229 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=2893b093a2590335 — do not edit. python3 tools/bake_content.py */
 
 #if defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-const-variable"
@@ -837,7 +837,7 @@ static const TalkBeat TALK_FATHER_MONSTER[] = {
 };
 static const TalkBeat TALK_HF_END_NONE[] = {
     { "THE WAR IS OVER. THE WEEPING ARMY IS FINISHED.", 0 },
-    { "MAX GOES HOME TO CRYTOWN. THERE IS NOTHING LEFT TO FIGHT.", 0 },
+    { "MAX GOES HOME TO CRYTOWN. FOR NOW, THERE IS NOTHING LEFT TO FIGHT.", 0 },
 };
 static const TalkBeat TALK_HF_END_TAMED[] = {
     { "...", 23 },
