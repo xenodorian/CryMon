@@ -3779,3 +3779,7 @@ own files; redraw them only if the user says so.
 - Armor shoulders are layered plates with rivets (were round balloons).
 - Nero's crown: velvet cap, two pearl-studded arches, orb and cross, fleurons, jeweled band.
 - Rebuilt all 32 code-drawn portraits. Lead untouched.
+
+### Deep pass batch 3: NPC walkers (Claude, 2026-09-27)
+- tools/pixelforge/npcs.py: adult proportions closer to the hand-drawn walkers (smaller head, neck, tapered torso with fold shading), arms bent at the elbow with cuffs, idle now breathes, swings the arms and turns the head a little. Beards sit on the jaw instead of covering the eyes.
+- Rebuilt all code-drawn walkers and props. Lead and Max untouched.
