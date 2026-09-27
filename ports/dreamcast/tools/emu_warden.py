@@ -220,7 +220,7 @@ def run(who, args):
     out.mkdir(parents=True, exist_ok=True)
     print(f"--- {kit['name']} on Dreamcast (Flycast) ---", flush=True)
     before = decode(pre.read_bytes())
-    emu = Emu(args.flycast, args.cdi, out)
+    emu = Emu(args.flycast, args.cdi, out, disp=args.display)
     try:
         emu.start()                      # first boot creates the VMU image
         emu.stop()
@@ -272,6 +272,7 @@ def main():
     ap.add_argument("--flycast", required=True)
     ap.add_argument("--save-dir", required=True, help="dir with <who>-before.bin from the web e2e")
     ap.add_argument("--out", default="emu-out")
+    ap.add_argument("--display", default=":77", help="X display for the private Xvfb")
     ap.add_argument("--quick", action="store_true", help="skip the reboot + Continue check")
     ap.add_argument("--max-presses", type=int, default=400)
     ap.add_argument("who", nargs="*", default=["quartz", "opal"])
