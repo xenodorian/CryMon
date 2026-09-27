@@ -1,0 +1,197 @@
+CRYMON HANDOFF: AI IMAGE GENERATION FOR PLACEHOLDER ART
+Written 2026-09-27 by Claude (Claude Code cloud session) for the next Claude session.
+
+======================================================================
+0. BEFORE YOU START (the user does this, not you)
+======================================================================
+The session that wrote this could not reach any image generator. Its
+network policy refused huggingface.co, router.huggingface.co and
+api-inference.huggingface.co, and it had no API key. So the new session
+needs:
+
+  a. The GitHub repo xenodorian/CryMon attached to the session.
+  b. Network access that allows the image provider's domains. For
+     Hugging Face: huggingface.co and router.huggingface.co. Set this
+     under the cloud environment menu (session title bar) > Edit >
+     Network access.
+  c. An API token set as an environment variable, for example HF_TOKEN.
+  d. A NEW session started on that environment. Settings changes may not
+     reach a container that is already running (unconfirmed).
+
+Your first step: confirm (b) and (c) work. Run:
+
+  curl -s -o /dev/null -w "%{http_code}\n" https://huggingface.co
+  test -n "$HF_TOKEN" && echo token-set || echo token-missing
+
+If either fails, stop. Tell the user the host name that was refused,
+or that the token is missing. Do not try to route around the policy.
+
+======================================================================
+1. WHAT THIS PROJECT IS
+======================================================================
+CryMon is a monster-catching RPG with two runtimes that share one
+content pack:
+  - Web engine (TypeScript, Vite): src/game/. Owned by "Grok" (another
+    AI agent).
+  - Dreamcast port (bare-metal C): ports/dreamcast/. Owned by Claude.
+  - Shared content: content/*.json. Shared art: public/sprites/.
+
+Read these first, in this order:
+  1. CLAUDE.md (short project stub, hard rules)
+  2. docs/CRYMON.md (the contract: ownership, pipelines, art rules)
+  3. CURRENT_WORK.md (running log; the newest section is
+     "Guilds, Shinigami arc, townsfolk and sidequests")
+
+Story in one paragraph: Max (a girl, age 8, red hair) lives in
+CryTown. Nero, the Weeping King, lost his queen twelve years ago and
+now binds every dead soldier into the Weeping Army. Max works with the
+necromancer Shinigami (Ghost Guild) to lift the Weeping Veil, beats
+Lieutenant Lead, then takes nine Generals' medals across the Sephirot
+cities and confronts Nero in Keter. There are also a Heroes Guild and a
+Thieves Guild.
+
+The user's style preferences (follow them in anything you write):
+  - Plain, concise answers. No em dashes. No emoji.
+  - Flag heavy tasks once and ask once before doing them.
+  - Don't state unverified things as fact.
+  - Confirm before edits that go beyond the request.
+
+======================================================================
+2. HARD RULES FOR ART
+======================================================================
+  - ONE art tree: public/sprites/. Tools that write PNGs must go
+    through tools/sprite_root.assert_write(), which refuses any other
+    path. Never create another folder named "sprites".
+  - Never reuse another character's sprite for a named character.
+  - Missing art stays tagged PLACEHOLDER_ART. Current placeholders carry
+    a magenta (255,0,255) "PH" or "PLACEHOLDER" tag. That is how to find
+    them.
+  - Do not touch Max's walk cycle (public/sprites/max/) unless the user
+    names Max.
+  - Do not replace art the user supplied (for example Lead's files, see
+    section 4) without the user saying so.
+  - Show every generated image to the user and get approval before
+    committing it. Generated results vary; the user decides.
+
+======================================================================
+3. ART SPECS (match these exactly)
+======================================================================
+All PNG, RGBA, transparent background. Pixel-art look (hard edges, no
+blur, limited palette). Look at existing finished art for style, for
+example public/sprites/monsters/quillpup/ and public/sprites/npc/bram-*.
+
+  Monsters (battle): public/sprites/monsters/<id>/1.png .. 4.png
+    - 4 idle frames (a small bob or breathing loop).
+    - Finished art is roughly 96x128 to 128x128 (quillpup is 112x101).
+      Keep 128x128 or smaller. Facing: check a finished monster.
+  Overworld NPCs: public/sprites/npc/<id>-1.png .. -4.png
+    - 48x64, 4 idle frames, feet at the bottom edge.
+  Dialogue portraits: public/sprites/portraits/<id>.png
+    - 160x200 bust.
+  Species info (name, crystal type, blurb) is in content/species.json.
+  The crystal type sets the color theme (docs/CRYMON.md "Crystal
+  Natures": e.g. Obsidian = ghost/dark, Citrine = lightning).
+
+Suggested process per asset:
+  1. Generate one large image (e.g. 512 or 1024 px) from a prompt that
+     names: pixel art, game sprite, full body, plain background, the
+     creature or character description, and the color theme.
+  2. Remove the background to transparency, crop to the subject.
+  3. Downscale with NEAREST to the target size.
+  4. Make the 4 frames from the one image (a 0/-1/-2/-1 px vertical
+     bob, as tools/make_placeholder_npcs.py does), unless the model can
+     give you consistent frames.
+  5. Write with assert_write to the exact path above, overwriting the
+     placeholder (the placeholder tools refuse to overwrite; your
+     writer should overwrite on purpose).
+
+Hugging Face call (VERIFY against current HF docs before relying on it;
+endpoints and model names change):
+  POST https://router.huggingface.co/hf-inference/models/<model-id>
+  Header: Authorization: Bearer $HF_TOKEN
+  JSON body: {"inputs": "<prompt>"}
+  Response: image bytes on success.
+  Pick a text-to-image model the account can use. Test one image first.
+
+Put any generator script under tools/ (for example
+tools/gen_ai_art.py). Never commit the token.
+
+======================================================================
+4. THE WORKLIST
+======================================================================
+Scanned 2026-09-27 for the magenta placeholder tag.
+
+A. Broken user art (ASK the user before touching):
+   public/sprites/npc/lead-1..4.png (Lieutenant Lead). All four frames
+   are a cropped dark bar, not a figure, on both engines. Came from
+   commit cfe5903 "Lieutenant Lead: apply user-cut sprite assets".
+   The user may want to re-cut it themselves.
+
+B. Placeholder monsters (82), public/sprites/monsters/<id>/:
+   arcanox arcwasp ashwing atlashell baphorn blazelynx bloomdoe
+   boltlamb bowstag cardkin charmkin chillnewt clovercalf cragsage
+   cryptlamp dawnchick deathknell dustmole eclipsaur fateweaver
+   floeclaw floepike frostchoir frostfry gallowcrow gardenbull geminal
+   glacierjaw gloomspider glyphwing grandroc gravemoth grimkid
+   hornblaze icecantor jolthare kestrail magistowl moonbull mooncalf
+   moonveil motley pipsprout pipwren plunderat pyrelion quakelord
+   ramparth reedfawn rimecrab rimeowl rimewyrm rockhermit rootking
+   rubblet runemote scavrat scorchbeak shrewbit sleightfox snowbell
+   soottick sparkfly sparkit stardrop starfry starwhale sunhawk
+   tallowisp thunderam thunderqueen tidewolf towerfall tuftowl
+   tunneler twinklet vinebrute voltbuck voltgrub warbison wheelhog
+   widowshade
+
+C. Placeholder NPC overworld sprites (35), public/sprites/npc/<id>-1..4:
+   ada aldous ardent ashgrove bandit blackwood brin child citizen crane
+   elder fingers ghost grave hale harrow kessler mag mallory marn
+   morrow nero pell pickup rook royalGuard shrine silas sorrel stroud
+   townsman townswoman vale vesk weepingGuard
+   Notes: "grave", "shrine" and "pickup" are objects (headstone, small
+   roofed shrine, sparkling item pouch), not people. "ghost" is a
+   wailing soldier's spirit. townsman, townswoman, elder, child and
+   bandit are generic looks shared by many named townsfolk.
+
+D. Placeholder portraits (32), public/sprites/portraits/<id>.png:
+   the same people as C minus grave, shrine and pickup.
+   Named townsfolk borrow the generic portraits through
+   content/sprites.json "portraitAlias" (web) and SPEAKER_PORTRAIT in
+   ports/dreamcast/src/main.c. If you give a townsperson their own
+   portrait, you must add it to sprites.json "portraits", remove its
+   alias, add a port_<id> entry in main.c, and check the Dreamcast
+   binary size (each portrait adds about 50 KB).
+
+Character hints come from content/dialogue.json (search the id) and
+tools/make_placeholder_npcs.py STYLE (their placeholder colors, e.g.
+Heroes Guild = blue and silver, Thieves = dark with red trim, Generals
+wear peaked officer caps, Nero wears a crown).
+
+Suggest to the user that you start small: one monster, one NPC, one
+portrait. Get approval on the style, then batch the rest.
+
+======================================================================
+5. AFTER ART CHANGES: THE PIPELINE (run all, fix anything red)
+======================================================================
+  python3 ports/dreamcast/tools/gen_sprites.py     # PNG -> sprites.h
+  python3 tools/bake_content.py --content content --out ports/dreamcast/src
+  python3 tools/check_sync.py --strict            # must print OK
+  make -C ports/dreamcast                          # needs the SH toolchain
+  make -C ports/dreamcast cdi
+  npm run -s typecheck && npm test && npx eslint .
+
+Never hand-edit ports/dreamcast/src/content_*.inc or sprites.h; they
+are generated. If the Dreamcast toolchain is missing in your session,
+say so and still run the Python steps and web checks.
+
+To eyeball the web build: npx vite dev --host 127.0.0.1 --port 8080,
+then screenshot with Playwright (Chromium is at /opt/pw-browsers).
+
+======================================================================
+6. GIT
+======================================================================
+  - The user has been working directly on main and pushing each stage.
+    Follow the branch your session is told to use; if none, ask.
+  - Commit in small stages (e.g. "monsters batch 1"). Update
+    CURRENT_WORK.md with what you replaced so the next agent can resume.
+  - Do not put model identifiers in commits or files beyond whatever
+    attribution trailer your session is told to use.
