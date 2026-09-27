@@ -47,6 +47,10 @@ const start = (o) =>
     e.partyIndex = 0;
     const foe = { ...p, id: "foe-1", name: "Testfoe", species: p.species, hp: 5000, maxHp: 5000, str: o.foeStr ?? 20, spc: 1, agl: o.foeAgl, specialPp: 0 };
     e.startBattle(foe, false, "Test fight", "wsoldier", null, []);
+    // Plain strikes only: a 35% Proud Roar (or a Hype Up) instead of the
+    // knockout made case 3 flaky. Spend the foe's move PP up front.
+    e.battle.movePpUsed["foe-1:nmove"] = 99;
+    e.battle.movePpUsed["foe-1:hype"] = 99;
   }, o);
 
 // Advance until the battle waits on a menu (item / guard / attack) or ends.
