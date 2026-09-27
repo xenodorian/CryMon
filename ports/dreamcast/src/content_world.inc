@@ -155,23 +155,23 @@ static const WarpDef WARPS[] = {
     { MAP_BINAH, MAP_BETH, 'D', '2', 3, 0, 0, -1 },
     { MAP_MALKUTH, MAP_BASEMALKUTH, 'b', 'D', 1, 0, 0, -1 },
     { MAP_BASEMALKUTH, MAP_MALKUTH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_YESOD, MAP_BASEYESOD, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_YESOD, MAP_BASEYESOD, 'b', 'D', 1, 1084, 0, 144 },
     { MAP_BASEYESOD, MAP_YESOD, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_NETZACH, MAP_BASENETZACH, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_NETZACH, MAP_BASENETZACH, 'b', 'D', 1, 1085, 0, 144 },
     { MAP_BASENETZACH, MAP_NETZACH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_HOD, MAP_BASEHOD, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_HOD, MAP_BASEHOD, 'b', 'D', 1, 1086, 0, 144 },
     { MAP_BASEHOD, MAP_HOD, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_TIFERET, MAP_BASETIFERET, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_TIFERET, MAP_BASETIFERET, 'b', 'D', 1, 1087, 0, 144 },
     { MAP_BASETIFERET, MAP_TIFERET, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_CHESED, MAP_BASECHESED, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_CHESED, MAP_BASECHESED, 'b', 'D', 1, 1088, 0, 144 },
     { MAP_BASECHESED, MAP_CHESED, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_GEVURAH, MAP_BASEGEVURAH, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_GEVURAH, MAP_BASEGEVURAH, 'b', 'D', 1, 1089, 0, 144 },
     { MAP_BASEGEVURAH, MAP_GEVURAH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_BINAH, MAP_BASEBINAH, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BINAH, MAP_BASEBINAH, 'b', 'D', 1, 1090, 0, 144 },
     { MAP_BASEBINAH, MAP_BINAH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_CHOKMAH, MAP_BASECHOKMAH, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_CHOKMAH, MAP_BASECHOKMAH, 'b', 'D', 1, 1091, 0, 144 },
     { MAP_BASECHOKMAH, MAP_CHOKMAH, 'D', 'b', 0, 0, 0, -1 },
-    { MAP_KETER, MAP_PALACEKETER, 'b', 'D', 1, 0, 0, 145 },
+    { MAP_KETER, MAP_PALACEKETER, 'b', 'D', 1, 1104, 0, 145 },
     { MAP_PALACEKETER, MAP_KETER, 'D', 'b', 0, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
@@ -226,28 +226,61 @@ static const EncDef ENCOUNTERS[] = {
 };
 #define ENC_N 37
 
+#define KIT_BENCH_MAX 5
 typedef struct {
     int lead_sp, lead_lv;
-    int bench_sp[2], bench_lv[2], bench_n;
+    int bench_sp[KIT_BENCH_MAX], bench_lv[KIT_BENCH_MAX], bench_n;
 } TrainerKit;
-static const TrainerKit TRAINER_KITS[16] = {
-    { 11, 3, { 12, 14 }, { 3, 3 }, 2 },
-    { 15, 7, { 13, 18 }, { 8, 9 }, 2 },
-    { 16, 8, { 17, 7 }, { 9, 10 }, 2 },
-    { 10, 9, { 18, 13 }, { 10, 11 }, 2 },
-    { 5, 5, { 6, 0 }, { 5, 1 }, 1 },
-    { 7, 5, { 3, 0 }, { 6, 1 }, 1 },
-    { 4, 7, { 17, 0 }, { 7, 1 }, 1 },
-    { 2, 8, { 18, 0 }, { 8, 1 }, 1 },
-    { 4, 9, { 8, 0 }, { 10, 1 }, 1 },
-    { 23, 4, { 22, 0 }, { 4, 1 }, 1 },
-    { 20, 3, { 21, 0 }, { 3, 1 }, 1 },
-    { 6, 3, { 22, 0 }, { 3, 1 }, 1 },
-    { 17, 10, { 14, 0 }, { 11, 1 }, 1 },
-    { 13, 12, { 7, 15 }, { 11, 11 }, 2 },
-    { 28, 20, { 0, 0 }, { 1, 1 }, 0 },
-    { 19, 20, { 0, 0 }, { 1, 1 }, 0 },
+static const TrainerKit TRAINER_KITS[47] = {
+    { 11, 3, { 12, 14, 0, 0, 0 }, { 3, 3, 1, 1, 1 }, 2 },
+    { 15, 7, { 13, 18, 0, 0, 0 }, { 8, 9, 1, 1, 1 }, 2 },
+    { 16, 8, { 17, 7, 0, 0, 0 }, { 9, 10, 1, 1, 1 }, 2 },
+    { 10, 9, { 18, 13, 0, 0, 0 }, { 10, 11, 1, 1, 1 }, 2 },
+    { 5, 5, { 6, 0, 0, 0, 0 }, { 5, 1, 1, 1, 1 }, 1 },
+    { 7, 5, { 3, 0, 0, 0, 0 }, { 6, 1, 1, 1, 1 }, 1 },
+    { 4, 7, { 17, 0, 0, 0, 0 }, { 7, 1, 1, 1, 1 }, 1 },
+    { 2, 8, { 18, 0, 0, 0, 0 }, { 8, 1, 1, 1, 1 }, 1 },
+    { 4, 9, { 8, 0, 0, 0, 0 }, { 10, 1, 1, 1, 1 }, 1 },
+    { 23, 4, { 22, 0, 0, 0, 0 }, { 4, 1, 1, 1, 1 }, 1 },
+    { 20, 3, { 21, 0, 0, 0, 0 }, { 3, 1, 1, 1, 1 }, 1 },
+    { 6, 3, { 22, 0, 0, 0, 0 }, { 3, 1, 1, 1, 1 }, 1 },
+    { 17, 10, { 14, 0, 0, 0, 0 }, { 11, 1, 1, 1, 1 }, 1 },
+    { 13, 12, { 7, 15, 0, 0, 0 }, { 11, 11, 1, 1, 1 }, 2 },
+    { 28, 20, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 19, 20, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 42, 19, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 48, 20, { 45, 0, 0, 0, 0 }, { 19, 1, 1, 1, 1 }, 1 },
+    { 52, 22, { 51, 75, 0, 0, 0 }, { 20, 20, 1, 1, 1 }, 2 },
+    { 57, 22, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 54, 23, { 51, 0, 0, 0, 0 }, { 22, 1, 1, 1, 1 }, 1 },
+    { 55, 25, { 54, 78, 0, 0, 0 }, { 23, 23, 1, 1, 1 }, 2 },
+    { 63, 25, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 60, 26, { 66, 0, 0, 0, 0 }, { 25, 1, 1, 1, 1 }, 1 },
+    { 61, 28, { 60, 82, 0, 0, 0 }, { 26, 26, 1, 1, 1 }, 2 },
+    { 72, 28, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 69, 29, { 75, 0, 0, 0, 0 }, { 28, 1, 1, 1, 1 }, 1 },
+    { 58, 31, { 69, 90, 0, 0, 0 }, { 29, 29, 1, 1, 1 }, 2 },
+    { 96, 31, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 100, 32, { 98, 0, 0, 0, 0 }, { 31, 1, 1, 1, 1 }, 1 },
+    { 107, 34, { 86, 43, 0, 0, 0 }, { 32, 32, 1, 1, 1 }, 2 },
+    { 108, 34, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 109, 35, { 84, 0, 0, 0, 0 }, { 34, 1, 1, 1, 1 }, 1 },
+    { 85, 37, { 109, 73, 0, 0, 0 }, { 35, 35, 1, 1, 1 }, 2 },
+    { 110, 37, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 43, 38, { 46, 0, 0, 0, 0 }, { 37, 1, 1, 1, 1 }, 1 },
+    { 68, 40, { 67, 93, 0, 0, 0 }, { 38, 38, 1, 1, 1 }, 2 },
+    { 83, 40, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 85, 41, { 87, 0, 0, 0, 0 }, { 40, 1, 1, 1, 1 }, 1 },
+    { 50, 43, { 99, 81, 0, 0, 0 }, { 41, 41, 1, 1, 1 }, 2 },
+    { 67, 43, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 47, 44, { 44, 0, 0, 0, 0 }, { 43, 1, 1, 1, 1 }, 1 },
+    { 65, 46, { 95, 102, 0, 0, 0 }, { 44, 44, 1, 1, 1 }, 2 },
+    { 89, 47, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
+    { 93, 48, { 91, 0, 0, 0, 0 }, { 47, 1, 1, 1, 1 }, 1 },
+    { 71, 50, { 74, 77, 44, 56, 62 }, { 48, 48, 48, 48, 48 }, 5 },
+    { 19, 55, { 0, 0, 0, 0, 0 }, { 1, 1, 1, 1, 1 }, 0 },
 };
+#define KIT_LEG3_FIRST 16
 #define KIT_SENTRY 0
 #define KIT_CONSCRIPT 1
 #define KIT_ENFORCER 2
@@ -264,6 +297,37 @@ static const TrainerKit TRAINER_KITS[16] = {
 #define KIT_COMMANDER_FINAL 13
 #define KIT_LIEUTENANT_LEAD 14
 #define KIT_HEAVENFALL_GRAVE 15
+#define KIT_BASE_MALKUTH_A 16
+#define KIT_BASE_MALKUTH_B 17
+#define KIT_GENERAL_HARROW 18
+#define KIT_BASE_YESOD_A 19
+#define KIT_BASE_YESOD_B 20
+#define KIT_GENERAL_ASHGROVE 21
+#define KIT_BASE_NETZACH_A 22
+#define KIT_BASE_NETZACH_B 23
+#define KIT_GENERAL_STROUD 24
+#define KIT_BASE_HOD_A 25
+#define KIT_BASE_HOD_B 26
+#define KIT_GENERAL_VALE 27
+#define KIT_BASE_TIFERET_A 28
+#define KIT_BASE_TIFERET_B 29
+#define KIT_GENERAL_KESSLER 30
+#define KIT_BASE_CHESED_A 31
+#define KIT_BASE_CHESED_B 32
+#define KIT_GENERAL_MORROW 33
+#define KIT_BASE_GEVURAH_A 34
+#define KIT_BASE_GEVURAH_B 35
+#define KIT_GENERAL_CRANE 36
+#define KIT_BASE_BINAH_A 37
+#define KIT_BASE_BINAH_B 38
+#define KIT_GENERAL_BLACKWOOD 39
+#define KIT_BASE_CHOKMAH_A 40
+#define KIT_BASE_CHOKMAH_B 41
+#define KIT_GENERAL_SORREL 42
+#define KIT_PALACE_GUARD_A 43
+#define KIT_PALACE_GUARD_B 44
+#define KIT_NERO 45
+#define KIT_HEAVENFALL_FINAL 46
 #define KIT_CATHLEEN_LV 10
 #define KIT_SHINIGAMI_LEAD_LV 15
 #define KIT_SHINIGAMI_B0_LV 14
@@ -304,6 +368,12 @@ static const int SHOP_CRYSTAL_MASK[] = {
     3328, /* 3: dray */
 };
 #define SHOP_CRYSTAL_MASK_N 4
+static const int SHOP_NOT_SOLD_MASK[] = {
+    1048576, /* 0: bram */
+    0, /* 1: oren */
+    0, /* 2: fenn */
+    0, /* 3: dray */
+};
 
 /* NPC first-match scripts from content/world.json. */
 #define FLAG_TOOK_STARTER 0
@@ -562,65 +632,65 @@ static const NpcStep NPC_STEPS[] = {
     { 17, -1, 29, 29, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 135, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, 29, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, 66, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 100, 0, 0, -1 },
     { -1, -1, 67, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 101, 0, 0, -1 },
     { -1, -1, 84, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 148, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 148, -1, -1, 7, 102, 0, 0, -1 },
     { -1, -1, 68, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 103, 0, 0, -1 },
     { -1, -1, 69, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 104, 0, 0, -1 },
     { -1, -1, 85, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 152, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 152, -1, -1, 7, 105, 0, 0, -1 },
     { -1, -1, 70, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 106, 0, 0, -1 },
     { -1, -1, 71, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 107, 0, 0, -1 },
     { -1, -1, 86, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 156, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 156, -1, -1, 7, 108, 0, 0, -1 },
     { -1, -1, 72, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 109, 0, 0, -1 },
     { -1, -1, 73, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 110, 0, 0, -1 },
     { -1, -1, 87, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 160, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 160, -1, -1, 7, 111, 0, 0, -1 },
     { -1, -1, 74, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 112, 0, 0, -1 },
     { -1, -1, 75, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 113, 0, 0, -1 },
     { -1, -1, 88, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 164, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 164, -1, -1, 7, 114, 0, 0, -1 },
     { -1, -1, 76, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 115, 0, 0, -1 },
     { -1, -1, 77, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 116, 0, 0, -1 },
     { -1, -1, 89, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 168, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 168, -1, -1, 7, 117, 0, 0, -1 },
     { -1, -1, 78, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 118, 0, 0, -1 },
     { -1, -1, 79, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 119, 0, 0, -1 },
     { -1, -1, 90, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 172, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 172, -1, -1, 7, 120, 0, 0, -1 },
     { -1, -1, 80, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 121, 0, 0, -1 },
     { -1, -1, 81, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 122, 0, 0, -1 },
     { -1, -1, 91, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 176, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 176, -1, -1, 7, 123, 0, 0, -1 },
     { -1, -1, 82, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, 124, 0, 0, -1 },
     { -1, -1, 83, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, 125, 0, 0, -1 },
     { -1, -1, 92, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 180, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 180, -1, -1, 7, 126, 0, 0, -1 },
     { -1, -1, 102, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 140, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 140, -1, -1, 7, 127, 0, 0, -1 },
     { -1, -1, 103, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 142, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 142, -1, -1, 7, 128, 0, 0, -1 },
     { -1, -1, 105, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
-    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 184, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 184, -1, -1, 7, 129, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -702,3 +772,109 @@ static const NpcDef NPC_DEFS[] = {
 #define NPC_DEF_N 75
 #define INTERACT_BUFFER 20
 
+
+/* ---- Leg 3: bases, Generals, Nero, endings (logic.json leg3) ---- */
+#define NPC_PENDING_LEG3_FIRST 100
+#define LEG3_POST_N 31
+#define LEG3_KIND_GUARD 0
+#define LEG3_KIND_GENERAL 1
+#define LEG3_KIND_KING 2
+#define LEG3_KIND_FINAL 3
+/* sprite: 0 base guard, 1 royal guard, 2..10 Generals, 11 Nero, 12 none */
+typedef struct { int kit, kind, gen, set_flag, win_talk, marks, sprite; const char *title; } Leg3Post;
+static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {
+    { 16, 0, 0, FLAG_BEAT_BASE_MALKUTH_A, 137, 14, 0, "BASE GUARD SENDS SPARKIT" }, /* baseMalkuthA */
+    { 17, 0, 0, FLAG_BEAT_BASE_MALKUTH_B, 139, 14, 0, "BASE GUARD SENDS PIPSPROUT" }, /* baseMalkuthB */
+    { 18, 1, 0, FLAG_MEDAL_BRONZE_STAR, 149, 30, 2, "GENERAL HARROW SENDS TUNNELER" }, /* generalHarrow */
+    { 19, 0, 1, FLAG_BEAT_BASE_YESOD_A, 137, 16, 0, "BASE GUARD SENDS SOOTTICK" }, /* baseYesodA */
+    { 20, 0, 1, FLAG_BEAT_BASE_YESOD_B, 139, 16, 0, "BASE GUARD SENDS SPARKFLY" }, /* baseYesodB */
+    { 21, 1, 1, FLAG_MEDAL_PURPLE_HEART, 153, 35, 3, "GENERAL ASHGROVE SENDS ARCWASP" }, /* generalAshgrove */
+    { 22, 0, 2, FLAG_BEAT_BASE_NETZACH_A, 137, 18, 0, "BASE GUARD SENDS MOONCALF" }, /* baseNetzachA */
+    { 23, 0, 2, FLAG_BEAT_BASE_NETZACH_B, 139, 18, 0, "BASE GUARD SENDS CARDKIN" }, /* baseNetzachB */
+    { 24, 1, 2, FLAG_MEDAL_POW_MEDAL, 157, 40, 4, "GENERAL STROUD SENDS FATEWEAVER" }, /* generalStroud */
+    { 25, 0, 3, FLAG_BEAT_BASE_HOD_A, 137, 20, 0, "BASE GUARD SENDS SNOWBELL" }, /* baseHodA */
+    { 26, 0, 3, FLAG_BEAT_BASE_HOD_B, 139, 20, 0, "BASE GUARD SENDS TALLOWISP" }, /* baseHodB */
+    { 27, 1, 3, FLAG_MEDAL_SILVER_STAR, 161, 45, 5, "GENERAL VALE SENDS GLOOMSPIDER" }, /* generalVale */
+    { 28, 0, 4, FLAG_BEAT_BASE_TIFERET_A, 137, 22, 0, "BASE GUARD SENDS DAWNCHICK" }, /* baseTiferetA */
+    { 29, 0, 4, FLAG_BEAT_BASE_TIFERET_B, 139, 22, 0, "BASE GUARD SENDS MOTLEY" }, /* baseTiferetB */
+    { 30, 1, 4, FLAG_MEDAL_GOLD_STAR, 165, 50, 6, "GENERAL KESSLER SENDS HORNBLAZE" }, /* generalKessler */
+    { 31, 0, 5, FLAG_BEAT_BASE_CHESED_A, 137, 24, 0, "BASE GUARD SENDS ATLASHELL" }, /* baseChesedA */
+    { 32, 0, 5, FLAG_BEAT_BASE_CHESED_B, 139, 24, 0, "BASE GUARD SENDS TIDEWOLF" }, /* baseChesedB */
+    { 33, 1, 5, FLAG_MEDAL_LEGION_OF_MERIT, 169, 55, 7, "GENERAL MORROW SENDS FLOECLAW" }, /* generalMorrow */
+    { 34, 0, 6, FLAG_BEAT_BASE_GEVURAH_A, 137, 26, 0, "BASE GUARD SENDS WHEELHOG" }, /* baseGevurahA */
+    { 35, 0, 6, FLAG_BEAT_BASE_GEVURAH_B, 139, 26, 0, "BASE GUARD SENDS BLAZELYNX" }, /* baseGevurahB */
+    { 36, 1, 6, FLAG_MEDAL_FLYING_CROSS, 173, 60, 8, "GENERAL CRANE SENDS GRANDROC" }, /* generalCrane */
+    { 37, 0, 7, FLAG_BEAT_BASE_BINAH_A, 137, 28, 0, "BASE GUARD SENDS GEMINAL" }, /* baseBinahA */
+    { 38, 0, 7, FLAG_BEAT_BASE_BINAH_B, 139, 28, 0, "BASE GUARD SENDS FLOECLAW" }, /* baseBinahB */
+    { 39, 1, 7, FLAG_MEDAL_SERVICE_CROSS, 177, 65, 9, "GENERAL BLACKWOOD SENDS ROOTKING" }, /* generalBlackwood */
+    { 40, 0, 8, FLAG_BEAT_BASE_CHOKMAH_A, 137, 30, 0, "BASE GUARD SENDS KESTRAIL" }, /* baseChokmahA */
+    { 41, 0, 8, FLAG_BEAT_BASE_CHOKMAH_B, 139, 30, 0, "BASE GUARD SENDS GLACIERJAW" }, /* baseChokmahB */
+    { 42, 1, 8, FLAG_MEDAL_OF_HONOR, 181, 70, 10, "GENERAL SORREL SENDS ECLIPSAUR" }, /* generalSorrel */
+    { 43, 0, -1, FLAG_BEAT_PALACE_GUARD_A, 141, 34, 1, "ROYAL GUARD SENDS CRAGSAGE" }, /* palaceGuardA */
+    { 44, 0, -1, FLAG_BEAT_PALACE_GUARD_B, 143, 36, 1, "ROYAL GUARD SENDS MAGISTOWL" }, /* palaceGuardB */
+    { 45, 2, -1, FLAG_BEAT_NERO, 185, 80, 11, "WEEPING KING NERO SENDS DEATHKNELL" }, /* nero */
+    { 46, 3, -1, FLAG_TITLE_GODSLAYER, 195, 0, 12, "HEAVENFALL TURNS ON YOU" }, /* heavenfallFinal */
+};
+#define LEG3_GEN_N 9
+typedef struct { int medal_flag, arrested_flag, talk_arrest, talk_execute; const char *medal, *name; } Leg3Gen;
+static const Leg3Gen LEG3_GENS[LEG3_GEN_N] = {
+    { FLAG_MEDAL_BRONZE_STAR, FLAG_ARRESTED_HARROW, 150, 151, "BRONZE STAR", "GENERAL HARROW" },
+    { FLAG_MEDAL_PURPLE_HEART, FLAG_ARRESTED_ASHGROVE, 154, 155, "PURPLE HEART", "GENERAL ASHGROVE" },
+    { FLAG_MEDAL_POW_MEDAL, FLAG_ARRESTED_STROUD, 158, 159, "PRISONER OF WAR MEDAL", "GENERAL STROUD" },
+    { FLAG_MEDAL_SILVER_STAR, FLAG_ARRESTED_VALE, 162, 163, "SILVER STAR", "GENERAL VALE" },
+    { FLAG_MEDAL_GOLD_STAR, FLAG_ARRESTED_KESSLER, 166, 167, "GOLD STAR", "GENERAL KESSLER" },
+    { FLAG_MEDAL_LEGION_OF_MERIT, FLAG_ARRESTED_MORROW, 170, 171, "LEGION OF MERIT", "GENERAL MORROW" },
+    { FLAG_MEDAL_FLYING_CROSS, FLAG_ARRESTED_CRANE, 174, 175, "DISTINGUISHED FLYING CROSS", "GENERAL CRANE" },
+    { FLAG_MEDAL_SERVICE_CROSS, FLAG_ARRESTED_BLACKWOOD, 178, 179, "DISTINGUISHED SERVICE CROSS", "GENERAL BLACKWOOD" },
+    { FLAG_MEDAL_OF_HONOR, FLAG_ARRESTED_SORREL, 182, 183, "MEDAL OF HONOR", "GENERAL SORREL" },
+};
+#define LEG3_FLAG_N 46
+static const int LEG3_FLAG_ID[LEG3_FLAG_N] = { FLAG_BEAT_BASE_MALKUTH_A, FLAG_BEAT_BASE_MALKUTH_B, FLAG_MEDAL_BRONZE_STAR, FLAG_ARRESTED_HARROW, FLAG_BEAT_BASE_YESOD_A, FLAG_BEAT_BASE_YESOD_B, FLAG_MEDAL_PURPLE_HEART, FLAG_ARRESTED_ASHGROVE, FLAG_BEAT_BASE_NETZACH_A, FLAG_BEAT_BASE_NETZACH_B, FLAG_MEDAL_POW_MEDAL, FLAG_ARRESTED_STROUD, FLAG_BEAT_BASE_HOD_A, FLAG_BEAT_BASE_HOD_B, FLAG_MEDAL_SILVER_STAR, FLAG_ARRESTED_VALE, FLAG_BEAT_BASE_TIFERET_A, FLAG_BEAT_BASE_TIFERET_B, FLAG_MEDAL_GOLD_STAR, FLAG_ARRESTED_KESSLER, FLAG_BEAT_BASE_CHESED_A, FLAG_BEAT_BASE_CHESED_B, FLAG_MEDAL_LEGION_OF_MERIT, FLAG_ARRESTED_MORROW, FLAG_BEAT_BASE_GEVURAH_A, FLAG_BEAT_BASE_GEVURAH_B, FLAG_MEDAL_FLYING_CROSS, FLAG_ARRESTED_CRANE, FLAG_BEAT_BASE_BINAH_A, FLAG_BEAT_BASE_BINAH_B, FLAG_MEDAL_SERVICE_CROSS, FLAG_ARRESTED_BLACKWOOD, FLAG_BEAT_BASE_CHOKMAH_A, FLAG_BEAT_BASE_CHOKMAH_B, FLAG_MEDAL_OF_HONOR, FLAG_ARRESTED_SORREL, FLAG_BEAT_PALACE_GUARD_A, FLAG_BEAT_PALACE_GUARD_B, FLAG_HAS_GOLDEN_SHACKLES, FLAG_BEAT_NERO, FLAG_NERO_TRIED, FLAG_TITLE_KINGSLAYER, FLAG_FATHER_ABANDONED, FLAG_TITLE_GODSLAYER, FLAG_TITLE_BLOODY, FLAG_LEG3_ENDED };
+static const int LEG3_SAVE_ID[LEG3_FLAG_N] = { 64, 65, 82, 91, 66, 67, 83, 92, 68, 69, 84, 93, 70, 71, 85, 94, 72, 73, 86, 95, 74, 75, 87, 96, 76, 77, 88, 97, 78, 79, 89, 98, 80, 81, 90, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109 };
+#define LEG3_F_HAS_GOLDEN_SHACKLES 38
+#define LEG3_F_BEAT_NERO 39
+#define LEG3_F_NERO_TRIED 40
+#define LEG3_F_TITLE_KINGSLAYER 41
+#define LEG3_F_FATHER_ABANDONED 42
+#define LEG3_F_TITLE_GODSLAYER 43
+#define LEG3_F_TITLE_BLOODY 44
+#define LEG3_F_LEG3_ENDED 45
+#define LEG3_TALK_GOLDEN_SHACKLES_GET 146
+#define LEG3_TALK_GENERAL_ARREST_NO_SHACKLES 147
+#define LEG3_TALK_NERO_TRIAL 186
+#define LEG3_TALK_NERO_EXECUTE 187
+#define LEG3_TALK_NERO_CROWNED 188
+#define LEG3_TALK_FATHER_PROUD 189
+#define LEG3_TALK_FATHER_SACRIFICE 190
+#define LEG3_TALK_FATHER_MONSTER 191
+#define LEG3_TALK_HF_END_NONE 192
+#define LEG3_TALK_HF_END_TAMED 193
+#define LEG3_TALK_HF_END_HOSTILE 194
+#define LEG3_TALK_HF_END_GODSLAYER 195
+#define LEG3_TALK_HF_END_BLOODY 196
+#define LEG3_REP_ARREST 10
+#define LEG3_REP_EXECUTE -25
+#define LEG3_REP_TRIAL 50
+#define LEG3_REP_KING_EXECUTE -50
+#define LEG3_ITEM_SHACKLES 20
+#define LEG3_ITEM_GOLDEN 21
+#define LEG3_SP_HEAVENFALL 19
+#define LEG3_SCREAM_N 3
+#define LEG3_SCREAM_GAP_FRAMES 42
+#define LEG3_TINT_R 150
+#define LEG3_TINT_G 0
+#define LEG3_TINT_B 0
+#define LEG3_TINT_A256 56
+#define LEG3_NAME_KINGSLAYER "KINGSLAYER"
+#define LEG3_NAME_GODSLAYER "GODSLAYER"
+#define LEG3_NAME_BLOODY "MAX THE BLOODY"
+#define LEG3_END_WAR "THE WEEPING ARMY IS FINISHED. THE CITIES OF THE SEPHIROT ARE FREE."
+#define LEG3_END_TRIAL "NERO LIVES OUT HIS LIFE IN A PRISON CELL IN MALKUTH."
+#define LEG3_END_CROWNED "QUEEN MAX, THE KINGSLAYER, RULES FROM THE THRONE IN KETER."
+#define LEG3_END_FATHER_STAYS "FATHER COMES HOME TO CRYTOWN WITH HER."
+#define LEG3_END_FATHER_GONE "FATHER NEVER SPEAKS TO HER AGAIN."
+#define LEG3_END_NONE "MAX HAS NO GOD AT HER SIDE. SHE NEVER NEEDED ONE."
+#define LEG3_END_TAMED "HEAVENFALL STAYS AT HER SIDE FOR THE REST OF HER DAYS."
+#define LEG3_END_GODSLAYER "THEY CALL HER GODSLAYER NOW. NOBODY SAYS IT TO HER FACE."
+#define LEG3_END_BLOODY "MAX THE BLOODY IS DEAD. THE STORIES ABOUT HER ARE NOT KIND."
+#define LEG3_END_END "THE END"

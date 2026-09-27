@@ -255,8 +255,9 @@ def load_pack(content: Path) -> dict:
         "save": json.loads((content / "save.json").read_text()),
         "sprites": json.loads((content / "sprites.json").read_text()) if (content / "sprites.json").is_file() else {},
     }
-    global FLAG_INDEX, TALK_KEYS_ORDER
+    global FLAG_INDEX, TALK_KEYS_ORDER, LEG3_PENDING
     FLAG_INDEX = {name: i for i, name in enumerate(merged_flags(pack))}
+    LEG3_PENDING = leg3_pending_ids(pack)
     TALK_KEYS_ORDER = [k for k, _ in talk_table(pack)]
     return pack
 
@@ -723,6 +724,26 @@ def bake_logic(data: dict, out: Path) -> None:
 
 
 NEED = {"tookStarter": 1, "beatCalder": 2, "beatShin": 3, "hasScroll": 4, "beatSentry": 5, "choseHeavenfall": 6}
+# Any other warp `need` is a plain flag: baked as NEED_FLAG_BASE + its FLAG_*
+# index (Leg 3: base doors need the previous medal, the palace needs
+# hasGoldenShackles). main.c tests it through the same ft[] table NPC
+# scripts use.
+NEED_FLAG_BASE = 1000
+
+
+def leg3_posts(data: dict) -> list[tuple[str, int, int]]:
+    """Leg 3 trainers in kit order: (trainer id, kind, general index).
+    kind 0 guard, 1 General, 2 Nero, 3 hostile Heavenfall."""
+    L = data["logic"].get("leg3")
+    if not L:
+        return []
+    out = []
+    for gi, g in enumerate(L["generals"]):
+        out += [(g["guards"][0], 0, gi), (g["guards"][1], 0, gi), (g["trainer"], 1, gi)]
+    p = L["palace"]
+    out += [(p["guards"][0], 0, -1), (p["guards"][1], 0, -1), (p["trainer"], 2, -1)]
+    out.append((L["finalHeavenfall"]["trainer"], 3, -1))
+    return out
 ARRIVE = {"masonAmbush": 1, "ensureSoldiers": 2}
 ITEM_FX = {"heal": 1, "buff": 2, "debuff": 3, "capture": 4, "flee": 5, "cleanse": 6, "cure": 7}
 
@@ -776,6 +797,8 @@ def bake_world(data: dict, out: Path) -> None:
         spawn = w["spawn"]
         dirv = warp_dir_code.get(w.get("dir"), 0)
         need = NEED.get(w.get("need") or "", 0)
+        if w.get("need") and not need:
+            need = NEED_FLAG_BASE + flag_id(w["need"])
         arr = ARRIVE.get(w.get("onArrive") or "", 0)
         fail = talk_id(w["failTalk"]) if w.get("failTalk") else -1
         lines.append(
@@ -820,26 +843,30 @@ def bake_world(data: dict, out: Path) -> None:
     lines.append("};")
     lines.append(f"#define ENC_N {enc_n}")
     lines.append("")
+    base_keys = ["sentry", "conscript", "enforcer", "cross",
+                 "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "quartz",
+                 "quarryDriller", "marshBog", "marshReed", "opal", "commanderFinal",
+                 "lieutenantLead", "heavenfallGrave"]
+    # Leg 3 kits follow the hand-wired ones, in leg3_posts() order.
+    kit_keys = base_keys + [tid for tid, _k, _g in leg3_posts(data)]
+    bench_max = max(2, max(len(world["trainers"][k].get("bench") or []) for k in kit_keys))
+    lines.append(f"#define KIT_BENCH_MAX {bench_max}")
     lines.append("typedef struct {")
     lines.append("    int lead_sp, lead_lv;")
-    lines.append("    int bench_sp[2], bench_lv[2], bench_n;")
+    lines.append("    int bench_sp[KIT_BENCH_MAX], bench_lv[KIT_BENCH_MAX], bench_n;")
     lines.append("} TrainerKit;")
-    kit_keys = ["sentry", "conscript", "enforcer", "cross",
-                "forestRanger", "forestScout", "ruinsKeeper", "ruinsWarden", "quartz",
-                "quarryDriller", "marshBog", "marshReed", "opal", "commanderFinal",
-                "lieutenantLead", "heavenfallGrave"]
     lines.append(f"static const TrainerKit TRAINER_KITS[{len(kit_keys)}] = {{")
     for k in kit_keys:
         t = world["trainers"][k]
         lead_sp, lead_lv = t["lead"]
-        benches = t.get("bench") or []
-        b0 = benches[0] if len(benches) > 0 else ["quillpup", 1]
-        b1 = benches[1] if len(benches) > 1 else ["quillpup", 1]
+        benches = list(t.get("bench") or [])
+        pad = benches + [["quillpup", 1]] * (bench_max - len(benches))
         lines.append(
             f"    {{ {sp[lead_sp]}, {int(lead_lv)}, "
-            f"{{ {sp[b0[0]]}, {sp[b1[0]]} }}, {{ {int(b0[1])}, {int(b1[1])} }}, {len(benches)} }},"
+            f"{{ {', '.join(str(sp[b[0]]) for b in pad)} }}, {{ {', '.join(str(int(b[1])) for b in pad)} }}, {len(benches)} }},"
         )
     lines.append("};")
+    lines.append(f"#define KIT_LEG3_FIRST {len(base_keys)}")
     for i, k in enumerate(kit_keys):
         lines.append(f"#define KIT_{_c_ident(k)} {i}")
     cath = world["trainers"]["cathleen"]["lead"]
@@ -898,9 +925,118 @@ def bake_world(data: dict, out: Path) -> None:
         lines.append(f"    {_stock_mask(stock)}, /* {idx}: {name} */")
     lines.append("};")
     lines.append(f"#define SHOP_CRYSTAL_MASK_N {len(SHOP_IDS)}")
+    # Leg 3.2: items a named keeper never stocks (Shackles: not Bram).
+    not_sold = (data["logic"].get("shops") or {}).get("notSoldBy") or {}
+    lines.append("static const int SHOP_NOT_SOLD_MASK[] = {")
+    for name, idx in sorted(SHOP_IDS.items(), key=lambda kv: kv[1]):
+        mask = 0
+        for iid, keepers in not_sold.items():
+            if iid not in item_i:
+                raise SystemExit(f"logic.json shops.notSoldBy has unknown item {iid!r}")
+            if name in keepers:
+                mask |= 1 << item_i[iid]
+        lines.append(f"    {mask}, /* {idx}: {name} */")
+    lines.append("};")
     lines.append("")
     bake_npc_scripts(data, items, lines)
+    bake_leg3(data, lines, kit_keys)
     out.write_text("\n".join(lines) + "\n")
+
+
+def bake_leg3(data: dict, lines: list[str], kit_keys: list[str]) -> None:
+    """Leg 3 tables for main.c (see CURRENT_WORK.md 'Leg 3 implementation')."""
+    L = data["logic"].get("leg3")
+    if not L:
+        return
+    world = data["world"]
+    trainers = world["trainers"]
+    order = data["items"]["order"]
+    sp = {s: i for i, s in enumerate(species_order(data))}
+    posts = leg3_posts(data)
+    speaker_sprites = ["weepingGuard", "royalGuard"] + [
+        (world["trainers"][g["trainer"]]["winTalk"][:-3]) for g in L["generals"]] + ["nero", "heavenfall"]
+    lines.append("")
+    lines.append("/* ---- Leg 3: bases, Generals, Nero, endings (logic.json leg3) ---- */")
+    lines.append(f"#define NPC_PENDING_LEG3_FIRST {LEG3_PENDING_BASE}")
+    lines.append(f"#define LEG3_POST_N {len(posts)}")
+    lines.append("#define LEG3_KIND_GUARD 0")
+    lines.append("#define LEG3_KIND_GENERAL 1")
+    lines.append("#define LEG3_KIND_KING 2")
+    lines.append("#define LEG3_KIND_FINAL 3")
+    lines.append("/* sprite: 0 base guard, 1 royal guard, 2..10 Generals, 11 Nero, 12 none */")
+    lines.append("typedef struct { int kit, kind, gen, set_flag, win_talk, marks, sprite; const char *title; } Leg3Post;")
+    lines.append("static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {")
+    palace_guards = set(L["palace"]["guards"])
+    for tid, kind, gi in posts:
+        tr = trainers[tid]
+        if kind == 0:
+            spr = 1 if tid in palace_guards else 0
+        elif kind == 1:
+            spr = 2 + gi
+        elif kind == 2:
+            spr = 11
+        else:
+            spr = 12
+        title = dc_text(tr.get("title") or tr.get("name") or tid).upper()
+        lines.append(
+            f"    {{ {kit_keys.index(tid)}, {kind}, {gi}, FLAG_{_c_ident(tr['set'])}, "
+            f"{talk_id(tr['winTalk'])}, {int(tr.get('marks') or 0)}, {spr}, \"{c_escape(title)}\" }}, /* {tid} */"
+        )
+    lines.append("};")
+    lines.append(f"#define LEG3_GEN_N {len(L['generals'])}")
+    lines.append("typedef struct { int medal_flag, arrested_flag, talk_arrest, talk_execute; const char *medal, *name; } Leg3Gen;")
+    lines.append("static const Leg3Gen LEG3_GENS[LEG3_GEN_N] = {")
+    for g in L["generals"]:
+        spk = trainers[g["trainer"]]["winTalk"][:-3]
+        lines.append(
+            f"    {{ FLAG_{_c_ident(g['medal'])}, FLAG_{_c_ident(g['arrested'])}, "
+            f"{talk_id(spk + 'Arrest')}, {talk_id(spk + 'Execute')}, "
+            f"\"{c_escape(dc_text(g['medalName']).upper())}\", \"{c_escape(dc_text(g['name']).upper())}\" }},"
+        )
+    lines.append("};")
+    # Every Leg 3 flag lives in main.c's g_leg3_flags[i]; FLAG_* for NPC
+    # scripts / warps, SAVE_FLAG_* for the save blob.
+    cap1 = lambda s: s[0].upper() + s[1:]
+    names = []
+    for g in L["generals"]:
+        names += [f"beat{cap1(x)}" for x in g["guards"]] + [g["medal"], g["arrested"]]
+    names += [f"beat{cap1(x)}" for x in L["palace"]["guards"]]
+    names += ["hasGoldenShackles", "beatNero", "neroTried", "titleKingslayer", "fatherAbandoned",
+              "titleGodslayer", "titleBloody", "leg3Ended"]
+    save_flags = data["save"]["flags"]
+    lines.append(f"#define LEG3_FLAG_N {len(names)}")
+    lines.append("static const int LEG3_FLAG_ID[LEG3_FLAG_N] = { "
+                 + ", ".join(f"FLAG_{_c_ident(n)}" for n in names) + " };")
+    lines.append("static const int LEG3_SAVE_ID[LEG3_FLAG_N] = { "
+                 + ", ".join(str(save_flags.index(n)) for n in names) + " };")
+    for n in ("hasGoldenShackles", "beatNero", "neroTried", "titleKingslayer", "fatherAbandoned",
+              "titleGodslayer", "titleBloody", "leg3Ended"):
+        lines.append(f"#define LEG3_F_{_c_ident(n)} {names.index(n)}")
+    for k in ("goldenShacklesGet", "generalArrestNoShackles", "neroTrial", "neroExecute", "neroCrowned",
+              "fatherProud", "fatherSacrifice", "fatherMonster", "hfEndNone", "hfEndTamed",
+              "hfEndHostile", "hfEndGodslayer", "hfEndBloody"):
+        lines.append(f"#define LEG3_TALK_{_c_ident(k)} {talk_id(k)}")
+    rep_ = L["rep"]
+    lines.append(f"#define LEG3_REP_ARREST {int(rep_['arrestGeneral'])}")
+    lines.append(f"#define LEG3_REP_EXECUTE {int(rep_['executeGeneral'])}")
+    lines.append(f"#define LEG3_REP_TRIAL {int(rep_['trialNero'])}")
+    lines.append(f"#define LEG3_REP_KING_EXECUTE {int(rep_['executeNero'])}")
+    lines.append(f"#define LEG3_ITEM_SHACKLES {order.index(L['shackles'])}")
+    lines.append(f"#define LEG3_ITEM_GOLDEN {order.index(L['goldenShackles'])}")
+    lines.append(f"#define LEG3_SP_HEAVENFALL {sp[L['finalHeavenfall']['species']]}")
+    lines.append(f"#define LEG3_SCREAM_N {int(L['screamRepeats'])}")
+    lines.append(f"#define LEG3_SCREAM_GAP_FRAMES {max(1, int(round(int(L['screamGapMs']) * 60 / 1000)))}")
+    r, g_, b = L["redTint"]["rgb"]
+    lines.append(f"#define LEG3_TINT_R {int(r)}")
+    lines.append(f"#define LEG3_TINT_G {int(g_)}")
+    lines.append(f"#define LEG3_TINT_B {int(b)}")
+    lines.append(f"#define LEG3_TINT_A256 {int(round(float(L['redTint']['alpha']) * 256))}")
+    titles = L["titles"]
+    for k in ("kingslayer", "godslayer", "bloody"):
+        lines.append(f"#define LEG3_NAME_{k.upper()} \"{c_escape(dc_text(titles[k]).upper())}\"")
+    E = data["dialogue"].get("endingLeg3") or {}
+    for k in ("war", "trial", "crowned", "fatherStays", "fatherGone", "none", "tamed", "godslayer", "bloody", "end"):
+        lines.append(f"#define LEG3_END_{_c_ident(k)} \"{c_escape(dc_text(E.get(k, '')))}\"")
 
 
 FLAG_IDS = [
@@ -956,6 +1092,8 @@ SHOP_IDS = {
     "fenn": 2,
     "dray": 3,
 }
+LEG3_PENDING_BASE = 100
+LEG3_PENDING: dict = {}  # filled per bake by bake_all() (leg3_pending_ids)
 PENDING_IDS = {
     "cross": 0,
     "conscript": 1,
@@ -974,6 +1112,10 @@ PENDING_IDS = {
     "lieutenantLead": 14,
     "heavenfallGrave": 15,
 }
+
+
+def leg3_pending_ids(data: dict) -> dict:
+    return {tid: LEG3_PENDING_BASE + i for i, (tid, _k, _g) in enumerate(leg3_posts(data))}
 
 
 def flag_id(name) -> int:
@@ -1004,7 +1146,7 @@ def _after_and_pending(after_raw, pending_raw) -> dict:
         return {"after": AFTER_IDS["shop"], "pending": SHOP_IDS[shop_name]}
     return {
         "after": AFTER_IDS.get(after_raw, 0),
-        "pending": PENDING_IDS.get(pending_raw or "", -1),
+        "pending": PENDING_IDS.get(pending_raw or "", LEG3_PENDING.get(pending_raw or "", -1)),
     }
 
 

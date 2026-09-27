@@ -783,9 +783,16 @@ typedef struct {
    a save loads, so a reload doesn't silently drop a title. */
 static const char *g_player_name = "MAX";
 static int g_player_renamed = 0;
+/* Leg 3: 0 none, 1 Kingslayer, 2 Godslayer, 3 Max The Bloody (set by
+   leg3_sync_title() below); outranks every Leg 2 name, like web's
+   playerDisplayName(). */
+static int g_leg3_title = 0;
 static void apply_player_name(int revived, int slayer, int tamer) {
-    g_player_renamed = (revived || slayer || tamer) ? 1 : 0;
-    if(slayer) g_player_name = "HEAVEN SLAYER";
+    g_player_renamed = (revived || slayer || tamer || g_leg3_title) ? 1 : 0;
+    if(g_leg3_title == 3) g_player_name = "MAX THE BLOODY";
+    else if(g_leg3_title == 2) g_player_name = "GODSLAYER";
+    else if(g_leg3_title == 1) g_player_name = "KINGSLAYER";
+    else if(slayer) g_player_name = "HEAVEN SLAYER";
     else if(tamer) g_player_name = "HEAVEN TAMER";
     else if(revived) g_player_name = LOGIC_REP_KIND_NAME;
     else g_player_name = "MAX";
@@ -927,7 +934,13 @@ static void draw_tile(int map_id, char ch, int dx, int dy) {
             fill_rect(dx, dy, t, t, rgb565(106, 82, 56));
             return;
         case 'D':
+        case 'b': /* Leg 3 base / palace door in a Sephirot city */
             fill_rect(dx, dy, t, t, rgb565(26, 18, 12));
+            return;
+        case 'a': /* Leg 3 interiors: General / guard spots are floor */
+        case 's':
+        case 't':
+            fill_rect(dx, dy, t, t, rgb565(107, 90, 58));
             return;
         case 'B':
         case 'U':
@@ -1181,6 +1194,22 @@ static void ws_push_walker(WorldSprite *list, int *n, const u16 *const frames[4]
 }
 
 static const u16 *const WREN_FRAMES[4]   = { npc_wren_1, npc_wren_2, npc_wren_3, npc_wren_4 };
+/* Leg 3 posts, indexed by LEG3_POSTS[].sprite (PLACEHOLDER_ART, see
+   tools/make_placeholder_npcs.py). */
+static const u16 *const LEG3_SPRITES[12][4] = {
+    { npc_weepingGuard_1, npc_weepingGuard_2, npc_weepingGuard_3, npc_weepingGuard_4 },
+    { npc_royalGuard_1, npc_royalGuard_2, npc_royalGuard_3, npc_royalGuard_4 },
+    { npc_harrow_1, npc_harrow_2, npc_harrow_3, npc_harrow_4 },
+    { npc_ashgrove_1, npc_ashgrove_2, npc_ashgrove_3, npc_ashgrove_4 },
+    { npc_stroud_1, npc_stroud_2, npc_stroud_3, npc_stroud_4 },
+    { npc_vale_1, npc_vale_2, npc_vale_3, npc_vale_4 },
+    { npc_kessler_1, npc_kessler_2, npc_kessler_3, npc_kessler_4 },
+    { npc_morrow_1, npc_morrow_2, npc_morrow_3, npc_morrow_4 },
+    { npc_crane_1, npc_crane_2, npc_crane_3, npc_crane_4 },
+    { npc_blackwood_1, npc_blackwood_2, npc_blackwood_3, npc_blackwood_4 },
+    { npc_sorrel_1, npc_sorrel_2, npc_sorrel_3, npc_sorrel_4 },
+    { npc_nero_1, npc_nero_2, npc_nero_3, npc_nero_4 },
+};
 static const u16 *const MAE_FRAMES[4]    = { npc_mae_1, npc_mae_2, npc_mae_3, npc_mae_4 };
 static const u16 *const IVO_FRAMES[4]    = { npc_ivo_1, npc_ivo_2, npc_ivo_3, npc_ivo_4 };
 static const u16 *const NELL_FRAMES[4]   = { npc_nell_1, npc_nell_2, npc_nell_3, npc_nell_4 };
@@ -1972,6 +2001,7 @@ typedef struct {
     int megacrystal, ultimatecrystal, perfectcrystal; /* Leg 2.5 */
     int calmdraft, burnsalve, antidote, clearmind, numbroot, panacea; /* Leg 2.11 */
     int bowieKnife; /* Dray's one-of-a-kind Backstab item */
+    int shackles, goldenShackles; /* Leg 3 */
 } Bag;
 
 typedef struct {
@@ -2001,7 +2031,9 @@ static int *bag_field(Bag *bag, int idx) {
         case 16: return &bag->clearmind;
         case 17: return &bag->numbroot;
         case 18: return &bag->panacea;
-        default: return &bag->bowieKnife;
+        case 19: return &bag->bowieKnife;
+        case 20: return &bag->shackles;
+        default: return &bag->goldenShackles;
     }
 }
 
@@ -2022,10 +2054,10 @@ static void draw_menu_frame(const char *title, const char *footer) {
 }
 
 static void draw_pause_menu(int cur) {
-    static const char *const rows[6] = { "PARTY", "BAG", "CRYDEX", "SETTINGS", "SAVE", "CLOSE" };
+    static const char *const rows[7] = { "PARTY", "BAG", "CRYDEX", "MEDALS", "SETTINGS", "SAVE", "CLOSE" };
     int i;
     draw_menu_frame("PAUSE", "A SELECT  B CLOSE");
-    for(i = 0; i < 6; i++)
+    for(i = 0; i < 7; i++)
         draw_text_s(rows[i], MENU_X + 16, MENU_Y + 24 + i * MENU_ROW_H,
                     i == cur ? rgb565(90, 122, 82) : rgb565(197, 206, 198), MENU_SCALE);
 }
@@ -2459,7 +2491,7 @@ typedef struct {
     int grew;       /* set by finish_win() below, read by the WIN_NOTE beat */
     int trainer_kind;      /* TRAINER_* below */
     int soldier_id;        /* valid when trainer_kind == TRAINER_SOLDIER */
-    Monster bench[2];
+    Monster bench[KIT_BENCH_MAX];
     int bench_n;
     int catch_full;
 } Battle;
@@ -2486,6 +2518,7 @@ typedef struct {
 #define TRAINER_WSOLDIER_COMMANDER_FINAL 19
 #define TRAINER_WSOLDIER_LEAD 20
 #define TRAINER_WSOLDIER_HEAVENFALL_GRAVE 21
+#define TRAINER_LEG3 40 /* any Leg 3 post; which one is g_leg3_post */
 
 #define BAFTER_ITEM      1
 #define BAFTER_ATK       2
@@ -2634,7 +2667,10 @@ static int battle_foe_maybe_fall(Battle *b, const char *fallen_prefix) {
             grant_xp(&b->pl, b->foe.lv, 100);
         }
         b->foe = b->bench[0];
-        if(b->bench_n == 2) b->bench[0] = b->bench[1];
+        {
+            int bi;
+            for(bi = 1; bi < b->bench_n; bi++) b->bench[bi - 1] = b->bench[bi];
+        }
         b->bench_n--;
         b->mods_foe_str = b->mods_foe_agl = b->mods_foe_spc = 0;
         b->pend_str = b->pend_agl = b->pend_spc = 0;
@@ -4066,6 +4102,211 @@ static void npc_flag_set(int id, int **ft) {
     *ft[id] = 1;
 }
 
+/* ----------------------------------------------------------------------
+ * Leg 3 (CURRENT_WORK.md "Leg 3 implementation"; tables baked from
+ * content/logic.json leg3 into content_world.inc). Every Leg 3 flag lives
+ * in g_leg3_flags[], wired into main()'s ft[] so NPC scripts and warp
+ * `need`s see it, and saved through LEG3_SAVE_ID. Mirrors engine.ts's
+ * leg3Win()/resolveGeneral()/resolveNero()/leg3FatherReaction()/
+ * leg3HeavenfallResolution()/leg3EndingText().
+ * ---------------------------------------------------------------------- */
+#define POST_LEG3_BATTLE 40
+#define POST_LEG3_GENERAL_FATE 41
+#define POST_LEG3_NERO_FATE 42
+#define POST_LEG3_FATHER 43
+#define POST_LEG3_HF 44
+#define POST_LEG3_HOSTILE 45
+#define POST_LEG3_END 46
+static int g_leg3_post = 0; /* LEG3_POSTS index of the fight in progress */
+static int g_leg3_flags[LEG3_FLAG_N];
+static int g_leg3_fate = 0;      /* 0 none, 1 General's fate menu, 2 Nero's */
+static int g_leg3_fate_cur = 0;
+static int g_leg3_ending = 0;    /* showing the Leg 3 epilogue */
+static const char *g_leg3_end_lines[6];
+static int g_leg3_end_n = 0;
+static int g_leg3_scream_left = 0, g_leg3_scream_timer = 0;
+
+static int leg3_flag(int flag_id) {
+    int i;
+    for(i = 0; i < LEG3_FLAG_N; i++)
+        if(LEG3_FLAG_ID[i] == flag_id) return g_leg3_flags[i];
+    return 0;
+}
+
+static void leg3_set(int flag_id, int v) {
+    int i;
+    for(i = 0; i < LEG3_FLAG_N; i++)
+        if(LEG3_FLAG_ID[i] == flag_id) g_leg3_flags[i] = v;
+}
+
+static void leg3_sync_title(void) {
+    g_leg3_title = g_leg3_flags[LEG3_F_TITLE_BLOODY] ? 3
+                 : g_leg3_flags[LEG3_F_TITLE_GODSLAYER] ? 2
+                 : g_leg3_flags[LEG3_F_TITLE_KINGSLAYER] ? 1 : 0;
+}
+
+/* LEG3_POSTS index an NPC_DEFS entry fights as, or -1. */
+static int leg3_npc_post(int def_idx) {
+    const NpcDef *d = &NPC_DEFS[def_idx];
+    int k;
+    for(k = 0; k < d->stepn; k++) {
+        int p = NPC_STEPS[d->step0 + k].pending;
+        if(p >= NPC_PENDING_LEG3_FIRST && p < NPC_PENDING_LEG3_FIRST + LEG3_POST_N)
+            return p - NPC_PENDING_LEG3_FIRST;
+    }
+    return -1;
+}
+
+/* Beaten posts are gone (their script's hideIf is the same flag). */
+static int leg3_post_standing(int def_idx) {
+    int p = leg3_npc_post(def_idx);
+    return p >= 0 && !leg3_flag(LEG3_POSTS[p].set_flag);
+}
+
+static int leg3_all_medals(void) {
+    int g;
+    for(g = 0; g < LEG3_GEN_N; g++)
+        if(!leg3_flag(LEG3_GENS[g].medal_flag)) return 0;
+    return 1;
+}
+
+/* 3.4: after Nero's execution the screen keeps a red tint for the rest
+   of the playthrough -- blended over the finished frame every vblank. */
+static void leg3_apply_tint(void) {
+    u32 i;
+    const u32 a = LEG3_TINT_A256, keep = 256 - LEG3_TINT_A256;
+    const u32 tr = (LEG3_TINT_R >> 3) * a, tg = (LEG3_TINT_G >> 2) * a, tb = (LEG3_TINT_B >> 3) * a;
+    for(i = 0; i < (u32)SCREEN_W * SCREEN_H; i++) {
+        u16 c = draw_fb[i];
+        u32 r = ((((u32)(c >> 11) & 0x1Fu) * keep) + tr) >> 8;
+        u32 g = ((((u32)(c >> 5) & 0x3Fu) * keep) + tg) >> 8;
+        u32 b = ((((u32)c & 0x1Fu) * keep) + tb) >> 8;
+        draw_fb[i] = (u16)((r << 11) | (g << 5) | b);
+    }
+}
+
+static void leg3_build_ending(int revived_father, int has_heavenfall) {
+    int n = 0;
+    g_leg3_end_lines[n++] = LEG3_END_WAR;
+    g_leg3_end_lines[n++] = g_leg3_flags[LEG3_F_NERO_TRIED] ? LEG3_END_TRIAL : LEG3_END_CROWNED;
+    if(revived_father)
+        g_leg3_end_lines[n++] = g_leg3_flags[LEG3_F_FATHER_ABANDONED] ? LEG3_END_FATHER_GONE : LEG3_END_FATHER_STAYS;
+    if(g_leg3_flags[LEG3_F_TITLE_BLOODY]) g_leg3_end_lines[n++] = LEG3_END_BLOODY;
+    else if(g_leg3_flags[LEG3_F_TITLE_GODSLAYER]) g_leg3_end_lines[n++] = LEG3_END_GODSLAYER;
+    else if(has_heavenfall) g_leg3_end_lines[n++] = LEG3_END_TAMED;
+    else g_leg3_end_lines[n++] = LEG3_END_NONE;
+    g_leg3_end_lines[n++] = LEG3_END_END;
+    g_leg3_end_n = n;
+}
+
+static void draw_leg3_fate(int kind, int cur, int post, int shackles) {
+    int y = MENU_Y + 20;
+    char sub[48];
+    int n;
+    draw_menu_frame(kind == 2 ? "THE KING'S FATE" : "THE GENERAL'S FATE", "A CHOOSE");
+    n = s_cat(sub, 0, kind == 2 ? "NERO" : LEG3_GENS[LEG3_POSTS[post].gen].name);
+    n = s_cat(sub, n, " IS BEATEN.");
+    sub[n] = 0;
+    draw_wrapped(sub, MENU_X + 8, y, rgb565(138, 134, 120), MENU_SCALE,
+                 (MENU_W - 16) / CHAR_CELL(MENU_SCALE), 9);
+    y += 18;
+    if(kind == 2) {
+        draw_choice_row("BRING HIM TO TRIAL", 0, cur, y); y += MENU_ROW_H;
+        draw_choice_row("EXECUTE", 1, cur, y);
+    } else if(shackles > 0) {
+        draw_choice_row("ARREST", 0, cur, y); y += MENU_ROW_H;
+        draw_choice_row("EXECUTE", 1, cur, y);
+    } else {
+        draw_choice_row("EXECUTE", 0, cur, y); y += MENU_ROW_H * 2;
+        draw_text_s("NO SHACKLES: NO ARREST", MENU_X + 8, y, rgb565(143, 74, 64), MENU_SCALE);
+    }
+}
+
+static void draw_leg3_medals(int shackles) {
+    int g, got = 0, y = MENU_Y + 22;
+    char buf[48];
+    int n;
+    for(g = 0; g < LEG3_GEN_N; g++) if(leg3_flag(LEG3_GENS[g].medal_flag)) got++;
+    n = s_cat(buf, 0, "MEDALS ");
+    n = s_cat_uint(buf, n, (unsigned)got);
+    n = s_cat(buf, n, "/");
+    n = s_cat_uint(buf, n, LEG3_GEN_N);
+    buf[n] = 0;
+    draw_menu_frame(buf, "B BACK");
+    for(g = 0; g < LEG3_GEN_N; g++, y += 11) {
+        if(!leg3_flag(LEG3_GENS[g].medal_flag)) {
+            draw_text_s("- - -", MENU_X + 8, y, rgb565(90, 86, 72), 1);
+            continue;
+        }
+        draw_text_s(LEG3_GENS[g].medal, MENU_X + 8, y, rgb565(232, 200, 96), 1);
+        draw_text_s(leg3_flag(LEG3_GENS[g].arrested_flag) ? "ARRESTED" : "EXECUTED",
+                    MENU_X + MENU_W - 70, y,
+                    leg3_flag(LEG3_GENS[g].arrested_flag) ? rgb565(90, 122, 82) : rgb565(143, 74, 64), 1);
+    }
+    n = s_cat(buf, 0, g_leg3_flags[LEG3_F_HAS_GOLDEN_SHACKLES] ? "GOLDEN: YES  SHACKLES: " : "GOLDEN: NO  SHACKLES: ");
+    n = s_cat_uint(buf, n, (unsigned)(shackles < 0 ? 0 : shackles));
+    buf[n] = 0;
+    draw_text_s(buf, MENU_X + 8, y + 4, rgb565(138, 134, 120), 1);
+}
+
+#define POST_LEG3_CROWNED 47
+#define POST_LEG3_GOLDEN 48
+/* Next post_action once the current dialogue closes (the dispatch switch
+   resets post_action to this instead of POST_NONE), so Leg 3's chain of
+   scenes can run back to back. */
+static int g_leg3_next = 0;
+
+/* Same setup every hand-wired POST_WSOLDIER_* case does, from the baked
+   kit of LEG3_POSTS[post] (bench up to KIT_BENCH_MAX; Nero has 5). */
+static void leg3_start_battle(Battle *b, int post, const Monster *lead_mon) {
+    const Leg3Post *lp = &LEG3_POSTS[post];
+    const TrainerKit *k = &TRAINER_KITS[lp->kit];
+    int bi, n;
+    g_leg3_post = post;
+    b->foe = mint_monster(k->lead_sp, k->lead_lv);
+    b->wild = 0;
+    b->trainer_kind = TRAINER_LEG3;
+    b->phase = 0;
+    n = s_cat(b->msg[0], 0, lp->title);
+    b->msg[0][n] = 0;
+    b->msg_n = 1; b->msg_i = 0; b->after = BAFTER_ITEM;
+    b->cur = 0;
+    b->mods_self_str = b->mods_self_agl = b->mods_self_spc = 0;
+    b->mods_foe_str = b->mods_foe_agl = b->mods_foe_spc = 0;
+    b->pend_str = b->pend_agl = b->pend_spc = 0;
+    b->pl_poisoned = b->foe_poisoned = 0;
+    b->stage_self_str = b->stage_self_agl = b->stage_self_spc = 0;
+    b->stage_foe_str = b->stage_foe_agl = b->stage_foe_spc = 0;
+    b->hype_self = b->hype_foe = 0;
+    b->nmove_pl_used = b->hype_pl_used = b->nmove_foe_used = b->hype_foe_used = 0;
+    for(bi = 0; bi < k->bench_n && bi < KIT_BENCH_MAX; bi++)
+        b->bench[bi] = mint_monster(k->bench_sp[bi], k->bench_lv[bi]);
+    b->bench_n = k->bench_n;
+    b->grew = 0;
+    b->pl = *lead_mon;
+}
+
+static int leg3_party_has_heavenfall(const Monster *party, int party_n) {
+    int i;
+    for(i = 0; i < party_n; i++) if(party[i].species == LEG3_SP_HEAVENFALL) return 1;
+    return 0;
+}
+
+/* 3.6: which Heavenfall scene plays, and what follows it. A hostile
+   Heavenfall leaves the party to fight her (no heal, no rest). */
+static int leg3_heavenfall_step(Monster *party, int *party_n, int *lead, int reputation, int *next) {
+    int i, j;
+    if(!leg3_party_has_heavenfall(party, *party_n)) { *next = POST_LEG3_END; return LEG3_TALK_HF_END_NONE; }
+    if(reputation >= 0) { *next = POST_LEG3_END; return LEG3_TALK_HF_END_TAMED; }
+    for(i = 0, j = 0; i < *party_n; i++)
+        if(party[i].species != LEG3_SP_HEAVENFALL) party[j++] = party[i];
+    *party_n = j;
+    *lead = 0;
+    for(i = 0; i < j; i++) if(party[i].hp > 0) { *lead = i; break; }
+    *next = POST_LEG3_HOSTILE;
+    return LEG3_TALK_HF_END_HOSTILE;
+}
+
 static int npc_match_step(const NpcDef *d, int **ft, int party_n) {
     int i;
     for(i = 0; i < d->stepn; i++) {
@@ -4104,6 +4345,9 @@ static int npc_def_roamable(int i) {
        from his script, which would also break the shared battle-trigger
        wiring. Matches engine.ts's roamableNpc(). */
     if(d->map_id == MAP_VELD && d->mark == 'S') return 0;
+    /* Leg 3 guards / Generals / Nero hold their post in the hall. */
+    for(k = 0; k < d->stepn; k++)
+        if(NPC_STEPS[d->step0 + k].pending >= NPC_PENDING_LEG3_FIRST) return 0;
     for(k = 0; k < d->stepn; k++)
         if(NPC_STEPS[d->step0 + k].after == NPC_AFTER_WSOLDIER) return 1;
     return 0;
@@ -4182,6 +4426,15 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
                           const Soldier *soldiers, const int *soldier_beaten,
                           int beat_calder, int has_scroll,
                           int chest_looted, int quarry_crate_looted, int quarry_shelf_searched) {
+    {
+        int li;
+        for(li = 0; li < NPC_DEF_N; li++) {
+            if(NPC_DEFS[li].map_id != map_id || !leg3_post_standing(li)) continue;
+            ws_push_mark_idle(list, n, map_id, NPC_DEFS[li].mark,
+                              LEG3_SPRITES[LEG3_POSTS[leg3_npc_post(li)].sprite],
+                              frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+        }
+    }
     if(map_id == MAP_VELD) {
         ws_push_mark_idle(list, n, map_id, 'K', WREN_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
         ws_push_mark_idle(list, n, map_id, 'I', MAE_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
@@ -4393,9 +4646,10 @@ static int apply_npc_step(NpcRun *R, int idx) {
 }
 
 static int try_npc_script(NpcRun *R) {
-    unsigned char used[64];
+    /* Sized from the data: a fixed 64 here silently disabled every NPC
+       once Leg 3 took NPC_DEF_N past it. */
+    unsigned char used[NPC_DEF_N];
     int i, guard;
-    if(NPC_DEF_N > 64) return 0;
     for(i = 0; i < NPC_DEF_N; i++) used[i] = 0;
     for(guard = 0; guard < NPC_DEF_N; guard++) {
         int best = -1, best_d = 0x7fffffff;
@@ -4456,7 +4710,10 @@ static int kit_for_pending(int pending) {
         case NPC_PENDING_COMMANDER_FINAL: return KIT_COMMANDER_FINAL;
         case NPC_PENDING_LEAD: return KIT_LIEUTENANT_LEAD;
         case NPC_PENDING_HEAVENFALL_GRAVE: return KIT_HEAVENFALL_GRAVE;
-        default: return -1;
+        default:
+            if(pending >= NPC_PENDING_LEG3_FIRST && pending < NPC_PENDING_LEG3_FIRST + LEG3_POST_N)
+                return LEG3_POSTS[pending - NPC_PENDING_LEG3_FIRST].kit;
+            return -1;
     }
 }
 
@@ -4614,6 +4871,13 @@ static int actor_blocks(int map_id, int cx, int cy,
                          int beat_calder, int has_scroll, int saw_shinigami_rock) {
     int dx, dy;
 #define HIT_R2 81 /* 9px radius, squared */
+    {
+        /* Leg 3 guards / Generals / Nero block the hall until beaten. */
+        int li;
+        for(li = 0; li < NPC_DEF_N; li++)
+            if(NPC_DEFS[li].map_id == map_id && leg3_post_standing(li)
+               && mark_hit(map_id, NPC_DEFS[li].mark, cx, cy, HIT_R2)) return 1;
+    }
     if(map_id == MAP_VELD) {
         if(mason_state == 2) {
             dx = cx - (int)mason_x; dy = cy - (int)mason_y;
@@ -4723,6 +4987,7 @@ static int shop_rows(const Bag *bag, int sell_tab, int shop_keep_id, int dray_kn
         if(!sell_tab) {
             if(ITEMS[i].buy <= 0) continue;
             if(ITEM_FX[i].kind == 4 && !((mask >> i) & 1)) continue;
+            if(shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N && ((SHOP_NOT_SOLD_MASK[shop_keep_id] >> i) & 1)) continue;
             if(shop_keep_id >= 0 && shop_keep_id < SHOP_CRYSTAL_MASK_N && shop_stock[shop_keep_id][i] <= 0) continue;
             /* Bowie Knife (item index 19, matches bag_field()'s new
                case 19): Dray-only (shop_keep_id 3, see SHOP_IDS in
@@ -5000,6 +5265,10 @@ static int npc_after_to_post_action(int npc_after, int npc_pending, int *shop_ke
             if(npc_pending == NPC_PENDING_COMMANDER_FINAL) return POST_WSOLDIER_COMMANDER_FINAL;
             if(npc_pending == NPC_PENDING_LEAD) return POST_WSOLDIER_LEAD;
             if(npc_pending == NPC_PENDING_HEAVENFALL_GRAVE) return POST_WSOLDIER_HEAVENFALL_GRAVE;
+            if(npc_pending >= NPC_PENDING_LEG3_FIRST && npc_pending < NPC_PENDING_LEG3_FIRST + LEG3_POST_N) {
+                g_leg3_post = npc_pending - NPC_PENDING_LEG3_FIRST;
+                return POST_LEG3_BATTLE;
+            }
             return POST_NONE;
         case NPC_AFTER_PRIESTESS_TELEPORT:
             return POST_PRIESTESS_TELEPORT;
@@ -5300,6 +5569,7 @@ void main(void) {
         ft[FLAG_SAW_SHINIGAMI_ROCK] = &saw_shinigami_rock;
         ft[FLAG_QUARRY_CRATE_LOOTED] = &quarry_crate_looted;
         ft[FLAG_QUARRY_SHELF_SEARCHED] = &quarry_shelf_searched;
+        for(fi = 0; fi < LEG3_FLAG_N; fi++) ft[LEG3_FLAG_ID[fi]] = &g_leg3_flags[fi];
     }
 
     for(;;) {
@@ -5310,7 +5580,7 @@ void main(void) {
         g_xp_party_n = party_n;
         g_xp_lead = lead;
         if(state == 0) chip_set_song(chip_song_title());
-        else if(ending_mode) chip_set_song(chip_song_ending());
+        else if(ending_mode || g_leg3_ending) chip_set_song(chip_song_ending());
         else if(in_battle) chip_set_song(chip_song_battle(battle.wild ? 0 : 1));
         else chip_set_song(chip_song_map(map_id));
         chip_tick();
@@ -5585,6 +5855,15 @@ void main(void) {
                         talked_reach = save_flag_get(&sl, SAVE_FLAG_TALKED_REACH);
                         saw_shinigami_rock = save_flag_get(&sl, SAVE_FLAG_SAW_SHINIGAMI_ROCK);
                         dray_knife_offered = save_flag_get(&sl, SAVE_FLAG_DRAY_KNIFE_OFFERED);
+                        {
+                            int li;
+                            for(li = 0; li < LEG3_FLAG_N; li++)
+                                g_leg3_flags[li] = save_flag_get(&sl, LEG3_SAVE_ID[li]);
+                            bag.shackles = sl.bag[20];
+                            bag.goldenShackles = sl.bag[21];
+                            leg3_sync_title();
+                            apply_player_name(revived_father, title_slayer, title_tamer);
+                        }
                         soldier_beaten[0] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN0);
                         soldier_beaten[1] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN1);
                         soldier_beaten[2] = save_flag_get(&sl, SAVE_FLAG_SOLDIER_BEATEN2);
@@ -5673,6 +5952,14 @@ void main(void) {
                 soldiers_init = 0;
                 shop_open = 0; shop_sell_tab = 0; shop_cur = 0;
                 ending_mode = 0; ending_i = 0;
+                {
+                    int li;
+                    for(li = 0; li < LEG3_FLAG_N; li++) g_leg3_flags[li] = 0;
+                    g_leg3_fate = 0; g_leg3_ending = 0; g_leg3_next = 0;
+                    g_leg3_scream_left = 0;
+                    leg3_sync_title();
+                    apply_player_name(0, 0, 0);
+                }
 
                 state = 1;
                 /* Seeds the battle RNG from however many vblanks
@@ -5687,18 +5974,18 @@ void main(void) {
         }
         else if(menu_mode == 3) {
             if(up_now && !prev_up) {
-                pause_cur = (pause_cur + 5) % 6;
+                pause_cur = (pause_cur + 6) % 7;
                 chip_sfx_ui();
             }
             if(down_now && !prev_down) {
-                pause_cur = (pause_cur + 1) % 6;
+                pause_cur = (pause_cur + 1) % 7;
                 chip_sfx_ui();
             }
             if(b_now && !prev_b) {
                 menu_mode = 0;
                 chip_sfx_ui();
             }
-            else if((a_now && !prev_a) || (start_now && !prev_start && pause_cur == 5)) {
+            else if((a_now && !prev_a) || (start_now && !prev_start && pause_cur == 6)) {
                 if(pause_cur == 0) {
                     menu_mode = 2;
                     party_detail = 0;
@@ -5715,9 +6002,12 @@ void main(void) {
                     dex_entry = 0;
                     chip_sfx_ui();
                 } else if(pause_cur == 3) {
-                    menu_mode = 5;
+                    menu_mode = 6; /* Leg 3 medals */
                     chip_sfx_ui();
                 } else if(pause_cur == 4) {
+                    menu_mode = 5;
+                    chip_sfx_ui();
+                } else if(pause_cur == 5) {
                     SaveLive sl;
                     int i, pi;
                     for(i = 0; i < (int)sizeof(sl); i++) ((unsigned char *)&sl)[i] = 0;
@@ -5833,6 +6123,13 @@ void main(void) {
                     save_flag_put(&sl, SAVE_FLAG_SOLDIER_BEATEN2, soldier_beaten[2]);
                     save_flag_put(&sl, SAVE_FLAG_QUARRY_CRATE_LOOTED, quarry_crate_looted);
                     save_flag_put(&sl, SAVE_FLAG_QUARRY_SHELF_SEARCHED, quarry_shelf_searched);
+                    {
+                        int li;
+                        for(li = 0; li < LEG3_FLAG_N; li++)
+                            save_flag_put(&sl, LEG3_SAVE_ID[li], g_leg3_flags[li]);
+                        sl.bag[20] = (unsigned char)bag.shackles;
+                        sl.bag[21] = (unsigned char)bag.goldenShackles;
+                    }
                     sl.executed_mask = g_executed_mask;
                     if(save_store(&sl)) {
                         int n = s_cat(hud_flash, 0, "SAVED");
@@ -6025,7 +6322,7 @@ void main(void) {
                     catch_swap = 0;
                     menu_mode = 0;
                 }
-                else if(menu_mode == 5)
+                else if(menu_mode == 5 || menu_mode == 6)
                     menu_mode = 3;
                 else if(menu_mode == 2 && heal_item >= 0) {
                     heal_item = -1;
@@ -6044,7 +6341,7 @@ void main(void) {
                     hud_t = HUD_NOTE_FRAMES;
                     catch_swap = 0;
                 }
-                menu_mode = menu_mode == 5 ? 3 : 0;
+                menu_mode = (menu_mode == 5 || menu_mode == 6) ? 3 : 0;
                 heal_item = -1;
                 party_detail = 0;
             }
@@ -6298,6 +6595,25 @@ void main(void) {
                                     seq_beat = 0;
                                     post_action = POST_CREDITS_FINAL;
                                 }
+                                else if(battle.trainer_kind == TRAINER_LEG3) {
+                                    const Leg3Post *lp = &LEG3_POSTS[g_leg3_post];
+                                    leg3_set(lp->set_flag, 1);
+                                    marks += lp->marks;
+                                    battles++;
+                                    in_battle = 0;
+                                    enc_lock = 3;
+                                    seq_lines = TALK_PTRS[lp->win_talk];
+                                    seq_len = TALK_COUNTS[lp->win_talk];
+                                    seq_beat = 0;
+                                    if(lp->kind == LEG3_KIND_GENERAL) post_action = POST_LEG3_GENERAL_FATE;
+                                    else if(lp->kind == LEG3_KIND_KING) post_action = POST_LEG3_NERO_FATE;
+                                    else if(lp->kind == LEG3_KIND_FINAL) {
+                                        leg3_sync_title();
+                                        apply_player_name(revived_father, title_slayer, title_tamer);
+                                        post_action = POST_LEG3_END;
+                                    }
+                                    else post_action = POST_NONE;
+                                }
                                 else if(battle.trainer_kind == TRAINER_SOLDIER) {
                                     soldier_beaten[battle.soldier_id] = 1;
                                     marks += 8;
@@ -6469,7 +6785,17 @@ void main(void) {
                                    in the draw dispatch below. */
                                 in_battle = 0;
                                 enc_lock = 3;
-                                if(chose_heavenfall) {
+                                if(battle.trainer_kind == TRAINER_LEG3 && LEG3_POSTS[g_leg3_post].kind == LEG3_KIND_FINAL) {
+                                    /* 3.6: wiped by the hostile Heavenfall. No retry. */
+                                    g_leg3_flags[LEG3_F_TITLE_BLOODY] = 1;
+                                    leg3_sync_title();
+                                    apply_player_name(revived_father, title_slayer, title_tamer);
+                                    seq_lines = TALK_PTRS[LEG3_TALK_HF_END_BLOODY];
+                                    seq_len = TALK_COUNTS[LEG3_TALK_HF_END_BLOODY];
+                                    seq_beat = 0;
+                                    post_action = POST_LEG3_END;
+                                }
+                                else if(chose_heavenfall) {
                                     seq_lines = TALK_HEAVENFALL_DEVOUR;
                                     seq_len = TALK_LEN(TALK_HEAVENFALL_DEVOUR);
                                     seq_beat = 0;
@@ -6646,6 +6972,75 @@ void main(void) {
             }
         }
         
+        else if(g_leg3_fate) {
+            /* Leg 3.2 / 3.4: the General's or Nero's fate. */
+            int rows = (g_leg3_fate == 2 || bag.shackles > 0) ? 2 : 1;
+            if(rows == 2 && ((up_now && !prev_up) || (down_now && !prev_down))) {
+                g_leg3_fate_cur = 1 - g_leg3_fate_cur;
+                chip_sfx_ui();
+            }
+            if(a_now && !prev_a) {
+                int n;
+                chip_sfx_ok();
+                if(g_leg3_fate == 2) {
+                    if(g_leg3_fate_cur == 0) {
+                        g_leg3_flags[LEG3_F_NERO_TRIED] = 1;
+                        reputation += LEG3_REP_TRIAL;
+                        seq_lines = TALK_PTRS[LEG3_TALK_NERO_TRIAL];
+                        seq_len = TALK_COUNTS[LEG3_TALK_NERO_TRIAL];
+                        post_action = POST_LEG3_FATHER;
+                    } else {
+                        g_leg3_flags[LEG3_F_TITLE_KINGSLAYER] = 1;
+                        reputation += LEG3_REP_KING_EXECUTE;
+                        g_mercy_red_fade = 1;
+                        fade_state = FADE_OUT;
+                        fade_timer = 0;
+                        fade_action = 0;
+                        g_leg3_scream_left = LEG3_SCREAM_N;
+                        g_leg3_scream_timer = 0;
+                        leg3_sync_title();
+                        apply_player_name(revived_father, title_slayer, title_tamer);
+                        seq_lines = TALK_PTRS[LEG3_TALK_NERO_EXECUTE];
+                        seq_len = TALK_COUNTS[LEG3_TALK_NERO_EXECUTE];
+                        post_action = POST_LEG3_CROWNED;
+                    }
+                } else {
+                    const Leg3Post *lp = &LEG3_POSTS[g_leg3_post];
+                    const Leg3Gen *g = &LEG3_GENS[lp->gen];
+                    int arrest = bag.shackles > 0 && g_leg3_fate_cur == 0;
+                    if(arrest) {
+                        bag.shackles--;
+                        leg3_set(g->arrested_flag, 1);
+                        reputation += LEG3_REP_ARREST;
+                        seq_lines = TALK_PTRS[g->talk_arrest];
+                        seq_len = TALK_COUNTS[g->talk_arrest];
+                    } else {
+                        reputation += LEG3_REP_EXECUTE;
+                        chip_sfx_faint(); /* stand-in scream, same as mercy */
+                        g_mercy_red_fade = 1;
+                        fade_state = FADE_OUT;
+                        fade_timer = 0;
+                        fade_action = 0;
+                        seq_lines = TALK_PTRS[g->talk_execute];
+                        seq_len = TALK_COUNTS[g->talk_execute];
+                    }
+                    n = s_cat(hud_flash, 0, "TOOK THE ");
+                    n = s_cat(hud_flash, n, g->medal);
+                    hud_flash[n] = 0;
+                    hud_t = HUD_NOTE_FRAMES;
+                    post_action = POST_NONE;
+                    if(!g_leg3_flags[LEG3_F_HAS_GOLDEN_SHACKLES] && leg3_all_medals()) {
+                        g_leg3_flags[LEG3_F_HAS_GOLDEN_SHACKLES] = 1;
+                        bag.goldenShackles = 1;
+                        post_action = POST_LEG3_GOLDEN;
+                    }
+                }
+                if(reputation > LOGIC_REP_MAX) reputation = LOGIC_REP_MAX;
+                if(reputation < LOGIC_REP_MIN) reputation = LOGIC_REP_MIN;
+                seq_beat = 0;
+                g_leg3_fate = 0;
+            }
+        }
         else if(mercy_mode) {
             /* Leg 2.9 mercy: up/down among 4 rows, A resolves choice. */
             if(up_now && !prev_up) {
@@ -6898,6 +7293,16 @@ void main(void) {
                 }
                 seq_beat = 0;
                 post_action = POST_ENDING_FINAL;
+            }
+        }
+        else if(g_leg3_ending) {
+            /* Leg 3 epilogue: the game ends here, back to the title. */
+            if(a_now && !prev_a) {
+                ending_i++;
+                if(ending_i >= g_leg3_end_n) {
+                    g_leg3_ending = 0;
+                    state = 0;
+                }
             }
         }
         else if(ending_mode) {
@@ -7297,6 +7702,7 @@ void main(void) {
                         else if(w->need == 4) need_ok = has_scroll;
                         else if(w->need == 5) need_ok = beat_wsoldier_cliffs;
                         else if(w->need == 6) need_ok = (chose_heavenfall || gauntlet_unlocked);
+                        else if(w->need >= 1000) need_ok = npc_flag_on(w->need - 1000, ft, party_n);
                         if(!need_ok) {
                             if(w->fail_talk >= 0 && w->fail_talk < TALK_TABLE_N) {
                                 find_mark(map_id, w->tile, &col, &row);
@@ -7348,6 +7754,7 @@ void main(void) {
                            to opening the shop (beginTalkEnd's a==9
                            branch has no such check). */
                         if(party_n > 0 || post_action == POST_SHOP ||
+                           (post_action >= POST_LEG3_GENERAL_FATE && post_action <= POST_LEG3_GOLDEN) ||
                            post_action == POST_MASON_LEAVE || post_action == POST_ANNE_LEAVE ||
                            post_action == POST_OPEN_CHOICE || post_action == POST_ENDING_FINAL ||
                            post_action == POST_BED_HEAL) {
@@ -7760,6 +8167,11 @@ void main(void) {
                                     battle.nmove_pl_used = battle.hype_pl_used = battle.nmove_foe_used = battle.hype_foe_used = 0;
                                     battle.bench_n = 0;
                                     battle.grew = 0;
+                                    /* Was missing: fell through into the
+                                       grave case and fought Heavenfall. */
+                                    battle.pl = party[lead];
+                                    in_battle = 1;
+                                    break;
 
                                 case POST_WSOLDIER_HEAVENFALL_GRAVE:
                                     battle.foe = mint_monster(TRAINER_KITS[KIT_HEAVENFALL_GRAVE].lead_sp, TRAINER_KITS[KIT_HEAVENFALL_GRAVE].lead_lv);
@@ -7994,6 +8406,69 @@ void main(void) {
                                     fade_timer = 0;
                                     fade_action = FADE_ACTION_PRIESTESS;
                                     break;
+                                case POST_LEG3_BATTLE:
+                                    leg3_start_battle(&battle, g_leg3_post, &party[lead]);
+                                    in_battle = 1;
+                                    break;
+                                case POST_LEG3_GENERAL_FATE:
+                                case POST_LEG3_NERO_FATE:
+                                    g_leg3_fate = post_action == POST_LEG3_NERO_FATE ? 2 : 1;
+                                    g_leg3_fate_cur = 0;
+                                    break;
+                                case POST_LEG3_CROWNED:
+                                    seq_lines = TALK_PTRS[LEG3_TALK_NERO_CROWNED];
+                                    seq_len = TALK_COUNTS[LEG3_TALK_NERO_CROWNED];
+                                    seq_beat = 0;
+                                    g_leg3_next = POST_LEG3_FATHER;
+                                    break;
+                                case POST_LEG3_GOLDEN:
+                                    seq_lines = TALK_PTRS[LEG3_TALK_GOLDEN_SHACKLES_GET];
+                                    seq_len = TALK_COUNTS[LEG3_TALK_GOLDEN_SHACKLES_GET];
+                                    seq_beat = 0;
+                                    break;
+                                case POST_LEG3_FATHER:
+                                case POST_LEG3_HF: {
+                                    /* 3.5 Father (only if revived), then 3.6. */
+                                    int talk, nxt = POST_LEG3_HF;
+                                    if(post_action == POST_LEG3_FATHER && revived_father) {
+                                        if(g_leg3_flags[LEG3_F_TITLE_KINGSLAYER]) {
+                                            talk = LEG3_TALK_FATHER_MONSTER;
+                                            g_leg3_flags[LEG3_F_FATHER_ABANDONED] = 1;
+                                        }
+                                        else if(reputation >= 0) talk = LEG3_TALK_FATHER_PROUD;
+                                        else talk = LEG3_TALK_FATHER_SACRIFICE;
+                                    }
+                                    else {
+                                        talk = leg3_heavenfall_step(party, &party_n, &lead, reputation, &nxt);
+                                    }
+                                    seq_lines = TALK_PTRS[talk];
+                                    seq_len = TALK_COUNTS[talk];
+                                    seq_beat = 0;
+                                    g_leg3_next = nxt;
+                                    break;
+                                }
+                                case POST_LEG3_HOSTILE:
+                                    if(party_n <= 0) {
+                                        /* Nobody left who can fight: the god wins. */
+                                        g_leg3_flags[LEG3_F_TITLE_BLOODY] = 1;
+                                        leg3_sync_title();
+                                        apply_player_name(revived_father, title_slayer, title_tamer);
+                                        seq_lines = TALK_PTRS[LEG3_TALK_HF_END_BLOODY];
+                                        seq_len = TALK_COUNTS[LEG3_TALK_HF_END_BLOODY];
+                                        seq_beat = 0;
+                                        g_leg3_next = POST_LEG3_END;
+                                    }
+                                    else {
+                                        leg3_start_battle(&battle, LEG3_POST_N - 1, &party[lead]);
+                                        in_battle = 1;
+                                    }
+                                    break;
+                                case POST_LEG3_END:
+                                    g_leg3_flags[LEG3_F_LEG3_ENDED] = 1;
+                                    leg3_build_ending(revived_father, leg3_party_has_heavenfall(party, party_n));
+                                    g_leg3_ending = 1;
+                                    ending_i = 0;
+                                    break;
                                 case POST_HFGAMEOVER_SCREAM:
                                     /* Matches web's runHeavenfallGameOverFx():
                                        scream + red fade, same stand-in
@@ -8009,7 +8484,8 @@ void main(void) {
                                     break;
                             }
                         }
-                        post_action = POST_NONE;
+                        post_action = g_leg3_next;
+                        g_leg3_next = POST_NONE;
                     }
                 }
                 else if(bag.bowieKnife > 0 &&
@@ -8127,6 +8603,9 @@ void main(void) {
         if(state == 0) {
             draw_press_start(title_cur, have_save);
         }
+        else if(g_leg3_ending) {
+            draw_ending(g_leg3_end_lines, g_leg3_end_n, ending_i);
+        }
         else if(ending_mode) {
             if(chose_heavenfall)
                 draw_ending(DEMO_END_HEAVENFALL, TALK_LEN(DEMO_END_HEAVENFALL), ending_i);
@@ -8168,6 +8647,8 @@ void main(void) {
                 draw_crydex(dex_cur, dex_entry);
             else if(menu_mode == 5)
                 draw_settings_menu();
+            else if(menu_mode == 6)
+                draw_leg3_medals(bag.shackles);
             if(in_battle)
                 draw_battle(&battle, &bag, frame_count,
                             battle_foe_enter_t, battle_foe_faint_t,
@@ -8179,13 +8660,35 @@ void main(void) {
                 draw_choice(choice_cur);
             if(mercy_mode)
                 draw_mercy(mercy_cur, mercy_foe_name);
+            if(g_leg3_fate)
+                draw_leg3_fate(g_leg3_fate, g_leg3_fate_cur, g_leg3_post, bag.shackles);
             if(backstab_mode)
                 draw_backstab(backstab_cur);
         }
 
         /* Post-process over whatever was just drawn, whatever it was
            -- see the fade_state comment up at its declaration. */
+#ifdef LEG3_DEBUG
+        {
+            char db[64]; int dn;
+            dn = s_cat(db, 0, "PA "); dn = s_cat_uint(db, dn, (unsigned)post_action);
+            dn = s_cat(db, dn, " NX "); dn = s_cat_uint(db, dn, (unsigned)g_leg3_next);
+            dn = s_cat(db, dn, " P "); dn = s_cat_uint(db, dn, (unsigned)g_leg3_post);
+            dn = s_cat(db, dn, " NERO "); dn = s_cat_uint(db, dn, (unsigned)g_leg3_flags[LEG3_F_BEAT_NERO]);
+            dn = s_cat(db, dn, " RF "); dn = s_cat_uint(db, dn, (unsigned)revived_father);
+            dn = s_cat(db, dn, " PN "); dn = s_cat_uint(db, dn, (unsigned)party_n);
+            db[dn] = 0;
+            draw_text_s(db, 4, SCREEN_H - 10, 0xFFFF, 1);
+        }
+#endif
+        if(state != 0 && g_leg3_flags[LEG3_F_TITLE_KINGSLAYER])
+            leg3_apply_tint();
         apply_fade(fade_level(fade_state, fade_timer));
+        if(g_leg3_scream_left > 0 && --g_leg3_scream_timer <= 0) {
+            chip_sfx_faint(); /* 3.4: scream three times (stand-in SFX) */
+            g_leg3_scream_left--;
+            g_leg3_scream_timer = LEG3_SCREAM_GAP_FRAMES;
+        }
 
         prev_start = start_now;
         prev_b = b_now;

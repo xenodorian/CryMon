@@ -3225,6 +3225,46 @@ Each stage below is pushed on its own; tick it here when it lands.
       -> rep < 0 -> hostile Heavenfall -> win -> Godslayer ending; trial
       path -> Father proud -> tamed ending. Save round trip keeps flags
       past bit 64 and bag slots past 20; a 280-byte blob still loads.
-- [ ] S5 Dreamcast: bases, Generals, medals, arrest/execute.
-- [ ] S6 Dreamcast: Nero, tint, father, endings.
+- [x] S5 Dreamcast: bases, Generals, medals, arrest/execute.
+- [x] S6 Dreamcast: Nero, tint, father, endings.
+      (Landed together.) Baker (`bake_leg3` in bake_content.py) emits
+      `LEG3_POSTS[]` (kit, kind, General index, win flag, win talk, marks,
+      sprite, battle title), `LEG3_GENS[]`, `LEG3_FLAG_ID/SAVE_ID[]`, the
+      LEG3_* talk/rep/tint/ending constants and `SHOP_NOT_SOLD_MASK[]`.
+      Leg 3 kits follow the 16 hand-wired ones (`KIT_LEG3_FIRST`); their
+      NpcStep `pending` is 100 + post index (`NPC_PENDING_LEG3_FIRST`).
+      Kits' bench is now `KIT_BENCH_MAX` wide (Nero has 5) and so is
+      `Battle.bench`. A warp `need` that isn't one of the old six bakes as
+      1000 + FLAG_* index and main.c checks it through `ft[]`.
+      main.c: file-scope `g_leg3_*` state and helpers sit just above
+      `npc_match_step()`; one generic `TRAINER_LEG3` battle
+      (`leg3_start_battle`), `POST_LEG3_*` chain driven by `g_leg3_next`
+      (the dialogue-end switch now resets `post_action` to it instead of
+      POST_NONE), fate menu (`g_leg3_fate`), `leg3_apply_tint()` before
+      `apply_fade()`, scream x3 on a frame timer, Leg 3 epilogue via
+      `g_leg3_ending` + `draw_ending()`, pause menu row MEDALS (index 3;
+      SETTINGS 4, SAVE 5, CLOSE 6), `menu_mode` 6 = medals. Posts are drawn
+      and block movement generically in `collect_npcs()`/`actor_blocks()`.
+      Bag gained `shackles`/`goldenShackles` (bag_field 20/21).
+      The Dreamcast has no Father party, so "abandons" there is the
+      dialogue + `fatherAbandoned` only.
+      Pre-existing Dreamcast bugs fixed on the way (both blocked Leg 3):
+      - `try_npc_script()` returned 0 whenever NPC_DEF_N > 64, so after S2
+        (80 NPCs) no NPC on console could be talked to. `used[]` is now
+        sized NPC_DEF_N.
+      - `case POST_WSOLDIER_LEAD` had no `break` and fell into the
+        Heavenfall grave fight, so talking to Lieutenant Lead fought
+        Heavenfall instead.
+      - `bag_field()` returned bowieKnife for every index >= 19.
+      Verified in Flycast (VMU save patched by a scratch script to start in
+      each scene): guard talk -> battle -> guard gone; General -> Arrest ->
+      Bronze Star shown ARRESTED in MEDALS; Nero -> trial -> scenes ->
+      Father proud -> tamed -> epilogue -> title; Nero -> execute ->
+      KINGSLAYER name, red tint stays, crowned scene, Father "monster" ->
+      hostile Heavenfall Lv55 battle. Not run to the end on console: the
+      Godslayer / Max The Bloody results of that last battle (web-verified).
+      Save file is 300 bytes, VMS CRC valid.
+      Seen but not investigated: with the patched saves the world HUD's
+      party line read "QUILLPUP LV3" while the battle used the patched
+      Eclipsaur; likely the patch script, not the game (unverified).
 - [ ] S7 Verify: typecheck/tests/lint, Playwright run, Flycast visual check.
