@@ -253,6 +253,91 @@ def write_vmu_icon(root):
     print('wrote', os.path.normpath(VMU_ICON_OUT))
 
 
+# Battle hit effects (content/sprites.json battleFx + public/sprites/fx/
+# <nature>-1..4.png, drawn by tools/pixelforge/hitfx.py). Natures come in
+# logic.json order so HITFX[i] lines up with NATURES[i]; main.c checks
+# HITFX_N == NATURE_N at compile time. Units stay the web's logical px and
+# seconds (per second x 1, frames at 60 Hz); main.c scales to its layout.
+FX_SHAPES = ('spark', 'chunk', 'glint', 'bolt', 'wisp', 'rainbow', 'leaf', 'ember', 'shard', 'plus')
+FX_DIRS = ('radial', 'up', 'down')
+FX_BURST_PX = 48
+
+
+def _hex565(c):
+    c = c.lstrip('#')
+    return rgb565(int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16))
+
+
+def emit_battle_fx(lines, root):
+    content = os.path.normpath(os.path.join(root, '..', '..', 'content'))
+    fx = json.load(open(os.path.join(content, 'sprites.json')))['battleFx']
+    nats = [n['id'] for n in json.load(open(os.path.join(content, 'logic.json')))['natures']]
+    sec = lambda v: max(1, int(round(v * 60)))
+    lines.append('#define HAVE_BATTLE_FX 1')
+    lines.append('#define HITFX_N %d' % len(nats))
+    lines.append('#define HITFX_BURST_PX %d' % FX_BURST_PX)
+    for i, n in enumerate(FX_SHAPES):
+        lines.append('#define FXSHAPE_%s %d' % (n.upper(), i))
+    for i, n in enumerate(FX_DIRS):
+        lines.append('#define FXDIR_%s %d' % (n.upper(), i))
+    lines.append('typedef struct {')
+    lines.append('    unsigned short col[5]; unsigned char ncol, shape, dir, count;')
+    lines.append('    short speed0, speed1, gravity;   /* logical px/s, px/s/s */')
+    lines.append('    unsigned short drag256;          /* drag per second x 256 */')
+    lines.append('    unsigned char life0, life1;      /* frames */')
+    lines.append('    unsigned char size0, size1, sway, ring;')
+    lines.append('} HitFxStyle;')
+    lines.append('static const HitFxStyle HITFX[HITFX_N] = {')
+    for n in nats:
+        st = fx['natures'][n]
+        cols = [_hex565(c) for c in st['colors']][:5]
+        ncol = len(cols)
+        cols += [cols[-1]] * (5 - ncol)
+        lines.append('    /* %s */ { { %s }, %d, FXSHAPE_%s, FXDIR_%s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d },' % (
+            n, ', '.join('0x%04X' % c for c in cols), ncol, st['shape'].upper(), st['dir'].upper(),
+            st['count'], st['speed'][0], st['speed'][1], st['gravity'], int(round(st['drag'] * 256)),
+            sec(st['life'][0]), sec(st['life'][1]), st['size'][0], st['size'][1], st['sway'], 1 if st['ring'] else 0))
+    lines.append('};')
+    m16 = lambda v: int(round(v * 16))
+    lines.append('#define FX_BURST_FRAMES %d' % sec(fx['burstSec']))
+    lines.append('#define FX_BIG_PCT %d' % int(round(fx['bigHit'] * 100)))
+    lines.append('#define FX_SHAKE_MIN16 %d' % m16(fx['shake']['min']))
+    lines.append('#define FX_SHAKE_MAX16 %d' % m16(fx['shake']['max']))
+    lines.append('#define FX_SHAKE_SUPER16 %d' % m16(fx['shake']['superMul']))
+    fl = fx['flash']
+    lines.append('#define FX_FLASH_FRAMES %d' % sec(fl['sec']))
+    lines.append('#define FX_FLASH_COLOR 0x%04X' % _hex565(fl['color']))
+    lines.append('#define FX_FLASH_BIG16 %d' % m16(fl['bigAlpha']))
+    lines.append('#define FX_FLASH_SUPER16 %d' % m16(fl['superAlpha']))
+    lines.append('#define FX_FLASH_HIT16 %d' % m16(fl['hitAlpha']))
+    pc = fx['popup']
+    lines.append('#define FX_POP_FRAMES %d' % sec(pc['sec']))
+    lines.append('#define FX_POP_RISE %d' % pc['rise'])
+    for k in ('hitColor', 'superColor', 'weakColor', 'healColor'):
+        lines.append('#define FX_POP_%s 0x%04X' % (k[:-5].upper(), _hex565(pc[k])))
+    lines.append('#define FX_FAINT_COUNT16 %d' % m16(fx['faint']['countMul']))
+    lines.append('#define FX_FAINT_LIFE16 %d' % m16(fx['faint']['lifeMul']))
+    lines.append('#define FX_STATUS_COUNT16 %d' % m16(fx['status']['countMul']))
+    lines.append('#define FX_ENTER_COUNT16 %d' % m16(fx['enter']['countMul']))
+    lines.append('')
+    fx_dir = os.path.join(root, 'fx')
+    names = []
+    for n in nats:
+        for f in range(1, 5):
+            path = os.path.join(fx_dir, '%s-%d.png' % (n, f))
+            if not os.path.exists(path):
+                sys.exit('missing burst %s (run tools/pixelforge/hitfx.py)' % path)
+            im = Image.open(path)
+            name = 'fxb_%s_%d' % (n, f)
+            emit_array(lines, name, encode(im, FX_BURST_PX, FX_BURST_PX), FX_BURST_PX, FX_BURST_PX)
+            names.append(name)
+    lines.append('static const unsigned short *const HITFX_BURST[HITFX_N][4] = {')
+    for i in range(len(nats)):
+        lines.append('    { %s },' % ', '.join(names[i * 4:i * 4 + 4]))
+    lines.append('};')
+    lines.append('')
+
+
 def main():
     if len(sys.argv) == 2:
         arg = sys.argv[1]
@@ -446,6 +531,8 @@ def main():
         for n in HOLLOW_TILE_NAMES:
             im = Image.open(os.path.join(tile_dir, n + '.png'))
             emit_array(lines, 'tile_' + n.replace('-', '_'), encode(im, 20, 20, Image.LANCZOS), 20, 20)
+
+    emit_battle_fx(lines, root)
 
     lines.append('#define ITEM_ICON_W %d' % ITEM_ICON_W)
     lines.append('#define ITEM_ICON_H %d' % ITEM_ICON_H)

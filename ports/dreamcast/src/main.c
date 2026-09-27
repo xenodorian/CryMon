@@ -4409,6 +4409,8 @@ static void hit_motion(u32 frame_count, u32 hit_t, int *shake, int *lunge, int *
     *blink = el < 6u || (el >= 11u && el < 16u);
 }
 
+static int fx_ox, fx_oy;
+static void fx_draw_bursts(const Battle *b, u32 frame_count);
 static void draw_battle_sprites(const Battle *b, u32 frame_count,
                                  u32 foe_enter_t, u32 foe_faint_t,
                                  u32 pl_enter_t, u32 pl_faint_t) {
@@ -4442,11 +4444,430 @@ static void draw_battle_sprites(const Battle *b, u32 frame_count,
     hit_motion(frame_count, battle_pl_hit_t, &ps, &pl, &pb);    /* player was hit: foe lunges */
     anim_flash = fb;
     blit_sprite_anim(mon_frame(0, b->foe.species, f), MONSTER_SPRITE_W, MONSTER_SPRITE_H,
-                      BFOE_SPRITE_X + fs - pl, BFOE_SPRITE_Y + pl / 2, b->foe.shiny, foe_revealed, foe_fade);
+                      BFOE_SPRITE_X + fs - pl + fx_ox, BFOE_SPRITE_Y + pl / 2 + fx_oy, b->foe.shiny, foe_revealed, foe_fade);
     anim_flash = pb;
     blit_sprite_anim(mon_frame(1, b->pl.species, f), MONSTER_SPRITE_W, MONSTER_SPRITE_H,
-                      BPL_SPRITE_X + ps + fl, BPL_SPRITE_Y - fl / 2, b->pl.shiny, pl_revealed, pl_fade);
+                      BPL_SPRITE_X + ps + fl + fx_ox, BPL_SPRITE_Y - fl / 2 + fx_oy, b->pl.shiny, pl_revealed, pl_fade);
     anim_flash = 0;
+    fx_draw_bursts(b, frame_count);
+}
+
+/* ----------------------------------------------------------------------
+ * Battle effects: hit bursts, particles, shock rings, screen flash,
+ * scene shake and floating damage numbers. Same idea as the web's
+ * src/game/battleFx.ts, from the same numbers (content/sprites.json
+ * battleFx -> sprites.h HITFX / FX_*): fx_watch() compares the battle
+ * against last frame (hp, status, stat stages, who is out) and fires
+ * effects, so nothing here can change a battle's outcome.
+ *
+ * Budget: fixed pools (FX_MAXP particles, a few rings and numbers), no
+ * allocation. The flash is one pass over the framebuffer for
+ * FX_FLASH_FRAMES frames, the same cost apply_fade() already pays. The
+ * shake moves the scene (backdrop and CryMon), not the menus, by an
+ * offset the blits add, so it costs nothing extra.
+ * ---------------------------------------------------------------------- */
+#if HITFX_N != NATURE_N
+#error "sprites.h HITFX_N does not match content_logic.inc NATURE_N: re-run gen_sprites.py"
+#endif
+
+/* Logical px (the web's 240x160 battle layout, monster box 52 wide) to
+   Dreamcast px, 8.8 fixed. */
+#define FXS ((MONSTER_SPRITE_W * 256) / 52)
+#define FX_MAXP 112
+#define FX_MAXR 4
+#define FX_MAXPOP 4
+
+typedef struct {
+    int x, y, vx, vy;           /* 8.8 DC px, per frame */
+    int g, drag;                /* per frame: 8.8 accel, 8.8 keep factor */
+    int t, life;                /* frames */
+    int size, sway, phase;
+    int shape, ncol;
+    const unsigned short *col;
+} FxPart;
+typedef struct { int x, y, t; u16 col; } FxRing;
+typedef struct { int x, y, t; u16 col; char text[8]; } FxPop;
+
+static FxPart fx_p[FX_MAXP];
+static int fx_np = 0;
+static FxRing fx_r[FX_MAXR];
+static int fx_nr = 0;
+static FxPop fx_pop[FX_MAXPOP];
+static int fx_npop = 0;
+static int fx_flash_t = FX_FLASH_FRAMES, fx_flash16 = 0;
+static u16 fx_flash_col = FX_FLASH_COLOR;
+static int fx_shake16 = 0;              /* logical px x16, decays */
+static int fx_ox = 0, fx_oy = 0;        /* scene offset this frame (declared above) */
+static u32 fx_seed = 0x2545F491u;
+static const unsigned short fx_heal_col[1] = { FX_POP_HEAL };
+/* cos() x256 in 64 steps. */
+static const short FX_COS[64] = {
+    256, 255, 251, 245, 237, 226, 213, 198, 181, 162, 142, 121, 98, 74, 50, 25,
+    0, -25, -50, -74, -98, -121, -142, -162, -181, -198, -213, -226, -237, -245, -251, -255,
+    -256, -255, -251, -245, -237, -226, -213, -198, -181, -162, -142, -121, -98, -74, -50, -25,
+    0, 25, 50, 74, 98, 121, 142, 162, 181, 198, 213, 226, 237, 245, 251, 255 };
+#define FX_SIN(a) FX_COS[((a) + 48) & 63]
+
+/* Last frame's view of each side (0 foe, 1 player); species -1 = unseen. */
+static int fx_seen_species[2] = { -1, -1 }, fx_seen_hp[2], fx_seen_status[2], fx_seen_stage[2];
+
+static int fx_rand(int n) {
+    fx_seed = fx_seed * 1664525u + 1013904223u;
+    return n > 0 ? (int)((fx_seed >> 16) % (u32)n) : 0;
+}
+static int fx_range(int a, int b) { return b > a ? a + fx_rand(b - a + 1) : a; }
+
+static void fx_center(int side, int *x, int *y) {
+    if(side == 0) { *x = BFOE_SPRITE_X + MONSTER_SPRITE_W / 2; *y = BFOE_SPRITE_Y + MONSTER_SPRITE_H / 2; }
+    else          { *x = BPL_SPRITE_X + MONSTER_SPRITE_W / 2;  *y = BPL_SPRITE_Y + MONSTER_SPRITE_H / 2; }
+}
+
+static void fx_reset(void) {
+    fx_np = fx_nr = fx_npop = 0;
+    fx_flash_t = FX_FLASH_FRAMES;
+    fx_shake16 = 0;
+    fx_ox = fx_oy = 0;
+    fx_seen_species[0] = fx_seen_species[1] = -1;
+}
+
+static void fx_emit(int side, int nat, int count16, int life16) {
+    const HitFxStyle *st = &HITFX[(nat >= 0 && nat < HITFX_N) ? nat : 0];
+    int cx, cy, i, n = (st->count * count16 + 8) / 16;
+    fx_center(side, &cx, &cy);
+    if(n < 1) n = 1;
+    for(i = 0; i < n && fx_np < FX_MAXP; i++) {
+        FxPart *p = &fx_p[fx_np++];
+        int a, sp;
+        if(st->dir == FXDIR_UP) a = 48 + fx_range(-9, 9);
+        else if(st->dir == FXDIR_DOWN) a = 16 + fx_range(-9, 9);
+        else a = (i * 64) / n + fx_range(-3, 3);
+        a &= 63;
+        sp = fx_range(st->speed0, st->speed1) * FXS / 60;      /* 8.8 px/frame */
+        p->x = (cx + fx_range(-6, 6)) << 8;
+        p->y = (cy + fx_range(-6, 6)) << 8;
+        p->vx = sp * FX_COS[a] / 256;
+        p->vy = sp * FX_SIN(a) / 256;
+        p->g = st->gravity * FXS / 3600;
+        p->drag = 256 - st->drag256 / 60;
+        p->t = 0;
+        p->life = fx_range(st->life0, st->life1) * life16 / 16;
+        p->size = fx_range(st->size0, st->size1) * FXS / 256;
+        if(p->size < 1) p->size = 1;
+        p->sway = st->sway * FXS / 256;
+        p->phase = fx_rand(64);
+        p->shape = st->shape;
+        p->ncol = st->ncol;
+        p->col = st->col;
+    }
+    if(st->ring && fx_nr < FX_MAXR) {
+        fx_r[fx_nr].x = cx; fx_r[fx_nr].y = cy; fx_r[fx_nr].t = 0;
+        fx_r[fx_nr].col = st->col[st->ncol > 1 ? 1 : 0];
+        fx_nr++;
+    }
+}
+
+static void fx_popup(int side, const char *s, u16 col) {
+    int cx, cy, i, stack = 0;
+    FxPop *p;
+    fx_center(side, &cx, &cy);
+    for(i = 0; i < fx_npop; i++) if(fx_pop[i].x == cx && fx_pop[i].t < 18) stack++;
+    if(fx_npop >= FX_MAXPOP) {                 /* drop the oldest */
+        for(i = 1; i < fx_npop; i++) fx_pop[i - 1] = fx_pop[i];
+        fx_npop--;
+    }
+    p = &fx_pop[fx_npop++];
+    p->x = cx; p->y = cy - 24 * FXS / 256 - stack * 18; p->t = 0; p->col = col;
+    for(i = 0; i < 7 && s[i]; i++) p->text[i] = s[i];
+    p->text[i] = 0;
+}
+
+static void fx_hit(int side, int nat, int dmg, int max_hp, int sign) {
+    int big = max_hp > 0 && dmg * 100 >= max_hp * FX_BIG_PCT;
+    int frac256 = max_hp > 0 ? (dmg >= max_hp ? 256 : dmg * 256 / max_hp) : 51;
+    int amp, a16;
+    char buf[8];
+    int n;
+    fx_emit(side, nat, big ? 24 : 16, 16);
+    amp = FX_SHAKE_MIN16 + (FX_SHAKE_MAX16 - FX_SHAKE_MIN16) * frac256 / 256;
+    if(sign > 0) amp = amp * FX_SHAKE_SUPER16 / 16;
+    if(amp > fx_shake16) fx_shake16 = amp;
+    a16 = big ? FX_FLASH_BIG16 : sign > 0 ? FX_FLASH_SUPER16 : FX_FLASH_HIT16;
+    if(fx_flash_t >= FX_FLASH_FRAMES ||
+       a16 * FX_FLASH_FRAMES >= fx_flash16 * (FX_FLASH_FRAMES - fx_flash_t)) {
+        fx_flash16 = a16;
+        fx_flash_t = 0;
+        fx_flash_col = sign > 0 ? HITFX[nat].col[0] : FX_FLASH_COLOR;
+    }
+    buf[0] = '-';
+    n = s_cat_uint(buf, 1, (unsigned)(dmg > 99999 ? 99999 : dmg));
+    buf[n] = 0;
+    fx_popup(side, buf, sign > 0 ? FX_POP_SUPER : sign < 0 ? FX_POP_WEAK : FX_POP_HIT);
+}
+
+static void fx_heal(int side, int n) {
+    int cx, cy, i;
+    char buf[8];
+    int k;
+    fx_center(side, &cx, &cy);
+    for(i = 0; i < 8 && fx_np < FX_MAXP; i++) {
+        FxPart *p = &fx_p[fx_np++];
+        p->x = (cx + fx_range(-24, 24)) << 8;
+        p->y = (cy + fx_range(-6, 24)) << 8;
+        p->vx = 0;
+        p->vy = -fx_range(20, 40) * FXS / 60;
+        p->g = 0; p->drag = 252; p->t = 0; p->life = fx_range(30, 48);
+        p->size = 3; p->sway = 0; p->phase = 0;
+        p->shape = FXSHAPE_PLUS; p->ncol = 1; p->col = fx_heal_col;
+    }
+    buf[0] = '+';
+    k = s_cat_uint(buf, 1, (unsigned)(n > 99999 ? 99999 : n));
+    buf[k] = 0;
+    fx_popup(side, buf, FX_POP_HEAL);
+}
+
+static void fx_watch_side(int side, const Monster *m, const Monster *other, int stage) {
+    int nat_other = species_nature(other->species);
+    if(fx_seen_species[side] < 0) {
+        /* first look at this battle: remember, fire nothing */
+    }
+    else if(m->species != fx_seen_species[side]) {
+        fx_emit(side, species_nature(m->species), FX_ENTER_COUNT16, 16);
+    }
+    else {
+        if(m->hp < fx_seen_hp[side]) {
+            fx_hit(side, nat_other, fx_seen_hp[side] - m->hp, m->maxHp,
+                   NATURE_CHART[nat_other][species_nature(m->species)]);
+            if(m->hp <= 0) fx_emit(side, species_nature(m->species), FX_FAINT_COUNT16, FX_FAINT_LIFE16);
+        }
+        else if(m->hp > fx_seen_hp[side] && fx_seen_hp[side] > 0) {
+            fx_heal(side, m->hp - fx_seen_hp[side]);
+        }
+        else if(m->hp > 0 && fx_seen_hp[side] <= 0) {
+            /* same species sent in after a faint */
+            fx_emit(side, species_nature(m->species), FX_ENTER_COUNT16, 16);
+        }
+        if(m->status != fx_seen_status[side] && m->status != STATUS_NONE) {
+            char buf[4];
+            const char *s = STATUS_NAME[m->status];
+            buf[0] = s[0]; buf[1] = s[0] ? s[1] : 0; buf[2] = buf[1] ? s[2] : 0; buf[3] = 0;
+            fx_emit(side, nat_other, FX_STATUS_COUNT16, 16);
+            fx_popup(side, buf, FX_POP_WEAK);
+        }
+        if(stage > fx_seen_stage[side]) {
+            fx_emit(side, nat_other, FX_STATUS_COUNT16, 16);
+            fx_popup(side, "DOWN", FX_POP_WEAK);
+        }
+    }
+    fx_seen_species[side] = m->species;
+    fx_seen_hp[side] = m->hp;
+    fx_seen_status[side] = m->status;
+    fx_seen_stage[side] = stage;
+}
+
+/* Once per frame while in battle: fire new effects, then age everything. */
+static void fx_watch(const Battle *b, u32 frame_count) {
+    int i, j;
+    fx_watch_side(0, &b->foe, &b->pl, b->stage_foe_str + b->stage_foe_agl + b->stage_foe_spc);
+    fx_watch_side(1, &b->pl, &b->foe, b->stage_self_str + b->stage_self_agl + b->stage_self_spc);
+
+    for(i = j = 0; i < fx_np; i++) {
+        FxPart *p = &fx_p[i];
+        p->t++;
+        if(p->t >= p->life) continue;
+        p->vx = p->vx * p->drag / 256;
+        p->vy = p->vy * p->drag / 256 + p->g;
+        p->x += p->vx;
+        p->y += p->vy;
+        if(j != i) fx_p[j] = *p;
+        j++;
+    }
+    fx_np = j;
+    for(i = j = 0; i < fx_nr; i++) if(++fx_r[i].t < 17) { if(j != i) fx_r[j] = fx_r[i]; j++; }
+    fx_nr = j;
+    for(i = j = 0; i < fx_npop; i++) if(++fx_pop[i].t < FX_POP_FRAMES) { if(j != i) fx_pop[j] = fx_pop[i]; j++; }
+    fx_npop = j;
+    if(fx_flash_t < FX_FLASH_FRAMES) fx_flash_t++;
+    /* Shake: alternate sides each 2 frames, shrinking (18 logical px/s). */
+    if(fx_shake16 > 0) {
+        int a = fx_shake16 * FXS / (256 * 16);
+        int s = ((frame_count >> 1) & 1u) ? 1 : -1;
+        fx_ox = s * (a > 0 ? a : 1);
+        fx_oy = ((frame_count >> 2) & 1u) ? a / 2 : -(a / 2);
+        fx_shake16 -= 5;
+        if(fx_shake16 < 0) fx_shake16 = 0;
+    }
+    else fx_ox = fx_oy = 0;
+}
+
+static void fx_line(int x0, int y0, int x1, int y1, u16 c) {
+    int dx = x1 > x0 ? x1 - x0 : x0 - x1, sx = x0 < x1 ? 1 : -1;
+    int dy = y1 > y0 ? y0 - y1 : y1 - y0, sy = y0 < y1 ? 1 : -1;
+    int err = dx + dy, n = 0;
+    for(;;) {
+        put_pixel(x0, y0, c);
+        put_pixel(x0 + 1, y0, c);
+        if((x0 == x1 && y0 == y1) || ++n > 64) break;
+        {
+            int e2 = 2 * err;
+            if(e2 >= dy) { err += dy; x0 += sx; }
+            if(e2 <= dx) { err += dx; y0 += sy; }
+        }
+    }
+}
+
+static void fx_disc(int cx, int cy, int r, u16 c) {
+    int y, x;
+    for(y = -r; y <= r; y++)
+        for(x = -r; x <= r; x++)
+            if(x * x + y * y <= r * r + r) put_pixel(cx + x, cy + y, c);
+}
+
+static void fx_circle(int cx, int cy, int r, int ry, u16 c) {
+    int i;
+    for(i = 0; i < 64; i++) {
+        int x = cx + r * FX_COS[i] / 256, y = cy + ry * FX_SIN(i) / 256;
+        put_pixel(x, y, c);
+        put_pixel(x + 1, y, c);
+    }
+    if(r > 16) {
+        for(i = 0; i < 64; i++) {
+            int x = cx + r * FX_COS[(i * 2 + 1) & 63] / 256, y = cy + ry * FX_SIN((i * 2 + 1) & 63) / 256;
+            put_pixel(x, y, c);
+        }
+    }
+}
+
+/* The burst sprite on whoever was just hit, drawn with the CryMon. */
+static void fx_draw_burst(int side, u32 hit_t, int nat, u32 frame_count) {
+    u32 el;
+    int cx, cy, f, sz = HITFX_BURST_PX * 3 / 2;
+    if(!hit_t || frame_count < hit_t) return;
+    el = frame_count - hit_t;
+    if(el >= FX_BURST_FRAMES) return;
+    if(nat < 0 || nat >= HITFX_N) nat = 0;
+    f = (int)(el * 4u / FX_BURST_FRAMES);
+    fx_center(side, &cx, &cy);
+    blit_sprite_fit(HITFX_BURST[nat][f], HITFX_BURST_PX, HITFX_BURST_PX,
+                    cx - sz / 2 + fx_ox, cy - sz / 2 + fx_oy, sz, sz);
+}
+
+static void fx_draw_parts(void);
+static void fx_draw_bursts(const Battle *b, u32 frame_count) {
+    fx_draw_burst(0, battle_foe_hit_t, species_nature(b->pl.species), frame_count);
+    fx_draw_burst(1, battle_pl_hit_t, species_nature(b->foe.species), frame_count);
+    fx_draw_parts();
+}
+
+/* Rings and particles (over the CryMon, under the menus). */
+static void fx_draw_parts(void) {
+    int i;
+    for(i = 0; i < fx_nr; i++) {
+        int r = (6 + 24 * fx_r[i].t / 17) * FXS / 256;
+        fx_circle(fx_r[i].x + fx_ox, fx_r[i].y + fx_oy, r, r * 4 / 5, fx_r[i].col);
+    }
+    for(i = 0; i < fx_np; i++) {
+        const FxPart *p = &fx_p[i];
+        int x, y, s = p->size, u16x = p->t * 16 / p->life;
+        const unsigned short *c = p->col;
+        u16 c0 = c[0], c1 = c[p->ncol > 1 ? 1 : 0], c2 = c[p->ncol > 2 ? 2 : 0];
+        if(u16x >= 13 && (p->t & 1)) continue;                 /* blink out */
+        x = (p->x >> 8) + fx_ox;
+        y = (p->y >> 8) + fx_oy;
+        if(p->sway) x += p->sway * FX_SIN((p->t * 3 + p->phase) & 63) / 256;
+        switch(p->shape) {
+            case FXSHAPE_SPARK:
+                fx_line(x, y, x - p->vx * 3 / 256, y - p->vy * 3 / 256, c1);
+                fill_rect(x - s / 2, y - s / 2, s + 1, s + 1, c0);
+                break;
+            case FXSHAPE_CHUNK:
+                fill_rect(x - s / 2, y - s / 2 + 1, s + 1, s + 1, c2);
+                fill_rect(x - s / 2, y - s / 2, s + 1, s, u16x < 8 ? c1 : c0);
+                break;
+            case FXSHAPE_GLINT: {
+                int on = ((p->t / 4 + p->phase) % 3) != 0;
+                int arm = on ? s + 2 : s;
+                u16 k = on ? c0 : c1;
+                fill_rect(x - arm, y, arm * 2 + 1, 1, k);
+                fill_rect(x, y - arm, 1, arm * 2 + 1, k);
+                fill_rect(x - 1, y - 1, 3, 3, k);
+                break;
+            }
+            case FXSHAPE_BOLT: {
+                u16 k = (p->t & 2) ? c0 : c1;
+                int bx = x - p->vx * 3 / 256, by = y - p->vy * 3 / 256;
+                int mx = (x + bx) / 2 + p->vy * 1 / 256, my = (y + by) / 2 - p->vx * 1 / 256;
+                fx_line(x, y, mx, my, k);
+                fx_line(mx, my, bx, by, k);
+                break;
+            }
+            case FXSHAPE_WISP:
+                fx_disc(x, y, s + s * u16x / 14, u16x < 8 ? c1 : c0);
+                put_pixel(x, y - s / 2, c2);
+                break;
+            case FXSHAPE_RAINBOW:
+                fill_rect(x - s / 2, y - s / 2, s + 1, s + 1, c[((p->t / 3) + p->phase) % (p->ncol ? p->ncol : 1)]);
+                break;
+            case FXSHAPE_LEAF: {
+                int tilt = FX_SIN((p->t * 2 + p->phase) & 63);
+                int w = s * (tilt < 0 ? -tilt : tilt) / 256 + 1;
+                u16 k = tilt > 0 ? c0 : c1;
+                fill_rect(x - w, y, w * 2 + 1, 1, k);
+                fill_rect(x - w / 2, y - 1, w + 1, 1, k);
+                fill_rect(x - w / 2, y + 1, w + 1, 1, c2);
+                break;
+            }
+            case FXSHAPE_EMBER:
+                fill_rect(x - s / 2, y - s / 2, s + 1, s + 1, u16x < 5 ? c2 : u16x < 10 ? c1 : c0);
+                break;
+            case FXSHAPE_SHARD: {
+                int k;
+                for(k = -s - 1; k <= s + 1; k++) {
+                    int w = (s + 1 - (k < 0 ? -k : k)) / 2;
+                    fill_rect(x - w, y + k, w * 2 + 1, 1, c0);
+                }
+                fill_rect(x, y - s / 2, 1, s, c2);
+                break;
+            }
+            case FXSHAPE_PLUS:
+                fill_rect(x - s, y, s * 2 + 1, 1, c0);
+                fill_rect(x, y - s, 1, s * 2 + 1, c0);
+                break;
+            default:
+                fill_rect(x, y, s, s, c0);
+        }
+    }
+}
+
+/* Damage numbers and the screen flash, over everything (last in
+   draw_battle; the scene fade still goes on top in main()). */
+static void fx_draw_over(void) {
+    int i;
+    for(i = 0; i < fx_npop; i++) {
+        const FxPop *p = &fx_pop[i];
+        int u = p->t * 256 / FX_POP_FRAMES, e, rise, y;
+        if(u > 192 && (p->t & 2)) continue;
+        e = u * 8 / 5; if(e > 256) e = 256;
+        e = 256 - (256 - e) * (256 - e) / 256;                /* ease out */
+        rise = FX_POP_RISE * FXS / 256 * e / 256;
+        y = p->y - rise;
+        draw_text_center_s(p->text, p->x + 2, y + 2, 0x0000, 2);
+        draw_text_center_s(p->text, p->x, y, p->col, 2);
+    }
+    if(fx_flash_t < FX_FLASH_FRAMES && fx_flash16 > 0) {
+        u32 j;
+        int k = fx_flash16 * (FX_FLASH_FRAMES - fx_flash_t) / FX_FLASH_FRAMES;
+        int fr = (fx_flash_col >> 11) & 0x1F, fg = (fx_flash_col >> 5) & 0x3F, fb = fx_flash_col & 0x1F;
+        if(k > 0) {
+            for(j = 0; j < (u32)SCREEN_W * SCREEN_H; j++) {
+                u16 c = draw_fb[j];
+                int r = (c >> 11) & 0x1F, g = (c >> 5) & 0x3F, b = c & 0x1F;
+                r += (fr - r) * k / 16;
+                g += (fg - g) * k / 16;
+                b += (fb - b) * k / 16;
+                draw_fb[j] = (u16)((r << 11) | (g << 5) | b);
+            }
+        }
+    }
 }
 
 /* One line each -- "*NAME LVxx hp/maxHp" -- sized to BSTATUS_BOX_W's
@@ -4680,15 +5101,25 @@ static void draw_battle_guard_menu(int cur) {
    -- see the section comment above. */
 static int battle_bg_map = 0;   /* map the fight is on; set by the main loop */
 
+/* The backdrop moves with the shake; paint the strip it uncovers. */
+static void fx_fill_shake_edges(void) {
+    if(fx_ox > 0) fill_rect(0, 0, fx_ox, SCREEN_H, 0x0000);
+    if(fx_ox < 0) fill_rect(SCREEN_W + fx_ox, 0, -fx_ox, SCREEN_H, 0x0000);
+    if(fx_oy > 0) fill_rect(0, 0, SCREEN_W, fx_oy, 0x0000);
+    if(fx_oy < 0) fill_rect(0, SCREEN_H + fx_oy, SCREEN_W, -fx_oy, 0x0000);
+}
+
 static void draw_battle_bg(void) {
 #ifdef HAVE_AREA_BG
     int k = (battle_bg_map >= 0 && battle_bg_map < MAP_N) ? MAP_BATTLE_BG[battle_bg_map] : 0;
     if(k > 0) {
-        blit_sprite_2x(AREA_BG[k - 1], AREA_BG_W, AREA_BG_H, 0, 0);
+        blit_sprite_2x(AREA_BG[k - 1], AREA_BG_W, AREA_BG_H, fx_ox, fx_oy);
+        fx_fill_shake_edges();
         return;
     }
 #endif
-    blit_sprite(battle_bg, BATTLE_BG_W, BATTLE_BG_H, 0, 0);
+    blit_sprite(battle_bg, BATTLE_BG_W, BATTLE_BG_H, fx_ox, fx_oy);
+    fx_fill_shake_edges();
 }
 
 static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
@@ -4731,6 +5162,7 @@ static void draw_battle(const Battle *b, const Bag *bag, u32 frame_count,
         default:
             break;
     }
+    fx_draw_over();
 }
 
 /* ----------------------------------------------------------------------
@@ -6665,8 +7097,10 @@ void main(void) {
                 battle_pl_hit_t = frame_count;
             }
             battle_prev_pl_hp = battle.pl.hp;
+            fx_watch(&battle, frame_count);
         }
         else if(battle_was_active) {
+            fx_reset();
             battle_foe_enter_t = battle_foe_faint_t = 0;
             battle_pl_enter_t = battle_pl_faint_t = 0;
             battle_foe_hit_t = battle_pl_hit_t = 0;

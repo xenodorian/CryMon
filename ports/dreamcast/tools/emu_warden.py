@@ -59,6 +59,7 @@ class Emu:
         self.data.mkdir(parents=True)  # Flycast will not create it for the VMU
         self.vmu = None  # found after the first boot (per-game name)
         self.xvfb = self.proc = self.d = None
+        self.fx_shots, self.tag = 0, "fight"
 
     def env(self):
         e = dict(os.environ, HOME=str(self.home), DISPLAY=self.disp,
@@ -182,6 +183,13 @@ class Emu:
             if not world and not seen_battle:
                 seen_battle = True
                 self.shot("03-fight.png")
+            if not world and self.fx_shots < 45:
+                # A few quick frames per press: hit bursts, particles and
+                # damage numbers only last a fraction of a second.
+                for _ in range(3):
+                    self.fx_shots += 1
+                    self.shot("fx-%s-%02d.png" % (self.tag, self.fx_shots))
+                    time.sleep(0.05)
             if seen_battle and world and self.idle():
                 # Lines type out letter by letter, so a fresh line can look
                 # empty for a moment: stay idle over ~2 s before stopping.
