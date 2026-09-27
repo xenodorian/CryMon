@@ -3088,3 +3088,81 @@ each so another agent can resume. Order and status (update as you go):
       `Xvfb :99`, drive with `xdotool` (A = x, B = c, Start = Return,
       arrows = d-pad), screenshot with `import -window root`.
 
+
+## Leg 3 implementation (Claude, 2026-09-27) -- IN PROGRESS
+
+User request: "execute the remainder of leg 3 in stages, notating as
+you go". Spec is "## Leg 3 (open — from the user's doc)" above. Nothing
+from Leg 3 existed before this (no shackles, generals, medals, Nero).
+Each stage below is pushed on its own; tick it here when it lands.
+
+### Design decisions (educated guesses; change here first if the user disagrees)
+- **Where:** the 9 Sephirot cities below Keter each get one Weeping
+  General in a military base. **Nero is in Keter** (the crown city), in
+  a palace. Order follows the build order in `tools/build_sephirot.py`
+  `STEPS`, so the medal chain matches the way the player walks north:
+
+  | # | City | General | Medal | Base map |
+  |---|---|---|---|---|
+  | 1 | Malkuth | General Harrow | Bronze Star | `base_malkuth` |
+  | 2 | Yesod | General Ashgrove | Purple Heart | `base_yesod` |
+  | 3 | Netzach | General Stroud | Prisoner of War Medal | `base_netzach` |
+  | 4 | Hod | General Vale | Silver Star | `base_hod` |
+  | 5 | Tiferet | General Kessler | Gold Star | `base_tiferet` |
+  | 6 | Chesed | General Morrow | Legion of Merit | `base_chesed` |
+  | 7 | Gevurah | General Crane | Distinguished Flying Cross | `base_gevurah` |
+  | 8 | Binah | General Blackwood | Distinguished Service Cross | `base_binah` |
+  | 9 | Chokmah | General Sorrel | Medal of Honor | `base_chokmah` |
+  | - | Keter | Weeping King Nero | (Golden Shackles gate) | `palace_keter` |
+
+- **Medal gate (3.1):** "must possess one General's medal before
+  challenging another" is read as a chain: base N's door (a warp `need`)
+  requires medal N-1. Malkuth's base is open. Inference, not in the doc:
+  the doc does not say which medal, so the chain uses the previous one.
+- **Base layout (3.1):** interior map, one-tile-wide hall with 2 soldiers
+  standing in it (gym trainers). A soldier blocks the hall until beaten
+  (`hideIf`), so you must fight through. Base soldiers do **not** get the
+  Leg 2 mercy menu (the executedMask has only 13 free bits, and the doc
+  frames them as gym trainers); they stand aside when beaten.
+- **Shackles (3.2):** consumable item `shackles`, sold by every merchant
+  except Bram (`logic.json shops.notSoldBy`). One is used per arrest.
+  After a General's battle: with Shackles -> ARREST (+10) / EXECUTE (-25);
+  without -> EXECUTE only. The medal is awarded either way.
+- **Golden Shackles (3.3):** key item `goldenShackles` (never sold),
+  granted the moment the 9th medal is earned. Keter's palace door needs
+  it (`need: hasGoldenShackles`).
+- **Nero (3.4):** BRING HIM TO TRIAL (+50, trial + life-sentence cutscene)
+  or EXECUTE (-50, red fade, scream x3, persistent red tint from then on,
+  name shown as "Kingslayer" everywhere, crowned-Queen cutscene).
+  Cutscenes are text scenes (narrator dialogue on a plain backdrop);
+  there is no cutscene art -> PLACEHOLDER_ART.
+- **Father (3.5):** only if `revivedFather`. Reaction plays right after the
+  Nero scene. "Abandons" = Father's party leaves (party2 cleared, control
+  returns to Max). Rep 0 counts as positive (not negative).
+- **Heavenfall (3.6):** checks Max's and Father's parties for a
+  `heavenfall`. None -> game ends. Rep >= 0 -> tamed epilogue. Rep < 0 ->
+  immediate hostile battle (no heal): win -> "Godslayer" epilogue; wipe
+  -> death epilogue, "Max The Bloody". Every branch ends in the ending
+  screen (the existing `ending` mode).
+- **Levels:** Generals 22 + 3*(N-1) (22..46), their soldiers 3 lower,
+  Nero 50 with 6 CryMon, hostile Heavenfall 55. Teams drawn from the
+  Sephirot species of that city's paths.
+- **Save (no version bump):** flags go past 64 via `flagParts`
+  ([[38,8],[280,8]] -> 128 flags); items past 20 via `bagParts`
+  ([[18,20],[288,12]] -> 32 items); size 280 -> 300. Both still fit the
+  2-block VMS file (0x280 + 300 < 1024). Older, shorter blobs pad with 0.
+- **Art:** every new NPC gets its own placeholder walker sprite
+  (PLACEHOLDER_ART tag, `tools/make_placeholder_npcs.py`): 9 Generals,
+  Nero, and one shared `weepingGuard` sprite for the base soldiers (a new
+  sprite, not another character's).
+
+### Stages
+- [ ] S1 Save: flagParts/bagParts, size 300, both engines, check_sync, baker.
+- [ ] S2 Content: items, shop rule, logic `leg3` block, trainers, dialogue,
+      NPCs, base/palace maps + city doors (`build_sephirot.py`), warps,
+      placeholder NPC art.
+- [ ] S3 Web: base soldiers/Generals, medals, arrest/execute, Golden Shackles.
+- [ ] S4 Web: Nero, tint/Kingslayer, father reaction, Heavenfall endings.
+- [ ] S5 Dreamcast: bases, Generals, medals, arrest/execute.
+- [ ] S6 Dreamcast: Nero, tint, father, endings.
+- [ ] S7 Verify: typecheck/tests/lint, Playwright run, Flycast visual check.
