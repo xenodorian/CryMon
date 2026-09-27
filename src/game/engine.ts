@@ -73,7 +73,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End";
+type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End" | "mercy";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL", hale: "HALE'S STALL" };
 const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray", hale: "shopFreeHale" };
@@ -1076,6 +1076,9 @@ export class CryMon {
 				this.choiceCur = 0;
 			} else if (next === "wsoldier") {
 				this.startWsBattle(this.pendingWs);
+			} else if (next === "mercy") {
+				this.mode = "mercy";
+				this.mercyCur = 0;
 			} else if (next === "generalFate" || next === "neroFate") {
 				this.openFate(next === "neroFate" ? "nero" : "general");
 			} else if (next === "bountyFate" || next === "shakedownFate") {
@@ -3954,7 +3957,7 @@ export class CryMon {
 				if (!this.mason2Done && !this.mason2Map) this.mason2Map = pickMason2Map(Math.random());
 				this.marks += kit.marks ?? 18;
 				this.audio.ok();
-				this.openMercy(b);
+				this.openMercy(b, TALK[kit.winTalk]);
 				return;
 			}
 			if (b.trainer === "soldier") {
@@ -3962,7 +3965,7 @@ export class CryMon {
 				if (sol) sol.beaten = true;
 				this.marks += sol?.marks ?? 8;
 				this.audio.ok();
-				this.openMercy(b);
+				this.openMercy(b, TALK[sol?.winTalk ?? "soldierAfter"]);
 				return;
 			}
 			if (b.trainer === "wsoldier") {
@@ -4014,9 +4017,11 @@ export class CryMon {
 					return;
 				}
 				this.marks += kit?.marks ?? 12;
-				// Win talk deferred; mercy menu first (not mason/shinigami).
+				// Win talk first, then the mercy menu (same order as the
+				// Dreamcast port). onBattleOver() already ran above, so
+				// openMercy() must not count this battle a second time.
 				this.audio.ok();
-				this.openMercy(b);
+				this.openMercy(b, TALK[kit?.winTalk], false);
 				return;
 			}
 			if (b.trainer === "shinigami") {
@@ -4134,16 +4139,22 @@ export class CryMon {
 		return n;
 	}
 	/** Open Leg 2.9 mercy menu after a human trainer win (not Mason/Shinigami). */
-	openMercy(b) {
+	openMercy(b, winLines = null, countBattle = true) {
 		this.mercyCur = 0;
 		this.mercyTrainer = b.trainer;
 		this.mercySoldierId = b.soldierId;
 		this.mercyFoeLevels = this.foePartyLevels(b);
 		this.mercyFoeName = b.foeName || "Trainer";
-		this.mode = "mercy";
 		this.battle = null;
 		this.world.encounterLock = 3;
-		this.onBattleOver();
+		if (countBattle) this.onBattleOver();
+		// The kit's winTalk plays first; advanceTalk()'s "mercy" opens the menu.
+		if (winLines?.length) {
+			this.mode = "world";
+			this.say(winLines, "mercy");
+			return;
+		}
+		this.mode = "mercy";
 	}
 	updateMercy() {
 		if (this.input.up()) {
