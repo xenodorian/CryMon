@@ -60,6 +60,7 @@ def build(spec, t):
     G = s["ground"]
     bl, bh = s["body"]
     rx, ry = bl / 2, bh / 2
+    ry *= 1 + [0.0, 0.025, 0.045, 0.025][t]   # breathing
     L = s["leg"]
     bx = s["bx"]
     by = G - L - ry * 0.55 + b * 0.5
@@ -67,7 +68,8 @@ def build(spec, t):
     neck = s["neck"]
     # head sits forward and up from the chest
     hx_ = bx - rx * 0.78 - neck * 0.55 - hrx * 0.45 + s["head_dx"]
-    hy_ = by - ry * 0.7 - neck * 0.55 - hry * 0.25 + s["head_dy"] + b * 0.3
+    hy_ = by - ry * 0.7 - neck * 0.55 - hry * 0.25 + s["head_dy"] + [0, 0, 1, 1][t]
+    hx_ += [0, -0.5, -1, -0.5][t]   # a slow look-around, out of step with the breath
     a = dict(bx=bx, by=by, rx=rx, ry=ry, hx=hx_, hy=hy_, hrx=hrx, hry=hry, G=G, b=b, t=t)
 
     for fn in s["pre"]:
@@ -76,7 +78,7 @@ def build(spec, t):
     # ---- tail (behind everything)
     tl = s["tail_len"]
     tx, ty = bx + rx * 0.85, by - ry * 0.25
-    sw = [0, 1, 2, 1][t]
+    sw = [0, 2, 3, 1][t]
     tail = s["tail"]
     tg = c.group()
     tip = None
@@ -225,7 +227,7 @@ def _head(c, s, mats, a, hg, t):
             h = hry * 1.25 * es * tall
             w = hrx * 0.42 * es
             base_y = hy_ - hry * 0.55
-            tipx = ex + lean * h * 0.4
+            tipx = ex + lean * h * 0.4 + (1.5 if (k == 0 and t == 2) else 0)   # ear twitch
             c.poly([(ex - w, base_y + 4), (tipx, base_y - h), (ex + w, base_y + 2)], fur, z=zz, bevel=2)
             c.poly([(ex - w * 0.55, base_y + 2), (tipx + (0.5 if lean > 0 else -0.5), base_y - h * 0.7),
                     (ex + w * 0.55, base_y + 1)], ear_in, z=zz + 2, bevel=1)

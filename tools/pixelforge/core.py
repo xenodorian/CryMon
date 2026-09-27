@@ -325,7 +325,15 @@ class Canvas:
                 inten = inten * mat.soft + (1 - mat.soft) * 0.6
             tex = 0
             if mat.tex == "fur":
-                tex = (self.noise(5.0, 5) - 0.5) * 0.45
+                # directional strands: short strokes that fall down and back
+                perp = self.xs * 0.94 - self.ys * 0.34 + self.noise(2.2, 11) * 2.6
+                along = self.xs * 0.34 + self.ys * 0.94
+                brk = self.noise(3.5, 13)
+                band = perp % 3.2
+                seg = ((along + self.noise(1.7, 17) * 6) % 7) < 5
+                dark = (band < 0.9) & seg & (brk > 0.3)
+                lite = (band > 1.7) & (band < 2.3) & seg & (brk > 0.45)
+                tex = dark * -1.0 + lite * 0.8 + (self.noise(6.0, 5) - 0.5) * 0.3
             elif mat.tex == "noise":
                 tex = (self.noise(2.5, 7) - 0.5) * 1.6
             elif mat.tex == "grain":
@@ -340,6 +348,16 @@ class Canvas:
                 f = f + sp * mat.spec * 4
             ii = np.clip(np.round(f), 1, mat.n - 1).astype(np.int32)
             idx[sel] = ii[sel]
+        # bounce light: a thin rim on the shadow side (lower right) of each shape
+        edge = np.zeros((h, w), bool)
+        edge[:-1, :] |= ~alpha[1:, :]
+        edge[:, :-1] |= ~alpha[:, 1:]
+        edge[-1, :] = True
+        edge &= alpha & (ndl < 0.35)
+        for mi, mat in enumerate(self.mats):
+            if mat.emit:
+                edge &= self.mat != mi
+        idx = np.where(edge, idx + 1, idx)
         # cast shadows: something in front and up-left of this pixel
         if shadow:
             sh = np.zeros((h, w), bool)

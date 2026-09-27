@@ -55,15 +55,15 @@ def build(spec, t):
         hx_, hy_ = bx - rx * 0.15, by - ry * 0.75 - hry * 0.45
     else:
         hx_, hy_ = bx - rx * 0.75, by - ry * 0.85 - hry * 0.2
-    hx_ += s.get("head_dx", 0)
-    hy_ += s.get("head_dy", 0)
+    hx_ += s.get("head_dx", 0) + ([0, -1, -1, 0][t] if not fly else 0)
+    hy_ += s.get("head_dy", 0) + ([0, 0, 1, 1][t] if not fly else 0)
     a = dict(bx=bx, by=by, rx=rx, ry=ry, hx=hx_, hy=hy_, hrx=hrx, hry=hry, G=G, t=t)
     for fn in s["pre"]:
         fn(c, a, t, mats)
 
     # ---- tail feathers (behind)
     tg = c.group()
-    ta = math.radians(180 + 20 + tilt * 0.5 - s["tail_up"] * 40)
+    ta = math.radians(180 + 20 + tilt * 0.5 - s["tail_up"] * 40 + [0, 4, 7, 3][t])
     tbx, tby = bx + rx * 0.7, by + ry * 0.35
     for k in range(s["tail_n"]):
         spread = (k - (s["tail_n"] - 1) / 2) * 0.12

@@ -215,26 +215,36 @@ def runemote(t):
     c = Canvas(128, 128, seed=87)
     bob = [0, -2, -3, -1][t]
     x, y = 64, 60 + bob
-    stone = M("#a89a88", tex="grain", tex_amp=0.9)
+    stone = M("#b0a490", tex="grain", tex_amp=0.9)
+    moss = M("#6a8a40", tex="fur", tex_amp=0.6)
     glowc = [hx(p) for p in PRISM]
-    # a chip of ruin wall
-    c.poly([(x - 18, y - 10), (x - 6, y - 20), (x + 16, y - 14), (x + 20, y + 6), (x + 4, y + 18), (x - 16, y + 12)],
-           stone, z=0, bevel=4, th=8)
-    ring = Mat(["#6a3aa0", "#9a5ad0", "#c890f0", "#ecd0ff", "#ffffff"], emit=True)
+    hue = glowc[(t + 3) % 5]
+    rune = Mat([mix(hue, (0, 0, 0), 0.5), hue, mix(hue, (255, 255, 255), 0.35), mix(hue, (255, 255, 255), 0.7),
+                (255, 255, 255)], emit=True)
+    # a chip of ruin wall, drifting and slowly turning
+    tilt = [0, 2, 4, 2][t]
+    pts = [(x - 20, y - 8 + tilt * 0.3), (x - 6, y - 22), (x + 16, y - 16), (x + 22, y + 4), (x + 6, y + 20),
+           (x - 18, y + 14 - tilt * 0.3)]
+    c.poly(pts, stone, z=0, bevel=5, th=9)
+    c.ell(x + 10, y - 16, 9, 4, moss, z=10, tuft=8, tuft_len=1.5)
+    # the carved word, glowing through the stone
+    for (x0, y0, x1, y1) in ((x - 2, y - 12, x - 2, y + 10), (x - 2, y - 8, x + 8, y - 2), (x - 2, y + 1, x - 10, y + 7),
+                             (x + 8, y - 2, x + 8, y + 8)):
+        c.cap(x0, y0, 1.6, x1, y1, 1.6, rune, z=10)
 
     def ink(cc):
-        rune_glyph(cc, x, y - 1, t // 2, glowc[(t * 2) % 5])
-        rune_glyph(cc, x + 1, y - 1, t // 2, (255, 255, 255))
-        peye(cc, x - 9, y - 6, 2.4, 2.6, iris=glowc[4], pw=0.7, ph=0.7)
-        peye(cc, x + 8, y - 6, 2.4, 2.6, iris=glowc[4], pw=0.7, ph=0.7)
+        peye(cc, x - 11, y - 8, 2.4, 2.8, iris=hue, pw=0.7, ph=0.7)
+        peye(cc, x + 14, y - 8, 2.4, 2.8, iris=hue, pw=0.7, ph=0.7)
     c.ink(ink)
 
     def hum(cc):
-        for k in range(40):
-            ang = math.radians(k * 9 + t * 20)
-            px, py = x + math.cos(ang) * 30, y + math.sin(ang) * 30
+        for k in range(48):
+            ang = math.radians(k * 7.5 + t * 22)
+            px, py = x + math.cos(ang) * 32, y + math.sin(ang) * 26
             if k % 4 < 2 and not cc.alpha[int(py), int(px)]:
-                cc.put(px, py, glowc[k % 5])
+                cc.put(px, py, glowc[(k // 4) % 5])
+        for k in range(3):
+            sparkle(cc, x - 30 + k * 30, y - 34 + (k + t) % 3 * 3, hue, 1 if k == t % 3 else 0)
     c.fx(hum)
     return c
 
@@ -327,7 +337,7 @@ def stardrop(t):
     # glowing cracks
     c.pattern(lambda xx, yy: ((abs((xx - x) * 0.8 + (yy - y) * 0.3) < 1.2) | (abs((yy - y) - (xx - x) * 0.9 + 4) < 1.0))
               & (((xx - x) ** 2 + (yy - y) ** 2) < 300), 0, where=[rock])
-    c.ell(x - 1, y - 1, 5 + bob, 5 + bob, glowm, z=4, decal=True)
+    c.ell(x - 1, y + 6, 3 + (t % 2), 2, glowm, z=4, decal=True)
     c.ink(lambda cc: [peye(cc, x - 6, y - 4, 2.6, 3.0, iris=(40, 40, 120), pw=0.8, ph=0.8, angry=0.5),
                       peye(cc, x + 5, y - 4, 2.6, 3.0, iris=(40, 40, 120), pw=0.8, ph=0.8, angry=0.5)])
     sparks((230, 236, 255), 5, seed=90)(c, {}, t, None)
