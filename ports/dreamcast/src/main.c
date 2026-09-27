@@ -1546,40 +1546,40 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_rook, PORT_ROOK_W, PORT_ROOK_H }, /* 62 PLACEHOLDER_ART */
     { port_mallory, PORT_MALLORY_W, PORT_MALLORY_H }, /* 63 PLACEHOLDER_ART */
     { port_silas, PORT_SILAS_W, PORT_SILAS_H }, /* 64 PLACEHOLDER_ART */
-    /* Townsfolk: several named speakers share one archetype portrait
-       (content/sprites.json portraitAlias), not another character's art. */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 65 crier PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 66 tam PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 67 lina PLACEHOLDER_ART */
-    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 68 rolo PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 69 juno PLACEHOLDER_ART */
+    /* Townsfolk: named speakers have their own portraits
+       (tools/pixelforge/people.py); the bare archetypes stay generic. */
+    { port_crier, PORT_CRIER_W, PORT_CRIER_H }, /* 65 crier */
+    { port_tam, PORT_TAM_W, PORT_TAM_H }, /* 66 tam */
+    { port_lina, PORT_LINA_W, PORT_LINA_H }, /* 67 lina */
+    { port_rolo, PORT_ROLO_W, PORT_ROLO_H }, /* 68 rolo */
+    { port_juno, PORT_JUNO_W, PORT_JUNO_H }, /* 69 juno */
     { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 70 townsman PLACEHOLDER_ART */
     { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 71 townswoman PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 72 bet PLACEHOLDER_ART */
-    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 73 pip PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 74 cobb PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 75 sera PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 76 dunn PLACEHOLDER_ART */
-    { port_bandit, PORT_BANDIT_W, PORT_BANDIT_H }, /* 77 garrow PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 78 hesse PLACEHOLDER_ART */
-    { port_child, PORT_CHILD_W, PORT_CHILD_H }, /* 79 tilly PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 80 voss PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 81 lune PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 82 holt PLACEHOLDER_ART */
-    { port_bandit, PORT_BANDIT_W, PORT_BANDIT_H }, /* 83 kael PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 84 anselm PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 85 iona PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 86 rhee PLACEHOLDER_ART */
+    { port_bet, PORT_BET_W, PORT_BET_H }, /* 72 bet */
+    { port_pip, PORT_PIP_W, PORT_PIP_H }, /* 73 pip */
+    { port_cobb, PORT_COBB_W, PORT_COBB_H }, /* 74 cobb */
+    { port_sera, PORT_SERA_W, PORT_SERA_H }, /* 75 sera */
+    { port_dunn, PORT_DUNN_W, PORT_DUNN_H }, /* 76 dunn */
+    { port_garrow, PORT_GARROW_W, PORT_GARROW_H }, /* 77 garrow */
+    { port_hesse, PORT_HESSE_W, PORT_HESSE_H }, /* 78 hesse */
+    { port_tilly, PORT_TILLY_W, PORT_TILLY_H }, /* 79 tilly */
+    { port_voss, PORT_VOSS_W, PORT_VOSS_H }, /* 80 voss */
+    { port_lune, PORT_LUNE_W, PORT_LUNE_H }, /* 81 lune */
+    { port_holt, PORT_HOLT_W, PORT_HOLT_H }, /* 82 holt */
+    { port_kael, PORT_KAEL_W, PORT_KAEL_H }, /* 83 kael */
+    { port_anselm, PORT_ANSELM_W, PORT_ANSELM_H }, /* 84 anselm */
+    { port_iona, PORT_IONA_W, PORT_IONA_H }, /* 85 iona */
+    { port_rhee, PORT_RHEE_W, PORT_RHEE_H }, /* 86 rhee */
     { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 87 elder PLACEHOLDER_ART */
-    /* 88-95: Ruins / Reach house interiors, archetype portraits again. */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 88 wyn PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 89 lark PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 90 hollis PLACEHOLDER_ART */
-    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 91 quill PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 92 brann PLACEHOLDER_ART */
-    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 93 osk PLACEHOLDER_ART */
-    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 94 ilse PLACEHOLDER_ART */
-    { port_ghost, PORT_GHOST_W, PORT_GHOST_H }, /* 95 maren PLACEHOLDER_ART */
+    /* 88-95: Ruins / Reach house interiors. */
+    { port_wyn, PORT_WYN_W, PORT_WYN_H }, /* 88 wyn */
+    { port_lark, PORT_LARK_W, PORT_LARK_H }, /* 89 lark */
+    { port_hollis, PORT_HOLLIS_W, PORT_HOLLIS_H }, /* 90 hollis */
+    { port_quill, PORT_QUILL_W, PORT_QUILL_H }, /* 91 quill */
+    { port_brann, PORT_BRANN_W, PORT_BRANN_H }, /* 92 brann */
+    { port_osk, PORT_OSK_W, PORT_OSK_H }, /* 93 osk */
+    { port_ilse, PORT_ILSE_W, PORT_ILSE_H }, /* 94 ilse */
+    { port_maren, PORT_MAREN_W, PORT_MAREN_H }, /* 95 maren */
 };
 
 #include "content_talk.inc"

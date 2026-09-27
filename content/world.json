@@ -6151,7 +6151,7 @@
       "mark": "j",
       "id": "crier",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/crier",
       "talk": "crierNews",
       "script": [
         {
@@ -6217,7 +6217,7 @@
       "mark": "l",
       "id": "tam",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/tam",
       "talk": "tamAsk",
       "script": [
         {
@@ -6246,7 +6246,7 @@
       "mark": "j",
       "id": "roloLost",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/rolo",
       "talk": "roloFound",
       "script": [
         {
@@ -6263,7 +6263,7 @@
       "mark": "o",
       "id": "roloHome",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/rolo",
       "talk": "roloHome",
       "script": [
         {
@@ -6279,7 +6279,7 @@
       "mark": "n",
       "id": "lina",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/lina",
       "talk": "linaAsk",
       "script": [
         {
@@ -6309,7 +6309,7 @@
       "mark": "p",
       "id": "juno",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/juno",
       "talk": "junoAsk",
       "script": [
         {
@@ -6340,7 +6340,7 @@
       "mark": "p",
       "id": "pipLost",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/pip",
       "talk": "pipFound",
       "script": [
         {
@@ -6357,7 +6357,7 @@
       "mark": "l",
       "id": "pipHome",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/pip",
       "talk": "pipHome",
       "script": [
         {
@@ -6373,7 +6373,7 @@
       "mark": "j",
       "id": "bet",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/bet",
       "talk": "betAsk",
       "script": [
         {
@@ -6403,7 +6403,7 @@
       "mark": "j",
       "id": "cobb",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/cobb",
       "talk": "cobbAsk",
       "script": [
         {
@@ -6457,7 +6457,7 @@
       "mark": "j",
       "id": "sera",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/sera",
       "talk": "seraAsk",
       "script": [
         {
@@ -6486,7 +6486,7 @@
       "mark": "o",
       "id": "garrow",
       "role": "talk",
-      "sprite": "npc/bandit",
+      "sprite": "npc/garrow",
       "talk": "garrowSpot",
       "script": [
         {
@@ -6504,7 +6504,7 @@
       "mark": "j",
       "id": "dunn",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/dunn",
       "talk": "dunnAsk",
       "script": [
         {
@@ -6542,7 +6542,7 @@
       "mark": "p",
       "id": "tillyLost",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/tilly",
       "talk": "tillyFound",
       "script": [
         {
@@ -6559,7 +6559,7 @@
       "mark": "l",
       "id": "tillyHome",
       "role": "talk",
-      "sprite": "npc/child",
+      "sprite": "npc/tilly",
       "talk": "tillyHome",
       "script": [
         {
@@ -6575,7 +6575,7 @@
       "mark": "j",
       "id": "hesse",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/hesse",
       "talk": "hesseAsk",
       "script": [
         {
@@ -6605,7 +6605,7 @@
       "mark": "j",
       "id": "voss",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/voss",
       "talk": "vossAsk",
       "script": [
         {
@@ -6659,7 +6659,7 @@
       "mark": "j",
       "id": "lune",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/lune",
       "talk": "luneAsk",
       "script": [
         {
@@ -6688,7 +6688,7 @@
       "mark": "o",
       "id": "kael",
       "role": "talk",
-      "sprite": "npc/bandit",
+      "sprite": "npc/kael",
       "talk": "kaelSpot",
       "script": [
         {
@@ -6706,7 +6706,7 @@
       "mark": "j",
       "id": "holt",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/holt",
       "talk": "holtAsk",
       "script": [
         {
@@ -6744,7 +6744,7 @@
       "mark": "p",
       "id": "ionaLost",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/iona",
       "talk": "ionaFound",
       "script": [
         {
@@ -6761,7 +6761,7 @@
       "mark": "l",
       "id": "ionaHome",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/iona",
       "talk": "ionaHome",
       "script": [
         {
@@ -6777,7 +6777,7 @@
       "mark": "j",
       "id": "anselm",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/anselm",
       "talk": "anselmAsk",
       "script": [
         {
@@ -6811,7 +6811,7 @@
       "mark": "j",
       "id": "rhee",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/rhee",
       "talk": "rheeAsk",
       "script": [
         {
@@ -7052,7 +7052,7 @@
       "mark": "x",
       "id": "wyn",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/wyn",
       "talk": "wynFirst",
       "script": [
         {
@@ -7150,7 +7150,7 @@
       "mark": "z",
       "id": "lark",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/lark",
       "talk": "larkLore",
       "script": [
         {
@@ -7167,7 +7167,7 @@
       "mark": "x",
       "id": "hollis",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/hollis",
       "talk": "hollisRest",
       "script": [
         {
@@ -7181,7 +7181,7 @@
       "mark": "z",
       "id": "quill",
       "role": "talk",
-      "sprite": "npc/townsman",
+      "sprite": "npc/quill",
       "talk": "quillReach",
       "script": [
         {
@@ -7234,7 +7234,7 @@
       "mark": "x",
       "id": "brann",
       "role": "talk",
-      "sprite": "npc/elder",
+      "sprite": "npc/brann",
       "talk": "brannAsk",
       "script": [
         {
@@ -7273,7 +7273,7 @@
       "mark": "x",
       "id": "osk",
       "role": "trainer",
-      "sprite": "npc/elder",
+      "sprite": "npc/osk",
       "talk": "oskOne",
       "script": [
         {
@@ -7313,7 +7313,7 @@
       "mark": "x",
       "id": "ilse",
       "role": "talk",
-      "sprite": "npc/townswoman",
+      "sprite": "npc/ilse",
       "talk": "ilseLore",
       "script": [
         {
@@ -7350,7 +7350,7 @@
       "mark": "x",
       "id": "maren",
       "role": "talk",
-      "sprite": "ghost",
+      "sprite": "npc/maren",
       "talk": "marenAsk",
       "script": [
         {
