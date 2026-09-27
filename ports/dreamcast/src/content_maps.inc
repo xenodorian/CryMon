@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=d84e33771af370d9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=83a338a4dbfb5957 — do not edit. python3 tools/bake_content.py */
 
 #define MAP_HOUSE 0
 #define MAP_VELD 1
@@ -50,7 +50,17 @@
 #define MAP_GIMEL 47
 #define MAP_ALEPH 48
 #define MAP_BETH 49
-#define MAP_N 50
+#define MAP_BASEMALKUTH 50
+#define MAP_BASEYESOD 51
+#define MAP_BASENETZACH 52
+#define MAP_BASEHOD 53
+#define MAP_BASETIFERET 54
+#define MAP_BASECHESED 55
+#define MAP_BASEGEVURAH 56
+#define MAP_BASEBINAH 57
+#define MAP_BASECHOKMAH 58
+#define MAP_PALACEKETER 59
+#define MAP_N 60
 
 static const char *const map_house_rows[] = {
     "HHHHHHHHHHHHHH",
@@ -529,9 +539,9 @@ static const char *const map_malkuth_rows[] = {
     "####D##O###G####",
     "#..............#",
     "#..............#",
-    "#..............#",
-    "#..............#",
-    "#..............#",
+    "#....rrrrrr....#",
+    "#....rrrrrr....#",
+    "#....HHbHHH....#",
     "#..............#",
     "#..............#",
     "#..............#",
@@ -571,9 +581,9 @@ static const char *const map_yesod_rows[] = {
     "#######O########",
     "#..............#",
     "#..............#",
-    "#..............#",
-    "#..............#",
-    "D..............Z",
+    "#....rrrrrr....#",
+    "#....rrrrrr....#",
+    "D....HHbHHH....Z",
     "#..............#",
     "#..............#",
     "#..............#",
@@ -606,9 +616,9 @@ static const char *const map_netzach_rows[] = {
     "#######D########",
     "#..............#",
     "#..............#",
-    "O..............#",
-    "#..............#",
-    "G..............#",
+    "O....rrrrrr....#",
+    "#....rrrrrr....#",
+    "G....HHbHHH....#",
     "#..............#",
     "#..............#",
     "P..............#",
@@ -650,9 +660,9 @@ static const char *const map_hod_rows[] = {
     "#######O########",
     "#..............#",
     "#..............#",
-    "#..............D",
-    "#..............#",
-    "#..............G",
+    "#....rrrrrr....D",
+    "#....rrrrrr....#",
+    "#....HHbHHH....G",
     "#..............#",
     "#..............#",
     "#..............Z",
@@ -724,9 +734,9 @@ static const char *const map_tiferet_rows[] = {
     "####G##Z###P####",
     "#..............#",
     "#..............#",
-    "#..............#",
-    "L..............D",
-    "#..............#",
+    "#....rrrrrr....#",
+    "L....rrrrrr....D",
+    "#....HHbHHH....#",
     "#..............#",
     "J..............O",
     "#..............#",
@@ -824,9 +834,9 @@ static const char *const map_chesed_rows[] = {
     "#######G########",
     "#..............#",
     "#..............#",
-    "#..............#",
-    "O..............#",
-    "#..............#",
+    "#....rrrrrr....#",
+    "O....rrrrrr....#",
+    "#....HHbHHH....#",
     "#..............#",
     "Z..............#",
     "#..............#",
@@ -874,9 +884,9 @@ static const char *const map_gevurah_rows[] = {
     "#######G########",
     "#..............#",
     "#..............#",
-    "#..............#",
-    "#..............D",
-    "#..............#",
+    "#....rrrrrr....#",
+    "#....rrrrrr....D",
+    "#....HHbHHH....#",
     "#..............#",
     "#..............O",
     "#..............#",
@@ -938,9 +948,9 @@ static const char *const map_binah_rows[] = {
     "################",
     "#..............#",
     "#..............#",
-    "#..............#",
-    "#..............D",
-    "#..............#",
+    "#....rrrrrr....#",
+    "#....rrrrrr....D",
+    "#....HHbHHH....#",
     "#..............#",
     "#..............O",
     "#..............#",
@@ -1005,9 +1015,9 @@ static const char *const map_chokmah_rows[] = {
     "################",
     "#..............#",
     "#..............#",
-    "#..............#",
-    "D..............#",
-    "#..............#",
+    "#....rrrrrr....#",
+    "D....rrrrrr....#",
+    "#....HHbHHH....#",
     "#..............#",
     "O..............#",
     "#..............#",
@@ -1085,9 +1095,9 @@ static const char *const map_keter_rows[] = {
     "################",
     "#..............#",
     "#..............#",
-    "#..............#",
-    "#..............#",
-    "O..............D",
+    "#....rrrrrr....#",
+    "#....rrrrrr....#",
+    "O....HHbHHH....D",
     "#..............#",
     "#..............#",
     "#..............#",
@@ -1177,6 +1187,196 @@ static const char *const map_beth_rows[] = {
     "################################",
 };
 
+static const char *const map_basemalkuth_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_baseyesod_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_basenetzach_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_basehod_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_basetiferet_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_basechesed_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_basegevurah_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_basebinah_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_basechokmah_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
+static const char *const map_palaceketer_rows[] = {
+    "HHHHHHHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFaFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHFFFHHHH",
+    "HHHHHFHHHHH",
+    "HHHHHtHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHFHHHHH",
+    "HHHHHsHHHHH",
+    "HHHHHFHHHHH",
+    "HFFFFFFFFFH",
+    "HFFFFFFFFFH",
+    "HHHHHDHHHHH",
+};
+
 static const Map MAPS[MAP_N] = {
     { map_house_rows, 14, 11 },
     { map_veld_rows, 31, 23 },
@@ -1228,10 +1428,20 @@ static const Map MAPS[MAP_N] = {
     { map_gimel_rows, 7, 36 },
     { map_aleph_rows, 32, 18 },
     { map_beth_rows, 32, 18 },
+    { map_basemalkuth_rows, 11, 16 },
+    { map_baseyesod_rows, 11, 16 },
+    { map_basenetzach_rows, 11, 16 },
+    { map_basehod_rows, 11, 16 },
+    { map_basetiferet_rows, 11, 16 },
+    { map_basechesed_rows, 11, 16 },
+    { map_basegevurah_rows, 11, 16 },
+    { map_basebinah_rows, 11, 16 },
+    { map_basechokmah_rows, 11, 16 },
+    { map_palaceketer_rows, 11, 16 },
 };
 
 static const char *const MAP_DISPLAY_NAME[MAP_N] = {
-    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH",
+    "HOME", "CRYTOWN", "THE FOREST", "THE PRISON", "THE CAMP", "THE CLIFFS", "THE RUINS", "THE REACH", "THE MARSH", "THE QUARRY", "GAUNTLET 1", "GAUNTLET 1", "GAUNTLET 2", "GAUNTLET 3", "GAUNTLET 4", "GAUNTLET 5", "THE GRAVE", "MALKUTH", "THE WEEPING ROAD", "YESOD", "PATH OF TAU", "NETZACH", "PATH OF QOPH", "HOD", "PATH OF SHIN", "PATH OF PEH", "PATH OF RESH", "PATH OF TZADDI", "TIFERET", "PATH OF SAMEKH", "PATH OF NUN", "PATH OF AYIN", "CHESED", "PATH OF KAPH", "PATH OF YOD", "GEVURAH", "PATH OF MEM", "PATH OF LAMED", "PATH OF TETH", "BINAH", "PATH OF ZAYIN", "PATH OF HETH", "CHOKMAH", "PATH OF HE", "PATH OF VAU", "PATH OF DALETH", "KETER", "PATH OF GIMEL", "PATH OF ALEPH", "PATH OF BETH", "MALKUTH BASE", "YESOD BASE", "NETZACH BASE", "HOD BASE", "TIFERET BASE", "CHESED BASE", "GEVURAH BASE", "BINAH BASE", "CHOKMAH BASE", "NERO'S PALACE",
 };
 
 static const char *const SOLID_TILES = "#HWRBC^NrU%k";

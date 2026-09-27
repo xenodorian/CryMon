@@ -56,6 +56,19 @@ SPEAKER = {
     "lead": 35,
     "system": 36,
     "heavenfallPriestess": 37,
+    # Leg 3 (no Dreamcast portraits yet: PLACEHOLDER_ART, name-only lines)
+    "weepingGuard": 38,
+    "royalGuard": 39,
+    "nero": 40,
+    "harrow": 41,
+    "ashgrove": 42,
+    "stroud": 43,
+    "vale": 44,
+    "kessler": 45,
+    "morrow": 46,
+    "crane": 47,
+    "blackwood": 48,
+    "sorrel": 49,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol

@@ -1080,6 +1080,576 @@
           "hideIf": "sawShinigamiRock"
         }
       ]
+    },
+    {
+      "map": "basemalkuth",
+      "mark": "s",
+      "id": "baseMalkuthA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseMalkuthA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseMalkuthA"
+        }
+      ]
+    },
+    {
+      "map": "basemalkuth",
+      "mark": "t",
+      "id": "baseMalkuthB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseMalkuthB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseMalkuthB"
+        }
+      ]
+    },
+    {
+      "map": "basemalkuth",
+      "mark": "a",
+      "id": "generalHarrow",
+      "role": "trainer",
+      "sprite": "npc/harrow",
+      "talk": "harrowSpot",
+      "talkDone": "harrowWin",
+      "script": [
+        {
+          "hideIf": "medalBronzeStar"
+        },
+        {
+          "talk": "harrowSpot",
+          "after": "wsoldier",
+          "pending": "generalHarrow"
+        }
+      ]
+    },
+    {
+      "map": "baseyesod",
+      "mark": "s",
+      "id": "baseYesodA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseYesodA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseYesodA"
+        }
+      ]
+    },
+    {
+      "map": "baseyesod",
+      "mark": "t",
+      "id": "baseYesodB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseYesodB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseYesodB"
+        }
+      ]
+    },
+    {
+      "map": "baseyesod",
+      "mark": "a",
+      "id": "generalAshgrove",
+      "role": "trainer",
+      "sprite": "npc/ashgrove",
+      "talk": "ashgroveSpot",
+      "talkDone": "ashgroveWin",
+      "script": [
+        {
+          "hideIf": "medalPurpleHeart"
+        },
+        {
+          "talk": "ashgroveSpot",
+          "after": "wsoldier",
+          "pending": "generalAshgrove"
+        }
+      ]
+    },
+    {
+      "map": "basenetzach",
+      "mark": "s",
+      "id": "baseNetzachA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseNetzachA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseNetzachA"
+        }
+      ]
+    },
+    {
+      "map": "basenetzach",
+      "mark": "t",
+      "id": "baseNetzachB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseNetzachB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseNetzachB"
+        }
+      ]
+    },
+    {
+      "map": "basenetzach",
+      "mark": "a",
+      "id": "generalStroud",
+      "role": "trainer",
+      "sprite": "npc/stroud",
+      "talk": "stroudSpot",
+      "talkDone": "stroudWin",
+      "script": [
+        {
+          "hideIf": "medalPowMedal"
+        },
+        {
+          "talk": "stroudSpot",
+          "after": "wsoldier",
+          "pending": "generalStroud"
+        }
+      ]
+    },
+    {
+      "map": "basehod",
+      "mark": "s",
+      "id": "baseHodA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseHodA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseHodA"
+        }
+      ]
+    },
+    {
+      "map": "basehod",
+      "mark": "t",
+      "id": "baseHodB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseHodB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseHodB"
+        }
+      ]
+    },
+    {
+      "map": "basehod",
+      "mark": "a",
+      "id": "generalVale",
+      "role": "trainer",
+      "sprite": "npc/vale",
+      "talk": "valeSpot",
+      "talkDone": "valeWin",
+      "script": [
+        {
+          "hideIf": "medalSilverStar"
+        },
+        {
+          "talk": "valeSpot",
+          "after": "wsoldier",
+          "pending": "generalVale"
+        }
+      ]
+    },
+    {
+      "map": "basetiferet",
+      "mark": "s",
+      "id": "baseTiferetA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseTiferetA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseTiferetA"
+        }
+      ]
+    },
+    {
+      "map": "basetiferet",
+      "mark": "t",
+      "id": "baseTiferetB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseTiferetB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseTiferetB"
+        }
+      ]
+    },
+    {
+      "map": "basetiferet",
+      "mark": "a",
+      "id": "generalKessler",
+      "role": "trainer",
+      "sprite": "npc/kessler",
+      "talk": "kesslerSpot",
+      "talkDone": "kesslerWin",
+      "script": [
+        {
+          "hideIf": "medalGoldStar"
+        },
+        {
+          "talk": "kesslerSpot",
+          "after": "wsoldier",
+          "pending": "generalKessler"
+        }
+      ]
+    },
+    {
+      "map": "basechesed",
+      "mark": "s",
+      "id": "baseChesedA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseChesedA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseChesedA"
+        }
+      ]
+    },
+    {
+      "map": "basechesed",
+      "mark": "t",
+      "id": "baseChesedB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseChesedB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseChesedB"
+        }
+      ]
+    },
+    {
+      "map": "basechesed",
+      "mark": "a",
+      "id": "generalMorrow",
+      "role": "trainer",
+      "sprite": "npc/morrow",
+      "talk": "morrowSpot",
+      "talkDone": "morrowWin",
+      "script": [
+        {
+          "hideIf": "medalLegionOfMerit"
+        },
+        {
+          "talk": "morrowSpot",
+          "after": "wsoldier",
+          "pending": "generalMorrow"
+        }
+      ]
+    },
+    {
+      "map": "basegevurah",
+      "mark": "s",
+      "id": "baseGevurahA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseGevurahA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseGevurahA"
+        }
+      ]
+    },
+    {
+      "map": "basegevurah",
+      "mark": "t",
+      "id": "baseGevurahB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseGevurahB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseGevurahB"
+        }
+      ]
+    },
+    {
+      "map": "basegevurah",
+      "mark": "a",
+      "id": "generalCrane",
+      "role": "trainer",
+      "sprite": "npc/crane",
+      "talk": "craneSpot",
+      "talkDone": "craneWin",
+      "script": [
+        {
+          "hideIf": "medalFlyingCross"
+        },
+        {
+          "talk": "craneSpot",
+          "after": "wsoldier",
+          "pending": "generalCrane"
+        }
+      ]
+    },
+    {
+      "map": "basebinah",
+      "mark": "s",
+      "id": "baseBinahA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseBinahA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseBinahA"
+        }
+      ]
+    },
+    {
+      "map": "basebinah",
+      "mark": "t",
+      "id": "baseBinahB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseBinahB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseBinahB"
+        }
+      ]
+    },
+    {
+      "map": "basebinah",
+      "mark": "a",
+      "id": "generalBlackwood",
+      "role": "trainer",
+      "sprite": "npc/blackwood",
+      "talk": "blackwoodSpot",
+      "talkDone": "blackwoodWin",
+      "script": [
+        {
+          "hideIf": "medalServiceCross"
+        },
+        {
+          "talk": "blackwoodSpot",
+          "after": "wsoldier",
+          "pending": "generalBlackwood"
+        }
+      ]
+    },
+    {
+      "map": "basechokmah",
+      "mark": "s",
+      "id": "baseChokmahA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseChokmahA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseChokmahA"
+        }
+      ]
+    },
+    {
+      "map": "basechokmah",
+      "mark": "t",
+      "id": "baseChokmahB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseChokmahB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseChokmahB"
+        }
+      ]
+    },
+    {
+      "map": "basechokmah",
+      "mark": "a",
+      "id": "generalSorrel",
+      "role": "trainer",
+      "sprite": "npc/sorrel",
+      "talk": "sorrelSpot",
+      "talkDone": "sorrelWin",
+      "script": [
+        {
+          "hideIf": "medalOfHonor"
+        },
+        {
+          "talk": "sorrelSpot",
+          "after": "wsoldier",
+          "pending": "generalSorrel"
+        }
+      ]
+    },
+    {
+      "map": "palaceketer",
+      "mark": "s",
+      "id": "palaceGuardA",
+      "role": "trainer",
+      "sprite": "npc/royalGuard",
+      "talk": "royalGuardSpotA",
+      "talkDone": "royalGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatPalaceGuardA"
+        },
+        {
+          "talk": "royalGuardSpotA",
+          "after": "wsoldier",
+          "pending": "palaceGuardA"
+        }
+      ]
+    },
+    {
+      "map": "palaceketer",
+      "mark": "t",
+      "id": "palaceGuardB",
+      "role": "trainer",
+      "sprite": "npc/royalGuard",
+      "talk": "royalGuardSpotB",
+      "talkDone": "royalGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatPalaceGuardB"
+        },
+        {
+          "talk": "royalGuardSpotB",
+          "after": "wsoldier",
+          "pending": "palaceGuardB"
+        }
+      ]
+    },
+    {
+      "map": "palaceketer",
+      "mark": "a",
+      "id": "nero",
+      "role": "trainer",
+      "sprite": "npc/nero",
+      "talk": "neroSpot",
+      "talkDone": "neroWin",
+      "script": [
+        {
+          "hideIf": "beatNero"
+        },
+        {
+          "talk": "neroSpot",
+          "after": "wsoldier",
+          "pending": "nero"
+        }
+      ]
     }
   ]
 }

@@ -19,7 +19,9 @@
     "clearmind",
     "numbroot",
     "panacea",
-    "bowieKnife"
+    "bowieKnife",
+    "shackles",
+    "goldenShackles"
   ],
   "defs": {
     "gem": {
@@ -272,6 +274,24 @@
       "battle": false,
       "field": false,
       "buy": 60,
+      "sell": 0
+    },
+    "shackles": {
+      "id": "shackles",
+      "name": "Shackles",
+      "desc": "Iron cuffs. Beat a Weeping General with a pair in the bag and you can arrest them instead of killing them. One pair per arrest.",
+      "battle": false,
+      "field": false,
+      "buy": 40,
+      "sell": 20
+    },
+    "goldenShackles": {
+      "id": "goldenShackles",
+      "name": "Golden Shackles",
+      "desc": "Cuffs fit for a king. They open the palace in Keter.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
       "sell": 0
     }
   }

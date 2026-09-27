@@ -99,7 +99,17 @@
     "keter": "KETER",
     "gimel": "PATH OF GIMEL",
     "aleph": "PATH OF ALEPH",
-    "beth": "PATH OF BETH"
+    "beth": "PATH OF BETH",
+    "basemalkuth": "MALKUTH BASE",
+    "baseyesod": "YESOD BASE",
+    "basenetzach": "NETZACH BASE",
+    "basehod": "HOD BASE",
+    "basetiferet": "TIFERET BASE",
+    "basechesed": "CHESED BASE",
+    "basegevurah": "GEVURAH BASE",
+    "basebinah": "BINAH BASE",
+    "basechokmah": "CHOKMAH BASE",
+    "palaceketer": "NERO'S PALACE"
   },
   "mapIds": [
     "house",
@@ -151,7 +161,17 @@
     "keter",
     "gimel",
     "aleph",
-    "beth"
+    "beth",
+    "basemalkuth",
+    "baseyesod",
+    "basenetzach",
+    "basehod",
+    "basetiferet",
+    "basechesed",
+    "basegevurah",
+    "basebinah",
+    "basechokmah",
+    "palaceketer"
   ],
   "encounters": [
     {
@@ -1695,6 +1715,184 @@
       "spawn": "2",
       "dir": "right",
       "ox": 40
+    },
+    {
+      "from": "malkuth",
+      "tile": "b",
+      "to": "basemalkuth",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "basemalkuth",
+      "tile": "D",
+      "to": "malkuth",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "yesod",
+      "tile": "b",
+      "to": "baseyesod",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalBronzeStar",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "baseyesod",
+      "tile": "D",
+      "to": "yesod",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "netzach",
+      "tile": "b",
+      "to": "basenetzach",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalPurpleHeart",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basenetzach",
+      "tile": "D",
+      "to": "netzach",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "hod",
+      "tile": "b",
+      "to": "basehod",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalPowMedal",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basehod",
+      "tile": "D",
+      "to": "hod",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "tiferet",
+      "tile": "b",
+      "to": "basetiferet",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalSilverStar",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basetiferet",
+      "tile": "D",
+      "to": "tiferet",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "chesed",
+      "tile": "b",
+      "to": "basechesed",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalGoldStar",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basechesed",
+      "tile": "D",
+      "to": "chesed",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gevurah",
+      "tile": "b",
+      "to": "basegevurah",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalLegionOfMerit",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basegevurah",
+      "tile": "D",
+      "to": "gevurah",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "binah",
+      "tile": "b",
+      "to": "basebinah",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalFlyingCross",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basebinah",
+      "tile": "D",
+      "to": "binah",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "chokmah",
+      "tile": "b",
+      "to": "basechokmah",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalServiceCross",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basechokmah",
+      "tile": "D",
+      "to": "chokmah",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "keter",
+      "tile": "b",
+      "to": "palaceketer",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "hasGoldenShackles",
+      "failTalk": "palaceLocked"
+    },
+    {
+      "from": "palaceketer",
+      "tile": "D",
+      "to": "keter",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
     }
   ],
   "trainers": {
@@ -2072,6 +2270,561 @@
         20
       ],
       "bench": []
+    },
+    "baseMalkuthA": {
+      "lead": [
+        "sparkit",
+        19
+      ],
+      "bench": [],
+      "title": "Base Guard sends Sparkit",
+      "name": "Base Guard",
+      "marks": 14,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseMalkuthA",
+      "base": true
+    },
+    "baseMalkuthB": {
+      "lead": [
+        "pipsprout",
+        20
+      ],
+      "bench": [
+        [
+          "frostfry",
+          19
+        ]
+      ],
+      "title": "Base Guard sends Pipsprout",
+      "name": "Base Guard",
+      "marks": 14,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseMalkuthB",
+      "base": true
+    },
+    "generalHarrow": {
+      "lead": [
+        "tunneler",
+        22
+      ],
+      "bench": [
+        [
+          "dustmole",
+          20
+        ],
+        [
+          "rubblet",
+          20
+        ]
+      ],
+      "title": "General Harrow sends Tunneler",
+      "name": "General Harrow",
+      "marks": 30,
+      "winTalk": "harrowWin",
+      "set": "medalBronzeStar",
+      "general": true
+    },
+    "baseYesodA": {
+      "lead": [
+        "soottick",
+        22
+      ],
+      "bench": [],
+      "title": "Base Guard sends Soottick",
+      "name": "Base Guard",
+      "marks": 16,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseYesodA",
+      "base": true
+    },
+    "baseYesodB": {
+      "lead": [
+        "sparkfly",
+        23
+      ],
+      "bench": [
+        [
+          "dustmole",
+          22
+        ]
+      ],
+      "title": "Base Guard sends Sparkfly",
+      "name": "Base Guard",
+      "marks": 16,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseYesodB",
+      "base": true
+    },
+    "generalAshgrove": {
+      "lead": [
+        "arcwasp",
+        25
+      ],
+      "bench": [
+        [
+          "sparkfly",
+          23
+        ],
+        [
+          "boltlamb",
+          23
+        ]
+      ],
+      "title": "General Ashgrove sends Arcwasp",
+      "name": "General Ashgrove",
+      "marks": 35,
+      "winTalk": "ashgroveWin",
+      "set": "medalPurpleHeart",
+      "general": true
+    },
+    "baseNetzachA": {
+      "lead": [
+        "mooncalf",
+        25
+      ],
+      "bench": [],
+      "title": "Base Guard sends Mooncalf",
+      "name": "Base Guard",
+      "marks": 18,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseNetzachA",
+      "base": true
+    },
+    "baseNetzachB": {
+      "lead": [
+        "cardkin",
+        26
+      ],
+      "bench": [
+        [
+          "pipwren",
+          25
+        ]
+      ],
+      "title": "Base Guard sends Cardkin",
+      "name": "Base Guard",
+      "marks": 18,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseNetzachB",
+      "base": true
+    },
+    "generalStroud": {
+      "lead": [
+        "fateweaver",
+        28
+      ],
+      "bench": [
+        [
+          "cardkin",
+          26
+        ],
+        [
+          "twinklet",
+          26
+        ]
+      ],
+      "title": "General Stroud sends Fateweaver",
+      "name": "General Stroud",
+      "marks": 40,
+      "winTalk": "stroudWin",
+      "set": "medalPowMedal",
+      "general": true
+    },
+    "baseHodA": {
+      "lead": [
+        "snowbell",
+        28
+      ],
+      "bench": [],
+      "title": "Base Guard sends Snowbell",
+      "name": "Base Guard",
+      "marks": 20,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseHodA",
+      "base": true
+    },
+    "baseHodB": {
+      "lead": [
+        "tallowisp",
+        29
+      ],
+      "bench": [
+        [
+          "rubblet",
+          28
+        ]
+      ],
+      "title": "Base Guard sends Tallowisp",
+      "name": "Base Guard",
+      "marks": 20,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseHodB",
+      "base": true
+    },
+    "generalVale": {
+      "lead": [
+        "gloomspider",
+        31
+      ],
+      "bench": [
+        [
+          "tallowisp",
+          29
+        ],
+        [
+          "grimkid",
+          29
+        ]
+      ],
+      "title": "General Vale sends Gloomspider",
+      "name": "General Vale",
+      "marks": 45,
+      "winTalk": "valeWin",
+      "set": "medalSilverStar",
+      "general": true
+    },
+    "baseTiferetA": {
+      "lead": [
+        "dawnchick",
+        31
+      ],
+      "bench": [],
+      "title": "Base Guard sends Dawnchick",
+      "name": "Base Guard",
+      "marks": 22,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseTiferetA",
+      "base": true
+    },
+    "baseTiferetB": {
+      "lead": [
+        "motley",
+        32
+      ],
+      "bench": [
+        [
+          "reedfawn",
+          31
+        ]
+      ],
+      "title": "Base Guard sends Motley",
+      "name": "Base Guard",
+      "marks": 22,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseTiferetB",
+      "base": true
+    },
+    "generalKessler": {
+      "lead": [
+        "hornblaze",
+        34
+      ],
+      "bench": [
+        [
+          "scorchbeak",
+          32
+        ],
+        [
+          "blazelynx",
+          32
+        ]
+      ],
+      "title": "General Kessler sends Hornblaze",
+      "name": "General Kessler",
+      "marks": 50,
+      "winTalk": "kesslerWin",
+      "set": "medalGoldStar",
+      "general": true
+    },
+    "baseChesedA": {
+      "lead": [
+        "atlashell",
+        34
+      ],
+      "bench": [],
+      "title": "Base Guard sends Atlashell",
+      "name": "Base Guard",
+      "marks": 24,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseChesedA",
+      "base": true
+    },
+    "baseChesedB": {
+      "lead": [
+        "tidewolf",
+        35
+      ],
+      "bench": [
+        [
+          "rimecrab",
+          34
+        ]
+      ],
+      "title": "Base Guard sends Tidewolf",
+      "name": "Base Guard",
+      "marks": 24,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseChesedB",
+      "base": true
+    },
+    "generalMorrow": {
+      "lead": [
+        "floeclaw",
+        37
+      ],
+      "bench": [
+        [
+          "tidewolf",
+          35
+        ],
+        [
+          "icecantor",
+          35
+        ]
+      ],
+      "title": "General Morrow sends Floeclaw",
+      "name": "General Morrow",
+      "marks": 55,
+      "winTalk": "morrowWin",
+      "set": "medalLegionOfMerit",
+      "general": true
+    },
+    "baseGevurahA": {
+      "lead": [
+        "wheelhog",
+        37
+      ],
+      "bench": [],
+      "title": "Base Guard sends Wheelhog",
+      "name": "Base Guard",
+      "marks": 26,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseGevurahA",
+      "base": true
+    },
+    "baseGevurahB": {
+      "lead": [
+        "blazelynx",
+        38
+      ],
+      "bench": [
+        [
+          "floepike",
+          37
+        ]
+      ],
+      "title": "Base Guard sends Blazelynx",
+      "name": "Base Guard",
+      "marks": 26,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseGevurahB",
+      "base": true
+    },
+    "generalCrane": {
+      "lead": [
+        "grandroc",
+        40
+      ],
+      "bench": [
+        [
+          "kestrail",
+          38
+        ],
+        [
+          "magistowl",
+          38
+        ]
+      ],
+      "title": "General Crane sends Grandroc",
+      "name": "General Crane",
+      "marks": 60,
+      "winTalk": "craneWin",
+      "set": "medalFlyingCross",
+      "general": true
+    },
+    "baseBinahA": {
+      "lead": [
+        "geminal",
+        40
+      ],
+      "bench": [],
+      "title": "Base Guard sends Geminal",
+      "name": "Base Guard",
+      "marks": 28,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseBinahA",
+      "base": true
+    },
+    "baseBinahB": {
+      "lead": [
+        "floeclaw",
+        41
+      ],
+      "bench": [
+        [
+          "ashwing",
+          40
+        ]
+      ],
+      "title": "Base Guard sends Floeclaw",
+      "name": "Base Guard",
+      "marks": 28,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseBinahB",
+      "base": true
+    },
+    "generalBlackwood": {
+      "lead": [
+        "rootking",
+        43
+      ],
+      "bench": [
+        [
+          "bowstag",
+          41
+        ],
+        [
+          "gardenbull",
+          41
+        ]
+      ],
+      "title": "General Blackwood sends Rootking",
+      "name": "General Blackwood",
+      "marks": 65,
+      "winTalk": "blackwoodWin",
+      "set": "medalServiceCross",
+      "general": true
+    },
+    "baseChokmahA": {
+      "lead": [
+        "kestrail",
+        43
+      ],
+      "bench": [],
+      "title": "Base Guard sends Kestrail",
+      "name": "Base Guard",
+      "marks": 30,
+      "winTalk": "baseGuardWinA",
+      "set": "beatBaseChokmahA",
+      "base": true
+    },
+    "baseChokmahB": {
+      "lead": [
+        "glacierjaw",
+        44
+      ],
+      "bench": [
+        [
+          "pyrelion",
+          43
+        ]
+      ],
+      "title": "Base Guard sends Glacierjaw",
+      "name": "Base Guard",
+      "marks": 30,
+      "winTalk": "baseGuardWinB",
+      "set": "beatBaseChokmahB",
+      "base": true
+    },
+    "generalSorrel": {
+      "lead": [
+        "eclipsaur",
+        46
+      ],
+      "bench": [
+        [
+          "starwhale",
+          44
+        ],
+        [
+          "moonveil",
+          44
+        ]
+      ],
+      "title": "General Sorrel sends Eclipsaur",
+      "name": "General Sorrel",
+      "marks": 70,
+      "winTalk": "sorrelWin",
+      "set": "medalOfHonor",
+      "general": true
+    },
+    "palaceGuardA": {
+      "lead": [
+        "cragsage",
+        47
+      ],
+      "bench": [],
+      "title": "Royal Guard sends Cragsage",
+      "name": "Royal Guard",
+      "marks": 34,
+      "winTalk": "royalGuardWinA",
+      "set": "beatPalaceGuardA",
+      "base": true
+    },
+    "palaceGuardB": {
+      "lead": [
+        "magistowl",
+        48
+      ],
+      "bench": [
+        [
+          "baphorn",
+          47
+        ]
+      ],
+      "title": "Royal Guard sends Magistowl",
+      "name": "Royal Guard",
+      "marks": 36,
+      "winTalk": "royalGuardWinB",
+      "set": "beatPalaceGuardB",
+      "base": true
+    },
+    "nero": {
+      "lead": [
+        "deathknell",
+        50
+      ],
+      "bench": [
+        [
+          "frostchoir",
+          48
+        ],
+        [
+          "towerfall",
+          48
+        ],
+        [
+          "pyrelion",
+          48
+        ],
+        [
+          "thunderqueen",
+          48
+        ],
+        [
+          "arcanox",
+          48
+        ]
+      ],
+      "title": "Weeping King Nero sends Deathknell",
+      "name": "Weeping King Nero",
+      "marks": 80,
+      "winTalk": "neroWin",
+      "set": "beatNero",
+      "king": true
+    },
+    "heavenfallFinal": {
+      "lead": [
+        "heavenfall",
+        55
+      ],
+      "bench": [],
+      "title": "Heavenfall turns on you",
+      "name": "Heavenfall",
+      "marks": 0,
+      "winTalk": "hfEndGodslayer",
+      "set": "titleGodslayer",
+      "final": true
     }
   },
   "npcs": [
@@ -3153,6 +3906,576 @@
       "script": [
         {
           "hideIf": "sawShinigamiRock"
+        }
+      ]
+    },
+    {
+      "map": "basemalkuth",
+      "mark": "s",
+      "id": "baseMalkuthA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseMalkuthA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseMalkuthA"
+        }
+      ]
+    },
+    {
+      "map": "basemalkuth",
+      "mark": "t",
+      "id": "baseMalkuthB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseMalkuthB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseMalkuthB"
+        }
+      ]
+    },
+    {
+      "map": "basemalkuth",
+      "mark": "a",
+      "id": "generalHarrow",
+      "role": "trainer",
+      "sprite": "npc/harrow",
+      "talk": "harrowSpot",
+      "talkDone": "harrowWin",
+      "script": [
+        {
+          "hideIf": "medalBronzeStar"
+        },
+        {
+          "talk": "harrowSpot",
+          "after": "wsoldier",
+          "pending": "generalHarrow"
+        }
+      ]
+    },
+    {
+      "map": "baseyesod",
+      "mark": "s",
+      "id": "baseYesodA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseYesodA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseYesodA"
+        }
+      ]
+    },
+    {
+      "map": "baseyesod",
+      "mark": "t",
+      "id": "baseYesodB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseYesodB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseYesodB"
+        }
+      ]
+    },
+    {
+      "map": "baseyesod",
+      "mark": "a",
+      "id": "generalAshgrove",
+      "role": "trainer",
+      "sprite": "npc/ashgrove",
+      "talk": "ashgroveSpot",
+      "talkDone": "ashgroveWin",
+      "script": [
+        {
+          "hideIf": "medalPurpleHeart"
+        },
+        {
+          "talk": "ashgroveSpot",
+          "after": "wsoldier",
+          "pending": "generalAshgrove"
+        }
+      ]
+    },
+    {
+      "map": "basenetzach",
+      "mark": "s",
+      "id": "baseNetzachA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseNetzachA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseNetzachA"
+        }
+      ]
+    },
+    {
+      "map": "basenetzach",
+      "mark": "t",
+      "id": "baseNetzachB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseNetzachB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseNetzachB"
+        }
+      ]
+    },
+    {
+      "map": "basenetzach",
+      "mark": "a",
+      "id": "generalStroud",
+      "role": "trainer",
+      "sprite": "npc/stroud",
+      "talk": "stroudSpot",
+      "talkDone": "stroudWin",
+      "script": [
+        {
+          "hideIf": "medalPowMedal"
+        },
+        {
+          "talk": "stroudSpot",
+          "after": "wsoldier",
+          "pending": "generalStroud"
+        }
+      ]
+    },
+    {
+      "map": "basehod",
+      "mark": "s",
+      "id": "baseHodA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseHodA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseHodA"
+        }
+      ]
+    },
+    {
+      "map": "basehod",
+      "mark": "t",
+      "id": "baseHodB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseHodB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseHodB"
+        }
+      ]
+    },
+    {
+      "map": "basehod",
+      "mark": "a",
+      "id": "generalVale",
+      "role": "trainer",
+      "sprite": "npc/vale",
+      "talk": "valeSpot",
+      "talkDone": "valeWin",
+      "script": [
+        {
+          "hideIf": "medalSilverStar"
+        },
+        {
+          "talk": "valeSpot",
+          "after": "wsoldier",
+          "pending": "generalVale"
+        }
+      ]
+    },
+    {
+      "map": "basetiferet",
+      "mark": "s",
+      "id": "baseTiferetA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseTiferetA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseTiferetA"
+        }
+      ]
+    },
+    {
+      "map": "basetiferet",
+      "mark": "t",
+      "id": "baseTiferetB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseTiferetB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseTiferetB"
+        }
+      ]
+    },
+    {
+      "map": "basetiferet",
+      "mark": "a",
+      "id": "generalKessler",
+      "role": "trainer",
+      "sprite": "npc/kessler",
+      "talk": "kesslerSpot",
+      "talkDone": "kesslerWin",
+      "script": [
+        {
+          "hideIf": "medalGoldStar"
+        },
+        {
+          "talk": "kesslerSpot",
+          "after": "wsoldier",
+          "pending": "generalKessler"
+        }
+      ]
+    },
+    {
+      "map": "basechesed",
+      "mark": "s",
+      "id": "baseChesedA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseChesedA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseChesedA"
+        }
+      ]
+    },
+    {
+      "map": "basechesed",
+      "mark": "t",
+      "id": "baseChesedB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseChesedB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseChesedB"
+        }
+      ]
+    },
+    {
+      "map": "basechesed",
+      "mark": "a",
+      "id": "generalMorrow",
+      "role": "trainer",
+      "sprite": "npc/morrow",
+      "talk": "morrowSpot",
+      "talkDone": "morrowWin",
+      "script": [
+        {
+          "hideIf": "medalLegionOfMerit"
+        },
+        {
+          "talk": "morrowSpot",
+          "after": "wsoldier",
+          "pending": "generalMorrow"
+        }
+      ]
+    },
+    {
+      "map": "basegevurah",
+      "mark": "s",
+      "id": "baseGevurahA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseGevurahA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseGevurahA"
+        }
+      ]
+    },
+    {
+      "map": "basegevurah",
+      "mark": "t",
+      "id": "baseGevurahB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseGevurahB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseGevurahB"
+        }
+      ]
+    },
+    {
+      "map": "basegevurah",
+      "mark": "a",
+      "id": "generalCrane",
+      "role": "trainer",
+      "sprite": "npc/crane",
+      "talk": "craneSpot",
+      "talkDone": "craneWin",
+      "script": [
+        {
+          "hideIf": "medalFlyingCross"
+        },
+        {
+          "talk": "craneSpot",
+          "after": "wsoldier",
+          "pending": "generalCrane"
+        }
+      ]
+    },
+    {
+      "map": "basebinah",
+      "mark": "s",
+      "id": "baseBinahA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseBinahA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseBinahA"
+        }
+      ]
+    },
+    {
+      "map": "basebinah",
+      "mark": "t",
+      "id": "baseBinahB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseBinahB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseBinahB"
+        }
+      ]
+    },
+    {
+      "map": "basebinah",
+      "mark": "a",
+      "id": "generalBlackwood",
+      "role": "trainer",
+      "sprite": "npc/blackwood",
+      "talk": "blackwoodSpot",
+      "talkDone": "blackwoodWin",
+      "script": [
+        {
+          "hideIf": "medalServiceCross"
+        },
+        {
+          "talk": "blackwoodSpot",
+          "after": "wsoldier",
+          "pending": "generalBlackwood"
+        }
+      ]
+    },
+    {
+      "map": "basechokmah",
+      "mark": "s",
+      "id": "baseChokmahA",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotA",
+      "talkDone": "baseGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatBaseChokmahA"
+        },
+        {
+          "talk": "baseGuardSpotA",
+          "after": "wsoldier",
+          "pending": "baseChokmahA"
+        }
+      ]
+    },
+    {
+      "map": "basechokmah",
+      "mark": "t",
+      "id": "baseChokmahB",
+      "role": "trainer",
+      "sprite": "npc/weepingGuard",
+      "talk": "baseGuardSpotB",
+      "talkDone": "baseGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatBaseChokmahB"
+        },
+        {
+          "talk": "baseGuardSpotB",
+          "after": "wsoldier",
+          "pending": "baseChokmahB"
+        }
+      ]
+    },
+    {
+      "map": "basechokmah",
+      "mark": "a",
+      "id": "generalSorrel",
+      "role": "trainer",
+      "sprite": "npc/sorrel",
+      "talk": "sorrelSpot",
+      "talkDone": "sorrelWin",
+      "script": [
+        {
+          "hideIf": "medalOfHonor"
+        },
+        {
+          "talk": "sorrelSpot",
+          "after": "wsoldier",
+          "pending": "generalSorrel"
+        }
+      ]
+    },
+    {
+      "map": "palaceketer",
+      "mark": "s",
+      "id": "palaceGuardA",
+      "role": "trainer",
+      "sprite": "npc/royalGuard",
+      "talk": "royalGuardSpotA",
+      "talkDone": "royalGuardWinA",
+      "script": [
+        {
+          "hideIf": "beatPalaceGuardA"
+        },
+        {
+          "talk": "royalGuardSpotA",
+          "after": "wsoldier",
+          "pending": "palaceGuardA"
+        }
+      ]
+    },
+    {
+      "map": "palaceketer",
+      "mark": "t",
+      "id": "palaceGuardB",
+      "role": "trainer",
+      "sprite": "npc/royalGuard",
+      "talk": "royalGuardSpotB",
+      "talkDone": "royalGuardWinB",
+      "script": [
+        {
+          "hideIf": "beatPalaceGuardB"
+        },
+        {
+          "talk": "royalGuardSpotB",
+          "after": "wsoldier",
+          "pending": "palaceGuardB"
+        }
+      ]
+    },
+    {
+      "map": "palaceketer",
+      "mark": "a",
+      "id": "nero",
+      "role": "trainer",
+      "sprite": "npc/nero",
+      "talk": "neroSpot",
+      "talkDone": "neroWin",
+      "script": [
+        {
+          "hideIf": "beatNero"
+        },
+        {
+          "talk": "neroSpot",
+          "after": "wsoldier",
+          "pending": "nero"
         }
       ]
     }

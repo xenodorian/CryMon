@@ -347,6 +347,10 @@ def build_city_rows(city_id):
         for (pname, ch), r in zip(items, rows_):
             grid[1 + r][col] = ch
 
+    # Leg 3: the General's base / Nero's palace front (tools/build_leg3.py).
+    from build_leg3 import stamp_city_building
+    stamp_city_building(grid, city_id)
+
     return ["".join(r) for r in grid], marks
 
 

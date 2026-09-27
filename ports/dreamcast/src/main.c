@@ -1306,7 +1306,10 @@ typedef struct {
    every other SPK_* here already has, just with a real gap before it
    instead of a contiguous run. */
 #define SPK_HEAVENFALLPRIESTESS 37
-#define SPK_COUNT     38
+/* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals).
+   No portraits drawn yet (PLACEHOLDER_ART); the rest of the table below
+   is zero-filled by C's partial-initializer rule. */
+#define SPK_COUNT     50
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of

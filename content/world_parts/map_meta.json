@@ -49,7 +49,17 @@
     "keter": "KETER",
     "gimel": "PATH OF GIMEL",
     "aleph": "PATH OF ALEPH",
-    "beth": "PATH OF BETH"
+    "beth": "PATH OF BETH",
+    "basemalkuth": "MALKUTH BASE",
+    "baseyesod": "YESOD BASE",
+    "basenetzach": "NETZACH BASE",
+    "basehod": "HOD BASE",
+    "basetiferet": "TIFERET BASE",
+    "basechesed": "CHESED BASE",
+    "basegevurah": "GEVURAH BASE",
+    "basebinah": "BINAH BASE",
+    "basechokmah": "CHOKMAH BASE",
+    "palaceketer": "NERO'S PALACE"
   },
   "mapIds": [
     "house",
@@ -101,6 +111,16 @@
     "keter",
     "gimel",
     "aleph",
-    "beth"
+    "beth",
+    "basemalkuth",
+    "baseyesod",
+    "basenetzach",
+    "basehod",
+    "basetiferet",
+    "basechesed",
+    "basegevurah",
+    "basebinah",
+    "basechokmah",
+    "palaceketer"
   ]
 }

@@ -984,6 +984,184 @@
       "spawn": "2",
       "dir": "right",
       "ox": 40
+    },
+    {
+      "from": "malkuth",
+      "tile": "b",
+      "to": "basemalkuth",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "basemalkuth",
+      "tile": "D",
+      "to": "malkuth",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "yesod",
+      "tile": "b",
+      "to": "baseyesod",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalBronzeStar",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "baseyesod",
+      "tile": "D",
+      "to": "yesod",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "netzach",
+      "tile": "b",
+      "to": "basenetzach",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalPurpleHeart",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basenetzach",
+      "tile": "D",
+      "to": "netzach",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "hod",
+      "tile": "b",
+      "to": "basehod",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalPowMedal",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basehod",
+      "tile": "D",
+      "to": "hod",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "tiferet",
+      "tile": "b",
+      "to": "basetiferet",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalSilverStar",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basetiferet",
+      "tile": "D",
+      "to": "tiferet",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "chesed",
+      "tile": "b",
+      "to": "basechesed",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalGoldStar",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basechesed",
+      "tile": "D",
+      "to": "chesed",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "gevurah",
+      "tile": "b",
+      "to": "basegevurah",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalLegionOfMerit",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basegevurah",
+      "tile": "D",
+      "to": "gevurah",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "binah",
+      "tile": "b",
+      "to": "basebinah",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalFlyingCross",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basebinah",
+      "tile": "D",
+      "to": "binah",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "chokmah",
+      "tile": "b",
+      "to": "basechokmah",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "medalServiceCross",
+      "failTalk": "baseLocked"
+    },
+    {
+      "from": "basechokmah",
+      "tile": "D",
+      "to": "chokmah",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "keter",
+      "tile": "b",
+      "to": "palaceketer",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32,
+      "need": "hasGoldenShackles",
+      "failTalk": "palaceLocked"
+    },
+    {
+      "from": "palaceketer",
+      "tile": "D",
+      "to": "keter",
+      "spawn": "b",
+      "dir": "down",
+      "oy": 40
     }
   ]
 }

@@ -1,7 +1,8 @@
 {
   "source": "Shared rules both engines interpret. Extend this file instead of forking engine.ts or main.c.",
   "shops": {
-    "comment": "Which capture-crystal tiers each shopkeeper id sells (non-crystal items are unaffected by this list, every shop still sells the general goods). 'default' covers any shopkeeper id not listed by name, so new merchants restock the higher tiers automatically. perfectcrystal is never sold anywhere.",
+    "comment": "Which capture-crystal tiers each shopkeeper id sells (non-crystal items are unaffected by this list, every shop still sells the general goods). 'default' covers any shopkeeper id not listed by name, so new merchants restock the higher tiers automatically. perfectcrystal is never sold anywhere. notSoldBy (Leg 3.2): items a named keeper never stocks; Shackles are sold everywhere except Bram, the first merchant.",
+    "notSoldBy": { "shackles": ["bram"] },
     "crystalStock": {
       "bram": ["gem"],
       "default": ["greatcrystal", "megacrystal", "ultimatecrystal"]
@@ -394,5 +395,174 @@
     "defaultW": 48,
     "defaultH": 52,
     "buffer": 32
+  },
+  "leg3": {
+    "comment": "Leg 3 (CURRENT_WORK.md 'Leg 3 implementation'). generals is in medal-chain order: a base door needs the previous General's medal (needMedal). guards are the two base soldiers you must beat to reach the General; they get no mercy menu. Arrest needs one 'shackles' item and uses it up. Defeating the last General grants 'goldenShackles' (item) + hasGoldenShackles (flag), which opens Keter's palace door. rep values are applied through adjustReputation (clamped). Titles: kingslayer replaces the player's name after Nero is executed; godslayer/bloody are the Heavenfall epilogue names. Rep 0 counts as positive.",
+    "generals": [
+      {
+        "city": "malkuth",
+        "base": "basemalkuth",
+        "trainer": "generalHarrow",
+        "name": "General Harrow",
+        "medal": "medalBronzeStar",
+        "medalName": "Bronze Star",
+        "arrested": "arrestedHarrow",
+        "guards": [
+          "baseMalkuthA",
+          "baseMalkuthB"
+        ],
+        "needMedal": null
+      },
+      {
+        "city": "yesod",
+        "base": "baseyesod",
+        "trainer": "generalAshgrove",
+        "name": "General Ashgrove",
+        "medal": "medalPurpleHeart",
+        "medalName": "Purple Heart",
+        "arrested": "arrestedAshgrove",
+        "guards": [
+          "baseYesodA",
+          "baseYesodB"
+        ],
+        "needMedal": "medalBronzeStar"
+      },
+      {
+        "city": "netzach",
+        "base": "basenetzach",
+        "trainer": "generalStroud",
+        "name": "General Stroud",
+        "medal": "medalPowMedal",
+        "medalName": "Prisoner of War Medal",
+        "arrested": "arrestedStroud",
+        "guards": [
+          "baseNetzachA",
+          "baseNetzachB"
+        ],
+        "needMedal": "medalPurpleHeart"
+      },
+      {
+        "city": "hod",
+        "base": "basehod",
+        "trainer": "generalVale",
+        "name": "General Vale",
+        "medal": "medalSilverStar",
+        "medalName": "Silver Star",
+        "arrested": "arrestedVale",
+        "guards": [
+          "baseHodA",
+          "baseHodB"
+        ],
+        "needMedal": "medalPowMedal"
+      },
+      {
+        "city": "tiferet",
+        "base": "basetiferet",
+        "trainer": "generalKessler",
+        "name": "General Kessler",
+        "medal": "medalGoldStar",
+        "medalName": "Gold Star",
+        "arrested": "arrestedKessler",
+        "guards": [
+          "baseTiferetA",
+          "baseTiferetB"
+        ],
+        "needMedal": "medalSilverStar"
+      },
+      {
+        "city": "chesed",
+        "base": "basechesed",
+        "trainer": "generalMorrow",
+        "name": "General Morrow",
+        "medal": "medalLegionOfMerit",
+        "medalName": "Legion of Merit",
+        "arrested": "arrestedMorrow",
+        "guards": [
+          "baseChesedA",
+          "baseChesedB"
+        ],
+        "needMedal": "medalGoldStar"
+      },
+      {
+        "city": "gevurah",
+        "base": "basegevurah",
+        "trainer": "generalCrane",
+        "name": "General Crane",
+        "medal": "medalFlyingCross",
+        "medalName": "Distinguished Flying Cross",
+        "arrested": "arrestedCrane",
+        "guards": [
+          "baseGevurahA",
+          "baseGevurahB"
+        ],
+        "needMedal": "medalLegionOfMerit"
+      },
+      {
+        "city": "binah",
+        "base": "basebinah",
+        "trainer": "generalBlackwood",
+        "name": "General Blackwood",
+        "medal": "medalServiceCross",
+        "medalName": "Distinguished Service Cross",
+        "arrested": "arrestedBlackwood",
+        "guards": [
+          "baseBinahA",
+          "baseBinahB"
+        ],
+        "needMedal": "medalFlyingCross"
+      },
+      {
+        "city": "chokmah",
+        "base": "basechokmah",
+        "trainer": "generalSorrel",
+        "name": "General Sorrel",
+        "medal": "medalOfHonor",
+        "medalName": "Medal of Honor",
+        "arrested": "arrestedSorrel",
+        "guards": [
+          "baseChokmahA",
+          "baseChokmahB"
+        ],
+        "needMedal": "medalServiceCross"
+      }
+    ],
+    "palace": {
+      "city": "keter",
+      "map": "palaceketer",
+      "trainer": "nero",
+      "name": "Weeping King Nero",
+      "guards": [
+        "palaceGuardA",
+        "palaceGuardB"
+      ],
+      "need": "hasGoldenShackles"
+    },
+    "rep": {
+      "arrestGeneral": 10,
+      "executeGeneral": -25,
+      "trialNero": 50,
+      "executeNero": -50
+    },
+    "shackles": "shackles",
+    "goldenShackles": "goldenShackles",
+    "titles": {
+      "kingslayer": "Kingslayer",
+      "godslayer": "Godslayer",
+      "bloody": "Max The Bloody"
+    },
+    "screamRepeats": 3,
+    "screamGapMs": 700,
+    "redTint": {
+      "rgb": [
+        150,
+        0,
+        0
+      ],
+      "alpha": 0.22
+    },
+    "finalHeavenfall": {
+      "trainer": "heavenfallFinal",
+      "species": "heavenfall"
+    }
   }
 }

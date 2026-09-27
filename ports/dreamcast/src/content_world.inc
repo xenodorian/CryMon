@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=d84e33771af370d9 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=83a338a4dbfb5957 — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -20,7 +20,7 @@
 #define DUST_AGL -2
 #define DUST_SPC -2
 #define START_MARKS 16
-#define START_BAG_INIT { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+#define START_BAG_INIT { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 
 typedef struct {
     int from_map, to_map;
@@ -153,6 +153,26 @@ static const WarpDef WARPS[] = {
     { MAP_BETH, MAP_KETER, '1', 'O', 3, 0, 0, -1 },
     { MAP_BETH, MAP_BINAH, '2', 'D', 2, 0, 0, -1 },
     { MAP_BINAH, MAP_BETH, 'D', '2', 3, 0, 0, -1 },
+    { MAP_MALKUTH, MAP_BASEMALKUTH, 'b', 'D', 1, 0, 0, -1 },
+    { MAP_BASEMALKUTH, MAP_MALKUTH, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_YESOD, MAP_BASEYESOD, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BASEYESOD, MAP_YESOD, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_NETZACH, MAP_BASENETZACH, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BASENETZACH, MAP_NETZACH, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_HOD, MAP_BASEHOD, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BASEHOD, MAP_HOD, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_TIFERET, MAP_BASETIFERET, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BASETIFERET, MAP_TIFERET, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_CHESED, MAP_BASECHESED, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BASECHESED, MAP_CHESED, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_GEVURAH, MAP_BASEGEVURAH, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BASEGEVURAH, MAP_GEVURAH, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_BINAH, MAP_BASEBINAH, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BASEBINAH, MAP_BINAH, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_CHOKMAH, MAP_BASECHOKMAH, 'b', 'D', 1, 0, 0, 144 },
+    { MAP_BASECHOKMAH, MAP_CHOKMAH, 'D', 'b', 0, 0, 0, -1 },
+    { MAP_KETER, MAP_PALACEKETER, 'b', 'D', 1, 0, 0, 145 },
+    { MAP_PALACEKETER, MAP_KETER, 'D', 'b', 0, 0, 0, -1 },
 };
 #define WARP_N (int)(sizeof(WARPS)/sizeof(WARPS[0]))
 
@@ -272,6 +292,8 @@ static const ItemFx ITEM_FX[] = {
     { 7, 0, 0, 0, 0, 100, 4 },
     { 7, 0, 0, 0, 0, 100, 6 },
     { 0, 0, 0, 0, 0, 100, 0 },
+    { 0, 0, 0, 0, 0, 100, 0 },
+    { 0, 0, 0, 0, 0, 100, 0 },
 };
 
 #define SHOP_CRYSTAL_DEFAULT_MASK 3328
@@ -350,7 +372,53 @@ static const int SHOP_CRYSTAL_MASK[] = {
 #define FLAG_BEAT_LIEUTENANT_LEAD 63
 #define FLAG_HEAVENFALL_REP_WARNED 64
 #define FLAG_DRAY_KNIFE_OFFERED 65
-#define FLAG_N 66
+#define FLAG_BEAT_BASE_MALKUTH_A 66
+#define FLAG_BEAT_BASE_MALKUTH_B 67
+#define FLAG_BEAT_BASE_YESOD_A 68
+#define FLAG_BEAT_BASE_YESOD_B 69
+#define FLAG_BEAT_BASE_NETZACH_A 70
+#define FLAG_BEAT_BASE_NETZACH_B 71
+#define FLAG_BEAT_BASE_HOD_A 72
+#define FLAG_BEAT_BASE_HOD_B 73
+#define FLAG_BEAT_BASE_TIFERET_A 74
+#define FLAG_BEAT_BASE_TIFERET_B 75
+#define FLAG_BEAT_BASE_CHESED_A 76
+#define FLAG_BEAT_BASE_CHESED_B 77
+#define FLAG_BEAT_BASE_GEVURAH_A 78
+#define FLAG_BEAT_BASE_GEVURAH_B 79
+#define FLAG_BEAT_BASE_BINAH_A 80
+#define FLAG_BEAT_BASE_BINAH_B 81
+#define FLAG_BEAT_BASE_CHOKMAH_A 82
+#define FLAG_BEAT_BASE_CHOKMAH_B 83
+#define FLAG_MEDAL_BRONZE_STAR 84
+#define FLAG_MEDAL_PURPLE_HEART 85
+#define FLAG_MEDAL_POW_MEDAL 86
+#define FLAG_MEDAL_SILVER_STAR 87
+#define FLAG_MEDAL_GOLD_STAR 88
+#define FLAG_MEDAL_LEGION_OF_MERIT 89
+#define FLAG_MEDAL_FLYING_CROSS 90
+#define FLAG_MEDAL_SERVICE_CROSS 91
+#define FLAG_MEDAL_OF_HONOR 92
+#define FLAG_ARRESTED_HARROW 93
+#define FLAG_ARRESTED_ASHGROVE 94
+#define FLAG_ARRESTED_STROUD 95
+#define FLAG_ARRESTED_VALE 96
+#define FLAG_ARRESTED_KESSLER 97
+#define FLAG_ARRESTED_MORROW 98
+#define FLAG_ARRESTED_CRANE 99
+#define FLAG_ARRESTED_BLACKWOOD 100
+#define FLAG_ARRESTED_SORREL 101
+#define FLAG_BEAT_PALACE_GUARD_A 102
+#define FLAG_BEAT_PALACE_GUARD_B 103
+#define FLAG_HAS_GOLDEN_SHACKLES 104
+#define FLAG_BEAT_NERO 105
+#define FLAG_NERO_TRIED 106
+#define FLAG_TITLE_KINGSLAYER 107
+#define FLAG_FATHER_ABANDONED 108
+#define FLAG_TITLE_GODSLAYER 109
+#define FLAG_TITLE_BLOODY 110
+#define FLAG_LEG3_ENDED 111
+#define FLAG_N 112
 #define NPC_AFTER_NONE 0
 #define NPC_AFTER_BED_HEAL 1
 #define NPC_AFTER_SHOP 2
@@ -493,6 +561,66 @@ static const NpcStep NPC_STEPS[] = {
     { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 134, -1, -1, 8, -1, 0, 0, -1 },
     { 17, -1, 29, 29, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 135, -1, -1, 0, -1, 0, 0, -1 },
     { -1, -1, 29, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, 66, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 67, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 84, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 148, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 68, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 69, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 85, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 152, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 70, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 71, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 86, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 156, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 72, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 73, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 87, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 160, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 74, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 75, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 88, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 164, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 76, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 77, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 89, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 168, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 78, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 79, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 90, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 172, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 80, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 81, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 91, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 176, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 82, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 136, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 83, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 138, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 92, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 180, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 102, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 140, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 103, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 142, -1, -1, 7, -1, 0, 0, -1 },
+    { -1, -1, 105, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, -1, -1, -1, 0, -1, 0, 0, -1 },
+    { -1, -1, -1, -1, { -1,-1,-1 }, { 0,0,0 }, 0, -1, 0, 184, -1, -1, 7, -1, 0, 0, -1 },
 };
 static const NpcDef NPC_DEFS[] = {
     { MAP_HOUSE, 'B', 0, 3, 30, 32 },
@@ -540,7 +668,37 @@ static const NpcDef NPC_DEFS[] = {
     { MAP_VELD, '4', 98, 2, 30, 32 },
     { MAP_VELD, '9', 100, 1, 30, 32 },
     { MAP_VELD, 'Y', 101, 1, 30, 32 },
+    { MAP_BASEMALKUTH, 's', 102, 2, 30, 32 },
+    { MAP_BASEMALKUTH, 't', 104, 2, 30, 32 },
+    { MAP_BASEMALKUTH, 'a', 106, 2, 30, 32 },
+    { MAP_BASEYESOD, 's', 108, 2, 30, 32 },
+    { MAP_BASEYESOD, 't', 110, 2, 30, 32 },
+    { MAP_BASEYESOD, 'a', 112, 2, 30, 32 },
+    { MAP_BASENETZACH, 's', 114, 2, 30, 32 },
+    { MAP_BASENETZACH, 't', 116, 2, 30, 32 },
+    { MAP_BASENETZACH, 'a', 118, 2, 30, 32 },
+    { MAP_BASEHOD, 's', 120, 2, 30, 32 },
+    { MAP_BASEHOD, 't', 122, 2, 30, 32 },
+    { MAP_BASEHOD, 'a', 124, 2, 30, 32 },
+    { MAP_BASETIFERET, 's', 126, 2, 30, 32 },
+    { MAP_BASETIFERET, 't', 128, 2, 30, 32 },
+    { MAP_BASETIFERET, 'a', 130, 2, 30, 32 },
+    { MAP_BASECHESED, 's', 132, 2, 30, 32 },
+    { MAP_BASECHESED, 't', 134, 2, 30, 32 },
+    { MAP_BASECHESED, 'a', 136, 2, 30, 32 },
+    { MAP_BASEGEVURAH, 's', 138, 2, 30, 32 },
+    { MAP_BASEGEVURAH, 't', 140, 2, 30, 32 },
+    { MAP_BASEGEVURAH, 'a', 142, 2, 30, 32 },
+    { MAP_BASEBINAH, 's', 144, 2, 30, 32 },
+    { MAP_BASEBINAH, 't', 146, 2, 30, 32 },
+    { MAP_BASEBINAH, 'a', 148, 2, 30, 32 },
+    { MAP_BASECHOKMAH, 's', 150, 2, 30, 32 },
+    { MAP_BASECHOKMAH, 't', 152, 2, 30, 32 },
+    { MAP_BASECHOKMAH, 'a', 154, 2, 30, 32 },
+    { MAP_PALACEKETER, 's', 156, 2, 30, 32 },
+    { MAP_PALACEKETER, 't', 158, 2, 30, 32 },
+    { MAP_PALACEKETER, 'a', 160, 2, 30, 32 },
 };
-#define NPC_DEF_N 45
+#define NPC_DEF_N 75
 #define INTERACT_BUFFER 20
 

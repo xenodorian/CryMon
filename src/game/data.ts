@@ -157,6 +157,17 @@ export const ALEPH = normalize(raw.aleph);
 
 export const BETH = normalize(raw.beth);
 
+export const BASE_MALKUTH = normalize(raw.basemalkuth);
+export const BASE_YESOD = normalize(raw.baseyesod);
+export const BASE_NETZACH = normalize(raw.basenetzach);
+export const BASE_HOD = normalize(raw.basehod);
+export const BASE_TIFERET = normalize(raw.basetiferet);
+export const BASE_CHESED = normalize(raw.basechesed);
+export const BASE_GEVURAH = normalize(raw.basegevurah);
+export const BASE_BINAH = normalize(raw.basebinah);
+export const BASE_CHOKMAH = normalize(raw.basechokmah);
+export const PALACE_KETER = normalize(raw.palaceketer);
+
 export const MAPS = {
   house: HOUSE,
   veld: VELD,
@@ -208,6 +219,16 @@ export const MAPS = {
   gimel: GIMEL,
   aleph: ALEPH,
   beth: BETH,
+  basemalkuth: BASE_MALKUTH,
+  baseyesod: BASE_YESOD,
+  basenetzach: BASE_NETZACH,
+  basehod: BASE_HOD,
+  basetiferet: BASE_TIFERET,
+  basechesed: BASE_CHESED,
+  basegevurah: BASE_GEVURAH,
+  basebinah: BASE_BINAH,
+  basechokmah: BASE_CHOKMAH,
+  palaceketer: PALACE_KETER,
 } as const;
 
 export const TILE_ART: Record<string, string> = mapsJson.tileArt;

@@ -3104,16 +3104,16 @@ Each stage below is pushed on its own; tick it here when it lands.
 
   | # | City | General | Medal | Base map |
   |---|---|---|---|---|
-  | 1 | Malkuth | General Harrow | Bronze Star | `base_malkuth` |
-  | 2 | Yesod | General Ashgrove | Purple Heart | `base_yesod` |
-  | 3 | Netzach | General Stroud | Prisoner of War Medal | `base_netzach` |
-  | 4 | Hod | General Vale | Silver Star | `base_hod` |
-  | 5 | Tiferet | General Kessler | Gold Star | `base_tiferet` |
-  | 6 | Chesed | General Morrow | Legion of Merit | `base_chesed` |
-  | 7 | Gevurah | General Crane | Distinguished Flying Cross | `base_gevurah` |
-  | 8 | Binah | General Blackwood | Distinguished Service Cross | `base_binah` |
-  | 9 | Chokmah | General Sorrel | Medal of Honor | `base_chokmah` |
-  | - | Keter | Weeping King Nero | (Golden Shackles gate) | `palace_keter` |
+  | 1 | Malkuth | General Harrow | Bronze Star | `basemalkuth` |
+  | 2 | Yesod | General Ashgrove | Purple Heart | `baseyesod` |
+  | 3 | Netzach | General Stroud | Prisoner of War Medal | `basenetzach` |
+  | 4 | Hod | General Vale | Silver Star | `basehod` |
+  | 5 | Tiferet | General Kessler | Gold Star | `basetiferet` |
+  | 6 | Chesed | General Morrow | Legion of Merit | `basechesed` |
+  | 7 | Gevurah | General Crane | Distinguished Flying Cross | `basegevurah` |
+  | 8 | Binah | General Blackwood | Distinguished Service Cross | `basebinah` |
+  | 9 | Chokmah | General Sorrel | Medal of Honor | `basechokmah` |
+  | - | Keter | Weeping King Nero | (Golden Shackles gate) | `palaceketer` |
 
 - **Medal gate (3.1):** "must possess one General's medal before
   challenging another" is read as a chain: base N's door (a warp `need`)
@@ -3163,9 +3163,33 @@ Each stage below is pushed on its own; tick it here when it lands.
       CRC length from the VMS header's data_len (so a 280-byte file from an
       older build still loads) and zero-fills the tail. check_sync pins the
       first part of each list to the original field.
-- [ ] S2 Content: items, shop rule, logic `leg3` block, trainers, dialogue,
+- [x] S2 Content: items, shop rule, logic `leg3` block, trainers, dialogue,
       NPCs, base/palace maps + city doors (`build_sephirot.py`), warps,
       placeholder NPC art.
+      - Map ids are all-lowercase (`basemalkuth` ... `palaceketer`) because
+        check_sync's MapId/MAPS regexes only accept `[a-z0-9]`.
+      - `tools/build_leg3.py` writes base/palace rows, stamps the building
+        into each city (`stamp_city_building`, also called from
+        `build_sephirot.py`), registers the maps and rewrites the door warps.
+        Run it, then `merge_world.py`. Tile chars: `b` city door, `a`
+        General/Nero, `s`/`t` guards (floor art).
+      - Trainers carry marker keys the engines read: `base: true` (guards,
+        no mercy menu), `general: true`, `king: true` (Nero), `final: true`
+        (hostile Heavenfall, `heavenfallFinal`). `set` is the flag the win
+        sets (guard beat flag / medal / beatNero).
+      - Guard dialogue is shared across bases (`baseGuardSpotA/B`,
+        `baseGuardWinA/B`, `royalGuard*`). Each General has
+        `<speaker>Spot/Win/Arrest/Execute`; the rest of the Leg 3 lines are
+        `neroSpot/Win/Trial/Execute/Crowned`, `fatherProud/Sacrifice/Monster`,
+        `hfEndNone/Tamed/Hostile/Godslayer/Bloody`, `goldenShacklesGet`,
+        `baseLocked`, `palaceLocked`, `generalArrestNoShackles`.
+      - New speakers 38-49 in bake_content `SPEAKER`; Dreamcast
+        `SPK_COUNT` is 50 with no portraits for them yet (PLACEHOLDER_ART).
+      - NPC placeholders: `tools/make_placeholder_npcs.py` (48x64, "PH" tag).
+      - Known, pre-existing: `build_sephirot.py --step 23` does not reproduce
+        the committed city gate letters (yesod/netzach/hod/chesed/chokmah/
+        keter swap letters; the gate-order fix was applied to the rows, not
+        the tool). Don't re-run it without fixing that first.
 - [ ] S3 Web: base soldiers/Generals, medals, arrest/execute, Golden Shackles.
 - [ ] S4 Web: Nero, tint/Kingslayer, father reaction, Heavenfall endings.
 - [ ] S5 Dreamcast: bases, Generals, medals, arrest/execute.
