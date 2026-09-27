@@ -69,7 +69,10 @@
     "l": "tile-grass",
     "n": "tile-grass",
     "o": "tile-grass",
-    "p": "tile-grass"
+    "p": "tile-grass",
+    "(": "tile-door",
+    ")": "tile-door",
+    "0": "tile-door"
   },
   "rows": {
     "house": [
@@ -206,7 +209,7 @@
       "#..................#",
       "#......6...........#",
       "#..rrr........rrr..#",
-      "#..HwH........HHH..#",
+      "#..HwH........H(H..#",
       "#..................#",
       "#..................#",
       "#..................#",
@@ -214,7 +217,7 @@
       "#....J........K....#",
       "#.............7....#",
       "#..rrr........rrr..#",
-      "#..HHH....A...HHH..#",
+      "#..H)H....A...H0H..#",
       "#..................#",
       "#.....i.........d..#",
       "#..................#",
@@ -227,7 +230,7 @@
       "#.........#........#",
       "#.......Q..........#",
       "#..rrr........rrr..#",
-      "#..HHH........HwH..#",
+      "#..H(H........HwH..#",
       "#..................#",
       "#......TTTTTT......#",
       "#......TTTTTT......#",
@@ -236,7 +239,7 @@
       "#......TTTTTT......#",
       "#..........O.......#",
       "#..rrr........rrr..#",
-      "#..HHH........HHH..#",
+      "#..H)H........H0H..#",
       "#..................#",
       "####################"
     ],
@@ -244,7 +247,7 @@
       "##################",
       "####.........#####",
       "###....====....###",
-      "###....====....###",
+      "###....====...n###",
       "##..T..====..T..##",
       "##..T..====..T..##",
       "##.TTT.====.TTT.##",
@@ -1372,6 +1375,62 @@
       "HFFFFFFFFFFH",
       "HFFFFFFFFFFH",
       "HHHHHDHHHHHH"
+    ],
+    "ruinslibrary": [
+      "HHHHHHHHHHHH",
+      "HCCFCCFCCFCH",
+      "HFFxFFFFzFFH",
+      "HFFFFFFFFFFH",
+      "HCCFFFFFFCCH",
+      "HFFFFFFFFFFH",
+      "HFFFFFFFFFFH",
+      "HHHHHDHHHHHH"
+    ],
+    "ruinsinn": [
+      "HHHHHHHHHHHH",
+      "HBFBFBFFFFFH",
+      "HFFFFFFxFFFH",
+      "HFFFFFFFFFFH",
+      "HFFzFFFFFFFH",
+      "HFFFFFFFFCCH",
+      "HFFFFFFFFFFH",
+      "HHHHHDHHHHHH"
+    ],
+    "brannhouse": [
+      "HHHHHHHHHH",
+      "HBFFFFFCCH",
+      "HFFFxFFFFH",
+      "HFFFFFFFFH",
+      "HFFFFFFzFH",
+      "HFFFFFFFFH",
+      "HHHHDHHHHH"
+    ],
+    "hermithut": [
+      "HHHHHHHHHH",
+      "HCFFFFFFBH",
+      "HFFFFxFFFH",
+      "HFFFFFFFFH",
+      "HFFFFFFFFH",
+      "HFFFFFFFFH",
+      "HHHHDHHHHH"
+    ],
+    "sagehouse": [
+      "HHHHHHHHHH",
+      "HBFFFFFCCH",
+      "HFFFxFFFFH",
+      "HFFFFFFFFH",
+      "HFFFFFFzFH",
+      "HFFFFFFFFH",
+      "HHHHDHHHHH"
+    ],
+    "emptyhouse": [
+      "HHHHHHHHHH",
+      "HBFFFFFCCH",
+      "HFFFxFFFFH",
+      "HFFFFFFFFH",
+      "HFFFFFFzFH",
+      "HFFFFFFFFH",
+      "HHHHDHHHHH"
     ]
   }
 }

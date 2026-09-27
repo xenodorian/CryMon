@@ -34,7 +34,7 @@ SAVE_JSON = ROOT / "content/save.json"
 TYPES_TS = ROOT / "src/game/types.ts"
 DATA_TS = ROOT / "src/game/data.ts"
 
-TILE_ART = {"w": "tile-door", "x": "tile-floor", "z": "tile-floor",
+TILE_ART = {"w": "tile-door", "(": "tile-door", ")": "tile-door", "0": "tile-door", "x": "tile-floor", "z": "tile-floor",
             "d": "tile-grass", "f": "tile-grass", "i": "tile-grass", "j": "tile-grass",
             "l": "tile-grass", "n": "tile-grass", "o": "tile-grass", "p": "tile-grass"}
 
@@ -66,15 +66,62 @@ HAUNTED = [
     "HHHHHDHHHHH",
 ]
 HUT = ["rrr", "HwH"]
+# The six once-decorative houses of the Ruins and the Reach.
+LIBRARY = [
+    "HHHHHHHHHHHH",
+    "HCCFCCFCCFCH",
+    "HFFxFFFFzFFH",
+    "HFFFFFFFFFFH",
+    "HCCFFFFFFCCH",
+    "HFFFFFFFFFFH",
+    "HFFFFFFFFFFH",
+    "HHHHHDHHHHHH",
+]
+INN = [
+    "HHHHHHHHHHHH",
+    "HBFBFBFFFFFH",
+    "HFFFFFFxFFFH",
+    "HFFFFFFFFFFH",
+    "HFFzFFFFFFFH",
+    "HFFFFFFFFCCH",
+    "HFFFFFFFFFFH",
+    "HHHHHDHHHHHH",
+]
+COTTAGE = [
+    "HHHHHHHHHH",
+    "HBFFFFFCCH",
+    "HFFFxFFFFH",
+    "HFFFFFFFFH",
+    "HFFFFFFzFH",
+    "HFFFFFFFFH",
+    "HHHHDHHHHH",
+]
+HERMIT = [
+    "HHHHHHHHHH",
+    "HCFFFFFFBH",
+    "HFFFFxFFFH",
+    "HFFFFFFFFH",
+    "HFFFFFFFFH",
+    "HFFFFFFFFH",
+    "HHHHDHHHHH",
+]
 
 # (outdoor map, door (col,row), stamp hut at door-1/-1?, interior id, label,
-#  rows, need flag, fail talk)
+#  rows, need flag, fail talk[, door char]). Warps match by tile char, so a
+# second door on the same map needs its own char (DOOR_CHARS; 'w' default).
 SITES = [
     ("ruins", (4, 4), False, "ghostcrypt", "THE GHOST GUILD", HALL, "talkedReach", "cryptLocked"),
     ("reach", (15, 4), False, "hauntedhall", "THE HAUNTED HALL", HAUNTED, "joinedGhost", "hauntedLocked"),
     ("veld", (4, 10), False, "heroeshall", "THE HEROES GUILD", HALL, None, None),
     ("marsh", (14, 18), True, "thievesden", "THE THIEVES DEN", HALL, None, None),
+    ("ruins", (15, 4), False, "ruinslibrary", "THE OLD LIBRARY", LIBRARY, None, None, "("),
+    ("ruins", (4, 12), False, "ruinsinn", "THE RUINS INN", INN, None, None, ")"),
+    ("ruins", (15, 12), False, "brannhouse", "BRANN'S HOUSE", COTTAGE, None, None, "0"),
+    ("reach", (4, 4), False, "hermithut", "THE HERMIT'S HUT", HERMIT, None, None, "("),
+    ("reach", (4, 13), False, "sagehouse", "THE SAGE'S HOUSE", COTTAGE, None, None, ")"),
+    ("reach", (15, 13), False, "emptyhouse", "THE EMPTY HOUSE", COTTAGE, None, None, "0"),
 ]
+DOOR_CHARS = ("w", "(", ")", "0")
 
 # (map, char, target (col,row)): quest spots on hand-built maps.
 MARKS = [
@@ -106,6 +153,7 @@ MARKS = [
     ("heth", "l", (2, 11)),     # Lune's map (Gevurah)
     ("daleth", "o", (28, 5)),   # Deserter Kael (Binah)
     ("aleph", "p", (16, 9)),    # Sister Iona (Chokmah)
+    ("marsh", "n", (15, 3)),    # Maren's rag doll (the Reach's empty house)
 ]
 
 
@@ -155,13 +203,14 @@ def main() -> None:
 
     interiors = {s[3] for s in SITES}
     warps = [w for w in warps_data["warps"] if w["from"] not in interiors and w["to"] not in interiors]
-    for outdoor, (dc, dr), hut, mid, label, tmpl, need, fail in SITES:
+    for outdoor, (dc, dr), hut, mid, label, tmpl, need, fail, *door in SITES:
+        door = door[0] if door else "w"
         grid = [list(r) for r in rows[outdoor]]
         if hut:
             for yy, line in enumerate(HUT):
                 for xx, c in enumerate(line):
                     grid[dr - 1 + yy][dc - 1 + xx] = c
-        grid[dr][dc] = "w"
+        grid[dr][dc] = door
         rows[outdoor] = ["".join(r) for r in grid]
         rows[mid] = list(tmpl)
         if mid not in meta["mapIds"]:
@@ -169,15 +218,15 @@ def main() -> None:
         if mid not in save_data["mapOrder"]:
             save_data["mapOrder"].append(mid)
         meta["mapNames"][mid] = label
-        into = {"from": outdoor, "tile": "w", "to": mid, "spawn": "D", "dir": "up", "oy": -32}
+        into = {"from": outdoor, "tile": door, "to": mid, "spawn": "D", "dir": "up", "oy": -32}
         if need:
             into["need"] = need
             into["failTalk"] = fail
         warps.append(into)
-        warps.append({"from": mid, "tile": "D", "to": outdoor, "spawn": "w", "dir": "down", "oy": 40})
+        warps.append({"from": mid, "tile": "D", "to": outdoor, "spawn": door, "dir": "down", "oy": 40})
 
     for m, ch, target in MARKS:
-        rows[m] = place_mark(rows[m], ch, target, warp_tiles(warps, m) | {"w"})
+        rows[m] = place_mark(rows[m], ch, target, warp_tiles(warps, m) | set(DOOR_CHARS))
 
     warps_data["warps"] = warps
     save(MAPS_JSON, maps_data)

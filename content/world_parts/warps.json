@@ -1232,6 +1232,102 @@
       "spawn": "w",
       "dir": "down",
       "oy": 40
+    },
+    {
+      "from": "ruins",
+      "tile": "(",
+      "to": "ruinslibrary",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "ruinslibrary",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": "(",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "ruins",
+      "tile": ")",
+      "to": "ruinsinn",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "ruinsinn",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": ")",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "ruins",
+      "tile": "0",
+      "to": "brannhouse",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "brannhouse",
+      "tile": "D",
+      "to": "ruins",
+      "spawn": "0",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": "(",
+      "to": "hermithut",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "hermithut",
+      "tile": "D",
+      "to": "reach",
+      "spawn": "(",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": ")",
+      "to": "sagehouse",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "sagehouse",
+      "tile": "D",
+      "to": "reach",
+      "spawn": ")",
+      "dir": "down",
+      "oy": 40
+    },
+    {
+      "from": "reach",
+      "tile": "0",
+      "to": "emptyhouse",
+      "spawn": "D",
+      "dir": "up",
+      "oy": -32
+    },
+    {
+      "from": "emptyhouse",
+      "tile": "D",
+      "to": "reach",
+      "spawn": "0",
+      "dir": "down",
+      "oy": 40
     }
   ]
 }

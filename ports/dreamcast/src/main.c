@@ -993,6 +993,9 @@ static void draw_tile(int map_id, char ch, int dx, int dy) {
         case 'D':
         case 'b': /* Leg 3 base / palace door in a Sephirot city */
         case 'w': /* guild hall / haunted hall door (build_guilds.py) */
+        case '(': /* second..fourth door on one map (build_guilds.py DOOR_CHARS) */
+        case ')':
+        case '0':
             fill_rect(dx, dy, t, t, rgb565(26, 18, 12));
             return;
         case 'a': /* Leg 3 interiors: General / guard spots are floor */
@@ -1383,7 +1386,7 @@ typedef struct {
 /* 38-49: Leg 3 speakers (base/royal guards, Nero, the nine Generals),
    in bake_content.py's SPEAKER order. Portraits are PLACEHOLDER_ART from
    tools/make_placeholder_npcs.py. */
-#define SPK_COUNT     88 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds; 65-87: townsfolk */
+#define SPK_COUNT     96 /* 50-53: Ada, Hale, Marn, citizen; 54-55: ghost, Vesk; 56-64: guilds; 65-87: townsfolk; 88-95: Ruins/Reach houses */
 
 /* Each portrait keeps its source art's own aspect ratio (gen_sprites.py
    scales every one by the same factor on both axes to fill as much of
@@ -1487,6 +1490,15 @@ static const Portrait SPEAKER_PORTRAIT[SPK_COUNT] = {
     { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 85 iona PLACEHOLDER_ART */
     { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 86 rhee PLACEHOLDER_ART */
     { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 87 elder PLACEHOLDER_ART */
+    /* 88-95: Ruins / Reach house interiors, archetype portraits again. */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 88 wyn PLACEHOLDER_ART */
+    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 89 lark PLACEHOLDER_ART */
+    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 90 hollis PLACEHOLDER_ART */
+    { port_townsman, PORT_TOWNSMAN_W, PORT_TOWNSMAN_H }, /* 91 quill PLACEHOLDER_ART */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 92 brann PLACEHOLDER_ART */
+    { port_elder, PORT_ELDER_W, PORT_ELDER_H }, /* 93 osk PLACEHOLDER_ART */
+    { port_townswoman, PORT_TOWNSWOMAN_W, PORT_TOWNSWOMAN_H }, /* 94 ilse PLACEHOLDER_ART */
+    { port_ghost, PORT_GHOST_W, PORT_GHOST_H }, /* 95 maren PLACEHOLDER_ART */
 };
 
 #include "content_talk.inc"
@@ -4266,6 +4278,11 @@ static int npc_flag_on(int id, int **ft, int party_n) {
         return npc_mon_available(id - FLAG_MON_BASE);
     if(id == FLAG_REP_POS) return g_npc_rep && *g_npc_rep > 0;
     if(id == FLAG_REP_NEG) return g_npc_rep && *g_npc_rep < 0;
+    if(id > FLAG_DEX_BASE && id <= FLAG_DEX_BASE + SPECIES_N) { /* dex:<n> */
+        int i, caught_n = 0;
+        for(i = 0; i < SPECIES_N; i++) if(dex_get(g_dex_caught, i)) caught_n++;
+        return caught_n >= id - FLAG_DEX_BASE;
+    }
     if(id < 0 || id >= FLAG_N || ft[id] == 0) return 0;
     return *ft[id] != 0;
 }
@@ -4293,6 +4310,19 @@ static void npc_flag_set(int id, int **ft) {
 #define POST_LEG3_BOUNTY_FATE 49
 #define POST_LEG3_SHAKEDOWN_FATE 50
 static int g_leg3_post = 0; /* LEG3_POSTS index of the fight in progress */
+/* audio.json trainerSongs for the fight in progress (-1 = default trainer
+   song). Mirrors engine.ts sceneSong(). */
+static int battle_song_id(const Battle *b) {
+    switch(b->trainer_kind) {
+        case TRAINER_LEG3:
+            return (g_leg3_post >= 0 && g_leg3_post < LEG3_POST_N) ? LEG3_POST_SONG[g_leg3_post] : -1;
+        case TRAINER_WSOLDIER_LEAD: return SONG_FOR_LEAD;
+        case TRAINER_WSOLDIER_COMMANDER_FINAL: return SONG_FOR_COMMANDER_FINAL;
+        case TRAINER_WSOLDIER_HEAVENFALL_GRAVE: return SONG_FOR_HEAVENFALL_GRAVE;
+        case TRAINER_SHINIGAMI: return SONG_FOR_SHINIGAMI;
+        default: return -1;
+    }
+}
 static int g_leg3_flags[LEG3_FLAG_N];
 static int g_extra_flags[FLAG_N];
 static int g_leg3_fate = 0;      /* 0 none, 1 General, 2 Nero, 3 bounty, 4 shakedown */
@@ -5876,7 +5906,7 @@ void main(void) {
         g_xp_lead = lead;
         if(state == 0) chip_set_song(chip_song_title());
         else if(ending_mode || g_leg3_ending) chip_set_song(chip_song_ending());
-        else if(in_battle) chip_set_song(chip_song_battle(battle.wild ? 0 : 1));
+        else if(in_battle) chip_set_song(battle.wild ? chip_song_battle(0) : chip_song_trainer(battle_song_id(&battle)));
         else chip_set_song(chip_song_map(map_id));
         chip_tick();
 

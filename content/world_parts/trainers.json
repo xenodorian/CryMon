@@ -954,12 +954,12 @@
     "ghostSoldierA": {
       "lead": [
         "tallowisp",
-        17
+        15
       ],
       "bench": [
         [
           "soottick",
-          16
+          14
         ]
       ],
       "title": "A soldier's ghost rises",
@@ -972,16 +972,16 @@
     "ghostSoldierB": {
       "lead": [
         "gravemoth",
-        18
+        17
       ],
       "bench": [
         [
           "tallowisp",
-          17
+          16
         ],
         [
           "grimkid",
-          17
+          16
         ]
       ],
       "title": "A sergeant's ghost rises",
@@ -994,12 +994,12 @@
     "ghostOriel": {
       "lead": [
         "cryptlamp",
-        21
+        19
       ],
       "bench": [
         [
           "tallowisp",
-          19
+          18
         ]
       ],
       "title": "Oriel's bound Cryptlamp flares",
@@ -1012,24 +1012,24 @@
     "mournerVesk": {
       "lead": [
         "gallowcrow",
-        22
+        21
       ],
       "bench": [
         [
           "gravemoth",
-          21
+          19
         ],
         [
           "grimkid",
-          21
+          19
         ],
         [
           "cryptlamp",
-          22
+          20
         ],
         [
           "deathknell",
-          23
+          21
         ]
       ],
       "title": "Mourner Vesk sends Gallowcrow",
@@ -1296,6 +1296,84 @@
         "arrest": "kaelArrest",
         "execute": "kaelExecute"
       }
+    },
+    "oskOne": {
+      "lead": [
+        "boulderam",
+        18
+      ],
+      "bench": [
+        [
+          "stormwing",
+          17
+        ],
+        [
+          "rimewyrm",
+          17
+        ]
+      ],
+      "title": "Hermit Osk sends Boulderam",
+      "name": "Hermit Osk",
+      "marks": 30,
+      "winTalk": "oskOneWin",
+      "set": "beatOsk1",
+      "post": true
+    },
+    "oskTwo": {
+      "lead": [
+        "hornblaze",
+        31
+      ],
+      "bench": [
+        [
+          "tidewolf",
+          30
+        ],
+        [
+          "blazelynx",
+          30
+        ],
+        [
+          "atlashell",
+          31
+        ]
+      ],
+      "title": "Hermit Osk sends Hornblaze",
+      "name": "Hermit Osk",
+      "marks": 60,
+      "winTalk": "oskTwoWin",
+      "set": "beatOsk2",
+      "post": true
+    },
+    "oskThree": {
+      "lead": [
+        "rootking",
+        47
+      ],
+      "bench": [
+        [
+          "starwhale",
+          45
+        ],
+        [
+          "pyrelion",
+          46
+        ],
+        [
+          "glacierjaw",
+          46
+        ],
+        [
+          "thunderqueen",
+          47
+        ]
+      ],
+      "title": "Hermit Osk sends Rootking",
+      "name": "Hermit Osk",
+      "marks": 120,
+      "winTalk": "oskThreeWin",
+      "set": "beatOsk3",
+      "post": true
     }
   }
 }

@@ -108,6 +108,15 @@ SPEAKER = {
     "iona": 85,
     "rhee": 86,
     "elder": 87,
+    # Ruins / Reach house interiors (build_guilds.py SITES)
+    "wyn": 88,
+    "lark": 89,
+    "hollis": 90,
+    "quill": 91,
+    "brann": 92,
+    "osk": 93,
+    "ilse": 94,
+    "maren": 95,
 }
 
 # JSON camelCase key -> existing main.c TALK_* symbol
@@ -1042,6 +1051,22 @@ def bake_leg3(data: dict, lines: list[str], kit_keys: list[str]) -> None:
             f"{talk_id(ft_.get('arrest'))}, {talk_id(ft_.get('execute'))}, {talk_id(ft_.get('threaten'))} }}, /* {tid} */"
         )
     lines.append("};")
+    # Battle music per trainer (audio.json trainerSongs): a CHIP_SONGS index,
+    # -1 = the default trainerSong. main.c battle_song_id() reads these.
+    song_ids = list(data["audio"]["songs"].keys())
+    tsongs = data["audio"].get("trainerSongs") or {}
+
+    def song_of(tid):
+        sid = tsongs.get(tid)
+        if sid and sid not in song_ids:
+            raise SystemExit(f"trainerSongs.{tid} names unknown song {sid!r}")
+        return song_ids.index(sid) if sid else -1
+    lines.append("static const int LEG3_POST_SONG[LEG3_POST_N] = {")
+    lines.append("    " + ", ".join(str(song_of(tid)) for tid, _k, _g in posts))
+    lines.append("};")
+    for tid, sym in (("lieutenantLead", "LEAD"), ("commanderFinal", "COMMANDER_FINAL"),
+                     ("heavenfallGrave", "HEAVENFALL_GRAVE"), ("shinigami", "SHINIGAMI")):
+        lines.append(f"#define SONG_FOR_{sym} {song_of(tid)}")
     lines.append(f"#define LEG3_GEN_N {len(L['generals'])}")
     lines.append("typedef struct { int medal_flag, arrested_flag, talk_arrest, talk_execute; const char *medal, *name; } Leg3Gen;")
     lines.append("static const Leg3Gen LEG3_GENS[LEG3_GEN_N] = {")
@@ -1209,8 +1234,10 @@ def leg3_pending_ids(data: dict) -> dict:
 # Computed script flags (no save bit): "item:<id>" = the bag holds one,
 # "mon:<species>" = that CryMon can be handed over (Father's party, or
 # Max's when she'd still have another), "rep:pos" / "rep:neg" =
-# reputation above / below zero. main.c npc_flag_on() decodes these ranges.
+# reputation above / below zero, "dex:<n>" = at least n species caught in
+# the CryDex. main.c npc_flag_on() decodes these ranges.
 FLAG_ITEM_BASE, FLAG_MON_BASE, FLAG_REP_POS, FLAG_REP_NEG = 2000, 3000, 4000, 4001
+FLAG_DEX_BASE = 5000
 ITEM_INDEX: dict = {}
 SPECIES_INDEX: dict = {}
 
@@ -1226,6 +1253,11 @@ def flag_id(name) -> int:
         if name[4:] not in SPECIES_INDEX:
             raise SystemExit(f"unknown species in NPC flag {name!r}")
         return FLAG_MON_BASE + SPECIES_INDEX[name[4:]]
+    if name.startswith("dex:"):
+        n = int(name[4:]) if name[4:].isdigit() else -1
+        if n < 1 or n > len(SPECIES_INDEX):
+            raise SystemExit(f"dex count out of range in NPC flag {name!r}")
+        return FLAG_DEX_BASE + n
     if name == "rep:pos":
         return FLAG_REP_POS
     if name == "rep:neg":
@@ -1273,6 +1305,7 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append(f"#define FLAG_MON_BASE {FLAG_MON_BASE}")
     lines.append(f"#define FLAG_REP_POS {FLAG_REP_POS}")
     lines.append(f"#define FLAG_REP_NEG {FLAG_REP_NEG}")
+    lines.append(f"#define FLAG_DEX_BASE {FLAG_DEX_BASE}")
     # FLAG_* -> SAVE_FLAG_* (or -1): main.c gives every saved flag that has no
     # hand-wired variable generic storage and saves it through this.
     save_flags = data["save"]["flags"]
@@ -1530,8 +1563,9 @@ def bake_audio(data: dict, out: Path) -> None:
     order = map_order(data)
     lines.append(f"#define MAP_SONG_N {len(order)}")
     lines.append("static const int MAP_SONG[MAP_SONG_N] = {")
+    default_song = audio.get("defaultMapSong") or "overworld"
     for mid in order:
-        name = map_songs.get(mid, "overworld")
+        name = map_songs.get(mid, default_song)
         idx = song_ids.index(name) if name in song_ids else 0
         lines.append(f"    SONG_{_c_ident(song_ids[idx])},")
     lines.append("};")
@@ -1543,6 +1577,11 @@ def bake_audio(data: dict, out: Path) -> None:
     lines.append(f"#define SONG_ID_BATTLE SONG_{_c_ident(battle)}")
     lines.append(f"#define SONG_ID_TRAINER SONG_{_c_ident(trainer)}")
     lines.append(f"#define SONG_ID_ENDING SONG_{_c_ident(ending)}")
+    # Songs that get battleMusicMul: the wild and trainer songs plus every
+    # trainerSongs value (web audio.ts BATTLE_SONGS).
+    battle_set = {battle, trainer} | set((audio.get("trainerSongs") or {}).values())
+    lines.append("static const unsigned char SONG_IS_BATTLE[SONG_N] = { "
+                 + ", ".join("1" if sid in battle_set else "0" for sid in song_ids) + " };")
     lines.append("")
     vol = audio.get("volume") or {}
     lines.append("/* Master volume scale. 1 = original, 2 = 2x that ceiling. */")

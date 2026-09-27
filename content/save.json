@@ -31,7 +31,10 @@
     "wraithLantern",
     "tamWatch",
     "silverLocket",
-    "oldMap"
+    "oldMap",
+    "brannLetter",
+    "marnReply",
+    "ragDoll"
   ],
   "mapOrder": [
     "house",
@@ -97,7 +100,13 @@
     "ghostcrypt",
     "hauntedhall",
     "heroeshall",
-    "thievesden"
+    "thievesden",
+    "ruinslibrary",
+    "ruinsinn",
+    "brannhouse",
+    "hermithut",
+    "sagehouse",
+    "emptyhouse"
   ],
   "dirOrder": [
     "down",
@@ -404,7 +413,24 @@
     "paidKael",
     "ionaFound",
     "ionaHome",
-    "gaveArcanox"
+    "gaveArcanox",
+    "talkedWyn",
+    "libraryDex10",
+    "libraryDex25",
+    "libraryDex50",
+    "libraryDex80",
+    "libraryDexAll",
+    "brannAsked",
+    "gaveLetter",
+    "brannDone",
+    "beatOsk1",
+    "beatOsk2",
+    "beatOsk3",
+    "ilseGift",
+    "talkedIlse",
+    "talkedMaren",
+    "pickedDoll",
+    "marenRest"
   ],
   "layout": {
     "magic": [
