@@ -3838,3 +3838,10 @@ own files; redraw them only if the user says so.
 - Baphorn: broad shaggy shoulders over a narrow waist, rib ridges, a ragged loincloth and bigger ram horns so it reads as upright.
 - Arcanox: the rune clutter on its body is down to one glowing band, plus a third eye that opens as it idles.
 - Crabs (Rimecrab, Floeclaw, Rockhermit, Cragsage): legs now arch to a knee and splay like real crab legs instead of a comb.
+
+### Deep pass batch 6 (Claude, 2026-09-27)
+- Deathknell: a bone skull set into the bell with eye sockets that burn brighter as it swings.
+- Eclipsaur: two pinprick star eyes and a thin crescent of light inside the black disc face.
+- Geminal: each spirit wears the spinning star it grew from (matches the new Twinklet).
+- Glacierjaw: a huge ice-plated underbite that gapes and snaps, ice fangs, and an ice brow plate.
+- Gravemoth: warmer dusty wing colors with pale scales drifting over them.

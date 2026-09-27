@@ -106,8 +106,20 @@ def glacierjaw(t):
     c = Canvas(128, 128, seed=63)
     bob = [0, -1, -2, -1][t]
     jaw = [0.8, 1.2, 1.6, 1.2][t]
-    fish(c, t, cx=66, cy=58 + bob, L=100, H=40, body="#2a5a96", belly="#cfe6f6", fin="#6a9ad0", eye="#b0f0ff",
-         teeth=True, jaw=jaw, spikes=6, angry=0.9)
+    a = fish(c, t, cx=66, cy=58 + bob, L=100, H=40, body="#2a5a96", belly="#cfe6f6", fin="#6a9ad0", eye="#b0f0ff",
+             teeth=True, jaw=jaw, spikes=6, angry=0.9)
+    # the glacier jaw: a huge ice-plated underbite that gapes and snaps,
+    # with fangs of ice standing up out of it
+    hx_, hy_ = a["head"]
+    gape = [2, 4, 6, 4][t]
+    c.poly([(hx_ - 8, hy_ + 6 + gape), (hx_ + 26, hy_ + 10), (hx_ + 30, hy_ + 22), (hx_ + 6, hy_ + 26 + gape * 0.5),
+            (hx_ - 10, hy_ + 16 + gape)], ICE, z=60, bevel=3)
+    for k in range(4):
+        fx_ = hx_ - 5 + k * 7
+        c.tri((fx_ - 2.2, hy_ + 8 + gape - k * 0.4), (fx_ + 0.5, hy_ - 1 + gape - k * 0.4), (fx_ + 3, hy_ + 9 + gape - k * 0.4),
+              M("#f4fbff", spec=0.8), z=64, bevel=1)
+    # a brow plate of ice over the eye
+    c.poly([(hx_ + 4, hy_ - 14), (hx_ + 26, hy_ - 18), (hx_ + 30, hy_ - 10), (hx_ + 8, hy_ - 8)], ICE, z=60, bevel=2)
     # frozen breath
     sparks((220, 246, 255), 6, seed=63, spread=(4, 30, 50, 90))(c, {}, t, None)
     return c
