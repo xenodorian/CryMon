@@ -8552,8 +8552,8 @@ void main(void) {
                     } else {
                         choice_pending_ws = -1;
                         seq_page = 0;
-                        seq_lines = TALK_PTRS[TALK_LEAD_WALK_AWAY];
-                        seq_len = TALK_COUNTS[TALK_LEAD_WALK_AWAY];
+                        seq_lines = 0;
+                        seq_len = 0;
                         seq_beat = 0;
                         post_action = POST_NONE;
                     }
