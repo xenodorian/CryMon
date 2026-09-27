@@ -3612,3 +3612,23 @@ stays out of both. Toolchain note: `dockerd &` then the CI image
       19-21 bench, so the ramp runs grass 13-16 -> hall 15-19 -> Vesk 21
       -> Lead 24-28. Quartz and Opal (Lv 9-10) are left for the thread
       that owns Quartz's win/save fix; they are low for a post-scroll map.
+- [x] H3 Music: eight new songs and a song for every map and big fight.
+      `tools/compose_songs.py` writes them into audio.json (chord
+      progressions + hand-written melodies, all four tracks the same
+      length so loops stay in step): `sephirot` (cities and paths north
+      of the Veil), `road` (gauntlet, Weeping Road), `crypt` (Ghost Guild,
+      haunted hall, empty house, the gauntlet grave), `base` (the nine
+      bases, a march), `palace` (Keter and Nero's palace), `guild` (inns,
+      library, guild halls, a waltz), `general` (Generals, Lead, Vesk,
+      Commander, Shinigami) and `finalboss` (Nero, Heavenfall).
+      - Parity bug fixed: a map missing from `mapSongs` played the title
+        song on web but `overworld` on Dreamcast (that was every Sephirot
+        map, base, palace and guild hall). Every map now has an entry, and
+        both engines read the same `defaultMapSong` fallback.
+      - New `trainerSongs` {trainer id: song}. Web `sceneSong()` looks up
+        the fight's trainer id; Dreamcast `battle_song_id()` reads the
+        baked `LEG3_POST_SONG[]` / `SONG_FOR_*`. Every song named there
+        gets `battleMusicMul` on both (`SONG_IS_BATTLE[]`, web
+        `BATTLE_SONGS`).
+      - Verified on web: sceneSong per map and per fight (General,
+        Nero, Lead, Shinigami, plain trainer, wild). Dreamcast builds.

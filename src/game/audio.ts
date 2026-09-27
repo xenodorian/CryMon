@@ -78,6 +78,11 @@ export const TITLE_SONG = audioJson.titleSong;
 export const BATTLE_SONG = audioJson.battleSong;
 export const TRAINER_SONG = audioJson.trainerSong;
 export const ENDING_SONG = audioJson.endingSong;
+/** Battle music per trainer id (audio.json trainerSongs); others use TRAINER_SONG. */
+export const TRAINER_SONGS = ((audioJson as { trainerSongs?: Record<string, string> }).trainerSongs ?? {}) as Record<string, string>;
+/** Map song when mapSongs has no entry (the Dreamcast bake uses the same). */
+export const DEFAULT_MAP_SONG = (audioJson as { defaultMapSong?: string }).defaultMapSong ?? "overworld";
+const BATTLE_SONGS = new Set<string>([BATTLE_SONG, TRAINER_SONG, ...Object.values(TRAINER_SONGS)]);
 
 const VOLUME_CFG = (audioJson as { volume?: { min: number; max: number; default: number; step: number; baseMaster: number } }).volume || {
 	min: 0,
@@ -320,7 +325,7 @@ export class Chip {
 	}
 
 	private musicGainFor(id: string | null) {
-		const battle = id === BATTLE_SONG || id === TRAINER_SONG;
+		const battle = !!id && BATTLE_SONGS.has(id);
 		return MUSIC_BUS * (battle ? BATTLE_MUSIC_MUL : 1);
 	}
 

@@ -4269,6 +4269,19 @@ static void npc_flag_set(int id, int **ft) {
 #define POST_LEG3_BOUNTY_FATE 49
 #define POST_LEG3_SHAKEDOWN_FATE 50
 static int g_leg3_post = 0; /* LEG3_POSTS index of the fight in progress */
+/* audio.json trainerSongs for the fight in progress (-1 = default trainer
+   song). Mirrors engine.ts sceneSong(). */
+static int battle_song_id(const Battle *b) {
+    switch(b->trainer_kind) {
+        case TRAINER_LEG3:
+            return (g_leg3_post >= 0 && g_leg3_post < LEG3_POST_N) ? LEG3_POST_SONG[g_leg3_post] : -1;
+        case TRAINER_WSOLDIER_LEAD: return SONG_FOR_LEAD;
+        case TRAINER_WSOLDIER_COMMANDER_FINAL: return SONG_FOR_COMMANDER_FINAL;
+        case TRAINER_WSOLDIER_HEAVENFALL_GRAVE: return SONG_FOR_HEAVENFALL_GRAVE;
+        case TRAINER_SHINIGAMI: return SONG_FOR_SHINIGAMI;
+        default: return -1;
+    }
+}
 static int g_leg3_flags[LEG3_FLAG_N];
 static int g_extra_flags[FLAG_N];
 static int g_leg3_fate = 0;      /* 0 none, 1 General, 2 Nero, 3 bounty, 4 shakedown */
@@ -5830,7 +5843,7 @@ void main(void) {
         g_xp_lead = lead;
         if(state == 0) chip_set_song(chip_song_title());
         else if(ending_mode || g_leg3_ending) chip_set_song(chip_song_ending());
-        else if(in_battle) chip_set_song(chip_song_battle(battle.wild ? 0 : 1));
+        else if(in_battle) chip_set_song(battle.wild ? chip_song_battle(0) : chip_song_trainer(battle_song_id(&battle)));
         else chip_set_song(chip_song_map(map_id));
         chip_tick();
 

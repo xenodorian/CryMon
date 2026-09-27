@@ -287,7 +287,7 @@ void chip_set_song(int id) {
     if(!inited) return;
     if(id == cur_song) return;
     cur_song = id;
-    battle_mul = (id == SONG_ID_BATTLE || id == SONG_ID_TRAINER) ? BATTLE_MUSIC_MUL : 1.0f;
+    battle_mul = (id >= 0 && id < SONG_N && SONG_IS_BATTLE[id]) ? BATTLE_MUSIC_MUL : 1.0f;
     if(id < 0 || id >= SONG_N)
         play_reset(&music, 0);
     else
@@ -330,6 +330,8 @@ void chip_sfx_scream(void) { chip_sfx(SFX_SCREAM); }
 int chip_song_title(void) { return SONG_ID_TITLE; }
 int chip_song_ending(void) { return SONG_ID_ENDING; }
 int chip_song_battle(int trainer) { return trainer ? SONG_ID_TRAINER : SONG_ID_BATTLE; }
+/* A baked audio.json trainerSongs index, or -1 for the default trainer song. */
+int chip_song_trainer(int song) { return (song >= 0 && song < SONG_N) ? song : SONG_ID_TRAINER; }
 int chip_song_map(int map_id) {
     if(map_id < 0 || map_id >= MAP_SONG_N) return SONG_ID_TITLE;
     return MAP_SONG[map_id];

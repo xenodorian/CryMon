@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=3ff0e2557fbf6a39 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=aa1d908c730341de — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6
@@ -1380,6 +1380,13 @@ static const Leg3Post LEG3_POSTS[LEG3_POST_N] = {
     { 59, 0, -1, FLAG_BEAT_OSK2, 471, 60, 0, "HERMIT OSK SENDS HORNBLAZE", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* oskTwo */
     { 60, 0, -1, FLAG_BEAT_OSK3, 474, 120, 0, "HERMIT OSK SENDS ROOTKING", -1, -1, -1, -1, 0, -1, 0, -1, -1, -1 }, /* oskThree */
 };
+static const int LEG3_POST_SONG[LEG3_POST_N] = {
+    -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 13, -1, -1, 14, 14, -1, -1, -1, 13, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+};
+#define SONG_FOR_LEAD 13
+#define SONG_FOR_COMMANDER_FINAL 13
+#define SONG_FOR_HEAVENFALL_GRAVE 14
+#define SONG_FOR_SHINIGAMI 13
 #define LEG3_GEN_N 9
 typedef struct { int medal_flag, arrested_flag, talk_arrest, talk_execute; const char *medal, *name; } Leg3Gen;
 static const Leg3Gen LEG3_GENS[LEG3_GEN_N] = {

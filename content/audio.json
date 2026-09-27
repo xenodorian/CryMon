@@ -215,6 +215,238 @@
           "pattern": "n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4 n:2 r:2 n:2 r:2 n:4 r:4"
         }
       ]
+    },
+    "sephirot": {
+      "loop": true,
+      "tracks": [
+        {
+          "wave": "pulse",
+          "duty": 2,
+          "vol": 11,
+          "pattern": "D5:22 A4:11 D5:11 E5:22 F5:22 E5:33 D5:11 C5:22 G4:22 F4:22 Bb4:22 D5:22 C5:11 Bb4:11 A4:44 Cs5:22 E5:22 F5:22 E5:11 D5:11 A5:22 F5:22 A5:22 G5:11 F5:11 C5:22 F5:22 G5:33 F5:11 E5:22 D5:22 Cs5:22 E5:22 A4:44"
+        },
+        {
+          "wave": "pulse",
+          "duty": 1,
+          "vol": 5,
+          "pattern": "D4:11 F4:11 A4:11 F4:11 D4:11 F4:11 A4:11 F4:11 C4:11 E4:11 G4:11 E4:11 C4:11 E4:11 G4:11 E4:11 Bb4:11 D5:11 F5:11 D5:11 Bb4:11 D5:11 F5:11 D5:11 A4:11 Cs5:11 E5:11 Cs5:11 A4:11 Cs5:11 E5:11 Cs5:11 D4:11 F4:11 A4:11 F4:11 D4:11 F4:11 A4:11 F4:11 F4:11 A4:11 C5:11 A4:11 F4:11 A4:11 C5:11 A4:11 G4:11 B4:11 D5:11 B4:11 G4:11 B4:11 D5:11 B4:11 A4:11 Cs5:11 E5:11 Cs5:11 A4:11 Cs5:11 E5:11 Cs5:11"
+        },
+        {
+          "wave": "tri",
+          "duty": 0,
+          "vol": 8,
+          "pattern": "D2:44 A2:44 C2:44 G2:44 Bb2:44 F3:44 A2:44 E3:44 D2:44 A2:44 F2:44 C3:44 G2:44 D3:44 A2:44 E3:44"
+        },
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 4,
+          "pattern": "n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22 n:2 r:20 r:22"
+        }
+      ]
+    },
+    "road": {
+      "loop": true,
+      "tracks": [
+        {
+          "wave": "pulse",
+          "duty": 2,
+          "vol": 11,
+          "pattern": "E5:18 Cs5:9 E5:9 A5:18 E5:18 D5:18 B4:9 D5:9 Gs5:18 E5:18 Fs5:18 E5:9 Cs5:9 A4:18 Cs5:18 D5:27 Cs5:9 B4:18 A4:18 Cs5:9 E5:9 A5:18 Gs5:9 Fs5:9 E5:18 B4:9 Cs5:9 D5:18 E5:18 Gs5:18 A5:18 Fs5:18 D5:18 Fs5:18 E5:36 r:18 E4:18"
+        },
+        {
+          "wave": "pulse",
+          "duty": 0,
+          "vol": 5,
+          "pattern": "A4:9 E5:9 Cs5:9 E5:9 A4:9 E5:9 Cs5:9 E5:9 E4:9 B4:9 Gs4:9 B4:9 E4:9 B4:9 Gs4:9 B4:9 Fs4:9 Cs5:9 A4:9 Cs5:9 Fs4:9 Cs5:9 A4:9 Cs5:9 D4:9 A4:9 Fs4:9 A4:9 D4:9 A4:9 Fs4:9 A4:9 A4:9 E5:9 Cs5:9 E5:9 A4:9 E5:9 Cs5:9 E5:9 E4:9 B4:9 Gs4:9 B4:9 E4:9 B4:9 Gs4:9 B4:9 D4:9 A4:9 Fs4:9 A4:9 D4:9 A4:9 Fs4:9 A4:9 E4:9 B4:9 Gs4:9 B4:9 E4:9 B4:9 Gs4:9 B4:9"
+        },
+        {
+          "wave": "tri",
+          "duty": 0,
+          "vol": 8,
+          "pattern": "A2:18 A3:18 E3:18 A3:18 E2:18 E3:18 B2:18 E3:18 Fs2:18 Fs3:18 Cs3:18 Fs3:18 D2:18 D3:18 A2:18 D3:18 A2:18 A3:18 E3:18 A3:18 E2:18 E3:18 B2:18 E3:18 D2:18 D3:18 A2:18 D3:18 E2:18 E3:18 B2:18 E3:18"
+        },
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 3,
+          "pattern": "n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8 n:4 r:5 n:1 r:8"
+        }
+      ]
+    },
+    "crypt": {
+      "loop": true,
+      "tracks": [
+        {
+          "wave": "pulse",
+          "duty": 0,
+          "vol": 9,
+          "pattern": "E5:68 C5:34 B4:34 A4:102 r:34 D5:68 F5:34 E5:34 Gs4:102 r:34 A5:68 G5:34 E5:34 F5:68 C5:68 D5:34 E5:34 F5:34 D5:34 E5:136"
+        },
+        {
+          "wave": "pulse",
+          "duty": 2,
+          "vol": 3,
+          "pattern": "A3:34 C4:34 E4:34 C4:34 A3:34 C4:34 E4:34 C4:34 D3:34 F3:34 A3:34 F3:34 E3:34 Gs3:34 B3:34 Gs3:34 A3:34 C4:34 E4:34 C4:34 F3:34 A3:34 C4:34 A3:34 D3:34 F3:34 A3:34 F3:34 E3:34 Gs3:34 B3:34 Gs3:34"
+        },
+        {
+          "wave": "tri",
+          "duty": 0,
+          "vol": 7,
+          "pattern": "A2:136 A2:136 D2:136 E2:136 A2:136 F2:136 D2:136 E2:136"
+        },
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 2,
+          "pattern": "n:6 r:28 r:34 r:34 r:34 n:6 r:28 r:34 r:34 r:34 n:6 r:28 r:34 r:34 r:34 n:6 r:28 r:34 r:34 r:34 n:6 r:28 r:34 r:34 r:34 n:6 r:28 r:34 r:34 r:34 n:6 r:28 r:34 r:34 r:34 n:6 r:28 r:34 r:34 r:34"
+        }
+      ]
+    },
+    "base": {
+      "loop": true,
+      "tracks": [
+        {
+          "wave": "pulse",
+          "duty": 2,
+          "vol": 11,
+          "pattern": "E5:9 r:9 E5:9 E5:9 G5:18 E5:18 B4:9 r:9 B4:9 B4:9 D5:18 B4:18 C5:9 r:9 C5:9 E5:9 G5:18 E5:18 D5:9 r:9 D5:9 Fs5:9 A5:18 Fs5:18 G5:18 Fs5:9 E5:9 B4:18 E5:18 G5:18 A5:9 G5:9 Fs5:18 E5:18 A5:18 G5:9 Fs5:9 E5:18 C5:18 B4:18 Ds5:18 Fs5:18 B5:18"
+        },
+        {
+          "wave": "pulse",
+          "duty": 0,
+          "vol": 4,
+          "pattern": "E4:9 G4:9 B4:9 G4:9 E4:9 G4:9 B4:9 G4:9 E4:9 G4:9 B4:9 G4:9 E4:9 G4:9 B4:9 G4:9 C4:9 E4:9 G4:9 E4:9 C4:9 E4:9 G4:9 E4:9 D4:9 Fs4:9 A4:9 Fs4:9 D4:9 Fs4:9 A4:9 Fs4:9 E4:9 G4:9 B4:9 G4:9 E4:9 G4:9 B4:9 G4:9 E4:9 G4:9 B4:9 G4:9 E4:9 G4:9 B4:9 G4:9 A4:9 C5:9 E5:9 C5:9 A4:9 C5:9 E5:9 C5:9 B4:9 Ds5:9 Fs5:9 Ds5:9 B4:9 Ds5:9 Fs5:9 Ds5:9"
+        },
+        {
+          "wave": "tri",
+          "duty": 0,
+          "vol": 8,
+          "pattern": "E2:9 E2:9 E2:9 B2:9 E2:9 E2:9 E2:9 B2:9 E2:9 E2:9 E2:9 B2:9 E2:9 E2:9 E2:9 B2:9 C2:9 C2:9 C2:9 G2:9 C2:9 C2:9 C2:9 G2:9 D2:9 D2:9 D2:9 A2:9 D2:9 D2:9 D2:9 A2:9 E2:9 E2:9 E2:9 B2:9 E2:9 E2:9 E2:9 B2:9 E2:9 E2:9 E2:9 B2:9 E2:9 E2:9 E2:9 B2:9 A2:9 A2:9 A2:9 E3:9 A2:9 A2:9 A2:9 E3:9 B2:9 B2:9 B2:9 Fs3:9 B2:9 B2:9 B2:9 Fs3:9"
+        },
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 6,
+          "pattern": "n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8 n:2 r:16 n:3 r:6 n:1 r:8"
+        }
+      ]
+    },
+    "palace": {
+      "loop": true,
+      "tracks": [
+        {
+          "wave": "pulse",
+          "duty": 2,
+          "vol": 11,
+          "pattern": "C5:60 Eb5:30 G5:30 Ab5:60 G5:30 Eb5:30 F5:60 Ab5:30 C6:30 B5:60 D5:30 G5:30 C6:45 Bb5:15 Ab5:30 G5:30 Eb5:60 G5:30 Bb5:30 Ab5:30 F5:30 G5:30 B4:30 C5:120"
+        },
+        {
+          "wave": "pulse",
+          "duty": 2,
+          "vol": 5,
+          "pattern": "C3:15 Ds3:15 G3:15 Ds3:15 C3:15 Ds3:15 G3:15 Ds3:15 Gs3:15 C4:15 Ds4:15 C4:15 Gs3:15 C4:15 Ds4:15 C4:15 F3:15 Gs3:15 C4:15 Gs3:15 F3:15 Gs3:15 C4:15 Gs3:15 G3:15 B3:15 D4:15 B3:15 G3:15 B3:15 D4:15 B3:15 C3:15 Ds3:15 G3:15 Ds3:15 C3:15 Ds3:15 G3:15 Ds3:15 Ds3:15 G3:15 Bb3:15 G3:15 Ds3:15 G3:15 Bb3:15 G3:15 F3:15 Gs3:15 C4:15 Gs3:15 F3:15 Gs3:15 C4:15 Gs3:15 C3:15 Ds3:15 G3:15 Ds3:15 C3:15 Ds3:15 G3:15 Ds3:15"
+        },
+        {
+          "wave": "tri",
+          "duty": 0,
+          "vol": 9,
+          "pattern": "C2:60 G2:60 Gs2:60 Ds3:60 F2:60 C3:60 G2:60 D3:60 C2:60 G2:60 Ds2:60 Bb2:60 F2:60 C3:60 C2:60 G2:60"
+        },
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 3,
+          "pattern": "n:6 r:24 r:30 r:30 r:30 n:6 r:24 r:30 r:30 r:30 n:6 r:24 r:30 r:30 r:30 n:6 r:24 r:30 r:30 r:30 n:6 r:24 r:30 r:30 r:30 n:6 r:24 r:30 r:30 r:30 n:6 r:24 r:30 r:30 r:30 n:6 r:24 r:30 r:30 r:30"
+        }
+      ]
+    },
+    "guild": {
+      "loop": true,
+      "tracks": [
+        {
+          "wave": "pulse",
+          "duty": 1,
+          "vol": 9,
+          "pattern": "D5:22 G5:22 B5:22 A5:44 G5:22 Fs5:22 A5:22 D5:22 G5:66 E5:22 G5:22 B5:22 C6:22 B5:22 A5:22 D5:22 Fs5:22 A5:22 G5:66"
+        },
+        {
+          "wave": "pulse",
+          "duty": 1,
+          "vol": 4,
+          "pattern": "B4:22 D5:22 G4:22 E4:22 G4:22 C4:22 Fs4:22 A4:22 D4:22 B4:22 D5:22 G4:22 G4:22 B4:22 E4:22 E4:22 G4:22 C4:22 Fs4:22 A4:22 D4:22 B4:22 D5:22 G4:22"
+        },
+        {
+          "wave": "tri",
+          "duty": 0,
+          "vol": 8,
+          "pattern": "G2:22 r:22 D3:22 C2:22 r:22 G2:22 D2:22 r:22 A2:22 G2:22 r:22 D3:22 E2:22 r:22 B2:22 C2:22 r:22 G2:22 D2:22 r:22 A2:22 G2:22 r:22 D3:22"
+        },
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 2,
+          "pattern": "n:2 r:20 n:1 r:21 n:1 r:21 n:2 r:20 n:1 r:21 n:1 r:21 n:2 r:20 n:1 r:21 n:1 r:21 n:2 r:20 n:1 r:21 n:1 r:21 n:2 r:20 n:1 r:21 n:1 r:21 n:2 r:20 n:1 r:21 n:1 r:21 n:2 r:20 n:1 r:21 n:1 r:21 n:2 r:20 n:1 r:21 n:1 r:21"
+        }
+      ]
+    },
+    "general": {
+      "loop": true,
+      "tracks": [
+        {
+          "wave": "pulse",
+          "duty": 2,
+          "vol": 12,
+          "pattern": "B4:6 D5:6 Fs5:6 B5:6 A5:6 Fs5:6 D5:6 Fs5:6 G5:6 B4:6 D5:6 G5:6 Fs5:6 D5:6 B4:6 D5:6 E5:6 G5:6 B5:6 E5:6 D5:6 E5:6 Fs5:6 G5:6 Fs5:12 As5:12 Cs6:12 Fs5:12 B5:6 A5:6 Fs5:6 D5:6 B5:6 A5:6 Fs5:6 D5:6 G5:6 Fs5:6 D5:6 B4:6 G5:6 Fs5:6 D5:6 B4:6 E5:12 G5:6 E5:6 Fs5:12 A5:6 Fs5:6 Fs5:24 r:12 Fs4:12"
+        },
+        {
+          "wave": "pulse",
+          "duty": 0,
+          "vol": 6,
+          "pattern": "B3:6 D4:6 Fs4:6 D4:6 B3:6 D4:6 Fs4:6 D4:6 G3:6 B3:6 D4:6 B3:6 G3:6 B3:6 D4:6 B3:6 E3:6 G3:6 B3:6 G3:6 E3:6 G3:6 B3:6 G3:6 Fs3:6 Bb3:6 Cs4:6 Bb3:6 Fs3:6 Bb3:6 Cs4:6 Bb3:6 B3:6 D4:6 Fs4:6 D4:6 B3:6 D4:6 Fs4:6 D4:6 G3:6 B3:6 D4:6 B3:6 G3:6 B3:6 D4:6 B3:6 E3:6 G3:6 B3:6 G3:6 E3:6 G3:6 B3:6 G3:6 Fs3:6 Bb3:6 Cs4:6 Bb3:6 Fs3:6 Bb3:6 Cs4:6 Bb3:6"
+        },
+        {
+          "wave": "tri",
+          "duty": 0,
+          "vol": 10,
+          "pattern": "B2:6 B2:6 B2:6 Fs3:6 B2:6 B2:6 B2:6 Fs3:6 G2:6 G2:6 G2:6 D3:6 G2:6 G2:6 G2:6 D3:6 E2:6 E2:6 E2:6 B2:6 E2:6 E2:6 E2:6 B2:6 Fs2:6 Fs2:6 Fs2:6 Cs3:6 Fs2:6 Fs2:6 Fs2:6 Cs3:6 B2:6 B2:6 B2:6 Fs3:6 B2:6 B2:6 B2:6 Fs3:6 G2:6 G2:6 G2:6 D3:6 G2:6 G2:6 G2:6 D3:6 E2:6 E2:6 E2:6 B2:6 E2:6 E2:6 E2:6 B2:6 Fs2:6 Fs2:6 Fs2:6 Cs3:6 Fs2:6 Fs2:6 Fs2:6 Cs3:6"
+        },
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 7,
+          "pattern": "n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5 n:4 r:2 n:1 r:5"
+        }
+      ]
+    },
+    "finalboss": {
+      "loop": true,
+      "tracks": [
+        {
+          "wave": "pulse",
+          "duty": 2,
+          "vol": 12,
+          "pattern": "E5:5 F5:5 E5:5 B4:5 E5:5 F5:5 G5:5 F5:5 E5:5 F5:5 E5:5 C5:5 D5:5 E5:5 F5:5 D5:5 E5:5 G5:5 B5:5 E6:5 D6:5 B5:5 G5:5 E5:5 F5:10 A5:10 C6:10 F5:10 E6:5 D6:5 B5:5 G5:5 E6:5 D6:5 B5:5 G5:5 C6:5 B5:5 A5:5 F5:5 C6:5 B5:5 A5:5 F5:5 D6:10 C6:5 B5:5 A5:10 G5:5 F5:5 E5:20 F5:10 E5:10"
+        },
+        {
+          "wave": "pulse",
+          "duty": 0,
+          "vol": 7,
+          "pattern": "E3:5 G3:5 B3:5 G3:5 E3:5 G3:5 B3:5 G3:5 C3:5 E3:5 G3:5 E3:5 C3:5 E3:5 G3:5 E3:5 E3:5 G3:5 B3:5 G3:5 E3:5 G3:5 B3:5 G3:5 F3:5 A3:5 C4:5 A3:5 F3:5 A3:5 C4:5 A3:5 E3:5 G3:5 B3:5 G3:5 E3:5 G3:5 B3:5 G3:5 F3:5 A3:5 C4:5 A3:5 F3:5 A3:5 C4:5 A3:5 D3:5 F3:5 A3:5 F3:5 D3:5 F3:5 A3:5 F3:5 E3:5 Gs3:5 B3:5 Gs3:5 E3:5 Gs3:5 B3:5 Gs3:5"
+        },
+        {
+          "wave": "tri",
+          "duty": 0,
+          "vol": 11,
+          "pattern": "E2:5 E2:5 E2:5 B2:5 E2:5 E2:5 E2:5 B2:5 C2:5 C2:5 C2:5 G2:5 C2:5 C2:5 C2:5 G2:5 E2:5 E2:5 E2:5 B2:5 E2:5 E2:5 E2:5 B2:5 F2:5 F2:5 F2:5 C3:5 F2:5 F2:5 F2:5 C3:5 E2:5 E2:5 E2:5 B2:5 E2:5 E2:5 E2:5 B2:5 F2:5 F2:5 F2:5 C3:5 F2:5 F2:5 F2:5 C3:5 D2:5 D2:5 D2:5 A2:5 D2:5 D2:5 D2:5 A2:5 E2:5 E2:5 E2:5 B2:5 E2:5 E2:5 E2:5 B2:5"
+        },
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 8,
+          "pattern": "n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4 n:4 r:1 n:1 r:4"
+        }
+      ]
     }
   },
   "sfx": {
@@ -348,15 +580,88 @@
     "reach": "wilds",
     "marsh": "wilds",
     "quarry": "wilds",
-    "ruinslibrary": "home",
-    "ruinsinn": "home",
+    "ruinslibrary": "guild",
+    "ruinsinn": "guild",
     "brannhouse": "home",
-    "hermithut": "home",
+    "hermithut": "guild",
     "sagehouse": "home",
-    "emptyhouse": "occupation"
+    "emptyhouse": "crypt",
+    "gauntlet": "road",
+    "gauntlet1": "road",
+    "gauntlet2": "road",
+    "gauntlet3": "road",
+    "gauntlet4": "road",
+    "gauntlet5": "road",
+    "gauntlet6": "crypt",
+    "malkuth": "sephirot",
+    "weepingroad": "road",
+    "yesod": "sephirot",
+    "tau": "sephirot",
+    "netzach": "sephirot",
+    "qoph": "sephirot",
+    "hod": "sephirot",
+    "shin": "sephirot",
+    "peh": "sephirot",
+    "resh": "sephirot",
+    "tzaddi": "sephirot",
+    "tiferet": "sephirot",
+    "samekh": "sephirot",
+    "nun": "sephirot",
+    "ayin": "sephirot",
+    "chesed": "sephirot",
+    "kaph": "sephirot",
+    "yod": "sephirot",
+    "gevurah": "sephirot",
+    "mem": "sephirot",
+    "lamed": "sephirot",
+    "teth": "sephirot",
+    "binah": "sephirot",
+    "zayin": "sephirot",
+    "heth": "sephirot",
+    "chokmah": "sephirot",
+    "he": "sephirot",
+    "vau": "sephirot",
+    "daleth": "sephirot",
+    "keter": "palace",
+    "gimel": "sephirot",
+    "aleph": "sephirot",
+    "beth": "sephirot",
+    "basemalkuth": "base",
+    "baseyesod": "base",
+    "basenetzach": "base",
+    "basehod": "base",
+    "basetiferet": "base",
+    "basechesed": "base",
+    "basegevurah": "base",
+    "basebinah": "base",
+    "basechokmah": "base",
+    "palaceketer": "palace",
+    "ghostcrypt": "crypt",
+    "hauntedhall": "crypt",
+    "heroeshall": "guild",
+    "thievesden": "guild"
   },
   "titleSong": "title",
   "battleSong": "battle",
   "trainerSong": "boss",
-  "endingSong": "title"
+  "endingSong": "title",
+  "defaultMapSong": "overworld",
+  "trainerSongs": {
+    "lieutenantLead": "general",
+    "commanderFinal": "general",
+    "mournerVesk": "general",
+    "shinigami": "general",
+    "nero": "finalboss",
+    "heavenfallFinal": "finalboss",
+    "heavenfallGrave": "finalboss",
+    "generalHarrow": "general",
+    "generalAshgrove": "general",
+    "generalStroud": "general",
+    "generalVale": "general",
+    "generalKessler": "general",
+    "generalMorrow": "general",
+    "generalCrane": "general",
+    "generalBlackwood": "general",
+    "generalSorrel": "general"
+  }
 }

@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- engine.ts is written untyped; dropping this surfaces ~815 type errors, so typing it is its own project (see CURRENT_WORK "Fix-up pass")
 // @ts-nocheck
-import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, ENDING_SONG, VOLUME } from "./audio";
+import { Chip, MAP_SONG, TITLE_SONG, BATTLE_SONG, TRAINER_SONG, TRAINER_SONGS, DEFAULT_MAP_SONG, ENDING_SONG, VOLUME } from "./audio";
 import { packSave, unpackSave, writeSaveBlob, readSaveBlob, saveExists, clearSave, SAVE_FLAGS, SAVE_SPECIES, DEX_WORD_N } from "./save";
 import {
   CAMP,
@@ -646,8 +646,12 @@ export class CryMon {
 	sceneSong() {
 		if (this.mode === "title" || this.mode === "ending") return this.mode === "ending" ? ENDING_SONG : TITLE_SONG;
 		if (this.mode === "intro") return "home";
-		if (this.mode === "battle") return this.battle && !this.battle.wild ? TRAINER_SONG : BATTLE_SONG;
-		return MAP_SONG[this.world.mapId] || TITLE_SONG;
+		if (this.mode === "battle") {
+			const b = this.battle;
+			if (!b || b.wild) return BATTLE_SONG;
+			return TRAINER_SONGS[b.soldierId ?? ""] ?? TRAINER_SONGS[b.trainer] ?? TRAINER_SONG;
+		}
+		return MAP_SONG[this.world.mapId] || DEFAULT_MAP_SONG;
 	}
 	startLoop() {
 		if (this.running) return;

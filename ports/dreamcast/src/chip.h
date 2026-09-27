@@ -22,6 +22,7 @@ int chip_volume_pct(void);
 int chip_volume_fill(int bar_w);
 int chip_song_title(void);
 int chip_song_battle(int trainer);
+int chip_song_trainer(int song);
 int chip_song_map(int map_id);
 int chip_song_ending(void);
 
