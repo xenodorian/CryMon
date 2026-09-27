@@ -671,7 +671,13 @@ static int s_cat_uint(char *dst, int len, int v) {
 #define DIALOGUE_SCALE 1
 
 static void draw_press_start(int cur, int has_save) {
+#ifdef HAVE_SCREEN_ART
+    blit_sprite_2x(screen_title, BATTLE_BG_W / 2, BATTLE_BG_H / 2, 0, 0);
+    fill_rect(96, 112, 128, 42, rgb565(150, 118, 64));
+    fill_rect(97, 113, 126, 40, rgb565(18, 17, 14));
+#else
     vram_clear();
+#endif
     draw_text_center_s("CRYMON", SCREEN_W / 2, 48, 0xFFFF, 2);
     draw_text_center_s(cur == 0 ? "> CONTINUE" : "CONTINUE", SCREEN_W / 2, 120,
                         has_save ? (cur == 0 ? rgb565(90, 122, 82) : rgb565(197, 206, 198))
@@ -5743,7 +5749,12 @@ static void draw_shop(const Bag *bag, int marks, int sell_tab, int cur, int shop
  * through its lines on A and returns to the title screen at the end.
  * ---------------------------------------------------------------------- */
 static void draw_ending(const char *const *lines, int n, int i) {
+#ifdef HAVE_SCREEN_ART
+    blit_sprite_2x(screen_ending, BATTLE_BG_W / 2, BATTLE_BG_H / 2, 0, 0);
+    draw_ui_frame(4, 70, SCREEN_W - 8, 100);
+#else
     vram_clear();
+#endif
     draw_text_center_s("CRYMON", SCREEN_W / 2, 24, 0xFFFF, 2);
     draw_text_center_s("EPILOGUE", SCREEN_W / 2, 48, rgb565(143, 74, 64), 1);
     if(i < n)

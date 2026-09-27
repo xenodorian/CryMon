@@ -687,6 +687,14 @@
     [
       "ui-frame",
       "/sprites/ui/frame.png"
+    ],
+    [
+      "screen-title",
+      "/sprites/screens/title.png"
+    ],
+    [
+      "screen-ending",
+      "/sprites/screens/ending.png"
     ]
   ],
   "drawScale": {
