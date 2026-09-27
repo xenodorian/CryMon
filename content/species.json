@@ -16,7 +16,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "needleroot"
   },
@@ -37,7 +37,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "stormwing"
   },
@@ -58,7 +58,7 @@
     "specialStat": "str",
     "specialPower": 1.3,
     "specialSpeed": 0.5,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "razorbat": {
@@ -78,7 +78,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "sableclaw"
   },
@@ -99,7 +99,7 @@
     "specialStat": "mag",
     "specialPower": 0.6,
     "specialSpeed": 0.7,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "tortcask"
   },
@@ -120,7 +120,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "fenwisp": {
@@ -140,7 +140,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "razorbat"
   },
@@ -161,7 +161,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "needleroot": {
@@ -181,7 +181,7 @@
     "specialStat": "mag",
     "specialPower": 0.7,
     "specialSpeed": 1.0,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "thornhide"
   },
@@ -202,7 +202,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 4,
+    "specialPp": 5,
     "wild": true,
     "spells": [
       {
@@ -256,7 +256,7 @@
     "specialStat": "mag",
     "specialPower": 1.2,
     "specialSpeed": 0.6,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "emberling": {
@@ -276,7 +276,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "ashenmaw"
   },
@@ -297,7 +297,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "boulderam": {
@@ -317,7 +317,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "stormwing": {
@@ -337,7 +337,7 @@
     "specialStat": "str",
     "specialPower": 1.1,
     "specialSpeed": 1.2,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "sableclaw": {
@@ -357,7 +357,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "thornhide": {
@@ -377,7 +377,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "glasswisp": {
@@ -397,7 +397,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "ashenmaw": {
@@ -417,7 +417,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "heavenfall": {
@@ -437,7 +437,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 4,
+    "specialPp": 5,
     "wild": false
   },
   "peatling": {
@@ -457,7 +457,7 @@
     "specialStat": "mag",
     "specialPower": 0.8,
     "specialSpeed": 1.1,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "mireback"
   },
@@ -478,7 +478,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.55,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "glowcap": {
@@ -498,7 +498,7 @@
     "specialStat": "mag",
     "specialPower": 1.15,
     "specialSpeed": 0.7,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "veilcap"
   },
@@ -519,7 +519,7 @@
     "specialStat": "str",
     "specialPower": 1.05,
     "specialSpeed": 1.05,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "gravelurk"
   },
@@ -540,7 +540,7 @@
     "specialStat": "str",
     "specialPower": 1.35,
     "specialSpeed": 0.45,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "boulderam"
   },
@@ -561,7 +561,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 1.15,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "kilnback"
   },
@@ -582,7 +582,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "kilnback": {
@@ -602,7 +602,7 @@
     "specialStat": "mag",
     "specialPower": 1.2,
     "specialSpeed": 0.9,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "lead": {
@@ -622,7 +622,7 @@
     "specialStat": "str",
     "specialPower": 1.2,
     "specialSpeed": 0.9,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": false
   },
   "shrewbit": {
@@ -642,7 +642,7 @@
     "specialStat": "str",
     "specialPower": 0.9,
     "specialSpeed": 1.2,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "scavrat"
   },
@@ -663,7 +663,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "voltbuck"
   },
@@ -684,7 +684,7 @@
     "specialStat": "mag",
     "specialPower": 1.2,
     "specialSpeed": 0.7,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "chillnewt": {
@@ -704,7 +704,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "rimewyrm"
   },
@@ -725,7 +725,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "runemote": {
@@ -745,7 +745,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "charmkin"
   },
@@ -766,7 +766,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.7,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "scavrat": {
@@ -786,7 +786,7 @@
     "specialStat": "str",
     "specialPower": 1.05,
     "specialSpeed": 1.05,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "plunderat"
   },
@@ -807,7 +807,7 @@
     "specialStat": "str",
     "specialPower": 1.3,
     "specialSpeed": 0.6,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "stardrop": {
@@ -827,7 +827,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "rimeowl": {
@@ -847,7 +847,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "voltgrub": {
@@ -867,7 +867,7 @@
     "specialStat": "mag",
     "specialPower": 1.05,
     "specialSpeed": 1.0,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "glimmoth"
   },
@@ -888,7 +888,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "glyphwing"
   },
@@ -909,7 +909,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "blazelynx"
   },
@@ -930,7 +930,7 @@
     "specialStat": "str",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "pyrelion"
   },
@@ -951,7 +951,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "frostfry": {
@@ -971,7 +971,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "floepike"
   },
@@ -992,7 +992,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "glacierjaw"
   },
@@ -1013,7 +1013,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "pipsprout": {
@@ -1033,7 +1033,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "vinebrute"
   },
@@ -1054,7 +1054,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "rootking"
   },
@@ -1075,7 +1075,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "dustmole": {
@@ -1095,7 +1095,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "tunneler"
   },
@@ -1116,7 +1116,7 @@
     "specialStat": "str",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "quakelord"
   },
@@ -1137,7 +1137,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "sparkfly": {
@@ -1157,7 +1157,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "arcwasp"
   },
@@ -1178,7 +1178,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "thunderqueen"
   },
@@ -1199,7 +1199,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "soottick": {
@@ -1219,7 +1219,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "gloomspider"
   },
@@ -1240,7 +1240,7 @@
     "specialStat": "str",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "widowshade"
   },
@@ -1261,7 +1261,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "cardkin": {
@@ -1281,7 +1281,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "fateweaver"
   },
@@ -1302,7 +1302,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "arcanox"
   },
@@ -1323,7 +1323,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "mooncalf": {
@@ -1343,7 +1343,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "moonbull"
   },
@@ -1364,7 +1364,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "eclipsaur"
   },
@@ -1385,7 +1385,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "pipwren": {
@@ -1405,7 +1405,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "kestrail"
   },
@@ -1426,7 +1426,7 @@
     "specialStat": "str",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "grandroc"
   },
@@ -1447,7 +1447,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "tallowisp": {
@@ -1467,7 +1467,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "cryptlamp"
   },
@@ -1488,7 +1488,7 @@
     "specialStat": "str",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "deathknell"
   },
@@ -1509,7 +1509,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "snowbell": {
@@ -1529,7 +1529,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "icecantor"
   },
@@ -1550,7 +1550,7 @@
     "specialStat": "mag",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "frostchoir"
   },
@@ -1571,7 +1571,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "rubblet": {
@@ -1591,7 +1591,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "ramparth"
   },
@@ -1612,7 +1612,7 @@
     "specialStat": "str",
     "specialPower": 1.1,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "towerfall"
   },
@@ -1633,7 +1633,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "boltlamb": {
@@ -1653,7 +1653,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "thunderam"
   },
@@ -1674,7 +1674,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "clovercalf": {
@@ -1694,7 +1694,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "gardenbull"
   },
@@ -1715,7 +1715,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "twinklet": {
@@ -1735,7 +1735,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "geminal"
   },
@@ -1756,7 +1756,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "rimecrab": {
@@ -1776,7 +1776,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "floeclaw"
   },
@@ -1797,7 +1797,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "scorchbeak": {
@@ -1817,7 +1817,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "ashwing"
   },
@@ -1838,7 +1838,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "rockhermit": {
@@ -1858,7 +1858,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "cragsage"
   },
@@ -1879,7 +1879,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "grimkid": {
@@ -1899,7 +1899,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "baphorn"
   },
@@ -1920,7 +1920,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "tuftowl": {
@@ -1940,7 +1940,7 @@
     "specialStat": "str",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "magistowl"
   },
@@ -1961,7 +1961,7 @@
     "specialStat": "str",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "starfry": {
@@ -1981,7 +1981,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "starwhale"
   },
@@ -2002,7 +2002,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "dawnchick": {
@@ -2022,7 +2022,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "sunhawk"
   },
@@ -2043,7 +2043,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "reedfawn": {
@@ -2063,7 +2063,7 @@
     "specialStat": "mag",
     "specialPower": 1.0,
     "specialSpeed": 0.8,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true,
     "evolvesTo": "bowstag"
   },
@@ -2084,7 +2084,7 @@
     "specialStat": "mag",
     "specialPower": 1.25,
     "specialSpeed": 0.65,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "motley": {
@@ -2104,7 +2104,7 @@
     "specialStat": "mag",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "sleightfox": {
@@ -2124,7 +2124,7 @@
     "specialStat": "mag",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "moonveil": {
@@ -2144,7 +2144,7 @@
     "specialStat": "mag",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "bloomdoe": {
@@ -2164,7 +2164,7 @@
     "specialStat": "mag",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "warbison": {
@@ -2184,7 +2184,7 @@
     "specialStat": "str",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "gallowcrow": {
@@ -2204,7 +2204,7 @@
     "specialStat": "str",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "gravemoth": {
@@ -2224,7 +2224,7 @@
     "specialStat": "str",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "hornblaze": {
@@ -2244,7 +2244,7 @@
     "specialStat": "str",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "atlashell": {
@@ -2264,7 +2264,7 @@
     "specialStat": "str",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "tidewolf": {
@@ -2284,7 +2284,7 @@
     "specialStat": "mag",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   },
   "wheelhog": {
@@ -2304,7 +2304,7 @@
     "specialStat": "mag",
     "specialPower": 1.15,
     "specialSpeed": 0.75,
-    "specialPp": 3,
+    "specialPp": 5,
     "wild": true
   }
 }

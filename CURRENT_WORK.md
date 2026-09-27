@@ -64,7 +64,9 @@ session stops, pick up at the first step not marked DONE.
    Stat stages only lower stats, so "self-buff" riders use Hype Up.
    Phases, each shipped on both engines together:
    - **A. Numbers:** `evolveAt` 15, `evolveAt2` 25, every secondary `maxPp` 10, every
-     species `specialPp` 5, `save.json` version bump. -- TODO
+     species `specialPp` 5, `save.json` version 7 -> 8. -- DONE (bake, check_sync
+     apart from the pre-existing shinigami/idle.png FAIL, typecheck, 55 unit tests, web
+     warden + battle e2e, Dreamcast build all pass).
    - **B. Lv15 gate:** Hype Up for species in an evolution line from Lv15 (not merely
      "is an evolved form"); **Attack Swap** at Lv15 for single-stage species (basic
      damage, then pick a party CryMon to switch in; foe AI uses it as a plain hit). -- TODO

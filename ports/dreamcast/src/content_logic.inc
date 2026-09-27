@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=0f398ec1a761f794 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=f4a4f7758eead36d — do not edit. python3 tools/bake_content.py */
 
 /* Canonical rules from content/logic.json (Dreamcast spec). */
 #define LOGIC_WALK_FRAC 358 /* 1/256 px per frame */
@@ -108,8 +108,8 @@ static const signed char NATURE_CHART[NATURE_N][NATURE_N] = {
 /* Move unlocks + evolution -- logic.json growth. */
 #define LV_SECONDARY 5
 #define LV_SPECIAL 10
-#define LV_EVOLVE 12
-#define LV_EVOLVE2 22
+#define LV_EVOLVE 15
+#define LV_EVOLVE2 25
 #define LEVEL_UP_CURVE 1
 
 #define STAT_STR 0
@@ -145,7 +145,7 @@ static const float STAT_STAGE_MULT[5] = { 1.0f, 0.7f, 0.4f, 0.1f, 0.0f };
 #define HYPE_UP_MAX_PP 10
 
 #define STAT_MOVE_CAP 10
-#define STATUS_MOVE_CAP 5
+#define STATUS_MOVE_CAP 10
 
 typedef struct { const char *name; int kind; int stat; int status; int max_pp; } NatureMove;
 #define NMOVE_KIND_STAGE 0
@@ -155,11 +155,11 @@ static const NatureMove NATURE_MOVES[NATURE_N] = {
     { "PROUD ROAR", NMOVE_KIND_STAGE, 0, 0, 10 },
     { "SANDBLAST", NMOVE_KIND_STAGE, 1, 0, 10 },
     { "GRAVITY", NMOVE_KIND_STAGE, 1, 0, 10 },
-    { "STATIC", NMOVE_KIND_STATUS, 0, 4, 5 },
-    { "VEIL", NMOVE_KIND_STATUS, 0, 3, 5 },
+    { "STATIC", NMOVE_KIND_STATUS, 0, 4, 10 },
+    { "VEIL", NMOVE_KIND_STATUS, 0, 3, 10 },
     { "MAGEBANE", NMOVE_KIND_STAGE, 2, 0, 10 },
-    { "BLIGHT", NMOVE_KIND_STATUS, 0, 2, 5 },
-    { "SCORCH", NMOVE_KIND_STATUS, 0, 1, 5 },
+    { "BLIGHT", NMOVE_KIND_STATUS, 0, 2, 10 },
+    { "SCORCH", NMOVE_KIND_STATUS, 0, 1, 10 },
     { "FROSTBITE", NMOVE_KIND_STAGE, 0, 0, 10 },
 };
 

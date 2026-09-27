@@ -330,11 +330,11 @@
     "note": "Move unlocks and evolution. Basic is always known. At secondaryAt, non-shinies learn the crystal secondary (natureMoves); shinies learn shinyMove instead. At specialAt, the species special (and extra spells) unlock. Species with evolvesTo change form at evolveAt when they are a first stage, or at evolveAt2 when they are already an evolved form (the middle of a 3-stage line); the evolved form also learns hypeUp then. levelUpStats: 'flat' adds formulas.levelHp / levelStat per level; 'curve' adds what minting the same species one level higher would add (round(base x grow(lv)) - round(base x grow(lv-1)), never less than the flat amount), so a CryMon raised from a low level keeps pace with wild and trainer CryMon minted at that level. tools/balance_sim.py showed the flat rule leaves a kept-from-the-start team about 30% behind by Nero.",
     "secondaryAt": 5,
     "specialAt": 10,
-    "evolveAt": 12,
-    "evolveAt2": 22,
+    "evolveAt": 15,
+    "evolveAt2": 25,
     "levelUpStats": "curve"
   },
-  "natureMovesNote": "Leg 2.11 redesign: these no longer deal damage. 'stage' moves knock one stat (or all 3, for shinyMove below) down a statStages step on the foe each use; 'status' moves inflict one of statusEffects on the foe each use. maxPp is battle-scoped (refills every new fight, not saved) -- see statMoveCap/statusMoveCap below for the two allowed values.",
+  "natureMovesNote": "Leg 2.11 redesign: these no longer deal damage. 'stage' moves knock one stat (or all 3, for shinyMove below) down a statStages step on the foe each use; 'status' moves inflict one of statusEffects on the foe each use. maxPp is battle-scoped (refills every new fight, not saved) -- every secondary (stage or status, shinies too) has 10 PP per battle; statMoveCap/statusMoveCap below hold that value.",
   "natureMoves": [
     {
       "nature": "quartz",
@@ -362,14 +362,14 @@
       "name": "Static",
       "kind": "status",
       "status": "paralyzed",
-      "maxPp": 5
+      "maxPp": 10
     },
     {
       "nature": "obsidian",
       "name": "Veil",
       "kind": "status",
       "status": "confused",
-      "maxPp": 5
+      "maxPp": 10
     },
     {
       "nature": "prism",
@@ -383,14 +383,14 @@
       "name": "Blight",
       "kind": "status",
       "status": "poisoned",
-      "maxPp": 5
+      "maxPp": 10
     },
     {
       "nature": "ruby",
       "name": "Scorch",
       "kind": "status",
       "status": "burned",
-      "maxPp": 5
+      "maxPp": 10
     },
     {
       "nature": "sapphire",
@@ -446,7 +446,7 @@
     "maxPp": 10
   },
   "statMoveCap": 10,
-  "statusMoveCap": 5,
+  "statusMoveCap": 10,
   "interact": {
     "note": "World interact/talk proximity is a box test, not a radius: the target's own footprint (world.json npcs[].w/h, default 48x32 human size when absent) expanded by this buffer on every side, feet-anchored the same way it's drawn (box bottom = mark.y, box top = mark.y - h). Both engines interpret this the same way; the Dreamcast port scales w/h/buffer down by its own tile size (20px vs this pack's 32px). buffer must be at least one tile (32 in this pack's coordinate space) -- at the old value of 16 (half a tile), standing one full tile directly below an NPC (the single most common way a player approaches someone: walk up, stand in front, press A) fell outside the box on the south side, even though north/west/east happened to pass because of the box's height-driven asymmetry. Bumped to 32 so every one-tile-adjacent position on all four sides, plus diagonals, is inside the box.",
     "defaultW": 48,

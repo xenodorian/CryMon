@@ -1,4 +1,4 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=0f398ec1a761f794 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=f4a4f7758eead36d — do not edit. python3 tools/bake_content.py */
 
 /* Canonical world tables from content/world.json + items.json. */
 #define XP_BASE 6

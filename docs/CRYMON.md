@@ -133,7 +133,8 @@ Rules that hold:
   before this became per-species; it is **reserved** now and ignored on load
   regardless, but the indices are still what the baker emits per species.
 - **A save from before the crystal schema is rejected, not migrated.**
-  `save.json`'s `version` is 2 for exactly this reason: both engines refuse
+  `save.json`'s `version` was 2 for exactly this reason (it is 8 since the
+  2026-09-27 growth redesign moved evolve levels and PP): both engines refuse
   to load a save whose byte 4 doesn't match `SAVE_VERSION`
   (`save_unpack()` on Dreamcast, `unpackSave()` on web) and treat it as no
   save at all. Web additionally deletes the stale blob from `localStorage`

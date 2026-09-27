@@ -1,9 +1,9 @@
-/* AUTO-GENERATED from content/*.json PACK_HASH=0f398ec1a761f794 — do not edit. python3 tools/bake_content.py */
+/* AUTO-GENERATED from content/*.json PACK_HASH=f4a4f7758eead36d — do not edit. python3 tools/bake_content.py */
 
 #ifndef CONTENT_SAVE_INC
 #define CONTENT_SAVE_INC
 
-#define SAVE_VERSION 7
+#define SAVE_VERSION 8
 #define SAVE_SIZE 332
 #define SAVE_PARTY_SLOT 16
 #define SAVE_PARTY_MAX 6
