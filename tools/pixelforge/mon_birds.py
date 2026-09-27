@@ -105,14 +105,30 @@ bird("magistowl", seed=39, body=(26, 26), head=(18, 15), head_type="owl", beak=5
 
 
 def _scales(c, a, t):
-    brass = M("#d8b050", spec=0.6)
+    """A brass balance held up in front: beam, chains and two pans that tip
+    back and forth as it weighs you."""
+    brass = M("#d8b050", spec=0.7)
+    dark = (120, 90, 40)
     x0, y0 = a["bx"] + a["rx"] * 0.9, a["by"] + a["ry"] * 0.6
-    c.cap(x0 - 14, y0 - 16, 1.2, x0 + 14, y0 - 16, 1.2, brass, z=60)
-    c.cap(x0, y0 - 16, 1.2, x0, y0, 1.6, brass, z=60)
-    for k, dx in enumerate((-14, 14)):
-        dy = [0, 1, 2, 1][t] * (1 if k else -1)
-        c.ell(x0 + dx, y0 - 8 + dy, 5, 2, brass, z=60)
-        c.ink(lambda cc, x=x0 + dx, y=y0 - 16: [cc.put(x - 4 + i, y + 1 + i * 0.0, (160, 130, 60)) for i in ()])
+    tilt = [-2, 0, 2, 0][t]
+    c.cap(x0, y0 - 20, 1.4, x0, y0 + 2, 1.8, brass, z=60)          # post
+    c.ell(x0, y0 - 22, 2.4, 2.4, brass, z=62)                       # finial
+    c.cap(x0 - 16, y0 - 16 + tilt, 1.2, x0 + 16, y0 - 16 - tilt, 1.2, brass, z=61)
+    pans = []
+    for k, dx in enumerate((-16, 16)):
+        top = y0 - 16 + (tilt if k == 0 else -tilt)
+        py = top + 12
+        pans.append((x0 + dx, top, py))
+        c.ell(x0 + dx, py, 6, 2.6, brass, z=60)
+        c.ell(x0 + dx, py - 1.2, 5, 1.4, M("#8a6a2a"), z=60.5)
+
+    def chains(cc):
+        for px, top, py in pans:
+            for k in range(1, 11):
+                f = k / 11
+                cc.put(px - 5 * f, top + (py - top) * f, dark)
+                cc.put(px + 5 * f, top + (py - top) * f, dark)
+    c.ink(chains)
 
 
 bird("rimeowl", seed=40, body=(20, 20), head=(16, 13), head_type="owl", beak=4, beak_w=2.6, tilt=0,

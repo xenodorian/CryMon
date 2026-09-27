@@ -238,9 +238,21 @@ quad("mooncalf", seed=14, body=(44, 26), leg=18, leg_r=5.0, head=(15, 14), neck=
 def _moonglow(c, a, t):
     # crescent birthmark on the flank
     bx, by = a["bx"] + 6, a["by"] - 4
-    mark = M("#9aa6f2")
+    mark = Mat(["#6a78d0", "#9aa6f2", "#c8d0ff", "#eef0ff", "#ffffff"], emit=True)
     c.ell(bx, by, 7, 7, mark, decal=True, only=a["g_body"])
     c.ell(bx + 3, by - 2, 6, 6, M("#d8dcf4", tex="fur", tex_amp=0.4), decal=True, only=a["g_body"])
+    # its hide glows faintly: a soft pulsing halo one pixel outside the body
+    pulse = [0, 1, 2, 1][t]
+
+    def halo(cc):
+        import numpy as np
+        al = cc.alpha > 0
+        ring = (np.roll(al, 1, 0) | np.roll(al, -1, 0) | np.roll(al, 1, 1) | np.roll(al, -1, 1)) & ~al
+        ys, xs = np.nonzero(ring)
+        for x, y in zip(xs, ys):
+            if (x + y + t) % (4 - pulse // 2) == 0:
+                cc.put(x, y, (200, 210, 255))
+    c.fx(halo)
 
 
 quad("moonbull", seed=15, body=(62, 34), leg=24, leg_r=6.4, head=(17, 15), neck=4,

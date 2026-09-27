@@ -3845,3 +3845,8 @@ own files; redraw them only if the user says so.
 - Geminal: each spirit wears the spinning star it grew from (matches the new Twinklet).
 - Glacierjaw: a huge ice-plated underbite that gapes and snaps, ice fangs, and an ice brow plate.
 - Gravemoth: warmer dusty wing colors with pale scales drifting over them.
+
+### Deep pass batch 7 (Claude, 2026-09-27)
+- Magistowl: a real brass balance with chains and pans that tip as it weighs you (was a floating T shape).
+- Mooncalf and Moonbull: the crescent mark glows, and a faint pulsing halo traces the body so the hide reads as glowing.
+- Icecantor: an icicle fringe on the lip and a frost crown on top.
