@@ -13,6 +13,12 @@ Live coordination document for all CryMon agents. Read before changing the repo;
 - Latest NPC/state audit found no current regression. Shinigami gating, Lieutenant Lead's fight/walk-away choice, Dreamcast dialogue pagination, and Calder persistence are present in current `main`.
 - Current generated Dreamcast content was rebaked after recent dialogue changes. Do not hand-edit generated `.inc` files; regenerate them from source.
 
+**Showing images to the user.** Whenever the user asks to see an image
+(a sprite, portrait, screenshot, generated art), send the file itself
+with the session's send-file tool (Claude Code: `SendUserFile`,
+`display: "render"`) instead of describing it or only giving a path.
+If your tool set has no such tool, say so and give the repo path.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.
