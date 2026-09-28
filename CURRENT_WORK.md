@@ -21,6 +21,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Opal's overworld walker (`npc/opal-1..4.png`) and portrait (`portraits/opal.png`) replaced 2026-09-28 with user-supplied art; transparent backgrounds. Still flat or low-detail (see Claude's 2026-09-28 audit): Quartz portrait, Driller portrait, Shinigami walk frames, and the small dark walkers (heavenfallPriestess, sable, father, sentry, conscript, enforcer, birch, commander, ranger, scout, keeper, warden, oren, tessa, cross, dray, driller).
 
+- Shinigami frames (2026-09-28, user): only `shinigami/down-1`/`down-2` (and `up-1`/`up-2`) are real art; `down-3`/`down-4`, `up-3`/`up-4` and `left`/`right` 1-3 are flat leftovers. engine.ts already walks him on 1-2 (down/up) and 3-4 (left/right) and idles on down-1. Dreamcast now idles on down-1 only (SHINIGAMI_FRAMES, baker GENERIC_WALKER_SPRITES). Open: left/right only have one good frame (4), so a sideways walk still shows flat frame 3.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.

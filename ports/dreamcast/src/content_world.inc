@@ -1428,7 +1428,7 @@ static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {
     { npc_hollowRanger_1, npc_hollowRanger_2, npc_hollowRanger_3, npc_hollowRanger_4 },
     { npc_hollowShade_1, npc_hollowShade_2, npc_hollowShade_3, npc_hollowShade_4 },
     { npc_hollowWarden_1, npc_hollowWarden_2, npc_hollowWarden_3, npc_hollowWarden_4 },
-    { npc_shinigami_1, npc_shinigami_2, npc_shinigami_3, npc_shinigami_4 },
+    { npc_shinigami_1, npc_shinigami_1, npc_shinigami_1, npc_shinigami_1 },
 };
 /* NPC_SPRITE_FRAMES index per NPC_DEFS entry (-1: drawn by hand-wired code). */
 static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 75, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 1, 2, 3, 4, 5, 6, -1, 7, -1, 75, -1, 8, 8, 10, 8, 8, 11, 8, 8, 12, 8, 8, 13, 8, 8, 14, 8, 8, 15, 8, 8, 16, 8, 8, 17, 8, 8, 18, 9, 9, 19, 20, 21, 22, 23, 23, 23, 23, 23, 23, 23, 23, 23, 75, 26, 26, 26, 27, 27, 27, 25, 25, 25, 28, 30, 29, 31, 32, 33, 34, 35, 36, 43, 42, 44, 46, 46, 45, 47, 49, 49, 48, 50, 42, 51, 53, 52, 55, 55, 54, 56, 42, 57, 59, 58, 61, 61, 60, 62, 38, 37, 38, 37, 38, 37, 38, 37, 38, 39, 63, 64, 65, 66, 67, 68, 69, 70, 26, 42, 38, 37, 71, 72, 73, 74 };

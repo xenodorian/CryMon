@@ -1595,7 +1595,10 @@ def bake_npc_scripts(data: dict, items: dict, lines: list[str]) -> None:
     lines.append(f"#define NPC_SPRITE_N {len(LEG3_SPRITE_NAMES)}")
     lines.append("static const unsigned short *const NPC_SPRITE_FRAMES[NPC_SPRITE_N][4] = {")
     for nm in LEG3_SPRITE_NAMES:
-        lines.append("    { " + ", ".join(f"npc_{nm}_{i}" for i in range(1, 5)) + " },")
+        # Walker sprites standing in as NPCs (Shinigami) hold their idle frame:
+        # only down-1/down-2 are his real walk, and he never walks here.
+        idx = [1, 1, 1, 1] if nm in GENERIC_WALKER_SPRITES else [1, 2, 3, 4]
+        lines.append("    { " + ", ".join(f"npc_{nm}_{i}" for i in idx) + " },")
     lines.append("};")
     lines.append("/* NPC_SPRITE_FRAMES index per NPC_DEFS entry (-1: drawn by hand-wired code). */")
     lines.append("static const signed char NPC_DEF_SPRITE[NPC_DEF_N] = { "
