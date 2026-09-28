@@ -19,6 +19,8 @@ with the session's send-file tool (Claude Code: `SendUserFile`,
 `display: "render"`) instead of describing it or only giving a path.
 If your tool set has no such tool, say so and give the repo path.
 
+- Opal's overworld walker (`npc/opal-1..4.png`) and portrait (`portraits/opal.png`) replaced 2026-09-28 with user-supplied art; transparent backgrounds. Still flat or low-detail (see Claude's 2026-09-28 audit): Quartz portrait, Driller portrait, Shinigami walk frames, and the small dark walkers (heavenfallPriestess, sable, father, sentry, conscript, enforcer, birch, commander, ranger, scout, keeper, warden, oren, tessa, cross, dray, driller).
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.
