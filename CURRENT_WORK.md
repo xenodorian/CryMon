@@ -19,9 +19,9 @@ with the session's send-file tool (Claude Code: `SendUserFile`,
 `display: "render"`) instead of describing it or only giving a path.
 If your tool set has no such tool, say so and give the repo path.
 
-- Opal's overworld walker (`npc/opal-1..4.png`) and portrait (`portraits/opal.png`) replaced 2026-09-28 with user-supplied art; transparent backgrounds. Still flat or low-detail (see Claude's 2026-09-28 audit): Quartz portrait, Driller portrait, Shinigami walk frames, and the small dark walkers (heavenfallPriestess, sable, father, sentry, conscript, enforcer, birch, commander, ranger, scout, keeper, warden, oren, tessa, cross, dray, driller).
+- Opal's overworld walker (`npc/opal-1..4.png`) and portrait (`portraits/opal.png`) replaced 2026-09-28 with user-supplied art; transparent backgrounds. Still flat or low-detail (see Claude's 2026-09-28 audit): Quartz portrait, Driller portrait, and the small dark walkers (heavenfallPriestess, sable, father, sentry, conscript, enforcer, birch, commander, ranger, scout, keeper, warden, oren, tessa, cross, dray, driller).
 
-- Shinigami frames (2026-09-28, user): only `shinigami/down-1`/`down-2` (and `up-1`/`up-2`) are real art; `down-3`/`down-4`, `up-3`/`up-4` and `left`/`right` 1-3 are flat leftovers. engine.ts already walks him on 1-2 (down/up) and 3-4 (left/right) and idles on down-1. Dreamcast now idles on down-1 only (SHINIGAMI_FRAMES, baker GENERIC_WALKER_SPRITES). Open: left/right only have one good frame (4), so a sideways walk still shows flat frame 3.
+- Shinigami frames (2026-09-28, Claude, user request): the flat leftovers are replaced. `tools/shinigami_frames.py` rebuilds them from the painted frames (down-1/2, up-1/2, left-4) so every direction has a consistent 4-frame cycle: down/up 1 neutral, 2 step, 3 neutral with a 1px breathing dip, 4 other step (2 mirrored); left 1 and 3 passing (feet together, body 1px up), 2 stride with a dip, 4 stride; right = left mirrored. The duplicate, uncatalogued `shinigami/idle.png` (identical to down-1) is removed, which clears the check_sync FAIL. Dreamcast idle breathes on down-1/down-3 (SHINIGAMI_FRAMES). Web (Grok's runtime): engine.ts still uses frames 1-2 for down/up and 3-4 for left/right, which now all look right; it can switch to the standard `% 4 + 1` cycle whenever convenient.
 
 ## Immediate work queue
 

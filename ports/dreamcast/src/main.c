@@ -1717,10 +1717,11 @@ static const u16 *const NELL_FRAMES[4]   = { npc_nell_1, npc_nell_2, npc_nell_3,
 static const u16 *const PIKE_FRAMES[4]   = { npc_pike_1, npc_pike_2, npc_pike_3, npc_pike_4 };
 static const u16 *const BRAM_FRAMES[4]   = { npc_bram_1, npc_bram_2, npc_bram_3, npc_bram_4 };
 static const u16 *const CALDER_FRAMES[4] = { npc_calder_1, npc_calder_2, npc_calder_3, npc_calder_4 };
-/* Shinigami's art has a 2-frame walk (down-1/down-2); down-3/down-4 are
-   older flat frames that must not show. He never walks on this port, so
-   like engine.ts he stands on down-1. */
-static const u16 *const SHINIGAMI_FRAMES[4] = { npc_shinigami_1, npc_shinigami_1, npc_shinigami_1, npc_shinigami_1 };
+/* Shinigami never walks on this port. His down frames are a full cycle now
+   (tools/shinigami_frames.py): 1 neutral, 2 step, 3 neutral with a 1px
+   breathing dip, 4 other step. Standing, he breathes on 1 and 3, each held
+   two idle steps so the breath is slow. */
+static const u16 *const SHINIGAMI_FRAMES[4] = { npc_shinigami_1, npc_shinigami_1, npc_shinigami_3, npc_shinigami_3 };
 static const u16 *const OREN_FRAMES[4]  = { npc_oren_1, npc_oren_2, npc_oren_3, npc_oren_4 };
 static const u16 *const TESSA_FRAMES[4] = { npc_tessa_1, npc_tessa_2, npc_tessa_3, npc_tessa_4 };
 static const u16 *const BIRCH_FRAMES[4] = { npc_birch_1, npc_birch_2, npc_birch_3, npc_birch_4 };
