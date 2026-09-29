@@ -211,3 +211,7 @@ Web `drawTalk` no longer truncates with `.slice(0, N)`. Overflow wraps into
 extra pages; confirm advances page then beat (parity with Dreamcast
 `draw_wrapped_page` / `seq_page`).
 
+### Title portrait (Grok, 2026-09-28)
+
+The splash draws Max's portrait (`port-max`) instead of her overworld walk frame.
+

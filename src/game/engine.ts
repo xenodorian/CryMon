@@ -5312,9 +5312,9 @@ export class CryMon {
 		else this.drawMap(VELD, 8 * TILE, 0);
 		this.ctx.fillStyle = "rgba(18,17,14,0.28)";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-		// on the painted title Max stands on the knoll, drawn at 2x
-		if (painted) this.drawSprite("max-down-1", X(20), Y(116) - SPR_H * 2, SPR_W * 2, SPR_H * 2);
-		else this.drawSprite("max-down-1", X(28), Y(62), SPR_W, SPR_H);
+		// Painted title: Max's portrait on the left, not the overworld walk frame.
+		if (painted) this.drawSprite("port-max", 0, 168, 200, 250, true);
+		else this.drawSprite("port-max", X(4), Y(18), X(52), Y(66), true);
 		this.drawSprite("quillpup-1", X(168), Y(48), X(96), Y(96), false);
 		this.box(X(48), Y(28), X(144), Y(28));
 		this.text("CRYMON", X(120), Y(32), "#e8e4d8", 48, "center");
