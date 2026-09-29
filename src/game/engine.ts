@@ -5426,6 +5426,9 @@ export class CryMon {
 				this.ctx.drawImage(ebg, 0, 0, VIEW_W, VIEW_H);
 				this.drawSprite("calder-1", X(178), Y(86) - SPR_H * 2, SPR_W * 2, SPR_H * 2);
 				this.drawSprite("max-down-1", X(40), Y(114) - SPR_H * 2, SPR_W * 2, SPR_H * 2);
+			} else if (this.mode === "ending") {
+				// painting not loaded yet: black, never the older field-map ending
+				this.fill("#0a0908");
 			} else {
 				this.drawMap(VELD, 14 * TILE, 12 * TILE);
 				this.drawSprite("calder-1", X(160), Y(28), SPR_W, SPR_H);
@@ -6069,9 +6072,9 @@ export class CryMon {
 		if (this.hudT > 0) this.text(this.hudFlash.slice(0, 34), X(18), Y(148), "#e8e4d8", FONT);
 	}
 	drawMonIcon(m, x, y, w, h) {
-		const battle = `${m.species}-1`;
-		const port = `port-${m.species}`;
-		const key = this.images[battle] ? battle : port;
+		// Battle sprite only: every species has one, and falling back to the
+		// portrait made the icon swap art once the sprite arrived.
+		const key = `${m.species}-1`;
 		const ctx = this.ctx;
 		if (m.shiny) ctx.filter = "hue-rotate(38deg) saturate(1.45) brightness(1.12)";
 		this.drawSprite(key, x, y, w, h, false);
