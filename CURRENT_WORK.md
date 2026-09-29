@@ -41,6 +41,7 @@ If your tool set has no such tool, say so and give the repo path.
 2. **Complete the two-port sweep after the fresh build.** Web currently passes 70/70 maps and 61/61 trainers. The last Dreamcast trainer sweep was incomplete; the full rerun is still required.
 3. **Continue regional dialogue/NPC audits.** NPCs should act from their story role and current state; avoid redundant exposition for characters who already know Max.
 4. **Lead walker art:** DONE 2026-09-28 (user-supplied). Battle art (monsters/lead/*) still has an opaque painted background.
+5. **Sarah: make her an in-game character (later, user request 2026-09-29).** Art is installed (`npc/sarah-1..4`, `portraits/sarah`) and registered in sprites.json. Still needed, once the user says where she stands and what she says: an NPC entry on a map, dialogue, a speaker id with her portrait (web) and a SPEAKER_PORTRAIT entry (Dreamcast). Ask the user for placement and role before building it.
 
 ## Claude non-art pass (2026-09-27, in progress, session_01GPDsdW8JR9AqXFQ7HYorsa)
 
