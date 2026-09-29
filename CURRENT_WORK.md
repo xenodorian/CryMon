@@ -37,6 +37,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Web art loading fixed 2026-09-29 (Claude, user request; touches Grok's engine.ts). (1) `criticalArtKeys` now includes `screen-title`, `port-max` and `ui-frame`, so the title shows complete on its first frame instead of field map -> painting -> Max. (2) `drawTitle` no longer falls back to the old VELD field-map splash; with no painting it fills black. (3) Image URLs are `?v=<sprites.json cache>-<hash>`: `vite.config.ts` hashes every file under public/sprites at build time into `__ART_VERSION__` (declared in src/global.d.ts, read in data.ts `artManifest`), so any art change gives new URLs and browsers drop stale copies. No need to bump `cache` by hand for art changes any more. Also fixed: the ending screen fills black (not the field map) until `screen-ending` loads (intro scenes still use the field map on purpose), and `drawMonIcon` uses only the battle sprite (no portrait stand-in that swapped once the sprite arrived). Anything else not yet loaded is simply blank until it arrives.
 
+- Title background (`screens/title.png`) replaced 2026-09-29 with user-supplied art: a glowing green crystal cave, 640x480 (the web screen size, drawn 1:1; Dreamcast shrinks it to half size in gen_sprites). Do NOT re-run `tools/pixelforge/screens.py` without `--preview`: it would overwrite this file with the old generated night scene.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.
