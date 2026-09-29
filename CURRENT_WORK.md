@@ -25,6 +25,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Anne left walk (2026-09-29, Claude, user request): `anne/left-1..4` rebuilt from the user-supplied 1254x1254 high-res sheet (2x2 frames). New order: 1 stride, 2 passing (the old bent-leg frame 4), 3 = frame 1 with the leg shading swapped (near and far leg trade tones), 4 = the passing frame with the shading swapped and the rear knee/thigh redrawn in front of the lead leg. Each frame is cropped to its outline, box-scaled to 58 px tall and placed on rows 4-61 at the same columns as the old frames. **Still to do (user):** (1) shoes: swap the near/far shoe shading on frames 3-4 to match the legs (the two shoes were nearly the same colour, so the swap barely changed them); (2) arms: frames 3-4 still swing the arms as in frames 1-2, so they must be reversed to oppose the swapped legs; (3) `anne/right-1..4` are unchanged and need the same treatment. The high-res sheet is not in the repo; public/sprites holds only the 48x64 frames.
 
+- Grok's Opal walk-frame upload removed 2026-09-29 by user request (tools/opal_chunks, tools/opal_frames, tools/opal_data_1.py, tools/install_opal_frames.py, .github/workflows/opal-install.yml). Its payloads were truncated or placeholders and never installed. Opal's current art (npc/opal-1..4, portraits/opal) is the user-supplied version from b4f405e; keep it.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.
