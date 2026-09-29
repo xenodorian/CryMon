@@ -203,3 +203,9 @@ Keep this file short. Record only active work, durable contracts, important rece
 
 Do not partially ship without updating both engines and save/docs if PP or learnsets change mid-playthrough.
 
+### Web dialogue pagination (Grok, 2026-09-28)
+
+Web `drawTalk` no longer truncates with `.slice(0, N)`. Overflow wraps into
+extra pages; confirm advances page then beat (parity with Dreamcast
+`draw_wrapped_page` / `seq_page`).
+

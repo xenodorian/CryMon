@@ -199,6 +199,7 @@ export class CryMon {
 	marks = 16;
 	talkQ = [];
 	talkI = 0;
+	talkPage = 0;
 	afterTalk = null;
 	bagCursor = 0;
 	partyCursor = 0;
@@ -425,6 +426,7 @@ export class CryMon {
 		this.marks = START_MARKS;
 		this.talkQ = [];
 		this.talkI = 0;
+		this.talkPage = 0;
 		this.afterTalk = null;
 		this.bagCursor = 0;
 		this.partyCursor = 0;
@@ -1068,6 +1070,7 @@ export class CryMon {
 	say(beats, after: TalkAfter = null) {
 		this.talkQ = beats;
 		this.talkI = 0;
+		this.talkPage = 0;
 		this.afterTalk = after;
 		this.hudT = 0;
 		this.hudFlash = "";
@@ -1079,8 +1082,37 @@ export class CryMon {
 	beat() {
 		return this.talkQ[this.talkI] ?? null;
 	}
+	/** Visible lines in the current talk box (portrait vs bottom bar). */
+	talkLayout() {
+		const beat = this.beat();
+		const sp = beat?.speaker;
+		const showPort = !!(sp && sp !== "none" && sp !== "system");
+		return showPort
+			? { maxChars: 20, linesPerPage: 4, x: 118, y0: 22, lineH: 10 }
+			: { maxChars: 40, linesPerPage: 3, x: 14, y0: 122, lineH: 10 };
+	}
+	talkLines() {
+		const beat = this.beat();
+		if (!beat) return [] as string[];
+		const { maxChars } = this.talkLayout();
+		return this.wrap(beat.text, maxChars);
+	}
+	talkPageCount() {
+		const { linesPerPage } = this.talkLayout();
+		const n = this.talkLines().length;
+		return Math.max(1, Math.ceil(n / linesPerPage));
+	}
+
 	advanceTalk() {
+		// Paginate long wrapped text before leaving the beat (matches DC).
+		if (this.talkPage + 1 < this.talkPageCount()) {
+			this.talkPage += 1;
+			this.talkLock = .15;
+			this.audio.ui();
+			return;
+		}
 		this.talkI += 1;
+		this.talkPage = 0;
 		this.talkLock = .15;
 		if (this.talkI >= this.talkQ.length) {
 			this.talkQ = [];
@@ -5952,6 +5984,11 @@ export class CryMon {
 		if (!beat) return;
 		const sp = beat.speaker;
 		const showPort = sp && sp !== "none" && sp !== "system";
+		const lay = this.talkLayout();
+		const lines = this.talkLines();
+		const start = this.talkPage * lay.linesPerPage;
+		const pageLines = lines.slice(start, start + lay.linesPerPage);
+		const more = this.talkPage + 1 < this.talkPageCount();
 		if (showPort) {
 			const alias = (SPRITES as { portraitAlias?: Record<string, string> }).portraitAlias?.[sp] ?? sp;
 			this.drawSprite(`port-${alias}`, X(-4), Y(6), X(120), Y(150), "top", true);
@@ -5960,12 +5997,12 @@ export class CryMon {
 			this.box(X(112), Y(6), X(122), Y(62));
 			const who = sp === "max" ? this.playerDisplayName() : (SPEAKER_NAME[sp] || sp);
 			if (who) this.text(String(who).toUpperCase(), X(118), Y(10), "#c5cec6", FONT);
-			this.wrap(beat.text, 20).slice(0, 4).forEach((ln, i) => this.text(ln, X(118), Y(22 + i * 10), "#e8e4d8", FONT));
-			this.text("Z", X(216), Y(52), "#8a8678", FONT);
+			pageLines.forEach((ln, i) => this.text(ln, X(lay.x), Y(lay.y0 + i * lay.lineH), "#e8e4d8", FONT));
+			this.text(more ? "Z+" : "Z", X(216), Y(52), "#8a8678", FONT);
 		} else {
 			this.box(X(8), Y(116), X(224), Y(40));
-			this.wrap(beat.text, 40).slice(0, 3).forEach((ln, i) => this.text(ln, X(14), Y(122 + i * 10), "#e8e4d8", FONT));
-			this.text("Z", X(218), Y(144), "#8a8678", FONT);
+			pageLines.forEach((ln, i) => this.text(ln, X(lay.x), Y(lay.y0 + i * lay.lineH), "#e8e4d8", FONT));
+			this.text(more ? "Z+" : "Z", X(218), Y(144), "#8a8678", FONT);
 		}
 	}
 	drawChoice() {
