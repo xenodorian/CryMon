@@ -1,6 +1,8 @@
 export {};
 
 declare global {
+  /** Build-time hash of public/sprites (vite.config.ts define). */
+  const __ART_VERSION__: string | undefined;
   interface Window {
     __controlsTest?: {
       getYaw: () => number;

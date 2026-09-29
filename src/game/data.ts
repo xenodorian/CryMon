@@ -791,7 +791,10 @@ export function itemEffect(id: ItemId) {
 }
 
 export function artManifest(): [string, string][] {
-  const v = SPRITES.cache;
+  // __ART_VERSION__ is a hash of public/sprites made at build time
+  // (vite.config.ts), so any art change gives every image a new URL and
+  // browsers drop their old copies. SPRITES.cache stays as the manual part.
+  const v = typeof __ART_VERSION__ === "string" ? `${SPRITES.cache}-${__ART_VERSION__}` : SPRITES.cache;
   // Sprite paths are root-absolute ("/sprites/..."), but GitHub Pages serves
   // this app under a subpath (base "/CryMon/"). import.meta.env.BASE_URL
   // always has a trailing slash, so strip the leading slash off p before

@@ -360,6 +360,9 @@ export class CryMon {
 	criticalArtKeys() {
 		return new Set([
 			"bg",
+			// title screen: painting, Max's portrait and the box frame all arrive
+			// before the first title frame, so it never paints a half-loaded splash
+			"screen-title", "port-max", "ui-frame",
 			"max-down-1", "max-down-2", "max-down-3", "max-down-4",
 			"max-up-1", "max-left-1", "max-right-1",
 			"quillpup-1", "quillpup-2",
@@ -5308,14 +5311,16 @@ export class CryMon {
 	drawTitle() {
 		const tbg = this.images["screen-title"];
 		const painted = !!(tbg && tbg.width);
+		// No painting (failed to load): plain black, never an older field-map splash.
 		if (painted) this.ctx.drawImage(tbg, 0, 0, VIEW_W, VIEW_H);
-		else this.drawMap(VELD, 8 * TILE, 0);
+		else this.fill("#0a0908");
 		this.ctx.fillStyle = "rgba(18,17,14,0.28)";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-		// Painted title: Max's portrait on the left, not the overworld walk frame.
-		if (painted) this.drawSprite("port-max", 0, 168, 200, 250, true);
-		else this.drawSprite("port-max", X(4), Y(18), X(52), Y(66), true);
-		this.drawSprite("quillpup-1", X(168), Y(48), X(96), Y(96), false);
+		// Max's portrait on the left, not the overworld walk frame.
+		if (painted) {
+			this.drawSprite("port-max", 0, 168, 200, 250, true);
+			this.drawSprite("quillpup-1", X(168), Y(48), X(96), Y(96), false);
+		}
 		this.box(X(48), Y(28), X(144), Y(28));
 		this.text("CRYMON", X(120), Y(32), "#e8e4d8", 48, "center");
 		this.box(X(64), Y(100), X(112), Y(36));

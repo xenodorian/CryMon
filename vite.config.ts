@@ -1,5 +1,6 @@
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 import type { Plugin } from "vite";
 import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -142,6 +143,31 @@ function authPopupPlugin(): Plugin {
   };
 }
 
+/**
+ * Hash of every file under public/sprites. Used as the image cache-buster
+ * (src/game/data.ts artManifest), so replacing any art changes the URLs and
+ * browsers stop showing their old copies.
+ */
+function artVersion(root = "public/sprites"): string {
+  const h = createHash("sha1");
+  const walk = (dir: string) => {
+    for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const p = join(dir, e.name);
+      if (e.isDirectory()) walk(p);
+      else {
+        h.update(p);
+        h.update(readFileSync(p));
+      }
+    }
+  };
+  try {
+    walk(root);
+  } catch {
+    return "nohash";
+  }
+  return h.digest("hex").slice(0, 10);
+}
+
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
@@ -150,6 +176,7 @@ export default defineConfig(({ command, isPreview }) => {
 
   return {
   base: githubPages ? "/CryMon/" : "/",
+  define: { __ART_VERSION__: JSON.stringify(artVersion()) },
   server: {
     host: "0.0.0.0",
     port: 8080,
