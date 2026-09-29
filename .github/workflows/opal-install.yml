@@ -8,13 +8,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install frames
-        run: python3 tools/install_opal_frames.py
+      - name: Decode and install
+        run: |
+          python3 - <<'PY'
+          import base64, pathlib
+          root = pathlib.Path("public/sprites/npc")
+          src = pathlib.Path("tools/opal_frames")
+          for i in range(1,5):
+              b64 = (src / f"opal-{i}.b64").read_text().strip()
+              p = root / f"opal-{i}.png"
+              p.write_bytes(base64.b64decode(b64))
+              print("wrote", p, p.stat().st_size)
+          PY
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/sprites/npc/opal-1.png public/sprites/npc/opal-2.png public/sprites/npc/opal-3.png public/sprites/npc/opal-4.png
+          git add public/sprites/npc/opal-*.png
           git diff --cached --quiet && echo "no change" && exit 0
           git commit -m "Art: replace Opal walk frames with user-supplied art (1/3 + 2/4 breath)"
           git push
