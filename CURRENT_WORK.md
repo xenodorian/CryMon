@@ -31,7 +31,7 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Max's portrait (`portraits/max.png`) replaced 2026-09-29 with user-supplied art (160x200, transparent, installed unscaled). Also used on the title screen.
 
-- Driller's portrait (`portraits/driller.png`) replaced 2026-09-29 with user-supplied art (194x156 source, shrunk to 160x129 and bottom-aligned in the 160x200 box, transparent). Driller's overworld walker is still one of the small dark ones.
+- Driller's portrait (`portraits/driller.png`) replaced 2026-09-29 with user-supplied art (194x156 source, shrunk to 160x129 and bottom-aligned in the 160x200 box, transparent). Driller's overworld walker (`npc/driller-1..4.png`) replaced 2026-09-29 with a user-supplied 135x64 4-frame strip: each figure cut out, centred by the head on a 48x64 canvas, feet on the bottom row, transparent. Installed as given (the face differs a little per frame; a locked-head variant was previewed but not chosen).
 
 ## Immediate work queue
 
