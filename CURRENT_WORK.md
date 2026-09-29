@@ -27,6 +27,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Grok's Opal walk-frame upload removed 2026-09-29 by user request (tools/opal_chunks, tools/opal_frames, tools/opal_data_1.py, tools/install_opal_frames.py, .github/workflows/opal-install.yml). Its payloads were truncated or placeholders and never installed. Opal's current art (npc/opal-1..4, portraits/opal) is the user-supplied version from b4f405e; keep it.
 
+- Quartz art replaced 2026-09-29 with user-supplied art: `npc/quartz-1..4.png` (image A as frames 1/3, image B as 2/4; transparent) and `portraits/quartz.png` (transparent). Quartz removed from sprites.json stillFrames.npcs so all 4 frames load.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.
