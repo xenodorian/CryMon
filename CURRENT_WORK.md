@@ -29,6 +29,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Quartz art replaced 2026-09-29 with user-supplied art: `npc/quartz-1..4.png` (image A as frames 1/3, image B as 2/4; transparent) and `portraits/quartz.png` (transparent). Quartz removed from sprites.json stillFrames.npcs so all 4 frames load.
 
+- Max's portrait (`portraits/max.png`) replaced 2026-09-29 with user-supplied art (160x200, transparent, installed unscaled). Also used on the title screen.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.
