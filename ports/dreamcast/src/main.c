@@ -316,6 +316,7 @@ static void blit_sprite_fit(const u16 *px, int sw, int sh, int dx, int dy, int d
 }
 
 static void draw_party_mon_icon(int species, int x, int y);
+static void draw_title_sprites(void);
 
 /* Shiny palette swap: no second set of source art exists for shiny
    CryMon (see mint_shiny()), so this recolors the existing battle
@@ -498,6 +499,12 @@ static const uint8_t glyph_question[8] = {
     0b00111100, 0b01100110, 0b00001100, 0b00011000,
     0b00011000, 0, 0b00011000, 0,
 };
+/* '>' menu cursor ("> NEW GAME", party/shop lists): without it the
+   cursor fell through to a blank cell. */
+static const uint8_t glyph_gt[8] = {
+    0b01100000, 0b00110000, 0b00011000, 0b00001100,
+    0b00011000, 0b00110000, 0b01100000, 0,
+};
 static const uint8_t glyph_exclaim[8] = {
     0b00011000, 0b00011000, 0b00011000, 0b00011000,
     0b00011000, 0, 0b00011000, 0,
@@ -588,6 +595,8 @@ static void draw_text_s(const char *s, int x, int y, u16 color, int scale) {
             draw_glyph(cx, y, glyph_question, color, scale);
         else if(*s == '!')
             draw_glyph(cx, y, glyph_exclaim, color, scale);
+        else if(*s == '>')
+            draw_glyph(cx, y, glyph_gt, color, scale);
         cx += px;
     }
 }
@@ -770,6 +779,9 @@ static int s_cat_uint(char *dst, int len, int v) {
 static void draw_press_start(int cur, int has_save) {
 #ifdef HAVE_SCREEN_ART
     blit_sprite_2x(screen_title, BATTLE_BG_W / 2, BATTLE_BG_H / 2, 0, 0);
+    /* Max's portrait on the left and Quillpup on the right, as on the
+       web title (drawTitle), before the panel so the menu sits on top. */
+    draw_title_sprites();
     /* see-through menu panel: brass 1px outline, darkened middle */
     dim_rect(97, 113, 126, 40);
     fill_rect(96, 112, 128, 1, rgb565(150, 118, 64));
@@ -4528,6 +4540,13 @@ static const u16 *mon_frame(int slot, int species, int f) {
     return MONSTER_SPRITES[species][f];
 }
 #endif
+
+/* Title screen figures (draw_press_start): defined here, after
+   mon_frame and the species ids it needs. */
+static void draw_title_sprites(void) {
+    blit_sprite_fit(port_max, PORT_MAX_W, PORT_MAX_H, 0, SCREEN_H - 125, 100, 125);
+    blit_sprite_fit(mon_frame(0, SP_QUILLPUP, 0), MONSTER_SPRITE_W, MONSTER_SPRITE_H, 204, 58, 144, 144);
+}
 
 static void draw_party_mon_icon(int species, int x, int y) {
     if(species < 0) return;
