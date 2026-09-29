@@ -31,6 +31,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Max's portrait (`portraits/max.png`) replaced 2026-09-29 with user-supplied art (160x200, transparent, installed unscaled). Also used on the title screen.
 
+- Driller's portrait (`portraits/driller.png`) replaced 2026-09-29 with user-supplied art (194x156 source, shrunk to 160x129 and bottom-aligned in the 160x200 box, transparent). Driller's overworld walker is still one of the small dark ones.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.
