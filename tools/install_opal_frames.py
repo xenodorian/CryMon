@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-import base64, pathlib, importlib.util
+import base64, pathlib
 root = pathlib.Path("public/sprites/npc")
-for i in range(1,5):
-    path = pathlib.Path(f"tools/opal_data_{i}.py")
-    spec = importlib.util.spec_from_file_location(f"opal_data_{i}", path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
+src = pathlib.Path("tools/opal_chunks")
+for i in range(1, 5):
+    parts = [(src / f"{i}_{c}.txt").read_text().strip() for c in range(4)]
+    b64 = "".join(parts)
     p = root / f"opal-{i}.png"
-    p.write_bytes(base64.b64decode(mod.DATA))
+    p.write_bytes(base64.b64decode(b64))
     print("wrote", p, p.stat().st_size)
