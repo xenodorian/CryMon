@@ -5263,7 +5263,8 @@ export class CryMon {
 		if (cur) lines.push(cur);
 		return lines;
 	}
-	box(x, y, w, h) {
+	/** fill < 1 draws the box's dark middle see-through (title screen). */
+	box(x, y, w, h, fill = 1) {
 		const ctx = this.ctx;
 		const fr = this.images["ui-frame"];
 		if (fr && fr.width === 16) {
@@ -5275,11 +5276,17 @@ export class CryMon {
 			const dy = [y, y + c, y + h - c], dh = [c, h - 2 * c, c];
 			for (let j = 0; j < 3; j++)
 				for (let i = 0; i < 3; i++)
-					if (dw[i] > 0 && dh[j] > 0) ctx.drawImage(fr, sx[i], sx[j], sw[i], sw[j], dx[i], dy[j], dw[i], dh[j]);
+					if (dw[i] > 0 && dh[j] > 0) {
+						ctx.globalAlpha = i === 1 && j === 1 ? fill : 1;
+						ctx.drawImage(fr, sx[i], sx[j], sw[i], sw[j], dx[i], dy[j], dw[i], dh[j]);
+					}
+			ctx.globalAlpha = 1;
 			return;
 		}
 		ctx.fillStyle = "#12110e";
+		ctx.globalAlpha = fill;
 		ctx.fillRect(x, y, w, h);
+		ctx.globalAlpha = 1;
 		ctx.strokeStyle = "#c5cec6";
 		ctx.lineWidth = 2;
 		ctx.strokeRect(x + 1, y + 1, w - 2, h - 2);
@@ -5321,14 +5328,22 @@ export class CryMon {
 			this.drawSprite("port-max", 0, 168, 200, 250, true);
 			this.drawSprite("quillpup-1", X(168), Y(48), X(96), Y(96), false);
 		}
-		this.box(X(48), Y(28), X(144), Y(28));
+		const see = 0.6; // see-through title boxes so the painting shows
+		this.box(X(48), Y(28), X(144), Y(28), see);
 		this.text("CRYMON", X(120), Y(32), "#e8e4d8", 48, "center");
-		this.box(X(64), Y(100), X(112), Y(36));
-		const cont = this.hasSave ? "#e8e4d8" : "#5a584e";
-		this.text(this.titleCursor === 0 ? "> Continue" : "Continue", X(120), Y(104), this.titleCursor === 0 ? "#5a7a52" : cont, FONT, "center");
-		this.text(this.titleCursor === 1 ? "> New game" : "New game", X(120), Y(118), this.titleCursor === 1 ? "#5a7a52" : "#c5cec6", FONT, "center");
-		this.box(X(40), Y(140), X(160), Y(16));
-		this.text("Z / A  confirm", X(120), Y(142), "#5a7a52", FONT, "center");
+		this.box(X(64), Y(100), X(112), Y(36), see);
+		// light text with a dark drop shadow: the boxes are see-through now,
+		// so the old dark-green text vanished over the bright crystal
+		const shadowed = (t, x, y, col) => {
+			this.text(t, x + 2, y + 2, "#0a0908", FONT, "center");
+			this.text(t, x, y, col, FONT, "center");
+		};
+		const on = "#a8d890";
+		const cont = this.hasSave ? "#e8e4d8" : "#8a8678";
+		shadowed(this.titleCursor === 0 ? "> Continue" : "Continue", X(120), Y(104), this.titleCursor === 0 ? on : cont);
+		shadowed(this.titleCursor === 1 ? "> New game" : "New game", X(120), Y(118), this.titleCursor === 1 ? on : "#e8e4d8");
+		this.box(X(40), Y(140), X(160), Y(16), see);
+		shadowed("Z / A  confirm", X(120), Y(142), on);
 	}
 	drawPause() {
 		this.drawWorld();
