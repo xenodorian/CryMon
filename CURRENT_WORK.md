@@ -33,6 +33,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Driller's portrait (`portraits/driller.png`) replaced 2026-09-29 with user-supplied art (194x156 source, shrunk to 160x129 and bottom-aligned in the 160x200 box, transparent). Driller's overworld walker (`npc/driller-1..4.png`) replaced 2026-09-29 with a user-supplied 135x64 4-frame strip: each figure cut out, centred by the head on a 48x64 canvas, feet on the bottom row, transparent. Installed as given (the face differs a little per frame; a locked-head variant was previewed but not chosen).
 
+- Sarah added 2026-09-29 (user-supplied art): `npc/sarah-1..4.png` (pose A as frames 1/3, pose B as 2/4, both from the same 45x63 canvas placed at (1,1) so they stay aligned; feet on row 63) and `portraits/sarah.png` (112x119 source, background removed, unscaled, bottom-centred in 160x200). Registered in sprites.json `npcs` and `portraits`. NOT yet placed on any map, no dialogue, no speaker id or Dreamcast SPEAKER_PORTRAIT entry: waiting on the user for where she stands and what she says.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.

@@ -105,7 +105,8 @@
     "hollowKeeper",
     "hollowRanger",
     "hollowShade",
-    "hollowWarden"
+    "hollowWarden",
+    "sarah"
   ],
   "monsters": [
     "quillpup",
@@ -336,7 +337,8 @@
     "hollowKeeper",
     "hollowRanger",
     "hollowShade",
-    "hollowWarden"
+    "hollowWarden",
+    "sarah"
   ],
   "items": [
     "salve",
