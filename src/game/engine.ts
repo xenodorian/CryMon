@@ -2249,7 +2249,8 @@ export class CryMon {
 			if (roamer?.chase) continue;
 			for (const mark of this.npcMarks(npc)) {
 				const s = roamer ? { x: roamer.x, y: roamer.y } : spawnOf(this.map(), mark);
-				if (Math.abs(s.x - x) < 16 && Math.abs(s.y - y) < 16) return true;
+				const reach = npc.id === "shinigamiBoulder" ? 26 : 16;
+				if (Math.abs(s.x - x) < reach && Math.abs(s.y - y) < reach) return true;
 			}
 		}
 		return false;
@@ -5727,10 +5728,11 @@ export class CryMon {
 		fr.forEach((c, i) => (this.images[`battle:${m[1]}-${i + 1}`] = c));
 		return bk;
 	}
-	drawActor(key, wx, wy) {
+	drawActor(key, wx, wy, scale = 1) {
 		const { cx, cy } = this.cam();
-		const w = SPR_W;
-		const h = SPR_H;
+		const w = Math.round(SPR_W * scale);
+		const h = Math.round(SPR_H * scale);
+		// Feet stay on the mark; extra size grows up and out.
 		this.drawSprite(key, wx - cx - w / 2, wy - cy - h + 4, w, h);
 	}
 	drawWorldHud() {
@@ -5849,6 +5851,7 @@ export class CryMon {
 					? String(npc.sprite).split("/").pop()!
 					: String(npc.sprite);
 				const walkers = (SPRITES as { walkers?: Record<string, string> }).walkers || {};
+				const sprScale = npc.id === "shinigamiBoulder" ? 2 : 1;
 				actorQueue.push({
 					y: s.y,
 					draw: () => {
@@ -5864,13 +5867,13 @@ export class CryMon {
 									const phase = Math.floor(this.clock * 3) % 2;
 									sf = (dir === "left" || dir === "right") ? phase + 3 : phase + 1;
 								}
-								this.drawActor(`${base}-${dir}-${sf}`, s.x, s.y);
+								this.drawActor(`${base}-${dir}-${sf}`, s.x, s.y, sprScale);
 							} else {
 								const sf = Math.floor(this.clock * 3) % 4 + 1;
-								this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y);
+								this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y, sprScale);
 							}
 						} else {
-							this.drawActor(`${base}-${wf}`, s.x, s.y);
+							this.drawActor(`${base}-${wf}`, s.x, s.y, sprScale);
 						}
 						this.hintZ(s.x, s.y);
 					}
@@ -6154,12 +6157,13 @@ export class CryMon {
 			const y = Y(22 + i * 20);
 			const on = i === this.partyCursor;
 			if (on) {
-				this.ctx.fillStyle = "rgba(143,74,64,0.28)";
-				this.ctx.fillRect(X(14), y - 2, X(204), Y(20));
+				this.ctx.fillStyle = "rgba(143,74,64,0.55)";
+				this.ctx.fillRect(X(14), y - 2, X(204), Y(18));
 			}
-			this.drawMonIcon(m, X(16), y - 2, X(22), Y(18));
-			const lead = i === this.partyIndex ? "LEAD" : "";
-			this.text(`${on ? ">" : " "}${m.name}  Lv${m.level}  ${m.hp}/${m.maxHp}  ${lead}`, X(42), y, on ? "#e8e4d8" : "#8a8678", FONT);
+			this.drawMonIcon(m, X(28), y - 2, X(22), Y(18));
+			const lead = i === this.partyIndex ? "  LEAD" : "";
+			this.text(on ? ">" : " ", X(16), y, on ? "#e8e4d8" : "#8a8678", FONT);
+			this.text(`${m.name}  Lv${m.level}  ${m.hp}/${m.maxHp}${lead}`, X(54), y, on ? "#e8e4d8" : "#8a8678", FONT);
 		});
 		if (this.partyView === "act") {
 			const acts = [

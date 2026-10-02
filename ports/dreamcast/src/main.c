@@ -2903,13 +2903,11 @@ static void draw_bag_menu(const Bag *bag, int marks, int cur) {
     }
 }
 
-/* drawParty(): lists every party member (up to data.PARTY_MAX -- see
-   Monster party[6] in main()), with a ">" prefix and brighter color on
-   the current lead, plus a cursor ("*") on party_cur -- cycleParty(to)
-   ported: pressing A on a living, non-lead row makes it the new lead
-   (main()'s menu_mode==2 input handling), matching the reference's
-   own Digit1-6 hotkeys adapted to a dpad+cursor since there's no
-   number row on a Dreamcast pad. */
+/* drawParty(): lists every party member (up to data.PARTY_MAX). The
+   moving cursor is ">" on party_cur (the Dreamcast font draws '>',
+   not '*'). "LEAD" is a label, not the cursor -- A releases or
+   promotes party_cur, so the arrow has to follow it or a full party
+   can only be seen as stuck on the first slot. */
 /* Y opens this from the list for whichever row party_cur is on --
    attacks (basic/special, or the full spell list for a caster like
    Cathleen), stats, and where the CryMon sits in the party order
@@ -3045,24 +3043,29 @@ static void draw_party_menu(const Monster *party, int party_n, int lead, int par
 
     if(party_n > 0) {
         int i;
-        for(i = 0; i < party_n; i++) {
-            char buf[40];
-            u16 color = (i == lead) ? rgb565(232, 228, 216) : rgb565(138, 134, 120);
+        int shown = 6;
+        int start = party_cur - shown + 1;
+        if(start < 0) start = 0;
+        if(start > party_n - shown) start = party_n - shown;
+        if(start < 0) start = 0;
+        for(i = start; i < party_n && i < start + shown; i++) {
+            char buf[64];
+            u16 color = (i == party_cur) ? rgb565(232, 228, 216) : rgb565(138, 134, 120);
             int n;
-            draw_party_mon_icon(party[i].species, MENU_X + 8, y - 2);
-            n = s_cat(buf, 0, (i == party_cur) ? "*" : " ");
-            n = s_cat(buf, n, (i == lead) ? "> " : "  ");
+            if(i == party_cur)
+                fill_rect(MENU_X + 4, y - 1, MENU_W - 8, 10, rgb565(48, 28, 24));
+            draw_party_mon_icon(party[i].species, MENU_X + 20, y - 2);
+            n = s_cat(buf, 0, (i == party_cur) ? ">" : " ");
+            n = s_cat(buf, n, " ");
             if(party[i].shiny) n = s_cat(buf, n, "SHINY ");
             n = s_cat(buf, n, SPECIES[party[i].species].name);
             n = s_cat(buf, n, " LV");
             n = s_cat_uint(buf, n, party[i].lv);
-            n = s_cat(buf, n, " HP ");
-            n = s_cat_uint(buf, n, party[i].hp);
-            n = s_cat(buf, n, "/");
-            n = s_cat_uint(buf, n, party[i].maxHp);
+            if(i == lead) n = s_cat(buf, n, " LEAD");
+            if(n > 62) n = 62;
             buf[n] = 0;
-            draw_text_s(buf, MENU_X + 28, y, color, MENU_SCALE);
-            y += 20;
+            draw_text_s(buf, MENU_X + 36, y, color, MENU_SCALE);
+            y += 18;
         }
         if(heal_item < 0 && !catch_swap)
             draw_text_s("A LEAD  X RELEASE  Y VIEW", MENU_X + 8, MENU_Y + MENU_H - 32,
@@ -5999,15 +6002,14 @@ static void collect_npcs(WorldSprite *list, int *n, int map_id, u32 frame_count,
                                0, beat_calder ? TILE : 0);
         ws_push_mark_idle_off(list, n, map_id, '4', HEAVENFALLPRIESTESS_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H,
                                has_scroll ? TILE : 0, has_scroll ? TILE : 0);
-        /* PLACEHOLDER_ART: no real boulder art exists yet, see
-           public/sprites/npc/shinigamiBoulder-*.png and CURRENT_WORK.md.
-           Seals the west gate until the rock-shatter event actually
-           plays (saw_shinigami_rock), not merely until Shinigami is
-           beaten -- he still has to walk into view first (see the
-           beat_shin && !saw_shinigami_rock trigger below). His own
-           sprite (mark '9', below) appears for that whole window. */
-        if(!saw_shinigami_rock)
+        /* The west-gate boulder is drawn at 2x so the stone fills the
+           one-tile approach. The sheet is a small rock in a 24x32 cell;
+           at 1x it sits in the middle of the path instead of sealing it. */
+        if(!saw_shinigami_rock) {
+            int before = *n;
             ws_push_mark_idle(list, n, map_id, 'Y', SHINIGAMIBOULDER_FRAMES, frame_count, 15, NPC_SPRITE_W, NPC_SPRITE_H);
+            if(*n > before) list[*n - 1].scale = 2;
+        }
         /* Shinigami himself (mark '9') is a generic walker. His script
            showIf beat_shin / hideIf saw_shinigami_rock is what draws him,
            so he is not pushed here a second time. */
@@ -6513,7 +6515,10 @@ static int actor_blocks(int map_id, int cx, int cy,
            gate until the rock-shatter event actually plays, not merely
            until Shinigami is beaten (see collect_npcs() above); his
            own sprite (mark '9') takes over blocking for that window. */
-        if(!saw_shinigami_rock && mark_hit(map_id, 'Y', cx, cy, HIT_R2)) return 1;
+        /* Wider than a person: the drawn rock is 2x, and a 9px hit
+           lets Max walk into the stone. 16px still leaves the next
+           tile (Shinigami, mark 9) standable. */
+        if(!saw_shinigami_rock && mark_hit(map_id, 'Y', cx, cy, 16 * 16)) return 1;
         if(beat_shin && !saw_shinigami_rock && mark_hit(map_id, '9', cx, cy, HIT_R2)) return 1;
     }
     else if(map_id == MAP_FOREST && soldiers) {
