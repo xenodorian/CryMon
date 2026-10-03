@@ -23,6 +23,16 @@ LDFLAGS   = $(ARCHFLAGS) -nostdlib -nostartfiles -nodefaultlibs -T dc.ld -Wl,--b
 # like before -- a known-good fallback build that never touches the disc.
 STREAM ?= 1
 
+# NATIVE=1 (default): build at native 640x480. tools/native480.sed rewrites
+# src/main.c into build/main_native.c (src/main.c itself is not modified).
+# NATIVE=0: compile src/main.c as is (320x240 logical, 2x2 pixel blocks).
+NATIVE ?= 1
+ifeq ($(NATIVE),1)
+MAIN_SRC = build/main_native.c
+else
+MAIN_SRC = src/main.c
+endif
+
 OBJS = src/start.o src/main.o src/chip.o src/save.o src/disc.o
 
 CONTENT_JSON = $(wildcard $(CONTENT)/*.json)
@@ -46,8 +56,15 @@ sprites:
 src/start.o: src/start.S
 	$(AS) $(ARCHFLAGS) -c -o $@ $<
 
-src/main.o: src/main.c src/sprites.h src/chip.h src/save.h src/disc.h $(CONTENT_INC)
-	$(CC) $(CFLAGS) -c -o $@ $<
+# Fails the build if the sed script stopped matching main.c, so a native
+# build can never silently fall back to 320x240.
+build/main_native.c: src/main.c tools/native480.sed
+	mkdir -p build
+	sed -f tools/native480.sed src/main.c > $@
+	grep -q '^#define SCREEN_W 640' $@ && grep -q '^#define SCREEN_H 480' $@ && grep -q '^#define FB_SCALE 1' $@ || (rm -f $@; echo 'native480.sed did not apply to src/main.c'; exit 1)
+
+src/main.o: $(MAIN_SRC) src/sprites.h src/chip.h src/save.h src/disc.h $(CONTENT_INC)
+	$(CC) $(CFLAGS) -Isrc -c -o $@ $<
 
 src/chip.o: src/chip.c src/chip.h src/content_audio.inc
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -69,6 +86,6 @@ cdi: crymon.elf
 		-o crymon.cdi -n "CryMon" -a "CryMon" -N --allow-overwrite
 
 clean:
-	rm -f $(OBJS) crymon.elf crymon.cdi
+	rm -rf $(OBJS) crymon.elf crymon.cdi build
 
 .PHONY: all cdi clean sprites
