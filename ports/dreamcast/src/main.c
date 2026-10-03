@@ -103,6 +103,17 @@ void *memcpy(void *d, const void *s, __SIZE_TYPE__ n) {
 #define SCREEN_W 320
 #define SCREEN_H 240
 
+/* Flycast high-res reads the software framebuffer, not a scaled-up 3D
+   render, so the picture has to actually be 640x480. Layout, tiles,
+   camera, menus and collision stay in the 320x240 coordinates above.
+   put_pixel writes each of those as a 2x2 block. KallistiOS
+   DM_640x480_VGA, RGB565, progressive 60Hz. Hardware pixel-double
+   stays off: turning it on would double this buffer again. */
+#define FB_SCALE 2
+#define FB_W (SCREEN_W * FB_SCALE)
+#define FB_H (SCREEN_H * FB_SCALE)
+#define FB_PIXELS ((u32)FB_W * (u32)FB_H)
+
 /* Double buffering, pipelined: each iteration flips to show whatever
    was drawn into the back buffer *last* iteration, then draws the
    next frame into the buffer that just became hidden. This is the
@@ -123,7 +134,7 @@ void *memcpy(void *d, const void *s, __SIZE_TYPE__ n) {
    safe here specifically because it only ever touches the hidden
    buffer -- it was only unsafe in the single-buffer version. */
 #define FB_OFFSET0 0x000000u
-#define FB_OFFSET1 0x040000u
+#define FB_OFFSET1 0x00096000u /* FB_W * FB_H * 2 = 614400 */
 
 static u32 fb_back_offset = FB_OFFSET1;
 static volatile u16 *draw_fb = (volatile u16 *)(0xa5000000u + FB_OFFSET1);
@@ -134,17 +145,19 @@ static void fb_flip(void) {
     draw_fb = (volatile u16 *)(0xa5000000u + fb_back_offset);
 }
 
-/* DM_320x240_NTSC timing parameters, from KallistiOS's vid_builtin table */
-#define SCANLINES 262
+/* DM_640x480_VGA, from KallistiOS vid_builtin (hardware/video.c).
+   On VGA the second scanline interrupt is stored << 1, matching
+   vid_set_mode_ex. FB_CFG_1 bit 23 is the VGA cable select. */
+#define SCANLINES 524
 #define CLOCKS    857
-#define BITMAPX   164
-#define BITMAPY   24
+#define BITMAPX   172
+#define BITMAPY   40
 #define SCANINT1  21
 #define SCANINT2  260
-#define BORDERX1  141
-#define BORDERX2  843
-#define BORDERY1  24
-#define BORDERY2  263
+#define BORDERX1  126
+#define BORDERX2  837
+#define BORDERY1  36
+#define BORDERY2  516
 
 static void video_init(void) {
     PVR(PVR_VIDEO_CFG) = PVR(PVR_VIDEO_CFG) | 0x8u;
@@ -152,30 +165,34 @@ static void video_init(void) {
 
     PVR(PVR_BORDER_COLOR) = 0;
 
-    PVR(PVR_FB_CFG_1) = (1u << 2);
+    /* PM_RGB565 is 1, so pixel mode lives in bits 2-3. Bit 23 = VGA.
+       No line-double (that bit is 1, only set with VID_LINEDOUBLE). */
+    PVR(PVR_FB_CFG_1) = (1u << 2) | (1u << 23);
     PVR(PVR_FB_CFG_2) = 1u | (1u << 3);
 
-    PVR(PVR_RENDER_MODULO) = (SCREEN_W * 2) / 8;
+    PVR(PVR_RENDER_MODULO) = (FB_W * 2) / 8;
     PVR(PVR_FB_ADDR) = 0;
 
-    PVR(PVR_FB_SIZE) = (((SCREEN_W * 2) / 4) - 1)
+    PVR(PVR_FB_SIZE) = (((FB_W * 2) / 4) - 1)
                       | (1u << 20)
-                      | ((SCREEN_H - 1u) << 10);
+                      | ((FB_H - 1u) << 10);
 
-    PVR(PVR_VPOS_IRQ) = (SCANINT1 << 16) | SCANINT2;
+    PVR(PVR_VPOS_IRQ) = (SCANINT1 << 16) | (SCANINT2 << 1);
     PVR(PVR_IL_CFG) = 0x100;
 
     PVR(PVR_BORDER_X) = (BORDERX1 << 16) | BORDERX2;
     PVR(PVR_BORDER_Y) = (BORDERY1 << 16) | BORDERY2;
     PVR(PVR_SCAN_CLK) = (SCANLINES << 16) | CLOCKS;
 
-    PVR(PVR_VIDEO_CFG) = PVR(PVR_VIDEO_CFG) | 0x100u;
+    /* 640x480 progressive is 1:1. Bit 0x100 is VID_PIXELDOUBLE. */
+    PVR(PVR_VIDEO_CFG) = PVR(PVR_VIDEO_CFG) & ~0x100u;
 
     PVR(PVR_BITMAP_X) = BITMAPX;
     PVR(PVR_BITMAP_Y) = (BITMAPY << 16) | BITMAPY;
 
+    /* Cable type in bits 8-9: 0 VGA, 2 RGB, 3 composite. */
     *(volatile u32 *)0xa0702c00 =
-        (*(volatile u32 *)0xa0702c00 & 0xfffffcffu) | (3u << 8);
+        *(volatile u32 *)0xa0702c00 & 0xfffffcffu;
 
     PVR(PVR_VIDEO_CFG) = PVR(PVR_VIDEO_CFG) & ~0x8u;
     PVR(PVR_FB_CFG_1)  = PVR(PVR_FB_CFG_1) | 1u;
@@ -193,7 +210,7 @@ static void wait_vblank(void) {
 
 static void vram_clear(void) {
     u32 i;
-    for(i = 0; i < (u32)SCREEN_W * SCREEN_H; i++)
+    for(i = 0; i < FB_PIXELS; i++)
         draw_fb[i] = 0x0000;
 }
 
@@ -203,8 +220,8 @@ static void vram_clear(void) {
    into draw_fb this frame, in place, as the very last step before
    fb_flip -- level is 0 (untouched) to FADE_STEPS (fully black).
    FADE_STEPS is a power of 2 so the per-channel scale is a multiply
-   + shift, not a divide, cheap enough to run over all 76800 pixels
-   every frame a fade is in progress.
+   + shift, not a divide, cheap enough to run over the whole
+   framebuffer every frame a fade is in progress.
 
    This is the *resolution* of the darkening, not its duration. How long
    each phase lasts comes from content/logic.json's screenFade, baked as
@@ -222,14 +239,14 @@ static void apply_fade(int level) {
     if(level >= FADE_STEPS) {
         if(g_mercy_red_fade) {
             u32 j;
-            for(j = 0; j < (u32)SCREEN_W * SCREEN_H; j++) draw_fb[j] = ((u16)(((80 >> 3) << 11) | ((8 >> 2) << 5) | (8 >> 3)));
+            for(j = 0; j < FB_PIXELS; j++) draw_fb[j] = ((u16)(((80 >> 3) << 11) | ((8 >> 2) << 5) | (8 >> 3)));
         } else {
             vram_clear();
         }
         return;
     }
     keep = (u32)(FADE_STEPS - level);
-    for(i = 0; i < (u32)SCREEN_W * SCREEN_H; i++) {
+    for(i = 0; i < FB_PIXELS; i++) {
         u16 c = draw_fb[i];
         u16 r = (u16)(((u32)((c >> 11) & 0x1Fu) * keep) >> 4);
         u16 g = (u16)(((u32)((c >> 5) & 0x3Fu) * keep) >> 4);
@@ -238,10 +255,26 @@ static void apply_fade(int level) {
     }
 }
 
+/* Logical (x, y) is one cell of the 320x240 layout. The framebuffer
+   is 640x480, so that cell is the 2x2 block at (x*2, y*2). */
+static u16 fb_get(int x, int y) {
+    return draw_fb[(y * FB_SCALE) * FB_W + (x * FB_SCALE)];
+}
+
+static void fb_put(int x, int y, u16 color) {
+    int px = x * FB_SCALE;
+    int py = y * FB_SCALE;
+    volatile u16 *p = &draw_fb[py * FB_W + px];
+    p[0] = color;
+    p[1] = color;
+    p[FB_W] = color;
+    p[FB_W + 1] = color;
+}
+
 static void put_pixel(int x, int y, u16 color) {
     if(x < 0 || x >= SCREEN_W || y < 0 || y >= SCREEN_H)
         return;
-    draw_fb[y * SCREEN_W + x] = color;
+    fb_put(x, y, color);
 }
 
 static void fill_rect(int x, int y, int w, int h, u16 color) {
@@ -258,8 +291,10 @@ static void dim_rect(int x, int y, int w, int h) {
     for(py = y; py < y + h; py++) {
         if(py < 0 || py >= SCREEN_H) continue;
         for(px = x; px < x + w; px++) {
+            u16 c;
             if(px < 0 || px >= SCREEN_W) continue;
-            draw_fb[py * SCREEN_W + px] = (u16)((draw_fb[py * SCREEN_W + px] >> 1) & 0x7BEFu);
+            c = (u16)((fb_get(px, py) >> 1) & 0x7BEFu);
+            fb_put(px, py, c);
         }
     }
 }
@@ -1419,11 +1454,14 @@ static void draw_ambient(int map_id, int cam_x, int cam_y, u32 t) {
                   cb = (u32)(tb[mood] >> 3) * (16u - keep);
         int y;
         for(y = 0; y < SCREEN_H; y++) {
-            volatile u16 *row = &draw_fb[y * SCREEN_W];
+            int py = y * FB_SCALE;
+            volatile u16 *row0 = &draw_fb[py * FB_W];
+            volatile u16 *row1 = row0 + FB_W;
             int wy = y + cam_y / 2 + (int)(t / 3u) + 4800;
             int x;
             for(x = 0; x < SCREEN_W; x++) {
-                u16 c = row[x];
+                int px = x * FB_SCALE;
+                u16 c = row0[px];
                 u32 r = ((((u32)(c >> 11) & 0x1Fu) * keep) + cr) >> 4;
                 u32 g = ((((u32)(c >> 5) & 0x3Fu) * keep) + cg) >> 4;
                 u32 b = ((((u32)c & 0x1Fu) * keep) + cb) >> 4;
@@ -1442,7 +1480,11 @@ static void draw_ambient(int map_id, int cam_x, int cam_y, u32 t) {
                         b += ((28u - b) * fog) >> 4;
                     }
                 }
-                row[x] = (u16)((r << 11) | (g << 5) | b);
+                c = (u16)((r << 11) | (g << 5) | b);
+                row0[px] = c;
+                row0[px + 1] = c;
+                row1[px] = c;
+                row1[px + 1] = c;
             }
         }
         if(mood == 1 || mood == 2 || mood == 4) {
@@ -1491,14 +1533,14 @@ static void draw_ambient(int map_id, int cam_x, int cam_y, u32 t) {
                 if(x < 0 || x >= SCREEN_W || d2 >= r2) continue;
                 a = (str * (r2 - d2) * inv) >> 16; /* 0..str */
                 if(!a) continue;
-                c = draw_fb[y * SCREEN_W + x];
+                c = fb_get(x, y);
                 cr = ((u32)(c >> 11) & 0x1Fu) + (u32)a * 2u;
                 cg = ((u32)(c >> 5) & 0x3Fu) + (u32)a * 2u;
                 cb = ((u32)c & 0x1Fu) + (u32)a / 2u;
                 if(cr > 31u) cr = 31u;
                 if(cg > 63u) cg = 63u;
                 if(cb > 31u) cb = 31u;
-                draw_fb[y * SCREEN_W + x] = (u16)((cr << 11) | (cg << 5) | cb);
+                fb_put(x, y, (u16)((cr << 11) | (cg << 5) | cb));
             }
         }
     }
@@ -1548,7 +1590,7 @@ static void draw_map(int map_id, int cam_x, int cam_y) {
        Every other outdoor map is at least as big as the viewport in
        both axes, so the tile loop below already overwrites every
        screen pixel -- clearing first was pure wasted work there: a
-       full 320x240 scalar fill, every single frame, unconditionally,
+       full 640x480 framebuffer clear, every single frame, unconditionally,
        immediately drawn over. That's exactly the kind of invisible
        per-frame cost that reads as "slow for no reason" (nothing on
        screen explains it, since the clear never stays visible).
@@ -5037,7 +5079,7 @@ static void fx_draw_over(void) {
         int k = fx_flash16 * (FX_FLASH_FRAMES - fx_flash_t) / FX_FLASH_FRAMES;
         int fr = (fx_flash_col >> 11) & 0x1F, fg = (fx_flash_col >> 5) & 0x3F, fb = fx_flash_col & 0x1F;
         if(k > 0) {
-            for(j = 0; j < (u32)SCREEN_W * SCREEN_H; j++) {
+            for(j = 0; j < FB_PIXELS; j++) {
                 u16 c = draw_fb[j];
                 int r = (c >> 11) & 0x1F, g = (c >> 5) & 0x3F, b = c & 0x1F;
                 r += (fr - r) * k / 16;
@@ -5542,7 +5584,7 @@ static void leg3_apply_tint(void) {
     u32 i;
     const u32 a = LEG3_TINT_A256, keep = 256 - LEG3_TINT_A256;
     const u32 tr = (LEG3_TINT_R >> 3) * a, tg = (LEG3_TINT_G >> 2) * a, tb = (LEG3_TINT_B >> 3) * a;
-    for(i = 0; i < (u32)SCREEN_W * SCREEN_H; i++) {
+    for(i = 0; i < FB_PIXELS; i++) {
         u16 c = draw_fb[i];
         u32 r = ((((u32)(c >> 11) & 0x1Fu) * keep) + tr) >> 8;
         u32 g = ((((u32)(c >> 5) & 0x3Fu) * keep) + tg) >> 8;

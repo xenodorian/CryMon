@@ -41,6 +41,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - The west-gate boulder (`npc/shinigamiBoulder`) is drawn at 2× on web and Dreamcast so the stone covers the one-tile approach, and its hitbox is wider than a person. A full party’s release menu draws the moving `>` on the cursor row (Dreamcast was painting that glyph on the lead, and `*` — the real cursor — is not in the font, so the arrow looked stuck on slot 0).
 
+- Dreamcast video is 640×480 VGA progressive (KallistiOS `DM_640x480_VGA`, RGB565) so Flycast high-res / native 480p scans a real 480p framebuffer. The game is still laid out at 320×240; `put_pixel` writes each logical pixel as a 2×2 block. Hardware pixel-double stays off. Flycast cable must be VGA, not TV Composite. Do not retarget `SCREEN_W`/`TILE` unless the layout itself should change.
+
 
 - **Background removal and outline detection: use `tools/spriteedge.py` (added 2026-10-02, user-supplied; all agents, use it from now on).** It cuts a pixel-art character out of a flat backdrop and finds its drawn outline using exact colours, not brightness guesses. The user picked it over the ad hoc flood-fill scripts earlier agents wrote inline. Needs only Python 3.8+, Pillow and numpy (scipy optional). Check it first: `python3 tools/spriteedge.py --self-test`.
   - List likely backdrop and shadow colours: `python3 tools/spriteedge.py img.gif --suggest`
