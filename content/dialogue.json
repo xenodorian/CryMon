@@ -5682,6 +5682,62 @@
         "speaker": "hollowWarden",
         "text": "Walk the grass as long as you like. It will always give you a fight."
       }
+    ],
+    "leadWarn": [
+      {
+        "speaker": "lead",
+        "text": "NO ONE BEYOND THIS POINT"
+      }
+    ],
+    "leadShotHome": [
+      {
+        "speaker": "max",
+        "text": "He shot me. It's taken 2 weeks to recover from the damage. I shouldn't confront him again without a Bullet Resistant Vest."
+      }
+    ],
+    "leadShotRepeat": [
+      {
+        "speaker": "max",
+        "text": "I shouldn't confront him again without a Bullet Resistant Vest."
+      }
+    ],
+    "leadVestHit": [
+      {
+        "speaker": "none",
+        "text": "The round slams into the vest. Max staggers, but stays on her feet."
+      },
+      {
+        "speaker": "lead",
+        "text": "You think that vest makes you ready for war? I'll show you WAR!"
+      }
+    ],
+    "vestGiftOpal": [
+      {
+        "speaker": "opal",
+        "text": "That's both of us down. Take this, Max. A Bullet Resistant Vest."
+      },
+      {
+        "speaker": "opal",
+        "text": "Lieutenant Lead shoots first. Wear it before you face him."
+      },
+      {
+        "speaker": "none",
+        "text": "Max received the Bullet Resistant Vest."
+      }
+    ],
+    "vestGiftQuartz": [
+      {
+        "speaker": "quartz",
+        "text": "That's both wardens beaten. Take this, Max. A Bullet Resistant Vest."
+      },
+      {
+        "speaker": "quartz",
+        "text": "Lieutenant Lead shoots first. Wear it before you face him."
+      },
+      {
+        "speaker": "none",
+        "text": "Max received the Bullet Resistant Vest."
+      }
     ]
   },
   "mercyDismissLines": [

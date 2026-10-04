@@ -567,6 +567,22 @@
           "pattern": "n:6 n:6 n:8 n:10 r:4"
         }
       ]
+    },
+    "gunshot": {
+      "tracks": [
+        {
+          "wave": "noise",
+          "duty": 0,
+          "vol": 15,
+          "pattern": "n:2 n:3 n:5 n:8 r:4"
+        },
+        {
+          "wave": "pulse",
+          "duty": 0,
+          "vol": 11,
+          "pattern": "C3:2 A2:3 E2:8"
+        }
+      ]
     }
   },
   "mapSongs": {

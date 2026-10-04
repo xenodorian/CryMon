@@ -54,6 +54,8 @@ If your tool set has no such tool, say so and give the repo path.
 
 - Overworld fixes (2026-10-04, user request): Prison inner door restored (`grove` row 13 `D`, blocked in `blocked()` until `cathleenCaught`/`beatCathleen`; commit 9535160 had turned it into wall, which cut Shinigami's half off from the map). Shelves (`S`) are solid. Quarry crate and shelf now draw props, and a looted crate/chest stops blocking (it was drawn gone but stayed solid). West-gate boulder is dropped 42px so the 2x stone sits on its path tile. Heaven Priestess walker (`npc/heavenfallPriestess-1.png`) replaced with user-supplied art: transparent, orphan pixels removed, scaled to 60px tall (Max height) on a 48x64 canvas, hard alpha.
 
+- Lieutenant Lead gunshot arc (2026-10-04, user request): first interaction shows "NO ONE BEYOND THIS POINT", plays `gunshot`, fades red, sends Max home beside her bed (healed), then Max's line; later interactions without the vest give Max's short line (`leadShot` saved flag). Opal and Quartz hand over the new `bulletVest` key item once both badges are won (given right after the second win talk, or on the next talk for older saves). With the vest the same shot lands, Max stays on her feet, Lead says his WAR line and the scripted fight starts, with no Fight/Walk Away menu. Rules live in `logic.json` (`leadShot`, `bulletVest`); script in the `lieutenantLead` step list. `bulletVest` icon is PLACEHOLDER_ART (generated, `public/sprites/items/bulletVest.png`). "Courts" in the request was read as Quartz.
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.

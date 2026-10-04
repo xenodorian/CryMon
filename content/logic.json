@@ -1918,5 +1918,31 @@
     "note": "Overworld speed in px/sec (web px; Dreamcast scales per frame). Hold the run button (web: Shift, or gamepad X/Square; Dreamcast: X) to run.",
     "speed": 84,
     "runSpeed": 150
+  },
+  "leadShot": {
+    "sfx": "gunshot",
+    "healParty": true,
+    "home": {
+      "map": "house",
+      "mark": "U",
+      "dir": "up"
+    },
+    "vestItem": "bulletVest",
+    "talk": {
+      "warn": "leadWarn",
+      "homeAfter": "leadShotHome",
+      "vestHit": "leadVestHit"
+    }
+  },
+  "bulletVest": {
+    "item": "bulletVest",
+    "afterBadges": [
+      "badgeOpal",
+      "badgeQuartz"
+    ],
+    "giverTalk": {
+      "crystalOpal": "vestGiftOpal",
+      "crystalQuartz": "vestGiftQuartz"
+    }
   }
 }

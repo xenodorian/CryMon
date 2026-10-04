@@ -4682,13 +4682,19 @@
           "hideIf": "beatLieutenantLead"
         },
         {
-          "ifNot": "beatShinigami",
-          "talk": "leadNotYet"
+          "if": "item:bulletVest",
+          "talk": "leadWarn",
+          "after": "leadVestShoot",
+          "pending": "lieutenantLead"
         },
         {
-          "talk": "leadSpot",
-          "after": "wsoldier",
-          "pending": "lieutenantLead"
+          "if": "leadShot",
+          "talk": "leadShotRepeat"
+        },
+        {
+          "set": "leadShot",
+          "talk": "leadWarn",
+          "after": "leadShoot"
         }
       ]
     },

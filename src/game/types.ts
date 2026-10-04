@@ -119,7 +119,7 @@ export interface Monster {
 
 export type StatusId = "none" | "burned" | "poisoned" | "confused" | "paralyzed" | "exhausted";
 
-export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea" | "bowieKnife" | "shackles" | "goldenShackles" | "boneInes" | "boneTomas" | "boneOriel" | "wraithLantern" | "tamWatch" | "silverLocket" | "oldMap" | "brannLetter" | "marnReply" | "ragDoll";
+export type ItemId = "gem" | "salve" | "bitterroot" | "dust" | "bandage" | "sunbalm" | "warroot" | "smokebomb" | "greatcrystal" | "cageKey" | "megacrystal" | "ultimatecrystal" | "perfectcrystal" | "calmdraft" | "burnsalve" | "antidote" | "clearmind" | "numbroot" | "panacea" | "bowieKnife" | "shackles" | "goldenShackles" | "boneInes" | "boneTomas" | "boneOriel" | "wraithLantern" | "tamWatch" | "silverLocket" | "oldMap" | "brannLetter" | "marnReply" | "ragDoll" | "bulletVest";
 
 export interface ItemDef {
   id: ItemId;

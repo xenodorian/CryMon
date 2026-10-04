@@ -78,7 +78,7 @@ import type {
 } from "./types";
 
 type ImgMap = Record<string, HTMLImageElement>;
-type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End" | "mercy";
+type TalkAfter = null | `shop:${string}` | "drayKnifeShop" | "mason" | "mason2" | "calder" | "soldier" | "cathleen" | "shinigami" | "anneLeave" | "masonLeave" | "choice" | "wsoldier" | "ending" | "creditsFinal" | "bedHeal" | "hfGameOver" | "priestessTeleport" | "generalFate" | "neroFate" | "bountyFate" | "shakedownFate" | "leg3Father" | "leg3Heavenfall" | "leg3HostileFight" | "leg3End" | "mercy" | "leadShoot" | "leadVestShoot";
 
 const SHOP_NAMES: Record<string, string> = { bram: "BRAM'S STALL", oren: "OREN'S STALL", fenn: "FENN'S STALL", dray: "DRAY'S STALL", hale: "HALE'S STALL" };
 const SHOP_FREE_FLAG: Record<string, string> = { bram: "shopFreeBram", oren: "shopFreeOren", fenn: "shopFreeFenn", dray: "shopFreeDray", hale: "shopFreeHale" };
@@ -272,6 +272,7 @@ export class CryMon {
 	revivedFather = false;
 	beatCommander = false;
 	beatLieutenantLead = false;
+	leadShot = false;
 	heavenfallRepWarned = false;
 	/** Dray's one-time knife-offer line (Bowie Knife), gated on negative
 	 *  reputation the first time his shop opens. Also what unlocks the
@@ -294,7 +295,9 @@ export class CryMon {
 	dexCaught = new Array(DEX_WORD_N).fill(0);
 	dexCursor = 0;
 	dexView = "list";
-	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" | "priestessTeleport" | "homecoming" };
+	fade = { phase: "off" as "off" | "out" | "hold" | "in", t: 0, action: null as null | "bed" | "loss" | "execute" | "hfGameOver" | "priestessTeleport" | "homecoming" | "leadShot" | "leadVest" };
+	/** Dialogue to open once the current fade has finished fading back in. */
+	fadeTalk: { lines: unknown[]; after: TalkAfter } | null = null;
 	pendingWs = null;
 	choiceCur = 0;
 	choiceKind = null;
@@ -499,6 +502,7 @@ export class CryMon {
 		this.revivedFather = false;
 		this.beatCommander = false;
 		this.beatLieutenantLead = false;
+		this.leadShot = false;
 		this.heavenfallRepWarned = false;
 		this.drayKnifeOffered = false;
 		for (const k of LEG3_FLAGS) this[k] = false;
@@ -520,6 +524,7 @@ export class CryMon {
 		this.dexCursor = 0;
 		this.dexView = "list";
 		this.fade = { phase: "off", t: 0, action: null };
+		this.fadeTalk = null;
 		this.pendingWs = null;
 		this.choiceCur = 0;
 		this.shopKeep = "bram";
@@ -1179,6 +1184,11 @@ export class CryMon {
 				this.startMasonLeave();
 			} else if (next === "bedHeal") {
 				this.startFade("bed");
+			} else if (next === "leadShoot" || next === "leadVestShoot") {
+				// Lead fires: gunshot, then a red fade. Without the vest Max
+				// wakes up at home; with it she stays put and the fight starts.
+				try { this.audio.gunshot(); } catch { /* audio may be blocked; the fade still runs */ }
+				this.startFade(next === "leadShoot" ? "leadShot" : "leadVest");
 			} else if (next === "mason2") {
 				const kit = LOGIC.masonRematch.battle;
 				this.startBattle(
@@ -2478,7 +2488,25 @@ export class CryMon {
 		const step = npc.script?.find((s) => s.passIf && flags[s.passIf as string]);
 		return step?.passOffset ?? [0, 0];
 	}
+	/** Opal and Quartz: once both badges are won, one of them gives Max the Bullet
+	 *  Resistant Vest (content/logic.json bulletVest). Returns the gift dialogue, or
+	 *  null when it is not owed. Also covers saves that beat both before the vest existed. */
+	vestGiftLines(npcId: string | null) {
+		const cfg = LOGIC.bulletVest;
+		const talkKey = npcId ? (cfg.giverTalk as Record<string, string>)[npcId] : null;
+		if (!talkKey) return null;
+		if (!cfg.afterBadges.every((f) => this[f])) return null;
+		if ((this.bag[cfg.item] ?? 0) > 0) return null;
+		this.bag[cfg.item] = 1;
+		this.persist(false);
+		return TALK[talkKey];
+	}
 	runNpc(npc) {
+		const vestLines = this.vestGiftLines(npc.id);
+		if (vestLines) {
+			this.say(vestLines, null);
+			return true;
+		}
 		const flags = this.npcFlags();
 		const step = matchNpcScript(npc.script, flags);
 		if (!step) return false;
@@ -2601,7 +2629,7 @@ export class CryMon {
 		const spec = LOGIC.arrivals[name];
 		if (spec && "spawn" in spec && spec.spawn.actor === "mason") this.spawnMasonApproach(false);
 	}
-	startFade(action: "bed" | "loss" | "execute" | "priestessTeleport" | "homecoming") {
+	startFade(action: "bed" | "loss" | "execute" | "priestessTeleport" | "homecoming" | "leadShot" | "leadVest") {
 		this.fade = { phase: "out", t: 0, action };
 	}
 	applyFadeHold() {
@@ -2635,6 +2663,21 @@ export class CryMon {
 			this.announceMap();
 			this.say(TALK.postGameHome);
 		}
+		if (this.fade.action === "leadShot") {
+			const cfg = LOGIC.leadShot;
+			if (cfg.healParty) this.sleepHeal();
+			const mark = spawnOf(HOUSE, cfg.home.mark);
+			this.world.mapId = cfg.home.map;
+			this.world.x = mark.x + TILE;
+			this.world.y = mark.y;
+			this.world.dir = cfg.home.dir;
+			this.doorLock = 0.4;
+			this.announceMap();
+			this.fadeTalk = { lines: TALK[cfg.talk.homeAfter], after: null };
+		}
+		if (this.fade.action === "leadVest") {
+			this.fadeTalk = { lines: TALK[LOGIC.leadShot.talk.vestHit], after: "wsoldier" };
+		}
 		if (this.fade.action === "priestessTeleport") {
 			const mark = spawnOf(HOUSE, LOGIC.partyWipe.mark);
 			this.world.mapId = LOGIC.partyWipe.map;
@@ -2658,6 +2701,11 @@ export class CryMon {
 			this.fade.t = 0;
 		} else if (this.fade.phase === "in" && this.fade.t >= inSec) {
 			this.fade = { phase: "off", t: 0, action: null };
+			if (this.fadeTalk) {
+				const ft = this.fadeTalk;
+				this.fadeTalk = null;
+				this.say(ft.lines, ft.after);
+			}
 		}
 	}
 	// Shinigami rock event: only on direct interact with shinigamiRock NPC (veld mark 9).
@@ -4312,7 +4360,9 @@ export class CryMon {
 				// Dreamcast port). onBattleOver() already ran above, so
 				// openMercy() must not count this battle a second time.
 				this.audio.ok();
-				this.openMercy(b, TALK[kit?.winTalk], false);
+				// The second warden to fall hands over the vest right after the win talk.
+				const gift = this.vestGiftLines(who === "opal" ? "crystalOpal" : who === "quartz" ? "crystalQuartz" : null);
+				this.openMercy(b, gift ? [...(TALK[kit?.winTalk] ?? []), ...gift] : TALK[kit?.winTalk], false);
 				return;
 			}
 			if (b.trainer === "shinigami") {
@@ -5242,7 +5292,7 @@ export class CryMon {
 		if (a <= 0) return;
 		this.ctx.save();
 		this.ctx.globalAlpha = a;
-		this.ctx.fillStyle = this.fade.action === "execute" || this.fade.action === "hfGameOver" ? "#8b1010" : "#000";
+		this.ctx.fillStyle = this.fade.action === "execute" || this.fade.action === "hfGameOver" || this.fade.action === "leadShot" || this.fade.action === "leadVest" ? "#8b1010" : "#000";
 		this.ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 		this.ctx.restore();
 	}

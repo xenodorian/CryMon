@@ -372,7 +372,8 @@
     "oldMap",
     "brannLetter",
     "marnReply",
-    "ragDoll"
+    "ragDoll",
+    "bulletVest"
   ],
   "props": {
     "bed-father": "props/bed-father.png",

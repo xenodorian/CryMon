@@ -31,7 +31,8 @@
     "oldMap",
     "brannLetter",
     "marnReply",
-    "ragDoll"
+    "ragDoll",
+    "bulletVest"
   ],
   "defs": {
     "gem": {
@@ -389,6 +390,15 @@
       "id": "ragDoll",
       "name": "Maren's Rag Doll",
       "desc": "Soaked and patched. One button eye. Her name is Button.",
+      "battle": false,
+      "field": false,
+      "buy": 0,
+      "sell": 0
+    },
+    "bulletVest": {
+      "id": "bulletVest",
+      "name": "Bullet Resistant Vest",
+      "desc": "Army issue. Stops a round at close range. Lieutenant Lead shoots first.",
       "battle": false,
       "field": false,
       "buy": 0,

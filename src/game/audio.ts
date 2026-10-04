@@ -405,6 +405,9 @@ export class Chip {
 	scream() {
 		this.playSfx("scream");
 	}
+	gunshot() {
+		this.playSfx("gunshot");
+	}
 	step() {
 		/* footsteps stay silent — GBA overworlds rarely tick every tile */
 	}
