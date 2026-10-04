@@ -52,6 +52,8 @@ If your tool set has no such tool, say so and give the repo path.
   - Its own docs say it is unreliable on JPEG or anti-aliased art (needs `--tolerance` and a visual check) and cannot separate a soft-gradient shadow or a patterned/non-flat background. Check every result by eye before installing.
   - Tested 2026-10-02 on one frame of a 450x450 boar GIF: it removed the backdrop, the shadow and all enclosed pockets cleanly, 0 warnings. An inline edge-flood script left 720 backdrop pixels in the pockets on the same frame.
 
+- Overworld fixes (2026-10-04, user request): Prison inner door restored (`grove` row 13 `D`, blocked in `blocked()` until `cathleenCaught`/`beatCathleen`; commit 9535160 had turned it into wall, which cut Shinigami's half off from the map). Shelves (`S`) are solid. Quarry crate and shelf now draw props, and a looted crate/chest stops blocking (it was drawn gone but stayed solid). West-gate boulder is dropped 42px so the 2x stone sits on its path tile. Heaven Priestess walker rescaled to 60px tall (nearest-neighbour, hard alpha).
+
 ## Immediate work queue
 
 1. **Complete deployment verification.** CI has passed bake/gen-sprites/ELF/CDI and web deploy on the cleaned `main`; emulator/e2e and full Dreamcast trainer sweep remain.

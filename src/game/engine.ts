@@ -2227,6 +2227,10 @@ export class CryMon {
 		].some(([px, py]) => {
 			const ch = tileAt(this.map(), px, py);
 			if (ch === "k" && this.cageOpen) return false;
+			// The Prison's inner door stays shut until Cathleen is caught.
+			if (ch === "D" && this.world.mapId === "grove") return !(this.cathleenCaught || this.beatCathleen);
+			// A looted crate or chest is drawn gone, so it must stop blocking.
+			if (ch === "C" && this.crateLooted()) return false;
 			return solidTile(ch);
 		})) return true;
 		if (this.world.mapId === "forest") {
@@ -2254,6 +2258,10 @@ export class CryMon {
 			}
 		}
 		return false;
+	}
+	crateLooted() {
+		const id = this.world.mapId;
+		return (id === "house" && this.lootedCrate) || (id === "cliffs" && this.chestLooted) || (id === "quarry" && this.quarryCrateLooted);
 	}
 	tryEncounter() {
 		const tx = Math.floor(this.world.x / TILE);
@@ -5852,6 +5860,8 @@ export class CryMon {
 					: String(npc.sprite);
 				const walkers = (SPRITES as { walkers?: Record<string, string> }).walkers || {};
 				const sprScale = npc.id === "shinigamiBoulder" ? 2 : 1;
+				// The 2x stone's rock sits high in its frame; drop it so it fills the path tile.
+				const sprDy = npc.id === "shinigamiBoulder" ? 42 : 0;
 				actorQueue.push({
 					y: s.y,
 					draw: () => {
@@ -5867,13 +5877,13 @@ export class CryMon {
 									const phase = Math.floor(this.clock * 3) % 2;
 									sf = (dir === "left" || dir === "right") ? phase + 3 : phase + 1;
 								}
-								this.drawActor(`${base}-${dir}-${sf}`, s.x, s.y, sprScale);
+								this.drawActor(`${base}-${dir}-${sf}`, s.x, s.y + sprDy, sprScale);
 							} else {
 								const sf = Math.floor(this.clock * 3) % 4 + 1;
-								this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y, sprScale);
+								this.drawActor(`${base}-${roamer?.dir || "down"}-${sf}`, s.x, s.y + sprDy, sprScale);
 							}
 						} else {
-							this.drawActor(`${base}-${wf}`, s.x, s.y, sprScale);
+							this.drawActor(`${base}-${wf}`, s.x, s.y + sprDy, sprScale);
 						}
 						this.hintZ(s.x, s.y);
 					}
@@ -5919,6 +5929,16 @@ export class CryMon {
 					this.hintZ(c.x, c.y);
 				}
 			});
+		}
+		if (this.world.mapId === "quarry") {
+			const shelf = spawnOf(QUARRY, "S");
+			this.drawProp("prop-shelf", shelf.x, shelf.y + 4, 40, 44);
+			this.hintZ(shelf.x, shelf.y);
+			if (!this.quarryCrateLooted) {
+				const crate = spawnOf(QUARRY, "C");
+				this.drawProp("prop-crate", crate.x, crate.y + 4, 32, 32);
+				this.hintZ(crate.x, crate.y);
+			}
 		}
 		if (this.world.mapId === "cliffs" && !this.chestLooted) {
 			const chest = spawnOf(CLIFFS, "C");
