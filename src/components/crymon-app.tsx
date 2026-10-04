@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
-import { Download, Volume2, VolumeX, Zap } from "lucide-react";
+import { Download, Maximize, Minimize, Volume2, VolumeX, Zap } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CryMon } from "@/game/engine";
@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 export function CryMonApp() {
   const ref = useRef<HTMLCanvasElement>(null);
   const gameRef = useRef<CryMon | null>(null);
+  const stageRef = useRef<HTMLElement>(null);
+  const [fullscreen, setFullscreen] = useState(false);
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
   const [devCodesOn, setDevCodesOn] = useState(false);
@@ -55,6 +57,53 @@ export function CryMonApp() {
     g.audio.muted = muted;
   }, [muted]);
 
+  // Real Fullscreen API where the browser has it (desktop, Android); a fixed
+  // overlay where it does not (iPhone Safari has no element fullscreen).
+  const toggleFullscreen = async () => {
+    const el = stageRef.current as (HTMLElement & { webkitRequestFullscreen?: () => void }) | null;
+    const doc = document as Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void };
+    if (!el) return;
+    if (doc.fullscreenElement || doc.webkitFullscreenElement) {
+      await (doc.exitFullscreen?.() ?? doc.webkitExitFullscreen?.());
+      return;
+    }
+    if (fullscreen) {
+      setFullscreen(false);
+      return;
+    }
+    try {
+      if (el.requestFullscreen) await el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else setFullscreen(true);
+    } catch {
+      setFullscreen(true);
+    }
+  };
+
+  useEffect(() => {
+    const doc = document as Document & { webkitFullscreenElement?: Element | null };
+    const sync = () => setFullscreen(!!(doc.fullscreenElement || doc.webkitFullscreenElement));
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("webkitfullscreenchange", sync);
+    };
+  }, []);
+
+  const toggleRef = useRef(toggleFullscreen);
+  toggleRef.current = toggleFullscreen;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = document.activeElement;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      if (e.code === "KeyF" && !e.ctrlKey && !e.metaKey && !e.altKey) void toggleRef.current();
+      if (e.code === "Escape") setFullscreen((f) => (document.fullscreenElement ? f : false));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   // Pad written straight to Input on pointer events.
 
   return (
@@ -74,6 +123,15 @@ export function CryMonApp() {
             >
               {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
               {muted ? "Muted" : "Sound"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => void toggleFullscreen()}
+              aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}
+            >
+              {fullscreen ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
+              Fullscreen
             </Button>
             <a
               className={cn(buttonVariants({ variant: "default", size: "sm" }))}
@@ -127,12 +185,26 @@ export function CryMonApp() {
       </header>
 
       <main className="mx-auto grid max-w-5xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_220px]">
-        <section className="flex flex-col items-center gap-4">
-          <div className="relative w-full max-w-[960px] overflow-hidden rounded-lg border border-border bg-inset p-2 shadow-panel">
+        <section
+          ref={stageRef}
+          className={cn(
+            "flex flex-col items-center gap-4",
+            fullscreen && "fixed inset-0 z-50 h-dvh w-screen justify-between bg-bg p-2",
+          )}
+        >
+          <div
+            className={cn(
+              "relative w-full max-w-[960px] overflow-hidden rounded-lg border border-border bg-inset p-2 shadow-panel",
+              fullscreen && "min-h-0 max-w-none flex-1 border-0 p-0",
+            )}
+          >
             <canvas
               ref={ref}
-              className="mx-auto block h-auto w-full max-w-[960px] touch-none bg-bg"
-              style={{ imageRendering: "pixelated", aspectRatio: "640 / 480" }}
+              className={cn(
+                "mx-auto block h-auto w-full max-w-[960px] touch-none bg-bg",
+                fullscreen && "h-full max-w-none object-contain",
+              )}
+              style={{ imageRendering: "pixelated", aspectRatio: fullscreen ? undefined : "640 / 480" }}
               width={640}
               height={480}
             />
@@ -141,7 +213,12 @@ export function CryMonApp() {
             )}
           </div>
 
-          <div className="flex w-full max-w-[960px] items-end justify-between gap-3 overflow-x-hidden">
+          <div
+            className={cn(
+              "flex w-full max-w-[960px] items-end justify-between gap-3 overflow-x-hidden",
+              fullscreen && "[@media(pointer:fine)]:hidden",
+            )}
+          >
             <Dpad
               onPad={(v) => {
                 gameRef.current?.input.setPad(v.x, v.y);
