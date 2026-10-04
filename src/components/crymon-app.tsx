@@ -240,11 +240,11 @@ export function CryMonApp() {
             />
             {fullscreen && (
               <div className="absolute right-2 top-2 z-10 flex gap-2">
-                <Button size="sm" variant="secondary" className="opacity-60 hover:opacity-100" onClick={togglePad} aria-pressed={padOn}>
+                <Button size="sm" variant="outline" className="bg-black/60 opacity-70 hover:opacity-100" onClick={togglePad} aria-pressed={padOn}>
                   <Gamepad2 className="size-4" />
                   Pad
                 </Button>
-                <Button size="sm" variant="secondary" className="opacity-60 hover:opacity-100" onClick={() => void toggleFullscreen()}>
+                <Button size="sm" variant="outline" className="bg-black/60 opacity-70 hover:opacity-100" onClick={() => void toggleFullscreen()}>
                   <Minimize className="size-4" />
                   Exit
                 </Button>
