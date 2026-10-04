@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
-import { Download, Maximize, Minimize, Volume2, VolumeX, Zap } from "lucide-react";
+import { Download, Gamepad2, Maximize, Minimize, Volume2, VolumeX, Zap } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CryMon } from "@/game/engine";
@@ -10,6 +10,7 @@ export function CryMonApp() {
   const gameRef = useRef<CryMon | null>(null);
   const stageRef = useRef<HTMLElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [padOn, setPadOn] = useState(true);
   const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(false);
   const [devCodesOn, setDevCodesOn] = useState(false);
@@ -91,6 +92,25 @@ export function CryMonApp() {
     };
   }, []);
 
+  // Touch pad defaults on for touch devices, off for mouse/keyboard; the choice sticks.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("crymon.pad");
+      setPadOn(saved !== null ? saved === "1" : window.matchMedia("(pointer: coarse)").matches);
+    } catch {
+      setPadOn(window.matchMedia("(pointer: coarse)").matches);
+    }
+  }, []);
+  const togglePad = () =>
+    setPadOn((v) => {
+      try {
+        localStorage.setItem("crymon.pad", v ? "0" : "1");
+      } catch {
+        /* storage blocked */
+      }
+      return !v;
+    });
+
   const toggleRef = useRef(toggleFullscreen);
   toggleRef.current = toggleFullscreen;
   useEffect(() => {
@@ -123,6 +143,16 @@ export function CryMonApp() {
             >
               {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
               {muted ? "Muted" : "Sound"}
+            </Button>
+            <Button
+              size="sm"
+              variant={padOn ? "default" : "ghost"}
+              onClick={togglePad}
+              aria-pressed={padOn}
+              aria-label={padOn ? "Hide touch pad" : "Show touch pad"}
+            >
+              <Gamepad2 className="size-4" />
+              Touch pad
             </Button>
             <Button
               size="sm"
@@ -189,25 +219,37 @@ export function CryMonApp() {
           ref={stageRef}
           className={cn(
             "flex flex-col items-center gap-4",
-            fullscreen && "fixed inset-0 z-50 h-dvh w-screen justify-between bg-bg p-2",
+            fullscreen && "fixed inset-0 z-50 h-dvh w-screen justify-between gap-0 bg-black p-0",
           )}
         >
           <div
             className={cn(
               "relative w-full max-w-[960px] overflow-hidden rounded-lg border border-border bg-inset p-2 shadow-panel",
-              fullscreen && "min-h-0 max-w-none flex-1 border-0 p-0",
+              fullscreen && "min-h-0 max-w-none flex-1 rounded-none border-0 bg-black p-0 shadow-none",
             )}
           >
             <canvas
               ref={ref}
               className={cn(
                 "mx-auto block h-auto w-full max-w-[960px] touch-none bg-bg",
-                fullscreen && "h-full max-w-none object-contain",
+                fullscreen && "h-full max-w-none bg-black object-contain",
               )}
               style={{ imageRendering: "pixelated", aspectRatio: fullscreen ? undefined : "640 / 480" }}
               width={640}
               height={480}
             />
+            {fullscreen && (
+              <div className="absolute right-2 top-2 z-10 flex gap-2">
+                <Button size="sm" variant="secondary" className="opacity-60 hover:opacity-100" onClick={togglePad} aria-pressed={padOn}>
+                  <Gamepad2 className="size-4" />
+                  Pad
+                </Button>
+                <Button size="sm" variant="secondary" className="opacity-60 hover:opacity-100" onClick={() => void toggleFullscreen()}>
+                  <Minimize className="size-4" />
+                  Exit
+                </Button>
+              </div>
+            )}
             {!ready && (
               <p className="absolute inset-0 grid place-items-center text-sm text-muted">Loading cart…</p>
             )}
@@ -216,7 +258,8 @@ export function CryMonApp() {
           <div
             className={cn(
               "flex w-full max-w-[960px] items-end justify-between gap-3 overflow-x-hidden",
-              fullscreen && "[@media(pointer:fine)]:hidden",
+              !padOn && "hidden",
+              fullscreen && "px-2 pb-2",
             )}
           >
             <Dpad
