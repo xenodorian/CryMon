@@ -32,7 +32,10 @@
     "brannLetter",
     "marnReply",
     "ragDoll",
-    "bulletVest"
+    "bulletVest",
+    "tonic",
+    "ironroot",
+    "mintleaf"
   ],
   "defs": {
     "gem": {
@@ -403,6 +406,45 @@
       "field": false,
       "buy": 0,
       "sell": 0
+    },
+    "tonic": {
+      "id": "tonic",
+      "name": "Tonic",
+      "desc": "Restores 40 HP.",
+      "battle": true,
+      "field": true,
+      "buy": 30,
+      "sell": 15,
+      "effect": {
+        "kind": "heal",
+        "amount": 40
+      }
+    },
+    "ironroot": {
+      "id": "ironroot",
+      "name": "Ironroot",
+      "desc": "STR +6 this fight.",
+      "battle": true,
+      "field": false,
+      "buy": 14,
+      "sell": 7,
+      "effect": {
+        "kind": "buff",
+        "str": 6
+      }
+    },
+    "mintleaf": {
+      "id": "mintleaf",
+      "name": "Mintleaf",
+      "desc": "Restores 12 HP.",
+      "battle": true,
+      "field": true,
+      "buy": 5,
+      "sell": 2,
+      "effect": {
+        "kind": "heal",
+        "amount": 12
+      }
     }
   }
 }
